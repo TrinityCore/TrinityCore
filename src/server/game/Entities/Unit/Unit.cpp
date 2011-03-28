@@ -6160,7 +6160,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     // Dispel Magic shares spellfamilyflag with abolish disease
                     if (procSpell->SpellIconID != 74)
                         return false;
-                    if (!target || !target->IsFriendlyTo(this))
+                    if (!target || !target->IsFriendlyTo(this) || target->GetTypeId() != TYPEID_PLAYER)
                         return false;
 
                     basepoints0 = int32(target->CountPctFromMaxHealth(triggerAmount));
