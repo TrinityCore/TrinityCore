@@ -60,8 +60,26 @@ class boss_koralon : public CreatureScript
             {
             }
 
+            void Reset()
+            {
+                events.Reset();
+                if (instance)
+                    instance->SetData(DATA_KORALON, NOT_STARTED);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (instance)
+                    instance->SetData(DATA_KORALON, DONE);
+
+                _JustDied();
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
+                if (instance)
+                    instance->SetData(DATA_KORALON, IN_PROGRESS);
+
                 DoCast(me, SPELL_BURNING_FURY);
 
                 events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    // TODO check timer

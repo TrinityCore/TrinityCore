@@ -63,8 +63,26 @@ class boss_archavon : public CreatureScript
             {
             }
 
+            void Reset()
+            {
+                events.Reset();
+                if (instance)
+                    instance->SetData(DATA_ARCHAVON, NOT_STARTED);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (instance)
+                    instance->SetData(DATA_ARCHAVON, DONE);
+
+                _JustDied();
+            }
+
             void EnterCombat(Unit * /*who*/)
             {
+                if (instance)
+                    instance->SetData(DATA_ARCHAVON, IN_PROGRESS);
+
                 events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                 events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                 events.ScheduleEvent(EVENT_STOMP, 45000);

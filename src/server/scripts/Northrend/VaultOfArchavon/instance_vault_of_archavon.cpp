@@ -37,6 +37,8 @@ class instance_archavon : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
             }
 
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+
             void Initialize()
             {
                 EmalonGUID = 0;
@@ -71,6 +73,46 @@ class instance_archavon : public InstanceMapScript
                 }
 
                 return 0;
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch(type)
+                {
+                case DATA_ARCHAVON:
+                    m_auiEncounter[0] = data;
+                    break;
+                case DATA_EMALON:
+                    m_auiEncounter[1] = data;
+                    break;
+                case DATA_KORALON:
+                    m_auiEncounter[2] = data;
+                    break;
+                case DATA_TORAVON:
+                    m_auiEncounter[3] = data;
+                    break;
+                }
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch(type)
+                {
+                    case DATA_ARCHAVON:       return m_auiEncounter[0];
+                    case DATA_EMALON:         return m_auiEncounter[1];
+                    case DATA_KORALON:        return m_auiEncounter[2];
+                    case DATA_TORAVON:        return m_auiEncounter[3];
+                }
+
+                return 0;
+            }
+
+            bool IsEncounterInProgress() const
+            {
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    if (m_auiEncounter[i] == IN_PROGRESS) return true;
+
+                return false;
             }
 
         private:

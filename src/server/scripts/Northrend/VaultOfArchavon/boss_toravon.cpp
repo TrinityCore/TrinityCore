@@ -62,8 +62,26 @@ class boss_toravon : public CreatureScript
             {
             }
 
+            void Reset()
+            {
+                events.Reset();
+                if (instance)
+                    instance->SetData(DATA_TORAVON, NOT_STARTED);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (instance)
+                    instance->SetData(DATA_TORAVON, DONE);
+
+                _JustDied();
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
+                if (instance)
+                    instance->SetData(DATA_TORAVON, IN_PROGRESS);
+
                 DoCast(me, SPELL_FROZEN_MALLET);
 
                 events.ScheduleEvent(EVENT_FROZEN_ORB, 11000);

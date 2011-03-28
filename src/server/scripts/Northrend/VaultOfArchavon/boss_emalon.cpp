@@ -80,8 +80,19 @@ class boss_emalon : public CreatureScript
             {
                 _Reset();
 
+                if (instance)
+                    instance->SetData(DATA_EMALON, NOT_STARTED);
+
                 for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
                     me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (instance)
+                    instance->SetData(DATA_EMALON, DONE);
+
+                _JustDied();
             }
 
             void JustSummoned(Creature* summoned)
@@ -95,6 +106,9 @@ class boss_emalon : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
+                if (instance)
+                    instance->SetData(DATA_EMALON, IN_PROGRESS);
+
                 if (!summons.empty())
                 {
                     for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
