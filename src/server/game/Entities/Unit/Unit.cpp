@@ -15433,6 +15433,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             sScriptMgr->OnPlayerKilledByCreature(killer, killed);
         }
     }
+
+    if (Vehicle* veh = pVictim->GetVehicle())
+        pVictim->ExitVehicle();
 }
 
 void Unit::SetControlled(bool apply, UnitState state)

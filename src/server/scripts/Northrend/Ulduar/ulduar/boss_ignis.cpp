@@ -23,7 +23,6 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "ulduar.h"
-#include "SpellAuraEffects.h"
 
 enum Yells
 {

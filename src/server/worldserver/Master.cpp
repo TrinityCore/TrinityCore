@@ -83,7 +83,7 @@ public:
     {
         if (!_delaytime)
             return;
-        sLog->outString("Starting up anti-freeze thread (%u seconds max stuck time)...",_delaytime/1000);
+        sLog->outString("Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime/1000);
         m_loops = 0;
         w_loops = 0;
         m_lastchange = 0;
@@ -210,13 +210,13 @@ int Master::Run()
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
 
-            if (GetProcessAffinityMask(hProcess,&appAff,&sysAff))
+            if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
             {
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
                 if (!curAff)
                 {
-                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for Trinityd. Accessible processors bitmask (hex): %x",Aff,appAff);
+                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for Trinityd. Accessible processors bitmask (hex): %x", Aff, appAff);
                 }
                 else
                 {
@@ -234,7 +234,7 @@ int Master::Run()
         //if (Prio && (m_ServiceStatus == -1)  /* need set to default process priority class in service mode*/)
         if (Prio)
         {
-            if(SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
+            if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
                 sLog->outString("TrinityCore process priority class set to HIGH");
             else
                 sLog->outError("Can't set Trinityd process priority class.");
@@ -252,9 +252,6 @@ int Master::Run()
         soap_thread = new ACE_Based::Thread(runnable);
     }
 
-    uint32 realCurrTime, realPrevTime;
-    realCurrTime = realPrevTime = getMSTime();
-
     ///- Start up freeze catcher thread
     if (uint32 freeze_delay = sConfig->GetIntDefault("MaxCoreStuckTime", 0))
     {
@@ -270,7 +267,7 @@ int Master::Run()
 
     if (sWorldSocketMgr->StartNetwork(wsport, bind_ip.c_str ()) == -1)
     {
-        sLog->outError ("Failed to start network");
+        sLog->outError("Failed to start network");
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
@@ -385,13 +382,13 @@ bool Master::_StartDB()
     }
 
     synch_threads = sConfig->GetIntDefault("WorldDatabase.SynchThreads", 1);
-
     ///- Initialise the world database
     if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError("Cannot connect to world database %s", dbstring.c_str());
         return false;
     }
+
     ///- Get character database info from configuration file
     dbstring = sConfig->GetStringDefault("CharacterDatabaseInfo", "");
     if (dbstring.empty())
@@ -434,13 +431,13 @@ bool Master::_StartDB()
     }
 
     synch_threads = sConfig->GetIntDefault("LoginDatabase.SynchThreads", 1);
-
     ///- Initialise the login database
     if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError("Cannot connect to login database %s", dbstring.c_str());
         return false;
     }
+
     ///- Get the realm Id from the configuration file
     realmID = sConfig->GetIntDefault("RealmID", 0);
     if (!realmID)
@@ -484,9 +481,9 @@ void Master::clearOnlineAccounts()
     /// \todo Only accounts with characters logged on *this* realm should have online status reset. Move the online column from 'account' to 'realmcharacters'?
     LoginDatabase.DirectPExecute(
         "UPDATE account SET online = 0 WHERE online > 0 "
-        "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
+        "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')", realmID);
 
-    CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online<>0");
+    CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
 
     // Battleground instance ids reset at server restart
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instance_id = 0");

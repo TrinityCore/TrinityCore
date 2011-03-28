@@ -18189,6 +18189,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 71480, 71483, 1, 'Blood-Queen: Bloodbolt Splash'),
 ( 71952, 70995, 1, 'Blood-Queen: Presence of the Darkfallen'),
 ( 70157, 69700, 2, 'Sindragosa - Ice Tomb resistance'),
+-- Eye Of Eternity
+( 56397, 63934, 1,'Arcane Barrage - Arcane Barrage'),
 -- Isle of Conquest
 ( 66548, 66550, 0, 'Isle of Conquest (IN>OUT)'),
 ( 66549, 66551, 0, 'Isle of Conquest (OUT>IN)'),
@@ -18212,6 +18214,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 50141, 50001, 0, 'Blood Oath to Blood Oath Aura'),
 ( 61263, 61267, 0, 'Intravenous Healing Effect'),
 ( 61263, 61268, 0, 'Intravenous Mana Regeneration Effect'),
+(-57350,60242,0, 'Darkmoon Card: Illusion'),
 -- PvP Trinket / Every Man for Himself / Will of the Forsaken
 (7744, 72757, 0, 'Will of the Forsaken Cooldown Trigger (WOTF)'),
 (42292, 72752, 0, 'Will of the Forsaken Cooldown Trigger'),
