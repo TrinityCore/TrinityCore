@@ -197,8 +197,6 @@ void evadeToHome(Creature *me)
 }
 void CleanupBloodPrinceCouncil(InstanceScript *instance, BossAI *ai)
 {
-    instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
-    instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_SHOCK_VORTEX, 100.0f);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_KINETIC_BOMB, 100.0f);
@@ -350,22 +348,20 @@ class boss_blood_council_controller : public CreatureScript
             {
                 CleanupBloodPrinceCouncil(instance, this);
                 _JustDied();
-                // kill all other princes
-                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_KELESETH_ICC)))
-                    killer->Kill(prince);
-                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_VALANAR_ICC)))
-                    killer->Kill(prince);
-                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_TALDARAM_ICC)))
-                    killer->Kill(prince);
 
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     if (++invocationStage == 3)
                         invocationStage = 0;
 
+                    // kill all other princes
                     if (Creature* prince = ObjectAccessor::GetCreature(*me, invocationOrder[invocationStage].guid))
-                        prince->Kill(prince);
+                        killer->Kill(prince);
                 }
+
+                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_VALANAR_ICC)))
+                    prince->SetLootRecipient(killer);
+
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
                 instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, DONE);
@@ -919,6 +915,8 @@ class boss_prince_valanar_icc : public CreatureScript
                 isEmpowered = false;
                 removeFeignDeath(me);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
+                instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
+                instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
             }
 
             void JustRespawned()

@@ -223,6 +223,7 @@ class boss_sindragosa : public CreatureScript
                 //events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
                 mysticBuffetStack = 0;
                 isThirdPhase = false;
+                me->SetRespawnDelay(7*DAY);
 
                 if (instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) != 255)
                 {
@@ -1645,6 +1646,7 @@ class at_sindragosa_lair : public AreaTriggerScript
                     {
                         sindragosa->setActive(true);
                         sindragosa->AI()->DoAction(ACTION_START_FROSTWYRM);
+                        sindragosa->SetRespawnTime(7*DAY);
                     }
                 }
             }
