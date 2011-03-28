@@ -265,3 +265,90 @@ INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_start`, `ques
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 28017;
 INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
 (2801700, 28017, 4, 0, 100, 0, 0, 0, 0, 0, 11, 50453, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodworm - Health Leech');
+
+-- ARGENT SQUIRE/GRUNTLING
+DELETE FROM `spell_script_names` WHERE `spell_id` = 67039;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUE (67039, 'spell_gen_mounting_check');
+-- Gossip flag
+UPDATE `creature_template` SET `npcflag` = 0x81, `gossip_menu_id` = 50000, `ScriptName` = 'npc_argent_squire' WHERE `entry` = 33238;
+UPDATE `creature_template` SET `npcflag` = 0x81, `gossip_menu_id` = 50001, `ScriptName` = 'npc_argent_squire' WHERE `entry` = 33239;
+
+DELETE FROM `gossip_menu` WHERE `entry` IN (50000, 50001);
+INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
+(50000, 14324),
+(50001, 14372);
+
+DELETE FROM `spell_linked_spell` WHERE `spell_effect` = 67401;
+INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`, `type`, `comment`) VALUES
+(-67368, 67401, 0, 'Argent Squire - Bank'),
+(-67377, 67401, 0, 'Argent Squire - Shop'),
+(-67376, 67401, 0, 'Argent Squire - Mail');
+
+DELETE FROM `npc_vendor` WHERE `entry` IN (33238, 33239);
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`) VALUES
+-- Squire
+(33238, 1, 3775, 0, 0, 0),
+(33238, 2, 5237, 0, 0, 0),
+(33238, 3, 5565, 0, 0, 0),
+(33238, 4, 16583, 0, 0, 0),
+(33238, 5, 17020, 0, 0, 0),
+(33238, 6, 17030, 0, 0, 0),
+(33238, 7, 17031, 0, 0, 0),
+(33238, 8, 17032, 0, 0, 0),
+(33238, 9, 17033, 0, 0, 0),
+(33238, 10, 21177, 0, 0, 0),
+(33238, 11, 37201, 0, 0, 0),
+(33238, 12, 41584, 0, 0, 0),
+(33238, 13, 41586, 0, 0, 0),
+(33238, 14, 43231, 0, 0, 0),
+(33238, 15, 43233, 0, 0, 0),
+(33238, 16, 43235, 0, 0, 0),
+(33238, 17, 43237, 0, 0, 0),
+(33238, 18, 44605, 0, 0, 0),
+(33238, 19, 44614, 0, 0, 0),
+(33238, 20, 44615, 0, 0, 0),
+
+(33238, 21, 33449, 0, 0, 0),
+(33238, 22, 33451, 0, 0, 0),
+(33238, 23, 33454, 0, 0, 0),
+(33238, 24, 33443, 0, 0, 0),
+(33238, 25, 35949, 0, 0, 0),
+(33238, 26, 35952, 0, 0, 0),
+(33238, 27, 35953, 0, 0, 0),
+(33238, 28, 35951, 0, 0, 0),
+(33238, 29, 35948, 0, 0, 0),
+(33238, 30, 35950, 0, 0, 0),
+
+-- Gruntling
+(33239, 1, 3775, 0, 0, 0),
+(33239, 2, 5237, 0, 0, 0),
+(33239, 3, 5565, 0, 0, 0),
+(33239, 4, 16583, 0, 0, 0),
+(33239, 5, 17020, 0, 0, 0),
+(33239, 6, 17030, 0, 0, 0),
+(33239, 7, 17031, 0, 0, 0),
+(33239, 8, 17032, 0, 0, 0),
+(33239, 9, 17033, 0, 0, 0),
+(33239, 10, 21177, 0, 0, 0),
+(33239, 11, 37201, 0, 0, 0),
+(33239, 12, 41584, 0, 0, 0),
+(33239, 13, 41586, 0, 0, 0),
+(33239, 14, 43231, 0, 0, 0),
+(33239, 15, 43233, 0, 0, 0),
+(33239, 16, 43235, 0, 0, 0),
+(33239, 17, 43237, 0, 0, 0),
+(33239, 18, 44605, 0, 0, 0),
+(33239, 19, 44614, 0, 0, 0),
+(33239, 20, 44615, 0, 0, 0),
+
+(33239, 21, 33449, 0, 0, 0),
+(33239, 22, 33451, 0, 0, 0),
+(33239, 23, 33454, 0, 0, 0),
+(33239, 24, 33443, 0, 0, 0),
+(33239, 25, 35949, 0, 0, 0),
+(33239, 26, 35952, 0, 0, 0),
+(33239, 27, 35953, 0, 0, 0),
+(33239, 28, 35951, 0, 0, 0),
+(33239, 29, 35948, 0, 0, 0),
+(33239, 30, 35950, 0, 0, 0);
+

@@ -903,6 +903,45 @@ class spell_gen_profession_research : public SpellScriptLoader
         }
 };
 
+// 67039 Argent Squire/Gruntling - Mounting Check - Aura
+class spell_gen_mounting_check : public SpellScriptLoader
+{
+public:
+    spell_gen_mounting_check() : SpellScriptLoader("spell_gen_mounting_check") { }
+
+    class spell_gen_mounting_check_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_mounting_check_AuraScript)
+
+    public:
+        spell_gen_mounting_check_AuraScript() { }
+
+        void HandleEffectPeriodic(AuraEffect const * aurEff)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->GetOwner())
+                {
+                    if (caster->GetOwner()->IsMounted())
+                        caster->Mount(29736);
+                    else if (caster->IsMounted())
+                        caster->Unmount();
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_mounting_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_mounting_check_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -925,4 +964,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_venomhide_check();
     new spell_ashbringer_sound_effect();
     new spell_gen_profession_research();
+    new spell_gen_mounting_check();
 }
