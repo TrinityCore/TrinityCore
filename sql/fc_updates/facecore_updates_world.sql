@@ -352,3 +352,5 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (33239, 29, 35948, 0, 0, 0),
 (33239, 30, 35950, 0, 0, 0);
 
+-- Onyxia eggs cooldown
+UPDATE `gameobject_template` SET `data5` = 15 WHERE `entry` = 176511;
