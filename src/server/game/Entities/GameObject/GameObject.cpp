@@ -455,7 +455,7 @@ void GameObject::Update(uint32 diff)
                             if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
                                 return;
 
-                        m_cooldownTime = time(NULL) + goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4);   // template or 4 seconds
+                        m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4));  // template or 4 seconds
 
                         if (owner)  // || goInfo->trap.charges == 1)
                             SetLootState(GO_JUST_DEACTIVATED);
