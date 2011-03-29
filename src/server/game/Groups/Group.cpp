@@ -514,6 +514,24 @@ void Group::ChangeLeader(const uint64 &guid)
 
     if (!isBGGroup())
     {
+        Map* rlMap = player->GetMap();
+
+        for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        {
+            Player *groupplayer = sObjectMgr->GetPlayer(citr->guid);
+            if (!groupplayer)
+                continue;
+
+            Map* grMap = groupplayer->GetMap();
+
+            if ((grMap->Instanceable() && !rlMap->Instanceable()) ||
+                (grMap->Instanceable() && rlMap->Instanceable() && (grMap->GetInstanceId() != rlMap->GetInstanceId())))
+            {
+                groupplayer->RepopAtGraveyard();
+            }
+
+        }
+
         // Remove the groups permanent instance bindings
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         {
