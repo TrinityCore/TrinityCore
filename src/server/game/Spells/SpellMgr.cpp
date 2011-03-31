@@ -3958,6 +3958,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
             count++;
             break;
+        case 54800: // Sigil of the Frozen Conscience - change class mask to custom extended flags of Icy Touch
+                    // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
+                    // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
+                    // this needs research on modifier applying rules, does not seem to be in Attributes fields
+            spellInfo->EffectSpellClassMask[0] = flag96(0x00000040, 0x00000000, 0x00000000);
+            count++;
+            break;
         // ULDUAR SPELLS
         //
         case 63342: // Focused Eyebeam Summon Trigger
@@ -4120,6 +4127,12 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx4 |= SPELL_ATTR4_CANT_PROC_FROM_SELFCAST;
                 else
                     break;
+                count++;
+                break;
+            case SPELLFAMILY_DEATHKNIGHT:
+                // Icy Touch - extend FamilyFlags (unused value) for Sigil of the Frozen Conscience to use
+                if (spellInfo->SpellIconID == 2721 && spellInfo->SpellFamilyFlags[0] & 0x2)
+                    spellInfo->SpellFamilyFlags[0] |= 0x40;
                 count++;
                 break;
         }
