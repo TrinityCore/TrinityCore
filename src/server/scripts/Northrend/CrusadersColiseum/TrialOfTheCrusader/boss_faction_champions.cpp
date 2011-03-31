@@ -982,7 +982,7 @@ public:
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
             m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(SPELL_SUMMON_FELHUNTER);
+            DoCast(me, SPELL_SUMMON_FELHUNTER, true);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -1196,7 +1196,7 @@ public:
             SetEquipmentSlots(false, 47156, EQUIP_NO_CHANGE, 48711);
 
             m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(SPELL_CALL_PET);
+            DoCast(me, SPELL_CALL_PET, true);
         }
 
         void UpdateAI(const uint32 uiDiff)

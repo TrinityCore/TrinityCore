@@ -74,7 +74,8 @@ enum BossSpells
     SPELL_LEGION_FLAME          = 66197,
     SPELL_LEGION_FLAME_EFFECT   = 66201,
     SPELL_SHIVAN_SLASH          = 67098,
-    SPELL_SPINNING_STRIKE       = 66283,
+    SPELL_SPINNING_STRIKE_1     = 66283,
+    SPELL_SPINNING_STRIKE_2     = 66285,
     SPELL_MISTRESS_KISS         = 67077,
     SPELL_FEL_INFERNO           = 67047,
     SPELL_FEL_STREAK            = 66494,
@@ -176,6 +177,9 @@ public:
             if (!UpdateVictim())
                 return;
 
+      if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
             if (m_uiSummonInfernalEruptionTimer <= uiDiff)
             {
                 DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
@@ -196,12 +200,14 @@ public:
 
             if (m_uiFelFireballTimer <= uiDiff)
             {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
                 DoCastVictim(SPELL_FEL_FIREBALL);
                 m_uiFelFireballTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelFireballTimer -= uiDiff;
 
             if (m_uiFelLightningTimer <= uiDiff)
             {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                     DoCast(pTarget, SPELL_FEL_LIGHTING);
                 m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
@@ -209,6 +215,7 @@ public:
 
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_INCINERATE, me, pTarget);
@@ -220,12 +227,14 @@ public:
 
             if (m_uiNetherPowerTimer <= uiDiff)
             {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 me->SetAuraStack(SPELL_NETHER_POWER, me, RAID_MODE(5, 10, 5, 10));
                 m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             } else m_uiNetherPowerTimer -= uiDiff;
 
             if (m_uiLegionFlameTimer <= uiDiff)
             {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_LEGION_FLAME, me, pTarget);
@@ -236,6 +245,7 @@ public:
 
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
                 m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
@@ -535,7 +545,11 @@ public:
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(pTarget, SPELL_SPINNING_STRIKE);
+               {
+                    DoCast(pTarget,SPELL_SPINNING_STRIKE_1);
+                    DoCast(pTarget,SPELL_SPINNING_STRIKE_2);
+                    pTarget->CastSpell(me, 66287, true);
+               }
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
 
@@ -552,6 +566,40 @@ public:
 
 };
 
+class spell_spinning_pain_strike : public SpellScriptLoader
+{
+public:
+    spell_spinning_pain_strike() : SpellScriptLoader("spell_spinning_pain_strike") { }
+
+    class spell_spinning_pain_strike_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_spinning_pain_strike_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return true;
+        }
+
+        void CalcDamage(SpellEffIndex /*effIndex*/)
+        {
+            uint32 dmg = 0;
+            if(Unit* pTarget = GetHitUnit())
+                dmg = ((float)pTarget->GetMaxHealth())*50.0f/100.0f;
+            SetHitDamage(dmg);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_spinning_pain_strike_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_spinning_pain_strike_SpellScript();
+    }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -560,4 +608,5 @@ void AddSC_boss_jaraxxus()
     new mob_fel_infernal();
     new mob_nether_portal();
     new mob_mistress_of_pain();
+    new spell_spinning_pain_strike();
 }
