@@ -369,3 +369,6 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (34753, 0, 6, 6144, 4, 4096, 0, 2, 0, 0, 0), -- rank1
 (34859, 0, 6, 6144, 4, 4096, 0, 2, 0, 0, 0), -- rank2
 (34860, 0, 6, 6144, 4, 4096, 0, 2, 0, 0, 0); -- rank3
+
+-- Fixed spell Wyvern Sting
+DELETE FROM `spell_linked_spell` WHERE `comment` = 'Wyvern Sting';

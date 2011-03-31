@@ -3688,6 +3688,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_DST_NEARBY_ENTRY;
             count++;
             break;
+        case 24131:                             // Wyvern Sting (rank 1)
+        case 24134:                             // Wyvern Sting (rank 2)
+        case 24135:                             // Wyvern Sting (rank 3)
+            // something wrong and it applied as positive buff
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+            count++;
+            break;
         case 26029: // dark glare
         case 37433: // spout
         case 43140: case 43215: // flame breath
