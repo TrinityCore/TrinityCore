@@ -372,3 +372,6 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 
 -- Fixed spell Wyvern Sting
 DELETE FROM `spell_linked_spell` WHERE `comment` = 'Wyvern Sting';
+
+-- Fixed talent Threat of Thassarian of Death Knights
+UPDATE `spell_proc_event` SET `SpellFamilyMask0`=`SpellFamilyMask0`|0x00000001 WHERE `entry` IN (66192,66191,65661);
