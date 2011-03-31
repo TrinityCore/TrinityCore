@@ -72,6 +72,7 @@ public:
         uint64 m_uiIceWall3GUID;
         uint64 m_uiIceWall4GUID;
         uint64 m_uiGoCaveGUID;
+        uint32 m_uiTeamInInstance;
 
         void Initialize()
         {
@@ -89,6 +90,7 @@ public:
             m_uiIceWall3GUID = 0;
             m_uiIceWall4GUID = 0;
             m_uiGoCaveGUID = 0;
+            m_uiTeamInInstance = 0;
         }
 
         void OpenDoor(uint64 guid)
@@ -107,6 +109,11 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
+            Map::PlayerList const &players = instance->GetPlayers();
+            if (!players.isEmpty())
+                if (Player* pPlayer = players.begin()->getSource())
+                    m_uiTeamInInstance = pPlayer->GetTeam();
+
             switch(creature->GetEntry())
             {
                 case NPC_FALRIC: 
@@ -181,19 +188,19 @@ public:
                                       break;
                 case GO_ICE_WALL_1:
                     m_uiIceWall1GUID = go->GetGUID();
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_ICE_WALL_2:
                     m_uiIceWall2GUID = go->GetGUID();
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_ICE_WALL_3:
                     m_uiIceWall3GUID = go->GetGUID();
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_ICE_WALL_4:
                     m_uiIceWall4GUID = go->GetGUID();
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_CAVE:
                     m_uiGoCaveGUID = go->GetGUID();
@@ -300,6 +307,7 @@ public:
                 case TYPE_HALLS:                return m_auiEncounter[uiType];
                 case DATA_LIDER:                return m_auiLider;
                 case DATA_SUMMONS:              return m_uiSummons;
+                case DATA_TEAM_IN_INSTANCE:     return m_uiTeamInInstance;
                 default:                        return 0;
             }
             return 0;
