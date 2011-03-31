@@ -3950,6 +3950,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
             count++;
             break;
+        case 42650: // Army of the Dead - now we can interrupt this
+            spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
+            count++;
+            break;
         case 64321: // Potent Pheromones
             // spell should dispel area aura, but doesn't have the attribute
             // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
