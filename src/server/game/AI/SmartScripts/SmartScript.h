@@ -33,20 +33,20 @@
 class SmartScript
 {
     public:
-        ~SmartScript(){};
         SmartScript();
+        ~SmartScript();
 
         void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = NULL);
         void GetScript();
         void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at);
 
         void ProcessEventsFor(SMART_EVENT e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
-        void ProcessEvent(SmartScriptHolder &e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
-        bool CheckTimer(SmartScriptHolder &e);
-        void RecalcTimer(SmartScriptHolder &e, uint32 min, uint32 max);
-        void UpdateTimer(SmartScriptHolder &e, const uint32 diff);
-        void InitTimer(SmartScriptHolder &e);
-        void ProcessAction(SmartScriptHolder &e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
+        void ProcessEvent(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
+        bool CheckTimer(SmartScriptHolder const& e) const;
+        void RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max);
+        void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
+        void InitTimer(SmartScriptHolder& e);
+        void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
         ObjectList* GetTargets(SmartScriptHolder e, Unit* invoker = NULL);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder e);
@@ -63,22 +63,27 @@ class SmartScript
                 obj = go;
             return obj;
         }
+
         bool IsUnit(WorldObject* obj)
         {
             return obj && (obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_PLAYER);
         }
+
         bool IsPlayer(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_PLAYER;
         }
+
         bool IsCreature(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_UNIT;
         }
+
         bool IsGameObject(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_GAMEOBJECT;
         }
+
         bool ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
         {
             if (c == 0) return true;
@@ -92,7 +97,7 @@ class SmartScript
         }
 
         void OnUpdate(const uint32 diff);
-        void OnMoveInLineOfSight(Unit *who);
+        void OnMoveInLineOfSight(Unit* who);
 
         Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
@@ -100,29 +105,43 @@ class SmartScript
 
         void StoreTargetList(ObjectList* targets, uint32 id)
         {
-            if (!targets) return;
-            if(mTargetStorage->find(id) != mTargetStorage->end())
-                mTargetStorage->erase(id);
+            if (!targets)
+                return;
+
+            if (mTargetStorage->find(id) != mTargetStorage->end())
+                delete (*mTargetStorage)[id];
+
             (*mTargetStorage)[id] = targets;
         }
+
         bool IsSmart(Creature* c = NULL)
         {
             bool smart = true;
-            if (c && c->GetAIName() != "SmartAI") smart = false;
-            if (!me || me->GetAIName() != "SmartAI") smart = false;
+            if (c && c->GetAIName() != "SmartAI")
+                smart = false;
+
+            if (!me || me->GetAIName() != "SmartAI")
+                smart = false;
+
             if (!smart)
                 sLog->outErrorDb("SmartScript: Action target Creature(entry: %u) is not using SmartAI, action skipped to prevent crash.", c?c->GetEntry():(me?me->GetEntry():0));
             return smart;
         }
+
         bool IsSmartGO(GameObject* g = NULL)
         {
             bool smart = true;
-            if (g && g->GetAIName() != "SmartGameObjectAI") smart = false;
-            if (!go || go->GetAIName() != "SmartGameObjectAI") smart = false;
+            if (g && g->GetAIName() != "SmartGameObjectAI")
+                smart = false;
+
+            if (!go || go->GetAIName() != "SmartGameObjectAI")
+                smart = false;
             if (!smart)
+
                 sLog->outErrorDb("SmartScript: Action target GameObject(entry: %u) is not using SmartGameObjectAI, action skipped to prevent crash.", g?g->GetEntry():(go?go->GetEntry():0));
             return smart;
         }
+
         ObjectList* GetTargetList(uint32 id)
         {
             ObjectListMap::iterator itr = mTargetStorage->find(id);
@@ -131,9 +150,9 @@ class SmartScript
             return NULL;
         }
 
-        inline GameObject* FindGameObjectNear(WorldObject* pSearchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* pSearchObject, uint32 guid) const
         {
-            GameObject *pGameObject = NULL;
+            GameObject* pGameObject = NULL;
 
             CellPair p(Trinity::ComputeCellPair(pSearchObject->GetPositionX(), pSearchObject->GetPositionY()));
             Cell cell(p);
@@ -148,9 +167,9 @@ class SmartScript
             return pGameObject;
         }
 
-        inline Creature* FindCreatureNear(WorldObject* pSearchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* pSearchObject, uint32 guid) const
         {
-            Creature *crea = NULL;
+            Creature* crea = NULL;
             CellPair p(Trinity::ComputeCellPair(pSearchObject->GetPositionX(), pSearchObject->GetPositionY()));
             Cell cell(p);
             cell.data.Part.reserved = ALL_DISTRICT;
@@ -190,17 +209,19 @@ class SmartScript
         }
 
         //TIMED_ACTIONLIST (script type 9 aka script9)
-        void SetScript9(SmartScriptHolder &e, uint32 entry);
+        void SetScript9(SmartScriptHolder& e, uint32 entry);
         Unit* GetLastInvoker();
         uint64 mLastInvoker;
 
     private:
-        void IncPhase(int32 p = 1) {
+        void IncPhase(int32 p = 1)
+        {
             if(p >= 0)
                 mEventPhase += (uint32)p;
             else
                 DecPhase(abs(p));
         }
+
         void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
         bool IsInPhase(uint32 p) const { return mEventPhase & p; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }

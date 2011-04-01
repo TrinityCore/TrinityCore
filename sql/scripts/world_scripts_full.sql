@@ -597,6 +597,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 
 /* DUROTAR */
 UPDATE `creature_template` SET `ScriptName`='npc_lazy_peon' WHERE `entry`=10556;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tiger_matriarch_credit' WHERE `entry`=40301;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tiger_matriarch' WHERE `entry`=40312;
+UPDATE `creature_template` SET `ScriptName`= 'npc_troll_volunteer' WHERE `entry` IN (40260,40264);
 
 /* DUSKWOOD */
 DELETE FROM `areatrigger_scripts` WHERE `entry`=4017;
@@ -629,6 +632,16 @@ UPDATE `creature_template` SET `ScriptName`='npc_second_trial_controller' WHERE 
 UPDATE `creature_template` SET `ScriptName`='npc_apprentice_mirveda' WHERE `entry`=15402;
 UPDATE `creature_template` SET `ScriptName`='npc_infused_crystal' WHERE `entry`=16364;
 UPDATE `gameobject_template` SET `ScriptName`='go_second_trial' WHERE `entry` IN (182052);
+
+/* EYE OF ETERNITY */
+UPDATE `instance_template` SET `script`='instance_eye_of_eternity' WHERE `map`=616;
+UPDATE `creature_template` SET `ScriptName`='boss_malygos' WHERE `entry`=28859;
+UPDATE `creature_template` SET `ScriptName`='npc_power_spark' WHERE `entry`=30084;
+UPDATE `creature_template` SET `ScriptName`='npc_portal_eoe' WHERE `entry`=30118;
+UPDATE `creature_template` SET `ScriptName`='npc_hover_disk' WHERE `entry` IN (30234,30248);
+UPDATE `creature_template` SET `ScriptName`='npc_arcane_overload' WHERE `entry`=30282;
+UPDATE `creature_template` SET `ScriptName`='npc_wyrmrest_skytalon' WHERE `entry`=30161;
+UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_eoe' WHERE `entry`=32295;
 
 /* FELWOOD */
 UPDATE `creature_template` SET `ScriptName`='npcs_riverbreeze_and_silversky' WHERE `entry` IN (9528,9529);
@@ -1764,7 +1777,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
@@ -1809,7 +1822,19 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12822,11,0,0, 'achievement_all_you_can_eat'),
 (12996,11,0,0, 'achievement_all_you_can_eat'),
 (12972,11,0,0, 'achievement_all_you_can_eat'),
-(12989,11,0,0, 'achievement_all_you_can_eat');
+(12989,11,0,0, 'achievement_all_you_can_eat'),
+(10044,11,0,0, 'achievement_unbroken'),
+(10045,11,0,0, 'achievement_unbroken'),
+(10054,11,0,0, 'achievement_shutout'),
+(10055,11,0,0, 'achievement_shutout'),
+(10046,11,0,0, 'achievement_three_car_garage_chopper'),
+(10047,11,0,0, 'achievement_three_car_garage_siege'),
+(10048,11,0,0, 'achievement_three_car_garage_demolisher'),
+(10049,11,0,0, 'achievement_three_car_garage_chopper'),
+(10050,11,0,0, 'achievement_three_car_garage_siege'),
+(10051,11,0,0, 'achievement_three_car_garage_demolisher'),
+(10062,11,0,0, 'achievement_quick_shave'),
+(10063,11,0,0, 'achievement_quick_shave');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -2077,6 +2102,12 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62166, 'spell_ulduar_stone_grip_cast_target'),
 ( 63981, 'spell_ulduar_stone_grip_cast_target'),
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
+-- Eye Of Eternity
+( 56105, 'spell_malygos_vortex_dummy'),
+( 55873, 'spell_malygos_vortex_visual'),
+-- Zalazane's Fall
+( 75420, 'spell_mount_check'),
+( 75102, 'spell_voljin_war_drums'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),

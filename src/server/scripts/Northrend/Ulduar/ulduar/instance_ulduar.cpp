@@ -40,13 +40,12 @@ public:
 
         uint32 uiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
-        uint8  flag;
 
         uint64 uiLeviathanGUID;
         uint64 uiIgnisGUID;
         uint64 uiRazorscaleGUID;
         uint64 uiRazorscaleController;
-        uint64 uiRazorHarpoonGUIDs[3];
+        uint64 uiRazorHarpoonGUIDs[4];
         uint64 uiExpCommanderGUID;
         uint64 uiXT002GUID;
         uint64 uiAssemblyGUIDs[3];
@@ -101,7 +100,6 @@ public:
             uiFreyaChestGUID        = 0;
             uiLeviathanGateGUID     = 0;
             uiVezaxDoorGUID         = 0;
-            flag                    = 0;
 
             memset(uiEncounter, 0, sizeof(uiEncounter));
             memset(uiAssemblyGUIDs, 0, sizeof(uiAssemblyGUIDs));
@@ -415,20 +413,6 @@ public:
             }
 
             return 0;
-        }
-
-        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
-        {
-            switch (criteria_id)
-            {
-                case ACHIEVEMENT_CRITERIA_HOT_POCKET_10:
-                    return true;
-                case ACHIEVEMENT_CRITERIA_HOT_POCKET_25:
-                    return true;
-                default:
-                    break;
-            }
-            return false;
         }
 
         uint32 GetData(uint32 type)

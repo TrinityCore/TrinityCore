@@ -441,9 +441,9 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
             continue;
 
         for (uint8 j = 0; j < MAX_CRITERIA_REQUIREMENTS; ++j)
-            if (achievementCriteria->additionalRequrements[j].additionalRequirement_type == miscvalue1 &&
-                (!achievementCriteria->additionalRequrements[j].additionalRequirement_value ||
-                achievementCriteria->additionalRequrements[j].additionalRequirement_value == miscvalue2))
+            if (achievementCriteria->additionalRequirements[j].additionalRequirement_type == miscvalue1 &&
+                (!achievementCriteria->additionalRequirements[j].additionalRequirement_value ||
+                achievementCriteria->additionalRequirements[j].additionalRequirement_value == miscvalue2))
             {
                 RemoveCriteriaProgress(achievementCriteria);
                 break;
@@ -706,7 +706,7 @@ void AchievementMgr::CheckAllAchievementCriteria()
 }
 
 static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = { 1057, 1107, 1108 };
-static const uint32 achievIdForDangeon[][4] =
+static const uint32 achievIdForDungeon[][4] =
 {
     // ach_cr_id,is_dungeon,is_raid,is_heroic_dungeon
     { 321,       true,      true,   true  },
@@ -944,26 +944,26 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 // search case
                 bool found = false;
-                for (int j = 0; achievIdForDangeon[j][0]; ++j)
+                for (int j = 0; achievIdForDungeon[j][0]; ++j)
                 {
-                    if (achievIdForDangeon[j][0] == achievement->ID)
+                    if (achievIdForDungeon[j][0] == achievement->ID)
                     {
                         if (map->IsRaid())
                         {
                             // if raid accepted (ignore difficulty)
-                            if (!achievIdForDangeon[j][2])
+                            if (!achievIdForDungeon[j][2])
                                 break;                      // for
                         }
                         else if (GetPlayer()->GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL)
                         {
                             // dungeon in normal mode accepted
-                            if (!achievIdForDangeon[j][1])
+                            if (!achievIdForDungeon[j][1])
                                 break;                      // for
                         }
                         else
                         {
                             // dungeon in heroic mode accepted
-                            if (!achievIdForDangeon[j][3])
+                            if (!achievIdForDungeon[j][3])
                                 break;                      // for
                         }
 
@@ -1104,7 +1104,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
             {
-                // miscvalue1=loot_type (note: 0 = LOOT_CORSPE and then it ignored)
+                // miscvalue1=loot_type (note: 0 = LOOT_CORPSE and then it ignored)
                 // miscvalue2=count of item loot
                 if (!miscvalue1 || !miscvalue2)
                     continue;
@@ -1135,7 +1135,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 // additional requirements
-                if (achievementCriteria->additionalRequrements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
+                if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
                 {
                     // those requirements couldn't be found in the dbc
                     AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
@@ -1288,9 +1288,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscvalue1)
                     continue;
 
-                if (achievementCriteria->additionalRequrements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_MAP)
+                if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_MAP)
                 {
-                    if (GetPlayer()->GetMapId() != achievementCriteria->additionalRequrements[0].additionalRequirement_value)
+                    if (GetPlayer()->GetMapId() != achievementCriteria->additionalRequirements[0].additionalRequirement_value)
                         continue;
 
                     // map specific case (BG in fact) expected player targeted damage/heal
@@ -2074,13 +2074,13 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
 
     for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
     {
-        if (!criteria->additionalRequrements[i].additionalRequirement_type)
+        if (!criteria->additionalRequirements[i].additionalRequirement_type)
             continue;
 
-        switch (criteria->additionalRequrements[i].additionalRequirement_type)
+        switch (criteria->additionalRequirements[i].additionalRequirement_type)
         {
             case ACHIEVEMENT_CRITERIA_CONDITION_MAP:
-                if (GetPlayer()->GetMapId() != criteria->additionalRequrements[i].additionalRequirement_value)
+                if (GetPlayer()->GetMapId() != criteria->additionalRequirements[i].additionalRequirement_value)
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP:
@@ -2256,7 +2256,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:      // any cases
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA: // need skip generic cases
-                if (criteria->additionalRequrements[0].additionalRequirement_type != ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
+                if (criteria->additionalRequirements[0].additionalRequirement_type != ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM: // any cases

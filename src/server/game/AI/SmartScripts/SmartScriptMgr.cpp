@@ -54,7 +54,7 @@ void SmartWaypointMgr::LoadFromDB()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         uint32 id = fields[1].GetUInt32();
         float x,y,z;
@@ -62,7 +62,7 @@ void SmartWaypointMgr::LoadFromDB()
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
 
-        WayPoint *wp = new WayPoint(id, x, y, z);
+        WayPoint* wp = new WayPoint(id, x, y, z);
 
         if (last_entry != entry)
         {

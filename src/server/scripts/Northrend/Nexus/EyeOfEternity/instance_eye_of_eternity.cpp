@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 TrinityScript 2
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,276 +17,279 @@
 
 #include "ScriptPCH.h"
 #include "eye_of_eternity.h"
-#include "WorldPacket.h"
-
-#define DISABLED_ENTER_MESSAGE "You cannot enter Eye of Eternity now"
-#define EXIT_MAP 571
-#define EXIT_X 3864
-#define EXIT_Z 6987
-#define EXIT_Y 152
 
 class instance_eye_of_eternity : public InstanceMapScript
 {
-    public:
-        instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
+public:
+    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) {}
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_eye_of_eternity_InstanceMapScript(map);
+    }
+
+    struct instance_eye_of_eternity_InstanceMapScript : public InstanceScript
+    {
+        instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map) 
         {
-            return new instance_eye_of_eternity_InstanceMapScript(pMap);
+            SetBossNumber(MAX_ENCOUNTER);
+
+            vortexTriggers.clear();
+            portalTriggers.clear();
+
+            malygosGUID = 0;
+            lastPortalGUID = 0;
+            platformGUID = 0;
+            exitPortalGUID = 0;
+        };
+
+        bool SetBossState(uint32 type, EncounterState state)
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            if (type == DATA_MALYGOS_EVENT)
+            {
+                if (state == FAIL)
+                {
+                    for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    {
+                        if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                        {
+                            // just in case
+                            trigger->RemoveAllAuras();
+                            trigger->AI()->Reset();
+                        }
+                    }
+
+                    SpawnGameObject(GO_FOCUSING_IRIS,focusingIrisPosition);
+                    SpawnGameObject(GO_EXIT_PORTAL,exitPortalPosition);
+
+                    if (GameObject* platform = instance->GetGameObject(platformGUID))
+                        platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                } else if (state == DONE)
+                {
+                    if (Creature* malygos = instance->GetCreature(malygosGUID))
+                        malygos->SummonCreature(NPC_ALEXSTRASZA,829.0679f,1244.77f,279.7453f,2.32f);
+
+                    SpawnGameObject(GO_EXIT_PORTAL,exitPortalPosition);
+
+                    // we make the platform appear again because at the moment we don't support looting using a vehicle
+                    if (GameObject* platform = instance->GetGameObject(platformGUID))
+                        platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+
+                    if (GameObject* chest = instance->GetGameObject(chestGUID))
+                        chest->SetRespawnTime(chest->GetRespawnDelay());
+                }
+            }
+            return true;
         }
 
-        struct instance_eye_of_eternity_InstanceMapScript : public InstanceScript
+        // There is no other way afaik...
+        void SpawnGameObject(uint32 entry, Position& pos)
         {
-            instance_eye_of_eternity_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
-        
-            std::string strInstData;
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint32 m_uiOutroCheck;
-            uint32 m_uiMalygosPlatformData;
- 
-            //GameObject* m_uiMalygosPlatform;
-            //GameObject* m_uiFocusingIris;
-            //GameObject* m_uiExitPortal;
-
-            uint64 m_uiMalygosPlatformGUID;
-            uint64 m_uiFocusingIrisGUID;
-            uint64 m_uiExitPortalGUID;
- 
-            uint64 m_uiMalygosGUID;
-            uint64 m_uiPlayerCheckGUID;
-    
-            bool m_bVortex;
-     
-            void Initialize()
+            GameObject* go = new GameObject;
+            if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT),entry, instance,
+                PHASEMASK_NORMAL, pos.GetPositionX(),pos.GetPositionY(),pos.GetPositionZ(),pos.GetOrientation(),
+                0,0,0,0,120,GO_STATE_READY))
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-            
-                m_uiMalygosGUID = 0;
-                m_uiOutroCheck = 0; 
-                m_uiMalygosPlatformData = 0;
-                m_uiMalygosPlatformGUID = 0;
-                m_uiFocusingIrisGUID = 0;
-                m_uiExitPortalGUID = 0;
-                m_uiPlayerCheckGUID = 0;
-                m_bVortex = false;
+                delete go;
+                return;
             }
-    
-            void OnCreatureCreate(Creature* pCreature)
-            {
-                switch(pCreature->GetEntry())
-                {
-                    case NPC_MALYGOS:
-                        m_uiMalygosGUID = pCreature->GetGUID();
-                    break;
 
-                    default:
+            instance->Add(go);
+        }
+
+        void OnGameObjectCreate(GameObject* go)
+        {
+            switch (go->GetEntry())
+            {
+                case GO_NEXUS_RAID_PLATFORM:
+                    platformGUID = go->GetGUID();
                     break;
+                case GO_FOCUSING_IRIS:
+                    go->GetPosition(&focusingIrisPosition);
+                    break;
+                case GO_EXIT_PORTAL:
+                    exitPortalGUID = go->GetGUID();
+                    go->GetPosition(&exitPortalPosition);
+                    break;
+                case GO_ALEXSTRASZA_S_GIFT:
+                case GO_ALEXSTRASZA_S_GIFT_2:
+                    chestGUID = go->GetGUID();
+                    break;
+            }
+        }
+
+        void OnCreatureCreate(Creature* creature)
+        {
+            switch (creature->GetEntry())
+            {
+                case NPC_VORTEX_TRIGGER:
+                    vortexTriggers.push_back(creature->GetGUID());
+                    break;
+                case NPC_MALYGOS:
+                    malygosGUID = creature->GetGUID();
+                    break;
+                case NPC_PORTAL_TRIGGER:
+                    portalTriggers.push_back(creature->GetGUID());
+                    break;
+            }
+        }
+
+        void ProcessEvent(GameObject* go, uint32 eventId)
+        {
+            if (eventId == EVENT_FOCUSING_IRIS)
+            {
+                go->Delete(); // this is not the best way.
+                if (Creature* malygos = instance->GetCreature(malygosGUID))
+                    malygos->GetMotionMaster()->MovePoint(4,770.10f, 1275.33f, 267.23f); // MOVE_INIT_PHASE_ONE
+
+                if (GameObject* exitPortal = instance->GetGameObject(exitPortalGUID))
+                    exitPortal->Delete();
+            }
+        }
+
+        void VortexHandling()
+        {
+            if (Creature* malygos = instance->GetCreature(malygosGUID))
+            {
+                std::list<HostileReference*> m_threatlist = malygos->getThreatManager().getThreatList();
+                for (std::list<uint64>::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
+                {
+                    if (m_threatlist.empty())
+                        return;
+
+                    uint8 counter = 0;
+                    if (Creature* trigger = instance->GetCreature(*itr_vortex))
+                    {
+                        // each trigger have to cast the spell to 5 players.
+                        for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                        {
+                            if (counter >= 5)
+                                break;
+
+                            if (Unit* target = (*itr)->getTarget())
+                            {
+                                Player* player = target->ToPlayer();
+
+                                if (!player || player->isGameMaster() || player->HasAura(SPELL_VORTEX_4))
+                                    continue;
+
+                                player->CastSpell(trigger,SPELL_VORTEX_4,true);
+                                counter++;
+                            }
+                        }
+                    }
                 }
             }
-    
-            void OnGameObjectCreate(GameObject *pGo)
+        }
+
+        void PowerSparksHandling()
+        {
+            bool next =  (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
+
+            for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
             {
-                switch(pGo->GetEntry())
+                if (next)
                 {
-                    case 193070: m_uiMalygosPlatformGUID = pGo->GetGUID(); break;
-                    case 193958: //normal,hero
-                    case 193960: m_uiFocusingIrisGUID = pGo->GetGUID(); break;
-                    case 193908: m_uiExitPortalGUID = pGo->GetGUID(); break;
-                    default:
-                        break;
+                    if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                    {
+                        lastPortalGUID = trigger->GetGUID();
+                        trigger->CastSpell(trigger,SPELL_PORTAL_OPENED,true);
+                        return;
+                    }
                 }
+
+                if (*itr_trigger == lastPortalGUID)
+                    next = true;
             }
- 
-            bool IsEncounterInProgress() const
+        }
+
+        void SetData(uint32 data,uint32 /*value*/)
+        {
+            switch (data)
+            {
+                case DATA_VORTEX_HANDLING:
+                    VortexHandling();
+                    break;
+                case DATA_POWER_SPARKS_HANDLING:
+                    PowerSparksHandling();
+                    break;
+            }
+        }
+
+        uint64 GetData64(uint32 data)
+        {
+            switch (data)
+            {
+                case DATA_TRIGGER:
+                    return vortexTriggers.front();
+                case DATA_MALYGOS:
+                    return malygosGUID;
+                case DATA_PLATFORM:
+                    return platformGUID;
+            }
+
+            return 0;
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "E E " << GetBossSaveData();
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+
+        void Load(const char* str)
+        {
+            if (!str)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(str);
+
+            char dataHead1, dataHead2;
+
+            std::istringstream loadStream(str);
+            loadStream >> dataHead1 >> dataHead2;
+
+            if (dataHead1 == 'E' && dataHead2 == 'E')
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 {
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                    {
-                        return true;
-                    }
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+                    SetBossState(i, EncounterState(tmpState));
                 }
 
-                return false;
-            }
- 
-            void SetData(uint32 uiType, uint32 uiData)
-            {
-                switch(uiType)
-                {
-                    case TYPE_MALYGOS:
-                        if (uiData == IN_PROGRESS)
-                        {
-                            if(GameObject* m_uiExitPortal = instance->GetGameObject(m_uiExitPortalGUID))
-                            {
-                                m_uiExitPortal->SetPhaseMask(2, true);
-                            }
+            } else OUT_LOAD_INST_DATA_FAIL;
 
-                            if(GameObject* m_uiFocusingIris = instance->GetGameObject(m_uiFocusingIrisGUID))
-                            {
-                                m_uiFocusingIris->SetPhaseMask(2, true);
-                            }
-                        }
-                        if (uiData == NOT_STARTED)
-                        {
-                            //Summon Platform
-                            SetData(TYPE_DESTROY_PLATFORM, NOT_STARTED);
-                            //Summon focusing iris
-                            if(GameObject* pGo = instance->GetGameObject(m_uiFocusingIrisGUID))
-                            {
-                                pGo->SetPhaseMask(1, true);
-                            }
-                            //Summon exit portal
-                            if(GameObject* pGo = instance->GetGameObject(m_uiExitPortalGUID))
-                            {
-                                pGo->SetPhaseMask(1, true);
-                            }
-                        }
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
 
-                        m_auiEncounter[0] = uiData;
-                        break;
-                    case TYPE_OUTRO_CHECK:
-                        m_uiOutroCheck = uiData;
-                        break;
-                    case TYPE_DESTROY_PLATFORM:
-                        if(uiData == IN_PROGRESS)
-                        {
-                            if(GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
-                            {
-                                m_uiMalygosPlatform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                            }
-                        }
-                        else if(uiData == NOT_STARTED)
-                        {
-                            if(GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
-                            {
-                                m_uiMalygosPlatform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                                m_uiMalygosPlatform->Respawn();
-                            }
-                        }
-                        m_uiMalygosPlatformData = uiData;
-                        break;
-                    case TYPE_VORTEX:
-                        if(uiData)
-                        {
-                            m_bVortex = true;
-                        }
-                        else
-                        {
-                            m_bVortex = false;
-                        }
-                        break;
-                    case TYPE_PLAYER_HOVER:
-                        if(uiData == DATA_DROP_PLAYERS)
-                        {
-                            dropAllPlayers();
-                        }
-                        break;
-                }
-            }
-     
-            const char* Save()
-            {
-                OUT_SAVE_INST_DATA;
-                std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << " " << m_uiOutroCheck;
-     
-                strInstData = saveStream.str();
-                SaveToDB();
-                OUT_SAVE_INST_DATA_COMPLETE;
-
-                return strInstData.c_str();
-            }
-     
-            void Load(const char* chrIn)
-            {
-                if (!chrIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-     
-                OUT_LOAD_INST_DATA(chrIn);
-     
-                std::istringstream loadStream(chrIn);
-                loadStream >> m_auiEncounter[0] >> m_uiOutroCheck;
-     
-                for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                {
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                    {
-                        m_auiEncounter[i] = NOT_STARTED;
-                    }
-                }
-     
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-     
-            uint32 GetData(uint32 uiType)
-            {
-                switch(uiType)
-                {
-                    case TYPE_MALYGOS:
-                        return m_auiEncounter[0];
-                    case TYPE_OUTRO_CHECK:
-                        return m_uiOutroCheck;
-                    case TYPE_DESTROY_PLATFORM:
-                        return m_uiMalygosPlatformData;
-                    case TYPE_VORTEX:
-                        return m_bVortex;
-                }
-
-                return 0;
-            }
-     
-            uint64 GetData64(uint32 uiData)
-            {
-                switch(uiData)
-                {
-                    case NPC_MALYGOS:
-                        return m_uiMalygosGUID;
-                    default:
-                        return 0;
-                }
-                return 0;
-            }
-
-            void dropAllPlayers()
-            {
-                Map::PlayerList const &PlayerList = instance->GetPlayers();
-
-                if (!PlayerList.isEmpty())
-                {
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    {
-                        if (Player *pPlayer = i->getSource())
-                        {
-                            if (Unit* pDisk = pPlayer->GetVehicleBase())
-                            {
-                                pPlayer->ExitVehicle();
-                                pDisk->ToCreature()->ForcedDespawn();
-                            }
-                        }
-                    }
-                }
-            }
-
-            void OnPlayerEnter(Player* pPlayer)
-            {
-                if(GetData(TYPE_MALYGOS) == DONE)
-                {
-                    Creature *pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ() - 5, 0);
-                    if(pTemp)
-                    {
-                        pTemp->SetCreatorGUID(pPlayer->GetGUID());
-                        pPlayer->EnterVehicle(pTemp, 0);
-                    }
-                }
-            }		
-        };
+        private:
+            std::list<uint64> vortexTriggers;
+            std::list<uint64> portalTriggers;
+            uint64 malygosGUID;
+            uint64 lastPortalGUID;
+            uint64 platformGUID;
+            uint64 exitPortalGUID;
+            uint64 chestGUID;
+            Position focusingIrisPosition;
+            Position exitPortalPosition;
+    };
 };
 
 void AddSC_instance_eye_of_eternity()
 {
-    new instance_eye_of_eternity();
+   new instance_eye_of_eternity();
 }
