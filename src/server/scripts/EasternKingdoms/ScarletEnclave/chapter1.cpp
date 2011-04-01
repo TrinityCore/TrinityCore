@@ -106,7 +106,7 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             if (!me->GetEquipmentId())
-                if (const CreatureInfo *info = GetCreatureInfo(28406))
+                if (const CreatureInfo *info = ObjectMgr::GetCreatureTemplate(28406))
                     if (info->equipmentId)
                         const_cast<CreatureInfo*>(me->GetCreatureInfo())->equipmentId = info->equipmentId;
         }
