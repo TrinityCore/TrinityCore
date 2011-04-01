@@ -552,7 +552,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     Player * pNewChar = new Player(this);
     if (!pNewChar->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
     {
-        // Player not create (race/class problem?)
+        // Player not create (race/class/etc problem?)
         pNewChar->CleanupsBeforeDelete();
         delete pNewChar;
 
