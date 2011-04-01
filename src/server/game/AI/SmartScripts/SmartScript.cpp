@@ -234,7 +234,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
                         else
                         {
-                            if (CreatureInfo const* ci = GetCreatureTemplateStore((*itr)->ToCreature()->GetEntry()))
+                            if (CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
                                 if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
                                 {
@@ -266,7 +266,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     //set model based on entry from creature_template
                     if (e.action.morphOrMount.creature)
                     {
-                        if (CreatureInfo const* ci = GetCreatureTemplateStore(e.action.morphOrMount.creature))
+                        if (CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
                             uint32 display_id = sObjectMgr->ChooseDisplayId(0, ci);
                             (*itr)->ToCreature()->SetDisplayId(display_id);
@@ -940,7 +940,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (e.action.morphOrMount.creature > 0)
                     {
-                        if (CreatureInfo const* cInfo = GetCreatureTemplateStore(e.action.morphOrMount.creature))
+                        if (CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
                             uint32 display_id = sObjectMgr->ChooseDisplayId(0, cInfo);
                             (*itr)->ToUnit()->Mount(display_id);

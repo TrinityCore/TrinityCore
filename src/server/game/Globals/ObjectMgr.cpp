@@ -5646,7 +5646,7 @@ void ObjectMgr::LoadInstanceEncounters()
         {
             case ENCOUNTER_CREDIT_KILL_CREATURE:
             {
-                CreatureInfo const* creatureInfo = GetCreatureInfo(creditEntry);
+                CreatureInfo const* creatureInfo = GetCreatureTemplate(creditEntry);
                 if (!creatureInfo)
                 {
                     sLog->outErrorDb("Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
@@ -8591,7 +8591,7 @@ void ObjectMgr::LoadMailLevelRewards()
             continue;
         }
 
-        if (!GetCreatureTemplateStore(senderEntry))
+        if (!GetCreatureTemplate(senderEntry))
         {
             sLog->outErrorDb("Table `mail_level_reward` have not existed sender creature entry (%u) for level %u that invalid not include any player races, ignoring.",senderEntry,level);
             continue;
@@ -9167,12 +9167,6 @@ void ObjectMgr::LoadDbScriptStrings()
         sLog->outErrorDb("Table `db_script_string` has unused string id  %u", *itr);
 }
 
-// Functions for scripting access
-uint32 GetAreaTriggerScriptId(uint32 trigger_id)
-{
-    return sObjectMgr->GetAreaTriggerScriptId(trigger_id);
-}
-
 bool LoadTrinityStrings(char const* table, int32 start_value, int32 end_value)
 {
     // MAX_DB_SCRIPT_STRING_ID is max allowed negative value for scripts (scrpts can use only more deep negative values
@@ -9184,36 +9178,6 @@ bool LoadTrinityStrings(char const* table, int32 start_value, int32 end_value)
     }
 
     return sObjectMgr->LoadTrinityStrings(table, start_value, end_value);
-}
-
-uint32  GetScriptId(const char *name)
-{
-    return sObjectMgr->GetScriptId(name);
-}
-
-ObjectMgr::ScriptNameMap & GetScriptNames()
-{
-    return sObjectMgr->GetScriptNames();
-}
-
-GameObjectInfo const *GetGameObjectInfo(uint32 id)
-{
-    return ObjectMgr::GetGameObjectInfo(id);
-}
-
-CreatureInfo const *GetCreatureInfo(uint32 id)
-{
-    return ObjectMgr::GetCreatureTemplate(id);
-}
-
-CreatureInfo const* GetCreatureTemplateStore(uint32 entry)
-{
-    return sCreatureStorage.LookupEntry<CreatureInfo>(entry);
-}
-
-Quest const* GetQuestTemplateStore(uint32 entry)
-{
-    return sObjectMgr->GetQuestTemplate(entry);
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
