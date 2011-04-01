@@ -71,7 +71,7 @@ class boss_bronjahm : public CreatureScript
 
             void InitializeAI()
             {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(FoSScriptName))
                     me->IsAIEnabled = false;
                 else if (!me->isDead())
                     Reset();
