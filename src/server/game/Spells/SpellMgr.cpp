@@ -3668,6 +3668,12 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
             count++;
             break;
+        // Frost Fever
+        case 59921:
+            // Icy Clutch shouldn't be applied at caster when login
+            spellInfo->AttributesEx4 |= SPELL_ATTR4_CANT_PROC_FROM_SELFCAST;
+            count++;
+            break;
         // Blazing Harpoon
         case 61588:
             spellInfo->MaxAffectedTargets = 1;
