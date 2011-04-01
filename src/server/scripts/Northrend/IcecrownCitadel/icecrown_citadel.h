@@ -377,7 +377,7 @@ CreatureAI* GetIcecrownCitadelAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
         if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
+            if (instance->GetScriptId() == GetScriptId(ICCScriptName))
                 return new AI(creature);
     return NULL;
 }
