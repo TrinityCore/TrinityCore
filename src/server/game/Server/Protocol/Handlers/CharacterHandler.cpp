@@ -212,7 +212,10 @@ void WorldSession::HandleCharEnum(QueryResult result)
             uint32 guidlow = (*result)[0].GetUInt32();
             sLog->outDetail("Loading char guid %u from account %u.",guidlow,GetAccountId());
             if (Player::BuildEnumData(result, &data))
+            {
+                m_AllowedCharsToLogin.push_back(guidlow);
                 ++num;
+            }
         }
         while (result->NextRow());
     }
@@ -659,6 +662,13 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
     sLog->outStaticDebug("WORLD: Recvd Player Logon Message");
 
     recv_data >> playerGuid;
+
+    if (!CharCanLogin(GUID_LOPART(playerGuid)))
+    {
+        sLog->outError("Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(playerGuid));
+        KickPlayer();
+        return;
+    }
 
     LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
     if (!holder->Initialize())
