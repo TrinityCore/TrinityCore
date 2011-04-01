@@ -1420,13 +1420,6 @@ class ObjectMgr
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
 
 // scripting access functions
- bool LoadTrinityStrings(char const* table,int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
- uint32 GetAreaTriggerScriptId(uint32 trigger_id);
- uint32 GetScriptId(const char *name);
- ObjectMgr::ScriptNameMap& GetScriptNames();
- GameObjectInfo const *GetGameObjectInfo(uint32 id);
- CreatureInfo const *GetCreatureInfo(uint32 id);
- CreatureInfo const* GetCreatureTemplateStore(uint32 entry);
- Quest const* GetQuestTemplateStore(uint32 entry);
+bool LoadTrinityStrings(char const* table,int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
 
 #endif
