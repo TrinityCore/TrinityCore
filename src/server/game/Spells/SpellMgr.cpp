@@ -4244,6 +4244,14 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 count++;
                 break;
+            case SPELLFAMILY_PRIEST:
+                // Twin Disciplines should affect at Prayer of Mending
+                if (spellInfo->SpellIconID == 2292)
+                    spellInfo->EffectSpellClassMask[0] = flag96(0, 622642, 2581594112);
+                else
+                    break;
+                count++;
+                break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Icy Touch - extend FamilyFlags (unused value) for Sigil of the Frozen Conscience to use
                 if (spellInfo->SpellIconID == 2721 && spellInfo->SpellFamilyFlags[0] & 0x2)
