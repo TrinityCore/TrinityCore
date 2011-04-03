@@ -5521,50 +5521,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                     break;
                 }
-                // Item - Icecrown 25 Normal Dagger Proc
-                case 71880:
-                {
-                    switch (getPowerType())
-                    {
-                        case POWER_MANA:
-                            triggered_spell_id = 71881;
-                            break;
-                        case POWER_RAGE:
-                            triggered_spell_id = 71883;
-                            break;
-                        case POWER_ENERGY:
-                            triggered_spell_id = 71882;
-                            break;
-                        case POWER_RUNIC_POWER:
-                            triggered_spell_id = 71884;
-                            break;
-                        default:
-                            return false;
-                    }
-                    break;
-                }
-                // Item - Icecrown 25 Heroic Dagger Proc
-                case 71892:
-                {
-                    switch (getPowerType())
-                    {
-                        case POWER_MANA:
-                            triggered_spell_id = 71888;
-                            break;
-                        case POWER_RAGE:
-                            triggered_spell_id = 71886;
-                            break;
-                        case POWER_ENERGY:
-                            triggered_spell_id = 71887;
-                            break;
-                        case POWER_RUNIC_POWER:
-                            triggered_spell_id = 71885;
-                            break;
-                        default:
-                            return false;
-                    }
-                    break;
-                }
             }
             break;
         }
@@ -6863,52 +6819,48 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target = pVictim;
                     break;
                 }
+                // Item - Icecrown 25 Normal Dagger Proc
                 case 71880:
-                // Heartpierce (Item - Icecrown 25 Normal Dagger Proc)
-                // ===================================================
-                // 71881 - Restores 120 mana for 10 sec.      - Priest, Shaman, Paladin, Warlock, Hunter, Mage, Druid in human, moonkin, aqua, travel and in tree form.
-                // 71882 - Restores 4 energy for 10 sec.      - Rogue, Druid in cat form.
-                // 71883 - Restores 2 rage for 10 sec.        - Warrior, Druid in bear form.
-                // 71884 - Restores 8 runic power for 10 sec. - Death Knight
-                case 71892:
-                // Heartpierce (Item - Icecrown 25 Heroic Dagger Proc)
-                // ===================================================
-                // 71888 - Restores 120 mana for 12 sec.      - Priest, Shaman, Paladin, Warlock, Hunter, Mage, Druid in human, moonkin, aqua, travel and in tree form.
-                // 71887 - Restores 4 energy for 12 sec.      - Rogue, Druid in cat form.
-                // 71886 - Restores 2 rage for 12 sec.        - Warrior, Druid in bear form.
-                // 71885 - Restores 8 runic power for 12 sec. - Death Knigh
                 {
-                    if(GetTypeId() != TYPEID_PLAYER)
-                        return false;
- 
-                    // Select powertype defined buff
                     switch (getPowerType())
                     {
                         case POWER_MANA:
-                        {
-                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71881 : 71888;
+                            triggered_spell_id = 71881;
                             break;
-                        }
-                        case POWER_ENERGY:
-                        {
-                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71882 : 71887;
-                            break;
-                        }
                         case POWER_RAGE:
-                        {
-                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71883 : 71886;
+                            triggered_spell_id = 71883;
                             break;
-                        }
+                        case POWER_ENERGY:
+                            triggered_spell_id = 71882;
+                            break;
                         case POWER_RUNIC_POWER:
-                        {
-                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71884 : 71885;
+                            triggered_spell_id = 71884;
                             break;
-                        }
                         default:
                             return false;
                     }
- 
-                    target = this;
+                    break;
+                }
+                // Item - Icecrown 25 Heroic Dagger Proc
+                case 71892:
+                {
+                    switch (getPowerType())
+                    {
+                        case POWER_MANA:
+                            triggered_spell_id = 71888;
+                            break;
+                        case POWER_RAGE:
+                            triggered_spell_id = 71886;
+                            break;
+                        case POWER_ENERGY:
+                            triggered_spell_id = 71887;
+                            break;
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 71885;
+                            break;
+                        default:
+                            return false;
+                    }
                     break;
                 }
             }
