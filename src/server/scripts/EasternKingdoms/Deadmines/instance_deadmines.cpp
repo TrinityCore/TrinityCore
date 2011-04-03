@@ -53,7 +53,7 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { Initialize(); };
+            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint64 FactoryDoorGUID;
             uint64 IronCladDoorGUID;

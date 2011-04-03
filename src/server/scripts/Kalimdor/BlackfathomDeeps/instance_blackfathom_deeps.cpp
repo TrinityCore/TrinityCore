@@ -63,7 +63,7 @@ public:
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
-        instance_blackfathom_deeps_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_blackfathom_deeps_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 m_uiTwilightLordKelrisGUID;
         uint64 m_uiShrine1GUID;

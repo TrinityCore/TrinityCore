@@ -45,7 +45,7 @@ public:
 
     struct instance_gruuls_lair_InstanceMapScript : public InstanceScript
     {
-        instance_gruuls_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_gruuls_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 

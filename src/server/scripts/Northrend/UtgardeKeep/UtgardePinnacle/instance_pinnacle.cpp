@@ -46,7 +46,7 @@ public:
 
     struct instance_pinnacle : public InstanceScript
     {
-        instance_pinnacle(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_pinnacle(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 uiSvalaSorrowgrave;
         uint64 uiGortokPalehoof;
