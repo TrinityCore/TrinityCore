@@ -73,7 +73,7 @@ public:
 
     struct instance_steam_vault_InstanceMapScript : public InstanceScript
     {
-        instance_steam_vault_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_steam_vault_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 

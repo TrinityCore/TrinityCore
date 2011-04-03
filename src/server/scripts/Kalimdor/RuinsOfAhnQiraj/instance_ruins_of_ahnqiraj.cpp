@@ -48,7 +48,7 @@ public:
 
     struct instance_ruins_of_ahn_qiraj_InstanceMapScript : public InstanceScript
     {
-        instance_ruins_of_ahn_qiraj_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { Initialize(); }
+        instance_ruins_of_ahn_qiraj_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 uiKurinaxx;
         uint64 uiRajaxx;

@@ -40,7 +40,7 @@ public:
 
     struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
     {
-        instance_culling_of_stratholme_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_culling_of_stratholme_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 uiArthas;
         uint64 uiMeathook;
