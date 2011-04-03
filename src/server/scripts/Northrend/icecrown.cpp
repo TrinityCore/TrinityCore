@@ -276,48 +276,6 @@ public:
 };
 
 /*######
-## npc_argent_tournament_post
-######*/
-
-enum eArgentTournamentPost
-{
-    SPELL_ROPE_BEAM                 = 63413,
-    NPC_GORMOK_THE_IMPALER          = 35469,
-    NPC_ICEHOWL                     = 35470
-};
-
-class npc_argent_tournament_post : public CreatureScript
-{
-public:
-    npc_argent_tournament_post() : CreatureScript("npc_argent_tournament_post") { }
-
-    struct npc_argent_tournament_postAI : public ScriptedAI
-    {
-        npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-        void UpdateAI(const uint32 /*uiDiff*/)
-        {
-            if (me->IsNonMeleeSpellCasted(false))
-                return;
-
-            if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
-                DoCast(pTarget, SPELL_ROPE_BEAM);
-
-            if (Creature* pTarget2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
-                DoCast(pTarget2, SPELL_ROPE_BEAM);
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new npc_argent_tournament_postAI(creature);
-    }
-};
-
-/*######
 ## npc_alorah_and_grimmin
 ######*/
 
@@ -429,7 +387,6 @@ void AddSC_icecrown()
     new npc_dame_evniki_kapsalis;
     new npc_squire_david;
     new npc_argent_valiant;
-    new npc_argent_tournament_post;
     new npc_alorah_and_grimmin;
     new npc_guardian_pavilion;
 }
