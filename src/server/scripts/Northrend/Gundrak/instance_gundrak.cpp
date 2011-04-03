@@ -43,8 +43,7 @@ public:
         instance_gundrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
         {
             bHeroicMode = pMap->IsHeroic();
-            Initialize();
-        };
+        }
 
         bool bHeroicMode;
         bool spawnSupport;

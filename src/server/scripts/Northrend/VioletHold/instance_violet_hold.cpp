@@ -115,7 +115,7 @@ public:
 
     struct instance_violet_hold_InstanceMapScript : public InstanceScript
     {
-        instance_violet_hold_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_violet_hold_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 uiMoragg;
         uint64 uiErekem;

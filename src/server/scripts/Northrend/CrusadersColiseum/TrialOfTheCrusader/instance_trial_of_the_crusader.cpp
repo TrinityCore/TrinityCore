@@ -33,7 +33,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
         struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {
-            instance_trial_of_the_crusader_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+            instance_trial_of_the_crusader_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint32 EncounterStatus[MAX_ENCOUNTERS];
             uint32 TrialCounter;

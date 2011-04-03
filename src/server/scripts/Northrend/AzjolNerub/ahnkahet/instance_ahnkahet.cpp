@@ -40,7 +40,7 @@ public:
 
     struct instance_ahnkahet_InstanceScript : public InstanceScript
     {
-        instance_ahnkahet_InstanceScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_ahnkahet_InstanceScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 Elder_Nadox;
         uint64 Prince_Taldaram;

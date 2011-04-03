@@ -99,7 +99,7 @@ public:
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();}
+        instance_zulfarrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 GahzRillaEncounter;
         uint64 ZumrahGUID;
