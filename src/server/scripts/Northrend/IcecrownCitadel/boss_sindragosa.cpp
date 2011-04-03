@@ -206,14 +206,6 @@ class boss_sindragosa : public CreatureScript
                     me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
             }
 
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset()
             {
                 bombsLanded = 0;
