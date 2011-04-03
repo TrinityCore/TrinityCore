@@ -82,6 +82,7 @@ private:
     // between enUS and enGB, which is important for the patch system
     std::string _localizationName;
     uint16 _build;
+    uint32 _os;
     uint8 _expversion;
     AccountTypes _accountSecurityLevel;
 };

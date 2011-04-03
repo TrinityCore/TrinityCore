@@ -323,6 +323,17 @@ class ByteBuffer
             }
         }
 
+        template <class T>
+        void crypt(T& obj, uint8 *key, void(T::*func)(uint8 *useKey, uint8 *data, uint32 dataSize))
+        {
+            (obj.*(func))(key, &_storage[0], size());
+        }
+
+        void crypt(uint8 *key, void(*func)(uint8 *useKey, uint8 *data, uint32 dataSize))
+        {
+            (*func)(key, &_storage[0], size());
+        }
+
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }
