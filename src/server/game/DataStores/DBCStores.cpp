@@ -268,7 +268,7 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementStore,         dbcPath,"Achievement.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementStore,         dbcPath,"Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);
     LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementCriteriaStore, dbcPath,"Achievement_Criteria.dbc");
     LoadDBC(availableDbcLocales,bad_dbc_files,sAreaTriggerStore,         dbcPath,"AreaTrigger.dbc");
     LoadDBC(availableDbcLocales,bad_dbc_files,sAreaGroupStore,           dbcPath,"AreaGroup.dbc");
