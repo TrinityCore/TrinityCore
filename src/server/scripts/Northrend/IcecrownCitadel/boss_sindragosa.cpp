@@ -206,6 +206,14 @@ class boss_sindragosa : public CreatureScript
                     me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
             }
 
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
+            }
+
             void Reset()
             {
                 bombsLanded = 0;
@@ -611,7 +619,7 @@ class boss_sindragosa : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<boss_sindragosaAI>(creature);
+            return new boss_sindragosaAI(creature);
         }
 };
 
@@ -701,6 +709,14 @@ class npc_spinestalker : public CreatureScript
         {
             npc_spinestalkerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()
@@ -800,7 +816,7 @@ class npc_spinestalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<npc_spinestalkerAI>(creature);
+            return new npc_spinestalkerAI(creature);
         }
 };
 
@@ -813,6 +829,14 @@ class npc_rimefang : public CreatureScript
         {
             npc_rimefangAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()
@@ -952,7 +976,7 @@ class npc_rimefang : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<npc_rimefangAI>(creature);
+            return new npc_rimefangAI(creature);
         }
 };
 
