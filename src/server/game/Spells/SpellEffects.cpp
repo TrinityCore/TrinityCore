@@ -3136,7 +3136,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 {
                     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effIndex]));
 
-                    uint32 amount = damage > 0 ? damage : 1;
+                    uint32 amount = (damage > 0 && damage < 6) ? damage : 1;
                     if (m_spellInfo->Id == 18662) // Curse of Doom
                         amount = 1;
 
@@ -6983,7 +6983,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
 
     //float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     float radius = 5.0f;
-    uint32 amount = damage > 0 ? damage : 1;
+    uint32 amount = (damage > 0 && damage < 6) ? damage : 1;
     int32 duration = GetSpellDuration(m_spellInfo);
     switch (m_spellInfo->Id)
     {
