@@ -16,4 +16,3 @@ option(USE_COREPCH      "Use precompiled headers when compiling servers"        
 option(USE_SFMT         "Use SFMT as random numbergenerator"                          0)
 option(WITH_WARNINGS    "Show all warnings during compile"                            0)
 option(WITH_COREDEBUG   "Include additional debug-code in core"                       0)
-option(WITH_SQL         "Copy SQL files during installation"                          0)
