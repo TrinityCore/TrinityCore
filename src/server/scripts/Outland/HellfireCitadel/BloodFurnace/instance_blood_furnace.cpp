@@ -40,7 +40,7 @@ class instance_blood_furnace : public InstanceMapScript
 
         struct instance_blood_furnace_InstanceMapScript : public InstanceScript
         {
-            instance_blood_furnace_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+            instance_blood_furnace_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint64 The_MakerGUID;
             uint64 BroggokGUID;

@@ -36,7 +36,7 @@ public:
 
     struct instance_ulduar_InstanceMapScript : public InstanceScript
     {
-        instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { Initialize(); };
+        instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
         uint32 uiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;

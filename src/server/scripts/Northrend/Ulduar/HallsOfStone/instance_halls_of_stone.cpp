@@ -39,7 +39,7 @@ public:
 
     struct instance_halls_of_stone_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_stone_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_halls_of_stone_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 uiMaidenOfGrief;
         uint64 uiKrystallus;

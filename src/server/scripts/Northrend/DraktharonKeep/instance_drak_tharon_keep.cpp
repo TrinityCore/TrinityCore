@@ -49,7 +49,7 @@ public:
 
     struct instance_drak_tharon_InstanceScript : public InstanceScript
     {
-        instance_drak_tharon_InstanceScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_drak_tharon_InstanceScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint8 uiDredAchievCounter;
 
