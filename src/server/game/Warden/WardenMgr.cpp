@@ -33,6 +33,9 @@ Useful information:
 
 WardenMgr::WardenMgr() : m_Disconnected(false), m_Banning(false)
 {
+    #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
+        ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
+    #endif
 }
 
 WardenMgr::~WardenMgr()
@@ -53,7 +56,7 @@ void WardenMgr::Initialize(const char *addr, u_short port, bool IsBanning)
         m_PingOut = true;
     }
 
-    m_PingTimer.SetInterval(1000); // 4 secs, strange
+    m_PingTimer.SetInterval(10000); // 4 secs, strange
     m_PingTimer.Reset();
 }
 
@@ -611,6 +614,7 @@ void WardenMgr::LoadModuleAndGetKeys(WorldSession* const session)
     // Same as when we send this transformed seed request to client
     pkt << uint8(WARDS_SEED);
     pkt.append(session->GetWardenSeed(), 16);
+    free(m_tmpModule);
 
     m_WardenProcessStream->send((char const*)pkt.contents(), pkt.size());
 }
