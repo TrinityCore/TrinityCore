@@ -41,3 +41,79 @@ enum Yells
     SAY_BERSERK                                 = -1603258,
     SAY_YS_HELP                                 = -1603259,
 };
+
+enum Spells
+{
+   SPELL_JETPACK                               = 63341,
+   SPELL_EMERGENCY_MODE                        = 64582,
+   SPELL_SELF_REPAIR                           = 64383,
+   SPELL_MAGNETIC_CORE                         = 64444,
+   // Leviathan MK II
+   SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
+   SPELL_NAPALM_SHELL                          = 63666,
+   SPELL_PLASMA_BLAST                          = 62977,
+   SPELL_PROXIMITY_MINES                       = 63027,
+   SPELL_SHOCK_BLAST                           = 63631,
+   // VX 001
+   SPELL_FLAME_SUPPRESSANT_VX                  = 65192,
+   SPELL_FROSTBOMB                             = 64623,
+   SPELL_HAND_PULSE                            = 64348,
+   SPELL_SPINNING_UP                           = 63414,
+   SPELL_RAPID_BURST                           = 63387,
+   SPELL_P3WX2_LASER_BARRAGE                   = 63293,
+   SPELL_ROCKET_STRIKE                         = 63041,
+   SPELL_HEAT_WAVE                             = 63677,
+   // Aerial Command Unit
+   SPELL_PLASMA_BALL                           = 63689,
+   // Additonal spells
+   SPELL_MAGNETIC_FIELD                        = 64668,
+   SPELL_DEAFENING_SIREN                       = 64616,
+   SPELL_WATER_SPRAY                           = 64619,
+   SPELL_FROST_BOMB_HARD_MODE                  = 64627,
+   SPELL_EXPLOSION                             = 66351,
+   SPELL_DISARM                                = 1842,
+   SPELL_RIDE_VEHICLE                          = 46598,
+   SPELL_TRIGGER_MISSILE                       = 65347,
+};
+
+enum Npc
+{
+   NPC_ASSAULT_BOT                             = 34057,
+   NPC_BOMB_BOT                                = 33836,
+   NPC_JUNK_BOT                                = 33855,
+   NPC_EMERGENCE_FIRE_BOT                      = 34147,
+   NPC_FROST_BOMB                              = 34149,
+};
+
+class spell_ulduar_proximity_mines : public SpellScriptLoader
+{
+   public:
+       spell_ulduar_proximity_mines() : SpellScriptLoader("spell_ulduar_proximity_mines") { }
+
+       class spell_ulduar_proximity_minesSpellScript : public SpellScript
+       {
+           PrepareSpellScript(spell_ulduar_proximity_minesSpellScript)
+
+           void HandleScript(SpellEffIndex effIndex)
+           {
+               PreventHitDefaultEffect(effIndex);
+               for (uint8 i = 0; i < 10; ++i)
+                   GetCaster()->CastSpell(GetCaster(), SPELL_TRIGGER_MISSILE, true);
+           }
+
+           void Register()
+           {
+               OnEffect += SpellEffectFn(spell_ulduar_proximity_minesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+           }
+       };
+       
+       SpellScript* GetSpellScript() const
+       {
+           return new spell_ulduar_proximity_minesSpellScript();
+       }
+};
+
+void AddSC_boss_mimiron()
+{
+    new spell_ulduar_proximity_mines();
+}
