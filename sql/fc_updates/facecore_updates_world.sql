@@ -411,3 +411,6 @@ INSERT INTO `spell_ranks` VALUES
 (24131,49010,6);
 -- Rogue
 UPDATE `spell_bonus_data` SET `direct_bonus` = 0, `dot_bonus` = 0 WHERE `entry` IN (2818,2819,11353,11354,25349,26968,27187,57969,57970);
+
+-- Fixed shaman's talent Elemental Focus
+UPDATE `spell_proc_event` SET `SpellFamilyMask0` = `SpellFamilyMask0` &~ 192 WHERE `entry` = 16164;
