@@ -1009,6 +1009,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_lantresor_of_the_blade' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_creditmarker_visit_with_ancestors' WHERE `entry` IN (18840,18841,18842,18843);
 UPDATE `creature_template` SET `ScriptName`='mob_sparrowhawk' WHERE `entry`=22979;
 UPDATE `creature_template` SET `ScriptName`='npc_maghar_captive' WHERE `entry`=18210;
+UPDATE `creature_template` SET `ScriptName`='npc_corki' WHERE `entry` IN (18445,20812,18369);
+UPDATE `gameobject_template` SET `ScriptName`='go_corkis_prison' WHERE `entry` IN (182349,182350,182521);
 
 /* NAXXRAMAS */
 UPDATE `instance_template` SET `script`='instance_naxxramas' WHERE `map`=533;
