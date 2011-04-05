@@ -378,3 +378,10 @@ UPDATE `spell_proc_event` SET `SpellFamilyMask0`=`SpellFamilyMask0`|0x00000001 W
 
 -- Fixed spell bonus coefficient for Prayer of Healing
 UPDATE `spell_bonus_data` SET `direct_bonus` = 0.526 WHERE `entry` = 596;
+
+-- Fix a bug when pets chasing target even if it's invisible
+DELETE FROM `spell_linked_spell` WHERE `spell_effect` = 54661 AND `spell_trigger` IN (32612,5215,1784);
+INSERT INTO `spell_linked_spell` VALUES
+(32612,54661,0,'Invisibility Sanctuary Effect'),
+(5215,54661,0,'Prowl Sanctuary Effect'),
+(1784,54661,0,'Stealth Sanctuary Effect');
