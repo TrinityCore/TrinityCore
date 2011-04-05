@@ -3961,11 +3961,14 @@ void ObjectMgr::LoadArenaTeams()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                     0                      1    2           3    4               5
-    QueryResult result = CharacterDatabase.Query("SELECT arena_team.arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,"
-    //   6           7           8            9      10    11   12     13    14
-        "EmblemColor,BorderStyle,BorderColor, rating,games,wins,played,wins2,rank "
-        "FROM arena_team LEFT JOIN arena_team_stats ON arena_team.arenateamid = arena_team_stats.arenateamid ORDER BY arena_team.arenateamid ASC");
+    // Clean out the trash before loading anything
+    CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");
+
+
+    //                                                                   0        1         2         3          4              5            6            7           8
+    QueryResult result = CharacterDatabase.Query("SELECT arena_team.arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor,"
+    //                                               9      10             11          12          13       14
+                                                 "rating, seasonGames, seasonWins, weekGames, weekWins, rank FROM arena_team ORDER BY arena_team.arenaTeamId ASC");
 
     if (!result)
     {
@@ -3974,30 +3977,29 @@ void ObjectMgr::LoadArenaTeams()
         return;
     }
 
-    // load arena_team members
-    QueryResult arenaTeamMembersResult = CharacterDatabase.Query(
-    //          0           1           2           3         4             5           6               7    8
-        "SELECT arenateamid,member.guid,played_week,wons_week,played_season,wons_season,name,class "
-        "FROM arena_team_member member LEFT JOIN characters chars on member.guid = chars.guid ORDER BY member.arenateamid ASC");
+    QueryResult result2 = CharacterDatabase.Query(
+    //              0              1           2             3              4                 5          6     7          8                  9
+        "SELECT arenaTeamId, atm.guid, atm.weekGames, atm.weekWins, atm.seasonGames, atm.seasonWins, c.name, class, personalRating, matchMakerRating FROM arena_team_member atm"
+        " INNER JOIN arena_team ate USING (arenaTeamId)"
+        " LEFT JOIN characters AS c ON atm.guid = c.guid"
+        " LEFT JOIN character_arena_stats AS cas ON c.guid = cas.guid AND (cas.slot = 0 AND ate.type = 2 OR cas.slot = 1 AND ate.type = 3 OR cas.slot = 2 AND ate.type = 5)"
+        " ORDER BY atm.arenateamid ASC");
 
     uint32 count = 0;
-
     do
     {
-        //Field *fields = result->Fetch();
+        ArenaTeam* newArenaTeam = new ArenaTeam;
 
-        ++count;
-
-        ArenaTeam *newArenaTeam = new ArenaTeam;
-        if (!newArenaTeam->LoadArenaTeamFromDB(result) ||
-            !newArenaTeam->LoadMembersFromDB(arenaTeamMembersResult))
+        if (!newArenaTeam->LoadArenaTeamFromDB(result) || !newArenaTeam->LoadMembersFromDB(result2))
         {
             newArenaTeam->Disband(NULL);
             delete newArenaTeam;
             continue;
         }
         AddArenaTeam(newArenaTeam);
-    }while (result->NextRow());
+
+        ++count;
+    } while (result->NextRow());
 
     sLog->outString();
     sLog->outString(">> Loaded %u arena team definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
