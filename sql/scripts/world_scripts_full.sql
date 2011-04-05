@@ -408,6 +408,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_fallen_hero_of_horde' WHERE `en
 /* BLOODMYST ISLE */
 UPDATE `creature_template` SET `ScriptName`='mob_webbed_creature' WHERE `entry`=17680;
 UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `entry`=17824;
+UPDATE `creature_template` SET `ScriptName`='npc_princess_stillpine' WHERE `entry`=17682;
+UPDATE `gameobject_template` SET `ScriptName`='go_princess_stillpines_cage' WHERE `entry`=181928;
 
 /* BOREAN TUNDRA */
 UPDATE `creature_template` SET `ScriptName`='npc_fizzcrank_fullthrottle' WHERE `entry`=25590;
