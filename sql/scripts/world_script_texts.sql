@@ -573,6 +573,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (18445,-1800071,'Thanks, $C! I''m sure my dad will reward you greatly! Bye!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
    (20812,-1800072,'This is the last time I get caught!I promise! Bye!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
    (18369,-1800073,'Thank you for saving me again!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
+   (17682,-1800074,'Go to the west',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 
 -- -1 033 000 SHADOWFANG KEEP
    (0,-1033000,'Follow me and I''ll open the courtyard door for you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,1,'prisoner ashcrombe SAY_FREE_AS'),
