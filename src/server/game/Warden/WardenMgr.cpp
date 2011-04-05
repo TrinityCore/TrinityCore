@@ -906,7 +906,8 @@ bool WardenMgr::ValidateTSeed(WorldSession* const session, const uint8 *codedCli
     SHA1(session->GetWardenSeed(), 16, codedServerTSeed);
     if (memcmp(codedServerTSeed, codedClientTSeed, 20))
     {
-        ReactToCheatCheckResult(session, false);
+        //ReactToCheatCheckResult(session, false);
+        session->KickPlayer();
         return false;
     }
     return true;
@@ -924,8 +925,9 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
     clientPacket >> checksum;
     if (checksum != BuildChecksum(clientPacket.contents() + clientPacket.rpos(), clientPacket.size() - clientPacket.rpos()))
     {
-        sLog->outBasic("Warden Cheat-check: Kicking account %u for failed check, Packet Checksum 0x%08X is invalid!", session->GetAccountId(), checksum);
-        ReactToCheatCheckResult(session, false);
+        sLog->outError("Warden Cheat-check: Kicking account %u for failed check, Packet Checksum 0x%08X is invalid!", session->GetAccountId(), checksum);
+        //ReactToCheatCheckResult(session, false);
+        session->KickPlayer();
         return false;
     }
 
@@ -970,7 +972,7 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
                 if (res)
                 {
                     valid = false;
-                    sLog->outBasic("Kicking account %u for failed check, MEM at Offset 0x%04X, lentgh %u could not be read by client", accountId, (*checkList)[i].mem->Offset, (*checkList)[i].mem->Length);
+                    sLog->outError("Kicking account %u for failed check, MEM at Offset 0x%04X, lentgh %u could not be read by client", accountId, (*checkList)[i].mem->Offset, (*checkList)[i].mem->Length);
                 }
                 else
                 {
@@ -988,7 +990,7 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
                         std::string strContent, strContent2;
                         hexEncodeByteArray(memContent, (*checkList)[i].mem->Length, strContent);
                         hexEncodeByteArray((*checkList)[i].mem->Result, (*checkList)[i].mem->Length, strContent2);
-                        sLog->outBasic("Kicking account %u for failed check, MEM Offset 0x%04X length %u has content '%s' instead of '%s'",
+                        sLog->outError("Kicking account %u for failed check, MEM Offset 0x%04X length %u has content '%s' instead of '%s'",
                             accountId, (*checkList)[i].mem->Offset, (*checkList)[i].mem->Length, strContent.c_str(), strContent2.c_str());
                     }
                     pktLen = pktLen - (1 + (*checkList)[i].mem->Length);
@@ -1005,7 +1007,7 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
                 if (res)
                 {
                     valid = false;
-                    sLog->outBasic("Kicking account %u for failed check, MPQ '%s' not found by client", accountId, (*checkList)[i].file->String.c_str());
+                    sLog->outError("Kicking account %u for failed check, MPQ '%s' not found by client", accountId, (*checkList)[i].file->String.c_str());
                     pktLen = pktLen - 1;
                 }
                 else
@@ -1018,7 +1020,7 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
                         std::string strResSHA1, strReqSHA1;
                         hexEncodeByteArray(resSHA1, 20, strResSHA1);
                         hexEncodeByteArray((*checkList)[i].file->SHA, 20, strReqSHA1);
-                        sLog->outBasic("Kicking account %u for failed check, MPQ '%s' SHA1 is '%s' instead of '%s'", accountId, (*checkList)[i].file->String.c_str(), strResSHA1.c_str(), strReqSHA1.c_str());
+                        sLog->outError("Kicking account %u for failed check, MPQ '%s' SHA1 is '%s' instead of '%s'", accountId, (*checkList)[i].file->String.c_str(), strResSHA1.c_str(), strReqSHA1.c_str());
                     }
                     pktLen = pktLen - 21;
                 }
@@ -1041,7 +1043,7 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
                         clientPacket >> luaStr[pos];
                     }
                     luaStr[foundLuaLen] = 0;
-                    sLog->outBasic("Kicking account %u for failed check, Lua '%s' found as '%s'", accountId, (*checkList)[i].lua->String.c_str(), (char*)luaStr);
+                    sLog->outError("Kicking account %u for failed check, Lua '%s' found as '%s'", accountId, (*checkList)[i].lua->String.c_str(), (char*)luaStr);
                     valid = false;
                     free(luaStr);
                 }
@@ -1059,9 +1061,9 @@ bool WardenMgr::ValidateCheatCheckResult(WorldSession* const session, WorldPacke
                 if (res != 0xE9)
                 {
                     if ((*checkList)[i].check == WARD_CHECK_DRIVER)
-                        sLog->outBasic("Kicking account %u for failed driver check '%s'", accountId ,(*checkList)[i].driver->String.c_str());
+                        sLog->outError("Kicking account %u for failed driver check '%s'", accountId ,(*checkList)[i].driver->String.c_str());
                     else
-                        sLog->outBasic("Kicking account %u for failed page check Offset 0x%08X, length %u", accountId, (*checkList)[i].page->Offset, (*checkList)[i].page->Length);
+                        sLog->outError("Kicking account %u for failed page check Offset 0x%08X, length %u", accountId, (*checkList)[i].page->Offset, (*checkList)[i].page->Length);
                     valid = false;
                 }
                 sLog->outStaticDebug("Page or Driver %s",valid?"Ok":"Failed");
@@ -1095,9 +1097,9 @@ void WardenMgr::ReactToCheatCheckResult(WorldSession* const session, bool result
     {
         if (m_Banning)
         {
-            std::string sText = ("Игрок: " + std::string(session->GetPlayerName()) + " использовал читерское ПО и был забанен на 30 дней.");
+            std::string sText = ("Игрок: " + std::string(session->GetPlayerName()) + " использовал читерское ПО и был забанен на 1 день.");
             sWorld->SendGMText(LANG_GM_BROADCAST, sText.c_str());
-            sWorld->BanAccount(session, 30*DAY, "Cheating software user", "Server guard");
+            sWorld->BanAccount(session, 1*DAY, "Cheating software user", "Server guard");
         }
         else
             session->KickPlayer();
