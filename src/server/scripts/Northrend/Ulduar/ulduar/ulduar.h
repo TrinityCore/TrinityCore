@@ -80,6 +80,9 @@ enum eNPCs
     NPC_VEZAX                   = 33271,
     NPC_YOGGSARON               = 33288,
     NPC_ALGALON                 = 32871,
+    NPC_LEVIATHAN_MKII          = 33432,
+    NPC_VX_001                  = 33651,
+    NPC_AERIAL_COMMAND_UNIT     = 33670,
 };
 
 enum eGameObjects
