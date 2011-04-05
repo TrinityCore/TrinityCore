@@ -4251,6 +4251,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Spiritual Healing should affect at Prayer of Mending
                 else if (spellInfo->SpellIconID == 46)
                     spellInfo->EffectSpellClassMask[0][1] |= 0x20;
+                // Divine Providence should affect at Prayer of Mending
+                else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
+                    spellInfo->EffectSpellClassMask[0][1] |= 0x20;
                 else
                     break;
                 count++;
