@@ -375,3 +375,6 @@ DELETE FROM `spell_linked_spell` WHERE `comment` = 'Wyvern Sting';
 
 -- Fixed talent Threat of Thassarian of Death Knights
 UPDATE `spell_proc_event` SET `SpellFamilyMask0`=`SpellFamilyMask0`|0x00000001 WHERE `entry` IN (66192,66191,65661);
+
+-- Fixed spell bonus coefficient for Prayer of Healing
+UPDATE `spell_bonus_data` SET `direct_bonus` = 0.526 WHERE `entry` = 596;
