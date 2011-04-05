@@ -826,7 +826,6 @@ class World
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
 
-        //typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap m_sessions;
         typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;

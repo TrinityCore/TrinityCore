@@ -60,7 +60,7 @@ public:
 
     struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
     {
-        instance_utgarde_keep_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_utgarde_keep_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 Keleseth;
         uint64 Skarvald;

@@ -35,6 +35,38 @@ uint32 guide_entry;
 uint32 guide_entry_fortress_horde;
 uint32 guide_entry_fortress_alliance;
 
+char const *fmtstring(char const *format, ...)
+{
+    va_list        argptr;
+    #define    MAX_FMT_STRING    32000
+    static char        temp_buffer[MAX_FMT_STRING];
+    static char        string[MAX_FMT_STRING];
+    static int        index = 0;
+    char    *buf;
+    int len;
+
+    va_start(argptr, format);
+    vsnprintf(temp_buffer,MAX_FMT_STRING, format, argptr);
+    va_end(argptr);
+
+    len = strlen(temp_buffer);
+
+    if (len >= MAX_FMT_STRING)
+        return "ERROR";
+
+    if (len + index >= MAX_FMT_STRING-1)
+    {
+        index = 0;
+    }
+
+    buf = &string[index];
+    memcpy(buf, temp_buffer, len+1);
+
+    index += len + 1;
+
+    return buf;
+}
+
 OutdoorPvPWG::OutdoorPvPWG()
 {
     m_TypeId = OUTDOOR_PVP_WG;
@@ -419,8 +451,6 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     m_towerDamagedCount[TEAM_HORDE] = 0;
     m_towerDestroyedCount[TEAM_HORDE] = 0;
 
-    RemoveOfflinePlayerWGAuras();
-
     RegisterZone(ZONE_WINTERGRASP);
 
     if (m_wartime)
@@ -429,6 +459,7 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
         StartBattle();
         m_timer = m_WSTimer;
     }
+    else RemoveOfflinePlayerWGAuras();
 
     return true;
 }

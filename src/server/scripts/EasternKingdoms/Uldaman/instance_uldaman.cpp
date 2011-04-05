@@ -44,8 +44,7 @@ class instance_uldaman : public InstanceMapScript
         {
             instance_uldaman_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
-                Initialize();
-            };
+            }
 
             void Initialize()
             {

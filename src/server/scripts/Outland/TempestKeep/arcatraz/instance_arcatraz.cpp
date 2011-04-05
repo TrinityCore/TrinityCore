@@ -59,7 +59,7 @@ class instance_arcatraz : public InstanceMapScript
         }
         struct instance_arcatraz_InstanceMapScript : public InstanceScript
         {
-            instance_arcatraz_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { Initialize(); };
+            instance_arcatraz_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 

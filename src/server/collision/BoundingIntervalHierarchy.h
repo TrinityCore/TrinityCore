@@ -128,7 +128,7 @@ class BIH
             for (int i=0; i<3; ++i)
             {
                 invDir[i] = 1.f / dir[i];
-                if (dir[i] != 0.f)
+                if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
                     float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
                     float t2 = (bounds.high()[i] - org[i]) * invDir[i];

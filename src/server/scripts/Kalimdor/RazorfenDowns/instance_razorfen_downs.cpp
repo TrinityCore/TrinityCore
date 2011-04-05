@@ -34,8 +34,7 @@ public:
     {
         instance_razorfen_downs_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
         {
-            Initialize();
-        };
+        }
 
         uint64 uiGongGUID;
 
