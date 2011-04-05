@@ -566,6 +566,20 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
                         }
                     }
                 }
+                // Prevent exploiting with doubling auras
+                else if (caster)
+                {
+                    // check if not stacking aura already on target and remove not own aura
+                    for (Unit::AuraApplicationMap::iterator iter = itr->first->GetAppliedAuras().begin(); iter != itr->first->GetAppliedAuras().end(); ++iter)
+                    {
+                        Aura const * aura = iter->second->GetBase();
+                        if (aura->GetCasterGUID() != GetCasterGUID() && !sSpellMgr->CanAurasStack(this, aura, false))
+                        {
+                            caster->RemoveAurasDueToSpell(aura->GetId(), aura->GetCasterGUID());
+                            break;
+                        }
+                    }
+                }
             }
         }
         if (!addUnit)
