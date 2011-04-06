@@ -279,17 +279,22 @@ class boss_blood_council_controller : public CreatureScript
                     valanar->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* killer)
             {
                 _JustDied();
                 // kill the other 2 princes too
-                for (uint8 i = 0; i < 2; ++i)
+                for (uint8 i = 0; i < 3; ++i)
                 {
                     if (++invocationStage == 3)
                         invocationStage = 0;
 
                     if (Creature* prince = ObjectAccessor::GetCreature(*me, invocationOrder[invocationStage].guid))
-                        prince->Kill(prince);
+                    {
+                        // make sure looting is allowed
+                        if (me->IsDamageEnoughForLootingAndReward())
+                            prince->LowerPlayerDamageReq(prince->GetMaxHealth());
+                        killer->Kill(prince);
+                    }
                 }
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
             }
@@ -1110,7 +1115,7 @@ class npc_ball_of_flame : public CreatureScript
                 if (type == TARGETED_MOTION_TYPE && id == GUID_LOPART(chaseGUID) && chaseGUID)
                 {
                     me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
-                    DoCastAOE(SPELL_FLAMES);
+                    DoCast(me, SPELL_FLAMES);
                     despawnTimer = 1000;
                     chaseGUID = 0;
                 }
@@ -1135,7 +1140,7 @@ class npc_ball_of_flame : public CreatureScript
 
             void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType damageType)
             {
-                if (!instance || damageType != SPELL_DIRECT_DAMAGE)
+                if (damageType != SPELL_DIRECT_DAMAGE)
                     return;
 
                 if (damage > RAID_MODE<uint32>(23000, 25000, 23000, 25000))
@@ -1182,7 +1187,7 @@ class npc_kinetic_bomb : public CreatureScript
                 events.Reset();
                 me->SetDisplayId(DISPLAY_KINETIC_BOMB);
                 me->CastSpell(me, SPELL_UNSTABLE, true);
-                me->CastCustomSpell(SPELL_KINETIC_BOMB_VISUAL, SPELLVALUE_BASE_POINT0, 0x7FFFFFFF, me, true);
+                me->CastSpell(me, SPELL_KINETIC_BOMB_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetSpeed(MOVE_FLIGHT, IsHeroic() ? 0.3f : 0.15f, true);
                 me->GetPosition(x, y, groundZ);
@@ -1196,7 +1201,7 @@ class npc_kinetic_bomb : public CreatureScript
                 else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveJump(x, y, me->GetPositionZ()+7.0f, 1.0f, 7.0f);
+                    me->GetMotionMaster()->MoveJump(x, y, me->GetPositionZ() + 7.0f, 1.0f, 7.0f);
                     events.ScheduleEvent(EVENT_CONTINUE_FALLING, 700);
                 }
             }
@@ -1543,6 +1548,34 @@ class spell_valanar_kinetic_bomb_knockback : public SpellScriptLoader
         }
 };
 
+class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
+{
+    public:
+        spell_valanar_kinetic_bomb_absorb() : SpellScriptLoader("spell_valanar_kinetic_bomb_absorb") { }
+
+        class spell_valanar_kinetic_bomb_absorb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_valanar_kinetic_bomb_absorb_AuraScript);
+
+            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                absorbAmount = CalculatePctN(dmgInfo.GetDamage(), aurEff->GetAmount());
+                RoundToInterval<uint32>(absorbAmount, 0, dmgInfo.GetDamage());
+                dmgInfo.AbsorbDamage(absorbAmount);
+            }
+
+            void Register()
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_valanar_kinetic_bomb_absorb_AuraScript::OnAbsorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_valanar_kinetic_bomb_absorb_AuraScript();
+        }
+};
+
 class spell_blood_council_shadow_prison : public SpellScriptLoader
 {
     public:
@@ -1583,7 +1616,7 @@ class spell_blood_council_shadow_prison_damage : public SpellScriptLoader
             {
                 if (Aura* aur = GetHitUnit()->GetAura(GetSpellInfo()->Id))
                     if (AuraEffect const* eff = aur->GetEffect(1))
-                        SetHitDamage(GetHitDamage()+eff->GetAmount());
+                        SetHitDamage(GetHitDamage() + eff->GetAmount());
             }
 
             void Register()
@@ -1614,6 +1647,7 @@ void AddSC_boss_blood_prince_council()
     new spell_taldaram_ball_of_inferno_flame();
     new spell_valanar_kinetic_bomb();
     new spell_valanar_kinetic_bomb_knockback();
+    new spell_valanar_kinetic_bomb_absorb();
     new spell_blood_council_shadow_prison();
     new spell_blood_council_shadow_prison_damage();
 }
