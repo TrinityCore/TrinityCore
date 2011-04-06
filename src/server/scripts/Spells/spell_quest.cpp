@@ -776,6 +776,48 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
         }
 };
 
+enum symboloflife
+{
+    SPELL_PERMANENT_FEIGN_DEATH = 29266,
+};
+
+// 8593 Symbol of life dummy
+class spell_symbol_of_life_dummy : public SpellScriptLoader
+{
+public:
+    spell_symbol_of_life_dummy() : SpellScriptLoader("spell_symbol_of_life_dummy") { }
+
+    class spell_symbol_of_life_dummy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_symbol_of_life_dummy_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* target = GetTargetUnit()->ToCreature())
+            {
+                if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+                {
+                    target->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
+                    target->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+                    target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
+                    target->SetHealth(target->GetMaxHealth() / 2);
+                    target->SetPower(POWER_MANA, target->GetMaxPower(POWER_MANA) * 0.75);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_symbol_of_life_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_symbol_of_life_dummy_SpellScript();
+    };
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -794,4 +836,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12851_going_bearback();
     new spell_q12937_relief_for_the_fallen();
     new spell_q10041_q10040_who_are_they();
+    new spell_symbol_of_life_dummy();
 }
