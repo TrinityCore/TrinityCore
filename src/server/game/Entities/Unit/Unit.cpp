@@ -11986,9 +11986,15 @@ bool Unit::canAttack(Unit const* target, bool force) const
     return true;
 }
 
-bool Unit::isAttackableByAOE(bool requireDeadTarget) const
+bool Unit::isAttackableByAOE(SpellEntry const * spellProto) const
 {
-    if (isAlive() == requireDeadTarget)
+    bool targetMustBeDead = spellProto ? bool(spellProto->AttributesEx3 & SPELL_ATTR3_REQUIRE_DEAD_TARGET) : false;
+    bool targetCanBeDead = spellProto ? bool(spellProto->AttributesEx2 & SPELL_ATTR2_ALLOW_DEAD_TARGET) : false;
+
+    if (targetMustBeDead && isAlive())
+        return false;
+
+    if (!targetMustBeDead && !targetCanBeDead && !isAlive())
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS,
