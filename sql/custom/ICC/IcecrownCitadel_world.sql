@@ -266,6 +266,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_ice_tomb_e
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_ice_tomb_effect';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_marrowgar_bone_spike_graveyard';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_blistering_cold';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_valanar_kinetic_bomb_absorb';
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (71412,'spell_putricide_ooze_summon'),
@@ -326,6 +327,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (72784,'spell_taldaram_ball_of_inferno_flame'),
 (72080,'spell_valanar_kinetic_bomb'),
 (72087,'spell_valanar_kinetic_bomb_knockback'),
+(72054,'spell_valanar_kinetic_bomb_absorb'),
 (73001,'spell_blood_council_shadow_prison'),
 (72999,'spell_blood_council_shadow_prison_damage'),
 (69538,'spell_rotface_little_ooze_combine'),
