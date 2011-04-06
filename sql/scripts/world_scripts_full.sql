@@ -2036,6 +2036,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72784, 'spell_taldaram_ball_of_inferno_flame'),
 ( 72080, 'spell_valanar_kinetic_bomb'),
 ( 72087, 'spell_valanar_kinetic_bomb_knockback'),
+( 72054, 'spell_valanar_kinetic_bomb_absorb'),
 ( 73001, 'spell_blood_council_shadow_prison'),
 ( 72999, 'spell_blood_council_shadow_prison_damage'),
 ( 70877, 'spell_blood_queen_frenzied_bloodthirst'),
