@@ -167,7 +167,6 @@ CREATE TABLE `arena_team_member` (
   `weekWins` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonGames` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonWins` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `personalRating` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`arenateamid`,`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
