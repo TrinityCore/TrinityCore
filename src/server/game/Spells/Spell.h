@@ -747,17 +747,20 @@ namespace Trinity
         uint32 i_entry;
         const Position * const i_pos;
         bool i_requireDeadTarget;
+        SpellEntry const * i_spellProto;
 
         SpellNotifierCreatureAndPlayer(Unit *source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0, bool requireDeadTarget = false)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0, SpellEntry const * spellProto = NULL)
             : i_data(&data), i_push_type(type), i_radius(radius), i_TargetType(TargetType),
-            i_source(source), i_entry(entry), i_pos(pos), i_requireDeadTarget(requireDeadTarget)
+            i_source(source), i_entry(entry), i_pos(pos), i_spellProto(spellProto)
         {
             ASSERT(i_source);
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
         {
+            i_requireDeadTarget = i_spellProto ? bool(i_spellProto->AttributesEx3 & SPELL_ATTR3_REQUIRE_DEAD_TARGET) : false;
+
             for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
                 Unit *target = (Unit*)itr->getSource();
@@ -770,7 +773,7 @@ namespace Trinity
                     case SPELL_TARGETS_ENEMY:
                         if (target->isTotem())
                             continue;
-                        if (!target->isAttackableByAOE(i_requireDeadTarget))
+                        if (!target->isAttackableByAOE(i_spellProto))
                             continue;
                         if (i_source->IsControlledByPlayer())
                         {
