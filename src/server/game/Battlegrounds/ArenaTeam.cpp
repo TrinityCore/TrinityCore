@@ -185,7 +185,7 @@ bool ArenaTeam::AddMember(const uint64& playerGuid)
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 1);
     }
 
-    sLog->outArena("Player: %s [GUID: %u] joined arena team type: %u [Id: %u].", playerName, playerGuid, GetType(), GetId());
+    sLog->outArena("Player: %s [GUID: %u] joined arena team type: %u [Id: %u].", playerName.c_str(), playerGuid, GetType(), GetId());
 
     return true;
 }
