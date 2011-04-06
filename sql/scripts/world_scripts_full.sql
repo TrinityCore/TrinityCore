@@ -2123,6 +2123,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 52308, 'spell_q12683_take_sputum_sample'),
 ( 55804, 'spell_q12937_relief_for_the_fallen'),
 ( 54798, 'spell_q12851_going_bearback'),
+(  8593, 'spell_symbol_of_life_dummy'),
 -- item
 ( 23074, 'spell_item_arcanite_dragonling'),
 (  8063, 'spell_item_deviate_fish'),
