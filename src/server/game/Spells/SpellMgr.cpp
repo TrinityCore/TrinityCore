@@ -4033,19 +4033,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->Effect[1] = 0;
             count++;
             break;
-        case 70447: // Volatile Ooze Adhesive (Professor Putricide)
-        case 72836: // Volatile Ooze Adhesive (Professor Putricide)
-        case 72837: // Volatile Ooze Adhesive (Professor Putricide)
-        case 72838: // Volatile Ooze Adhesive (Professor Putricide)
-        case 70672: // Gaseous Bloat (Professor Putricide)
-        case 72455: // Gaseous Bloat (Professor Putricide)
-        case 72832: // Gaseous Bloat (Professor Putricide)
-        case 72833: // Gaseous Bloat (Professor Putricide)
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
-            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
-            spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ENEMY;
-            count++;
-            break;
         case 70911: // Unbound Plague (Professor Putricide)
         case 72854: // Unbound Plague (Professor Putricide)
         case 72855: // Unbound Plague (Professor Putricide)
