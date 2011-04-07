@@ -17376,7 +17376,11 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                         ItemPosCountVec dest;
                         err = CanStoreItem(itr->second->GetSlot(), slot, dest, item);
                         if (err == EQUIP_ERR_OK)
+                        { 
                             itr->second->StoreItem(slot, item, true);
+                            //THIS IS A HACK. NEED CORRECT WAY.
+                            AddItemDurations(item);
+                        } 
                     }
                 }
 
