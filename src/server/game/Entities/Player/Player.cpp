@@ -22911,7 +22911,7 @@ void Player::RemoveGlobalCooldown(SpellEntry const *spellInfo)
 uint32 Player::GetRuneBaseCooldown(uint8 index)
 {
     uint8 rune = GetBaseRune(index);
-    uint32 cooldown = RUNE_COOLDOWN;
+    uint32 cooldown = RUNE_BASE_COOLDOWN;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
