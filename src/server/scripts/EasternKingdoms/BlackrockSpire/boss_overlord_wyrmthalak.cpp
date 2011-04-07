@@ -16,113 +16,117 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Overlord_Wyrmthalak
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Spire
-EndScriptData */
+#include "blackrock_spire.h"
 
-#include "ScriptPCH.h"
+enum Spells
+{
+    SPELL_BLASTWAVE                 = 11130,
+    SPELL_SHOUT                     = 23511,
+    SPELL_CLEAVE                    = 20691,
+    SPELL_KNOCKAWAY                 = 20686,
+};
 
-#define SPELL_BLASTWAVE         11130
-#define SPELL_SHOUT             23511
-#define SPELL_CLEAVE            20691
-#define SPELL_KNOCKAWAY         20686
+enum Events
+{
+    EVENT_BLAST_WAVE                = 1,
+    EVENT_SHOUT                     = 2,
+    EVENT_CLEAVE                    = 3,
+    EVENT_KNOCK_AWAY                = 4,
+};
 
-#define ADD_1X -39.355381f
-#define ADD_1Y -513.456482f
-#define ADD_1Z 88.472046f
-#define ADD_1O 4.679872f
+enum Adds
+{
+    NPC_SPIRESTONE_WARLORD          = 9216,
+    NPC_SMOLDERTHORN_BERSERKER      = 9268,
 
-#define ADD_2X -49.875881f
-#define ADD_2Y -511.896942f
-#define ADD_2Z 88.195160f
-#define ADD_2O 4.613114f
+};
+
+const Position SummonLocation1 = { -39.355f, -513.456f, 88.472f, 4.679f };
+const Position SummonLocation2 = { -49.875f, -511.896f, 88.195f, 4.613f };
 
 class boss_overlord_wyrmthalak : public CreatureScript
 {
 public:
     boss_overlord_wyrmthalak() : CreatureScript("boss_overlord_wyrmthalak") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_overlordwyrmthalakAI (pCreature);
+        return new boss_overlordwyrmthalakAI(creature);
     }
 
-    struct boss_overlordwyrmthalakAI : public ScriptedAI
+    struct boss_overlordwyrmthalakAI : public BossAI
     {
-        boss_overlordwyrmthalakAI(Creature *c) : ScriptedAI(c) {}
+        boss_overlordwyrmthalakAI(Creature* creature) : BossAI(creature, DATA_OVERLORD_WYRMTHALAK) {}
 
-        uint32 BlastWave_Timer;
-        uint32 Shout_Timer;
-        uint32 Cleave_Timer;
-        uint32 Knockaway_Timer;
         bool Summoned;
 
         void Reset()
         {
-            BlastWave_Timer = 20000;
-            Shout_Timer = 2000;
-            Cleave_Timer = 6000;
-            Knockaway_Timer = 12000;
+            _Reset();
             Summoned = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_BLAST_WAVE, 20*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SHOUT, 2*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE, 6*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 12*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void JustDied(Unit* /*who*/)
         {
-            //Return since we have no target
+            _JustDied();
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
             if (!UpdateVictim())
                 return;
 
-            //BlastWave_Timer
-            if (BlastWave_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_BLASTWAVE);
-                BlastWave_Timer = 20000;
-            } else BlastWave_Timer -= diff;
-
-            //Shout_Timer
-            if (Shout_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_SHOUT);
-                Shout_Timer = 10000;
-            } else Shout_Timer -= diff;
-
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 7000;
-            } else Cleave_Timer -= diff;
-
-            //Knockaway_Timer
-            if (Knockaway_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-                Knockaway_Timer = 14000;
-            } else Knockaway_Timer -= diff;
-
-            //Summon two Beserks
             if (!Summoned && HealthBelowPct(51))
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0, 100, true);
-
-                if (Creature *SummonedCreature = me->SummonCreature(9216,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000))
-                    SummonedCreature->AI()->AttackStart(pTarget);
-                if (Creature *SummonedCreature = me->SummonCreature(9268,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,300000))
-                    SummonedCreature->AI()->AttackStart(pTarget);
-                Summoned = true;
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0, 100, true))
+                {
+                    if (Creature* warlord = me->SummonCreature(NPC_SPIRESTONE_WARLORD, SummonLocation1, TEMPSUMMON_TIMED_DESPAWN,300*IN_MILLISECONDS))
+                        warlord->AI()->AttackStart(target);
+                    if (Creature* berserker = me->SummonCreature(NPC_SMOLDERTHORN_BERSERKER, SummonLocation2, TEMPSUMMON_TIMED_DESPAWN,300*IN_MILLISECONDS))
+                        berserker->AI()->AttackStart(target);
+                    Summoned = true;
+                }
             }
 
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BLAST_WAVE:
+                        DoCast(me->getVictim(), SPELL_BLASTWAVE);
+                        events.ScheduleEvent(EVENT_BLAST_WAVE, 20*IN_MILLISECONDS);
+                        break;
+                    case EVENT_SHOUT:
+                        DoCast(me->getVictim(), SPELL_SHOUT);
+                        events.ScheduleEvent(EVENT_SHOUT, 10*IN_MILLISECONDS);
+                        break;
+                    case EVENT_CLEAVE:
+                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7*IN_MILLISECONDS);
+                        break;
+                    case EVENT_KNOCK_AWAY:
+                        DoCast(me->getVictim(), SPELL_KNOCKAWAY);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 14*IN_MILLISECONDS);
+                        break;
+                }
+            }
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_overlordwyrmthalak()
