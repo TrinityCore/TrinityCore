@@ -17,14 +17,10 @@
 
 #include "CharacterDatabase.h"
 
-bool CharacterDatabaseConnection::Open()
+void CharacterDatabaseConnection::DoPrepareStatements()
 {
-    if (!MySQLConnection::Open())
-        return false;
-
     if (!m_reconnecting)
         m_stmts.resize(MAX_CHARACTERDATABASE_STATEMENTS);
-
 
     PREPARE_STATEMENT(CHAR_DEL_QUEST_POOL_SAVE, "DELETE FROM pool_quest_save WHERE pool_id = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_ADD_QUEST_POOL_SAVE, "INSERT INTO pool_quest_save (pool_id, quest_id) VALUES (?, ?)", CONNECTION_ASYNC)
@@ -299,9 +295,4 @@ bool CharacterDatabaseConnection::Open()
     PREPARE_STATEMENT(CHAR_UPDATE_ARENA_TEAM_MEMBER, "UPDATE arena_team_member SET weekGames = ?, weekWins = ?, seasonGames = ?, seasonWins = ? WHERE arenaTeamId = ? AND guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPDATE_ARENA_TEAM_MEMBER_STATS, "REPLACE INTO character_arena_stats (guid, slot, personalRating, matchMakerRating) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_LOAD_PLAYER_ARENA_TEAMS, "SELECT arena_team_member.arenaTeamId FROM arena_team_member JOIN arena_team ON arena_team_member.arenaTeamId = arena_team.arenaTeamId WHERE guid = ?", CONNECTION_SYNCH);
-
-    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
-        PrepareStatement(itr->first, itr->second.first, itr->second.second);
-
-    return true;
 }

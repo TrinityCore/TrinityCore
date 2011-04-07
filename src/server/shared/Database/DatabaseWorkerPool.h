@@ -68,6 +68,7 @@ class DatabaseWorkerPool
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
+            bool res = true;
             m_connectionInfo = MySQLConnectionInfo(infoString);
 
             sLog->outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
@@ -77,7 +78,7 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < async_threads; ++i)
             {
                 T* t = new T(m_queue, m_connectionInfo);
-                t->Open();
+                res &= t->Open();
                 m_connections[IDX_ASYNC][i] = t;
                 ++m_connectionCount[IDX_ASYNC];
             }
@@ -87,13 +88,13 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < synch_threads; ++i)
             {
                 T* t = new T(m_connectionInfo);
-                t->Open();
+                res &= t->Open();
                 m_connections[IDX_SYNCH][i] = t;
                 ++m_connectionCount[IDX_SYNCH];
             }
 
             sLog->outSQLDriver("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
-            return true;
+            return res;
         }
 
         void Close()
