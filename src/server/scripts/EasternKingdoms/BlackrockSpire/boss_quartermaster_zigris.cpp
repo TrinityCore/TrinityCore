@@ -16,73 +16,80 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Quartmaster_Zigris
-SD%Complete: 100
-SDComment: Needs revision
-SDCategory: Blackrock Spire
-EndScriptData */
+#include "blackrock_spire.h"
 
-#include "ScriptPCH.h"
+enum Spells
+{
+    SPELL_SHOOT                     = 16496,
+    SPELL_STUNBOMB                  = 16497,
+    SPELL_HEALING_POTION            = 15504,
+    SPELL_HOOKEDNET                 = 15609,
+};
 
-#define SPELL_SHOOT             16496
-#define SPELL_STUNBOMB          16497
-#define SPELL_HEALING_POTION    15504
-#define SPELL_HOOKEDNET         15609
+enum Events
+{
+    EVENT_SHOOT                     = 1,
+    EVENT_STUN_BOMB                 = 2,
+};
 
 class quartermaster_zigris : public CreatureScript
 {
 public:
     quartermaster_zigris() : CreatureScript("quartermaster_zigris") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_quatermasterzigrisAI (pCreature);
+        return new boss_quatermasterzigrisAI(creature);
     }
 
-    struct boss_quatermasterzigrisAI : public ScriptedAI
+    struct boss_quatermasterzigrisAI : public BossAI
     {
-        boss_quatermasterzigrisAI(Creature *c) : ScriptedAI(c) {}
-
-        uint32 Shoot_Timer;
-        uint32 StunBomb_Timer;
-        //uint32 HelingPotion_Timer;
+        boss_quatermasterzigrisAI(Creature* creature) : BossAI(creature, DATA_QUARTERMASTER_ZIGRIS) {}
 
         void Reset()
         {
-            Shoot_Timer = 1000;
-            StunBomb_Timer = 16000;
-            //HelingPotion_Timer = 25000;
+            _Reset();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_SHOOT, 1*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_STUN_BOMB, 16*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void JustDied(Unit* /*who*/)
         {
-            //Return since we have no target
+            _JustDied();
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
             if (!UpdateVictim())
                 return;
 
-            //Shoot_Timer
-            if (Shoot_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_SHOOT);
-                Shoot_Timer = 500;
-            } else Shoot_Timer -= diff;
+            events.Update(diff);
 
-            //StunBomb_Timer
-            if (StunBomb_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_STUNBOMB);
-                StunBomb_Timer = 14000;
-            } else StunBomb_Timer -= diff;
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
 
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SHOOT:
+                        DoCast(me->getVictim(), SPELL_SHOOT);
+                        events.ScheduleEvent(EVENT_SHOOT, 500);
+                        break;
+                    case EVENT_STUN_BOMB:
+                        DoCast(me->getVictim(), SPELL_STUNBOMB);
+                        events.ScheduleEvent(EVENT_STUN_BOMB, 14*IN_MILLISECONDS);
+                        break;
+                }
+            }
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_quatermasterzigris()

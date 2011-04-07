@@ -16,70 +16,82 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Mother_Smolderweb
-SD%Complete: 100
-SDComment: Uncertain how often mother's milk is casted
-SDCategory: Blackrock Spire
-EndScriptData */
+#include "blackrock_spire.h"
 
-#include "ScriptPCH.h"
+enum Spells
+{
+    SPELL_CRYSTALIZE                = 16104,
+    SPELL_MOTHERSMILK               = 16468,
+    SPELL_SUMMON_SPIRE_SPIDERLING   = 16103,
+};
 
-#define SPELL_CRYSTALIZE                16104
-#define SPELL_MOTHERSMILK               16468
-#define SPELL_SUMMON_SPIRE_SPIDERLING   16103
+enum Events
+{
+    EVENT_CRYSTALIZE                = 1,
+    EVENT_MOTHERS_MILK              = 2,
+};
 
 class boss_mother_smolderweb : public CreatureScript
 {
 public:
     boss_mother_smolderweb() : CreatureScript("boss_mother_smolderweb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_mothersmolderwebAI (pCreature);
+        return new boss_mothersmolderwebAI(creature);
     }
 
-    struct boss_mothersmolderwebAI : public ScriptedAI
+    struct boss_mothersmolderwebAI : public BossAI
     {
-        boss_mothersmolderwebAI(Creature *c) : ScriptedAI(c) {}
-
-        uint32 Crystalize_Timer;
-        uint32 MothersMilk_Timer;
+        boss_mothersmolderwebAI(Creature* creature) : BossAI(creature, DATA_MOTHER_SMOLDERWEB) {}
 
         void Reset()
         {
-            Crystalize_Timer = 20000;
-            MothersMilk_Timer = 10000;
+            _Reset();
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/)
+        {
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_CRYSTALIZE, 20*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MOTHERS_MILK, 10*IN_MILLISECONDS);
+        }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void JustDied(Unit* /*who*/)
+        {
+            _JustDied();
+        }
+
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (me->GetHealth() <= damage)
                 DoCast(me, SPELL_SUMMON_SPIRE_SPIDERLING, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
-            //Crystalize_Timer
-            if (Crystalize_Timer <= diff)
-            {
-                DoCast(me, SPELL_CRYSTALIZE);
-                Crystalize_Timer = 15000;
-            } else Crystalize_Timer -= diff;
+            events.Update(diff);
 
-            //MothersMilk_Timer
-            if (MothersMilk_Timer <= diff)
-            {
-                DoCast(me, SPELL_MOTHERSMILK);
-                MothersMilk_Timer = urand(5000,12500);
-            } else MothersMilk_Timer -= diff;
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
 
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CRYSTALIZE:
+                        DoCast(me, SPELL_CRYSTALIZE);
+                        events.ScheduleEvent(EVENT_CRYSTALIZE, 15*IN_MILLISECONDS);
+                        break;
+                    case EVENT_MOTHERS_MILK:
+                        DoCast(me, SPELL_MOTHERSMILK);
+                        events.ScheduleEvent(EVENT_MOTHERS_MILK, urand(5*IN_MILLISECONDS,12500));
+                        break;
+                }
+            }
             DoMeleeAttackIfReady();
         }
     };
