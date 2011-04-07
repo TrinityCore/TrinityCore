@@ -154,7 +154,6 @@ m_formation(NULL)
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
     DisableReputationGain = false;
-    //m_unit_movement_flags = MONSTER_MOVE_WALK;
 
     m_SightDistance = sWorld->getFloatConfig(CONFIG_SIGHT_MONSTER);
     m_CombatDistance = 0;//MELEE_RANGE;
