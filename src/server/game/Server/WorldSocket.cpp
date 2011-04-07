@@ -888,7 +888,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         */
 
     K.SetHexStr (fields[1].GetCString());
-    m_s = K;
 
     time_t mutetime = time_t (fields[7].GetUInt64());
 
