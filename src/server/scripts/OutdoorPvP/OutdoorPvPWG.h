@@ -188,6 +188,15 @@ const TeamPair OutdoorPvPWGGODisplayPair[] =
     {0,0} // Do not delete Used in LoadTeamPair
 };
 
+const Team TeamId2Team[3] = 
+{
+    ALLIANCE,
+    HORDE,
+    TEAM_OTHER
+};
+
+const uint8 CapturePointArtKit[3] = {2, 1, 21};
+
 const uint32 AreaPOIIconId[3][3] = {{7,8,9},{4,5,6},{1,2,3}};
 typedef std::list<const AreaPOIEntry *> AreaPOIList;
 

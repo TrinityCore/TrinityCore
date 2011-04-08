@@ -29,7 +29,7 @@ class CharacterDatabaseConnection : public MySQLConnection
         CharacterDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
 
         //- Loads database type specific prepared statements
-        bool Open();
+        void DoPrepareStatements();
 };
 
 typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
@@ -248,9 +248,12 @@ enum CharacterDatabaseStatements
     CHAR_UPDATE_ARENA_TEAM_MEMBER_STATS,
     CHAR_LOAD_PLAYER_ARENA_TEAMS,
 
-
     CHAR_LOAD_PETITION,
     CHAR_LOAD_PETITION_SIGNATURE,
+
+    CHAR_ADD_PLAYER_BGDATA,
+    CHAR_DEL_PLAYER_BGDATA,
+    CHAR_RESET_PLAYERS_BGDATA,
 
     MAX_CHARACTERDATABASE_STATEMENTS,
 };

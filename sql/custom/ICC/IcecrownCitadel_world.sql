@@ -182,8 +182,13 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (72202,70117);
 DELETE FROM `spell_linked_spell` WHERE `spell_effect` IN(72202,69166,70347,72380,69706,70702,70311, 69291, 70338,72846,69201,74074);
+DELETE FROM `spell_linked_spell` WHERE `spell_effect`=70530;
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
 (70360,70347,0,'Eat Ooze'),
+(-70447,70530,0, 'Putricide: Volatile Ooze Adhesive Protection'),
+(-72836,70530,0, 'Putricide: Volatile Ooze Adhesive Protection'),
+(-72837,70530,0, 'Putricide: Volatile Ooze Adhesive Protection'),
+(-72838,70530,0, 'Putricide: Volatile Ooze Adhesive Protection'),
 (72379,72380,0,'Blood Nova'),
 (72380,72202,0,'Blood Nova 10N'),
 (72438,72202,0,'Blood Nova 25N'),
@@ -267,6 +272,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_ice_tomb_e
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_marrowgar_bone_spike_graveyard';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_blistering_cold';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_valanar_kinetic_bomb_absorb';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_putricide_ooze_channel';
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (71412,'spell_putricide_ooze_summon'),
@@ -278,6 +284,14 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (70308,'spell_putricide_mutation_init'),
 (70311,'spell_putricide_mutated_transformation'),
 (71503,'spell_putricide_mutated_transformation'),
+(70447, 'spell_putricide_ooze_channel'),
+(72836, 'spell_putricide_ooze_channel'),
+(72837, 'spell_putricide_ooze_channel'),
+(72838, 'spell_putricide_ooze_channel'),
+(70672, 'spell_putricide_ooze_channel'),
+(72455, 'spell_putricide_ooze_channel'),
+(72832, 'spell_putricide_ooze_channel'),
+(72833, 'spell_putricide_ooze_channel'),
 (74361,'spell_lich_king_valkyr_summon'),
 (70541,'spell_lich_king_infection'),
 (73779,'spell_lich_king_infection'),

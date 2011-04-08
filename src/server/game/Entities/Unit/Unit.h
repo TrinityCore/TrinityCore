@@ -687,12 +687,6 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK14                    = 0x00002000,
     MOVEMENTFLAG2_UNK15                    = 0x00004000,
     MOVEMENTFLAG2_UNK16                    = 0x00008000,
-
-    // player only?
-    MOVEMENTFLAG2_INTERPOLATED =
-        MOVEMENTFLAG2_INTERPOLATED_MOVEMENT |
-        MOVEMENTFLAG2_INTERPOLATED_TURNING |
-        MOVEMENTFLAG2_INTERPOLATED_PITCHING
 };
 enum SplineFlags
 {
@@ -988,7 +982,6 @@ enum CommandStates
 
 #define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
 #define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
-#define MAX_UNIT_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
 #define MAKE_UNIT_ACTION_BUTTON(A,T) (uint32(A) | (uint32(T) << 24))
 
 struct UnitActionBarEntry
@@ -1056,9 +1049,6 @@ struct CharmInfo
         void SetCommandState(CommandStates st) { m_CommandState = st; }
         CommandStates GetCommandState() const { return m_CommandState; }
         bool HasCommandState(CommandStates state) const { return (m_CommandState == state); }
-        //void SetReactState(ReactStates st) { m_reactState = st; }
-        //ReactStates GetReactState() { return m_reactState; }
-        //bool HasReactState(ReactStates state) { return (m_reactState == state); }
 
         void InitPossessCreateSpells();
         void InitCharmCreateSpells();
@@ -1100,7 +1090,6 @@ struct CharmInfo
         UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
         CharmSpellEntry m_charmspells[4];
         CommandStates   m_CommandState;
-        //ReactStates     m_reactState;
         uint32          m_petnumber;
         bool            m_barInit;
 
@@ -1371,8 +1360,6 @@ class Unit : public WorldObject
 
         void HandleEmoteCommand(uint32 anim_id);
         void AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
-
-        //float MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) const;
 
         void CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss);
@@ -2142,7 +2129,6 @@ class Unit : public WorldObject
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
 
         MotionMaster i_motionMaster;
-        //uint32 m_unit_movement_flags;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
@@ -2191,8 +2177,6 @@ class Unit : public WorldObject
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
 
         Diminishing m_Diminishing;
-        // Manage all Units threatening us
-//        ThreatManager m_ThreatManager;
         // Manage all Units that are threatened by us
         HostileRefManager m_HostileRefManager;
 

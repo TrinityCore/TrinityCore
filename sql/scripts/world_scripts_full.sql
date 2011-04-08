@@ -363,6 +363,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_phalanx' WHERE `entry`=9502;
 UPDATE `gameobject_template` SET `ScriptName`='go_shadowforge_brazier' WHERE `entry` IN (174744,174745);
 
 /* BLACKROCK SPIRE */
+UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
 /* BLACKROCK SPIRE Lower bosses */
 UPDATE `creature_template` SET `ScriptName`='boss_highlord_omokk' WHERE `entry`=9196;
 UPDATE `creature_template` SET `ScriptName`='boss_shadow_hunter_voshgajin' WHERE `entry`=9236;
@@ -2000,6 +2001,14 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72455, 'spell_putricide_gaseous_bloat'),
 ( 72832, 'spell_putricide_gaseous_bloat'),
 ( 72833, 'spell_putricide_gaseous_bloat'),
+( 70447, 'spell_putricide_ooze_channel'),
+( 72836, 'spell_putricide_ooze_channel'),
+( 72837, 'spell_putricide_ooze_channel'),
+( 72838, 'spell_putricide_ooze_channel'),
+( 70672, 'spell_putricide_ooze_channel'),
+( 72455, 'spell_putricide_ooze_channel'),
+( 72832, 'spell_putricide_ooze_channel'),
+( 72833, 'spell_putricide_ooze_channel'),
 ( 70459, 'spell_putricide_ooze_eruption_searcher'),
 ( 71255, 'spell_putricide_choking_gas_bomb'),
 ( 70920, 'spell_putricide_unbound_plague'),

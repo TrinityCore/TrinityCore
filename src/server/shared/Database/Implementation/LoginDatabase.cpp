@@ -17,15 +17,10 @@
 
 #include "LoginDatabase.h"
 
-bool LoginDatabaseConnection::Open()
+void LoginDatabaseConnection::DoPrepareStatements()
 {
-    if (!MySQLConnection::Open())
-        return false;
-
     if (!m_reconnecting)
         m_stmts.resize(MAX_LOGINDATABASE_STATEMENTS);
-
-    /* ################ LOAD PREPARED STATEMENTS HERE ################ */
 
     PREPARE_STATEMENT(LOGIN_GET_REALMLIST, "SELECT id, name, address, port, icon, color, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE color <> 3 ORDER BY name", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SET_EXPIREDIPBANS, "DELETE FROM ip_banned WHERE unbandate<>bandate AND unbandate<=UNIX_TIMESTAMP()", CONNECTION_ASYNC)
@@ -48,13 +43,4 @@ bool LoginDatabaseConnection::Open()
     PREPARE_STATEMENT(LOGIN_SET_ACCOUNT_BANNED, "INSERT INTO account_banned VALUES (?, ?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?, 1)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_SET_ACCOUNT_NOT_BANNED, "UPDATE account_banned SET active = 0 WHERE id = ? AND active != 0", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_SET_AUTOBANDEBUG, "INSERT INTO autoban_debug VALUES (?, ?, UNIX_TIMESTAMP(), 'Very autobanner', ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
-
-    /* ############## END OF LOADING PREPARED STATEMENTS ############## */
-
-    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
-    {
-        PrepareStatement(itr->first, itr->second.first, itr->second.second);
-    }
-
-    return true;
 }
