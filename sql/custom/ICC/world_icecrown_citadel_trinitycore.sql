@@ -6,7 +6,7 @@ INSERT INTO `spell_script_names` VALUES
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (69075, 70834, 70835, 70836);
 INSERT INTO `spell_script_names` VALUES 
-(69075, 'spell_marrowgar_bone_storm'),
+(69075,    'spell_marrowgar_bone_storm'),
 (70834,    'spell_marrowgar_bone_storm'),
 (70835,    'spell_marrowgar_bone_storm'),
 (70836,    'spell_marrowgar_bone_storm');
@@ -138,7 +138,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (13135,12,3,0, ''); -- Sindragosa kills (Heroic Icecrown 25 player)
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5604,5698,5649);
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
-(5604,'at_sindragosa_lair'),
+(5604, 'at_sindragosa_lair'),
 (5698, 'at_icc_saurfang_portal'),
 (5649, 'at_icc_shutdown_traps');
 
