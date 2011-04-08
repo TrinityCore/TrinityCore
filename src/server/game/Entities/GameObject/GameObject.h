@@ -130,7 +130,7 @@ struct GameObjectInfo
             uint32 level;                                   //1
             uint32 radius;                                  //2 radius for trap activation
             uint32 spellId;                                 //3
-            uint32 charges;                                 //4 need respawn (if > 0)
+            uint32 type;                                    //4 0 trap with no despawn after cast. 1 trap despawns after cast. 2 bomb casts on spawn.
             uint32 cooldown;                                //5 time in secs
             int32 autoCloseTime;                            //6
             uint32 startDelay;                              //7

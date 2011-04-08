@@ -278,7 +278,7 @@ void GameObject::Update(uint32 diff)
                     // Arming Time for GAMEOBJECT_TYPE_TRAP (6)
                     GameObjectInfo const* goInfo = GetGOInfo();
                     // Bombs
-                    if (goInfo->trap.charges == 2)
+                    if (goInfo->trap.type == 2)
                         m_cooldownTime = time(NULL) + 10;   // Hardcoded tooltip value
                     else if (Unit* owner = GetOwner())
                     {
@@ -393,7 +393,7 @@ void GameObject::Update(uint32 diff)
                         return;
 
                     // Type 2 - Bomb (will go away after casting it's spell)
-                    if (goInfo->trap.charges == 2)
+                    if (goInfo->trap.type == 2)
                     {
                         if (goInfo->trap.spellId)
                             CastSpell(NULL, goInfo->trap.spellId);  // FIXME: null target won't work for target type 1
@@ -453,7 +453,7 @@ void GameObject::Update(uint32 diff)
 
                         m_cooldownTime = time(NULL) + goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4);   // template or 4 seconds
 
-                        if (owner)  // || goInfo->trap.charges == 1)
+                        if (goInfo->trap.type == 1)
                             SetLootState(GO_JUST_DEACTIVATED);
 
                         if (IsBattlegroundTrap && ok->GetTypeId() == TYPEID_PLAYER)
