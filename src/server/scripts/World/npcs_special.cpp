@@ -1789,6 +1789,12 @@ public:
 
         pPlayer->SEND_GOSSIP_MENU(1100000, pCreature->GetGUID());
 
+        switch(urand(0,1))
+        {
+            case 0: pCreature->CastSpell(pPlayer, SPELL_TURKEY_FEATHERS, true); break; // Truthahnfedern
+            case 1: pPlayer->SetDisplayId(15369); break; // Murloc Baby
+        }
+
         return true;
     }
 
@@ -2135,14 +2141,9 @@ public:
 
         switch(uiSender)
         {
-            case GOSSIP_SENDER_MAIN:
-                pCreature->CastSpell(pPlayer, SPELL_TURKEY_FEATHERS, true); // Truthahnfedern
-                SendDefaultMenu(pPlayer, pCreature, uiAction);
-                break;
+            case GOSSIP_SENDER_MAIN: SendDefaultMenu(pPlayer, pCreature, uiAction); break;
             case GOSSIP_SENDER_SEC_BANK:
-            case GOSSIP_SENDER_SEC_PROFTRAIN:
-                SendActionMenu(pPlayer, pCreature, uiAction);
-                break;
+            case GOSSIP_SENDER_SEC_PROFTRAIN: SendActionMenu(pPlayer, pCreature, uiAction); break;
         }
         return true;
     }
