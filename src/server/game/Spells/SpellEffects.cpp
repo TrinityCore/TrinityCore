@@ -4402,13 +4402,52 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                 }
                 case 45204: // Clone Me!
-                case 41055: // Copy Weapon
-                case 45206: // Copy Off-hand Weapon
-                    unitTarget->CastSpell(m_caster, damage, false);
+                case 45785: // Sinister Reflection Clone
+                case 49889: // Mystery of the Infinite: Future You's Mirror Image Aura
+                case 50218: // The Cleansing: Your Inner Turmoil's Mirror Image Aura
+                case 51719: // Altar of Quetz'lun: Material You's Mirror Image Aura
+                case 57528: // Nightmare Figment Mirror Image
+                case 69828: // Halls of Reflection Clone
+                    m_caster->CastSpell(unitTarget, damage, true);
                     break;
-                case 45205: // Copy Offhand Weapon
-                case 41054: // Copy Weapon
-                    m_caster->CastSpell(unitTarget, damage, false);
+                case 41055: // Copy Weapon
+                case 63416:
+                case 69891:
+                    m_caster->CastSpell(unitTarget, damage, true);
+                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                        break;
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (Item * mainItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
+                    }
+                    else
+                        unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
+                    break;
+                case 45206: // Copy Off-hand Weapon
+                case 69892:
+                    m_caster->CastSpell(unitTarget, damage, true);
+                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                        break;
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (Item * offItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                            unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
+                    }
+                    else
+                        unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
+                    break;
+                case 57593: // Copy Ranged Weapon
+                    m_caster->CastSpell(unitTarget, damage, true);
+                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                        break;
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (Item * rangedItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                            unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
+                    }
+                    else
+                        unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
                     break;
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
