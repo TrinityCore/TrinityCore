@@ -1710,17 +1710,31 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         Player::LeaveAllArenaTeams(guid);
 
         // Reset homebind and position
-        trans->PAppend("DELETE FROM `character_homebind` WHERE guid = '%u'", lowGuid);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
+        stmt->setUInt32(0, lowGuid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PLAYER_HOMEBIND);
+        stmt->setUInt32(0, lowGuid);
         if (team == BG_TEAM_ALLIANCE)
         {
-            trans->PAppend("INSERT INTO `character_homebind` VALUES (%u,0,1519,-8867.68,673.373,97.9034)", lowGuid);
+            stmt->setUInt16(1, 0);
+            stmt->setUInt16(2, 1519);
+            stmt->setFloat (3, -8867.68f);
+            stmt->setFloat (4, 673.373f);
+            stmt->setFloat (5, 97.9034f);
             Player::SavePositionInDB(0, -8867.68f, 673.373f, 97.9034f, 0.0f, 1519, lowGuid);
         }
         else
         {
-            trans->PAppend("INSERT INTO `character_homebind` VALUES (%u,1,1637,1633.33,-4439.11,15.7588)", lowGuid);
+            stmt->setUInt16(1, 1);
+            stmt->setUInt16(2, 1637);
+            stmt->setFloat (3, 1633.33f);
+            stmt->setFloat (4, -4439.11f);
+            stmt->setFloat (5, 15.7588f);
             Player::SavePositionInDB(1, 1633.33f, -4439.11f, 15.7588f, 0.0f, 1637, lowGuid);
         }
+        trans->Append(stmt);
 
         // Achievement conversion
         for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->factionchange_achievements.begin(); it != sObjectMgr->factionchange_achievements.end(); ++it)
