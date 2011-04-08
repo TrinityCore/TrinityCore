@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
+#include "WardenMgr.h"
 #include "Group.h"
 #include "Guild.h"
 #include "World.h"
@@ -92,7 +93,7 @@ m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
-m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter)
+m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter), m_wardenStatus(WARD_STATE_UNREGISTERED), m_WardenClientChecks(NULL)
 {
     if (sock)
     {
@@ -122,6 +123,9 @@ WorldSession::~WorldSession()
     WorldPacket *packet = NULL;
     while (_recvQueue.next(packet))
         delete packet;
+
+    ///- inform Warden Manager
+    sWardenMgr->Unregister(this);
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
 }
@@ -340,6 +344,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (!m_Socket)
             return false;                                       //Will remove this session from the world session map
     }
+    //Process Warden related update for this session
+    if (sWardenMgr->IsEnabled())
+        sWardenMgr->Update(this);                //Called 2 times from Map::Update and World::UpdateSessions, so need to /2
+
     return true;
 }
 

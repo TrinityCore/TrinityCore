@@ -226,6 +226,9 @@ void WorldSession::HandleCharEnum(QueryResult result)
     data.put<uint8>(0, num);
 
     SendPacket(&data);
+
+    // It's time to begin warden activity
+    HandleWardenRegister();
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)

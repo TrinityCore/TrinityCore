@@ -519,3 +519,76 @@ void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
     result = ss.str();
 }
 
+// Function that converts string hex values into binary ones, support spaces in the string
+void hexDecodeString(const char *str, uint32 strlen, uint8* buffer)
+{
+    int8 startedNibble = 0x0F;
+    uint32 bufferId = 0;
+    for (uint32 i = 0; i < strlen; ++i)
+    {
+        char c = tolower(str[i]);
+        uint8 value = 0;
+        if (c >='0' && c <= '9')
+            value = c-'0';
+        else if (c>='a' && c<='f')
+            value = c-'a'+0xa;
+        else
+            continue;
+        if (startedNibble == 0x0F)
+            startedNibble = value<<4;
+        else
+        {
+            buffer[bufferId] = startedNibble | value;
+            startedNibble = 0x0F;
+            bufferId++;
+        }
+    }
+}
+
+// Simple RC4 to work on 256+2 bytes keys
+void byteSwap(uint8 *a, uint8 *b)
+{
+    uint8 t;
+    t = *a;
+    *a = *b;
+    *b = t;
+}
+
+void rc4_init(uint8 *key_buffer, uint8 *base, uint32 base_length)
+{
+    uint8 val = 0;
+    uint32 position = 0;
+    uint32 i;
+
+    for(i = 0; i < 0x100; i++)
+        key_buffer[i] = (uint8)i;
+
+    key_buffer[0x100] = 0;
+    key_buffer[0x101] = 0;
+
+    for(i = 1; i <= 0x40; i++)
+    {
+        val += key_buffer[(i * 4) - 4] + base[position++ % base_length];
+        byteSwap(&key_buffer[(i * 4) - 4], &key_buffer[val & 0x0FF]);
+
+        val += key_buffer[(i * 4) - 3] + base[position++ % base_length];
+        byteSwap(&key_buffer[(i * 4) - 3], &key_buffer[val & 0x0FF]);
+
+        val += key_buffer[(i * 4) - 2] + base[position++ % base_length];
+        byteSwap(&key_buffer[(i * 4) - 2], &key_buffer[val & 0x0FF]);
+
+        val += key_buffer[(i * 4) - 1] + base[position++ % base_length];
+        byteSwap(&key_buffer[(i * 4) - 1], &key_buffer[val & 0x0FF]);
+    }
+}
+
+void rc4_crypt(uint8 *key, uint8 *data, uint32 length)
+{
+    for(uint32 i = 0; i < length; i++)
+    {
+        key[0x100]++;
+        key[0x101] += key[key[0x100]];
+        byteSwap(&key[key[0x101]], &key[key[0x100]]);
+        data[i] ^= key[(key[key[0x101]] + key[key[0x100]]) & 0x0FF];
+    }
+}

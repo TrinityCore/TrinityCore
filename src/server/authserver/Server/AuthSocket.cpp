@@ -68,7 +68,7 @@ typedef struct AUTH_LOGON_CHALLENGE_C
     uint8   version3;
     uint16  build;
     uint8   platform[4];
-    uint8   os[4];
+    uint32  os;
     uint8   country[4];
     uint32  timezone_bias;
     uint32  ip;
@@ -331,7 +331,7 @@ bool AuthSocket::_HandleLogonChallenge()
     EndianConvert(*((uint32*)(&ch->gamename[0])));
     EndianConvert(ch->build);
     EndianConvert(*((uint32*)(&ch->platform[0])));
-    EndianConvert(*((uint32*)(&ch->os[0])));
+    EndianConvert(ch->os);
     EndianConvert(*((uint32*)(&ch->country[0])));
     EndianConvert(ch->timezone_bias);
     EndianConvert(ch->ip);
@@ -341,6 +341,7 @@ bool AuthSocket::_HandleLogonChallenge()
 
     _login = (const char*)ch->I;
     _build = ch->build;
+    _os = ch->os;
     _expversion = (AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG) | (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
 
     pkt << (uint8)AUTH_LOGON_CHALLENGE;
@@ -599,7 +600,8 @@ bool AuthSocket::_HandleLogonProof()
         stmt->setString(0, K_hex);
         stmt->setString(1, socket().get_remote_address().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
-        stmt->setString(3, _login);
+        stmt->setUInt32(3, _os);
+        stmt->setString(4, _login);
         LoginDatabase.Execute(stmt);
 
         OPENSSL_free((void*)K_hex);
