@@ -828,19 +828,19 @@ void ArenaTeam::SaveToDB()
     for (MemberList::const_iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_ARENA_TEAM_MEMBER);
-        stmt->setUInt16(0, itr->WeekGames);
-        stmt->setUInt16(1, itr->WeekWins);
-        stmt->setUInt16(2, itr->SeasonGames);
-        stmt->setUInt16(3, itr->SeasonWins);
-        stmt->setUInt32(4, GetId());
-        stmt->setUInt16(5, GUID_LOPART(itr->Guid));
+        stmt->setUInt16(0, itr->PersonalRating);
+        stmt->setUInt16(1, itr->WeekGames);
+        stmt->setUInt16(2, itr->WeekWins);
+        stmt->setUInt16(3, itr->SeasonGames);
+        stmt->setUInt16(4, itr->SeasonWins);
+        stmt->setUInt32(5, GetId());
+        stmt->setUInt16(6, GUID_LOPART(itr->Guid));
         trans->Append(stmt);
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_ARENA_TEAM_MEMBER_STATS);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_CHARACTER_ARENA_STATS);
         stmt->setUInt32(0, GUID_LOPART(itr->Guid));
         stmt->setUInt8(1, GetSlot());
-        stmt->setUInt16(2, itr->PersonalRating);
-        stmt->setUInt16(3, itr->MatchMakerRating);
+        stmt->setUInt16(2, itr->MatchMakerRating);
         trans->Append(stmt);
     }
 

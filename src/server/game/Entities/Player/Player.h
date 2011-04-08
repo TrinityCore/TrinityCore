@@ -797,10 +797,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADSKILLS               = 25,
     PLAYER_LOGIN_QUERY_LOADWEKLYQUESTSTATUS     = 26,
     PLAYER_LOGIN_QUERY_LOADRANDOMBG             = 27,
-    PLAYER_LOGIN_QUERY_LOADARENASTATS           = 28,
-    PLAYER_LOGIN_QUERY_LOADBANNED               = 29,
-    PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW       = 30,
-    PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES    = 31,
+    PLAYER_LOGIN_QUERY_LOADBANNED               = 28,
+    PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW       = 29,
+    PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES    = 30,
     MAX_PLAYER_LOGIN_QUERY,
 };
 
@@ -2494,7 +2493,6 @@ class Player : public Unit, public GridObject<Player>
         bool _LoadHomeBind(PreparedQueryResult result);
         void _LoadDeclinedNames(PreparedQueryResult result);
         void _LoadArenaTeamInfo(PreparedQueryResult result);
-        void _LoadArenaStatsInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
