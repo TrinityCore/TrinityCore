@@ -31,7 +31,7 @@ CREATE TABLE `lottery` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-DELETE FROM game_event WHERE entry = 132;
+DELETE FROM game_event WHERE eventEntry = 132;
 INSERT INTO game_event VALUES 
 (132, "2011-01-31 20:00:00", "2020-12-31 06:00:00", 1440, 1, 0, "Lottery", 0);
 

@@ -22,8 +22,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_black_knight_skeletal_gryphon' 
 UPDATE `gameobject` SET `state` = 0 WHERE `guid` = 1804;
 
 -- Mounts
-DELETE FROM `vehicle_accessory` WHERE `entry` in (35491,33299,33418,33409,33300,33408,33301,33414,33297,33416,33298);
-INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
+DELETE FROM `vehicle_template_accessory` WHERE `entry` in (35491,33299,33418,33409,33300,33408,33301,33414,33297,33416,33298);
+INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
 (35491,35451,0,0, 'Black Knight'),
 (33299,35323,0,1, 'Darkspear Raptor'),
 (33418,35326,0,1, 'Silvermoon Hawkstrider'),
@@ -35,16 +35,16 @@ INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`d
 (33297,35328,0,1, 'Stormwind Steed'),
 (33416,35330,0,1, 'Exodar Elekk'),
 (33298,35332,0,1, 'Darnassian Nightsaber');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33318', '35330', '1', 'Exodar Elekk');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33319', '35332', '1', 'Darnassian Nightsaber');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33316', '35329', '1', 'Ironforge Ram');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33317', '35331', '1', 'Gnomeregan Mechanostrider');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33217', '35328', '1', 'Stormwind Steed');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33324', '35327', '1', 'Forsaken Warhorse');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33322', '35325', '1', 'Thunder Bluff Kodo');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33320', '35314', '1', 'Orgrimmar Wolf');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33323', '35326', '1', 'Silvermoon Hawkstrider');
-INSERT INTO `vehicle_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33321', '35323', '1', 'Darkspear Raptor');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33318', '35330', '1', 'Exodar Elekk');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33319', '35332', '1', 'Darnassian Nightsaber');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33316', '35329', '1', 'Ironforge Ram');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33317', '35331', '1', 'Gnomeregan Mechanostrider');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33217', '35328', '1', 'Stormwind Steed');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33324', '35327', '1', 'Forsaken Warhorse');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33322', '35325', '1', 'Thunder Bluff Kodo');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33320', '35314', '1', 'Orgrimmar Wolf');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33323', '35326', '1', 'Silvermoon Hawkstrider');
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `minion`, `description`) VALUES ('33321', '35323', '1', 'Darkspear Raptor');
 
 UPDATE `creature_template` SET `minlevel` = 80,`maxlevel` = 80 WHERE `entry` in (33298,33416,33297,33301,33408,35640,33299,33300,35634,33418,35638,33409,33414,33299,35635,35641);
 UPDATE `creature_template` SET `faction_A` = 14,`faction_H` = 14 WHERE `entry` in (33318, 33319, 33316, 33317, 33217, 33324, 33322, 33320, 33323, 33321, 33298,33416,33297,33301,33408,35545,33299,35564,35590,35119,34928,35309,35305,33414,35307,35325,33300,35327,35326,33418,35638,35314,33409,33299,35635,35640,35641,35634,35633,35636,35768,35637,34658);

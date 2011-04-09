@@ -1,7 +1,4 @@
 -- 371_Ocolus
----------------------------------------------------------------------------
----------------------------------- Ocolus ---------------------------------
----------------------------------------------------------------------------
 -- Ruby drake
 UPDATE creature_template SET mindmg = 422, maxdmg = 586, attackpower = 642, dynamicflags = 8, minrangedmg = 345, maxrangedmg = 509, rangedattackpower = 103, spell1 = 50232, spell2 = 50248, spell3 = 50240, spell4 =  50253, spell5 = 53112, VehicleId = 70 WHERE entry = 27756;
 -- Amber Drake
