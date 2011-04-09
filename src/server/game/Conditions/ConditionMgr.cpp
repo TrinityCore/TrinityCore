@@ -158,7 +158,7 @@ bool Condition::Meets(Player * player, Unit* invoker)
             break;
         }
         case CONDITION_SPELL:
-            if (mConditionValue2 == 0)
+            if (mConditionValue2 == 1)
                 condMeets = player->HasSpell(mConditionValue1);
             else
                 condMeets = !player->HasSpell(mConditionValue1);
