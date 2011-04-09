@@ -52,7 +52,7 @@ enum ConditionType
     CONDITION_MAPID                 = 22,                   // map_id           0           +referenceID       true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
-    CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
+    CONDITION_SPELL                 = 25,                   // spell_id         bool        +referenceID       bool 0 for true 1 for false
     CONDITION_NOITEM                = 26,                   // item_id          bank        +referenceID       true if player does not have any of the item (if 'bank' is set it searches in bank slots too)
     CONDITION_LEVEL                 = 27,                   // level            opt         +referenceID       true if player's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0           +referenceID       true if player has quest_id with all objectives complete, but not yet rewarded
