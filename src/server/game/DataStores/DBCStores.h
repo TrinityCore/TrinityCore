@@ -84,6 +84,7 @@ extern DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore;
 extern DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore;
 extern DBCStorage <CreatureTypeEntry>            sCreatureTypeStore;
 extern DBCStorage <CurrencyTypesEntry>           sCurrencyTypesStore;
+extern DBCStorage <DestructibleModelDataEntry>   sDestructibleModelDataStore;
 extern DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore;
 extern DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore;
 extern DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore;
