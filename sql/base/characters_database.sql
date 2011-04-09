@@ -129,12 +129,12 @@ CREATE TABLE `arena_team` (
   `name` varchar(24) NOT NULL,
   `captainGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `rating` smallint(5) unsigned NOT NULL,
+  `rating` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonGames` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonWins` smallint(5) unsigned NOT NULL DEFAULT '0',
   `weekGames` smallint(5) unsigned NOT NULL DEFAULT '0',
   `weekWins` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `rank` int(10) unsigned NOT NULL,
+  `rank` int(10) unsigned NOT NULL DEFAULT '0',
   `backgroundColor` int(10) unsigned NOT NULL DEFAULT '0',
   `emblemStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `emblemColor` int(10) unsigned NOT NULL DEFAULT '0',
@@ -167,6 +167,7 @@ CREATE TABLE `arena_team_member` (
   `weekWins` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonGames` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonWins` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `personalRating` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`arenateamid`,`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -374,7 +375,6 @@ DROP TABLE IF EXISTS `character_arena_stats`;
 CREATE TABLE `character_arena_stats` (
   `guid` int(10) NOT NULL,
   `slot` tinyint(3) NOT NULL,
-  `personalRating` smallint(5) NOT NULL,
   `matchMakerRating` smallint(5) NOT NULL,
   PRIMARY KEY (`guid`,`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -645,11 +645,11 @@ DROP TABLE IF EXISTS `character_homebind`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_homebind` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `map` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
-  `zone` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Zone Identifier',
-  `position_x` float NOT NULL DEFAULT '0',
-  `position_y` float NOT NULL DEFAULT '0',
-  `position_z` float NOT NULL DEFAULT '0',
+  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
+  `zoneId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Zone Identifier',
+  `posX` float NOT NULL DEFAULT '0',
+  `posY` float NOT NULL DEFAULT '0',
+  `posZ` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;

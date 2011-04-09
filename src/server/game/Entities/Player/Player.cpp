@@ -4995,7 +4995,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             trans->PAppend("DELETE FROM character_action WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_aura WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_gifts WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_homebind WHERE guid = '%u'",guid);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
             trans->PAppend("DELETE FROM character_instance WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_inventory WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_queststatus WHERE guid = '%u'",guid);
@@ -16436,36 +16438,6 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
     // arenateamid, played_week, played_season, personal_rating
     memset((void*)&m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
 
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 arenaTeamId      = fields[0].GetUInt32();
-
-        ArenaTeam* arenaTeam = sObjectMgr->GetArenaTeamById(arenaTeamId);
-        if (!arenaTeam)
-        {
-            sLog->outError("Player::_LoadArenaTeamInfo: couldn't load arenateam %u", arenaTeamId);
-            continue;
-        }
-
-        uint8 arenaSlot = arenaTeam->GetSlot();
-
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_ID, arenaTeamId);
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_TYPE, arenaTeam->GetType());
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_MEMBER, (arenaTeam->GetCaptain() == GetGUID()) ? 0 : 1);
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, uint32(fields[1].GetUInt16()));
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, uint32(fields[2].GetUInt16()));
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, uint32(fields[3].GetUInt16()));
-    }
-    while (result->NextRow());
-}
-
-void Player::_LoadArenaStatsInfo(PreparedQueryResult result)
-{
     uint16 personalRatingCache[] = {0, 0, 0};
 
     if (result)
@@ -16474,7 +16446,25 @@ void Player::_LoadArenaStatsInfo(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
 
-            personalRatingCache[fields[0].GetUInt8()] = fields[1].GetUInt16();
+            uint32 arenaTeamId = fields[0].GetUInt32();
+
+            ArenaTeam* arenaTeam = sObjectMgr->GetArenaTeamById(arenaTeamId);
+            if (!arenaTeam)
+            {
+                sLog->outError("Player::_LoadArenaTeamInfo: couldn't load arenateam %u", arenaTeamId);
+                continue;
+            }
+
+            uint8 arenaSlot = arenaTeam->GetSlot();
+
+            personalRatingCache[arenaSlot] = fields[1].GetUInt16();
+
+            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_ID, arenaTeamId);
+            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_TYPE, arenaTeam->GetType());
+            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_MEMBER, (arenaTeam->GetCaptain() == GetGUID()) ? 0 : 1);
+            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, uint32(fields[1].GetUInt16()));
+            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, uint32(fields[2].GetUInt16()));
+            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, uint32(fields[3].GetUInt16()));
         }
         while (result->NextRow());
     }
@@ -16565,8 +16555,14 @@ void Player::SetHomebind(WorldLocation const& /*loc*/, uint32 /*area_id*/)
     m_homebindZ = GetPositionZ();
 
     // update sql homebind
-    CharacterDatabase.PExecute("UPDATE character_homebind SET map = '%u', zone = '%u', position_x = '%f', position_y = '%f', position_z = '%f' WHERE guid = '%u'",
-        m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ, GetGUIDLow());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_PLAYER_HOMEBIND);
+    stmt->setUInt16(0, m_homebindMapId);
+    stmt->setUInt16(1, m_homebindAreaId);
+    stmt->setFloat (2, m_homebindX);
+    stmt->setFloat (3, m_homebindY);
+    stmt->setFloat (4, m_homebindZ);
+    stmt->setUInt32(5, GetGUIDLow());
+    CharacterDatabase.Execute(stmt);
 }
 
 uint32 Player::GetUInt32ValueFromArray(Tokens const& data, uint16 index)
@@ -16731,7 +16727,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
     _LoadArenaTeamInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENAINFO));
-    _LoadArenaStatsInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENASTATS));
 
     SetArenaPoints(fields[39].GetUInt32());
 
@@ -18397,7 +18392,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     }
 
     bool ok = false;
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT map,zone,position_x,position_y,position_z FROM character_homebind WHERE guid = '%u'", GUID_LOPART(playerGuid));
+    // SELECT mapId, zoneId, posX, posY, posZ FROM character_homebind WHERE guid = ?
     if (result)
     {
         Field* fields = result->Fetch();
@@ -18415,7 +18410,11 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
             !bindMapEntry->Instanceable() && GetSession()->Expansion() >= bindMapEntry->Expansion())
             ok = true;
         else
-            CharacterDatabase.PExecute("DELETE FROM character_homebind WHERE guid = '%u'", GetGUIDLow());
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
+            stmt->setUInt32(0, GetGUIDLow());
+            CharacterDatabase.Execute(stmt);
+        }
     }
 
     if (!ok)
@@ -18426,8 +18425,14 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         m_homebindY = info->positionY;
         m_homebindZ = info->positionZ;
 
-        CharacterDatabase.PExecute("INSERT INTO character_homebind (guid,map,zone,position_x,position_y,position_z) VALUES ('%u', '%u', '%u', '%f', '%f', '%f')",
-            GetGUIDLow(), m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PLAYER_HOMEBIND);
+        stmt->setUInt32(0, GetGUIDLow());
+        stmt->setUInt16(1, m_homebindMapId);
+        stmt->setUInt16(2, m_homebindAreaId);
+        stmt->setFloat (3, m_homebindX);
+        stmt->setFloat (4, m_homebindY);
+        stmt->setFloat (5, m_homebindZ);
+        CharacterDatabase.Execute(stmt);
     }
 
     sLog->outStaticDebug("Setting player home position - mapid: %u, areaid: %u, X: %f, Y: %f, Z: %f",
