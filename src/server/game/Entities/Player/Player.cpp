@@ -16249,7 +16249,7 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
 
             uint8 arenaSlot = arenaTeam->GetSlot();
 
-            personalRatingCache[arenaSlot] = fields[1].GetUInt16();
+            personalRatingCache[arenaSlot] = fields[4].GetUInt16();
 
             SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_ID, arenaTeamId);
             SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_TYPE, arenaTeam->GetType());
