@@ -18,6 +18,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Group.h"
 #include "operation_gnomeregan.h"
 
 class npc_og_mekkatorque : public CreatureScript
@@ -29,22 +30,101 @@ public:
     {
         npc_og_mekkatorqueAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
+        uint32 uiStep;
+        uint32 uiStep_timer;
+
         void Reset()
         {
+            uiStep          = 0;
+            uiStep_timer    = 0;
         }
 
         void WaypointReached(uint32 i)
         {
             switch (i)
             {
-                case 1:
+                case 0:
                     break;
             }
+        }
+
+        void JumpToNextStep(uint32 uiTimer)
+        {
+            uiStep_timer = uiTimer;
+            ++uiStep;
+        }
+
+        void SetHoldState(bool b_OnHold)
+        {
+            SetEscortPaused(b_OnHold);
         }
 
         void UpdateAI(const uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
+
+            if (uiStep_timer <= diff)
+            {
+                switch (uiStep)
+                {
+                    case 0:  // countdown
+                        break;
+                }
+            }
+            else 
+                uiStep_timer -= diff;
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void PartyCast(uint32 spell)
+        {
+            if (Player* pPlayer = GetPlayerForEscort())
+            {
+                if (Group *pGroup = pPlayer->GetGroup())
+                {
+                    for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                    {
+                        if (Player* pMember = itr->getSource())
+                            pMember->CastSpell(pMember, spell, true);
+                    }
+                }
+                else
+                {
+                    pPlayer->CastSpell(pPlayer, spell, true);
+                }
+            }
+        }
+
+        void DoTalk(Creature* pTalker, const char* text,uint32 sound, bool yell)
+        {
+            if (yell)
+                pTalker->MonsterYell(text, LANG_UNIVERSAL, NULL);
+            else
+                pTalker->MonsterSay(text, LANG_UNIVERSAL, NULL);
+
+            DoPlaySoundToSet(pTalker, sound);
+        }
+
+        void DoPlayMusic(uint8 musicId)
+        {
+            switch (musicId)
+            {
+                case 0:
+                    PartyCast(SPELL_MUSIC_START);
+                    break;
+                case 1:
+                    PartyCast(SPELL_MUSIC);
+                    break;
+                case 2:
+                    PartyCast(SPELL_MUSIC_END);
+                    break;
+                default:
+                    sLog->outError("Unexpected musicId (%i) in npc_og_mekkatorqueAI::DoPlayMusic call", musicId);
+            }
         }
     };
 
@@ -52,14 +132,17 @@ public:
     {
         if (pQuest->GetQuestId() == QUEST_OPERATION_GNOMEREGAN)
         {
-
+            if (npc_og_mekkatorqueAI* pEscortAI = CAST_AI(npc_og_mekkatorqueAI, pCreature->AI()))
+            {
+                pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            }
         }
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
-        return new npc_og_mekkatorqueAI(creature);
+        return new npc_og_mekkatorqueAI(pCreature);
     }
 };
 

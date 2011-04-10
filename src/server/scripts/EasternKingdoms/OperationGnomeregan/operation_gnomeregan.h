@@ -33,7 +33,24 @@ enum eSpells
 enum eCreatures
 {
 
+///----------------Allies---------------
     NPC_MEKKATORQUE             = 39271,
+    NPC_BATTLE_SUIT             = 39902,
+    NPC_INFANTRY                = 39252,
+    NPC_BOMBER                  = 39735,
+    NPC_ELGIN                   = 40478,
+    NPC_TANK                    = 39860,
+
+///----------------Enemies---------------
+    NPC_I_INFANTRY              = 39755,
+    NPC_I_CAVALRY               = 39836,
+    NPC_BRAG_BOT                = 39901,
+    NPC_GASERIKK                = 39799,
+    NPC_BOLTCOG                 = 39837,
+    NPC_I_TROGG                 = 39826,
+    NPC_I_TANK                  = 39819,
+    NPC_CANNON                  = 39759, // Tankbuster Cannon
+    NPC_RL                      = 39820, // Rocket Launcher
 
 };
 
@@ -41,5 +58,6 @@ enum eMisc
 {
 
     QUEST_OPERATION_GNOMEREGAN  = 25393,
+    DATA_MOUNT                  = 31692,
 
 };
