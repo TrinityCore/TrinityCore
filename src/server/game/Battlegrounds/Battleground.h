@@ -256,15 +256,6 @@ enum BattlegroundStartingEventsIds
 };
 #define BG_STARTING_EVENT_COUNT 4
 
-enum BG_OBJECT_DMG_HIT_TYPE
-{
-    BG_OBJECT_DMG_HIT_TYPE_JUST_DAMAGED         = 0,
-    BG_OBJECT_DMG_HIT_TYPE_DAMAGED              = 1,
-    BG_OBJECT_DMG_HIT_TYPE_JUST_HIGH_DAMAGED    = 2,
-    BG_OBJECT_DMG_HIT_TYPE_HIGH_DAMAGED         = 3,
-    BG_OBJECT_DMG_HIT_TYPE_JUST_DESTROYED       = 4
-};
-
 enum GroupJoinBattlegroundResult
 {
     // positive values are indexes in BattlemasterList.dbc
@@ -527,7 +518,7 @@ class Battleground
         virtual void EventPlayerCapturedFlag(Player* /*player*/) {}
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
-        virtual void EventPlayerDamagedGO(Player* /*plr*/, GameObject* /*go*/, uint8 /*hitType*/, uint32 /*destroyedEvent*/) {}
+        virtual void EventPlayerDamagedGO(Player* /*plr*/, GameObject* /*go*/, uint32 /*eventType*/) {}
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         // this function can be used by spell to interact with the BG map
