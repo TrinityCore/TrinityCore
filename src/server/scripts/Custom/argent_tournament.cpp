@@ -2,9 +2,6 @@
 #include "SpellAuraEffects.h"
 #include "ScriptMgr.h"
 
-/*#####
-#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('62960', 'spell_tournament_charge');
-#####*/
 class spell_tournament_charge : public SpellScriptLoader
 {
     public:
@@ -20,14 +17,14 @@ class spell_tournament_charge : public SpellScriptLoader
                 {
                     if (Unit *caster = GetCaster())
                     {
-                        caster->CastSpell(pTarget,74399,true);
-                        caster->CastSpell(pTarget,68321,true);
+                        caster->CastSpell(pTarget, 74399, true);
+                        caster->CastSpell(pTarget, 68321, true);
 
                         if (pTarget->GetTypeId() == TYPEID_UNIT && pTarget->ToCreature()->GetEntry() == 33272)
                         {
                             //Kill Credit
                             if (Unit *player = caster->GetCharmerOrOwner())
-                                player->CastSpell(player,62658,true);
+                                player->CastSpell(player, 62658, true);
                         }
                     }
 
@@ -53,9 +50,6 @@ class spell_tournament_charge : public SpellScriptLoader
 };
 
 
-/*#####
-#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('62575', 'spell_tournament_shield');
-#####*/
 class spell_tournament_shield : public SpellScriptLoader
 {
     public:
@@ -71,13 +65,13 @@ class spell_tournament_shield : public SpellScriptLoader
                 {
                     if (Unit *caster = GetCaster())
                     {
-                        caster->CastSpell(pTarget,62626,true );
+                        caster->CastSpell(pTarget, 62626, true );
 
                         if (pTarget->GetTypeId() == TYPEID_UNIT && pTarget->ToCreature()->GetEntry() == 33243)
                         {
                             //Kill Credit
                             if (Unit *player = caster->GetCharmerOrOwner())
-                                player->CastSpell(player,62673,true);
+                                player->CastSpell(player, 62673, true);
                         }
                     }
 
@@ -103,9 +97,6 @@ class spell_tournament_shield : public SpellScriptLoader
 };
 
 
-/*#####
-#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('62544', 'spell_tournament_melee');
-#####*/
 class spell_tournament_melee : public SpellScriptLoader
 {
     public:
@@ -125,7 +116,7 @@ class spell_tournament_melee : public SpellScriptLoader
                         {
                             //Kill Credit
                             if (Unit *player = caster->GetCharmerOrOwner())
-                                player->CastSpell(player,62672,true);
+                                player->CastSpell(player, 62672, true);
                         }
                     }
                 }
@@ -144,9 +135,6 @@ class spell_tournament_melee : public SpellScriptLoader
 };
 
 
-/*#####
-#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('62863', 'spell_tournament_duel');
-#####*/
 class spell_tournament_duel : public SpellScriptLoader
 {
     public:
@@ -164,7 +152,7 @@ class spell_tournament_duel : public SpellScriptLoader
                         return;
 
                     if (Unit *caster = GetCaster()->GetCharmerOrOwner())
-                        caster->CastSpell(pTarget,62875,true);
+                        caster->CastSpell(pTarget, 62875, true);
                 }
             }
 
@@ -188,4 +176,3 @@ void AddSC_argen_tournament()
     new spell_tournament_melee;
     new spell_tournament_duel;
 }
-

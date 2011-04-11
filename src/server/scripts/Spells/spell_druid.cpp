@@ -251,6 +251,53 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
+// Need for implementing Item - Druid T10 Balance 2P Bonus
+class spell_clearcasting : public SpellScriptLoader
+{
+    public:
+        spell_clearcasting() : SpellScriptLoader("spell_clearcasting") { }
+
+        class spell_clearcasting_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_clearcasting_AuraScript)
+            enum Spells
+            {
+                SPELL_TRIGGERED = 70721
+            };
+
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                if (Unit * caster = GetCaster())
+                    if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(70718))
+                        return true;
+                return false;
+            }
+
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit * caster = GetCaster();
+                caster->CastSpell(caster, SPELL_TRIGGERED, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_clearcasting_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript *GetAuraScript() const
+        {
+            return new spell_clearcasting_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_glyph_of_starfire();
@@ -258,4 +305,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_primal_tenacity();
     new spell_dru_savage_defense();
     new spell_dru_t10_restoration_4p_bonus();
+    new spell_clearcasting();
 }

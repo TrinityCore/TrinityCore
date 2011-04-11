@@ -94,13 +94,7 @@ public:
     };
 };
 
-/*#####
-# Set Oracle Faction Honored
-# Set Wolvar Faction Honored
-# INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-# ('53487', 'spell_oracle_wolvar'),
-# ('54015', 'spell_oracle_wolvar');
-#####*/
+
 class spell_oracle_wolvar : public SpellScriptLoader
 {
     public:
@@ -143,10 +137,6 @@ class spell_oracle_wolvar : public SpellScriptLoader
 };
 
 
-/*#####
-# Sunreaver Disguise Spell for quest An Audience With The Arcanist
-#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('69672', 'spell_sunreaver_disguise');
-#####*/
 class spell_sunreaver_disguise : public SpellScriptLoader
 {
     public:
@@ -182,9 +172,6 @@ class spell_sunreaver_disguise : public SpellScriptLoader
 };
 
 
-/*#####
-#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('19752', 'spell_divine_intervention');
-#####*/
 class spell_divine_intervention : public SpellScriptLoader
 {
     public:
