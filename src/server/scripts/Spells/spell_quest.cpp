@@ -801,7 +801,7 @@ public:
                     target->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
                     target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
                     target->SetHealth(target->GetMaxHealth() / 2);
-                    target->SetPower(POWER_MANA, target->GetMaxPower(POWER_MANA) * 0.75);
+                    target->SetPower(POWER_MANA, uint32(target->GetMaxPower(POWER_MANA) * 0.75f));
                 }
             }
         }
