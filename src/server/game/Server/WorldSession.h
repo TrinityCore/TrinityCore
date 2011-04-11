@@ -859,6 +859,7 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recv_data);
         void HandleEjectPassenger(WorldPacket &data);
         void HandleEnterPlayerVehicle(WorldPacket &data);
+        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
 
     private:
         void ProcessQueryCallbacks();
