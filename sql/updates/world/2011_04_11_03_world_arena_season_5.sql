@@ -1,4 +1,4 @@
-SET @GUID := xxx ; -- Set GUID
+SET @GUID := 152021 ; -- Set GUID
 
 SET @BG_Zar := 32832;
 SET @Moonstrike := 32834;
