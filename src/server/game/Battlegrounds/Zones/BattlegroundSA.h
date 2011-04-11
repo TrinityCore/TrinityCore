@@ -437,7 +437,7 @@ class BattlegroundSA : public Battleground
         /// Called for generate packet contain worldstate data
         virtual void FillInitialWorldStates(WorldPacket& data);
         /// Called when a player deal damage to building (door)
-        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent);
+        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 eventType);
         /// Called when a player kill a unit in bg
         virtual void HandleKillUnit(Creature* unit, Player* killer);
         /// Return the nearest graveyard where player can respawn

@@ -1492,7 +1492,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                             if (ArenaTeam * at = sObjectMgr->GetArenaTeamById(arena_team_id))
                                 if (at->GetType() == reqTeamType)
                                 {
-                                    SetCriteriaProgress(achievementCriteria, at->GetStats().rating, PROGRESS_HIGHEST);
+                                    SetCriteriaProgress(achievementCriteria, at->GetStats().Rating, PROGRESS_HIGHEST);
                                     break;
                                 }
                 }

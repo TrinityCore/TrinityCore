@@ -363,6 +363,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_phalanx' WHERE `entry`=9502;
 UPDATE `gameobject_template` SET `ScriptName`='go_shadowforge_brazier' WHERE `entry` IN (174744,174745);
 
 /* BLACKROCK SPIRE */
+UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
 /* BLACKROCK SPIRE Lower bosses */
 UPDATE `creature_template` SET `ScriptName`='boss_highlord_omokk' WHERE `entry`=9196;
 UPDATE `creature_template` SET `ScriptName`='boss_shadow_hunter_voshgajin' WHERE `entry`=9236;
@@ -408,6 +409,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_fallen_hero_of_horde' WHERE `en
 /* BLOODMYST ISLE */
 UPDATE `creature_template` SET `ScriptName`='mob_webbed_creature' WHERE `entry`=17680;
 UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `entry`=17824;
+UPDATE `creature_template` SET `ScriptName`='npc_princess_stillpine' WHERE `entry`=17682;
+UPDATE `gameobject_template` SET `ScriptName`='go_princess_stillpines_cage' WHERE `entry`=181928;
 
 /* BOREAN TUNDRA */
 UPDATE `creature_template` SET `ScriptName`='npc_fizzcrank_fullthrottle' WHERE `entry`=25590;
@@ -1009,6 +1012,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_lantresor_of_the_blade' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_creditmarker_visit_with_ancestors' WHERE `entry` IN (18840,18841,18842,18843);
 UPDATE `creature_template` SET `ScriptName`='mob_sparrowhawk' WHERE `entry`=22979;
 UPDATE `creature_template` SET `ScriptName`='npc_maghar_captive' WHERE `entry`=18210;
+UPDATE `creature_template` SET `ScriptName`='npc_corki' WHERE `entry` IN (18445,20812,18369);
+UPDATE `gameobject_template` SET `ScriptName`='go_corkis_prison' WHERE `entry` IN (182349,182350,182521);
 
 /* NAXXRAMAS */
 UPDATE `instance_template` SET `script`='instance_naxxramas' WHERE `map`=533;
@@ -1996,6 +2001,14 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72455, 'spell_putricide_gaseous_bloat'),
 ( 72832, 'spell_putricide_gaseous_bloat'),
 ( 72833, 'spell_putricide_gaseous_bloat'),
+( 70447, 'spell_putricide_ooze_channel'),
+( 72836, 'spell_putricide_ooze_channel'),
+( 72837, 'spell_putricide_ooze_channel'),
+( 72838, 'spell_putricide_ooze_channel'),
+( 70672, 'spell_putricide_ooze_channel'),
+( 72455, 'spell_putricide_ooze_channel'),
+( 72832, 'spell_putricide_ooze_channel'),
+( 72833, 'spell_putricide_ooze_channel'),
 ( 70459, 'spell_putricide_ooze_eruption_searcher'),
 ( 71255, 'spell_putricide_choking_gas_bomb'),
 ( 70920, 'spell_putricide_unbound_plague'),
@@ -2032,6 +2045,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72784, 'spell_taldaram_ball_of_inferno_flame'),
 ( 72080, 'spell_valanar_kinetic_bomb'),
 ( 72087, 'spell_valanar_kinetic_bomb_knockback'),
+( 72054, 'spell_valanar_kinetic_bomb_absorb'),
 ( 73001, 'spell_blood_council_shadow_prison'),
 ( 72999, 'spell_blood_council_shadow_prison_damage'),
 ( 70877, 'spell_blood_queen_frenzied_bloodthirst'),
@@ -2101,6 +2115,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62166, 'spell_ulduar_stone_grip_cast_target'),
 ( 63981, 'spell_ulduar_stone_grip_cast_target'),
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
+( 63027, 'spell_ulduar_proximity_mines'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
@@ -2123,6 +2138,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 52308, 'spell_q12683_take_sputum_sample'),
 ( 55804, 'spell_q12937_relief_for_the_fallen'),
 ( 54798, 'spell_q12851_going_bearback'),
+(  8593, 'spell_symbol_of_life_dummy'),
 -- item
 ( 23074, 'spell_item_arcanite_dragonling'),
 (  8063, 'spell_item_deviate_fish'),

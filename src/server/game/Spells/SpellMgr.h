@@ -709,13 +709,6 @@ enum SpellScriptTargetType
 
 #define MAX_SPELL_TARGET_TYPE 4
 
-struct SpellTargetEntry
-{
-    SpellTargetEntry(SpellScriptTargetType type_,uint32 targetEntry_) : type(type_), targetEntry(targetEntry_) {}
-    SpellScriptTargetType type;
-    uint32 targetEntry;
-};
-
 // coordinates for spells (accessed using SpellMgr functions)
 struct SpellTargetPosition
 {

@@ -37,6 +37,7 @@ const uint32 MaxVehNumWorldState[2] = {3681,3491};
 const uint32 ClockWorldState[2] = {3781,4354};
 const uint8 CapturePointArtKit[3] = {2, 1, 21};
 char const *fmtstring(char const *format, ...);
+const Team TeamId2Team[3] = {ALLIANCE, HORDE, TEAM_OTHER};
 
 enum OutdoorPvPWGSpell
 {
