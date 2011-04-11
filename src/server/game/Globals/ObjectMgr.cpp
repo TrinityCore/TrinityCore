@@ -6657,7 +6657,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_mailid = (*result)[0].GetUInt32()+1;
 
-    result = CharacterDatabase.Query("SELECT MAX(guid) FROM corpse");
+    result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
     if (result)
         m_hiCorpseGuid = (*result)[0].GetUInt32()+1;
 
@@ -6669,7 +6669,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_equipmentSetGuid = (*result)[0].GetUInt64()+1;
 
-    result = CharacterDatabase.Query("SELECT MAX(guildid) FROM guild");
+    result = CharacterDatabase.Query("SELECT MAX(guildId) FROM guild");
     if (result)
         m_guildId = (*result)[0].GetUInt32()+1;
 
@@ -7186,11 +7186,7 @@ void ObjectMgr::LoadCorpses()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                      0           1           2            3         4      5          6         7       8       9     10      11
-    QueryResult result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, displayId, itemCache, bytes1, bytes2, guild, flags, dynFlags"
-    //                                               12       13          14        15       16     17
-                                                 ", time, corpse_type, instance, phaseMask, guid, player FROM corpse WHERE corpse_type <> 0");
-
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CORPSES));
     if (!result)
     {
         sLog->outString(">> Loaded 0 corpses. DB table `pet_name_generation` is empty.");
@@ -7199,15 +7195,12 @@ void ObjectMgr::LoadCorpses()
     }
 
     uint32 count = 0;
-
     do
     {
-
         Field *fields = result->Fetch();
-
         uint32 guid = fields[16].GetUInt32();
 
-        Corpse *corpse = new Corpse;
+        Corpse *corpse = new Corpse();
         if (!corpse->LoadFromDB(guid, fields))
         {
             delete corpse;
@@ -7215,7 +7208,6 @@ void ObjectMgr::LoadCorpses()
         }
 
         sObjectAccessor->AddCorpse(corpse);
-
         ++count;
     }
     while (result->NextRow());
