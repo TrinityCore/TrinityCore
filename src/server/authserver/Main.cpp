@@ -159,7 +159,7 @@ extern int main(int argc, char **argv)
     }
 
     // Initialise the signal handlers
-    AuthServerSignalINT, SignalTERM;
+    AuthServerSignalHandler SignalINT, SignalTERM;
 
     // Register authservers's signal handlers
     ACE_Sig_Handler Handler;
