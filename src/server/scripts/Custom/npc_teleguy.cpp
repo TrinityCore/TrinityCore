@@ -1,4 +1,5 @@
 #include "ScriptPCH.h"
+#include "Config.h"
 
 class npc_teleguy : public CreatureScript
 {
