@@ -35,6 +35,13 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 
+#ifdef TRINITY_DEBUG
+    #define LOG(...) sLog->outDebug(LOG_FILTER_CHATSYS, __VA_ARGS__);
+#else
+    #define LOG(...)
+#endif
+
+
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
 //                                                                        - client, item icon shift click, not used in server currently
@@ -57,7 +64,7 @@
 // |color|Htaxinode:id|h[name]|h|r
 // |color|Htele:id|h[name]|h|r
 // |color|Htitle:id|h[name]|h|r
-// |color|Htrade:spell_id,cur_value,max_value,unk3int,unk3str|h[name]|h|r - client, spellbook profession icon shift-click
+// |color|Htrade:spell_id:cur_value:max_value:unk3int:unk3str|h[name]|h|r - client, spellbook profession icon shift-click
 
 bool ChatHandler::load_command_table = true;
 
@@ -832,6 +839,20 @@ int ChatHandler::ParseCommands(const char* text)
     return 1;
 }
 
+inline uint32 ChatHandler::_ReadUInt32(std::istringstream& reader) const
+{
+    uint32 res = 0;
+    char c = reader.peek();
+    while (c >='0' && c <= '9')
+    {
+        reader.ignore(1);
+        res *= 10;
+        res += c-'0';
+        c = reader.peek();
+    }
+    return res;
+}
+
 bool ChatHandler::isValidChatMessage(const char* message)
 {
 /*
@@ -918,18 +939,14 @@ valid examples:
         }
         else if (reader.get() != '|')
         {
-#ifdef TRINITY_DEBUG
-            sLog->outBasic("ChatHandler::isValidChatMessage sequence aborted unexpectedly");
-#endif
+            LOG("ChatHandler::isValidChatMessage('%s'): sequence aborted unexpectedly", reader.str().c_str());
             return false;
         }
 
         // pipe has always to be followed by at least one char
         if (reader.peek() == '\0')
         {
-#ifdef TRINITY_DEBUG
-            sLog->outBasic("ChatHandler::isValidChatMessage pipe followed by \\0");
-#endif
+            LOG("ChatHandler::isValidChatMessage('%s'): pipe followed by '\\0'", reader.str().c_str());
             return false;
         }
 
@@ -952,18 +969,14 @@ valid examples:
             }
             else
             {
-#ifdef TRINITY_DEBUG
-                sLog->outBasic("ChatHandler::isValidChatMessage invalid sequence, expected %c but got %c", *validSequenceIterator, commandChar);
-#endif
+                LOG("ChatHandler::isValidChatMessage('%s'): invalid sequence, expected '%c' but got '%c'", reader.str().c_str(), *validSequenceIterator, commandChar);
                 return false;
             }
         }
         else if (validSequence != validSequenceIterator)
         {
             // no escaped pipes in sequences
-#ifdef TRINITY_DEBUG
-            sLog->outBasic("ChatHandler::isValidChatMessage got escaped pipe in sequence");
-#endif
+            LOG("ChatHandler::isValidChatMessage('%s'): got escaped pipe in sequence", reader.str().c_str());
             return false;
         }
 
@@ -972,60 +985,59 @@ valid examples:
             case 'c':
                 color = 0;
                 // validate color, expect 8 hex chars
-                for (int i=0; i<8; i++)
+                for (uint8 i = 0; i < 8; ++i)
                 {
                     char c;
                     reader >> c;
                     if (!c)
                     {
-#ifdef TRINITY_DEBUG
-                        sLog->outBasic("ChatHandler::isValidChatMessage got \\0 while reading color in |c command");
-#endif
+                        LOG("ChatHandler::isValidChatMessage('%s'): got \\0 while reading color in |c command", reader.str().c_str());
                         return false;
                     }
 
                     color <<= 4;
                     // check for hex char
                     if (c >= '0' && c <= '9')
+                        color |= c - '0';
+                    else if (c >= 'a' && c <= 'f')
+                        color |= 10 + c - 'a';
+                    else
                     {
-                        color |= c-'0';
-                        continue;
+                        LOG("ChatHandler::isValidChatMessage('%s'): got non hex char '%c' while reading color", reader.str().c_str(), c);
+                        return false;
                     }
-                    if (c >= 'a' && c <= 'f')
-                    {
-                        color |= 10+c-'a';
-                        continue;
-                    }
-#ifdef TRINITY_DEBUG
-                    sLog->outBasic("ChatHandler::isValidChatMessage got non hex char '%c' while reading color", c);
-#endif
-                    return false;
                 }
                 break;
             case 'H':
                 // read chars up to colon  = link type
                 reader.getline(buffer, 256, ':');
+                if (reader.eof())
+                {
+                    LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
+                    return false;
+                }
 
                 if (strcmp(buffer, "item") == 0)
                 {
                     // read item entry
                     reader.getline(buffer, 256, ':');
+                    if (reader.eof())
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
+                        return false;
+                    }
 
-                    linkedItem= ObjectMgr::GetItemPrototype(atoi(buffer));
+                    uint32 itemEntry = atoi(buffer);
+                    linkedItem = ObjectMgr::GetItemPrototype(itemEntry);
                     if (!linkedItem)
                     {
-#ifdef TRINITY_DEBUG
-                        sLog->outBasic("ChatHandler::isValidChatMessage got invalid itemID %u in |item command", atoi(buffer));
-#endif
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid itemEntry %u in |item command", reader.str().c_str(), itemEntry);
                         return false;
                     }
 
                     if (color != ItemQualityColors[linkedItem->Quality])
                     {
-#ifdef TRINITY_DEBUG
-                        sLog->outBasic("ChatHandler::isValidChatMessage linked item has color %u, but user claims %u", ItemQualityColors[linkedItem->Quality],
-                                color);
-#endif
+                        LOG("ChatHandler::isValidChatMessage('%s'): linked item has color %u, but user claims %u", reader.str().c_str(), ItemQualityColors[linkedItem->Quality], color);
                         return false;
                     }
 
@@ -1045,29 +1057,39 @@ valid examples:
                         {
                             if (c >='0' && c <= '9')
                             {
-                                propertyId*=10;
-                                propertyId += c-'0';
-                            } else if (c == '-')
+                                propertyId *= 10;
+                                propertyId += c - '0';
+                            }
+                            else if (c == '-')
                                 negativeNumber = true;
                             else
+                            {
+                                LOG("ChatHandler::isValidChatMessage('%s'): invalid character '%c' found while reading item properties", reader.str().c_str(), c);
                                 return false;
+                            }
                         }
-                    }
 
-                    if (negativeNumber)
-                        propertyId *= -1;
+                        if (negativeNumber)
+                            propertyId = -propertyId;
 
-                    if (propertyId > 0)
-                    {
-                        itemProperty = sItemRandomPropertiesStore.LookupEntry(propertyId);
-                        if (!itemProperty)
-                            return false;
-                    }
-                    else if (propertyId < 0)
-                    {
-                        itemSuffix = sItemRandomSuffixStore.LookupEntry(-propertyId);
-                        if (!itemSuffix)
-                            return false;
+                        if (propertyId > 0)
+                        {
+                            itemProperty = sItemRandomPropertiesStore.LookupEntry(propertyId);
+                            if (!itemProperty)
+                            {
+                                LOG("ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", reader.str().c_str(), propertyId);
+                                return false;
+                            }
+                        }
+                        else if (propertyId < 0)
+                        {
+                            itemSuffix = sItemRandomSuffixStore.LookupEntry(-propertyId);
+                            if (!itemSuffix)
+                            {
+                                LOG("ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", reader.str().c_str(), -propertyId);
+                                return false;
+                            }
+                        }
                     }
 
                     // ignore other integers
@@ -1079,33 +1101,28 @@ valid examples:
                 }
                 else if (strcmp(buffer, "quest") == 0)
                 {
-                    // no color check for questlinks, each client will adapt it anyway
-                    uint32 questid= 0;
-                    // read questid
-                    char c = reader.peek();
-                    while (c >='0' && c <= '9')
-                    {
-                        reader.ignore(1);
-                        questid *= 10;
-                        questid += c-'0';
-                        c = reader.peek();
-                    }
-
-                    linkedQuest = sObjectMgr->GetQuestTemplate(questid);
-
+                    // Quest Id
+                    uint32 questId = _ReadUInt32(reader);
+                    linkedQuest = sObjectMgr->GetQuestTemplate(questId);
                     if (!linkedQuest)
                     {
-#ifdef TRINITY_DEBUG
-                        sLog->outBasic("ChatHandler::isValidChatMessage Questtemplate %u not found", questid);
-#endif
+                        LOG("ChatHandler::isValidChatMessage('%s'): quest template %u not found", reader.str().c_str(), questId);
                         return false;
                     }
-                    c = reader.peek();
-                    // level
-                    while (c !='|' && c != '\0')
+                    // Delimiter
+                    char c = reader.peek();
+                    if (c != ':')
                     {
-                        reader.ignore(1);
-                        c = reader.peek();
+                        LOG("ChatHandler::isValidChatMessage('%s'): invalid quest link structure (':' expected, '%c' found)", reader.str().c_str(), c);
+                        return false;
+                    }
+                    reader.ignore(1);
+                    // Quest level
+                    uint32 questLevel = _ReadUInt32(reader);
+                    if (questLevel >= STRONG_MAX_LEVEL)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): quest level %u is too big", reader.str().c_str(), questLevel);
+                        return false;
                     }
                 }
                 else if (strcmp(buffer, "trade") == 0)
@@ -1113,15 +1130,25 @@ valid examples:
                     if (color != CHAT_LINK_COLOR_TRADE)
                         return false;
 
-                    // read spell entry
+                    // Spell Id
                     reader.getline(buffer, 256, ':');
-                    linkedSpell = sSpellStore.LookupEntry(atoi(buffer));
-                    if (!linkedSpell)
+                    if (reader.eof())
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
                         return false;
+                    }
 
-                    char c = reader.peek();
+                    uint32 spellId = atoi(buffer);
+                    linkedSpell = sSpellStore.LookupEntry(spellId);
+                    if (!linkedSpell)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", reader.str().c_str(), spellId);
+                        return false;
+                    }
+
                     // base64 encoded stuff
-                    while (c !='|' && c != '\0')
+                    char c = reader.peek();
+                    while (c != '|' && c != '\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1135,17 +1162,30 @@ valid examples:
 
                     // read talent entry
                     reader.getline(buffer, 256, ':');
-                    TalentEntry const *talentInfo = sTalentStore.LookupEntry(atoi(buffer));
-                    if (!talentInfo)
+                    if (reader.eof())
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
                         return false;
+                    }
+
+                    uint32 talentId = atoi(buffer);
+                    TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentId);
+                    if (!talentInfo)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid talent id %u in |talent command", reader.str().c_str(), talentId);
+                        return false;
+                    }
 
                     linkedSpell = sSpellStore.LookupEntry(talentInfo->RankID[0]);
                     if (!linkedSpell)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", reader.str().c_str(), talentInfo->RankID[0]);
                         return false;
+                    }
 
-                    char c = reader.peek();
                     // skillpoints? whatever, drop it
-                    while (c !='|' && c != '\0')
+                    char c = reader.peek();
+                    while (c != '|' && c != '\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1156,52 +1196,52 @@ valid examples:
                     if (color != CHAT_LINK_COLOR_SPELL)
                         return false;
 
-                    uint32 spellid = 0;
-                    // read spell entry
-                    char c = reader.peek();
-                    while (c >='0' && c <= '9')
-                    {
-                        reader.ignore(1);
-                        spellid *= 10;
-                        spellid += c-'0';
-                        c = reader.peek();
-                    }
-                    linkedSpell = sSpellStore.LookupEntry(spellid);
+                    // Spell Id
+                    uint32 spellId = _ReadUInt32(reader);
+                    linkedSpell = sSpellStore.LookupEntry(spellId);
                     if (!linkedSpell)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |spell command", reader.str().c_str(), spellId);
                         return false;
+                    }
                 }
                 else if (strcmp(buffer, "enchant") == 0)
                 {
                     if (color != CHAT_LINK_COLOR_ENCHANT)
                         return false;
 
-                    uint32 spellid = 0;
-                    // read spell entry
-                    char c = reader.peek();
-                    while (c >='0' && c <= '9')
-                    {
-                        reader.ignore(1);
-                        spellid *= 10;
-                        spellid += c-'0';
-                        c = reader.peek();
-                    }
-                    linkedSpell = sSpellStore.LookupEntry(spellid);
+                    // Spell Id
+                    uint32 spellId = _ReadUInt32(reader);
+                    linkedSpell = sSpellStore.LookupEntry(spellId);
                     if (!linkedSpell)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |enchant command", reader.str().c_str(), spellId);
                         return false;
+                    }
                 }
                 else if (strcmp(buffer, "achievement") == 0)
                 {
                     if (color != CHAT_LINK_COLOR_ACHIEVEMENT)
                         return false;
+
+                    // Achievemnt Id
                     reader.getline(buffer, 256, ':');
+                    if (reader.eof())
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
+                        return false;
+                    }
+
                     uint32 achievementId = atoi(buffer);
                     linkedAchievement = sAchievementStore.LookupEntry(achievementId);
-
                     if (!linkedAchievement)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid achivement id %u in |achievement command", reader.str().c_str(), achievementId);
                         return false;
+                    }
 
-                    char c = reader.peek();
                     // skip progress
+                    char c = reader.peek();
                     while (c !='|' && c != '\0')
                     {
                         reader.ignore(1);
@@ -1215,29 +1255,30 @@ valid examples:
 
                     // first id is slot, drop it
                     reader.getline(buffer, 256, ':');
-                    uint32 glyphId = 0;
-                    char c = reader.peek();
-                    while (c >= '0' && c <= '9')
+                    if (reader.eof())
                     {
-                        glyphId *= 10;
-                        glyphId += c-'0';
-                        reader.ignore(1);
-                        c = reader.peek();
+                        LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
+                        return false;
                     }
+
+                    uint32 glyphId = _ReadUInt32(reader);
                     GlyphPropertiesEntry const* glyph = sGlyphPropertiesStore.LookupEntry(glyphId);
                     if (!glyph)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid glyph id %u in |glyph command", reader.str().c_str(), glyphId);
                         return false;
+                    }
 
                     linkedSpell = sSpellStore.LookupEntry(glyph->SpellId);
-
                     if (!linkedSpell)
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |glyph command", reader.str().c_str(), glyph->SpellId);
                         return false;
+                    }
                 }
                 else
                 {
-#ifdef TRINITY_DEBUG
-                    sLog->outBasic("ChatHandler::isValidChatMessage user sent unsupported link type '%s'", buffer);
-#endif
+                    LOG("ChatHandler::isValidChatMessage('%s'): user sent unsupported link type '%s'", reader.str().c_str(), buffer);
                     return false;
                 }
                 break;
@@ -1248,12 +1289,15 @@ valid examples:
                     // links start with '['
                     if (reader.get() != '[')
                     {
-#ifdef TRINITY_DEBUG
-                        sLog->outBasic("ChatHandler::isValidChatMessage link caption doesn't start with '['");
-#endif
+                        LOG("ChatHandler::isValidChatMessage('%s'): link caption doesn't start with '['", reader.str().c_str());
                         return false;
                     }
                     reader.getline(buffer, 256, ']');
+                    if (reader.eof())
+                    {
+                        LOG("ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly", reader.str().c_str());
+                        return false;
+                    }
 
                     // verify the link name
                     if (linkedSpell)
@@ -1265,19 +1309,21 @@ valid examples:
                             SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(linkedSpell->Id);
                             if (bounds.first == bounds.second)
                             {
+                                LOG("ChatHandler::isValidChatMessage('%s'): skill line not found for spell %u", reader.str().c_str(), linkedSpell->Id);
                                 return false;
                             }
 
                             SkillLineAbilityEntry const *skillInfo = bounds.first->second;
-
                             if (!skillInfo)
                             {
+                                LOG("ChatHandler::isValidChatMessage('%s'): skill line ability not found for spell %u", reader.str().c_str(), linkedSpell->Id);
                                 return false;
                             }
 
                             SkillLineEntry const *skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
                             if (!skillLine)
                             {
+                                LOG("ChatHandler::isValidChatMessage('%s'): skill line not found for skill %u", reader.str().c_str(), skillInfo->skillId);
                                 return false;
                             }
 
@@ -1288,8 +1334,8 @@ valid examples:
                                 {
                                     // found the prefix, remove it to perform spellname validation below
                                     // -2 = strlen(": ")
-                                    uint32 spellNameLength = strlen(buffer)-skillLineNameLength-2;
-                                    memmove(buffer, buffer+skillLineNameLength+2, spellNameLength+1);
+                                    uint32 spellNameLength = strlen(buffer) - skillLineNameLength - 2;
+                                    memmove(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
                                 }
                             }
                         }
@@ -1310,12 +1356,9 @@ valid examples:
                         if (linkedQuest->GetTitle() != buffer)
                         {
                             QuestLocale const *ql = sObjectMgr->GetQuestLocale(linkedQuest->GetQuestId());
-
                             if (!ql)
                             {
-#ifdef TRINITY_DEBUG
-                                sLog->outBasic("ChatHandler::isValidChatMessage default questname didn't match and there is no locale");
-#endif
+                                LOG("ChatHandler::isValidChatMessage('%s'): default questname didn't match and no locales present for this quest (id: %u)", reader.str().c_str(), linkedQuest->GetQuestId());
                                 return false;
                             }
 
@@ -1330,16 +1373,15 @@ valid examples:
                             }
                             if (!foundName)
                             {
-#ifdef TRINITY_DEBUG
-                                sLog->outBasic("ChatHandler::isValidChatMessage no quest locale title matched");
-#endif
+                                LOG("ChatHandler::isValidChatMessage('%s'): linked quest (id: %u) name wasn't found in any localization", reader.str().c_str(), linkedQuest->GetQuestId());
                                 return false;
                             }
                         }
                     }
                     else if (linkedItem)
                     {
-                        char* const* suffix = itemSuffix?itemSuffix->nameSuffix:(itemProperty?itemProperty->nameSuffix:NULL);
+                        char* const* suffix = itemSuffix ? itemSuffix->nameSuffix : 
+                            (itemProperty ? itemProperty->nameSuffix : NULL);
 
                         std::string expectedName = std::string(linkedItem->Name1);
                         if (suffix)
@@ -1373,9 +1415,7 @@ valid examples:
                             }
                             if (!foundName)
                             {
-#ifdef TRINITY_DEBUG
-                                sLog->outBasic("ChatHandler::isValidChatMessage linked item name wasn't found in any localization");
-#endif
+                                LOG("ChatHandler::isValidChatMessage('%s'): linked item (id: %u) name wasn't found in any localization", reader.str().c_str(), linkedItem->ItemId);
                                 return false;
                             }
                         }
@@ -1392,7 +1432,10 @@ valid examples:
                             }
                         }
                         if (!foundName)
+                        {
+                            LOG("ChatHandler::isValidChatMessage('%s'): linked achievement (id: %u) name wasn't found in any localization", reader.str().c_str(), linkedAchievement->ID);
                             return false;
+                        }
                     }
                     // that place should never be reached - if nothing linked has been set in |H
                     // it will return false before
@@ -1405,19 +1448,19 @@ valid examples:
                 // no further payload
                 break;
             default:
-#ifdef TRINITY_DEBUG
-                sLog->outBasic("ChatHandler::isValidChatMessage got invalid command |%c", commandChar);
-#endif
+                LOG("ChatHandler::isValidChatMessage('%s'): got invalid command |%c", reader.str().c_str(), commandChar);
                 return false;
         }
     }
 
     // check if every opened sequence was also closed properly
-#ifdef TRINITY_DEBUG
     if (validSequence != validSequenceIterator)
-        sLog->outBasic("ChatHandler::isValidChatMessage EOF in active sequence");
-#endif
-    return validSequence == validSequenceIterator;
+    {
+        LOG("ChatHandler::isValidChatMessage('%s'): EOF in active sequence", reader.str().c_str());
+        return false;
+    }
+
+    return true;
 }
 
 bool ChatHandler::ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd)

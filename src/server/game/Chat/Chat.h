@@ -374,6 +374,7 @@ class ChatHandler
         void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList);
         void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo);
 
+        uint32 _ReadUInt32(std::istringstream& reader) const;
     private:
         WorldSession * m_session;                           // != NULL for chat command call and NULL for CLI command
 
