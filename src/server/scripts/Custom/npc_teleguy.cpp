@@ -10,8 +10,8 @@ public:
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-         pCreature->MonsterWhisper("Добро пожаловать в систему 'улучшенный телепортер v1.02'", pPlayer->GetGUID(), false);
- 
+        pCreature->MonsterWhisper("Добро пожаловать в систему 'улучшенный телепортер v1.02'", pPlayer->GetGUID(), false);
+
         if ( pPlayer->GetTeam() == ALLIANCE ) {
             pPlayer->ADD_GOSSIP_ITEM( 9, "Исцели меня!"                     , GOSSIP_SENDER_MAIN, 1202);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Пиратская Бухта."                 , GOSSIP_SENDER_MAIN, 4035);
@@ -23,11 +23,13 @@ public:
             pPlayer->ADD_GOSSIP_ITEM( 5, "Шаттрат."                         , GOSSIP_SENDER_MAIN, 1287);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                         , GOSSIP_SENDER_MAIN, 1205);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."               , GOSSIP_SENDER_MAIN, 1288);
+            if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                    , GOSSIP_SENDER_MAIN, 5550);
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"              , GOSSIP_SENDER_MAIN, 5554);
- 
+
         }  else {
- 
+
             pPlayer->ADD_GOSSIP_ITEM( 9, "Исцели меня!"                     , GOSSIP_SENDER_MAIN, 1202);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Пиратская Бухта."                 , GOSSIP_SENDER_MAIN, 4035);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Оргриммар."                       , GOSSIP_SENDER_MAIN, 1215);
@@ -38,6 +40,8 @@ public:
             pPlayer->ADD_GOSSIP_ITEM( 5, "Шаттрат."                         , GOSSIP_SENDER_MAIN, 1287);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                         , GOSSIP_SENDER_MAIN, 1205);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."               , GOSSIP_SENDER_MAIN, 1288);
+            if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                    , GOSSIP_SENDER_MAIN, 5550);
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"              , GOSSIP_SENDER_MAIN, 5554);
         }
@@ -64,11 +68,11 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Аукиндон."                     , GOSSIP_SENDER_MAIN, 4038);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "[Ещё] ->"                      , GOSSIP_SENDER_MAIN, 5551);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Главное меню]"             , GOSSIP_SENDER_MAIN, 5552);
- 
-        
+
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
- 
+
                 break;
+
             case 5551: //More Instances
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Ульдаман."                  , GOSSIP_SENDER_MAIN, 1258);
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Зул'Фаррак."                , GOSSIP_SENDER_MAIN, 1259);
@@ -83,10 +87,11 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM( 7, "[Ещё] ->"                   , GOSSIP_SENDER_MAIN, 5553);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Назад]"                 , GOSSIP_SENDER_MAIN, 5550);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Главное меню]"          , GOSSIP_SENDER_MAIN, 5552);
-        
+
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
- 
+
                 break;
+
             case 5553: //Instances 60-70
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Каражан."                   , GOSSIP_SENDER_MAIN, 4007);
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Логово Груула."             , GOSSIP_SENDER_MAIN, 4008);
@@ -101,12 +106,12 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Плато Солнечного Колодца."  , GOSSIP_SENDER_MAIN, 4018);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Назад]"                 , GOSSIP_SENDER_MAIN, 5550);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Главное меню]"          , GOSSIP_SENDER_MAIN, 5552);
- 
- 
+
+
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
- 
+
                 break;
- 
+
             case 5554: //Instances 75-80 NORTHREND
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Крепость Утгард."                        , GOSSIP_SENDER_MAIN, 4019);
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Нексус."                                 , GOSSIP_SENDER_MAIN, 4020);
@@ -120,12 +125,12 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM( 7, "[Ещё] ->"                                , GOSSIP_SENDER_MAIN, 5555);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Назад]"                              , GOSSIP_SENDER_MAIN, 5550);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Главное меню]"                       , GOSSIP_SENDER_MAIN, 5552);
- 
- 
+
+
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
- 
+
                 break;
- 
+
             case 5555: //Instances 75-80 NORTHREND more
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Обсидиановое святилище."                , GOSSIP_SENDER_MAIN, 4028);
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Наксрамас."                             , GOSSIP_SENDER_MAIN, 4029);
@@ -136,13 +141,12 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Логово Ониксии."                        , GOSSIP_SENDER_MAIN, 4036);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Назад]"                             , GOSSIP_SENDER_MAIN, 5554);
                 pPlayer->ADD_GOSSIP_ITEM( 7, "<- [Главное меню]"                      , GOSSIP_SENDER_MAIN, 5552);
- 
- 
+
+
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
- 
+
                 break;
- 
- 
+
             case 5552: //Back To Main Menu
                 if ( pPlayer->GetTeam() == ALLIANCE ) {
                     pPlayer->ADD_GOSSIP_ITEM( 9, "Исцели меня!"                           , GOSSIP_SENDER_MAIN, 1202);
@@ -155,11 +159,13 @@ public:
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Шаттрат."                               , GOSSIP_SENDER_MAIN, 1287);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                               , GOSSIP_SENDER_MAIN, 1205);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."                     , GOSSIP_SENDER_MAIN, 1288);
+                    if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                              pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                          , GOSSIP_SENDER_MAIN, 5550);
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"                    , GOSSIP_SENDER_MAIN, 5554);
- 
-             }  else {
- 
+
+                }  else {
+
                     pPlayer->ADD_GOSSIP_ITEM( 9, "Исцели меня!"                           , GOSSIP_SENDER_MAIN, 1202);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Пиратская Бухта."                       , GOSSIP_SENDER_MAIN, 4035);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Оргриммар."                             , GOSSIP_SENDER_MAIN, 1215);
@@ -170,60 +176,61 @@ public:
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Шаттрат.."                              , GOSSIP_SENDER_MAIN, 1287);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                               , GOSSIP_SENDER_MAIN, 1205);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."                     , GOSSIP_SENDER_MAIN, 1288);
+                    if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                              pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                          , GOSSIP_SENDER_MAIN, 5550);
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"                    , GOSSIP_SENDER_MAIN, 5554);
-                      }
- 
+                }
+
                     pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
- 
+
             break;
 
             case 1203: // Teleport to Darnassus
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(1, 9947.52f, 2482.73f, 1316.21f, 0.0f);
             break;
- 
+
             case 1206: // Teleport to Stormwind
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(0, -8960.14f, 516.266f, 96.3568f, 0.0f);
             break;
- 
+
             case 1205: // Teleport to Dalaran
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(571, 5804.14f, 624.770f, 647.7670f, 1.64f);
             break;
- 
+
             case 1213: // Teleport to Undercity
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(0, 1819.71f, 238.79f, 60.5321f, 0.0f);
             break;
- 
+
             case 1215: // Teleport to Orgrimmar
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(1, 1552.5f, -4420.66f, 8.94802f, 0.0f);
             break;
- 
+
             case 1216: // Teleport to Exodar
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(530, -4073.03f, -12020.4f, -1.47f, 0.0f);
             break;
- 
 
             case 1217: // Teleport to Silvermoon
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(530, 9338.74f, -7277.27f, 13.7895f, 0.0f);
             break;
- 
+
             case 1222: // Teleport to Gnomeregan
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(0, -5163.43f,660.40f,348.28f,4.65f);
             break;
- 
+
             case 1224: // Teleport to Ironforge
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(0, -4924.07f, -951.95f, 501.55f, 5.40f);
             break;
- 
+
             case 1225: // Teleport to Thunder Bluff
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(1, -1280.19f,127.21f,131.35f,5.16f); 
@@ -239,7 +246,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 8!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1249: // Teleport to the Wailing Caverns
                 if (pPlayer->getLevel() >= 10)
                 {
@@ -250,7 +257,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 10!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1250: // Teleport to the Deadmines
                 if (pPlayer->getLevel() >= 10)
                 {
@@ -261,7 +268,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 10!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1251: // Teleport to Shadowfang Keep
                 if (pPlayer->getLevel() >= 15)
                 {
@@ -272,7 +279,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 15!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1252: // Teleport to Blackfathom Deeps
                 if (pPlayer->getLevel() >= 15)
                 {
@@ -283,7 +290,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 15!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1253: // Teleport to the Stockade
                 if (pPlayer->getLevel() >= 20)  
                 {
@@ -294,7 +301,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 20!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1254: // Teleport to Razorfen Kraul
                 if (pPlayer->getLevel() >= 24)    
                 {
@@ -305,7 +312,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 24!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1255: // Teleport to Gnomeregan
                 if (pPlayer->getLevel() >= 20)
                 {
@@ -316,7 +323,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 20!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1256: // Teleport to Razorfen Downs
                 if (pPlayer->getLevel() >= 25)
                 {
@@ -327,7 +334,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 25!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1257: // Teleport to the Scarlet Monastery
                 if (pPlayer->getLevel() >= 25)   
                 {
@@ -338,7 +345,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 25!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1258://Teleport to Uldaman
                 if (pPlayer->getLevel() >= 35)
                 {
@@ -349,7 +356,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 35!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1259: // Teleport to Zul'Farrak
                 if (pPlayer->getLevel() >= 35)
                 {
@@ -360,8 +367,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 35!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
- 
+
             case 1260: // Teleport to Maraudon
                 if (pPlayer->getLevel() >= 40)
                 {
@@ -372,7 +378,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 40!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1261: // Teleport to the Sunken Temple
                 if (pPlayer->getLevel() >= 45)
                 {
@@ -383,7 +389,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 45!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1262: // Teleport to Blackrock Depths
                 if (pPlayer->getLevel() >= 45)     
                 {
@@ -394,7 +400,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 45!", LANG_UNIVERSAL, NULL);
                 }
                 break;
-        
+
             case 1263: // Teleport to Dire Maul
                 if (pPlayer->getLevel() >= 50)       
                 {
@@ -405,7 +411,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1264: // Teleport to Blackrock Spire
                 if (pPlayer->getLevel() >= 50)    
                 {
@@ -416,7 +422,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1265: // Teleport to Stratholme
                 if (pPlayer->getLevel() >= 50)     
                 {
@@ -427,7 +433,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1266: // Teleport to Scholomance
                 if (pPlayer->getLevel() >= 50)
                 {
@@ -438,7 +444,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1287:// Shattrath City
                 if( pPlayer->getLevel() >= 58)
                 {
@@ -449,7 +455,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 58!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 1288: // Teleport to Isle Of Quel'Danas
                 if (pPlayer->getLevel() >= 65)    
                 {
@@ -460,7 +466,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 65!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4007: // Karazhan
                 if (pPlayer->getLevel() >= 70)   
                 {
@@ -471,7 +477,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4008: // Gruul's Lair
                 if (pPlayer->getLevel() >= 65)    
                 {
@@ -482,17 +488,17 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 65!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4009: // Hellfire Citadel
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(530, -305.816223f, 3056.401611f, -2.473183f, 2.01f);
             break;
- 
+
             case 4010: // Coilfang Reservoir
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(530, 517.288025f, 6976.279785f, 32.007198f, 0.0f);
             break;
- 
+
             case 4011: // Tempest Keep
                 if (pPlayer->getLevel() >= 70)   
                 {
@@ -503,7 +509,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4012: // Caverns of Time
                 if (pPlayer->getLevel() >= 66)
                 {
@@ -514,7 +520,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 66!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4016: // Zul'Aman
                 if (pPlayer->getLevel() >= 70)  
                 {
@@ -525,7 +531,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4013: // Black Temple
                 if (pPlayer->getLevel() >= 70)   
                 {
@@ -536,7 +542,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4017: // magistrate
                 if (pPlayer->getLevel() >= 70)   
                 {
@@ -547,7 +553,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4018: // Sunwell
                 if (pPlayer->getLevel() >= 70)
                 {
@@ -558,7 +564,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4019:// Utgarde Keep
                 if (pPlayer->getLevel() >= 70)    
                 {
@@ -569,7 +575,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4020: // The Nexus
                 if (pPlayer->getLevel() >= 70)  
                 {
@@ -580,7 +586,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4021: // Azjol-Nerub
                 if (pPlayer->getLevel() >= 70)
                 {
@@ -591,7 +597,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4022: // Ahn'kahet: The Old Kingdom
                 if (pPlayer->getLevel() >= 70)
                 {
@@ -602,7 +608,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4023: // Drak'Tharon Keep
                 if (pPlayer->getLevel() >= 70)   
                 {
@@ -613,7 +619,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4024: // The Violet Hold
                 if (pPlayer->getLevel() >= 70)    
                 {
@@ -624,7 +630,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4025: // Gun' Drak
                 if (pPlayer->getLevel() >= 70)    
                 {
@@ -635,7 +641,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4026: // Utgarde Pinnacle
                 if (pPlayer->getLevel() >= 70) 
                 {
@@ -646,7 +652,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4027: // Ulduar
                 if (pPlayer->getLevel() >= 70) 
                 {
@@ -657,7 +663,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4028: // The Obsidian Sanctum
                 if (pPlayer->getLevel() >= 70)   
                 {
@@ -668,7 +674,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4029: // Naxxramas
                 if (pPlayer->getLevel() >= 70)       
                 {
@@ -679,7 +685,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4030: // Archavon's Valut
                 if (pPlayer->getLevel() >= 70)
                 {
@@ -690,7 +696,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже бы уровня 70!", LANG_UNIVERSAL, NULL);
                 } 
             break;
- 
+
             case 1202: // Heal me!
                 if (pPlayer->HasAura(45523) )
                 {
@@ -702,8 +708,7 @@ public:
                     pPlayer->CastSpell(pPlayer, 45523, true);
                 }
             break;
- 
- 
+
             case 4031: // Icecrown Raid
                 if (pPlayer->getLevel() >= 70)
                 {
@@ -714,7 +719,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже бы уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4032: // Argent Coliseum
                 if (pPlayer->getLevel() >= 70)
                 {
@@ -725,7 +730,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже бы уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4033: // Icecrown Daily
                 if (pPlayer->getLevel() >= 70)     
                 {
@@ -736,7 +741,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4034: // Zul'Gurub
                 if (pPlayer->getLevel() >= 50)     
                 {
@@ -747,7 +752,7 @@ public:
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
- 
+
             case 4035: // Booty Bay
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(0, -14290.535f, 548.290f, 8.85f, 4.29f);
@@ -783,6 +788,19 @@ public:
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                }
+            break;
+
+            case 4039:
+                if (pPlayer->GetTeam() == ALLIANCE)
+                {
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->TeleportTo(1, 145.55f, 1211.82f, 166.246f, 5.2f);
+                }
+                else
+                {
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->TeleportTo(0, -548.54f, -3853.85f, 230.56f, 5.41f);
                 }
             break;
         }
