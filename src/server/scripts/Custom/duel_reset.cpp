@@ -10,7 +10,7 @@ class duel_reset : public PlayerScript
     void OnDuelEnd(Player *winner, Player *looser, DuelCompleteType type)
     {
         // reset cooldowns in elewynn forest and durotar
-        if (sWorld->getBoolConfig(CONFIG_DUEL_RESET_COOLDOWN) && (winner->GetZoneId() == 14 || winner->GetZoneId() == 12))
+        if (sWorld->getBoolConfig(CONFIG_DUEL_RESET_COOLDOWN)/* && (winner->GetZoneId() == 14 || winner->GetZoneId() == 12)*/)
         {
             if (type == DUEL_WON)
             {
