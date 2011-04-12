@@ -42,10 +42,10 @@ void StopDB();
 
 bool stopEvent = false;                                     // Setting it to true stops the server
 
-LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the realm server database
+LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the auth server database
 
-// Handle realmd's termination signals
-class RealmdSignalHandler : public Trinity::SignalHandler
+// Handle authserver's termination signals
+class AuthServerSignalHandler : public Trinity::SignalHandler
 {
 public:
     virtual void HandleSignal(int SigNum)
@@ -68,7 +68,7 @@ void usage(const char *prog)
         prog);
 }
 
-// Launch the realm server
+// Launch the auth server
 extern int main(int argc, char **argv)
 {
     sLog->SetLogDB(false);
@@ -99,7 +99,7 @@ extern int main(int argc, char **argv)
     }
     sLog->Initialize();
 
-    sLog->outString("%s (realm-daemon)", _FULLVERSION);
+    sLog->outString("%s (authserver)", _FULLVERSION);
     sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
 
@@ -113,7 +113,7 @@ extern int main(int argc, char **argv)
 
     sLog->outBasic("Max allowed open files is %d", ACE::max_handles());
 
-    // realmd PID file creation
+    // authserver PID file creation
     std::string pidfile = sConfig->GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
@@ -134,7 +134,7 @@ extern int main(int argc, char **argv)
     // Initialize the log database
     sLog->SetLogDBLater(sConfig->GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog->SetLogDB(false);
-    sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (realmd realmid)
+    sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
 
     // Get the list of realms for the server
     sRealmList->Initialize(sConfig->GetIntDefault("RealmsStateUpdateDelay", 20));
@@ -154,14 +154,14 @@ extern int main(int argc, char **argv)
 
     if (acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
     {
-        sLog->outError("Trinity realm can not bind to %s:%d", bind_ip.c_str(), rmport);
+        sLog->outError("Auth server can not bind to %s:%d", bind_ip.c_str(), rmport);
         return 1;
     }
 
     // Initialise the signal handlers
-    RealmdSignalHandler SignalINT, SignalTERM;
+    AuthServerSignalINT, SignalTERM;
 
-    // Register realmd's signal handlers
+    // Register authservers's signal handlers
     ACE_Sig_Handler Handler;
     Handler.register_handler(SIGINT, &SignalINT);
     Handler.register_handler(SIGTERM, &SignalTERM);
@@ -182,7 +182,7 @@ extern int main(int argc, char **argv)
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
                 if (!curAff)
-                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for authserver. Accessible processors bitmask (hex): %x", Aff, appAff);
                 else if (SetProcessAffinityMask(hProcess,curAff))
                     sLog->outString("Using processors (bitmask, hex): %x", curAff);
                 else
@@ -196,9 +196,9 @@ extern int main(int argc, char **argv)
         if (Prio)
         {
             if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                sLog->outString("TrinityRealm process priority class set to HIGH");
+                sLog->outString("The auth server process priority class has been set to HIGH");
             else
-                sLog->outError("Can't set realmd process priority class.");
+                sLog->outError("Can't set auth server process priority class.");
             sLog->outString();
         }
     }
