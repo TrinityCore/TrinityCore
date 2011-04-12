@@ -37,9 +37,9 @@
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "TrinityCore";
-char serviceLongName[] = "Trinity core service";
-char serviceDescription[] = "Massive Network Game Object Server";
+char serviceName[] = "worldserver";
+char serviceLongName[] = "TrinityCore world service";
+char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
 /*
  * -1 - not in service mode
  *  0 - stopped
@@ -74,12 +74,12 @@ extern int main(int argc, char **argv)
 {
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
-    int c=1;
+    int c = 1;
     while( c < argc )
     {
-        if( strcmp(argv[c],"-c") == 0)
+        if (strcmp(argv[c], "-c") == 0)
         {
-            if( ++c >= argc )
+            if (++c >= argc)
             {
                 sLog->outError("Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
@@ -93,34 +93,34 @@ extern int main(int argc, char **argv)
         ////////////
         //Services//
         ////////////
-        if( strcmp(argv[c],"-s") == 0)
+        if (strcmp(argv[c], "-s") == 0)
         {
-            if( ++c >= argc )
+            if (++c >= argc)
             {
                 sLog->outError("Runtime-Error: -s option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
-            if( strcmp(argv[c],"install") == 0)
+            if (strcmp(argv[c], "install") == 0)
             {
                 if (WinServiceInstall())
                     sLog->outString("Installing service");
                 return 1;
             }
-            else if( strcmp(argv[c],"uninstall") == 0)
+            else if (strcmp(argv[c], "uninstall") == 0)
             {
-                if(WinServiceUninstall())
+                if (WinServiceUninstall())
                     sLog->outString("Uninstalling service");
                 return 1;
             }
             else
             {
-                sLog->outError("Runtime-Error: unsupported option %s",argv[c]);
+                sLog->outError("Runtime-Error: unsupported option %s", argv[c]);
                 usage(argv[0]);
                 return 1;
             }
         }
-        if( strcmp(argv[c],"--service") == 0)
+        if (strcmp(argv[c], "--service") == 0)
         {
             WinServiceRun();
         }
