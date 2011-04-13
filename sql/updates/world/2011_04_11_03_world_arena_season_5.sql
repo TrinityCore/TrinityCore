@@ -12,7 +12,7 @@ SET @Doris := 32385;
 SET @Tristia := 32380;
 SET @Dirgehammer := 32381;
 
-DELETE FROM `creature` WHERE `id` IN (@BG_Zar,@Moonstrike,@ZomBocom,@Xazi,@Nargle,@Kezzik,@Argex,@Thunderhorn,@Doris,@Tristia,@Dirgehammer);
+DELETE FROM `creature` WHERE `id` IN (@BG_Zar,@Moonstrike,@ZomBocom,@Xazi,@Nargle,@Krezzik,@Argex,@Thunderhorn,@Doris,@Tristia,@Dirgehammer);
 INSERT INTO creature
 (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`)
 VALUES
@@ -68,7 +68,6 @@ SET @1930RT_2250AP := 2469;
 SET @1930RT_1200AP := 2468;
 SET @1930RT_4500AP := 2460;
 SET @1930RT_3150AP := 2466;
-SET @1930RT_1350AP := 2467;
 SET @1750RT_1350AP := 2463;
 SET @2050RT_1750AP := 2470;
 SET @1810RT_2250AP := 2465;
@@ -274,7 +273,7 @@ VALUES
 (@ZomBocom,0,41290,0,0,@7200HP_200AP), -- Savage Gladiator Gloves Druid3
 (@ZomBocom,0,41324,0,0,@12000HP_350AP), -- Savage Gladiator Helm Druid3
 (@ZomBocom,0,41301,0,0,@12000HP_350AP), -- Savage Gladiator Legs Druid3
-(@ZomBocom,0,41278,0,0,@9600HP_200AP), -- Savage Gladiator Shoulders Druid3
+(@ZomBocom,0,41278,0,0,@9600HP_275AP), -- Savage Gladiator Shoulders Druid3
 (@ZomBocom,0,41084,0,0,@12000HP_350AP), -- Savage Gladiator Chest Hunter
 (@ZomBocom,0,41140,0,0,@7200HP_200AP), -- Savage Gladiator Gloves Hunter
 (@ZomBocom,0,41154,0,0,@12000HP_350AP), -- Savage Gladiator Helm Hunter
