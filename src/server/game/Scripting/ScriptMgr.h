@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include <ace/Singleton.h>
+#include <ace/Atomic_Op.h>
 
 #include "DBCStores.h"
 #include "Player.h"
@@ -766,6 +767,9 @@ class ScriptMgr
 
     uint32 _scriptCount;
 
+    //atomic op counter for active scripts amount
+    ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
+
     public: /* Initialization */
 
         void Initialize();
@@ -970,6 +974,12 @@ class ScriptMgr
         void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason);
         void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnGroupDisband(Group* group);
+
+    public: /* Scheduled scripts */
+        uint32 IncreaseScheduledScriptsCount() { return uint32(++_scheduledScripts); }
+        uint32 DecreaseScheduledScriptCount() { return uint32(--_scheduledScripts); }
+        uint32 DecreaseScheduledScriptCount(size_t count) { return uint32(_scheduledScripts -= count); }
+        bool IsScriptScheduled() const { return _scheduledScripts > 0; }
 
     public: /* ScriptRegistry */
 

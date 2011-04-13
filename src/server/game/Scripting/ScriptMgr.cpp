@@ -135,7 +135,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 }
 
 ScriptMgr::ScriptMgr()
-    : _scriptCount(0)
+    : _scriptCount(0), _scheduledScripts(0)
 {
 }
 
