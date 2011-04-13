@@ -6074,6 +6074,10 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
+    if (unitTarget->ToCreature())
+        if (unitTarget->ToCreature()->isWorldBoss() || unitTarget->ToCreature()->IsDungeonBoss())
+            return;
+
     // Typhoon
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
     {
