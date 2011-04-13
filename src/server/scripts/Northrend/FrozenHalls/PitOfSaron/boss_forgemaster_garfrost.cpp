@@ -157,7 +157,10 @@ class boss_garfrost : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_TWO_MASK)
                     DoCast(me, SPELL_FORGE_BLADE);
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_FORGE_BLADE);
                     DoCast(me, SPELL_FORGE_MACE);
+                }
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
