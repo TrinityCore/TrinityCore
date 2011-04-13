@@ -53,7 +53,7 @@ Map::~Map()
     }
 
     if (!m_scriptSchedule.empty())
-        sWorld->DecreaseScheduledScriptCount(m_scriptSchedule.size());
+        sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 }
 
 bool Map::ExistMap(uint32 mapid,int gx,int gy)
