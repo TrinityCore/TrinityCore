@@ -1,4 +1,4 @@
-SET @GUID := 152021 ; -- Set GUID
+/*SET @GUID := 152021 ; -- Set GUID
 
 SET @BG_Zar := 32832;
 SET @Moonstrike := 32834;
@@ -954,3 +954,4 @@ VALUES
 (@Tristia,0,42031,0,0,@1600RT_47400HP), -- Deadly Gladiator Pendant of Subjugation
 (@Tristia,0,42027,0,0,@1600RT_47400HP), -- Deadly Gladiator Pendant of Triumph
 (@Tristia,0,42028,0,0,@1600RT_47400HP); -- Deadly Gladiator Pendant of Victory
+*/
