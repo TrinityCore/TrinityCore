@@ -4907,12 +4907,12 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     if (tableName.empty())
         return;
 
-    if (sWorld->IsScriptScheduled())                          // function don't must be called in time scripts use.
+    if (sScriptMgr->IsScriptScheduled())                    // function cannot be called when scripts are in use.
         return;
 
     sLog->outString("Loading %s...", tableName.c_str());
 
-    scripts->clear();                                        // need for reload support
+    scripts->clear();                                       // need for reload support
 
     bool isSpellScriptTable = (type == SCRIPTS_SPELL);
     char buff[125];
