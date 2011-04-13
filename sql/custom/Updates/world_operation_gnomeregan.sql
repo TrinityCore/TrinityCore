@@ -1,4 +1,9 @@
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_mekkatorque' WHERE `entry` = 39271; -- Do not apply until script will be finished.
+UPDATE `creature` SET `position_x` = '-5428.214844', `position_y` = '537.875244', `position_z` = '386.729370', `orientation` = '5.301703' WHERE `id` = '39271';
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, `quest_end`, `autocast`) VALUES ('74310', '135', '25287', '1', '25393', '1');
+
+DELETE FROM `creature_template_addon` WHERE (`entry` = '39820');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39820', '0', '0', '0', '0', '0', '74311 0');
 
 -- High Tinker Mekkatorque waypoints for the last battle --
 
