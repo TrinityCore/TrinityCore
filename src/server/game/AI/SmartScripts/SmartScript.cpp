@@ -2231,8 +2231,6 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         {
             if (!me || !me->getVictim())
                 return;
-            if (!me)
-                return;
             uint32 count = me->getVictim()->GetAuraCount(e.event.aura.spell);
             if (count < e.event.aura.count)
                 return;
@@ -2263,6 +2261,21 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_FOLLOW_COMPLETED:
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
+        case SMART_EVENT_IS_BEHIND_TARGET:
+            {
+                if (!me)
+                    return;
+
+                if (Unit* victim = me->getVictim())
+                {
+                    if (!victim->HasInArc(static_cast<float>(M_PI), me))
+                    {
+                        ProcessAction(e, victim);
+                        RecalcTimer(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax);
+                    }
+                }
+                break;
+            }
         case SMART_EVENT_RECEIVE_EMOTE:
             if (e.event.emote.emote == var0)
             {
@@ -2531,6 +2544,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:
             case SMART_EVENT_HAS_AURA:
             case SMART_EVENT_TARGET_BUFFED:
+            case SMART_EVENT_IS_BEHIND_TARGET:
             {
                 ProcessEvent(e);
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
