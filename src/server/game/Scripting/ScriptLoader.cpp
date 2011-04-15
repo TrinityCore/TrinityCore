@@ -1210,13 +1210,13 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-AddSC_Raeudiger Wolf();
+void AddSC_Raeudiger_Wolf();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-AddSC_Raeudiger Wolf();
+AddSC_Raeudiger_Wolf();
 #endif
 }
