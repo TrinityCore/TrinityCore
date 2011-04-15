@@ -1837,7 +1837,7 @@ void Player::setDeathState(DeathState s)
     }
 }
 
-bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
+bool Player::BuildEnumData(QueryResult result, WorldPacket* data)
 {
     //             0               1                2                3                 4                  5                       6                        7
     //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -1849,124 +1849,122 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
     Field *fields = result->Fetch();
 
     uint32 guid = fields[0].GetUInt32();
-    uint8 pRace = fields[2].GetUInt8();
-    uint8 pClass = fields[3].GetUInt8();
-    uint8 Gender = fields[4].GetUInt8();
+    uint8 plrRace = fields[2].GetUInt8();
+    uint8 plrClass = fields[3].GetUInt8();
+    uint8 gender = fields[4].GetUInt8();
 
-    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(pRace, pClass);
+    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
     if (!info)
     {
         sLog->outError("Player %u has incorrect race/class pair. Don't build enum.", guid);
         return false;
     }
-    else if (!IsValidGender(Gender))
+    else if (!IsValidGender(gender))
     {
-        sLog->outError("Player (%u) has incorrect gender (%hu), don't build enum.", guid, Gender);
+        sLog->outError("Player (%u) has incorrect gender (%hu), don't build enum.", guid, gender);
         return false;
     }
 
-    *p_data << uint64(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-    *p_data << fields[1].GetString();                       // name
-    *p_data << uint8(pRace);                                // race
-    *p_data << uint8(pClass);                               // class
-    *p_data << uint8(Gender);                               // gender
+    *data << uint64(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+    *data << fields[1].GetString();                         // name
+    *data << uint8(plrRace);                                // race
+    *data << uint8(plrClass);                               // class
+    *data << uint8(gender);                                 // gender
 
     uint32 playerBytes = fields[5].GetUInt32();
-    *p_data << uint8(playerBytes);                          // skin
-    *p_data << uint8(playerBytes >> 8);                     // face
-    *p_data << uint8(playerBytes >> 16);                    // hair style
-    *p_data << uint8(playerBytes >> 24);                    // hair color
+    *data << uint8(playerBytes);                            // skin
+    *data << uint8(playerBytes >> 8);                       // face
+    *data << uint8(playerBytes >> 16);                      // hair style
+    *data << uint8(playerBytes >> 24);                      // hair color
 
     uint32 playerBytes2 = fields[6].GetUInt32();
-    *p_data << uint8(playerBytes2 & 0xFF);                  // facial hair
+    *data << uint8(playerBytes2 & 0xFF);                    // facial hair
 
-    *p_data << uint8(fields[7].GetUInt8());                 // level
-    *p_data << uint32(fields[8].GetUInt32());               // zone
-    *p_data << uint32(fields[9].GetUInt32());               // map
+    *data << uint8(fields[7].GetUInt8());                   // level
+    *data << uint32(fields[8].GetUInt32());                 // zone
+    *data << uint32(fields[9].GetUInt32());                 // map
 
-    *p_data << fields[10].GetFloat();                       // x
-    *p_data << fields[11].GetFloat();                       // y
-    *p_data << fields[12].GetFloat();                       // z
+    *data << fields[10].GetFloat();                         // x
+    *data << fields[11].GetFloat();                         // y
+    *data << fields[12].GetFloat();                         // z
 
-    *p_data << uint32(fields[13].GetUInt32());              // guild id
+    *data << uint32(fields[13].GetUInt32());                // guild id
 
-    uint32 char_flags = 0;
+    uint32 charFlags = 0;
     uint32 playerFlags = fields[14].GetUInt32();
     uint32 atLoginFlags = fields[15].GetUInt32();
     if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
-        char_flags |= CHARACTER_FLAG_HIDE_HELM;
+        charFlags |= CHARACTER_FLAG_HIDE_HELM;
     if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
-        char_flags |= CHARACTER_FLAG_HIDE_CLOAK;
+        charFlags |= CHARACTER_FLAG_HIDE_CLOAK;
     if (playerFlags & PLAYER_FLAGS_GHOST)
-        char_flags |= CHARACTER_FLAG_GHOST;
+        charFlags |= CHARACTER_FLAG_GHOST;
     if (atLoginFlags & AT_LOGIN_RENAME)
-        char_flags |= CHARACTER_FLAG_RENAME;
+        charFlags |= CHARACTER_FLAG_RENAME;
     if (fields[20].GetUInt32())
-        char_flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
+        charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
     if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
     {
         if (!fields[21].GetString().empty())
-            char_flags |= CHARACTER_FLAG_DECLINED;
+            charFlags |= CHARACTER_FLAG_DECLINED;
     }
     else
-        char_flags |= CHARACTER_FLAG_DECLINED;
+        charFlags |= CHARACTER_FLAG_DECLINED;
 
-    *p_data << uint32(char_flags);                          // character flags
+    *data << uint32(charFlags);                             // character flags
 
     // character customize flags
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        *p_data << uint32(CHAR_CUSTOMIZE_FLAG_CUSTOMIZE);
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_CUSTOMIZE);
     else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        *p_data << uint32(CHAR_CUSTOMIZE_FLAG_FACTION);
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_FACTION);
     else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        *p_data << uint32(CHAR_CUSTOMIZE_FLAG_RACE);
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_RACE);
     else
-        *p_data << uint32(CHAR_CUSTOMIZE_FLAG_NONE);
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_NONE);
 
     // First login
-    *p_data << uint8(atLoginFlags & AT_LOGIN_FIRST ? 1 : 0);
+    *data << uint8(atLoginFlags & AT_LOGIN_FIRST ? 1 : 0);
 
     // Pets info
+    uint32 petDisplayId = 0;
+    uint32 petLevel = 0;
+    uint32 petFamily = 0;
+
+    // show pet at selection character in character list only for non-ghost character
+    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
     {
-        uint32 petDisplayId = 0;
-        uint32 petLevel   = 0;
-        uint32 petFamily  = 0;
-
-        // show pet at selection character in character list only for non-ghost character
-        if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (pClass == CLASS_WARLOCK || pClass == CLASS_HUNTER || pClass == CLASS_DEATH_KNIGHT))
+        uint32 entry = fields[16].GetUInt32();
+        CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(entry);
+        if (creatureInfo)
         {
-            uint32 entry = fields[16].GetUInt32();
-            CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(entry);
-            if (cInfo)
-            {
-                petDisplayId = fields[17].GetUInt32();
-                petLevel     = fields[18].GetUInt16();
-                petFamily    = cInfo->family;
-            }
+            petDisplayId = fields[17].GetUInt32();
+            petLevel = fields[18].GetUInt16();
+            petFamily = creatureInfo->family;
         }
-
-        *p_data << uint32(petDisplayId);
-        *p_data << uint32(petLevel);
-        *p_data << uint32(petFamily);
     }
 
-    Tokens data(fields[19].GetString(), ' ');
-    for (uint8 slot = 0; slot < EQUIPMENT_SLOT_END; ++slot)
+    *data << uint32(petDisplayId);
+    *data << uint32(petLevel);
+    *data << uint32(petFamily);
+
+    Tokens equipment(fields[19].GetString(), ' ');
+    for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
-        uint32 visualbase = slot * 2;
-        uint32 item_id = GetUInt32ValueFromArray(data, visualbase);
-        const ItemPrototype * proto = ObjectMgr::GetItemPrototype(item_id);
+        uint32 visualBase = slot * 2;
+        uint32 itemId = GetUInt32ValueFromArray(equipment, visualBase);
+        ItemPrototype const* proto = ObjectMgr::GetItemPrototype(itemId);
         if (!proto)
         {
-            *p_data << uint32(0);
-            *p_data << uint8(0);
-            *p_data << uint32(0);
+            *data << uint32(0);
+            *data << uint8(0);
+            *data << uint32(0);
             continue;
         }
 
         SpellItemEnchantmentEntry const *enchant = NULL;
 
-        uint32 enchants = GetUInt32ValueFromArray(data, visualbase + 1);
+        uint32 enchants = GetUInt32ValueFromArray(equipment, visualBase + 1);
         for (uint8 enchantSlot = PERM_ENCHANTMENT_SLOT; enchantSlot <= TEMP_ENCHANTMENT_SLOT; ++enchantSlot)
         {
             // values stored in 2 uint16
@@ -1979,23 +1977,10 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
                 break;
         }
 
-        *p_data << uint32(proto->DisplayInfoID);
-        *p_data << uint8(proto->InventoryType);
-        *p_data << uint32(enchant ? enchant->aura_id : 0);
+        *data << uint32(proto->DisplayInfoID);
+        *data << uint8(proto->InventoryType);
+        *data << uint32(enchant ? enchant->aura_id : 0);
     }
-
-    *p_data << uint32(0);                                   // bag 1 display id
-    *p_data << uint8(0);                                    // bag 1 inventory type
-    *p_data << uint32(0);                                   // enchant?
-    *p_data << uint32(0);                                   // bag 2 display id
-    *p_data << uint8(0);                                    // bag 2 inventory type
-    *p_data << uint32(0);                                   // enchant?
-    *p_data << uint32(0);                                   // bag 3 display id
-    *p_data << uint8(0);                                    // bag 3 inventory type
-    *p_data << uint32(0);                                   // enchant?
-    *p_data << uint32(0);                                   // bag 4 display id
-    *p_data << uint8(0);                                    // bag 4 inventory type
-    *p_data << uint32(0);                                   // enchant?
 
     return true;
 }
@@ -18299,23 +18284,29 @@ void Player::SaveToDB()
     ss << ", ";
     ss << uint32(m_activeSpec) << ", '";
     for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-    {
         ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << " ";
-    }
 
+    // cache equipment...
     ss << "', '";
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i )
-    {
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
         ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << " ";
+
+    // ...and bags for enum opcode
+    for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            ss << item->GetEntry();
+        else
+            ss << "0";
+        ss << " 0 ";
     }
 
     ss << "',";
 
     ss << GetUInt32Value(PLAYER_AMMO_ID) << ", '";
     for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-    {
         ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << " ";
-    }
+
     ss << "',";
     ss << uint32(GetByteValue(PLAYER_FIELD_BYTES, 2));
     ss << ")";
