@@ -4,13 +4,20 @@
 #include "ScriptPCH.h"
 
 
-struct Raeudiger WolfAI : public ScriptedAI
+class npc_Raeudiger_Wolf : public CreatureScript
 {
-	Raeudiger WolfAI(Creature *c) : ScriptedAI(c)
-	{
-	}
+public:
+    npc_Raeudiger_Wolf() : CreatureScript("npc_Raeudiger_Wolf") { }
 
-	uint32 spell1_phase1_Timer;
+    CreatureAI* GetAI(Creature *_Creature) const
+    {
+        return new npc_Raeudiger_WolfAI (_Creature);
+    }
+
+    struct npc_Raeudiger_WolfAI : public ScriptedAI
+    {
+        npc_Raeudiger_WolfAI(Creature *c) : ScriptedAI(c) { }
+			uint32 spell1_phase1_Timer;
 	uint32 spell2_phase1_Timer;
 	uint32 spell1_phase2_Timer;
 	uint32 spell1_phase3_Timer;
@@ -19,10 +26,11 @@ struct Raeudiger WolfAI : public ScriptedAI
 	uint32 phase3_Timer;
 	uint32 phase;
 
+
 	void EnterCombat(Unit *who)
 	{
-		m_creature->MonsterYell("Euer Blut wird den Boden tränken!", LANG_UNIVERSAL, NULL);
-		DoCast(m_creature->getVictim(), 774);
+		me->MonsterYell("Euer Blut wird den Boden tränken!", LANG_UNIVERSAL, NULL);
+		DoCast(me->getVictim(), 774);
 	}
 
 	void KilledUnit(Unit* victim)
@@ -31,7 +39,7 @@ struct Raeudiger WolfAI : public ScriptedAI
 
 	void JustDied(Unit* Killer)
 	{
-		m_creature->MonsterYell("LoL was habt ihr getan?", LANG_UNIVERSAL, NULL);
+		me->MonsterYell("LoL was habt ihr getan?", LANG_UNIVERSAL, NULL);
 	}
 
 	void Reset()
@@ -44,7 +52,7 @@ struct Raeudiger WolfAI : public ScriptedAI
 		phase2_Percent = 50;
 		phase3_Timer = 300000;
 		phase = 0;
-		m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
+		me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
 	}
 
 	void UpdateAI(const uint32 diff)
@@ -52,16 +60,16 @@ struct Raeudiger WolfAI : public ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		if ((m_creature->GetHealth() * 100 / m_creature->GetMaxHealth() <= 80) && phase == 0)
+		if ((me->GetHealth() * 100 / me->GetMaxHealth() <= 80) && phase == 0)
 		{
 			phase = 1;
-			m_creature->MonsterYell("Ich werde euch den Leib aufreißen", LANG_UNIVERSAL, NULL);
+			me->MonsterYell("Ich werde euch den Leib aufreißen", LANG_UNIVERSAL, NULL);
 		}
 
-		if ((m_creature->GetHealth() * 100 / m_creature->GetMaxHealth() <= 50) && phase == 1)
+		if ((me->GetHealth() * 100 / me->GetMaxHealth() <= 50) && phase == 1)
 		{
 			phase = 2;
-			m_creature->MonsterYell("Eure Knochen werden Schmerzen", LANG_UNIVERSAL, NULL);
+			me->MonsterYell("Eure Knochen werden Schmerzen", LANG_UNIVERSAL, NULL);
 		}
 
 		if (phase == 2)
@@ -69,7 +77,7 @@ struct Raeudiger WolfAI : public ScriptedAI
 			if (phase3_Timer <= diff)
 			{
 				phase = 3;
-				m_creature->MonsterYell("Jetzt esse ich euch!", LANG_UNIVERSAL, NULL);
+				me->MonsterYell("Jetzt esse ich euch!", LANG_UNIVERSAL, NULL);
 			}
 			else phase3_Timer -= diff;
 		}
@@ -79,13 +87,13 @@ struct Raeudiger WolfAI : public ScriptedAI
 
 			if (spell1_phase1_Timer <= diff)
 			{
-				DoCast(m_creature->getVictim(), 2142);
+				DoCast(me->getVictim(), 2142);
 				spell1_phase1_Timer = 1000+rand()%29000;
 			} else spell1_phase1_Timer -= diff;
 
 			if (spell2_phase1_Timer <= diff)
 			{
-				DoCast(m_creature->getVictim(), 3324);
+				DoCast(me->getVictim(), 3324);
 				spell2_phase1_Timer = 1000+rand()%9000;
 			} else spell2_phase1_Timer -= diff;
 		}
@@ -105,25 +113,17 @@ struct Raeudiger WolfAI : public ScriptedAI
 
 			if (spell1_phase3_Timer <= diff)
 			{
-				DoCast(m_creature, 64238);
+				DoCast(me, 64238);
 				spell1_phase3_Timer = 1000+rand()%4000;
 			} else spell1_phase3_Timer -= diff;
 		}
 
 		DoMeleeAttackIfReady();
 	}
+    };
 };
 
-CreatureAI* GetAIRaeudiger Wolf(Creature* pCreature)
+void AddSC_Raeudiger_Wolf()
 {
-	return new Raeudiger WolfAI (pCreature);
-}
-
-void AddSC_Raeudiger Wolf()
-{
-	Script *newscript;
-	newscript = new Script;
-	newscript->Name = "npc_Raeudiger Wolf";
-	newscript->GetAI = &GetAIRaeudiger Wolf;
-	newscript->RegisterSelf();
+    new npc_Raeudiger_Wolf();
 }
