@@ -62,10 +62,19 @@ struct npc_escortAI : public ScriptedAI
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
 
+        //this will set the current position to x/y/z/o, and the current WP to pointId.
+        bool SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation);
+
+        //this will set the current position to WP start position (if setPosition == true),
+        //and the current WP to pointId
+        bool SetNextWaypoint(uint32 pointId, bool setPosition = true, bool resetWaypointsOnFail = true);
+
+        bool GetWaypointPosition(uint32 pointId, float& x, float& y, float& z);
+
         virtual void WaypointReached(uint32 pointId) = 0;
         virtual void WaypointStart(uint32 /*pointId*/) {}
 
-        void Start(bool isActiveAttacker = true, bool run = false, uint64 playerGUID = 0, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false);
+        void Start(bool isActiveAttacker = true, bool run = false, uint64 playerGUID = 0, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
