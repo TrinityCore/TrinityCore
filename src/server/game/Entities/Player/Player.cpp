@@ -424,9 +424,16 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     // 1. Initialize internal variables to default values.
     _killer(killer), _victim(victim), _isBattleGround(isBattleGround),
-    _isPvP(victim->isCharmedOwnedByPlayerOrPlayer()), _group(killer->GetGroup()), _groupRate(1.0f),
+    _group(killer->GetGroup()), _groupRate(1.0f),
     _maxLevel(0), _maxNotGrayMember(NULL), _count(0), _sumLevel(0), _isFullXP(false), _xp(0)
 {
+    // mark the credit as pvp if victim is player
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+        _isPvP = true;
+    // or if its owned by player and its not a vehicle
+    else if (IS_PLAYER_GUID(victim->GetCharmerOrOwnerGUID()))
+        _isPvP = !victim->IsVehicle();
+
     _InitGroupData();
 }
 
