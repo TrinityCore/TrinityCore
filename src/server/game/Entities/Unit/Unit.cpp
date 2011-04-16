@@ -694,7 +694,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     if (pVictim->GetTypeId() == TYPEID_PLAYER)
         pVictim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED, damage);
-    else if (!pVictim->IsControlledByPlayer())
+    else if (!pVictim->IsControlledByPlayer() || pVictim->IsVehicle())
     {
         if (!pVictim->ToCreature()->hasLootRecipient())
             pVictim->ToCreature()->SetLootRecipient(this);
