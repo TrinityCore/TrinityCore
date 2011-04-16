@@ -38,7 +38,7 @@ enum eEscortState
 struct npc_escortAI : public ScriptedAI
 {
     public:
-        explicit npc_escortAI(Creature* pCreature);
+        explicit npc_escortAI(Creature* creature);
         ~npc_escortAI() {}
 
         // CreatureAI functions
@@ -54,23 +54,23 @@ struct npc_escortAI : public ScriptedAI
 
         void EnterEvadeMode();
 
-        void UpdateAI(const uint32);                        //the "internal" update, calls UpdateEscortAI()
-        virtual void UpdateEscortAI(const uint32);          //used when it's needed to add code in update (abilities, scripted events, etc)
+        void UpdateAI(uint32 const diff);                   //the "internal" update, calls UpdateEscortAI()
+        virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
 
         void MovementInform(uint32, uint32);
 
         // EscortAI functions
-        void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
+        void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
 
-        virtual void WaypointReached(uint32 uiPointId) = 0;
-        virtual void WaypointStart(uint32 /*uiPointId*/) {}
+        virtual void WaypointReached(uint32 pointId) = 0;
+        virtual void WaypointStart(uint32 /*pointId*/) {}
 
-        void Start(bool bIsActiveAttacker = true, bool bRun = false, uint64 uiPlayerGUID = 0, const Quest* pQuest = NULL, bool bInstantRespawn = false, bool bCanLoopPath = false);
+        void Start(bool isActiveAttacker = true, bool run = false, uint64 playerGUID = 0, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false);
 
-        void SetRun(bool bRun = true);
-        void SetEscortPaused(bool uPaused);
+        void SetRun(bool on = true);
+        void SetEscortPaused(bool on);
 
-        bool HasEscortState(uint32 uiEscortState) { return (m_uiEscortState & uiEscortState); }
+        bool HasEscortState(uint32 escortState) { return (m_uiEscortState & escortState); }
         virtual bool IsEscorted() { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
 
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
@@ -86,12 +86,12 @@ struct npc_escortAI : public ScriptedAI
         Player* GetPlayerForEscort() { return (Player*)Unit::GetUnit(*me, m_uiPlayerGUID); }
 
     private:
-        bool AssistPlayerInCombat(Unit* pWho);
+        bool AssistPlayerInCombat(Unit* who);
         bool IsPlayerOrGroupInRange();
         void FillPointMovementListForCreature();
 
-        void AddEscortState(uint32 uiEscortState) { m_uiEscortState |= uiEscortState; }
-        void RemoveEscortState(uint32 uiEscortState) { m_uiEscortState &= ~uiEscortState; }
+        void AddEscortState(uint32 escortState) { m_uiEscortState |= escortState; }
+        void RemoveEscortState(uint32 escortState) { m_uiEscortState &= ~escortState; }
 
         uint64 m_uiPlayerGUID;
         uint32 m_uiWPWaitTimer;
@@ -99,7 +99,7 @@ struct npc_escortAI : public ScriptedAI
         uint32 m_uiEscortState;
         float MaxPlayerDistance;
 
-        const Quest* m_pQuestForEscort;                     //generally passed in Start() when regular escort script.
+        Quest const* m_pQuestForEscort;                     //generally passed in Start() when regular escort script.
 
         std::list<Escort_Waypoint> WaypointList;
         std::list<Escort_Waypoint>::iterator CurrentWP;
