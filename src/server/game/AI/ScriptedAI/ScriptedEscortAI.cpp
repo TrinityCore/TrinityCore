@@ -383,12 +383,12 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
 
 void npc_escortAI::FillPointMovementListForCreature()
 {
-    std::vector<ScriptPointMove> const& movePoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
+    ScriptPointVector const& movePoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
     if (movePoints.empty())
         return;
 
-    std::vector<ScriptPointMove>::const_iterator itrEnd = movePoints.end();;
-    for (std::vector<ScriptPointMove>::const_iterator itr = movePoints.begin(); itr != itrEnd; ++itr)
+    ScriptPointVector::const_iterator itrEnd = movePoints.end();;
+    for (ScriptPointVector::const_iterator itr = movePoints.begin(); itr != itrEnd; ++itr)
     {
         Escort_Waypoint point(itr->uiPointId, itr->fX, itr->fY, itr->fZ, itr->uiWaitTime);
         WaypointList.push_back(point);
@@ -416,7 +416,7 @@ void npc_escortAI::SetRun(bool on)
 }
 
 //TODO: get rid of this many variables passed in function.
-void npc_escortAI::Start(bool isActiveAttacker, bool run, uint64 playerGUID, Quest const* quest, bool instantRespawn, bool canLoopPath)
+void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, uint64 playerGUID /* = 0 */, Quest const* quest /* = NULL */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
 {
     if (me->getVictim())
     {
@@ -430,7 +430,7 @@ void npc_escortAI::Start(bool isActiveAttacker, bool run, uint64 playerGUID, Que
         return;
     }
 
-    if (!ScriptWP) // sd2 never adds wp in script, but tc does
+    if (!ScriptWP && resetWaypoints) // sd2 never adds wp in script, but tc does
     {
         if (!WaypointList.empty())
             WaypointList.clear();
@@ -489,4 +489,71 @@ void npc_escortAI::SetEscortPaused(bool on)
         AddEscortState(STATE_ESCORT_PAUSED);
     else
         RemoveEscortState(STATE_ESCORT_PAUSED);
+}
+
+bool npc_escortAI::SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation)
+{
+    me->SetPosition(x, y, z, orientation);
+    return SetNextWaypoint(pointId, false, true);
+}
+
+bool npc_escortAI::SetNextWaypoint(uint32 pointId, bool setPosition, bool resetWaypointsOnFail)
+{
+    if (!WaypointList.empty())
+        WaypointList.clear();
+
+    FillPointMovementListForCreature();
+
+    if (WaypointList.empty())
+        return false;
+
+    size_t const size = WaypointList.size();
+    Escort_Waypoint waypoint(0, 0, 0, 0, 0);
+    do
+    {
+        waypoint = WaypointList.front();
+        WaypointList.pop_front();
+        if (waypoint.id == pointId)
+        {
+            if (setPosition)
+                me->SetPosition(waypoint.x, waypoint.y, waypoint.z, me->GetOrientation());
+
+            CurrentWP = WaypointList.begin();
+            return true;
+        }
+    }
+    while (!WaypointList.empty());
+
+    // we failed.
+    // we reset the waypoints in the start; if we pulled any, reset it again
+    if (resetWaypointsOnFail && size != WaypointList.size())
+    {
+        if (!WaypointList.empty())
+            WaypointList.clear();
+
+        FillPointMovementListForCreature();
+    }
+
+    return false;
+}
+
+bool npc_escortAI::GetWaypointPosition(uint32 pointId, float& x, float& y, float& z)
+{
+    ScriptPointVector const& waypoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
+    if (waypoints.empty())
+        return false;
+
+    ScriptPointVector::const_iterator itrEnd = waypoints.end();
+    for (ScriptPointVector::const_iterator itr = waypoints.begin(); itr != waypoints.end(); ++itr)
+    {
+        if (itr->uiPointId == pointId)
+        {
+            x = itr->fX;
+            y = itr->fY;
+            z = itr->fZ;
+            return true;
+        }
+    }
+
+    return false;
 }
