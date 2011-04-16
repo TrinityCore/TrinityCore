@@ -23,7 +23,7 @@
 #include "PoolMgr.h"
 #include "icecrown_citadel.h"
 
-static const DoorData doorData[] =
+DoorData const doorData[] =
 {
     {GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
     {GO_ICEWALL,                             DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
@@ -53,10 +53,15 @@ struct WeeklyQuest
 {
     uint32 creatureEntry;
     uint32 questId[2];  // 10 and 25 man versions
-} WeeklyQuestData[WeeklyNPCs] =
+};
+
+// when changing the content, remember to update SetData, DATA_BLOOD_QUICKENING_STATE case for NPC_ALRIN_THE_AGILE index
+WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
 {
     {NPC_INFILTRATOR_MINCHAR,         {QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                }}, // Deprogramming
     {NPC_KOR_KRON_LIEUTENANT,         {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
+    {NPC_ROTTING_FROST_GIANT_10,      {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
+    {NPC_ROTTING_FROST_GIANT_25,      {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
     {NPC_ALCHEMIST_ADRIANNA,          {QUEST_RESIDUE_RENDEZVOUS_10,            QUEST_RESIDUE_RENDEZVOUS_25           }}, // Residue Rendezvous
     {NPC_ALRIN_THE_AGILE,             {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
     {NPC_INFILTRATOR_MINCHAR_BQ,      {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
@@ -478,11 +483,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_LADY_DEATHWHISPER:
                         SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
                         if (state == DONE)
+                        {
                             if (GameObject* elevator = instance->GetGameObject(ladyDeathwisperElevator))
                             {
                                 elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
                                 elevator->SetGoState(GO_STATE_READY);
                             }
+                        }
                         break;
                     case DATA_DEATHBRINGER_SAURFANG:
                         switch (state)
@@ -602,40 +609,89 @@ class instance_icecrown_citadel : public InstanceMapScript
                         isOrbWhispererEligible = data ? true : false;
                         break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
+                    {
+                        if (frostwyrms == 255)
+                            return;
+
                         if (instance->IsHeroic() && !heroicAttempts)
                             return;
-                        if (data > 1)
-                            frostwyrms = data;
-                        else if (data == 1)
-                            ++frostwyrms;
-                        else if (!data && !--frostwyrms && GetBossState(DATA_SINDRAGOSA) != DONE)
+
+                        if (GetBossState(DATA_SINDRAGOSA) != DONE)
+                            return;
+
+                        switch (data)
                         {
-                            instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
-                            if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
-                            {
-                                boss->setActive(true);
-                                boss->AI()->DoAction(ACTION_START_FROSTWYRM);
-                            }
+                            case 0:
+                                if (frostwyrms)
+                                {
+                                    --frostwyrms;
+                                    if (!frostwyrms)
+                                    {
+                                        instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
+                                        if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
+                                            boss->AI()->DoAction(ACTION_START_FROSTWYRM);
+                                    }
+                                }
+                                break;
+                            case 1:
+                                ++frostwyrms;
+                                break;
+                            default:
+                                frostwyrms = data;
+                                break;
                         }
                         break;
+                    }
                     case DATA_SPINESTALKER:
-                        if (data > 1)
-                            spinestalkerTrash = data;
-                        else if (data == 1)
-                            ++spinestalkerTrash;
-                        else if (!data && !--spinestalkerTrash)
-                            if (Creature* spinestalk = instance->GetCreature(spinestalker))
-                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
+                    {
+                        if (spinestalkerTrash == 255)
+                            return;
+
+                        switch (data)
+                        {
+                            case 0:
+                                if (spinestalkerTrash)
+                                {
+                                    --spinestalkerTrash;
+                                    if (!spinestalkerTrash)
+                                        if (Creature* spinestalk = instance->GetCreature(spinestalker))
+                                            spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
+                                }
+                                break;
+                            case 1:
+                                ++spinestalkerTrash;
+                                break;
+                            default:
+                                spinestalkerTrash = data;
+                                break;
+                        }
                         break;
+                    }
                     case DATA_RIMEFANG:
-                        if (data > 1)
-                            rimefangTrash = data;
-                        else if (data == 1)
-                            ++rimefangTrash;
-                        else if (!data && !--rimefangTrash)
-                            if (Creature* rime = instance->GetCreature(rimefang))
-                                rime->AI()->DoAction(ACTION_START_FROSTWYRM);
+                    {
+                        if (rimefangTrash == 255)
+                            return;
+
+                        switch (data)
+                        {
+                            case 0:
+                                if (rimefangTrash)
+                                {
+                                    --rimefangTrash;
+                                    if (!rimefangTrash)
+                                        if (Creature* rime = instance->GetCreature(rimefang))
+                                            rime->AI()->DoAction(ACTION_START_FROSTWYRM);
+                                }
+                                break;
+                            case 1:
+                                ++rimefangTrash;
+                                break;
+                            default:
+                                rimefangTrash = data;
+                                break;
+                        }
                         break;
+                    }
                     case DATA_COLDFLAME_JETS:
                         coldflameJetsState = data;
                         if (coldflameJetsState == DONE)
@@ -648,10 +704,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_BLOOD_QUICKENING_STATE:
                     {
-                        // 3 is the index of Blood Quickening
-                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[3].questId[instance->GetSpawnMode() & 1]))
-                            break;
+                        // skip if nothing changes
                         if (bloodQuickeningState == data)
+                            break;
+
+                        // 5 is the index of Blood Quickening
+                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[5].questId[instance->GetSpawnMode() & 1]))
                             break;
 
                         switch (data)
@@ -667,7 +725,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 bloodQuickeningMinutes = 0;
                                 DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
                                 break;
+                            default:
+                                break;
                         }
+
                         bloodQuickeningState = data;
                         SaveToDB();
                         break;

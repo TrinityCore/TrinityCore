@@ -233,13 +233,15 @@ class boss_sindragosa : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
                     instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 255);
                     if (me->isDead())
                         return;
+
+                    me->setActive(true);
                     me->SetSpeed(MOVE_FLIGHT, 4.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     float moveTime = me->GetExactDist(&SindragosaFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
@@ -361,7 +363,7 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -492,7 +494,7 @@ class npc_ice_tomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(const uint64& guid, int32 type/* = 0 */)
+            void SetGUID(uint64 const& guid, int32 type/* = 0 */)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -501,7 +503,7 @@ class npc_ice_tomb : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 if (action == ACTION_TRIGGER_ASPHYXIATION)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer))
@@ -520,7 +522,7 @@ class npc_ice_tomb : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!trappedPlayer)
                     return;
@@ -590,13 +592,15 @@ class npc_spinestalker : public CreatureScript
                 instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
                     instance->SetData(DATA_SPINESTALKER, 255);
                     if (me->isDead())
                         return;
+
+                    me->setActive(true);
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     float moveTime = me->GetExactDist(&SpinestalkerFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
@@ -613,13 +617,14 @@ class npc_spinestalker : public CreatureScript
                 if (type != POINT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
                     return;
 
+                me->setActive(false);
                 me->SetFlying(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->SetHomePosition(SpinestalkerLandPos);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -702,13 +707,15 @@ class npc_rimefang : public CreatureScript
                 instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
                     instance->SetData(DATA_RIMEFANG, 255);
                     if (me->isDead())
                         return;
+
+                    me->setActive(true);
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     float moveTime = me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
@@ -725,6 +732,7 @@ class npc_rimefang : public CreatureScript
                 if (type != POINT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
                     return;
 
+                me->setActive(false);
                 me->SetFlying(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->SetHomePosition(RimefangLandPos);
@@ -736,7 +744,7 @@ class npc_rimefang : public CreatureScript
                 DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -866,7 +874,7 @@ class npc_sindragosa_trash : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1417,10 +1425,7 @@ class at_sindragosa_lair : public AreaTriggerScript
 
                     player->GetMap()->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
                     if (Creature* sindragosa = player->GetMap()->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
-                    {
-                        sindragosa->setActive(true);
                         sindragosa->AI()->DoAction(ACTION_START_FROSTWYRM);
-                    }
                 }
             }
 
