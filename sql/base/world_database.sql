@@ -16956,6 +16956,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (2948, 0.4286, -1, -1, -1, 'Mage - Scorch'),
 (59638, 0.3, -1, 0, -1, 'Mage - Mirror Image Frostbolt'),
 (59637, 0.15, -1, 0, -1, 'Mage - Mirror Image Fire Blast'),
+(31707, 0.8333, 0, 0, 0, 'Mage - Water Elemental Waterbolt'),
 (31935, 0.07, -1, 0.07, -1, 'Paladin - Avenger Shield'),
 (53742, -1, 0.0176, -1, 0.03, 'Paladin - Blood Corruption'),
 (26573, -1, 0.04, -1, 0.04, 'Paladin - Consecration'),
