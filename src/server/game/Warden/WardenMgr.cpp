@@ -1115,7 +1115,7 @@ void WardenMgr::ReactToCheatCheckResult(WorldSession* const session, bool result
     {
         if (m_Banning)
         {
-            std::string sText = ("Èãðîê: " + std::string(session->GetPlayerName()) + " èñïîëüçîâàë ÷èòåðñêîå ÏÎ è áûë çàáàíåí íà 1 äåíü.");
+            std::string sText = ("Ð˜Ð³Ñ€Ð¾Ðº: " + std::string(session->GetPlayerName()) + " Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð» Ñ‡Ð¸Ñ‚ÐµÑ€ÑÐºÐ¾Ðµ ÐŸÐž Ð¸ Ð±Ñ‹Ð» Ð·Ð°Ð±Ð°Ð½ÐµÐ½ Ð½Ð° 1 Ð´ÐµÐ½ÑŒ.");
             sWorld->SendGMText(LANG_GM_BROADCAST, sText.c_str());
             sWorld->BanAccount(session, 24 * HOUR, "Cheating software user", "Server guard");
         }
