@@ -42,10 +42,10 @@ enum eSpells
     SPELL_PLAGUE_STRIKE     = 67724,
     SPELL_PLAGUE_STRIKE_2   = 67884,
     SPELL_ICY_TOUCH         = 67881,
-	SPELL_ICY_TOUCH_H       = 67718,
+    SPELL_ICY_TOUCH_H       = 67718,
     SPELL_DEATH_RESPITE     = 67745,
     SPELL_OBLITERATE        = 67883,
-	SPELL_OBLITERATE_H      = 67725,
+    SPELL_OBLITERATE_H      = 67725,
 
     //phase 2 - During this phase, the Black Knight will use the same abilities as in phase 1, except for Death's Respite
     SPELL_ARMY_DEAD         = 67761,
@@ -61,8 +61,8 @@ enum eSpells
 
     SPELL_BLACK_KNIGHT_RES  = 67693,
 
-    SPELL_LEAP				= 67749,
-    SPELL_LEAP_H			= 67880
+    SPELL_LEAP	            = 67749,
+    SPELL_LEAP_H            = 67880
 };
 
 enum eModels
@@ -73,7 +73,7 @@ enum eModels
 
 enum eEqip
 {
-     EQUIP_SWORD					= 40343
+     EQUIP_SWORD    = 40343
 };
 
 enum IntroPhase
@@ -92,7 +92,7 @@ enum ePhases
 
 enum Misc
 {
-    ACHIEV_WORSE                                  = 3804
+    ACHIEV_WORSE  = 3804
 };
 
 class boss_black_knight : public CreatureScript
@@ -109,7 +109,7 @@ public:
     {
         boss_black_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -149,6 +149,7 @@ public:
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
             me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
 
             bEventInProgress = false;
             bEvent = false;
@@ -157,10 +158,8 @@ public:
             bEventInBattle = false;
             bFight = false;
 
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                    pInstance->HandleGameObject(pGO->GetGUID(),true);
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                    pInstance->HandleGameObject(pGO->GetGUID(),false);
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                pInstance->HandleGameObject(pGO->GetGUID(),true);
 
             uiPhase = PHASE_UNDEAD;
 
@@ -191,7 +190,7 @@ public:
     	        me->GetMotionMaster()->MovePoint(1,743.396f, 635.411f, 411.575f);
                 me->setFaction(14);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             ScriptedAI::EnterEvadeMode();
@@ -239,7 +238,7 @@ public:
                                 break;
                         }
                         DoCast(me,SPELL_BLACK_KNIGHT_RES,true);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         uiPhase++;
                         uiResurrectTimer = 3000;
                         bEventInProgress = false;
@@ -248,7 +247,7 @@ public:
 
                 switch(uiPhase)
                 {
-                        case PHASE_UNDEAD:
+                    case PHASE_UNDEAD:
                     {
     	    			if (uiPlagueStrikeTimer <= uiDiff)
                         {
@@ -269,7 +268,7 @@ public:
                         } else uiIcyTouchTimer -= uiDiff;
                         break;
                     }
-                        case PHASE_SKELETON:
+                    case PHASE_SKELETON:
                     {
                         if (!bSummonArmy)
                         {
@@ -402,9 +401,9 @@ public:
 
         void JustDied(Unit* pKiller)
         {
-    		DoScriptText(SAY_DEATH_3, me);
-    		if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),true);
+            DoScriptText(SAY_DEATH_3, me);
+    	    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                pInstance->HandleGameObject(pGO->GetGUID(),true);
 
             if (pInstance)
             {
@@ -472,12 +471,20 @@ public:
 
     struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
     {
-        npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature), vehicle(pCreature->GetVehicleKit())
         {
             Start(false,true,0,NULL);
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();	
+            pInstance = pCreature->GetInstanceScript();	
         }
-		InstanceScript* pInstance;
+
+        InstanceScript* pInstance;
+        Vehicle *vehicle;
+
+        void Reset()
+        {
+            ASSERT(vehicle);
+            vehicle->Reset();
+        }
 		
         void WaypointReached(uint32 uiPointId)
         {
@@ -563,7 +570,7 @@ public:
         npc_grAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
             Start(false,true,0,NULL);
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();	
+            pInstance = pCreature->GetInstanceScript();	
         }
 
     	InstanceScript* pInstance;
@@ -590,7 +597,7 @@ public:
     				me->SetUnitMovementFlags(MOVEMENTFLAG_FLYING);
     				break;
                     case 4:
-    				me->SetUnitMovementFlags(MOVEMENTFLAG_FLYING);
+    				//me->SetUnitMovementFlags(MOVEMENTFLAG_FLYING);
     				if (pInstance)
     				{
                                     pInstance->SetData(DATA_KNIGHT, NOT_STARTED);

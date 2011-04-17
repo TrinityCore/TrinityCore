@@ -146,34 +146,34 @@ class generic_vehicleAI_toc5 : public CreatureScript
 public:
     generic_vehicleAI_toc5() : CreatureScript("generic_vehicleAI_toc5") { }
 
-	    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new generic_vehicleAI_toc5AI(pCreature);
     }
 
     struct generic_vehicleAI_toc5AI : public npc_escortAI
     {
-        generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature)
+        generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature), vehicle(pCreature->GetVehicleKit())
         {
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
+        Vehicle *vehicle;
 
         uint32 uiShieldBreakerTimer;
         uint32 uiBuffTimer;
-
         uint32 uiWaypointPath;
 
         void Reset()
         {
+            ASSERT(vehicle);
             uiShieldBreakerTimer = 8000;
             uiBuffTimer = urand(30000,60000);
 
-            if (me->GetVehicleKit())
-                me->GetVehicleKit()->Reset();
+            vehicle->Reset();
         }
 
         void SetData(uint32 uiType, uint32 uiData)
@@ -185,9 +185,9 @@ public:
                     AddWaypoint(1,771.434f, 642.606f, 411.9f);
                     AddWaypoint(2,779.807f, 617.535f, 411.716f);
                     AddWaypoint(3,771.098f, 594.635f, 411.625f);
-    				AddWaypoint(4,746.887f, 583.425f, 411.668f);
-    				AddWaypoint(5,715.176f, 583.782f, 412.394f);
-    				AddWaypoint(6,720.719f, 591.141f, 411.737f);
+                    AddWaypoint(4,746.887f, 583.425f, 411.668f);
+                    AddWaypoint(5,715.176f, 583.782f, 412.394f);
+                    AddWaypoint(6,720.719f, 591.141f, 411.737f);
                     uiWaypointPath = 1;
                     break;
                 case 2:
@@ -195,9 +195,9 @@ public:
                     AddWaypoint(1,771.434f, 642.606f, 411.9f);
                     AddWaypoint(2,779.807f, 617.535f, 411.716f);
                     AddWaypoint(3,771.098f, 594.635f, 411.625f);
-    				AddWaypoint(4,746.887f, 583.425f, 411.668f);
-    				AddWaypoint(5,746.16f, 571.678f, 412.389f);
-    				AddWaypoint(6,746.887f, 583.425f, 411.668f);
+                    AddWaypoint(4,746.887f, 583.425f, 411.668f);
+                    AddWaypoint(5,746.16f, 571.678f, 412.389f);
+                    AddWaypoint(6,746.887f, 583.425f, 411.668f);
                     uiWaypointPath = 2;
                     break;
                 case 3:
@@ -205,8 +205,8 @@ public:
                     AddWaypoint(1,771.434f, 642.606f, 411.9f);
                     AddWaypoint(2,779.807f, 617.535f, 411.716f);
                     AddWaypoint(3,771.098f, 594.635f, 411.625f);
-    				AddWaypoint(4,777.759f, 584.577f, 412.393f);
-    				AddWaypoint(5,772.48f, 592.99f, 411.68f);
+                    AddWaypoint(4,777.759f, 584.577f, 412.393f);
+                    AddWaypoint(5,772.48f, 592.99f, 411.68f);
                     uiWaypointPath = 3;
                     break;
             }
@@ -232,6 +232,9 @@ public:
 
         void EnterCombat(Unit* pWho)
         {
+            if (Unit* champ = vehicle->GetPassenger(SEAT_ID_0))
+                champ->ToCreature()->SetInCombatWithZone();
+
             DoCastSpellShield();
         }
 
@@ -245,27 +248,19 @@ public:
         {
             npc_escortAI::UpdateAI(uiDiff);
 
-            //if (!UpdateVictim())
-              //  return;
-
-            if (!me->getVictim())
+            if (!UpdateVictim())
                 return;
 
             if (uiBuffTimer <= uiDiff)
             {
-                    DoCastSpellShield();
+                DoCastSpellShield();
                 uiBuffTimer = urand(30000,45000);
             }else uiBuffTimer -= uiDiff;
 
             //dosen't work at all
             if (uiShieldBreakerTimer <= uiDiff)
             {
-                Vehicle *pVehicle = me->GetVehicleKit();
-                if (!pVehicle)
-                    return;
-
-
-                if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
+                if (Unit* pPassenger = vehicle->GetPassenger(SEAT_ID_0))
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
                     if (me->GetMap()->IsDungeon() && !players.isEmpty())
@@ -296,7 +291,7 @@ class boss_warrior_toc5 : public CreatureScript
 public:
     boss_warrior_toc5() : CreatureScript("boss_warrior_toc5") { }
 
-	CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_warrior_toc5AI(pCreature);
     }
@@ -306,7 +301,7 @@ public:
 
         boss_warrior_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -435,7 +430,7 @@ class boss_mage_toc5 : public CreatureScript
 public:
     boss_mage_toc5() : CreatureScript("boss_mage_toc5") { }
 
-		CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_mage_toc5AI(pCreature);
     }
@@ -445,7 +440,7 @@ public:
 
         boss_mage_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -570,7 +565,7 @@ class boss_shaman_toc5 : public CreatureScript
 public:
     boss_shaman_toc5() : CreatureScript("boss_shaman_toc5") { }
 
-	    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_shaman_toc5AI(pCreature);
     }
@@ -579,7 +574,7 @@ public:
     {
         boss_shaman_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -719,7 +714,7 @@ class boss_hunter_toc5 : public CreatureScript
 public:
     boss_hunter_toc5() : CreatureScript("boss_hunter_toc5") { }
 
-	    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_hunter_toc5AI(pCreature);
     }
@@ -728,7 +723,7 @@ public:
     {
         boss_hunter_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -892,7 +887,7 @@ class boss_rouge_toc5 : public CreatureScript
 public:
     boss_rouge_toc5() : CreatureScript("boss_rouge_toc5") { }
 
-	    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_rouge_toc5AI(pCreature);
     }
@@ -901,7 +896,7 @@ public:
     {
         boss_rouge_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             bDone = false;
             bHome = false;

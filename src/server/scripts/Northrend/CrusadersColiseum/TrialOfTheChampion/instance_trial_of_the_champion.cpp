@@ -72,12 +72,12 @@ public:
 
         void Initialize()
         {
-    	    uiBlackKnightEvent = 0;
-            uiMovementDone = 0;
+    	    uiBlackKnightEvent     = 0;
+            uiMovementDone         = 0;
             uiGrandChampionsDeaths = 0;
-            uiArgentSoldierDeaths = 0;
+            uiArgentSoldierDeaths  = 0;
 
-    		uiBlackKnightGUID      = 0;
+            uiBlackKnightGUID      = 0;
             uiAnnouncerGUID        = 0;
             uiMainGateGUID         = 0;
             uiMainGate1GUID        = 0;
@@ -186,7 +186,7 @@ public:
                     break;
                 case NPC_BLACK_KNIGHT:
                     uiBlackKnightGUID = creature->GetGUID();
-    				break;
+                    break;
             }
         }
 
@@ -347,6 +347,7 @@ public:
 						}
                     if (Creature* pBoss =  instance->GetCreature(uiArgentChampionGUID))
                     {
+                        pBoss->setFaction(14);
                         pBoss->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                         pBoss->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
                         pBoss->SetReactState(REACT_AGGRESSIVE);

@@ -127,11 +127,11 @@ public:
                 me->setFaction(35);
                 bDone = true;
                 if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),true);	
+                    pInstance->HandleGameObject(pGO->GetGUID(),true);	
                 if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),true);		
-    					if (pInstance)
-                pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+                    pInstance->HandleGameObject(pGO->GetGUID(),true);		
+                if (pInstance)
+                    pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
     		}
         }
     	

@@ -80,7 +80,7 @@ public:
         npc_anstartAI(Creature *pCreature) : ScriptedAI(pCreature)
     	
         {
-        pInstance = (InstanceScript*)pCreature->GetInstanceScript();	
+        pInstance = pCreature->GetInstanceScript();	
         }
 
         uint32 uiIntroTimer;
@@ -101,11 +101,11 @@ public:
     	
         void Reset()
         {
-		    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
             Phase = IDLE;
             uiIntroTimer = 0;
             uiIntroPhase = 0;
-    		pTrall = NULL;	
+            pTrall = NULL;	
             pGarrosh = NULL;	
             pKing = NULL;	
             pLady = NULL;	
@@ -123,27 +123,27 @@ public:
 
                 if (pTrall = me->SummonCreature(CREATURE_TRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                 {
-    			    pTrall->SetReactState(REACT_PASSIVE);	
+                    pTrall->SetReactState(REACT_PASSIVE);	
                     pTrall->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
                 if (pGarrosh = me->SummonCreature(CREATURE_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                 {
-    			    pGarrosh->SetReactState(REACT_PASSIVE);	
+                    pGarrosh->SetReactState(REACT_PASSIVE);	
                     pGarrosh->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
                 if (pKing = me->SummonCreature(CREATURE_KING, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                 {
-    			    pKing->SetReactState(REACT_PASSIVE);	
+                    pKing->SetReactState(REACT_PASSIVE);	
                     pKing->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
                 if (pLady = me->SummonCreature(CREATURE_LADY, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                 {
-    			    pLady->SetReactState(REACT_PASSIVE);	
+                    pLady->SetReactState(REACT_PASSIVE);	
                     pLady->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
                 if (pHighlord = me->SummonCreature(CREATURE_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                 {
-    			    pHighlord->SetReactState(REACT_PASSIVE);	
+                    pHighlord->SetReactState(REACT_PASSIVE);	
                     pHighlord->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }			
             }
@@ -219,8 +219,8 @@ public:
                     case 9:
                         if (Creature* pAnnouncertoc5 = me->SummonCreature(CREATURE_ANNOUNCER, 746.626f, 618.54f, 411.09f, 4.63158f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
                         {	
-    						me->DisappearAndDie();         
-           					pAnnouncertoc5->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->DisappearAndDie();         
+                            pAnnouncertoc5->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pAnnouncertoc5->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             pAnnouncertoc5->SetReactState(REACT_PASSIVE);
     						
@@ -257,7 +257,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        InstanceScript* pInstance = (InstanceScript*)pCreature->GetInstanceScript(); 
+        InstanceScript* pInstance = pCreature->GetInstanceScript(); 
 
         if (pInstance &&
             pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
@@ -285,7 +285,7 @@ public:
     {
         npc_announcer_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             uiSummonTimes = 0;
             uiPosition = 0;
@@ -358,17 +358,17 @@ public:
                     if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);
     			    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),false);	
+                    pInstance->HandleGameObject(pGO->GetGUID(),false);	
                     DoScriptText(SAY_START, me);			
                     DoSummonGrandChampion(uiFirstBoss);
                     NextStep(10000,false,1);
                     break;
                 case DATA_IN_POSITION: //movement done.		
-    		        me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);			
+    		    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);			
                     me->GetMotionMaster()->MovePoint(1,735.898f, 651.961f, 411.93f);
-    				DoScriptText(SAY_START2, me);
+                    DoScriptText(SAY_START2, me);
                     if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),false);
+                    pInstance->HandleGameObject(pGO->GetGUID(),false);
                     NextStep(20000,false,3);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
@@ -406,9 +406,26 @@ public:
 
             if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
             {
-                AggroAllPlayers(pGrandChampion1);
-                AggroAllPlayers(pGrandChampion2);
-                AggroAllPlayers(pGrandChampion3);
+                if (Vehicle* pVehicle = pGrandChampion1->GetVehicleKit())
+                    if (Unit* pUnit = pVehicle->GetPassenger(0))
+                    {
+                        pUnit->setFaction(14);
+                        pUnit->ExitVehicle();
+                    }
+
+                if (Vehicle* pVehicle = pGrandChampion2->GetVehicleKit())
+                    if (Unit* pUnit = pVehicle->GetPassenger(0))
+                    {
+                        pUnit->setFaction(14);
+                        pUnit->ExitVehicle();
+                    }
+
+                if (Vehicle* pVehicle = pGrandChampion3->GetVehicleKit())
+                    if (Unit* pUnit = pVehicle->GetPassenger(0))
+                    {
+                        pUnit->setFaction(14);
+                        pUnit->ExitVehicle();
+                    }
             }
         }
 
@@ -618,21 +635,23 @@ public:
                if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
                    pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
                    pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                {
+               {
                    if (Unit* pBlackKnight = me->SummonCreature(VEHICLE_BLACK_KNIGHT,801.369507f, 640.574280f, 469.314362f, 3.97124f,TEMPSUMMON_DEAD_DESPAWN,180000))
-    			    {
-    			                uiBlackKnightGUID = pBlackKnight->GetGUID();
-    							pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                pBlackKnight->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiBlackKnightGUID);
-    							if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                                                pInstance->HandleGameObject(pGO->GetGUID(),false);
-    		    	}
-    				me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-    				me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-    				me->SetReactState(REACT_AGGRESSIVE);
-    				DoScriptText(SAY_START5, me);
-    		    }
+                   {
+                       uiBlackKnightGUID = pBlackKnight->GetGUID();
+                       pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                       pBlackKnight->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                       me->SetUInt64Value(UNIT_FIELD_TARGET, uiBlackKnightGUID);
+
+                       if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                           pInstance->HandleGameObject(pGO->GetGUID(),false);
+                   }
+
+                   me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                   me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                   me->SetReactState(REACT_AGGRESSIVE);
+                   DoScriptText(SAY_START5, me);
+               }
 
             }
         }

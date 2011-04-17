@@ -53,9 +53,12 @@ UPDATE `creature_template` SET `speed_run` = 2,`Health_mod` = 40,`mindmg` = 1000
 UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `id` in (35644,36558, 36559, 36557);
 UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` in (35644,36558, 36559, 36557);
 -- VehicleId
-UPDATE `creature_template` SET `VehicleId`=486 WHERE `entry` in (33299,35491, 36559, 36557);
+UPDATE `creature_template` SET `VehicleId`=486 WHERE `entry` in (36558, 35644, 36559, 36557);
 -- faction for Vehicle
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`unit_flags`=33554432  WHERE `entry` in (35314,35326,35327,35325,35323,35331,35330,35329,35328,35332,35491);
+UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35 WHERE `entry` in (36558, 35644, 36559, 36557);
+UPDATE `creature` SET `id` = 35644 WHERE `id` = 36557;
+UPDATE `creature` SET `id` = 36558 WHERE `id` = 36559;
+
 -- Texts
 DELETE FROM `script_texts` WHERE `entry` <= -1999926 and `entry` >= -1999956;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
@@ -175,8 +178,6 @@ REPLACE INTO `creature_template_addon` VALUES
 (35332, 0, 0, 0, 1, 0, '63406 0 62852 0 64723 0'),
 (36086, 0, 0, 0, 1, 0, '63406 0 62852 0 64723 0'),
 (34657, 0, 0, 0, 1, 0, '63406 0 62852 0 64723 0');
--- Argent Warhorse
-UPDATE `creature_template` SET `VehicleId` =486 WHERE `entry` =35644;
 -- Immunes (crash fix xD )
 UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|1073741823 WHERE `entry` IN
 (35309,35310, -- Argent Lightwielder
