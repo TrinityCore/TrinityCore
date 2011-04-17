@@ -12,7 +12,7 @@ SET @Doris := 32385;
 SET @Tristia := 32380;
 SET @Dirgehammer := 32381;
 
-DELETE FROM `creature` WHERE `id` IN (@BG_Zar,@Moonstrike,@ZomBocom,@Xazi,@Nargle,@Kezzik,@Argex,@Thunderhorn,@Doris,@Tristia,@Dirgehammer);
+DELETE FROM `creature` WHERE `id` IN (@BG_Zar,@Moonstrike,@ZomBocom,@Xazi,@Nargle,@Krezzik,@Argex,@Thunderhorn,@Doris,@Tristia,@Dirgehammer);
 INSERT INTO creature
 (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`)
 VALUES
@@ -28,8 +28,8 @@ VALUES
 (@GUID+9,@Tristia,0,1,1,21512,0,-8773.78,425.804,105.233,4.80621,180,0,0,11828,0,0,0,0,0,0), -- Tristia
 (@GUID+10,@Dirgehammer,0,1,1,12917,0,-8781.18,419.883,105.233,6.18459,180,0,0,7048,0,0,0,0,0,0); -- Dirgehammer
 
-DELETE FROM `game_event_creature` WHERE `event`=57;
-INSERT INTO `game_event_creature` (`guid`,`event`) VALUES
+DELETE FROM `game_event_creature` WHERE `eventEntry`=57;
+INSERT INTO `game_event_creature` (`guid`,`eventEntry`) VALUES
 (@GUID,57), -- Nargle Lashcord (31863)
 (@GUID+1,57), -- Argex Irongut (32407)
 (@GUID+2,57), -- Krezzik the Striker (32405)
@@ -68,7 +68,6 @@ SET @1930RT_2250AP := 2469;
 SET @1930RT_1200AP := 2468;
 SET @1930RT_4500AP := 2460;
 SET @1930RT_3150AP := 2466;
-SET @1930RT_1350AP := 2467;
 SET @1750RT_1350AP := 2463;
 SET @2050RT_1750AP := 2470;
 SET @1810RT_2250AP := 2465;
@@ -274,7 +273,7 @@ VALUES
 (@ZomBocom,0,41290,0,0,@7200HP_200AP), -- Savage Gladiator Gloves Druid3
 (@ZomBocom,0,41324,0,0,@12000HP_350AP), -- Savage Gladiator Helm Druid3
 (@ZomBocom,0,41301,0,0,@12000HP_350AP), -- Savage Gladiator Legs Druid3
-(@ZomBocom,0,41278,0,0,@9600HP_200AP), -- Savage Gladiator Shoulders Druid3
+(@ZomBocom,0,41278,0,0,@9600HP_275AP), -- Savage Gladiator Shoulders Druid3
 (@ZomBocom,0,41084,0,0,@12000HP_350AP), -- Savage Gladiator Chest Hunter
 (@ZomBocom,0,41140,0,0,@7200HP_200AP), -- Savage Gladiator Gloves Hunter
 (@ZomBocom,0,41154,0,0,@12000HP_350AP), -- Savage Gladiator Helm Hunter
@@ -517,7 +516,7 @@ VALUES
 (@Nargle,0,42227,0,0,@1930RT_3150AP),-- Deadly Gladiator Hacker (1haxe) offhand
 (@Nargle,0,42237,0,0,@1930RT_3150AP),-- Deadly Gladiator Waraxe (1haxe) one hand
 (@Nargle,0,42280,0,0,@1930RT_3150AP),-- Deadly Gladiator Bonecracker (1hmace) offhand
-(@Nargle,0,42232,0,0,@1930RT_3150AP),-- Deadly Gladiator Gavel (1h mace) main hand
+(@Nargle,0,42352,0,0,@1930RT_3150AP),-- Deadly Gladiator Gavel (1h mace) main hand
 (@Nargle,0,42275,0,0,@1930RT_3150AP),-- Deadly Gladiator Pummeler (1h mace) one hand
 (@Nargle,0,42290,0,0,@1930RT_3150AP),-- Deadly Gladiator Quickblade (1h sword) off hand
 (@Nargle,0,42285,0,0,@1930RT_3150AP),-- Deadly Gladiator Slicer (1h sword) one hand
@@ -530,7 +529,7 @@ VALUES
 (@Nargle,0,42450,0,0,@1930RT_2250AP),-- Deadly Gladiator War Edge (Thrown)
 (@Nargle,0,42317,0,0,@1930RT_4500AP),-- Deadly Gladiator Decapitator (2haxe)
 (@Nargle,0,42322,0,0,@1930RT_4500AP),-- Deadly Gladiator Bonegrinder (2hmace)
-(@Nargle,0,42232,0,0,@1930RT_4500AP),-- Deadly Gladiator Greatsword (2h Sword)
+(@Nargle,0,42332,0,0,@1930RT_4500AP),-- Deadly Gladiator Greatsword (2h Sword)
 (@Nargle,0,42513,0,0,@1930RT_2250AP),-- Deadly Gladiator Baton of Light (wand)
 (@Nargle,0,42519,0,0,@1930RT_2250AP),-- Deadly Gladiator Piercing Touch (wand)
 (@Nargle,0,42502,0,0,@1930RT_2250AP),-- Deadly Gladiator Touch of Defeat (wand)
@@ -643,7 +642,7 @@ VALUES
 (@Kezzik,0,42227,0,0,@1930RT_3150AP),-- Deadly Gladiator Hacker (1haxe) offhand
 (@Kezzik,0,42237,0,0,@1930RT_3150AP),-- Deadly Gladiator Waraxe (1haxe) one hand
 (@Kezzik,0,42280,0,0,@1930RT_3150AP),-- Deadly Gladiator Bonecracker (1hmace) offhand
-(@Kezzik,0,42232,0,0,@1930RT_3150AP),-- Deadly Gladiator Gavel (1h mace) main hand
+(@Kezzik,0,42352,0,0,@1930RT_3150AP),-- Deadly Gladiator Gavel (1h mace) main hand
 (@Kezzik,0,42275,0,0,@1930RT_3150AP),-- Deadly Gladiator Pummeler (1h mace) one hand
 (@Kezzik,0,42290,0,0,@1930RT_3150AP),-- Deadly Gladiator Quickblade (1h sword) off hand
 (@Kezzik,0,42285,0,0,@1930RT_3150AP),-- Deadly Gladiator Slicer (1h sword) one hand
@@ -656,7 +655,7 @@ VALUES
 (@Kezzik,0,42450,0,0,@1930RT_2250AP),-- Deadly Gladiator War Edge (Thrown)
 (@Kezzik,0,42317,0,0,@1930RT_4500AP),-- Deadly Gladiator Decapitator (2haxe)
 (@Kezzik,0,42322,0,0,@1930RT_4500AP),-- Deadly Gladiator Bonegrinder (2hmace)
-(@Kezzik,0,42232,0,0,@1930RT_4500AP),-- Deadly Gladiator Greatsword (2h Sword)
+(@Kezzik,0,42332,0,0,@1930RT_4500AP),-- Deadly Gladiator Greatsword (2h Sword)
 (@Kezzik,0,42513,0,0,@1930RT_2250AP),-- Deadly Gladiator Baton of Light (wand)
 (@Kezzik,0,42519,0,0,@1930RT_2250AP),-- Deadly Gladiator Piercing Touch (wand)
 (@Kezzik,0,42502,0,0,@1930RT_2250AP),-- Deadly Gladiator Touch of Defeat (wand)
@@ -769,7 +768,7 @@ VALUES
 (@Argex,0,42227,0,0,@1930RT_3150AP),-- Deadly Gladiator Hacker (1haxe) offhand
 (@Argex,0,42237,0,0,@1930RT_3150AP),-- Deadly Gladiator Waraxe (1haxe) one hand
 (@Argex,0,42280,0,0,@1930RT_3150AP),-- Deadly Gladiator Bonecracker (1hmace) offhand
-(@Argex,0,42232,0,0,@1930RT_3150AP),-- Deadly Gladiator Gavel (1h mace) main hand
+(@Argex,0,42352,0,0,@1930RT_3150AP),-- Deadly Gladiator Gavel (1h mace) main hand
 (@Argex,0,42275,0,0,@1930RT_3150AP),-- Deadly Gladiator Pummeler (1h mace) one hand
 (@Argex,0,42290,0,0,@1930RT_3150AP),-- Deadly Gladiator Quickblade (1h sword) off hand
 (@Argex,0,42285,0,0,@1930RT_3150AP),-- Deadly Gladiator Slicer (1h sword) one hand
@@ -782,7 +781,7 @@ VALUES
 (@Argex,0,42450,0,0,@1930RT_2250AP),-- Deadly Gladiator War Edge (Thrown)
 (@Argex,0,42317,0,0,@1930RT_4500AP),-- Deadly Gladiator Decapitator (2haxe)
 (@Argex,0,42322,0,0,@1930RT_4500AP),-- Deadly Gladiator Bonegrinder (2hmace)
-(@Argex,0,42232,0,0,@1930RT_4500AP),-- Deadly Gladiator Greatsword (2h Sword)
+(@Argex,0,42332,0,0,@1930RT_4500AP),-- Deadly Gladiator Greatsword (2h Sword)
 (@Argex,0,42513,0,0,@1930RT_2250AP),-- Deadly Gladiator Baton of Light (wand)
 (@Argex,0,42519,0,0,@1930RT_2250AP),-- Deadly Gladiator Piercing Touch (wand)
 (@Argex,0,42502,0,0,@1930RT_2250AP),-- Deadly Gladiator Touch of Defeat (wand)

@@ -450,6 +450,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
                 if (!IsSpellValid(e, e.event.dummy.spell)) return false;
                 if (e.event.dummy.effIndex > EFFECT_2) return false;
                 break;
+            case SMART_EVENT_IS_BEHIND_TARGET:
+                if (!IsMinMaxValid(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax))
+                    return false;
+                break;
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:
             case SMART_EVENT_INSTANCE_PLAYER_ENTER:
             case SMART_EVENT_TRANSPORT_RELOCATE:
