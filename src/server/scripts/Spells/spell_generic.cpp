@@ -799,6 +799,145 @@ class spell_gen_profession_research : public SpellScriptLoader
         }
 };
 
+class spell_generic_clone : public SpellScriptLoader
+{
+    public:
+        spell_generic_clone() : SpellScriptLoader("spell_generic_clone") { }
+
+        class spell_generic_clone_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_generic_clone_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+                uint32 spellId = uint32(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), effIndex));
+
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(caster, spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffect += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_generic_clone_SpellScript();
+        }
+};
+
+enum CloneWeaponSpells
+{
+    SPELL_COPY_WEAPON       = 41055,
+    SPELL_COPY_WEAPON_2     = 63416,
+    SPELL_COPY_WEAPON_3     = 69891,
+
+    SPELL_COPY_OFFHAND      = 45206,
+    SPELL_COPY_OFFHAND_2    = 69892,
+
+    SPELL_COPY_RANGED       = 57593
+};
+
+class spell_generic_clone_weapon : public SpellScriptLoader
+{
+    public:
+        spell_generic_clone_weapon() : SpellScriptLoader("spell_generic_clone_weapon") { }
+
+        class spell_generic_clone_weapon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_generic_clone_weapon_SpellScript);
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_COPY_WEAPON))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_COPY_WEAPON_2))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_COPY_WEAPON_3))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_COPY_OFFHAND))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_COPY_OFFHAND_2))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_COPY_RANGED))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+
+                if (!target)
+                    return;
+
+                uint32 spellId = uint32(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_0));
+                target->CastSpell(caster, spellId, true);
+
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    return;
+
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_COPY_WEAPON:
+                    case SPELL_COPY_WEAPON_2:
+                    case SPELL_COPY_WEAPON_3:
+                    {
+                        if (Player* plrCaster = caster->ToPlayer())
+                        {
+                            if (Item* mainItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry()); 
+                        }
+                        else
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
+                        break;
+                    }
+                    case SPELL_COPY_OFFHAND:
+                    case SPELL_COPY_OFFHAND_2:
+                    {
+                        if (Player* plrCaster = caster->ToPlayer())
+                        {
+                            if (Item* offItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND)) 
+                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry()); 
+                        }
+                        else
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
+                        break;
+                    }
+                    case SPELL_COPY_RANGED:
+                    {
+                        if (Player* plrCaster = caster->ToPlayer())
+                        {
+                            if (Item* rangedItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED)) 
+                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry()); 
+                        }
+                        else
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_generic_clone_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_generic_clone_weapon_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -819,4 +958,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gunship_portal();
     new spell_gen_dungeon_credit();
     new spell_gen_profession_research();
+    new spell_generic_clone();
+    new spell_generic_clone_weapon();
 }
