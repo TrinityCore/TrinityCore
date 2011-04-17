@@ -3118,6 +3118,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
 
         // remove other shapeshift before applying a new one
         target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, 0, GetBase());
+        target->RemoveAurasDueToSpell(64904); // Hymn of Hope exploit fix
 
         // stop handling the effect if it was removed by linked event
         if (aurApp->GetRemoveMode())
