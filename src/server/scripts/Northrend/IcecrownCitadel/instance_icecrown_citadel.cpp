@@ -29,7 +29,8 @@ const Position SpawnLoc[]=
 {
     {4571.521f, 2481.815f, 343.365f, 3.166f} //spawn pos
 };
-static const DoorData doorData[] =
+
+DoorData const doorData[] =
 {
     {GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR_EVENT,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
     {GO_LORD_MARROWGAR_ICE_WALL,             DATA_LORD_MARROWGAR_EVENT,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
@@ -59,10 +60,15 @@ struct WeeklyQuest
 {
     uint32 creatureEntry;
     uint32 questId[2];  // 10 and 25 man versions
-} WeeklyQuestData[WEEKLY_NPCS] =
+};
+
+// when changing the content, remember to update SetData, DATA_BLOOD_QUICKENING_STATE case for NPC_ALRIN_THE_AGILE index
+WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
 {
     {NPC_INFILTRATOR_MINCHAR,         {QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                }}, // Deprogramming
     {NPC_KOR_KRON_LIEUTENANT,         {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
+    {NPC_ROTTING_FROST_GIANT_10,      {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
+    {NPC_ROTTING_FROST_GIANT_25,      {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
     {NPC_ALCHEMIST_ADRIANNA,          {QUEST_RESIDUE_RENDEZVOUS_10,            QUEST_RESIDUE_RENDEZVOUS_25           }}, // Residue Rendezvous
     {NPC_ALRIN_THE_AGILE,             {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
     {NPC_INFILTRATOR_MINCHAR_BQ,      {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
@@ -219,7 +225,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(bloodQuickeningMinutes);
                 data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
                 data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(heroicAttempts);
-                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(50);
+                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
             };
 
             bool IsEncounterInProgress() const
@@ -1505,10 +1511,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_BLOOD_QUICKENING_STATE:
                     {
-                        // 3 is the index of Blood Quickening
-                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[3].questId[instance->GetSpawnMode() & 1]))
-                            break;
+                        // skip if nothing changes
                         if (bloodQuickeningState == data)
+                            break;
+
+                        // 5 is the index of Blood Quickening
+                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[5].questId[instance->GetSpawnMode() & 1]))
                             break;
 
                         switch (data)
@@ -1524,7 +1532,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 bloodQuickeningMinutes = 0;
                                 DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
                                 break;
+                            default:
+                                break;
                         }
+
                         bloodQuickeningState = data;
                         break;
                     }

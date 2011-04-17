@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
 
 class instance_blackrock_spire : public InstanceMapScript
@@ -22,9 +24,9 @@ class instance_blackrock_spire : public InstanceMapScript
 public:
     instance_blackrock_spire() : InstanceMapScript("instance_blackrock_spire", 229) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_blackrock_spireMapScript(pMap);
+        return new instance_blackrock_spireMapScript(map);
     }
 
     struct instance_blackrock_spireMapScript : public InstanceScript
@@ -125,6 +127,16 @@ public:
                     break;
             }
          }
+
+        void OnGameObjectCreate(GameObject* go)
+        {
+            switch(go->GetEntry())
+            {
+                case GO_WHELP_SPAWNER:
+                    go->CastSpell(NULL, SPELL_SUMMON_ROOKERY_WHELP);
+                    break;
+            }
+        }
 
         bool SetBossState(uint32 type, EncounterState state)
         {
@@ -234,7 +246,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_blackrock_spire()
 {

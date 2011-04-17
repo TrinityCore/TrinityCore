@@ -27,6 +27,12 @@ enum eSharedSpells
     SPELL_BERSERK2  = 47008
 };
 
+uint32 const EncounterCount = 12;
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
+
 enum eEnums
 {
     SOUND_ENDING_7_KING                   = 17360,
@@ -246,14 +252,16 @@ enum eCreatures
     NPC_HIGHLORD_BOLVAR_FORDRAGON_LH            = 37183,
 
     // Weekly quests
-     NPC_INFILTRATOR_MINCHAR                     = 38471,
-     NPC_KOR_KRON_LIEUTENANT                     = 38491,
-     NPC_SKYBREAKER_LIEUTENANT                   = 38492,
-     NPC_ALCHEMIST_ADRIANNA                      = 38501,
-     NPC_ALRIN_THE_AGILE                         = 38551,
-     NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
-     NPC_MINCHAR_BEAM_STALKER                    = 38557,
-     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
+    NPC_INFILTRATOR_MINCHAR                     = 38471,
+    NPC_KOR_KRON_LIEUTENANT                     = 38491,
+    NPC_SKYBREAKER_LIEUTENANT                   = 38492,
+    NPC_ROTTING_FROST_GIANT_10                  = 38490,
+    NPC_ROTTING_FROST_GIANT_25                  = 38494,
+    NPC_ALCHEMIST_ADRIANNA                      = 38501,
+    NPC_ALRIN_THE_AGILE                         = 38551,
+    NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
+    NPC_MINCHAR_BEAM_STALKER                    = 38557,
+    NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
@@ -536,5 +544,4 @@ typedef std::list<Player*> TPlayerList;
 TPlayerList GetPlayersInTheMap(Map *pMap);
 TPlayerList GetAttackablePlayersInTheMap(Map *pMap);
 // Declaration
-extern Position const SindragosaSpawnPos;
 #endif
