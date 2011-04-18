@@ -423,3 +423,6 @@ INSERT INTO `spell_proc_event` VALUES (64568, 0x00, 0x00, 0x00000000, 0x00000000
 UPDATE `creature_template` SET `unit_flags` = 0  WHERE `entry` in (34924,35403, 34922,35405);
 UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` in (34924,35403);
 UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` in (34922,35405);
+
+-- Fix bug with cannons movement in Strange of Ancients
+UPDATE `creature_template` SET `speed_run` = 0  WHERE `entry` in (27894, 32795);
