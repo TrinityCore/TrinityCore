@@ -430,6 +430,12 @@ UPDATE `creature_template` SET `speed_run` = 0  WHERE `entry` in (27894, 32795);
 -- Fixed spell Anti-Magic Zone
 UPDATE `creature_template` SET `modelid1` = 11686, `unit_flags` = 33554432 WHERE `modelid1` = 4590 AND `entry` = 28306;
 
---Fix Druid Enrage spell
+-- Fix Druid Enrage spell
 DELETE FROM `spell_ranks` WHERE `first_spell_id` = 1178;
 INSERT INTO `spell_ranks` VALUES (1178,1178,1),(1178,9635,2);
+
+-- Fix druid stafall talent
+DELETE FROM `spell_bonus_data` WHERE `entry` IN (50294,53188,53189,53190,50288,53191,53194,53195);
+INSERT INTO `spell_bonus_data` VALUES
+(50288,0.3,-1,-1,-1,'Druid - Starfall (DIRECT)'),
+(50294,0.13,-1,-1,-1,'Druid - Starfall (AOE)');
