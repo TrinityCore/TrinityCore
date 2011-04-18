@@ -1552,8 +1552,11 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->AddThreat(GetHitUnit(), float(GetEffectValue()));
-                GetCaster()->GetAI()->SetData(DATA_WHELP_MARKER, 1);
+                if (Unit *caster = GetCaster())
+                {
+                    caster->AddThreat(GetHitUnit(), float(GetEffectValue()));
+                    caster->GetAI()->SetData(DATA_WHELP_MARKER, 1);
+                }
             }
 
             void Register()
