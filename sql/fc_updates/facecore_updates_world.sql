@@ -426,3 +426,6 @@ UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` 
 
 -- Fix bug with cannons movement in Strange of Ancients
 UPDATE `creature_template` SET `speed_run` = 0  WHERE `entry` in (27894, 32795);
+
+-- Fixed spell Anti-Magic Zone
+UPDATE `creature_template` SET `modelid1` = 11686, `unit_flags` = 33554432 WHERE `modelid1` = 4590 AND `entry` = 28306;
