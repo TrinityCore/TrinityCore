@@ -490,6 +490,15 @@ void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
         Battleground::UpdatePlayerScore(Source,type,value, doAddHonor);
 }
 
+uint32 BattlegroundSA::GetPlayerDemolisherScore(Player* source)
+{
+    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(source->GetGUID());
+    if (itr == m_PlayerScores.end())                         // player not found...
+        return 0;
+    else
+        return ((BattlegroundSAScore*)itr->second)->demolishers_destroyed;
+}
+
 void BattlegroundSA::TeleportPlayers()
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -554,8 +563,8 @@ void BattlegroundSA::HandleKillUnit(Creature* unit, Player* killer)
 {
     if (!unit)
         return;
-
-    if (unit->GetEntry() == 28781)  //Demolisher
+    
+    if (unit->GetEntry() == NPC_DEMOLISHER_SA)
         UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
 }
 
