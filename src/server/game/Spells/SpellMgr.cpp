@@ -3886,6 +3886,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
             count++;
             break;
+        case 63944: // Renewed Hope hack
+            spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
+            spellInfo->EffectMiscValue[0] = 127;
+            count++;
+            break;
         case 30421:     // Nether Portal - Perseverence
             spellInfo->EffectBasePoints[2] += 30000;
             count++;
