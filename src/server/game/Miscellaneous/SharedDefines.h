@@ -421,7 +421,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK11                            = 0x00000800, // 11
     SPELL_ATTR4_UNK12                            = 0x00001000, // 12
     SPELL_ATTR4_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR4_UNK14                            = 0x00004000, // 14
+    SPELL_ATTR4_DAMAGE_NOT_BREAK_AURAS           = 0x00004000, // 14 don't break auras by damage
     SPELL_ATTR4_UNK15                            = 0x00008000, // 15
     SPELL_ATTR4_NOT_USABLE_IN_ARENA              = 0x00010000, // 16 not usable in arena
     SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17 usable in arena
