@@ -469,3 +469,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionType
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 56453;
 INSERT INTO `spell_linked_spell` VALUES
 (56453,67544,0,'Lock and Load Marker');
+
+-- Fixed spell bonus coefficient for spell Healing Stream Totem.
+DELETE FROM `spell_bonus_data` WHERE `entry` = 52042;

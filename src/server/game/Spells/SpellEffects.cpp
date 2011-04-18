@@ -1499,10 +1499,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     return;
                 // Restorative Totems
                 if (Unit *owner = m_caster->GetOwner())
-                    if (AuraEffect *dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 338, 1))
+                {
+                    damage += int32(owner->SpellDamageBonus(unitTarget, m_spellInfo, 0, HEAL) * 0.44f);
+                    if (AuraEffect *dummy = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 338, 1))
                         AddPctN(damage, dummy->GetAmount());
+                }
 
-                    m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
+                m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
             }
             // Mana Spring Totem
