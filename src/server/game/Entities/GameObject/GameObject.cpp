@@ -1606,7 +1606,7 @@ void GameObject::Use(Unit* user)
 
 void GameObject::CastSpell(Unit* target, uint32 spellId)
 {
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
         return;
 
@@ -1628,11 +1628,11 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
 
     //summon world trigger
-    Creature *trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, 1);
-    if (!trigger) return;
+    Creature* trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, GetSpellCastTime(spellInfo) + 100);
+    if (!trigger)
+        return;
 
-    trigger->SetVisible(false); //should this be true?
-    if (Unit *owner = GetOwner())
+    if (Unit* owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
@@ -1644,8 +1644,6 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
     }
-    //trigger->setDeathState(JUST_DIED);
-    //trigger->RemoveCorpse();
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
