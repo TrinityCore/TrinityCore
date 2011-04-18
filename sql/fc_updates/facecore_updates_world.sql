@@ -442,3 +442,10 @@ INSERT INTO `spell_bonus_data` VALUES
 
 -- Fixed warlock's talent Empowered Imp
 UPDATE `spell_proc_event` set `procFlags` = 0x00010004 WHERE `entry` = 54278;
+
+-- Fixed talent Scent of Blood for death knights
+DELETE FROM `spell_proc_event` WHERE `entry` IN (49004,49508,49509);
+INSERT INTO `spell_proc_event` (`entry`,`procEx`) VALUES
+(49004,0x00000033),
+(49508,0x00000033),
+(49509,0x00000033);
