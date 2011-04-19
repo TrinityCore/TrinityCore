@@ -858,9 +858,31 @@ inline uint32 ChatHandler::_ReadUInt32(std::istringstream& reader) const
     {
         reader.ignore(1);
         res *= 10;
-        res += c-'0';
+        res += c - '0';
         c = reader.peek();
     }
+    return res;
+}
+
+inline int32 ChatHandler::_ReadInt32(std::istringstream& reader) const
+{
+    int32 res = 0;
+    bool isNegative = false;
+    char c = reader.peek();
+    while ((c >= '0' && c <= '9') || c == '-')
+    {
+        if (c >='0' && c <= '9')
+        {
+            res *= 10;
+            res += c - '0';
+        }
+        else if (c == '-')
+            isNegative = true;
+        reader.ignore(1);
+        c = reader.peek();
+    }
+    if (isNegative)
+        res = -res;
     return res;
 }
 
@@ -1052,54 +1074,38 @@ valid examples:
                         return false;
                     }
 
-                    // the itementry is followed by several integers which describe an instance of this item
-
-                    // position relative after itemEntry
+                    // The itementry is followed by several integers which describe an instance of this item
                     const uint8 randomPropertyPosition = 6;
 
-                    int32 propertyId = 0;
-                    bool negativeNumber = false;
                     char c = '\0';
+                    int32 id = 0;
                     for (uint8 i = 0; i < randomPropertyPosition; ++i)
                     {
-                        propertyId = 0;
-                        negativeNumber = false;
-                        while ((c = reader.get()) != ':')
+                        id = _ReadInt32(reader);
+                        c = reader.get();
+                        if (c != ':')
                         {
-                            if (c >='0' && c <= '9')
-                            {
-                                propertyId *= 10;
-                                propertyId += c - '0';
-                            }
-                            else if (c == '-')
-                                negativeNumber = true;
-                            else
-                            {
-                                LOG("ChatHandler::isValidChatMessage('%s'): invalid character '%c' found while reading item properties", reader.str().c_str(), c);
-                                return false;
-                            }
+                            LOG("ChatHandler::isValidChatMessage('%s'): invalid character '%c' found while reading item properties", reader.str().c_str(), c);
+                            return false;
                         }
-
-                        if (negativeNumber)
-                            propertyId = -propertyId;
-
-                        if (propertyId > 0)
+                    }
+                    // Validate random property
+                    if (id > 0)
+                    {
+                        itemProperty = sItemRandomPropertiesStore.LookupEntry(id);
+                        if (!itemProperty)
                         {
-                            itemProperty = sItemRandomPropertiesStore.LookupEntry(propertyId);
-                            if (!itemProperty)
-                            {
-                                LOG("ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", reader.str().c_str(), propertyId);
-                                return false;
-                            }
+                            LOG("ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", reader.str().c_str(), id);
+                            return false;
                         }
-                        else if (propertyId < 0)
+                    }
+                    else if (id < 0)
+                    {
+                        itemSuffix = sItemRandomSuffixStore.LookupEntry(-id);
+                        if (!itemSuffix)
                         {
-                            itemSuffix = sItemRandomSuffixStore.LookupEntry(-propertyId);
-                            if (!itemSuffix)
-                            {
-                                LOG("ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", reader.str().c_str(), -propertyId);
-                                return false;
-                            }
+                            LOG("ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", reader.str().c_str(), -id);
+                            return false;
                         }
                     }
 
@@ -1129,10 +1135,10 @@ valid examples:
                     }
                     reader.ignore(1);
                     // Quest level
-                    uint32 questLevel = _ReadUInt32(reader);
+                    int32 questLevel = _ReadInt32(reader);
                     if (questLevel >= STRONG_MAX_LEVEL)
                     {
-                        LOG("ChatHandler::isValidChatMessage('%s'): quest level %u is too big", reader.str().c_str(), questLevel);
+                        LOG("ChatHandler::isValidChatMessage('%s'): quest level %d is too big", reader.str().c_str(), questLevel);
                         return false;
                     }
                 }
