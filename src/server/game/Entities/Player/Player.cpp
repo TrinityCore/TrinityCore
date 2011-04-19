@@ -4870,7 +4870,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_spell WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_spell_cooldown WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM gm_tickets WHERE playerGuid = '%u'", guid);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_GM_TICKETS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
             trans->PAppend("DELETE FROM item_instance WHERE owner_guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_social WHERE guid = '%u' OR friend='%u'",guid,guid);
             trans->PAppend("DELETE FROM mail WHERE receiver = '%u'",guid);

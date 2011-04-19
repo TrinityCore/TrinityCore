@@ -490,6 +490,17 @@ ChatCommand * ChatHandler::getCommandTable()
     return commandTableCache;
 }
 
+std::string ChatHandler::PGetParseString(int32 entry, ...) const
+{
+    const char *format = GetTrinityString(entry);
+    char str[1024];
+    va_list ap;
+    va_start(ap, entry);
+    vsnprintf(str, 1024, format, ap);
+    va_end(ap);
+    return std::string(str);
+}
+
 const char *ChatHandler::GetTrinityString(int32 entry) const
 {
     return m_session->GetTrinityString(entry);
