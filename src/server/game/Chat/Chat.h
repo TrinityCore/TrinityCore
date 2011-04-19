@@ -72,7 +72,7 @@ class ChatHandler
         void SendSysMessage(int32     entry);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2,3);
         void PSendSysMessage(int32     entry, ...);
-        std::string PGetParseString(int32 entry, ...);
+        std::string PGetParseString(int32 entry, ...) const;
 
         int ParseCommands(const char* text);
 
@@ -376,6 +376,8 @@ class ChatHandler
 
         uint32 _ReadUInt32(std::istringstream& reader) const;
     private:
+        bool _HandleGMTicketResponseAppendCommand(const char* args, bool newLine);
+
         WorldSession * m_session;                           // != NULL for chat command call and NULL for CLI command
 
         // common global flag
