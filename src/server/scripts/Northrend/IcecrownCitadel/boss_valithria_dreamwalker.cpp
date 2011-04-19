@@ -99,7 +99,9 @@ enum Spells
 
     SPELL_FIREBALL                      = 70754,
     SPELL_LAY_WASTE                     = 69325,
-    SPELL_SUPPRESSION                   = 70588
+    SPELL_SUPPRESSION                   = 70588,
+
+    SPELL_ACHIEVEMENT_CHECK             = 72706
 };
 
 enum eEvents
@@ -361,12 +363,14 @@ class boss_valithria : public CreatureScript
                     bEnd = true;
                     events.Reset();
                     events.ScheduleEvent(EVENT_BERSERK, 1000);
-                    instance->DoCompleteAchievement(RAID_MODE<uint32>(ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10N, ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25N, ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10H, ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25H));
+
+                    // for what quest this????
                     TPlayerList players = GetPlayersInTheMap(me->GetMap());
                     for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
-                        (*it)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                    if (instance->GetData(DATA_PORTAL_JOCKEY_ACHIEVEMENT))
-                        instance->DoCompleteAchievement(RAID_MODE(ACHIEV_PORTAL_JOCKEY_10, ACHIEV_PORTAL_JOCKEY_25, ACHIEV_PORTAL_JOCKEY_10, ACHIEV_PORTAL_JOCKEY_25)); 
+                        (*it)->KilledMonsterCredit(NPC_VALITHRIA_DREAMWALKER, 0);
+
+                    // rewarding the achievement.
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK);
                 }
             }
 
@@ -453,9 +457,6 @@ class boss_valithria : public CreatureScript
                         {
                             Cleanup(me, instance, 100.0f);
                             instance->SetData(DATA_VALITHRIA_DREAMWALKER_EVENT, DONE);
-                            TPlayerList players = GetPlayersInTheMap(me->GetMap());
-                            for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
-                                (*it)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                             if (Creature* combatTrigger = me->GetCreature(*me, instance->GetData64(GUID_VALITHRIA_COMBAT_TRIGGER)))
                                 combatTrigger->DespawnOrUnsummon();
                             me->DespawnOrUnsummon();
