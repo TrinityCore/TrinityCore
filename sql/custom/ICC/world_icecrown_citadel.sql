@@ -237,6 +237,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (70405,72508,72509,72510) AND `ScriptName`='spell_putricide_mutated_transformation_dismiss';
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (70311,71503) AND `ScriptName`='spell_putricide_mutated_transformation';
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (70402,72511,72512,72513) AND `ScriptName`='spell_putricide_mutated_transformation_dmg';
 DELETE FROM `spell_script_names` WHERE `spell_id`=70308 AND `ScriptName`='spell_putricide_mutation_init';
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (71412,71415) AND `ScriptName`='spell_putricide_ooze_summon';
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (72262) AND `ScriptName`='spell_lich_king_quake';
@@ -284,6 +285,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (70308,'spell_putricide_mutation_init'),
 (70311,'spell_putricide_mutated_transformation'),
 (71503,'spell_putricide_mutated_transformation'),
+(70402, 'spell_putricide_mutated_transformation_dmg'),
+(72511, 'spell_putricide_mutated_transformation_dmg'),
+(72512, 'spell_putricide_mutated_transformation_dmg'),
+(72513, 'spell_putricide_mutated_transformation_dmg'),
 (70447, 'spell_putricide_ooze_channel'),
 (72836, 'spell_putricide_ooze_channel'),
 (72837, 'spell_putricide_ooze_channel'),
