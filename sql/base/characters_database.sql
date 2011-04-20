@@ -1335,11 +1335,11 @@ DROP TABLE IF EXISTS `gm_subsurveys`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_subsurveys` (
-  `surveyid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `subsurveyid` int(10) unsigned NOT NULL DEFAULT '0',
+  `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `subsurveyId` int(10) unsigned NOT NULL DEFAULT '0',
   `rank` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` text NOT NULL,
-  PRIMARY KEY (`surveyid`,`subsurveyid`)
+  PRIMARY KEY (`surveyId`,`subsurveyId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1360,12 +1360,12 @@ DROP TABLE IF EXISTS `gm_surveys`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_surveys` (
-  `surveyid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `player` int(10) unsigned NOT NULL DEFAULT '0',
+  `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `mainSurvey` int(10) unsigned NOT NULL DEFAULT '0',
-  `overall_comment` longtext NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`surveyid`)
+  `overallComment` longtext NOT NULL,
+  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`surveyId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1386,23 +1386,23 @@ DROP TABLE IF EXISTS `gm_tickets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_tickets` (
-  `guid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `playerGuid` int(10) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(12) NOT NULL,
+  `ticketId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
+  `name` varchar(12) NOT NULL COMMENT 'Name of ticket creator',
   `message` text NOT NULL,
-  `createtime` int(10) unsigned NOT NULL DEFAULT '0',
-  `map` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  `closed` int(11) NOT NULL DEFAULT '0',
-  `assignedto` int(10) unsigned NOT NULL DEFAULT '0',
+  `lastModifiedTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `closedBy` int(10) NOT NULL DEFAULT '0',
+  `assignedTo` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
   `comment` text NOT NULL,
   `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`ticketId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1898,14 +1898,14 @@ DROP TABLE IF EXISTS `lag_reports`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lag_reports` (
-  `report_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `player` int(10) unsigned NOT NULL DEFAULT '0',
-  `lag_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `map` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `reportId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `lagType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`report_id`)
+  PRIMARY KEY (`reportId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
