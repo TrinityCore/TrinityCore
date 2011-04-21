@@ -92,6 +92,12 @@ enum eAchievementCriteria
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25N  = 13012,
     CRITERIA_ONCE_BITTEN_TWICE_SHY_10V  = 13011,
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013,
+
+    // Valithria Dreamwalker 
+    CRITERIA_PORTAL_JOCKEY_10N          = 12978,
+    CRITERIA_PORTAL_JOCKEY_10H          = 12979,
+    CRITERIA_PORTAL_JOCKEY_25N          = 12971,
+    CRITERIA_PORTAL_JOCKEY_25H          = 12980,
 };
 
 enum eCommonActions

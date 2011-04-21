@@ -1737,11 +1737,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25N:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25V:
                         return CAST_INST(InstanceMap, instance)->GetMaxPlayers() == 25;
-                    //case CRITERIA_PORTAL_JOCKEY_10N:
-                    //case CRITERIA_PORTAL_JOCKEY_10H:
-                    //case CRITERIA_PORTAL_JOCKEY_25N:
-                    //case CRITERIA_PORTAL_JOCKEY_25H:
-                    //    return isPortalJockeyEligible;
+                    case CRITERIA_PORTAL_JOCKEY_10N:
+                    case CRITERIA_PORTAL_JOCKEY_10H:
+                    case CRITERIA_PORTAL_JOCKEY_25N:
+                    case CRITERIA_PORTAL_JOCKEY_25H:
+                        return isPortalJockeyEligible;
                     default:
                         break;
                 }
