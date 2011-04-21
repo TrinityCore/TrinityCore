@@ -172,7 +172,7 @@ class InstanceScript : public ZoneScript
         void DoCompleteAchievement(uint32 achievement);
 
         // Update Achievement Criteria for all players in instance
-        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0, Unit* unit = NULL, uint32 time = 0);
+        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
 
         // Start/Stop Timed Achievement Criteria for all players in instance
         void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);

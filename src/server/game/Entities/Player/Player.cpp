@@ -23379,9 +23379,9 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1/*=0*/, uint32 miscvalue2/*=0*/, Unit *unit/*=NULL*/, uint32 time/*=0*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
 {
-    GetAchievementMgr().UpdateAchievementCriteria(type, miscvalue1, miscvalue2, unit, time);
+    GetAchievementMgr().UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry, bool ignoreGMAllowAchievementConfig)

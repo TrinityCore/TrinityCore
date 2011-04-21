@@ -341,14 +341,14 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
 }
 
 // Update Achievement Criteria for all players in instance
-void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, Unit *unit, uint32 time)
+void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player *pPlayer = i->getSource())
-                pPlayer->UpdateAchievementCriteria(type, miscvalue1, miscvalue2, unit, time);
+                pPlayer->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
 }
 
 // Start timed achievement for all players in instance
