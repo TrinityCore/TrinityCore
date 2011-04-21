@@ -490,15 +490,6 @@ void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
         Battleground::UpdatePlayerScore(Source,type,value, doAddHonor);
 }
 
-uint32 BattlegroundSA::GetPlayerDemolisherScore(Player* source)
-{
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found...
-        return 0;
-    else
-        return ((BattlegroundSAScore*)itr->second)->demolishers_destroyed;
-}
-
 void BattlegroundSA::TeleportPlayers()
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
