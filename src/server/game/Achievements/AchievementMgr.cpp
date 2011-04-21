@@ -1288,7 +1288,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscvalue1)
                     continue;
 
-                if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_MAP)
+                if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP)
                 {
                     if (GetPlayer()->GetMapId() != achievementCriteria->additionalRequirements[0].additionalRequirement_value)
                         continue;
@@ -2082,7 +2082,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
 
         switch (criteria->additionalRequirements[i].additionalRequirement_type)
         {
-            case ACHIEVEMENT_CRITERIA_CONDITION_MAP:
+            case ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP:
                 if (GetPlayer()->GetMapId() != criteria->additionalRequirements[i].additionalRequirement_value)
                     return false;
                 break;
