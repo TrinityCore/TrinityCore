@@ -486,8 +486,6 @@ class BattlegroundSA : public Battleground
 
         /* Scorekeeping */
         /// Update score board
-        
-        uint32 GetPlayerDemolisherScore(Player* /*source*/);
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
 
     private:
