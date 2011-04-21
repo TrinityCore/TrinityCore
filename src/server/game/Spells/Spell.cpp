@@ -2245,7 +2245,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             }
 
             Position pos;
-            target->GetNearPosition(pos, dist, angle);
+            target->GetFirstCollisionPosition(pos, dist, angle);
             m_targets.setDst(*target);
             m_targets.modDst(pos);
             break;
