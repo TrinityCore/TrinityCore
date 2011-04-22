@@ -1896,6 +1896,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 45206, 'spell_generic_clone_weapon'),
 ( 69892, 'spell_generic_clone_weapon'),
 ( 57593, 'spell_generic_clone_weapon'),
+( 52408, 'spell_gen_seaforium_blast'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
