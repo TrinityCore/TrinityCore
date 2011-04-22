@@ -131,7 +131,6 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (0,-1000184,'Yes Master, all goes along as planned.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,0,'engineer_spark SAY_TEXT'),
    (0,-1000185,'%s puts the shell to his ear.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,7,0,'engineer_spark EMOTE_SHELL'),
    (0,-1000186,'Now I cut you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,7,0,'engineer_spark SAY_ATTACK'),
-   (0,-1000187,'Thank you, dear $C, you just saved my life.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,0,'faulk SAY_HEAL'),
    (0,-1000188,'Deployment sucessful. Trespassers will be neutralized.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'converted_sentry SAY_CONVERTED_1'),
    (0,-1000189,'Objective acquired. Initiating security routines.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'converted_sentry SAY_CONVERTED_2'),
    (0,-1000190,'In Nagrand, food hunt ogre!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,' SAY_LUMP_0'),
