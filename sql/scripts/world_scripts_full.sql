@@ -1839,9 +1839,8 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (10051,11,0,0, 'achievement_three_car_garage_demolisher'),
 (10062,11,0,0, 'achievement_quick_shave'),
 (10063,11,0,0, 'achievement_quick_shave'),
-(6446,11,0,0, 'achievement_bg_sa_drop_it'),
-(7625,11,0,0, 'achievement_bg_sa_artillery_veteran'),
-(7628,11,0,0, 'achievement_bg_sa_artillery_expert');
+(7625,11,0,0, 'achievement_bg_sa_artillery'),
+(7628,11,0,0, 'achievement_bg_sa_artillery');
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
