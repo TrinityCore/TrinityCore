@@ -86,13 +86,13 @@ struct VehicleSeat
 
 struct VehicleAccessory
 {
-    explicit VehicleAccessory(uint32 _uiAccessory, int8 _uiSeat, bool _bMinion, uint8 _uiSummonType, uint32 _uiSummonTime) :
-        uiAccessory(_uiAccessory), uiSeat(_uiSeat), bMinion(_bMinion), uiSummonType(_uiSummonType), uiSummonTime(_uiSummonTime) {}
-    uint32 uiAccessory;
-    int8 uiSeat;
-    uint32 bMinion;
-    uint8 uiSummonType;
-    uint32 uiSummonTime;
+    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
+        AccessoryEntry(entry), SeatId(seatId), IsMinion(isMinion), SummonedType(summonType), SummonTime(summonTime) {}
+    uint32 AccessoryEntry;
+    int8 SeatId;
+    uint32 IsMinion;
+    uint8 SummonedType;
+    uint32 SummonTime;
 };
 
 struct VehicleScalingInfo
@@ -118,8 +118,8 @@ class Vehicle
 
         void Install();
         void Uninstall();
-        void Reset();
-        void InstallAllAccessories();
+        void Reset(bool evading = false);
+        void InstallAllAccessories(bool evading);
 
         Unit *GetBase() const { return me; }
         VehicleEntry const *GetVehicleInfo() const { return m_vehicleInfo; }
