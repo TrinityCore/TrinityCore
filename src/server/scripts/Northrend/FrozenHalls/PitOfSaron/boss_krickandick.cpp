@@ -162,8 +162,6 @@ class boss_ick : public CreatureScript
 
             void EnterCombat(Unit * /*who*/)
             {
-                _vehicle->InstallAllAccessories();
-
                 if (Creature* krick = GetKrick())
                     DoScriptText(SAY_KRICK_AGGRO, krick);
 

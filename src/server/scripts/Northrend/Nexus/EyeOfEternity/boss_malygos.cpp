@@ -874,12 +874,6 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset()
-        {
-            if (Vehicle* veh = me->GetVehicleKit())
-                veh->Reset();
-        }
-
         void PassengerBoarded(Unit* unit, int8 seat, bool apply)
         {
             if (apply)

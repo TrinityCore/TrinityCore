@@ -317,8 +317,6 @@ void VehicleAI::UpdateAI(const uint32 diff)
 void VehicleAI::Reset()
 {
     me->SetVisible(true);
-
-    m_vehicle->Reset();
 }
 
 void VehicleAI::OnCharmed(bool apply)

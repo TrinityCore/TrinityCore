@@ -118,16 +118,18 @@ void Vehicle::Install()
         sScriptMgr->OnInstall(this);
 }
 
-void Vehicle::InstallAllAccessories()
+void Vehicle::InstallAllAccessories(bool evading)
 {
-    RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
+    if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
+        RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
-    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(this);
-    if (!mVehicleList)
+    VehicleAccessoryList const* accessories = sObjectMgr->GetVehicleAccessoryList(this);
+    if (!accessories)
         return;
 
-    for (VehicleAccessoryList::const_iterator itr = mVehicleList->begin(); itr != mVehicleList->end(); ++itr)
-        InstallAccessory(itr->uiAccessory, itr->uiSeat, itr->bMinion, itr->uiSummonType, itr->uiSummonTime);
+    for (VehicleAccessoryList::const_iterator itr = accessories->begin(); itr != accessories->end(); ++itr)
+        if (!evading || itr->IsMinion)  // only install minions on evade mode
+            InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime);
 }
 
 void Vehicle::Uninstall()
@@ -139,7 +141,7 @@ void Vehicle::Uninstall()
         sScriptMgr->OnUninstall(this);
 }
 
-void Vehicle::Reset()
+void Vehicle::Reset(bool evading /*= false*/)
 {
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset Entry: %u, GuidLow: %u", m_creatureEntry, me->GetGUIDLow());
     if (me->GetTypeId() == TYPEID_PLAYER)
@@ -149,7 +151,7 @@ void Vehicle::Reset()
     }
     else
     {
-        InstallAllAccessories();
+        InstallAllAccessories(evading);
         if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -222,7 +224,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime)
 {
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle: Installing accessory entry %u on vehicle entry %u (seat:%i)", entry, GetCreatureEntry(), seatId);
-    if (Unit *passenger = GetPassenger(seatId))
+    if (Unit* passenger = GetPassenger(seatId))
     {
         // already installed
         if (passenger->GetEntry() == entry)
@@ -239,22 +241,24 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
             passenger->ExitVehicle(); // this should not happen
     }
 
-    if (Creature *accessory = me->SummonCreature(entry, *me, TempSummonType(type), summonTime))
+    if (TempSummon *accessory = me->SummonCreature(entry, *me, TempSummonType(type), summonTime))
     {
         if (minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
 
         if (!me->HandleSpellClick(accessory, seatId))
         {
-            accessory->AddObjectToRemoveList();
+            accessory->UnSummon();
             return;
         }
 
-        if (!accessory->IsOnVehicle(me))
-        {
-            accessory->AddObjectToRemoveList();
-            return;         // Something went wrong in the spellsystem
-        }
+        // this cannot be checked instantly like this
+        // spellsystem is delaying everything to next update tick
+        //if (!accessory->IsOnVehicle(me))
+        //{
+        //    accessory->UnSummon();
+        //    return;         // Something went wrong in the spellsystem
+        //}
 
         // This is not good, we have to send update twice
         accessory->SendMovementFlagUpdate();

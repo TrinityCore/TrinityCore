@@ -549,8 +549,13 @@ inline bool CreatureAI::_EnterEvadeMode()
     if (!me->isAlive())
         return false;
 
+    // call specialized vehicle remove auras if creature is one
+    if (!me->IsVehicle())
+        me->RemoveAllAuras();
+    else
+        me->RemoveAllAurasExceptVehicle();
+
     // sometimes bosses stuck in combat?
-    me->RemoveAllAuras();
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
