@@ -3471,8 +3471,9 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                     case 75531:                               // Gnomeregan Pride
                         target->SetDisplayId(31654);
                         break;
-                    //case 75532:                               // Darkspear Pride
-                        //break;
+                    case 75532:                               // Darkspear Pride
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31737 : 31738);
+                        break;
                     default:
                         sLog->outError("Aura::HandleAuraTransform, spell %u does not have creature entry defined, need custom defined model.", GetId());
                         break;
