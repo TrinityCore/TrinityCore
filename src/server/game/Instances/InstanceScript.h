@@ -169,7 +169,7 @@ class InstanceScript : public ZoneScript
         void DoSendNotifyToInstance(char const* format, ...);
 
         // Complete Achievement for all players in instance
-        void DoCompleteAchievement(uint32 achievement);
+        DECLSPEC_DEPRECATED void DoCompleteAchievement(uint32 achievement) ATTR_DEPRECATED;
 
         // Update Achievement Criteria for all players in instance
         void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
@@ -231,4 +231,3 @@ class InstanceScript : public ZoneScript
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
 };
 #endif
-
