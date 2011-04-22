@@ -1896,6 +1896,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 45206, 'spell_generic_clone_weapon'),
 ( 69892, 'spell_generic_clone_weapon'),
 ( 57593, 'spell_generic_clone_weapon'),
+( 52408, 'spell_gen_seaforium_blast'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2112,6 +2113,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 67630, 'spell_gen_leeching_swarm'),
 ( 68646, 'spell_gen_leeching_swarm'),
 ( 68647, 'spell_gen_leeching_swarm'),
+-- Trial of the Champion
+( 66862, 'spell_eadric_radiance'),
+( 67681, 'spell_eadric_radiance'),
 -- Ulduar
 ( 63308, 'spell_razorscale_devouring_flame'),
 ( 62717, 'spell_ignis_slag_pot'),

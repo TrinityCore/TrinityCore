@@ -148,7 +148,7 @@ void Vehicle::Uninstall()
 
 void Vehicle::Reset()
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset");
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset Entry: %u, GuidLow: %u", m_creatureEntry, me->GetGUIDLow());
     if (me->GetTypeId() == TYPEID_PLAYER)
     {
         if (m_usableSeatNum)
@@ -176,8 +176,8 @@ void Vehicle::RemoveAllPassengers()
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
-    //SeatMap::const_iterator itr;
-    //for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    // SeatMap::const_iterator itr;
+    // for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     //    ASSERT(!itr->second.passenger);
 }
 
