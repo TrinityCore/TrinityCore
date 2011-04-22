@@ -17690,7 +17690,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1046,57660), -- Totem of Wrath
 (1046,57662), -- Totem of Wrath
 (1046,57663), -- Totem of Wrath
-(1046,30708), -- Totem of Wrath
 (1047,53646), -- Demonic Pact
 -- Increased Spell Hit Chance Taken Debuff
 (1049,33600), --  Improved Faerie Fire
