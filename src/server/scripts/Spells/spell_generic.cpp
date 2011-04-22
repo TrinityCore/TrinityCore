@@ -892,7 +892,7 @@ class spell_generic_clone_weapon : public SpellScriptLoader
                         if (Player* plrCaster = caster->ToPlayer())
                         {
                             if (Item* mainItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry()); 
+                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
                         }
                         else
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
@@ -903,8 +903,8 @@ class spell_generic_clone_weapon : public SpellScriptLoader
                     {
                         if (Player* plrCaster = caster->ToPlayer())
                         {
-                            if (Item* offItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND)) 
-                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry()); 
+                            if (Item* offItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
                         }
                         else
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
@@ -914,8 +914,8 @@ class spell_generic_clone_weapon : public SpellScriptLoader
                     {
                         if (Player* plrCaster = caster->ToPlayer())
                         {
-                            if (Item* rangedItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED)) 
-                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry()); 
+                            if (Item* rangedItem = plrCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
                         }
                         else
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
@@ -935,6 +935,54 @@ class spell_generic_clone_weapon : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_generic_clone_weapon_SpellScript();
+        }
+};
+
+enum SeaforiumSpells
+{
+    SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT = 60937,
+};
+
+class spell_gen_seaforium_blast : public SpellScriptLoader
+{
+    public:
+        spell_gen_seaforium_blast() : SpellScriptLoader("spell_gen_seaforium_blast") {}
+
+        class spell_gen_seaforium_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_seaforium_blast_SpellScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                // OriginalCaster is always available in Spell::prepare
+                return GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void AchievementCredit(SpellEffIndex /*effIndex*/)
+            {
+                // but in effect handling OriginalCaster can become NULL
+                if (!GetOriginalCaster() || !GetHitGObj() || GetHitGObj()->GetGOInfo()->type != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+                    return;
+
+                GetOriginalCaster()->CastSpell(GetOriginalCaster(), SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_gen_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_WMO_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_seaforium_blast_SpellScript();
         }
 };
 
@@ -960,4 +1008,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_profession_research();
     new spell_generic_clone();
     new spell_generic_clone_weapon();
+    new spell_gen_seaforium_blast();
 }
