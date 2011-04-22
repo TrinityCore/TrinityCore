@@ -434,6 +434,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
             {
                 if (!GetHitUnit())
                     return;
+
                 std::list<Creature*> list;
                 GetHitUnit()->GetCreatureListWithEntryInGrid(list, GetHitUnit()->GetEntry(), 12.5f);
                 list.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
@@ -444,7 +445,11 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
             {
                 // get 2 targets except 2 nearest
                 targetList.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                targetList.resize(4);
+
+                // .resize() runs pop_back();
+                if (targetList.size() > 4)
+                    targetList.resize(4);
+
                 while (targetList.size() > 2)
                     targetList.pop_front();
             }
