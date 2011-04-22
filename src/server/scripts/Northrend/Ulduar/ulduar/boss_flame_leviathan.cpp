@@ -221,7 +221,8 @@ class boss_flame_leviathan : public CreatureScript
             void InitializeAI()
             {
                 ASSERT(vehicle);
-                Reset();
+                if (!me->isDead())
+                    Reset();
                 ActiveTowersCount = 4;
                 Shutdown = 0;
                 ActiveTowers = false;
@@ -255,12 +256,6 @@ class boss_flame_leviathan : public CreatureScript
                 _Reset();
                 Shutdown = 0;
                 me->SetReactState(REACT_DEFENSIVE);
-                if (me->GetVehicleKit())
-                {
-                    me->GetVehicleKit()->Reset();
-                    if (me->GetVehicleKit()->GetPassenger(SEAT_CANNON))
-                        me->CastSpell(me->GetVehicleKit()->GetPassenger(SEAT_CANNON),AURA_STEALTH_DETECTION,false);
-                }
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -344,7 +339,7 @@ class boss_flame_leviathan : public CreatureScript
             void SpellHit(Unit* /*caster*/, SpellEntry* const spell)
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
-                    vehicle->InstallAllAccessories();
+                    vehicle->InstallAllAccessories(false);
 
                 if (spell->Id == SPELL_ELECTROSHOCK)
                     me->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -594,12 +589,6 @@ class boss_flame_leviathan_seat : public CreatureScript
             InstanceScript* instance;
             Vehicle* vehicle;
 
-            void Reset()
-            {
-                if (me->GetVehicleKit())
-                    me->GetVehicleKit()->Reset();
-            }
-
             void PassengerBoarded(Unit* who, int8 seatId, bool apply)
             {
                 if (!me->GetVehicle())
@@ -662,6 +651,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
             void Reset ()
             {
                 NapalmTimer = 5000;
+                DoCast(me, AURA_STEALTH_DETECTION);
             }
 
             void UpdateAI(uint32 const diff)
