@@ -190,11 +190,11 @@ public:
            {
                 if (pInstance)
                     if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                        pInstance->HandleGameObject(NULL,false,pGo);
+                        pInstance->HandleGameObject(0,false,pGo);
            }else
                 if (pInstance)
                     if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                        pInstance->HandleGameObject(NULL,false,pGo);
+                        pInstance->HandleGameObject(0,false,pGo);
         }
 
         void SetInFace(bool bBool)
@@ -217,10 +217,10 @@ public:
                 return;
 
             if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                pInstance->HandleGameObject(NULL,false,pGo);
+                pInstance->HandleGameObject(0,false,pGo);
 
             if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                pInstance->HandleGameObject(NULL,false,pGo);
+                pInstance->HandleGameObject(0,false,pGo);
 
             if (!GoSummonList.empty())
                 for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
@@ -446,7 +446,7 @@ public:
                             Summon(1);
                             if (pInstance)
                                 if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                                    pInstance->HandleGameObject(NULL,true,pGo);
+                                    pInstance->HandleGameObject(0,true,pGo);
                             NextStep(3000,true);
                             break;
                         case 7:
@@ -492,7 +492,7 @@ public:
                             SetInFace(false);
                             if (pInstance)
                                 if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                                    pInstance->HandleGameObject(NULL,true,pGo);
+                                    pInstance->HandleGameObject(0,true,pGo);
                             NextStep(2000,true);
                             break;
                         case 17:

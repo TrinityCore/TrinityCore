@@ -220,21 +220,21 @@ public:
                 case 192632:
                     uiEckTheFerociousDoor = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[1] == DONE)
-                        HandleGameObject(NULL,true,go);
+                        HandleGameObject(0,true,go);
                     break;
                 case 192569:
                     uiEckTheFerociousDoorBehind = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[4] == DONE)
-                        HandleGameObject(NULL,true,go);
+                        HandleGameObject(0,true,go);
                 case 193208:
                     uiGalDarahDoor1 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(NULL,true,go);
+                        HandleGameObject(0,true,go);
                     break;
                 case 193209:
                     uiGalDarahDoor2 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(NULL,true,go);
+                        HandleGameObject(0,true,go);
                     break;
                 case 193188:
                     uiBridge = go->GetGUID();

@@ -348,7 +348,7 @@ int32 SpellScript::GetHitDamage()
     if (!IsInHitPhase())
     {
         sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitDamage was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return 0;
     }
     return m_spell->m_damage;
 }
@@ -368,7 +368,7 @@ int32 SpellScript::GetHitHeal()
     if (!IsInHitPhase())
     {
         sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return 0;
     }
     return m_spell->m_healing;
 }

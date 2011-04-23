@@ -128,7 +128,7 @@ class boss_akilzon : public CreatureScript
 
             void EnterCombat(Unit * /*who*/)
             {
-                me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
+                me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_ONAGGRO);
                 //DoZoneInCombat();
                 if (pInstance)
@@ -137,7 +137,7 @@ class boss_akilzon : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                me->MonsterYell(SAY_ONDEATH,LANG_UNIVERSAL,NULL);
+                me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_ONDEATH);
                 if (pInstance)
                     pInstance->SetData(DATA_AKILZONEVENT, DONE);
@@ -149,11 +149,11 @@ class boss_akilzon : public CreatureScript
                 switch (urand(0,1))
                 {
                     case 0:
-                        me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                        me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_ONSLAY1);
                         break;
                     case 1:
-                        me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                        me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_ONSLAY2);
                         break;
                 }
@@ -277,7 +277,7 @@ class boss_akilzon : public CreatureScript
 
                 if (Enrage_Timer <= diff)
                 {
-                    me->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_ONENRAGE);
                     DoCast(me, SPELL_BERSERK, true);
                     Enrage_Timer = 600000;
@@ -351,7 +351,7 @@ class boss_akilzon : public CreatureScript
 
                 if (SummonEagles_Timer <= diff)
                 {
-                    me->MonsterYell(SAY_ONSUMMON, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_ONSUMMON, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_ONSUMMON);
 
                     float x, y, z;

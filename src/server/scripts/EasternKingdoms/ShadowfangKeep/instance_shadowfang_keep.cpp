@@ -115,17 +115,17 @@ public:
                 case GO_COURTYARD_DOOR:
                     DoorCourtyardGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(0, true, go);
                     break;
                 case GO_SORCERER_DOOR:
                     DoorSorcererGUID = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(0, true, go);
                     break;
                 case GO_ARUGAL_DOOR:
                     DoorArugalGUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(0, true, go);
                     break;
             }
         }

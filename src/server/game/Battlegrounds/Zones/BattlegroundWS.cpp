@@ -73,7 +73,7 @@ void BattlegroundWS::Update(uint32 diff)
             if (GetTeamScore(ALLIANCE) == 0)
             {
                 if (GetTeamScore(HORDE) == 0)        // No one scored - result is tie
-                    EndBattleground(NULL);
+                    EndBattleground(0);
                 else                                 // Horde has more points and thus wins
                     EndBattleground(HORDE);
             }

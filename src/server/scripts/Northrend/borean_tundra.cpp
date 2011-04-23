@@ -1628,7 +1628,7 @@ public:
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);
-                StartFollow(CAST_PLR(pCaster), NULL, NULL);
+                StartFollow(pCaster->ToPlayer(), 0, NULL);
                 me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
                 CAST_PLR(pCaster)->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
@@ -1699,7 +1699,7 @@ public:
         {
             uiStep = 1;
             uiPhase = 0;
-            CasterGUID = NULL;
+            CasterGUID = 0;
         }
 
         void EnterCombat(Unit* /*pWho*/)

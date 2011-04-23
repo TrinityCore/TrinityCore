@@ -4525,9 +4525,8 @@ void AuraEffect::HandleAuraModStateImmunity(AuraApplication const * aurApp, uint
     Unit * target = aurApp->GetTarget();
 
     if ((apply) && GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-    {
-        target->RemoveAurasByType(AuraType(GetMiscValue()), NULL , GetBase());
-    }
+        target->RemoveAurasByType(AuraType(GetMiscValue()), 0 , GetBase());
+
     // stop handling the effect if it was removed by linked event
     if (apply && aurApp->GetRemoveMode())
         return;
