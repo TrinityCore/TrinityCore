@@ -549,11 +549,8 @@ inline bool CreatureAI::_EnterEvadeMode()
     if (!me->isAlive())
         return false;
 
-    // call specialized vehicle remove auras if creature is one
-    if (!me->IsVehicle())
-        me->RemoveAllAuras();
-    else
-        me->RemoveAllAurasExceptVehicle();
+    // dont remove vehicle auras, passengers arent supposed to drop off the vehicle
+    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
 
     // sometimes bosses stuck in combat?
     me->DeleteThreatList();
