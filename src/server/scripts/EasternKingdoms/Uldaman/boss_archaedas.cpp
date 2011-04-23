@@ -88,7 +88,7 @@ class boss_archaedas : public CreatureScript
                 bVaultWalkersAwake = false;
 
                 if (pInstance)
-                    pInstance->SetData(NULL, 5);    // respawn any dead minions
+                    pInstance->SetData(0, 5);    // respawn any dead minions
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -117,7 +117,7 @@ class boss_archaedas : public CreatureScript
                 // Being woken up from the altar, start the awaken sequence
                 if (spell == GetSpellStore()->LookupEntry(SPELL_ARCHAEDAS_AWAKEN))
                 {
-                    me->MonsterYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
+                    me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me,SOUND_AGGRO);
                     iAwakenTimer = 4000;
                     bWakingUp = true;
@@ -126,7 +126,7 @@ class boss_archaedas : public CreatureScript
 
             void KilledUnit(Unit * /*victim*/)
             {
-                me->MonsterYell(SAY_KILL,LANG_UNIVERSAL, NULL);
+                me->MonsterYell(SAY_KILL, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_KILL);
             }
 
@@ -167,7 +167,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(pInstance->GetData64(8),true);   // EarthenGuardian4
                     ActivateMinion(pInstance->GetData64(9),true);   // EarthenGuardian5
                     ActivateMinion(pInstance->GetData64(10),false); // EarthenGuardian6
-                    me->MonsterYell(SAY_SUMMON,LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_SUMMON, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_SUMMON);
                     bGuardiansAwake = true;
                 }
@@ -179,7 +179,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(pInstance->GetData64(2),true);    // VaultWalker2
                     ActivateMinion(pInstance->GetData64(3),true);    // VaultWalker3
                     ActivateMinion(pInstance->GetData64(4),false);    // VaultWalker4
-                    me->MonsterYell(SAY_SUMMON2, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_SUMMON2, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_SUMMON2);
                     bVaultWalkersAwake = true;
                 }

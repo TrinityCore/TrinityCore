@@ -702,7 +702,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_HAS_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
-    bool hasTutorials = (CharacterDatabase.Query(stmt) != NULL);
+    bool hasTutorials = CharacterDatabase.Query(stmt).null();
     // Modify data in DB
     stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_SET_TUTORIALS : CHAR_ADD_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)

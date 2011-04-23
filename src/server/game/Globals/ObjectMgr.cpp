@@ -4184,7 +4184,7 @@ void ObjectMgr::LoadQuests()
     //   142          143
         "StartScript, CompleteScript"
         " FROM quest_template");
-    if (result == NULL)
+    if (!result)
     {
         sLog->outErrorDb(">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
         sLog->outString();

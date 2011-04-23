@@ -238,7 +238,7 @@ public:
                     break;
                 case GO_VEZAX_DOOR:
                     uiVezaxDoorGUID = go->GetGUID();
-                    HandleGameObject(NULL, false, go);
+                    HandleGameObject(0, false, go);
                     break;
                 case GO_RAZOR_HARPOON_1:
                     uiRazorHarpoonGUIDs[0] = go->GetGUID();
