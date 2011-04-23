@@ -233,7 +233,7 @@ public:
         {
             DoScriptText(SAY_MORRIDUNE_1,pCreature);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Start(false,false,NULL);
+            Start(false,false,0);
         }
 
         void WaypointReached(uint32 uiPoint)

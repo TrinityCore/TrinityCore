@@ -90,12 +90,12 @@ public:
                 case GO_CAVE_IN_LEFT:
                     uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(NULL,false,go);
+                        HandleGameObject(0,false,go);
                     break;
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(NULL,false,go);
+                        HandleGameObject(0,false,go);
                     break;
             }
         }

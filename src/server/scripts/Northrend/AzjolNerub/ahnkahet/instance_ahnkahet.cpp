@@ -112,7 +112,7 @@ public:
             switch(go->GetEntry())
             {
                 case 193564:     Prince_TaldaramPlatform = go->GetGUID();
-                    if (m_auiEncounter[1] == DONE) HandleGameObject(NULL,true,go); break;
+                    if (m_auiEncounter[1] == DONE) HandleGameObject(0,true,go); break;
                 case 193093:     Prince_TaldaramSpheres[0] = go->GetGUID();
                     if (spheres[0] == IN_PROGRESS)
                     {
@@ -130,7 +130,7 @@ public:
                     else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case 192236:    Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram
-                    if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,go);break;
+                    if (m_auiEncounter[1] == DONE)HandleGameObject(0,true,go);break;
             }
         }
 

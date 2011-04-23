@@ -106,14 +106,14 @@ class instance_uldaman : public InstanceMapScript
                         uiAltarOfTheKeeperTempleDoor = go->GetGUID();
 
                         if(m_auiEncounter[0] == DONE)
-                           HandleGameObject(NULL, true, go);
+                           HandleGameObject(0, true, go);
                         break;
 
                     case GO_ARCHAEDAS_TEMPLE_DOOR:
                         uiArchaedasTempleDoor = go->GetGUID();
 
                         if(m_auiEncounter[0] == DONE)
-                            HandleGameObject(NULL, true, go);
+                            HandleGameObject(0, true, go);
                         break;
 
                     case GO_ANCIENT_VAULT_DOOR:
@@ -122,14 +122,14 @@ class instance_uldaman : public InstanceMapScript
                         uiAncientVaultDoor = go->GetGUID();
 
                         if(m_auiEncounter[1] == DONE)
-                            HandleGameObject(NULL, true, go);
+                            HandleGameObject(0, true, go);
                         break;
 
                     case GO_IRONAYA_SEAL_DOOR:
                         uiIronayaSealDoor = go->GetGUID();
 
                         if (m_auiEncounter[2] == DONE)
-                            HandleGameObject(NULL, true, go);
+                            HandleGameObject(0, true, go);
                         break;
 
                     case GO_KEYSTONE:
@@ -137,7 +137,7 @@ class instance_uldaman : public InstanceMapScript
 
                         if (m_auiEncounter[2] == DONE)
                         {
-                            HandleGameObject(NULL, true, go);
+                            HandleGameObject(0, true, go);
                             go->SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                         }
                         break;
