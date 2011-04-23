@@ -592,11 +592,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_aged_dying_ancient_kodo' WHERE 
 UPDATE `gameobject_template` SET `ScriptName`='go_iruxos' WHERE `entry`=176581;
 UPDATE `creature_template` SET `ScriptName`='npc_dalinda' WHERE `entry`=5644;
 
-
 /* DIRE MAUL */
 
 /* DUN MOROGH */
-UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 
 /* DUROTAR */
 UPDATE `creature_template` SET `ScriptName`='npc_lazy_peon' WHERE `entry`=10556;
@@ -619,6 +617,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_private_hendel' WHERE `entry`=4
 UPDATE `creature_template` SET `ScriptName`='npc_zelfrax' WHERE `entry`=23864;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky' WHERE `entry`=4880;
 UPDATE `creature_template` SET `ScriptName`='npc_theramore_guard' WHERE `entry`=4979;
+
 /* EASTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='mobs_ghoul_flayer' WHERE `entry` IN (8530,8531,8532);
 UPDATE `creature_template` SET `ScriptName`='npc_augustus_the_touched' WHERE `entry`=12384;
@@ -626,7 +625,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_darrowshire_spirit' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_tirion_fordring' WHERE `entry`=1855;
 
 /* ELWYNN FOREST */
-UPDATE `creature_template` SET `ScriptName`='npc_henze_faulk' WHERE `entry`=6172;
 
 /* EVERSONG WOODS */
 UPDATE `creature_template` SET `ScriptName`='npc_prospector_anvilward' WHERE `entry`=15420;
@@ -1839,9 +1837,8 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (10051,11,0,0, 'achievement_three_car_garage_demolisher'),
 (10062,11,0,0, 'achievement_quick_shave'),
 (10063,11,0,0, 'achievement_quick_shave'),
-(6446,11,0,0, 'achievement_bg_sa_drop_it'),
-(7625,11,0,0, 'achievement_bg_sa_artillery_veteran'),
-(7628,11,0,0, 'achievement_bg_sa_artillery_expert');
+(7625,11,0,0, 'achievement_bg_sa_artillery'),
+(7628,11,0,0, 'achievement_bg_sa_artillery');
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
@@ -1897,6 +1894,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 45206, 'spell_generic_clone_weapon'),
 ( 69892, 'spell_generic_clone_weapon'),
 ( 57593, 'spell_generic_clone_weapon'),
+( 52408, 'spell_gen_seaforium_blast'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2113,6 +2111,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 67630, 'spell_gen_leeching_swarm'),
 ( 68646, 'spell_gen_leeching_swarm'),
 ( 68647, 'spell_gen_leeching_swarm'),
+-- Trial of the Champion
+( 66862, 'spell_eadric_radiance'),
+( 67681, 'spell_eadric_radiance'),
 -- Ulduar
 ( 63308, 'spell_razorscale_devouring_flame'),
 ( 62717, 'spell_ignis_slag_pot'),

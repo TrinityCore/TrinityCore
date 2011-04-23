@@ -369,7 +369,7 @@ void BattlegroundSA::Update(uint32 diff)
                 RoundScores[1].winner = (Attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
 
                 if (RoundScores[0].time == RoundScores[1].time)
-                    EndBattleground(NULL);
+                    EndBattleground(0);
                 else if (RoundScores[0].time < RoundScores[1].time)
                     EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                 else
@@ -488,15 +488,6 @@ void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
         ((BattlegroundSAScore*)itr->second)->gates_destroyed += value;
     else
         Battleground::UpdatePlayerScore(Source,type,value, doAddHonor);
-}
-
-uint32 BattlegroundSA::GetPlayerDemolisherScore(Player* source)
-{
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found...
-        return 0;
-    else
-        return ((BattlegroundSAScore*)itr->second)->demolishers_destroyed;
 }
 
 void BattlegroundSA::TeleportPlayers()
@@ -838,7 +829,7 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 }
 
                 if (RoundScores[0].time == RoundScores[1].time)
-                    EndBattleground(NULL);
+                    EndBattleground(0);
                 else if (RoundScores[0].time < RoundScores[1].time)
                     EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                 else

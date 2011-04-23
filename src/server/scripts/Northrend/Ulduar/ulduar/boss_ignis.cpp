@@ -231,7 +231,7 @@ public:
                         {
                             SlagPotTarget->ExitVehicle();
                             SlagPotTarget = NULL;
-                            SlagPotGUID = NULL;
+                            SlagPotGUID = 0;
                             events.CancelEvent(EVENT_END_POT);
                         }
                         break;

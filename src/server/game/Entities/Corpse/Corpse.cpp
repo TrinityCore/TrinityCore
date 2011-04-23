@@ -167,7 +167,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     uint32 ownerGuid = fields[17].GetUInt32();
     //        0     1     2     3            4      5          6          7       8       9        10     11        12    13          14          15         16          17
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, guildId, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
-    m_type = CorpseType(fields[13].GetUInt32());
+    m_type = CorpseType(fields[13].GetUInt8());
     if (m_type >= MAX_CORPSE_TYPE)
     {
         sLog->outError("Corpse (guid: %u, owner: %u) have wrong corpse type (%u), not loading.", guid, ownerGuid, m_type);
@@ -190,7 +190,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[10].GetUInt8());
-    SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[11].GetUInt32());
+    SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[11].GetUInt8());
     SetUInt64Value(CORPSE_FIELD_OWNER, MAKE_NEW_GUID(ownerGuid, 0, HIGHGUID_PLAYER));
 
     m_time = time_t(fields[12].GetUInt32());

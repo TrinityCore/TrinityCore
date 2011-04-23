@@ -832,9 +832,6 @@ enum eEngineeringTrinkets
     SPELL_TO_GADGET             = 23489,
     SPELL_TO_AREA52             = 36954,
     SPELL_TO_TOSHLEY            = 36955,
-
-    ITEM_GNOMISH_CARD           = 10790,
-    ITEM_GOBLIN_CARD            = 10791
 };
 
 #define GOSSIP_ITEM_ZAP         "[PH] Unknown"
@@ -913,10 +910,7 @@ public:
         }
 
         if (CanLearn)
-        {
-            if (pPlayer->HasItemCount(ITEM_GOBLIN_CARD,1) || pPlayer->HasItemCount(ITEM_GNOMISH_CARD,1))
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GossipItem, pCreature->GetEntry(), GOSSIP_ACTION_INFO_DEF+1);
-        }
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GossipItem, pCreature->GetEntry(), GOSSIP_ACTION_INFO_DEF+1);
 
         pPlayer->SEND_GOSSIP_MENU(NpcTextId ? NpcTextId : pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
         return true;

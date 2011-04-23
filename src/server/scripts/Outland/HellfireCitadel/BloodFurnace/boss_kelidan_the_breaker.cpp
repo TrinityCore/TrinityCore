@@ -158,7 +158,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             uint64 GetChanneled(Creature *channeler1)
             {
                 SummonChannelers();
-                if (!channeler1) return NULL;
+                if (!channeler1) return 0;
                 uint8 i;
                 for (i=0; i<5; ++i)
                 {

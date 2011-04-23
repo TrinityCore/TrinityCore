@@ -564,29 +564,20 @@ public:
         if (!*args)
             return false;
 
-        char *cstrticket_id = strtok((char*)args, " ");
-
-        if (!cstrticket_id)
+        char *sTicketId = strtok((char*)args, " ");
+        if (!sTicketId)
             return false;
 
-        uint64 ticket_id = atoi(cstrticket_id);
-        if (!ticket_id)
+        uint32 ticketId = atoi(sTicketId);
+        if (!ticketId)
             return false;
 
-        GM_Ticket *ticket = sTicketMgr->GetGMTicket(ticket_id);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
         if (!ticket)
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
             return true;
         }
-
-        float x, y, z;
-        int mapid;
-
-        x = ticket->pos_x;
-        y = ticket->pos_y;
-        z = ticket->pos_z;
-        mapid = ticket->map;
 
         Player* _player = handler->GetSession()->GetPlayer();
         if (_player->isInFlight())
@@ -597,7 +588,7 @@ public:
         else
             _player->SaveRecallPosition();
 
-        _player->TeleportTo(mapid, x, y, z, 1, 0);
+        ticket->TeleportTo(_player);
         return true;
     }
 };

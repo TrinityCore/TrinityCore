@@ -62,8 +62,8 @@ bool Condition::Meets(Player * player, Unit* invoker)
             break;
         case CONDITION_REPUTATION_RANK:
         {
-            FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1);
-            condMeets = faction && uint32(player->GetReputationMgr().GetRank(faction)) >= mConditionValue2;
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
+                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) == mConditionValue2;
             break;
         }
         case CONDITION_ACHIEVEMENT:
@@ -85,24 +85,24 @@ bool Condition::Meets(Player * player, Unit* invoker)
             condMeets = player->HasSkill(mConditionValue1) && player->GetBaseSkillValue(mConditionValue1) >= mConditionValue2;
             break;
         case CONDITION_QUESTREWARDED:
-            condMeets = player->GetQuestRewardStatus(mConditionValue1);
+            condMeets = (player->GetQuestRewardStatus(mConditionValue1) == !mConditionValue2);
             break;
         case CONDITION_QUESTTAKEN:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_INCOMPLETE);
+            condMeets = ((status == QUEST_STATUS_INCOMPLETE) == !mConditionValue2);
             break;
         }
         case CONDITION_QUEST_COMPLETE:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(mConditionValue1));
+            condMeets = ((status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(mConditionValue1)) == !mConditionValue2);
             break;
         }
         case CONDITION_QUEST_NONE:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_NONE);
+            condMeets = ((status == QUEST_STATUS_NONE) == !mConditionValue2);
             break;
         }
         case CONDITION_NO_AURA:
@@ -1145,7 +1145,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 return false;
             }
 
-            if (cond->mConditionValue2)
+            if (cond->mConditionValue2 > 1)
                 sLog->outErrorDb("Quest condition has useless data in value2 (%u)!", cond->mConditionValue2);
             break;
         }

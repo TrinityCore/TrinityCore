@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+
 #include "BattlegroundAB.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundIC.h"
@@ -166,57 +167,18 @@ class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_sa_artillery_veteran : public AchievementCriteriaScript
+class achievement_bg_sa_artillery : public AchievementCriteriaScript
 {
     public:
-        achievement_bg_sa_artillery_veteran() : AchievementCriteriaScript("achievement_bg_sa_artillery_veteran") { }
+        achievement_bg_sa_artillery() : AchievementCriteriaScript("achievement_bg_sa_artillery") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* source, Unit* /*target*/)
         {
             if (Creature* vehicle = source->GetVehicleCreatureBase())
             {
                 if (vehicle->GetEntry() == NPC_ANTI_PERSONNAL_CANNON)
                     return true;
             }
-
-            return false;
-        }
-};
-
-class achievement_bg_sa_artillery_expert : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_sa_artillery_expert() : AchievementCriteriaScript("achievement_bg_sa_artillery_expert") { }
-
-        bool OnCheck(Player* source, Unit* target)
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() != NPC_ANTI_PERSONNAL_CANNON)
-                    return false;
-
-                BattlegroundSA* SA = static_cast<BattlegroundSA*>(source->GetBattleground());
-                return SA->GetPlayerDemolisherScore(source);
-            }
-
-            return false;
-        }
-};
-
-class achievement_bg_sa_drop_it : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_sa_drop_it() : AchievementCriteriaScript("achievement_bg_sa_drop_it") { }
-
-        enum AchievementData
-        {
-            SPELL_CARRYING_SEAFORIUM = 52418,            
-        };
-
-        bool OnCheck(Player* /*source*/, Unit* target)
-        {
-            if (target->HasAura(SPELL_CARRYING_SEAFORIUM))
-                return true;
 
             return false;
         }
@@ -232,7 +194,5 @@ void AddSC_achievement_scripts()
     new achievement_bg_ic_resource_glut();
     new achievement_bg_ic_glaive_grave();
     new achievement_bg_ic_mowed_down();
-    new achievement_bg_sa_artillery_veteran();
-    new achievement_bg_sa_artillery_expert();
-    new achievement_bg_sa_drop_it();
+    new achievement_bg_sa_artillery();
 }
