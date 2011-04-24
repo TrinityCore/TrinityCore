@@ -6119,6 +6119,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         else
                             stack = GetBase()->GetStackAmount();
 
+                        target->CastCustomSpell(target, 33778, &m_amount, &stack, NULL, true, NULL, this, GetCasterGUID());
+
                         // restore mana
                         if (caster)
                         {
