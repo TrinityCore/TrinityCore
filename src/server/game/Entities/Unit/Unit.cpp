@@ -3630,6 +3630,30 @@ inline void Unit::RemoveAuraFromStack(AuraMap::iterator &iter, AuraRemoveMode re
 {
     if (iter->second->ModStackAmount(-1))
         RemoveOwnedAura(iter, removeMode);
+    else
+    {
+        // Lifebloom hack
+        Aura * aura = iter->second;
+        
+        if ((aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID) &&
+            (aura->GetSpellProto()->SpellFamilyFlags[EFFECT_1] == 0x10) &&
+            (removeMode == AURA_REMOVE_BY_ENEMY_SPELL))
+        {
+            Unit* caster = aura->GetCaster();
+            AuraEffect const * aurEff = aura->GetEffect(EFFECT_1);
+            if (!caster || !aurEff)
+                return;
+
+            // final heal
+            int32 amount = aurEff->GetAmount() / aura->GetStackAmount();
+            int32 stack = 1;
+            CastCustomSpell(this, 33778, &amount, &stack, NULL, true, NULL, aurEff, caster->GetGUID());
+
+            // restore mana
+            int32 returnmana = CalculatePctU(caster->GetCreateMana(), aura->GetSpellProto()->ManaCostPercentage) * stack / 2;
+            caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, aurEff, caster->GetGUID()); 
+        }
+    }
 }
 
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeller)
