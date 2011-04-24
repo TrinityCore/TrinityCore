@@ -3006,6 +3006,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     {
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
             if (properties->Flags & 512)
             {
                 SummonGuardian(effIndex, entry, properties);
@@ -3113,7 +3114,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         case SUMMON_CATEGORY_PUPPET:
             summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
             break;
-        case SUMMON_CATEGORY_VEHICLE:       
+        case SUMMON_CATEGORY_VEHICLE:
             // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
             // to cast a ride vehicle spell on the summoned unit.
             float x, y, z;
@@ -3123,10 +3124,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 return;
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-            uint32 spell = m_spellInfo->EffectBasePoints[effIndex];
+            uint32 spell = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, effIndex);
             if (spell)
             {
-                SpellEntry const *spellProto = sSpellStore.LookupEntry(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, effIndex));
+                SpellEntry const *spellProto = sSpellStore.LookupEntry(spell);
                 if (!spellProto)
                     spell = VEHICLE_SPELL_RIDE_HARDCODED;
             }
