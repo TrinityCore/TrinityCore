@@ -3512,7 +3512,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_KNOCK_BACK:
                 case SPELL_EFFECT_KNOCK_BACK_DEST:
                     spellInfo->EffectMechanic[j] = MECHANIC_KNOCKOUT;
-                    count++;
+                    ++count;
                     break;
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE:
@@ -3885,7 +3885,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 8145: // Tremor Totem (instant pulse)
         case 6474: // Earthbind Totem (instant pulse)
             spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-            count++;
+            ++count;
             break;
         case 42650: // Army of the Dead - can be interrupted
             spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
@@ -3893,12 +3893,12 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 61607: // Mark of Blood
             spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
-            count++;
+            ++count;
             break;
         case 63944: // Renewed Hope hack
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
             spellInfo->EffectMiscValue[0] = 127;
-            count++;
+            ++count;
             break;
         case 30421:     // Nether Portal - Perseverence
             spellInfo->EffectBasePoints[2] += 30000;
