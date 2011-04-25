@@ -2571,19 +2571,29 @@ void World::SendAutoBroadcast()
 
 void World::UpdateRealmCharCount(uint32 accountId)
 {
-    m_realmCharCallback.SetParam(accountId);
-    m_realmCharCallback.SetFutureResult(CharacterDatabase.AsyncPQuery("SELECT COUNT(guid) FROM characters WHERE account = '%u'", accountId));
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_CHARACTER_COUNT);
+    stmt->setUInt32(0, accountId);
+    m_realmCharCallbacks.insert(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void World::_UpdateRealmCharCount(QueryResult resultCharCount, uint32 accountId)
+void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 {
     if (resultCharCount)
     {
         Field *fields = resultCharCount->Fetch();
-        uint32 charCount = fields[0].GetUInt32();
+        uint32 accountId = fields[0].GetUInt32();
+        uint32 charCount = fields[1].GetUInt32();
 
-        LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid= '%d' AND realmid = '%d'", accountId, realmID);
-        LoginDatabase.PExecute("INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (%u, %u, %u)", charCount, accountId, realmID);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALMCHARACTERS);
+        stmt->setUInt32(0, accountId);
+        stmt->setUInt32(1, realmID);
+        LoginDatabase.Execute(stmt);
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_REALMCHARACTERS);
+        stmt->setUInt32(0, charCount);
+        stmt->setUInt32(1, accountId);
+        stmt->setUInt32(2, realmID);
+        LoginDatabase.Execute(stmt);
     }
 }
 
@@ -2802,13 +2812,20 @@ uint64 World::getWorldState(uint32 index) const
 
 void World::ProcessQueryCallbacks()
 {
-    QueryResult result;
+    PreparedQueryResult result;
 
-    if (m_realmCharCallback.IsReady())
+    while (!m_realmCharCallbacks.is_empty())
     {
-        uint32 param = m_realmCharCallback.GetParam();
-        m_realmCharCallback.GetResult(result);
-        _UpdateRealmCharCount(result, param);
-        m_realmCharCallback.FreeResult();
+        ACE_Future<PreparedQueryResult> lResult;
+        ACE_Time_Value timeout = ACE_Time_Value::zero;
+        if (m_realmCharCallbacks.next_readable(lResult, &timeout) != 1)
+            break;
+
+        if (lResult.ready())
+        {
+            lResult.get(result);
+            _UpdateRealmCharCount(result);
+            lResult.cancel();
+        }
     }
 }
