@@ -406,11 +406,11 @@ public:
                 if (Creature* pTemp = Unit::GetCreature(*me, uiRayneGUID))
                     pTemp->setDeathState(JUST_DIED);
 
-                uiTirionGUID = NULL;
-                uiKorfaxGUID = NULL;
-                uiMaxwellGUID = NULL;
-                uiEligorGUID = NULL;
-                uiRayneGUID = NULL;
+                uiTirionGUID = 0;
+                uiKorfaxGUID = 0;
+                uiMaxwellGUID = 0;
+                uiEligorGUID = 0;
+                uiRayneGUID = 0;
 
                 for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
                 {
@@ -434,10 +434,10 @@ public:
                 if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
                     pTemp->Respawn();
 
-                uiKoltiraGUID = NULL;
-                uiOrbazGUID = NULL;
-                uiThassarianGUID = NULL;
-                uiLichKingGUID = NULL;
+                uiKoltiraGUID = 0;
+                uiOrbazGUID = 0;
+                uiThassarianGUID = 0;
+                uiLichKingGUID = 0;
                 for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                 {
                     if (Creature* pTemp = Unit::GetCreature(*me, uiAbominationGUID[i]))

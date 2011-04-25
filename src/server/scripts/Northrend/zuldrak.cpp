@@ -159,7 +159,7 @@ public:
                 me->setFaction(me->GetCreatureInfo()->faction_H);
 
                 DoCast(me, SPELL_UNSHACKLED, true);
-                me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, NULL);
+                me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, 0);
                 me->GetMotionMaster()->MoveRandom(10);
 
                 DespawnTimer = 10000;

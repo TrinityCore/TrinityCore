@@ -89,7 +89,7 @@ public:
                 case 192395:
                     uiKrikthirDoor = go->GetGUID();
                     if (auiEncounter[0] == DONE)
-                        HandleGameObject(NULL,true,go);
+                        HandleGameObject(0,true,go);
                     break;
                 case 192396:
                     uiAnubarakDoor[0] = go->GetGUID();

@@ -167,13 +167,13 @@ public:
                 case 188524: KalecgosWall[0] = go->GetGUID(); break;
                 case 188075:
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(0, true, go);
                     FireBarrier = go->GetGUID();
                     break;
                 case 187990: MurusGate[0]   = go->GetGUID(); break;
                 case 188118:
                     if (m_auiEncounter[4] == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(0, true, go);
                     MurusGate[1]= go->GetGUID();
                     break;
             }

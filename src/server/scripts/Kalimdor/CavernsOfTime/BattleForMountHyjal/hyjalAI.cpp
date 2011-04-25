@@ -929,7 +929,7 @@ void hyjalAI::JustDied(Unit* /*killer*/)
             pInstance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         if (pInstance->GetData(DATA_AZGALOREVENT) == IN_PROGRESS)
             pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
-        pInstance->SetData(DATA_RESET_RAIDDAMAGE, NULL);//reset damage on die
+        pInstance->SetData(DATA_RESET_RAIDDAMAGE, 0);//reset damage on die
     }
 }
 void hyjalAI::HideNearPos(float x, float y)
