@@ -263,6 +263,8 @@ void TicketMgr::AddTicket(GmTicket* ticket)
     _ticketList[ticket->GetId()] = ticket;
     if (!ticket->IsClosed())
         ++_openTicketCount;
+    SQLTransaction trans = SQLTransaction(NULL);
+    ticket->SaveToDB(trans);
 }
 
 void TicketMgr::CloseTicket(uint32 ticketId, int64 source)
