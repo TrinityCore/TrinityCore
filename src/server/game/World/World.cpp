@@ -2573,7 +2573,8 @@ void World::UpdateRealmCharCount(uint32 accountId)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_CHARACTER_COUNT);
     stmt->setUInt32(0, accountId);
-    m_realmCharCallbacks.insert(CharacterDatabase.AsyncQuery(stmt));
+    PreparedQueryResultFuture result = CharacterDatabase.AsyncQuery(stmt);
+    m_realmCharCallbacks.insert(result);
 }
 
 void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
