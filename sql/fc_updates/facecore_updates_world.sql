@@ -482,3 +482,6 @@ INSERT INTO `spell_proc_event` VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id` = 61716;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 ('61716', 'spell_item_rabbitcostume');
+
+-- Fix Spring Fling achievement
+UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
