@@ -18106,6 +18106,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 55501, 55475, 0, 'Lifeblood (Rank 4)'),
 ( 55502, 55475, 0, 'Lifeblood (Rank 5)'),
 ( 55503, 55475, 0, 'Lifeblood (Rank 6)'),
+( 61716, 61719, 2, 'Rabbit Costume: Lay Egg periodic'),
+( 61734, 61719, 2, 'Noblegarden Bunny: Lay Egg periodic'),
 -- Quest
 ( 26286, 44430, 0, 'Small Red Rocket - questcredit'),
 ( 26292, 44430, 0, 'Small Green Rocket - questcredit'),
