@@ -3124,13 +3124,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 return;
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-            uint32 spell = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, effIndex);
-            if (spell)
-            {
-                SpellEntry const *spellProto = sSpellStore.LookupEntry(spell);
-                if (!spellProto)
-                    spell = VEHICLE_SPELL_RIDE_HARDCODED;
-            }
+            uint32 spell = VEHICLE_SPELL_RIDE_HARDCODED;
+            if (SpellEntry const* spellProto = sSpellStore.LookupEntry(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, effIndex)))
+                spell = spellProto->Id;
 
             // Hard coded enter vehicle spell
             m_originalCaster->CastSpell(summon, spell, true);
