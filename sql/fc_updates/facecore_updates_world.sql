@@ -485,3 +485,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- Fix Spring Fling achievement
 UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
+
+-- Fix for Dual Specialisation learning
+DELETE FROM `gossip_scripts` WHERE id=50099;
+INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 3, 0, 0, 0, 0, 0);
+INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 3, 0, 0, 0, 0, 0);
+INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 1, 0, 0, 0, 0, 0);
+INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 1, 0, 0, 0, 0, 0);
+INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 2, 0, 0, 0, 0, 0);
+INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 2, 0, 0, 0, 0, 0);
