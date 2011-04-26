@@ -67,55 +67,6 @@ public:
     }
 };
 
-// http://www.wowhead.com/item=44792 Blossoming Branch
-enum BlossomingBranchSpells
-{
-    SPELL_RABBIT_COSTUME    = 61716,
-    SPELL_LAY_EGG           = 61718,
-};
-
-class spell_item_rabbitcostume : public SpellScriptLoader
-{
-public:
-    spell_item_rabbitcostume() : SpellScriptLoader("spell_item_rabbitcostume") { }
-
-    class spell_item_rabbitcostume_AuraScript : public AuraScript
-    {
-    public:
-        PrepareAuraScript(spell_item_rabbitcostume_AuraScript)
-        spell_item_rabbitcostume_AuraScript() : AuraScript() { }
-
-        bool Validate(SpellEntry const* /*spellEntry*/)
-        {
-            if (!sSpellStore.LookupEntry(SPELL_RABBIT_COSTUME))
-                return false;
-            if (!sSpellStore.LookupEntry(SPELL_LAY_EGG))
-                return false;
-            return true;
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            if (!target)
-                return;
-
-            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && target->GetAreaId() == 543)
-                target->CastSpell(target, SPELL_LAY_EGG, true);
-        }
-
-        void Register()
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_item_rabbitcostume_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_item_rabbitcostume_AuraScript();
-    }
-};
-
 // http://www.wowhead.com/item=6522 Deviate Fish
 // 8063 Deviate Fish
 enum eDeviateFishSpells
@@ -1022,7 +973,6 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mechanical_dragonling", SPELL_MECHANICAL_DRAGONLING);
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
-    new spell_item_rabbitcostume();
     new spell_item_deviate_fish();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();

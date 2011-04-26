@@ -478,11 +478,6 @@ INSERT INTO `spell_proc_event` VALUES
 (20336,0x00,10,0x00800000,0x00000000,0x00000008,0x00000100,0x00000000,0.000000,100.000000,0),
 (20337,0x00,10,0x00800000,0x00000000,0x00000008,0x00000100,0x00000000,0.000000,100.000000,0);
 
--- Fix Hard Boiled achievement
-DELETE FROM `spell_script_names` WHERE `spell_id` = 61716;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-('61716', 'spell_item_rabbitcostume');
-
 -- Fix Spring Fling achievement
 UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
 
