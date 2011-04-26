@@ -1,10 +1,10 @@
 /*
-	stdsoap2.h 2.8.0
+	stdsoap2.h 2.8.2
 
 	gSOAP runtime engine
 
 gSOAP XML Web services tools
-Copyright (C) 2000-2010, Robert van Engelen, Genivia Inc., All Rights Reserved.
+Copyright (C) 2000-2011, Robert van Engelen, Genivia Inc., All Rights Reserved.
 This part of the software is released under ONE of the following licenses:
 GPL, or the gSOAP public license, or Genivia's license for commercial use.
 --------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 for the specific language governing rights and limitations under the License.
 
 The Initial Developer of the Original Code is Robert A. van Engelen.
-Copyright (C) 2000-2010, Robert van Engelen, Genivia Inc., All Rights Reserved.
+Copyright (C) 2000-2011, Robert van Engelen, Genivia Inc., All Rights Reserved.
 --------------------------------------------------------------------------------
 GPL license.
 
@@ -112,27 +112,6 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 /* gSOAP 2.7.4 and higher: fast look-aside buffering is stable */
 #ifndef WITH_FAST
 # define WITH_FAST
-#endif
-
-/* gSOAP 2.7.15 and higher: always retain CDATA in literal XML, unless WITH_LEAN or WITH_NOCDATA */
-#ifndef WITH_LEAN
-# ifndef WITH_NOCDATA
-#  ifndef WITH_CDATA
-#   define WITH_CDATA
-#  endif
-# endif
-#endif
-
-#ifdef WITH_LEANER
-# ifndef WITH_LEAN
-#  define WITH_LEAN
-# endif
-#endif
-
-#ifdef WITH_LEAN
-# ifdef WITH_COOKIES
-#  error "Cannot build WITH_LEAN code WITH_COOKIES enabled"
-# endif
 #endif
 
 #ifndef STDSOAP_H
@@ -311,9 +290,10 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #  define HAVE_RAND_R
 #  define HAVE_GMTIME_R
 #  define HAVE_LOCALTIME_R
-#  define HAVE_STRERROR_R
 #  define HAVE_WCTOMB
 #  define HAVE_MBTOWC
+#  define HAVE_ISNAN
+#  define HAVE_ISINF
 # elif defined(FREEBSD) || defined(__FreeBSD__) || defined(OPENBSD)
 #  define HAVE_POLL
 #  define HAVE_SNPRINTF
@@ -336,7 +316,10 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #  define HAVE_MBTOWC
 #  define SOAP_LONG_FORMAT "%qd"
 #  define SOAP_ULONG_FORMAT "%qu"
+#  define HAVE_ISNAN
+#  define HAVE_ISINF
 # elif defined(__VMS)
+#  include <ioctl.h>
 #  define HAVE_SNPRINTF
 #  define HAVE_STRRCHR
 #  define HAVE_STRTOD
@@ -373,6 +356,7 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #  define HAVE_WCTOMB
 #  define HAVE_MBTOWC
 #  define HAVE_ISNAN
+#  define HAVE_ISINF
 # elif defined(TRU64)
 #  define HAVE_SNPRINTF
 #  define HAVE_STRRCHR
@@ -510,6 +494,27 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 # endif
 #endif
 
+/* gSOAP 2.7.15 and higher: always retain CDATA in literal XML, unless WITH_LEAN or WITH_NOCDATA */
+#ifndef WITH_LEAN
+# ifndef WITH_NOCDATA
+#  ifndef WITH_CDATA
+#   define WITH_CDATA
+#  endif
+# endif
+#endif
+
+#ifdef WITH_LEANER
+# ifndef WITH_LEAN
+#  define WITH_LEAN
+# endif
+#endif
+
+#ifdef WITH_LEAN
+# ifdef WITH_COOKIES
+#  error "Cannot build WITH_LEAN code WITH_COOKIES enabled"
+# endif
+#endif
+
 /* native Win and HP-UX compilers don't like empty structs */
 #if defined(WIN32) || defined(HP_UX) || defined(_AIX41) || defined(_AIX43) || defined(VXWORKS)
 # define WITH_NOEMPTYSTRUCT
@@ -537,6 +542,39 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 # undef HAVE_SSCANF_L
 # undef HAVE_SPRINTF_L
 #endif
+
+#ifdef TANDEM
+# define SOAP_BUFLEN (32767)
+/*# define WITH_NOSTDLIB */ /* uncommment to remove stdlib dependences */
+# define WITH_NOIO      /* no IO dependences, e.g. remove TCP/IP */
+# define int32_t int
+# define int64_t long long
+# define LONG64 long long
+# define ULONG64 long long
+# define DBL_PINFTY (1.1579208923716189e77)
+# define WITH_NOEMPTYSTRUCT
+# undef HAVE_WCTOMB
+# undef HAVE_MBTOWC
+# undef HAVE_GMTIME_R
+# undef HAVE_LOCALTIME_R
+# undef HAVE_SNPRINTF
+# define SOAP_BUFLEN (32767)
+# define SOAP_SOCKET short
+#pragma nolist
+# include <sys\param.h>
+# include <sys\socket.h>
+# include <netinet\in.h>
+# include <netdb.h>
+# include <stdio.h>
+# include <fcntl.h>                                           
+# include <string.h>                                          
+# include <stdlib.h>                                          
+# include <memory.h>                                          
+# include <errno.h>                                           
+# include <cextdecs.h(TIME,FILE_CLOSE_,AWAITIOX,DELAY,FILEINFO,FILE_GETINFO_)>
+# define INET_ERROR 4294967295                                
+#pragma list                                                  
+#endif                                                        
 
 #ifndef WITH_NOSTDLIB
 # include <stdlib.h>
@@ -653,18 +691,11 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #  include <io.h>
 #  include <fcntl.h>
 # endif
-# ifdef WITH_IPV6
 #  include <winsock2.h> /* Visual Studio 2005 users: you must install the Platform SDK (R2) */
 #  include <ws2tcpip.h>
 #  include <wspiapi.h>
+# ifdef WITH_IPV6
 #  define SOAP_GAI_STRERROR gai_strerrorA
-# else
-#  ifndef __BORLANDC__
-#   include <winsock.h> /* Visual Studio 2005 users: you must install the Platform SDK (R2) */
-/* # include <winsock2.h> */ /* Alternative: use winsock2 (not available with eVC), enable this line and comment out the line above */
-#  else
-#   include <winsock2.h> /* Borland C */
-#  endif
 # endif
 #else
 # ifdef VXWORKS
@@ -690,6 +721,10 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #endif
 
 #ifdef WITH_OPENSSL
+# ifdef __VMS
+#  pragma names save
+#  pragma names uppercase
+# endif
 # undef WITH_GNUTLS
 # define OPENSSL_NO_KRB5
 # include <openssl/bio.h>
@@ -701,6 +736,9 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 #  if (OPENSSL_VERSION_NUMBER < 0x00905100L)
 #   error "Must use OpenSSL 0.9.6 or later"
 #  endif
+# endif
+# ifdef __VMS
+#  pragma names restore
 # endif
 #endif
 
@@ -904,7 +942,7 @@ extern "C" {
 #endif
 #ifndef SOAP_PTRHASH
 # ifndef WITH_LEAN
-#  define SOAP_PTRHASH (1024) /* size of pointer analysis hash table (must be power of 2) */
+#  define SOAP_PTRHASH (4096) /* size of pointer analysis hash table (must be power of 2) */
 # else
 #  define SOAP_PTRHASH   (32)
 # endif
@@ -918,7 +956,7 @@ extern "C" {
 #endif
 #ifndef SOAP_BLKLEN
 # ifndef WITH_LEAN
-#  define SOAP_BLKLEN   (256) /* size of blocks to collect long strings and XML attributes */
+#  define SOAP_BLKLEN   (256) /* to collect long strings and XML attributes */
 # else
 #  define SOAP_BLKLEN    (32)
 # endif
@@ -987,7 +1025,11 @@ extern "C" {
 # ifndef HAVE_ISNAN
 #  define HAVE_ISNAN
 # endif
-# define soap_isnan(num) _isnan(num)
+# define soap_isnan(n) _isnan(n)
+# ifndef HAVE_ISINF
+#  define HAVE_ISINF
+# endif
+# define soap_isinf(n) (!_finite(n))
 #endif
 
 #ifdef SUN_OS
@@ -998,16 +1040,24 @@ extern "C" {
 # ifdef __cplusplus
 #  ifndef isnan
 extern "C" int isnan(double);
+extern "C" int isinf(double);
 #  endif
 # endif
-# define HAVE_ISNAN
+# ifndef HAVE_ISNAN
+#  define HAVE_ISNAN
+# endif
+# ifndef HAVE_ISINF
+#  define HAVE_ISINF
+# endif
 #endif
 
 #if !defined(HAVE_ISNAN) && (defined(_MATH_H) || defined(_MATH_INCLUDED))
 # define HAVE_ISNAN
 #endif
 
-extern const struct soap_double_nan { unsigned int n1, n2; } soap_double_nan;
+union soap_double_nan {struct {unsigned int n1, n2;} iv; double dv; float fv;};
+extern const union soap_double_nan soap_double_nan;
+extern const char soap_base64o[], soap_base64i[];
 
 #ifdef VXWORKS
 # ifndef FLT_MAX
@@ -1019,7 +1069,7 @@ extern const struct soap_double_nan { unsigned int n1, n2; } soap_double_nan;
 #endif
 
 #ifndef FLT_NAN
-# define FLT_NAN (*(float*)(void*)&soap_double_nan)
+# define FLT_NAN (soap_double_nan.fv)
 #endif
 
 #ifndef FLT_PINFTY
@@ -1041,7 +1091,7 @@ extern const struct soap_double_nan { unsigned int n1, n2; } soap_double_nan;
 #endif
 
 #ifndef DBL_NAN
-# define DBL_NAN (*(double*)(void*)&soap_double_nan)
+# define DBL_NAN (soap_double_nan.dv)
 #endif
 
 #ifndef DBL_PINFTY
@@ -1066,14 +1116,22 @@ extern const struct soap_double_nan { unsigned int n1, n2; } soap_double_nan;
 # ifdef HAVE_ISNAN
 #  define soap_isnan(n) isnan(n)
 # else
-#  define soap_isnan(n) (0)
+#  define soap_isnan(n) ((n) != (n))
 # endif
 #endif
 
-#define soap_ispinfd(n) ((n) >= DBL_PINFTY)
-#define soap_ispinff(n) ((n) >= FLT_PINFTY)
-#define soap_isninfd(n) ((n) <= DBL_NINFTY)
-#define soap_isninff(n) ((n) <= FLT_NINFTY)
+#ifndef soap_isinf
+# ifdef HAVE_ISINF
+#  define soap_isinf(n) isinf(n)
+# else
+#  define soap_isinf(n) (!soap_isnan(n) && soap_isnan((n) - (n)))
+# endif
+#endif
+
+#define soap_ispinfd(n) ((n) > 0 && soap_isinf(n))
+#define soap_ispinff(n) ((n) > 0 && soap_isinf(n))
+#define soap_isninfd(n) ((n) < 0 && soap_isinf(n))
+#define soap_isninff(n) ((n) < 0 && soap_isinf(n))
 
 /* gSOAP error codes */
 
@@ -1212,7 +1270,7 @@ typedef soap_int32 soap_mode;
 
 #define SOAP_MIME_POSTCHECK	0x10000000	/* MIME flag (internal) */
 
-#define SOAP_XML_SEC		0x80000000	/* reserved for WS security */
+#define SOAP_SEC_WSUID		0x80000000	/* Add Body wsu:Id */
 
 /* WITH_XMLNS backward compatibility: always use XML default namespaces */
 #ifdef WITH_XMLNS
@@ -1245,7 +1303,7 @@ typedef soap_int32 soap_mode;
 
 #define soap_check_state(soap) (!(soap) || ((soap)->state != SOAP_INIT && (soap)->state != SOAP_COPY))
 
-/* part */
+/* parts, states, and events */
 
 #define SOAP_BEGIN		0
 #define SOAP_IN_ENVELOPE	2
@@ -1256,9 +1314,9 @@ typedef soap_int32 soap_mode;
 #define SOAP_END_BODY		7
 #define SOAP_END_ENVELOPE	8
 #define SOAP_END		9
-#define SOAP_BEGIN_SECURITY	10
-#define SOAP_IN_SECURITY	11
-#define SOAP_END_SECURITY	12
+
+#define SOAP_SEC_BEGIN		10
+#define SOAP_SEC_SIGN		11
 
 /* DEBUG macros */
 
@@ -1290,16 +1348,16 @@ typedef soap_int32 soap_mode;
 # define SOAP_FREE(soap, ptr) free(ptr)
 #endif
 
-#ifndef SOAP_NEW			/* use C++ new operator */
-# if __GNUC__ <= 2
-#  define SOAP_NEW(type) new type	/* old form w/o parenthesis */
+#ifndef SOAP_NEW				/* use C++ new operator */
+# if (__GNUC__ <= 2) && !defined(__BORLANDC__)	/* Borland uses GNU C? */
+#  define SOAP_NEW(type) new type		/* old form w/o parenthesis */
 # else
-#  define SOAP_NEW(type) new (type)	/* with parenthesis */
+#  define SOAP_NEW(type) new (type)		/* prefer with parenthesis */
 # endif
 #endif
 
 #ifndef SOAP_NEW_COPY			/* use C++ new operator for ::copy() */
-# define SOAP_NEW_COPY(clas) new clas
+# define SOAP_NEW_COPY(clas) new clas	/* prefer w/o parenthesis */
 #endif
 
 #ifndef SOAP_DELETE			/* use C++ delete operator */
@@ -1445,7 +1503,7 @@ struct soap_attribute
   short flag;	/* soap_set_attr: 1 = normal, 2 = utf content */
   char *value;
   size_t size;
-  char *ns;
+  const char *ns;
   short visible;
   char name[1]; /* the actual name string flows into the allocated region below this struct */
 };
@@ -1729,7 +1787,8 @@ struct SOAP_STD_API soap
   struct SOAP_ENV__Header *header;
   struct SOAP_ENV__Fault *fault;
   int idnum;
-  void *user;			/* to pass user-defined data */
+  void *user;			/* for user to pass user-defined data */
+  void *data[4];		/* extension data = {smdevp, mecevp, ...} */
   struct soap_plugin *plugins;	/* linked list of plug-in data */
   const char *userid;		/* HTTP Basic authorization userid */
   const char *passwd;		/* HTTP Basic authorization passwd */
@@ -1762,12 +1821,19 @@ struct SOAP_STD_API soap
   void *(*fplugin)(struct soap*, const char*);
   void *(*fmalloc)(struct soap*, size_t);
 #ifndef WITH_LEANER
+  int (*feltbegin)(struct soap*, const char*);
+  int (*feltendin)(struct soap*, const char*, const char*);
+  int (*feltbegout)(struct soap*, const char*);
+  int (*feltendout)(struct soap*, const char*);
   int (*fprepareinitsend)(struct soap*);
   int (*fprepareinitrecv)(struct soap*);
   int (*fpreparesend)(struct soap*, const char*, size_t);
   int (*fpreparerecv)(struct soap*, const char*, size_t);
   int (*fpreparefinalsend)(struct soap*);
   int (*fpreparefinalrecv)(struct soap*);
+  int filterstop;
+  int (*ffiltersend)(struct soap*, const char**, size_t*);
+  int (*ffilterrecv)(struct soap*, char*, size_t*, size_t);
   void *(*fdimereadopen)(struct soap*, void*, const char*, const char*, const char*);
   void *(*fdimewriteopen)(struct soap*, const char*, const char*, const char*);
   void (*fdimereadclose)(struct soap*, void*);
@@ -1791,8 +1857,8 @@ struct SOAP_STD_API soap
   void *is;		/* preserve struct size */
 #endif
 #ifndef UNDER_CE
-  int sendfd;
-  int recvfd;
+  int sendfd;		/* WinCE FD to send */
+  int recvfd;		/* WinCE FD to receive */
 #else
   FILE *sendfd;
   FILE *recvfd;
@@ -1827,7 +1893,8 @@ struct SOAP_STD_API soap
   short mustUnderstand;	/* a mustUnderstand element was parsed or is output */
   short null;		/* parsed XML is xsi:nil */
   short ns;		/* when not set, output full xmlns bindings */
-  short part;		/* parsing state */
+  short part;		/* SOAP part state (header or body) */
+  short event;		/* engine events and states for use by plugins */
   short alloced;
   short peeked;
   size_t chunksize;
@@ -1876,9 +1943,9 @@ struct SOAP_STD_API soap
   int cookie_max;
 #endif
 #ifndef WITH_NOIO
-  int ipv6_multicast_if; /* always include this to keep the soap struct size the same in v4 and v6 */
-  char* ipv4_multicast_if; /* always include this to keep the soap struct size the same in v4 and v6 */
-  int ipv4_multicast_ttl; /* multicast scope */
+  int ipv6_multicast_if; /* in6addr->sin6_scope_id IPv6 value */
+  char* ipv4_multicast_if; /* IP_MULTICAST_IF IPv4 setsockopt interface_addr */
+  unsigned char ipv4_multicast_ttl; /* IP_MULTICAST_TTL value 0..255 */
 #ifdef WITH_IPV6
   struct sockaddr_storage peer;	/* IPv6: set by soap_accept and by UDP recv */
 #else
@@ -2160,6 +2227,7 @@ SOAP_FMAC1 long SOAP_FMAC2 soap_code_bits(const struct soap_code_map*, const cha
 SOAP_FMAC1 const char* SOAP_FMAC2 soap_code_list(struct soap*, const struct soap_code_map*, long);
 
 SOAP_FMAC1 int SOAP_FMAC2 soap_getline(struct soap*, char*, int);
+SOAP_FMAC1 int SOAP_FMAC2 soap_begin_serve(struct soap*);
 SOAP_FMAC1 int SOAP_FMAC2 soap_begin_recv(struct soap*);
 SOAP_FMAC1 int SOAP_FMAC2 soap_end_recv(struct soap*);
 
