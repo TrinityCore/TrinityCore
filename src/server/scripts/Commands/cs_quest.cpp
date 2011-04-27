@@ -129,6 +129,13 @@ public:
             return false;
         }
 
+        if (!pQuest->IsCompletable())
+        {
+            handler->SendSysMessage("|cffff0000You have no permission to complete this quest.|r");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         // remove all quest entries for 'entry' from quest log
         for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
         {

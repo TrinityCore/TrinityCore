@@ -232,3 +232,10 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
 
     return honor;
 }
+
+bool Quest::IsCompletable() const
+{
+    QueryResult result = WorldDatabase.PQuery("SELECT * FROM uncompletable WHERE id = %u and sourceType = 0", GetQuestId());
+
+    return !result ? true : false;
+}

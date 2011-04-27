@@ -2063,6 +2063,13 @@ bool AchievementMgr::HasAchieved(AchievementEntry const* achievement) const
     return m_completedAchievements.find(achievement->ID) != m_completedAchievements.end();
 }
 
+bool AchievementMgr::IsCompletable(AchievementEntry const* achievement) const
+{
+    QueryResult result = WorldDatabase.PQuery("SELECT * FROM uncompletable WHERE id = %u and sourceType = 1", achievement->ID);
+
+    return !result ? true : false;
+}
+
 bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement)
 {
     if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))

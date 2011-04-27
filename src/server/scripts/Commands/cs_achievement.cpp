@@ -68,7 +68,16 @@ public:
         }
 
         if (AchievementEntry const* pAE = GetAchievementStore()->LookupEntry(achievementId))
+        {
+            if (!target->GetAchievementMgr().IsCompletable(pAE))
+            {
+                handler->SendSysMessage("|cffff0000You have no permission to complete this achievement.|r");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
             target->CompletedAchievement(pAE, true);
+        }
 
         return true;
     }
