@@ -20,7 +20,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
-bool _SpellScript::_Validate(SpellEntry const * entry)
+bool _SpellScript::_Validate(SpellEntry const* entry)
 {
     if (!Validate(entry))
     {
@@ -44,7 +44,7 @@ void _SpellScript::_Unload()
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
 }
 
-void _SpellScript::_Init(const std::string * scriptname, uint32 spellId)
+void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
     m_scriptName = scriptname;
@@ -58,7 +58,7 @@ _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
     effIndex = _effIndex;
 }
 
-uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellEntry const * spellEntry)
+uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellEntry const* spellEntry)
 {
     uint8 mask = 0;
     if ((effIndex == EFFECT_ALL) || (effIndex == EFFECT_FIRST_FOUND))
@@ -79,7 +79,7 @@ uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellEntry const * spellE
     return mask;
 }
 
-bool _SpellScript::EffectHook::IsEffectAffected(SpellEntry const * spellEntry, uint8 effIndex)
+bool _SpellScript::EffectHook::IsEffectAffected(SpellEntry const* spellEntry, uint8 effIndex)
 {
     return GetAffectedEffectsMask(spellEntry) & 1<<effIndex;
 }
@@ -102,7 +102,7 @@ std::string _SpellScript::EffectHook::EffIndexToString()
     return "Invalid Value";
 }
 
-bool _SpellScript::EffectNameCheck::Check(SpellEntry const * spellEntry, uint8 effIndex)
+bool _SpellScript::EffectNameCheck::Check(SpellEntry const* spellEntry, uint8 effIndex)
 {
     if (!spellEntry->Effect[effIndex] && !effName)
         return true;
@@ -124,7 +124,7 @@ std::string _SpellScript::EffectNameCheck::ToString()
     }
 }
 
-bool _SpellScript::EffectAuraNameCheck::Check(SpellEntry const * spellEntry, uint8 effIndex)
+bool _SpellScript::EffectAuraNameCheck::Check(SpellEntry const* spellEntry, uint8 effIndex)
 {
     if (!spellEntry->EffectApplyAuraName[effIndex] && !effAurName)
         return true;
@@ -167,12 +167,12 @@ std::string SpellScript::EffectHandler::ToString()
     return "Index: " + EffIndexToString() + " Name: " +_SpellScript::EffectNameCheck::ToString();
 }
 
-bool SpellScript::EffectHandler::CheckEffect(SpellEntry const * spellEntry, uint8 effIndex)
+bool SpellScript::EffectHandler::CheckEffect(SpellEntry const* spellEntry, uint8 effIndex)
 {
     return _SpellScript::EffectNameCheck::Check(spellEntry, effIndex);
 }
 
-void SpellScript::EffectHandler::Call(SpellScript * spellScript, SpellEffIndex effIndex)
+void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex effIndex)
 {
     (spellScript->*pEffectHandlerScript)(effIndex);
 }
@@ -182,7 +182,7 @@ SpellScript::HitHandler::HitHandler(SpellHitFnType _pHitHandlerScript)
     pHitHandlerScript = _pHitHandlerScript;
 }
 
-void SpellScript::HitHandler::Call(SpellScript * spellScript)
+void SpellScript::HitHandler::Call(SpellScript* spellScript)
 {
     (spellScript->*pHitHandlerScript)();
 }
@@ -200,14 +200,14 @@ std::string SpellScript::UnitTargetHandler::ToString()
     return oss.str();
 }
 
-bool SpellScript::UnitTargetHandler::CheckEffect(SpellEntry const * spellEntry, uint8 effIndex)
+bool SpellScript::UnitTargetHandler::CheckEffect(SpellEntry const* spellEntry, uint8 effIndex)
 {
     if (!targetType)
         return false;
     return (effIndex == SPELL_EFFECT_ANY) || (spellEntry->EffectImplicitTargetA[effIndex] == targetType || spellEntry->EffectImplicitTargetB[effIndex] == targetType);
 }
 
-void SpellScript::UnitTargetHandler::Call(SpellScript * spellScript, std::list<Unit*>& unitTargets)
+void SpellScript::UnitTargetHandler::Call(SpellScript* spellScript, std::list<Unit*>& unitTargets)
 {
     (spellScript->*pUnitTargetHandlerScript)(unitTargets);
 }
@@ -225,7 +225,7 @@ bool SpellScript::_Validate(SpellEntry const * entry)
     return _SpellScript::_Validate(entry);
 }
 
-bool SpellScript::_Load(Spell * spell)
+bool SpellScript::_Load(Spell* spell)
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_LOADING;
     m_spell = spell;
@@ -250,44 +250,44 @@ void SpellScript::_FinishScriptCall()
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
 }
 
-Unit * SpellScript::GetCaster()
+Unit* SpellScript::GetCaster()
 {
      return m_spell->GetCaster();
 }
 
-Unit * SpellScript::GetOriginalCaster()
+Unit* SpellScript::GetOriginalCaster()
 {
      return m_spell->GetOriginalCaster();
 }
 
-SpellEntry const * SpellScript::GetSpellInfo()
+SpellEntry const* SpellScript::GetSpellInfo()
 {
     return m_spell->GetSpellInfo();
 }
 
-WorldLocation * SpellScript::GetTargetDest()
+WorldLocation* SpellScript::GetTargetDest()
 {
     if (m_spell->m_targets.HasDst())
         return &m_spell->m_targets.m_dstPos;
     return NULL;
 }
 
-Unit * SpellScript::GetTargetUnit()
+Unit* SpellScript::GetTargetUnit()
 {
     return m_spell->m_targets.getUnitTarget();
 }
 
-GameObject * SpellScript::GetTargetGObj()
+GameObject* SpellScript::GetTargetGObj()
 {
     return m_spell->m_targets.getGOTarget();
 }
 
-Item * SpellScript::GetTargetItem()
+Item* SpellScript::GetTargetItem()
 {
     return m_spell->m_targets.getItemTarget();
 }
 
-Unit * SpellScript::GetHitUnit()
+Unit* SpellScript::GetHitUnit()
 {
     if (!IsInHitPhase())
     {
@@ -297,7 +297,7 @@ Unit * SpellScript::GetHitUnit()
     return m_spell->unitTarget;
 }
 
-Creature * SpellScript::GetHitCreature()
+Creature* SpellScript::GetHitCreature()
 {
     if (!IsInHitPhase())
     {
@@ -310,7 +310,7 @@ Creature * SpellScript::GetHitCreature()
         return NULL;
 }
 
-Player * SpellScript::GetHitPlayer()
+Player* SpellScript::GetHitPlayer()
 {
     if (!IsInHitPhase())
     {
@@ -323,7 +323,7 @@ Player * SpellScript::GetHitPlayer()
         return NULL;
 }
 
-Item * SpellScript::GetHitItem()
+Item* SpellScript::GetHitItem()
 {
     if (!IsInHitPhase())
     {
@@ -333,7 +333,7 @@ Item * SpellScript::GetHitItem()
     return m_spell->itemTarget;
 }
 
-GameObject * SpellScript::GetHitGObj()
+GameObject* SpellScript::GetHitGObj()
 {
     if (!IsInHitPhase())
     {
@@ -439,7 +439,7 @@ int32 SpellScript::GetEffectValue()
     return m_spell->damage;
 }
 
-Item * SpellScript::GetCastItem()
+Item* SpellScript::GetCastItem()
 {
     return m_spell->m_CastItem;
 }
@@ -520,7 +520,7 @@ AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
 {
 }
 
-bool AuraScript::EffectBase::CheckEffect(SpellEntry const * spellEntry, uint8 effIndex)
+bool AuraScript::EffectBase::CheckEffect(SpellEntry const* spellEntry, uint8 effIndex)
 {
     return _SpellScript::EffectAuraNameCheck::Check(spellEntry, effIndex);
 }
@@ -536,7 +536,7 @@ AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnTyp
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectPeriodicHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff)
+void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* _aurEff)
 {
     (auraScript->*pEffectHandlerScript)(_aurEff);
 }
@@ -547,7 +547,7 @@ AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectU
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectUpdatePeriodicHandler::Call(AuraScript * auraScript, AuraEffect * aurEff)
+void AuraScript::EffectUpdatePeriodicHandler::Call(AuraScript* auraScript, AuraEffect* aurEff)
 {
     (auraScript->*pEffectHandlerScript)(aurEff);
 }
@@ -558,41 +558,41 @@ AuraScript::EffectCalcAmountHandler::EffectCalcAmountHandler(AuraEffectCalcAmoun
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectCalcAmountHandler::Call(AuraScript * auraScript, AuraEffect const * aurEff, int32 & amount, bool & canBeRecalculated)
+void AuraScript::EffectCalcAmountHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
 {
     (auraScript->*pEffectHandlerScript)(aurEff, amount, canBeRecalculated);
 }
 
-AuraScript::EffectCalcPeriodicHandler::EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+AuraScript::EffectCalcPeriodicHandler::EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : AuraScript::EffectBase(_effIndex, _effName)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectCalcPeriodicHandler::Call(AuraScript * auraScript, AuraEffect const * aurEff, bool & isPeriodic, int32 & periodicTimer)
+void AuraScript::EffectCalcPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer)
 {
     (auraScript->*pEffectHandlerScript)(aurEff, isPeriodic, periodicTimer);
 }
 
-AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : AuraScript::EffectBase(_effIndex, _effName)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectCalcSpellModHandler::Call(AuraScript * auraScript, AuraEffect const * aurEff, SpellModifier *& spellMod)
+void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod)
 {
     (auraScript->*pEffectHandlerScript)(aurEff, spellMod);
 }
 
-AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
+AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
     : AuraScript::EffectBase(_effIndex, _effName)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
     mode = _mode;
 }
 
-void AuraScript::EffectApplyHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraEffectHandleModes _mode)
+void AuraScript::EffectApplyHandler::Call(AuraScript* auraScript, AuraEffect const * _aurEff, AuraEffectHandleModes _mode)
 {
     if (_mode & mode)
         (auraScript->*pEffectHandlerScript)(_aurEff, _mode);
@@ -604,23 +604,23 @@ AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEf
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectAbsorbHandler::Call(AuraScript * auraScript, AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+void AuraScript::EffectAbsorbHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
     (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
 }
 
-AuraScript::EffectManaShieldHandler::EffectManaShieldHandler(AuraEffectAbsorbFnType _pEffectHandlerScript,uint8 _effIndex)
+AuraScript::EffectManaShieldHandler::EffectManaShieldHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex)
     : AuraScript::EffectBase(_effIndex, SPELL_AURA_MANA_SHIELD)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectManaShieldHandler::Call(AuraScript * auraScript, AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+void AuraScript::EffectManaShieldHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
     (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
 }
 
-bool AuraScript::_Load(Aura * aura)
+bool AuraScript::_Load(Aura* aura)
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_LOADING;
     m_aura = aura;
@@ -629,7 +629,7 @@ bool AuraScript::_Load(Aura * aura)
     return load;
 }
 
-void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const * aurApp)
+void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp)
 {
     m_currentScriptState = hookType;
     switch (m_currentScriptState)
@@ -828,12 +828,12 @@ bool AuraScript::HasEffectType(AuraType type) const
     return m_aura->HasEffectType(type);
 }
 
-Unit * AuraScript::GetTarget() const
+Unit* AuraScript::GetTarget() const
 {
     return m_auraApplication->GetTarget();
 }
 
-AuraApplication const * AuraScript::GetTargetApplication() const
+AuraApplication const* AuraScript::GetTargetApplication() const
 {
     return m_auraApplication;
 }
