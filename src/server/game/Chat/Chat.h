@@ -374,8 +374,6 @@ class ChatHandler
         void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList);
         void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo);
 
-        uint32 _ReadUInt32(std::istringstream& reader) const;
-        int32  _ReadInt32(std::istringstream& reader) const;
     private:
         bool _HandleGMTicketResponseAppendCommand(const char* args, bool newLine);
 

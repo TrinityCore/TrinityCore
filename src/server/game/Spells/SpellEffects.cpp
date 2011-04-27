@@ -6910,6 +6910,9 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
 
+        if (properties && properties->Category == SUMMON_CATEGORY_ALLY)
+            summon->setFaction(caster->getFaction());
+
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
