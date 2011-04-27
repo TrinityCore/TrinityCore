@@ -17,12 +17,15 @@
  */
 
 #include "Common.h"
+#include "TicketMgr.h"
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
+#include "SQLStorageImpl.h"
 #include "Log.h"
-#include "TicketMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Chat.h"
+#include "World.h"
 
 inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 
@@ -196,6 +199,8 @@ void GmTicket::TeleportTo(Player* player) const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
 TicketMgr::TicketMgr() : _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(time(NULL)), _status(true) { }
+
+void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
 
 void TicketMgr::LoadTickets()
 {
