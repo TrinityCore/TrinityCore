@@ -60,7 +60,7 @@ public:
     virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
-    std::string _FormatName(uint8 index, ItemLocale const *locale, char* const* suffixStrings) const;
+    std::string FormatName(uint8 index, ItemLocale const* locale, char* const* suffixStrings) const;
 
     ItemPrototype const* _item;
     int32 _data[8];
