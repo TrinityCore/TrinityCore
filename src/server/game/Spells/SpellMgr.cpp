@@ -3658,7 +3658,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 71892:
             spellInfo->SpellFamilyName = SPELLFAMILY_GENERIC;
             spellInfo->procChance = 20;
-            count++;
+            ++count;
             break;
         // Bind
         case 3286:
@@ -3670,7 +3670,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45524:
             // this will fix self-damage caused by Glyph of Chains of Ice
             spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
-            count++;
+            ++count;
             break;
         // Heroism
         case 32182:
@@ -3681,7 +3681,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 59921:
             // Icy Clutch shouldn't be applied at caster when login
             spellInfo->AttributesEx4 |= SPELL_ATTR4_CANT_PROC_FROM_SELFCAST;
-            count++;
+            ++count;
             break;
         // Blazing Harpoon
         case 61588:
@@ -3697,7 +3697,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 44440:
         case 44441:
             spellInfo->CasterAuraStateNot = AURA_STATE_NONE;
-            count++;
+            ++count;
             break;
         // Heart of the Crusader
         case 20335:
@@ -3720,7 +3720,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 24135:                             // Wyvern Sting (rank 3)
             // something wrong and it applied as positive buff
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
-            count++;
+            ++count;
             break;
         case 26029: // dark glare
         case 37433: // spout
@@ -3756,7 +3756,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63944:                             // Renewed Hope hack
             spellInfo->EffectApplyAuraName[0] = 87;
             spellInfo->EffectMiscValue[0] = 127;
-            count++;
+            ++count;
             break;
         case 27820:                             // Mana Detonation
         //case 28062: case 39090:                 // Positive/Negative Charge
@@ -3915,7 +3915,7 @@ void SpellMgr::LoadSpellCustomAttr()
 	    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_DST;
 	    spellInfo->EffectImplicitTargetB[0] = 0;
 	    spellInfo->Effect[1] = SPELL_EFFECT_INSTAKILL;
-	    count++;
+	    ++count;
 	    break;
         // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
         // To prevent aura staying on target after talent unlearned
@@ -3942,7 +3942,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 66665: // Burning Breath
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-            count++;
+            ++count;
             break;
         case 16834: // Natural shapeshifter
         case 16835:
@@ -3992,7 +3992,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 42650: // Army of the Dead - now we can interrupt this
             spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
-            count++;
+            ++count;
             break;
         case 64321: // Potent Pheromones
             // spell should dispel area aura, but doesn't have the attribute
@@ -4025,7 +4025,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 20331: // Seals of the Pure (Rank 4)
         case 20332: // Seals of the Pure (Rank 5)
             spellInfo->EffectSpellClassMask[EFFECT_0][1] = 0x20400800;
-            count++;
+            ++count;
             break;
         // Strength of the Pack
         case 64381:
@@ -4043,7 +4043,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 8145: // Tremor Totem (instant pulse)
         case 6474: // Earthbind Totem (instant pulse)
             spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-            count++;
+            ++count;
             break;
         case 53241: // Marked for Death (Rank 1)
         case 53243: // Marked for Death (Rank 2)
@@ -4096,11 +4096,11 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63882: // Death Ray Warning Visual
         case 63886: // Death Ray Damage Visual
             spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-            count++;
+            ++count;
             break;
         case 64172: // Titanic Storm
             spellInfo->excludeTargetAuraSpell = 65294; // Empowered
-            count++;
+            ++count;
             break;
         case 63830: // Malady of the Mind
         case 63881: // Malady of the Mind proc
@@ -4108,16 +4108,16 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ANY;
             spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ANY;
-            count++;
+            ++count;
             break;
         case 63802: // Brain Link
             spellInfo->MaxAffectedTargets = 2;
             spellInfo->EffectRadiusIndex[0] = 12; // 100 yard
-            count++;
+            ++count;
             break;
         case 63050: // Sanity
             spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
-            count++;
+            ++count;
             break;
         // ENDOF ULDUAR SPELLS
         //
@@ -4227,7 +4227,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 49206: // Summon Gargoyle
             spellInfo->DurationIndex = 587;
-            count++;
+            ++count;
             break;
         case 51590: // Toss Ice Boulder
             spellInfo->MaxAffectedTargets = 1;
@@ -4284,7 +4284,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->EffectSpellClassMask[0][1] |= 0x20;
                 else
                     break;
-                count++;
+                ++count;
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Icy Touch - extend FamilyFlags (unused value) for Sigil of the Frozen Conscience to use
