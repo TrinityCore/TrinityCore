@@ -998,7 +998,7 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_gen_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_item_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
