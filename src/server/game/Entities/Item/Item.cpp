@@ -16,8 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- #include <ace/Auto_Ptr.h>
-
 #include "Common.h"
 #include "Item.h"
 #include "ObjectMgr.h"
@@ -28,12 +26,12 @@
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
 
-void AddItemsSetItem(Player*player,Item *item)
+void AddItemsSetItem(Player* player,Item* item)
 {
-    ItemPrototype const *proto = item->GetProto();
+    ItemPrototype const* proto = item->GetProto();
     uint32 setid = proto->ItemSet;
 
-    ItemSetEntry const *set = sItemSetStore.LookupEntry(setid);
+    ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
     if (!set)
     {
@@ -44,7 +42,7 @@ void AddItemsSetItem(Player*player,Item *item)
     if (set->required_skill_id && player->GetSkillValue(set->required_skill_id) < set->required_skill_value)
         return;
 
-    ItemSetEffect *eff = NULL;
+    ItemSetEffect* eff = NULL;
 
     for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
     {
@@ -58,11 +56,11 @@ void AddItemsSetItem(Player*player,Item *item)
     if (!eff)
     {
         eff = new ItemSetEffect;
-        memset(eff,0,sizeof(ItemSetEffect));
+        memset(eff, 0, sizeof(ItemSetEffect));
         eff->setid = setid;
 
         size_t x = 0;
-        for (; x < player->ItemSetEff.size(); x++)
+        for (; x < player->ItemSetEff.size(); ++x)
             if (!player->ItemSetEff[x])
                 break;
 
@@ -74,7 +72,7 @@ void AddItemsSetItem(Player*player,Item *item)
 
     ++eff->item_count;
 
-    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
+    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; ++x)
     {
         if (!set->spells [x])
             continue;
@@ -83,7 +81,7 @@ void AddItemsSetItem(Player*player,Item *item)
             continue;
 
         uint32 z = 0;
-        for (; z < MAX_ITEM_SET_SPELLS; z++)
+        for (; z < MAX_ITEM_SET_SPELLS; ++z)
             if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
                 break;
 
@@ -91,19 +89,19 @@ void AddItemsSetItem(Player*player,Item *item)
             continue;
 
         //new spell
-        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; y++)
+        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
         {
             if (!eff->spells[y])                             // free slot
             {
-                SpellEntry const *spellInfo = sSpellStore.LookupEntry(set->spells[x]);
+                SpellEntry const* spellInfo = sSpellStore.LookupEntry(set->spells[x]);
                 if (!spellInfo)
                 {
-                    sLog->outError("WORLD: unknown spell id %u in items set %u effects", set->spells[x],setid);
+                    sLog->outError("WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
                     break;
                 }
 
                 // spell casted only if fit form requirement, in other case will casted at form change
-                player->ApplyEquipSpell(spellInfo,NULL,true);
+                player->ApplyEquipSpell(spellInfo, NULL, true);
                 eff->spells[y] = spellInfo;
                 break;
             }
@@ -870,8 +868,8 @@ bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
 
     for (ConditionList::const_iterator itr = conditions.begin(); itr != conditions.end(); ++itr)
     {
-        ACE_Auto_Ptr<ItemRequiredTarget> irt(new ItemRequiredTarget((ItemRequiredTargetType)(*itr)->mConditionValue1, (*itr)->mConditionValue2));
-        if (irt->IsFitToRequirements(pUnitTarget))
+        ItemRequiredTarget irt(ItemRequiredTargetType((*itr)->mConditionValue1), (*itr)->mConditionValue2);
+        if (irt.IsFitToRequirements(pUnitTarget))
             return true;
     }
     return false;
