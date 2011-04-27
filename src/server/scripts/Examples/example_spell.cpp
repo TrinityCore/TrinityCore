@@ -26,6 +26,11 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 
+enum Spells
+{
+    SPELL_TRIGGERED = 18282
+};
+
 class spell_ex_5581 : public SpellScriptLoader
 {
     public:
@@ -36,18 +41,14 @@ class spell_ex_5581 : public SpellScriptLoader
             // initialize script, this macro does compile time check for type of the function - prevents possible issues
             // if you have assigned wrong type of function to a hook you'll receive type conversion error during build
             // this line is required, otherwise you'll get XXXHandlerFunction - identifier not found errors
-            PrepareSpellScript(spell_ex_5581SpellScript)
-            enum Spells
-            {
-                SPELL_TRIGGERED = 18282
-            };
+            PrepareSpellScript(spell_ex_5581SpellScript);
 
             std::string localVariable;
-            char * localVariable2;
+            char* localVariable2;
 
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 // check if spellid 70522 exists in dbc, we will trigger it later
                 if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
@@ -60,7 +61,7 @@ class spell_ex_5581 : public SpellScriptLoader
             bool Load()
             {
                 localVariable = "we're using local variable";
-                localVariable2 = new char;
+                localVariable2 = new char();
                 return true;
                 // return false - script will be immediately removed from the spell
                 // for example - we don't want this script to be executed on a creature
@@ -80,7 +81,7 @@ class spell_ex_5581 : public SpellScriptLoader
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
                 sLog->outString("SPELL_EFFECT_DUMMY is executed on target!");
                 // make caster cast a spell on a unit target of effect
-                if (Unit * target = GetHitUnit())
+                if (Unit* target = GetHitUnit())
                     GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);
             }
 
@@ -130,7 +131,7 @@ class spell_ex_5581 : public SpellScriptLoader
         };
 
         // function which creates SpellScript
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_ex_5581SpellScript();
         }
@@ -143,14 +144,10 @@ class spell_ex_66244 : public SpellScriptLoader
 
         class spell_ex_66244AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ex_66244AuraScript)
-            enum Spells
-            {
-                SPELL_TRIGGERED = 18282
-            };
+            PrepareAuraScript(spell_ex_66244AuraScript);
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 // check if spellid exists in dbc, we will trigger it later
                 if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
@@ -163,25 +160,25 @@ class spell_ex_66244 : public SpellScriptLoader
             bool Load()
             {
                 // do not load script if aura is casted by player or caster not avalible
-                if (Unit * caster = GetCaster())
+                if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_PLAYER)
                         return true;
                 return false;
             }
 
-            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 sLog->outString("Aura Effect is about to be applied on target!");
-                Unit * target = GetTarget();
+                Unit* target = GetTarget();
                 // cast spell on target on aura apply
                 target->CastSpell(target, SPELL_TRIGGERED, true);
             }
 
-            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 sLog->outString("Aura Effect is just removed on target!");
-                Unit * target = GetTarget();
-                Unit * caster = GetCaster();
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
                 // caster may be not avalible (logged out for example)
                 if (!caster)
                     return;
@@ -189,22 +186,22 @@ class spell_ex_66244 : public SpellScriptLoader
                 target->CastSpell(caster, SPELL_TRIGGERED, true);
             }
 
-            void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 sLog->outString("Perioidic Aura Effect is does a tick on target!");
-                Unit * target = GetTarget();
+                Unit* target = GetTarget();
                 // aura targets damage self on tick
                 target->DealDamage(target, 100);
             }
 
-            void HandleEffectPeriodicUpdate(AuraEffect * aurEff)
+            void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
                 sLog->outString("Perioidic Aura Effect is now updated!");
                 // we're doubling aura amount every tick
                 aurEff->ChangeAmount(aurEff->GetAmount() * 2);
             }
 
-            void HandleEffectCalcAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+            void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
             {
                 sLog->outString("Amount of Aura Effect is being calculated now!");
                 // we're setting amount to 100
@@ -213,7 +210,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 canBeRecalculated = false;
             }
 
-            void HandleEffectCalcPeriodic(AuraEffect const * /*aurEff*/, bool & isPeriodic, int32 & amplitude)
+            void HandleEffectCalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
             {
                 sLog->outString("Periodic data of Aura Effect is being calculated now!");
                 // we're setting aura to be periodic and tick every 10 seconds
@@ -221,11 +218,11 @@ class spell_ex_66244 : public SpellScriptLoader
                 amplitude = 2 * IN_MILLISECONDS;
             }
 
-            void HandleEffectCalcSpellMod(AuraEffect const * /*aurEff*/, SpellModifier *& spellMod)
+            void HandleEffectCalcSpellMod(AuraEffect const* /*aurEff*/, SpellModifier*& spellMod)
             {
                 sLog->outString("SpellMod data of Aura Effect is being calculated now!");
                 // we don't want spellmod for example
-                if(spellMod)
+                if (spellMod)
                 {
                     delete spellMod;
                     spellMod = NULL;
@@ -272,7 +269,7 @@ class spell_ex_66244 : public SpellScriptLoader
         };
 
         // function which creates AuraScript
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_ex_66244AuraScript();
         }
@@ -286,20 +283,16 @@ class spell_ex_absorb_aura : public SpellScriptLoader
 
         class spell_ex_absorb_auraAuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ex_absorb_auraAuraScript)
-            enum Spells
-            {
-                SPELL_TRIGGERED = 18282
-            };
+            PrepareAuraScript(spell_ex_absorb_auraAuraScript);
 
-            void HandleOnEffectAbsorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void HandleOnEffectAbsorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 sLog->outString("Our aura is now absorbing damage done to us!");
                 // absorb whole damage done to us
                 absorbAmount = dmgInfo.GetDamage();
             }
 
-            void HandleAfterEffectAbsorb(AuraEffect * /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+            void HandleAfterEffectAbsorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
             {
                 sLog->outString("Our aura has absorbed %u damage!", absorbAmount);
             }
@@ -313,7 +306,7 @@ class spell_ex_absorb_aura : public SpellScriptLoader
         };
 
         // function which creates AuraScript
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_ex_absorb_auraAuraScript();
         }
@@ -338,7 +331,8 @@ class spell_ex : public SpellScriptLoader
 
         class spell_ex_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ex_SpellScript)
+            PrepareSpellScript(spell_ex_SpellScript);
+
             //bool Validate(SpellEntry const * spellEntry){return true;}
             //bool Load(){return true;}
             //void Unload(){}
@@ -350,7 +344,7 @@ class spell_ex : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_ex_SpellScript();
         }
@@ -366,23 +360,23 @@ class spell_ex : public SpellScriptLoader
         class spell_ex_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_ex)
-            //bool Validate(SpellEntry const * spellEntry){return true;}
+            //bool Validate(SpellEntry const* spellEntry){return true;}
             //bool Load(){return true;}
             //void Unload(){}
 
-            //void spell_ex_SpellScript::Function(AuraEffect const * aurEff, AuraEffectHandleModes mode) //OnEffectApply += AuraEffectApplyFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
-            //void spell_ex_SpellScript::Function(AuraEffect const * aurEff, AuraEffectHandleModes mode) //OnEffectRemove += AuraEffectRemoveFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
-            //void spell_ex_SpellScript::Function(AuraEffect const * aurEff) //OnEffectPeriodic += AuraEffectPeriodicFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
-            //void spell_ex_SpellScript::Function(AuraEffect * aurEff) //OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
-            //void spell_ex_SpellScript::Function(AuraEffect const * aurEff, int32 & amount, bool & canBeRecalculated) //DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
-            //void spell_ex_SpellScript::Function(AuraEffect const * aurEff, bool & isPeriodic, int32 & amplitude) //OnEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
-            //void spell_ex_SpellScript::Function(AuraEffect const * aurEff, SpellModifier *& spellMod) //OnEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
+            //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, AuraEffectHandleModes mode) //OnEffectApply += AuraEffectApplyFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+            //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, AuraEffectHandleModes mode) //OnEffectRemove += AuraEffectRemoveFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+            //void spell_ex_SpellScript::Function(AuraEffect const* aurEff) //OnEffectPeriodic += AuraEffectPeriodicFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
+            //void spell_ex_SpellScript::Function(AuraEffect* aurEff) //OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
+            //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated) //DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
+            //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude) //OnEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
+            //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, SpellModifier*& spellMod) //OnEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY);
             void Register()
             {
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_ex_AuraScript();
         }
