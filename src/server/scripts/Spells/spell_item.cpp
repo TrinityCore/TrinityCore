@@ -963,6 +963,51 @@ class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
         }
 };
 
+enum VanquishedClutchesSpells
+{
+    SPELL_CRUSHER       = 64982,
+    SPELL_CONSTRICTOR   = 64983,
+    SPELL_CORRUPTOR     = 64984,
+};
+
+class spell_item_vanquished_clutches : public SpellScriptLoader
+{
+    public:
+        spell_item_vanquished_clutches() : SpellScriptLoader("spell_item_vanquished_clutches") { }
+
+        class spell_item_vanquished_clutches_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_vanquished_clutches_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_CRUSHER))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_CONSTRICTOR))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_CORRUPTOR))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = RAND(SPELL_CRUSHER, SPELL_CONSTRICTOR, SPELL_CORRUPTOR);
+                GetCaster()->CastSpell(GetCaster(), spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_gen_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_vanquished_clutches_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -991,4 +1036,5 @@ void AddSC_item_spell_scripts()
     new spell_item_book_of_glyph_mastery();
     new spell_item_gift_of_the_harvester();
     new spell_item_map_of_the_geyser_fields();
+    new spell_item_vanquished_clutches();
 }
