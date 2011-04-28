@@ -1323,9 +1323,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             return;
                         }
                         npc->SetCurrentEquipmentId(e.action.equip.entry);
-                        slot[0] = einfo->equipentry[0];
-                        slot[1] = einfo->equipentry[1];
-                        slot[2] = einfo->equipentry[2];
+                        slot[0] = einfo->ItemEntry[0];
+                        slot[1] = einfo->ItemEntry[1];
+                        slot[2] = einfo->ItemEntry[2];
                     }
                     else
                     {
