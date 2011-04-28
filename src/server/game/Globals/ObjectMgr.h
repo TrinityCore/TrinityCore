@@ -45,7 +45,6 @@
 #include <functional>
 
 extern SQLStorage sCreatureStorage;
-extern SQLStorage sCreatureInfoAddonStorage;
 extern SQLStorage sGOStorage;
 
 class Group;
@@ -679,12 +678,7 @@ class ObjectMgr
         static void ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);
         CreatureAddon const *GetCreatureAddon(uint32 lowguid);
-
-        static CreatureAddon const *GetCreatureTemplateAddon(uint32 entry)
-        {
-            return sCreatureInfoAddonStorage.LookupEntry<CreatureAddon>(entry);
-        }
-
+        CreatureAddon const *GetCreatureTemplateAddon(uint32 entry);
         ItemTemplate const* GetItemTemplate(uint32 entry);
         ItemTemplateContainer const* GetItemTemplateStore() { return &ItemTemplateStore; }
 
@@ -923,6 +917,7 @@ class ObjectMgr
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
+        void LoadCreatureTemplateAddons();
         void CheckCreatureTemplate(CreatureInfo const* cInfo);
         void LoadCreatures();
         void LoadLinkedRespawn();
@@ -1404,6 +1399,7 @@ class ObjectMgr
         CreatureDataMap mCreatureDataMap;
         CreatureModelContainer CreatureModelStore;
         CreatureAddonContainer CreatureAddonStore;
+        CreatureAddonContainer CreatureTemplateAddonStore;
         EquipmentInfoContainer EquipmentInfoStore;
         LinkedRespawnMap mLinkedRespawnMap;
         CreatureLocaleMap mCreatureLocaleMap;
