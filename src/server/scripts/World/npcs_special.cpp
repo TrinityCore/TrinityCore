@@ -133,7 +133,7 @@ public:
                 sLog->outErrorDb("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
             else
             {
-                CreatureInfo const* spawnedTemplate = ObjectMgr::GetCreatureTemplate(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+                CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
@@ -1674,7 +1674,7 @@ public:
         {
             SpellTimer = 0;
 
-            CreatureInfo const *Info = me->GetCreatureInfo();
+            CreatureTemplate const *Info = me->GetCreatureInfo();
 
             if (Info->Entry == C_VIPER)
                 IsViper = true;

@@ -156,7 +156,7 @@ class boss_marli : public CreatureScript
                     {
                         DoScriptText(SAY_TRANSFORM, me);
                         DoCast(me, SPELL_SPIDER_FORM);
-                        const CreatureInfo *cinfo = me->GetCreatureInfo();
+                        const CreatureTemplate *cinfo = me->GetCreatureInfo();
                         me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                         me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                         me->UpdateDamagePhysical(BASE_ATTACK);
@@ -196,7 +196,7 @@ class boss_marli : public CreatureScript
                         if (TransformBack_Timer <= diff)
                         {
                             me->SetDisplayId(15220);
-                            const CreatureInfo *cinfo = me->GetCreatureInfo();
+                            const CreatureTemplate *cinfo = me->GetCreatureInfo();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
                             me->UpdateDamagePhysical(BASE_ATTACK);

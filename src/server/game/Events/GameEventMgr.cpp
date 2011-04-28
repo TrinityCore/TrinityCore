@@ -1114,7 +1114,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
             if (cr)
             {
                 uint32 npcflag = GetNPCFlag(cr);
-                if (const CreatureInfo * ci = cr->GetCreatureInfo())
+                if (const CreatureTemplate * ci = cr->GetCreatureInfo())
                     npcflag |= ci->npcflag;
                 cr->SetUInt32Value(UNIT_NPC_FLAGS,npcflag);
                 // reset gossip options, since the flag change might have added / removed some
@@ -1330,7 +1330,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             CreatureData const* data2 = sObjectMgr->GetCreatureData(itr->first);
             if (data2 && activate)
             {
-                CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(data2->id);
+                CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(data2->id);
                 uint32 displayID = sObjectMgr->ChooseDisplayId(0,cinfo,data2);
                 CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
 

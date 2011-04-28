@@ -44,7 +44,6 @@
 #include "ConditionMgr.h"
 #include <functional>
 
-extern SQLStorage sCreatureStorage;
 
 class Group;
 class Guild;
@@ -671,11 +670,12 @@ class ObjectMgr
         ArenaTeamMap::iterator GetArenaTeamMapBegin() { return mArenaTeamMap.begin(); }
         ArenaTeamMap::iterator GetArenaTeamMapEnd()   { return mArenaTeamMap.end(); }
 
-        static CreatureInfo const *GetCreatureTemplate(uint32 id) { return sCreatureStorage.LookupEntry<CreatureInfo>(id); }
+        CreatureTemplate const* GetCreatureTemplate(uint32 entry);
+        CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32 &displayID);
-        uint32 ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data = NULL);
-        static void ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
+        uint32 ChooseDisplayId(uint32 team, const CreatureTemplate *cinfo, const CreatureData *data = NULL);
+        static void ChooseCreatureFlags(const CreatureTemplate *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);
         CreatureAddon const *GetCreatureAddon(uint32 lowguid);
         CreatureAddon const *GetCreatureTemplateAddon(uint32 entry);
@@ -918,7 +918,7 @@ class ObjectMgr
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatureTemplateAddons();
-        void CheckCreatureTemplate(CreatureInfo const* cInfo);
+        void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void LoadCreatures();
         void LoadLinkedRespawn();
         bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
@@ -1397,6 +1397,7 @@ class ObjectMgr
 
         MapObjectGuids mMapObjectGuids;
         CreatureDataMap mCreatureDataMap;
+        CreatureTemplateContainer CreatureTemplateStore;
         CreatureModelContainer CreatureModelStore;
         CreatureAddonContainer CreatureAddonStore;
         CreatureAddonContainer CreatureTemplateAddonStore;
