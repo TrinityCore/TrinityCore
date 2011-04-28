@@ -42,12 +42,12 @@
 #include <map>
 #include <limits>
 #include "ConditionMgr.h"
+#include <functional>
 
 extern SQLStorage sCreatureStorage;
 extern SQLStorage sCreatureDataAddonStorage;
 extern SQLStorage sCreatureInfoAddonStorage;
 extern SQLStorage sGOStorage;
-extern SQLStorage sItemStorage;
 
 class Group;
 class Guild;
@@ -689,7 +689,8 @@ class ObjectMgr
             return sCreatureInfoAddonStorage.LookupEntry<CreatureDataAddon>(entry);
         }
 
-        static ItemPrototype const* GetItemPrototype(uint32 id) { return sItemStorage.LookupEntry<ItemPrototype>(id); }
+        ItemTemplate const* GetItemTemplate(uint32 entry);
+        ItemTemplateContainer const* GetItemTemplateStore() { return &ItemTemplateStore; }
 
         ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId)
         {
@@ -937,7 +938,7 @@ class ObjectMgr
         void LoadGameObjectLocales();
         void LoadGameobjects();
         void LoadGameobjectRespawnTimes();
-        void LoadItemPrototypes();
+        void LoadItemTemplates();
         void LoadItemLocales();
         void LoadItemSetNames();
         void LoadItemSetNameLocales();
@@ -1386,6 +1387,7 @@ class ObjectMgr
         PlayerClassInfo playerClassInfo[MAX_CLASSES];
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
+
         PlayerInfo playerInfo[MAX_RACES][MAX_CLASSES];
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
@@ -1412,6 +1414,8 @@ class ObjectMgr
         CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;
         GameObjectLocaleMap mGameObjectLocaleMap;
+
+        ItemTemplateContainer ItemTemplateStore;
         ItemLocaleMap mItemLocaleMap;
         ItemSetNameLocaleMap mItemSetNameLocaleMap;
         QuestLocaleMap mQuestLocaleMap;

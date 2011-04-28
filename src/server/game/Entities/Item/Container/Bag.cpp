@@ -70,7 +70,7 @@ void Bag::RemoveFromWorld()
 
 bool Bag::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 {
-    ItemPrototype const * itemProto = ObjectMgr::GetItemPrototype(itemid);
+    ItemTemplate const * itemProto = sObjectMgr->GetItemTemplate(itemid);
 
     if (!itemProto || itemProto->ContainerSlots > MAX_BAG_SIZE)
         return false;
@@ -110,7 +110,7 @@ bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry
     if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
         return false;
 
-    ItemPrototype const* itemProto = GetProto(); // checked in Item::LoadFromDB
+    ItemTemplate const* itemProto = GetTemplate(); // checked in Item::LoadFromDB
     SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->ContainerSlots);
     // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
@@ -198,12 +198,12 @@ uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
             count += pItem->GetCount();
     }
 
-    if (eItem && eItem->GetProto()->GemProperties)
+    if (eItem && eItem->GetTemplate()->GemProperties)
     {
         for (uint32 i=0; i < GetBagSize(); ++i)
         {
             pItem = m_bagslot[i];
-            if (pItem && pItem != eItem && pItem->GetProto()->Socket[0].Color)
+            if (pItem && pItem != eItem && pItem->GetTemplate()->Socket[0].Color)
                 count += pItem->GetGemCountWithID(item);
         }
     }
@@ -217,7 +217,7 @@ uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) 
     for (uint32 i = 0; i < GetBagSize(); ++i)
         if (Item *pItem = m_bagslot[i])
             if (pItem != skipItem)
-                if (ItemPrototype const *pProto = pItem->GetProto())
+                if (ItemTemplate const *pProto = pItem->GetTemplate())
                     if (pProto->ItemLimitCategory == limitCategory)
                         count += m_bagslot[i]->GetCount();
 

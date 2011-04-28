@@ -1326,7 +1326,7 @@ void World::SetInitialWorldSettings()
     sDisableMgr->LoadDisables();                                 // must be before loading quests and items
 
     sLog->outString("Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
-    sObjectMgr->LoadItemPrototypes();
+    sObjectMgr->LoadItemTemplates();
 
     sLog->outString("Loading Item set names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemSetNames();

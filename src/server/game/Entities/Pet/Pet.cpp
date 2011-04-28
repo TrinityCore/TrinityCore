@@ -1051,7 +1051,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     return true;
 }
 
-bool Pet::HaveInDiet(ItemPrototype const* item) const
+bool Pet::HaveInDiet(ItemTemplate const* item) const
 {
     if (!item->FoodType)
         return false;

@@ -738,7 +738,7 @@ void Group::SendLooter(Creature *pCreature, Player *pLooter)
 void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 {
     std::vector<LootItem>::iterator i;
-    ItemPrototype const *item;
+    ItemTemplate const *item;
     uint8 itemSlot = 0;
 
     for (i = loot->items.begin(); i != loot->items.end(); ++i, ++itemSlot)
@@ -746,7 +746,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
         if (i->freeforall)
             continue;
 
-        item = ObjectMgr::GetItemPrototype(i->itemid);
+        item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
             //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
@@ -832,14 +832,14 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 
 void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 {
-    ItemPrototype const *item;
+    ItemTemplate const *item;
     uint8 itemSlot = 0;
     for (std::vector<LootItem>::iterator i=loot->items.begin(); i != loot->items.end(); ++i, ++itemSlot)
     {
         if (i->freeforall)
             continue;
 
-        item = ObjectMgr::GetItemPrototype(i->itemid);
+        item = sObjectMgr->GetItemTemplate(i->itemid);
 
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
@@ -1120,7 +1120,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(roll->itemid);
+                    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(roll->itemid);
                     player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
                 }
             }

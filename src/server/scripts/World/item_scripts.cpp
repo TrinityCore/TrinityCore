@@ -189,7 +189,7 @@ class item_mysterious_egg : public ItemScript
 {
 public:
     item_mysterious_egg() : ItemScript("item_mysterious_egg") { }
-    bool OnExpire(Player *pPlayer, ItemPrototype const * /*pItemProto*/)
+    bool OnExpire(Player *pPlayer, ItemTemplate const * /*pItemProto*/)
     {
         ItemPosCountVec dest;
         uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
@@ -209,7 +209,7 @@ class item_disgusting_jar : public ItemScript
 public:
     item_disgusting_jar() : ItemScript("item_disgusting_jar") {}
 
-    bool OnExpire(Player *pPlayer, ItemPrototype const * /*pItemProto*/)
+    bool OnExpire(Player *pPlayer, ItemTemplate const * /*pItemProto*/)
     {
         ItemPosCountVec dest;
         uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar

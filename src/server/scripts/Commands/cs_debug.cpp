@@ -965,7 +965,7 @@ public:
             return false;
 
         handler->GetSession()->GetPlayer()->DestroyItem(i->GetBagSlot(), i->GetSlot(), true);
-        sScriptMgr->OnItemExpire(handler->GetSession()->GetPlayer(), i->GetProto());
+        sScriptMgr->OnItemExpire(handler->GetSession()->GetPlayer(), i->GetTemplate());
 
         return true;
     }
