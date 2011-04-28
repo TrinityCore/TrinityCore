@@ -908,7 +908,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
         }
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
         {
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mSourceEntry))
+            if (!sObjectMgr->GetCreatureTemplate(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->mSourceEntry);
                 return false;
@@ -1000,7 +1000,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
             {
-                if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mSourceGroup))
+                if (!sObjectMgr->GetCreatureTemplate(cond->mSourceGroup))
                 {
                     sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->mSourceGroup);
                     return false;
@@ -1237,13 +1237,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 case SPELL_TARGET_TYPE_CREATURE:
                 case SPELL_TARGET_TYPE_DEAD:
                 {
-                    if (cond->mConditionValue2 && !sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue2))
+                    if (cond->mConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->mConditionValue2))
                     {
                         sLog->outErrorDb("SpellTarget condition has non existing creature template entry (%u) as target, skipped", cond->mConditionValue2);
                         return false;
                     }
 
-                    const CreatureInfo* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue2);
+                    const CreatureTemplate* cInfo = sObjectMgr->GetCreatureTemplate(cond->mConditionValue2);
                     if (cond->mSourceEntry == 30427 && !cInfo->SkinLootId)
                     {
                         sLog->outErrorDb("SpellTarget condition has creature entry %u as a target of spellid 30427, but this creature has no skinlootid. Gas extraction will not work!, skipped", cond->mConditionValue2);
@@ -1256,7 +1256,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_CREATURE_TARGET:
         {
-            if (!cond->mConditionValue1 && !sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue1))
+            if (!cond->mConditionValue1 && !sObjectMgr->GetCreatureTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("CreatureTarget condition has non existing creature template entry (%u) as target, skipped", cond->mConditionValue1);
                 return false;
@@ -1308,7 +1308,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 return false;
             }
 
-            if (!cond->mConditionValue2 && !sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue2))
+            if (!cond->mConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->mConditionValue2))
             {
                 sLog->outErrorDb("ItemTarget condition has non existing creature template entry (%u) as target, skipped", cond->mConditionValue2);
                 return false;
@@ -1360,7 +1360,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
         case CONDITION_NEAR_CREATURE:
         {
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue1))
+            if (!sObjectMgr->GetCreatureTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("NearCreature condition has non existing creature template entry (%u), skipped", cond->mConditionValue1);
                 return false;

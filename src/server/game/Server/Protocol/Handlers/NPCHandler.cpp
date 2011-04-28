@@ -134,7 +134,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     if (!unit->isCanTrainingOf(_player,true))
         return;
 
-    CreatureInfo const *ci = unit->GetCreatureInfo();
+    CreatureTemplate const *ci = unit->GetCreatureInfo();
 
     if (!ci)
     {
@@ -704,7 +704,7 @@ void WorldSession::HandleUnstablePetCallback(QueryResult result, uint32 petnumbe
         return;
     }
 
-    CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(creature_id);
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature_id);
     if (!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
     {
         // if problem in exotic pet
@@ -832,7 +832,7 @@ void WorldSession::HandleStableSwapPetCallback(QueryResult result, uint32 petnum
         return;
     }
 
-    CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(creature_id);
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature_id);
     if (!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
     {
         // if problem in exotic pet

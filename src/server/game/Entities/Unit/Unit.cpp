@@ -14744,7 +14744,7 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
     if (GetTypeId() != TYPEID_PLAYER)
         return NULL;
 
-    CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(creatureEntry);
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry);
     if (!creatureInfo)
         return NULL;
 
@@ -15165,7 +15165,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if (!creature->isPet())
         {
             creature->DeleteThreatList();
-            CreatureInfo const* cInfo = creature->GetCreatureInfo();
+            CreatureTemplate const* cInfo = creature->GetCreatureInfo();
             if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
                 creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
@@ -15603,7 +15603,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const * a
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
                 {
-                    CreatureInfo const *cinfo = this->ToCreature()->GetCreatureInfo();
+                    CreatureTemplate const *cinfo = this->ToCreature()->GetCreatureInfo();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         //to prevent client crash
@@ -15707,7 +15707,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
                 {
-                    CreatureInfo const *cinfo = this->ToCreature()->GetCreatureInfo();
+                    CreatureTemplate const *cinfo = this->ToCreature()->GetCreatureInfo();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->unit_class));
@@ -15746,7 +15746,7 @@ void Unit::RestoreFaction()
             }
         }
 
-        if (CreatureInfo const *cinfo = this->ToCreature()->GetCreatureInfo())  // normal creature
+        if (CreatureTemplate const *cinfo = this->ToCreature()->GetCreatureInfo())  // normal creature
         {
             FactionTemplateEntry const *faction = getFactionTemplateEntry();
             setFaction((faction && faction->friendlyMask & 0x004) ? cinfo->faction_H : cinfo->faction_A);

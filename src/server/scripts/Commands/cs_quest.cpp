@@ -205,7 +205,7 @@ public:
             }
             else if (creature > 0)
             {
-                if (CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(creature))
+                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
                     for (uint16 z = 0; z < creaturecount; ++z)
                         player->KilledMonster(cInfo,0);
             }

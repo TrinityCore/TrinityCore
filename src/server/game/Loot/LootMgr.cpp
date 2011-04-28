@@ -1424,20 +1424,19 @@ void LoadLootTemplates_Creature()
     LootIdSet ids_set, ids_setUsed;
     uint32 count = LootTemplates_Creature.LoadAndCollectLootIds(ids_set);
 
-    // remove real entries and check existence loot
-    for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
+    // Remove real entries and check loot existence
+    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
     {
-        if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
+        if (uint32 lootid = itr->second.lootid)
         {
-            if (uint32 lootid = cInfo->lootid)
-            {
-                if (ids_set.find(lootid) == ids_set.end())
-                    LootTemplates_Creature.ReportNotExistedId(lootid);
-                else
-                    ids_setUsed.insert(lootid);
-            }
+            if (ids_set.find(lootid) == ids_set.end())
+                LootTemplates_Creature.ReportNotExistedId(lootid);
+            else
+                ids_setUsed.insert(lootid);
         }
     }
+
     for (LootIdSet::const_iterator itr = ids_setUsed.begin(); itr != ids_setUsed.end(); ++itr)
         ids_set.erase(*itr);
 
@@ -1614,20 +1613,19 @@ void LoadLootTemplates_Pickpocketing()
     LootIdSet ids_set, ids_setUsed;
     uint32 count = LootTemplates_Pickpocketing.LoadAndCollectLootIds(ids_set);
 
-    // remove real entries and check existence loot
-    for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
+    // Remove real entries and check loot existence
+    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
     {
-        if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
+        if (uint32 lootid = itr->second.pickpocketLootId)
         {
-            if (uint32 lootid = cInfo->pickpocketLootId)
-            {
-                if (ids_set.find(lootid) == ids_set.end())
-                    LootTemplates_Pickpocketing.ReportNotExistedId(lootid);
-                else
-                    ids_setUsed.insert(lootid);
-            }
+            if (ids_set.find(lootid) == ids_set.end())
+                LootTemplates_Pickpocketing.ReportNotExistedId(lootid);
+            else
+                ids_setUsed.insert(lootid);
         }
     }
+
     for (LootIdSet::const_iterator itr = ids_setUsed.begin(); itr != ids_setUsed.end(); ++itr)
         ids_set.erase(*itr);
 
@@ -1709,19 +1707,18 @@ void LoadLootTemplates_Skinning()
     uint32 count = LootTemplates_Skinning.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
+    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
     {
-        if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
+        if (uint32 lootid = itr->second.SkinLootId)
         {
-            if (uint32 lootid = cInfo->SkinLootId)
-            {
-                if (ids_set.find(lootid) == ids_set.end())
-                    LootTemplates_Skinning.ReportNotExistedId(lootid);
-                else
-                    ids_setUsed.insert(lootid);
-            }
+            if (ids_set.find(lootid) == ids_set.end())
+                LootTemplates_Skinning.ReportNotExistedId(lootid);
+            else
+                ids_setUsed.insert(lootid);
         }
     }
+
     for (LootIdSet::const_iterator itr = ids_setUsed.begin(); itr != ids_setUsed.end(); ++itr)
         ids_set.erase(*itr);
 

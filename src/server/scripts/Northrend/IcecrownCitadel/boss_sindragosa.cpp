@@ -1092,7 +1092,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!ObjectMgr::GetCreatureTemplate(NPC_ICE_TOMB))
+                if (!sObjectMgr->GetCreatureTemplate(NPC_ICE_TOMB))
                     return false;
                 if (!sObjectMgr->GetGameObjectTemplate(GO_ICE_BLOCK))
                     return false;

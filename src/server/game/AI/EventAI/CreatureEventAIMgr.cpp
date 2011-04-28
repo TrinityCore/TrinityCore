@@ -204,7 +204,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         temp.raw.param4 = fields[9].GetUInt32();
 
         //Creature does not exist in database
-        if (!sCreatureStorage.LookupEntry<CreatureInfo>(temp.creature_id))
+        if (!sObjectMgr->GetCreatureTemplate(temp.creature_id))
         {
             sLog->outErrorDb("CreatureEventAI:  Event %u has script for non-existing creature entry (%u), skipping.", i, temp.creature_id);
             continue;
@@ -322,7 +322,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     sLog->outErrorDb("CreatureEventAI:  Creature %u are using event(%u) with param2 < param1 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                 break;
             case EVENT_T_SUMMONED_UNIT:
-                if (!sCreatureStorage.LookupEntry<CreatureInfo>(temp.summon_unit.creatureId))
+                if (!sObjectMgr->GetCreatureTemplate(temp.summon_unit.creatureId))
                     sLog->outErrorDb("CreatureEventAI:  Creature %u are using event(%u) with not existed creature template id (%u) in param1, skipped.", temp.creature_id, i, temp.summon_unit.creatureId);
                 if (temp.summon_unit.repeatMax < temp.summon_unit.repeatMin)
                     sLog->outErrorDb("CreatureEventAI:  Creature %u are using event(%u) with param2 < param1 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
@@ -453,7 +453,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
                     if (action.morph.creatureId !=0 || action.morph.modelId !=0)
                     {
-                        if (action.morph.creatureId && !sCreatureStorage.LookupEntry<CreatureInfo>(action.morph.creatureId))
+                        if (action.morph.creatureId && !sObjectMgr->GetCreatureTemplate(action.morph.creatureId))
                         {
                             sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant Creature entry %u.", i, j+1, action.morph.creatureId);
                             action.morph.creatureId = 0;
@@ -524,7 +524,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
                 }
                 case ACTION_T_SUMMON:
-                    if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.summon.creatureId))
+                    if (!sObjectMgr->GetCreatureTemplate(action.summon.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.summon.creatureId);
 
                     if (action.summon.target >= TARGET_T_END)
@@ -554,7 +554,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
 
                     break;
                 case ACTION_T_CAST_EVENT:
-                    if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.cast_event.creatureId))
+                    if (!sObjectMgr->GetCreatureTemplate(action.cast_event.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.cast_event.creatureId);
                     if (!sSpellStore.LookupEntry(action.cast_event.spellId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast_event.spellId);
@@ -592,7 +592,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent Quest entry %u.", i, j+1, action.quest_event_all.questId);
                     break;
                 case ACTION_T_CAST_EVENT_ALL:
-                    if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.cast_event_all.creatureId))
+                    if (!sObjectMgr->GetCreatureTemplate(action.cast_event_all.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.cast_event_all.creatureId);
                     if (!sSpellStore.LookupEntry(action.cast_event_all.spellId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast_event_all.spellId);
@@ -624,7 +624,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     }
                     break;
                 case ACTION_T_SUMMON_ID:
-                    if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.summon_id.creatureId))
+                    if (!sObjectMgr->GetCreatureTemplate(action.summon_id.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant creature entry %u.", i, j+1, action.summon_id.creatureId);
                     if (action.summon_id.target >= TARGET_T_END)
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
@@ -632,7 +632,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u summons missing CreatureEventAI_Summon %u", i, j+1, action.summon_id.spawnId);
                     break;
                 case ACTION_T_KILLED_MONSTER:
-                    if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.killed_monster.creatureId))
+                    if (!sObjectMgr->GetCreatureTemplate(action.killed_monster.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant creature entry %u.", i, j+1, action.killed_monster.creatureId);
                     if (action.killed_monster.target >= TARGET_T_END)
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
@@ -650,7 +650,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
                     break;
                 case ACTION_T_UPDATE_TEMPLATE:
-                    if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.update_template.creatureId))
+                    if (!sObjectMgr->GetCreatureTemplate(action.update_template.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant creature entry %u.", i, j+1, action.update_template.creatureId);
                     break;
                 case ACTION_T_SET_SHEATH:
@@ -673,7 +673,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_MOUNT_TO_ENTRY_OR_MODEL:
                     if (action.mount.creatureId != 0 || action.mount.modelId != 0)
                     {
-                        if (action.mount.creatureId && !sCreatureStorage.LookupEntry<CreatureInfo>(action.mount.creatureId))
+                        if (action.mount.creatureId && !sObjectMgr->GetCreatureTemplate(action.mount.creatureId))
                         {
                             sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses nonexistent Creature entry %u.", i, j+1, action.mount.creatureId);
                             action.morph.creatureId = 0;
@@ -731,16 +731,13 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         m_CreatureEventAI_Event_Map[creature_id].push_back(temp);
         ++count;
 
-        if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(temp.creature_id))
+        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(temp.creature_id))
         {
-            if (!cInfo->AIName || !cInfo->AIName[0])
+            if (!cInfo->AIName.empty())
             {
-                //sLog->outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but its AIName is empty. Set to EventAI as default.", cInfo->Entry);
-                size_t len = strlen("EventAI")+1;
-                const_cast<CreatureInfo*>(cInfo)->AIName = new char[len];
-                strncpy(const_cast<char*>(cInfo->AIName), "EventAI", len);
+                const_cast<CreatureTemplate*>(cInfo)->AIName = "EventAI";
             }
-            if (strcmp(cInfo->AIName, "EventAI"))
+            if (cInfo->AIName.compare("EventAI"))
             {
                 //sLog->outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it has AIName %s. EventAI script will be overriden.", cInfo->Entry, cInfo->AIName);
             }

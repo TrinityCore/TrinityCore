@@ -82,7 +82,7 @@ VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extend
     return NULL;
 }
 
-uint32 CreatureInfo::GetRandomValidModelId() const
+uint32 CreatureTemplate::GetRandomValidModelId() const
 {
     uint8 c = 0;
     uint32 modelIDs[4];
@@ -95,7 +95,7 @@ uint32 CreatureInfo::GetRandomValidModelId() const
     return ((c>0) ? modelIDs[urand(0,c-1)] : 0);
 }
 
-uint32 CreatureInfo::GetFirstValidModelId() const
+uint32 CreatureTemplate::GetFirstValidModelId() const
 {
     if (Modelid1) return Modelid1;
     if (Modelid2) return Modelid2;
@@ -254,7 +254,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
  */
 bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data)
 {
-    CreatureInfo const *normalInfo = ObjectMgr::GetCreatureTemplate(Entry);
+    CreatureTemplate const *normalInfo = sObjectMgr->GetCreatureTemplate(Entry);
     if (!normalInfo)
     {
         sLog->outErrorDb("Creature::InitEntry creature entry %u does not exist.", Entry);
@@ -262,13 +262,13 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data
     }
 
     // get difficulty 1 mode entry
-    CreatureInfo const *cinfo = normalInfo;
+    CreatureTemplate const *cinfo = normalInfo;
     for (uint8 diff = uint8(GetMap()->GetSpawnMode()); diff > 0;)
     {
         // we already have valid Map pointer for current creature!
         if (normalInfo->DifficultyEntry[diff - 1])
         {
-            cinfo = ObjectMgr::GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
+            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
             if (cinfo)
                 break;                                      // template found
 
@@ -347,7 +347,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
     if (!InitEntry(Entry,team,data))
         return false;
 
-    CreatureInfo const* cInfo = GetCreatureInfo();
+    CreatureTemplate const* cInfo = GetCreatureInfo();
 
     m_regenHealth = cInfo->RegenHealth;
 
@@ -382,12 +382,12 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
     float armor = (float)stats->GenerateArmor(cInfo); // TODO: Why is this treated as uint32 when it's a float?
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, armor);
-    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance1));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance2));
-    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->resistance3));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(cInfo->resistance4));
-    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(cInfo->resistance5));
-    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(cInfo->resistance6));
+    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FIRE]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_NATURE]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FROST]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_SHADOW]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_ARCANE]));
 
     SetCanModifyStats(true);
     UpdateAllStats();
@@ -739,7 +739,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
     SetMap(map);
     SetPhaseMask(phaseMask,false);
 
-    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(Entry);
+    CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(Entry);
     if (!cinfo)
     {
         sLog->outErrorDb("Creature::Create(): creature template (guidlow: %u, entry: %u) does not exist.", guidlow, Entry);
@@ -1048,7 +1048,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     uint32 dynamicflags = GetUInt32Value(UNIT_DYNAMIC_FLAGS);
 
     // check if it's a custom model and if not, use 0 for displayId
-    CreatureInfo const *cinfo = GetCreatureInfo();
+    CreatureTemplate const *cinfo = GetCreatureInfo();
     if (cinfo)
     {
         if (displayId == cinfo->Modelid1 || displayId == cinfo->Modelid2 ||
@@ -1124,7 +1124,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     WorldDatabase.CommitTransaction(trans);
 }
 
-void Creature::SelectLevel(const CreatureInfo *cinfo)
+void Creature::SelectLevel(const CreatureTemplate *cinfo)
 {
     uint32 rank = isPet()? 0 : cinfo->rank;
 
@@ -1239,7 +1239,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint3
             return false;
     }
 
-    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(Entry);
+    CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(Entry);
     if (!cinfo)
     {
         sLog->outErrorDb("Creature::CreateFromProto(): creature template (guidlow: %u, entry: %u) does not exist.", guidlow, Entry);
@@ -1542,7 +1542,7 @@ void Creature::setDeathState(DeathState s)
         SetFullHealth();
         SetLootRecipient(NULL);
         ResetPlayerDamageReq();
-        CreatureInfo const *cinfo = GetCreatureInfo();
+        CreatureTemplate const *cinfo = GetCreatureInfo();
         AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         if (GetCreatureInfo()->InhabitType & INHABIT_AIR)
             AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
@@ -1604,7 +1604,7 @@ void Creature::Respawn(bool force)
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
 
-        CreatureInfo const *cinfo = GetCreatureInfo();
+        CreatureTemplate const *cinfo = GetCreatureInfo();
         SelectLevel(cinfo);
 
         if (m_isDeadByDefault)
@@ -2255,7 +2255,7 @@ void Creature::AllLootRemovedFromCorpse()
             return;
 
         float decayRate;
-        CreatureInfo const *cinfo = GetCreatureInfo();
+        CreatureTemplate const *cinfo = GetCreatureInfo();
 
         decayRate = sWorld->getRate(RATE_CORPSE_DECAY_LOOTED);
         uint32 diff = uint32((m_corpseRemoveTime - now) * decayRate);
@@ -2285,7 +2285,7 @@ uint8 Creature::getLevelForTarget(WorldObject const* target) const
 
 std::string Creature::GetAIName() const
 {
-    return ObjectMgr::GetCreatureTemplate(GetEntry())->AIName;
+    return sObjectMgr->GetCreatureTemplate(GetEntry())->AIName;
 }
 
 std::string Creature::GetScriptName() const
@@ -2295,7 +2295,7 @@ std::string Creature::GetScriptName() const
 
 uint32 Creature::GetScriptId() const
 {
-    return ObjectMgr::GetCreatureTemplate(GetEntry())->ScriptID;
+    return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
@@ -2416,6 +2416,6 @@ void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 
 bool Creature::IsDungeonBoss() const
 {
-    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(GetEntry());
+    CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(GetEntry());
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }

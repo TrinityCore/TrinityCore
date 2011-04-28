@@ -1264,7 +1264,7 @@ class SmartAIMgr
         }
         inline bool IsCreatureValid(SmartScriptHolder e, uint32 entry)
         {
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(entry))
+            if (!sObjectMgr->GetCreatureTemplate(entry))
             {
                 sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Creature entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
