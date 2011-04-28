@@ -17,7 +17,6 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
 #include "CreatureTextMgr.h"
 #include "ObjectMgr.h"
 

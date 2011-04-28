@@ -27,7 +27,6 @@
 #include "SpellAuraDefines.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
-#include "SQLStorage.h"
 
 #include "UnorderedMap.h"
 

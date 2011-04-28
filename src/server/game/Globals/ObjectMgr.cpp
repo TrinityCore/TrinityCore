@@ -18,8 +18,6 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
-#include "SQLStorageImpl.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
@@ -533,15 +531,6 @@ void ObjectMgr::LoadPointOfInterestLocales()
     sLog->outString(">> Loaded %lu points_of_interest locale strings in %u ms", (unsigned long)mPointOfInterestLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
-
-struct SQLCreatureLoader : public SQLStorageLoaderBase<SQLCreatureLoader>
-{
-    template<class D>
-    void convert_from_str(uint32 /*field_pos*/, char *src, D &dst)
-    {
-        dst = D(sObjectMgr->GetScriptId(src));
-    }
-};
 
 void ObjectMgr::LoadCreatureTemplates()
 {
@@ -2274,15 +2263,6 @@ void ObjectMgr::LoadItemLocales()
     sLog->outString(">> Loaded %lu Item locale strings in %u ms", (unsigned long)mItemLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
-
-struct SQLItemLoader : public SQLStorageLoaderBase<SQLItemLoader>
-{
-    template<class D>
-    void convert_from_str(uint32 /*field_pos*/, char *src, D &dst)
-    {
-        dst = D(sObjectMgr->GetScriptId(src));
-    }
-};
 
 void ObjectMgr::LoadItemTemplates()
 {
@@ -5856,15 +5836,6 @@ void ObjectMgr::LoadPageTextLocales()
     sLog->outString();
 }
 
-struct SQLInstanceLoader : public SQLStorageLoaderBase<SQLInstanceLoader>
-{
-    template<class D>
-    void convert_from_str(uint32 /*field_pos*/, char *src, D &dst)
-    {
-        dst = D(sObjectMgr->GetScriptId(src));
-    }
-};
-
 void ObjectMgr::LoadInstanceTemplate()
 {
     uint32 oldMSTime = getMSTime();
@@ -7166,15 +7137,6 @@ void ObjectMgr::LoadGameObjectLocales()
     sLog->outString(">> Loaded %lu gameobject locale strings in %u ms", (unsigned long)mGameObjectLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
-
-struct SQLGameObjectLoader : public SQLStorageLoaderBase<SQLGameObjectLoader>
-{
-    template<class D>
-    void convert_from_str(uint32 /*field_pos*/, char *src, D &dst)
-    {
-        dst = D(sObjectMgr->GetScriptId(src));
-    }
-};
 
 inline void CheckGOLockId(GameObjectTemplate* goInfo,uint32 dataN,uint32 N)
 {

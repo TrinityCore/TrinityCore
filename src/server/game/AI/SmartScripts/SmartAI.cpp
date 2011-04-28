@@ -16,7 +16,6 @@
  */
 
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
 #include "ObjectMgr.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
