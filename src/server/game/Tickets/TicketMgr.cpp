@@ -19,8 +19,6 @@
 #include "Common.h"
 #include "TicketMgr.h"
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
-#include "SQLStorageImpl.h"
 #include "Log.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"

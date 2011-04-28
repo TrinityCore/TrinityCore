@@ -23,7 +23,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
 #include "DBCStores.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"

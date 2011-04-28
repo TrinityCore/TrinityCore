@@ -18,7 +18,6 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
 #include "CreatureEventAI.h"
 #include "CreatureEventAIMgr.h"
 #include "ObjectMgr.h"

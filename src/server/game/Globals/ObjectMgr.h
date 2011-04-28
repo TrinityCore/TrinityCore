@@ -36,7 +36,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include <ace/Singleton.h>
-#include "SQLStorage.h"
 #include "Vehicle.h"
 #include <string>
 #include <map>
