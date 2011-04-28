@@ -281,12 +281,14 @@ struct CreatureDataAddon
 
 struct CreatureModelInfo
 {
-    uint32 modelid;
     float bounding_radius;
     float combat_reach;
     uint8 gender;
     uint32 modelid_other_gender;
 };
+
+// Benchmarked: Faster than std::map (insert/find)
+typedef UNORDERED_MAP<uint16, CreatureModelInfo> CreatureModelContainer;
 
 enum InhabitTypeValues
 {
