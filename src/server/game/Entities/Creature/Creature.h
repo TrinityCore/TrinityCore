@@ -263,14 +263,8 @@ struct CreatureData
     bool dbData;
 };
 
-struct CreatureDataAddonAura
-{
-    uint32 spell_id;
-    uint8 effectMask;
-};
-
-// from `creature_addon` table
-struct CreatureDataAddon
+// `creature_addon` table
+struct CreatureAddon
 {
     uint32 guidOrEntry;
     uint32 path_id;
@@ -278,8 +272,10 @@ struct CreatureDataAddon
     uint32 bytes1;
     uint32 bytes2;
     uint32 emote;
-    CreatureDataAddonAura const* auras;                     // loaded as char* "spell1 eff1 spell2 eff2 ... "
+    std::vector<uint32> auras;
 };
+
+typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;
 
 struct CreatureModelInfo
 {
@@ -533,7 +529,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         CreatureInfo const *GetCreatureInfo() const { return m_creatureInfo; }
         CreatureData const *GetCreatureData() const { return m_creatureData; }
-        CreatureDataAddon const* GetCreatureAddon() const;
+        CreatureAddon const* GetCreatureAddon() const;
 
         std::string GetAIName() const;
         std::string GetScriptName() const;

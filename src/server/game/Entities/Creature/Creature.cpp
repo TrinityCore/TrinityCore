@@ -2025,11 +2025,11 @@ bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
         return pVictim->IsInDist(&m_homePosition, dist);
 }
 
-CreatureDataAddon const* Creature::GetCreatureAddon() const
+CreatureAddon const* Creature::GetCreatureAddon() const
 {
     if (m_DBTableGuid)
     {
-        if (CreatureDataAddon const* addon = ObjectMgr::GetCreatureAddon(m_DBTableGuid))
+        if (CreatureAddon const* addon = sObjectMgr->GetCreatureAddon(m_DBTableGuid))
             return addon;
     }
 
@@ -2040,7 +2040,7 @@ CreatureDataAddon const* Creature::GetCreatureAddon() const
 //creature_addon table
 bool Creature::LoadCreaturesAddon(bool reload)
 {
-    CreatureDataAddon const *cainfo = GetCreatureAddon();
+    CreatureAddon const *cainfo = GetCreatureAddon();
     if (!cainfo)
         return false;
 
@@ -2083,28 +2083,28 @@ bool Creature::LoadCreaturesAddon(bool reload)
     if (cainfo->path_id != 0)
         m_path_id = cainfo->path_id;
 
-    if (cainfo->auras)
+    if (!cainfo->auras.empty())
     {
-        for (CreatureDataAddonAura const* cAura = cainfo->auras; cAura->spell_id; ++cAura)
+        for (std::vector<uint32>::const_iterator itr = cainfo->auras.begin(); itr != cainfo->auras.end(); ++itr)
         {
-            SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(cAura->spell_id);
+            SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(*itr);
             if (!AdditionalSpellInfo)
             {
-                sLog->outErrorDb("Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.",GetGUIDLow(),GetEntry(),cAura->spell_id);
+                sLog->outErrorDb("Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
                 continue;
             }
 
             // skip already applied aura
-            if (HasAura(cAura->spell_id))
+            if (HasAura(*itr))
             {
                 if (!reload)
-                    sLog->outErrorDb("Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.",GetGUIDLow(),GetEntry(),cAura->spell_id);
+                    sLog->outErrorDb("Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
 
                 continue;
             }
 
-            AddAura(AdditionalSpellInfo, cAura->effectMask, this);
-            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u with AuraEffectMask %u added to creature (GUID: %u Entry: %u)", cAura->spell_id, cAura->effectMask,GetGUIDLow(),GetEntry());
+            AddAura(*itr, this);
+            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
         }
     }
     return true;
