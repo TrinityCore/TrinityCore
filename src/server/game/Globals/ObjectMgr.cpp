@@ -687,8 +687,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid1);
-        if (!minfo)
+        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid1);
+        if (!modelInfo)
             sLog->outErrorDb("No model data exist for `Modelid1` = %u listed by creature (Entry: %u).", cInfo->Modelid1, cInfo->Entry);
     }
 
@@ -703,8 +703,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid2);
-        if (!minfo)
+        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid2);;
+        if (!modelInfo)
             sLog->outErrorDb("No model data exist for `Modelid2` = %u listed by creature (Entry: %u).", cInfo->Modelid2, cInfo->Entry);
     }
 
@@ -719,8 +719,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid3);
-        if (!minfo)
+        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid3);
+        if (!modelInfo)
             sLog->outErrorDb("No model data exist for `Modelid3` = %u listed by creature (Entry: %u).", cInfo->Modelid3, cInfo->Entry);
     }
 
@@ -735,8 +735,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid4);
-        if (!minfo)
+        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid4);;
+        if (!modelInfo)
             sLog->outErrorDb("No model data exist for `Modelid4` = %u listed by creature (Entry: %u).", cInfo->Modelid4, cInfo->Entry);
     }
 
@@ -1073,9 +1073,13 @@ void ObjectMgr::LoadEquipmentTemplates()
     sLog->outString();
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelid)
+CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId)
 {
-    return sCreatureModelStorage.LookupEntry<CreatureModelInfo>(modelid);
+    CreatureModelContainer::const_iterator itr = CreatureModelStore.find(modelId);
+    if (itr != CreatureModelStore.end())
+        return &(itr->second);
+
+    return NULL;
 }
 
 uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureInfo *cinfo, const CreatureData *data /*= NULL*/)
@@ -1112,9 +1116,9 @@ void ObjectMgr::ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, 
     }
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 display_id)
+CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 &displayID)
 {
-    CreatureModelInfo const *minfo = GetCreatureModelInfo(display_id);
+    CreatureModelInfo const* minfo = GetCreatureModelInfo(displayID);
     if (!minfo)
         return NULL;
 
@@ -1124,60 +1128,76 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 display_
         CreatureModelInfo const *minfo_tmp = GetCreatureModelInfo(minfo->modelid_other_gender);
         if (!minfo_tmp)
         {
-            sLog->outErrorDb("Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", minfo->modelid, minfo->modelid_other_gender);
-            return minfo;                                   // not fatal, just use the previous one
+            sLog->outErrorDb("Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", displayID, minfo->modelid_other_gender);
         }
         else
+        {
+            // Model ID changed
+            displayID = minfo->modelid_other_gender;
             return minfo_tmp;
+        }
     }
-    else
-        return minfo;
+
+    return minfo;
 }
 
 void ObjectMgr::LoadCreatureModelInfo()
 {
     uint32 oldMSTime = getMSTime();
 
-    sCreatureModelStorage.Load();
+    QueryResult result = WorldDatabase.Query("SELECT modelid, bounding_radius, combat_reach, gender, modelid_other_gender FROM creature_model_info");
 
-    // post processing
-    for (uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
+    if (!result)
     {
-        CreatureModelInfo const *minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(i);
-        if (!minfo)
-            continue;
-
-        if (!sCreatureDisplayInfoStore.LookupEntry(minfo->modelid))
-            sLog->outErrorDb("Table `creature_model_info` has model for not existed display id (%u).", minfo->modelid);
-
-        if (minfo->gender > GENDER_NONE)
-        {
-            sLog->outErrorDb("Table `creature_model_info` has wrong gender (%u) for display id (%u).", uint32(minfo->gender), minfo->modelid);
-            const_cast<CreatureModelInfo*>(minfo)->gender = GENDER_MALE;
-        }
-
-        if (minfo->modelid_other_gender && !sCreatureDisplayInfoStore.LookupEntry(minfo->modelid_other_gender))
-        {
-            sLog->outErrorDb("Table `creature_model_info` has not existed alt.gender model (%u) for existed display id (%u).", minfo->modelid_other_gender, minfo->modelid);
-            const_cast<CreatureModelInfo*>(minfo)->modelid_other_gender = 0;
-        }
+        sLog->outString(">> Loaded 0 creature model definitions. DB table `creature_model_info` is empty.");
+        sLog->outString();
+        return;
     }
 
-    // check if combat_reach is valid
-    for (uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
+    uint32 count = 0;
+
+    do
     {
-        CreatureModelInfo const* mInfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(i);
-        if (!mInfo)
-            continue;
+        Field *fields = result->Fetch();
 
-        if (mInfo->combat_reach < 0.1f)
+        uint32 modelId = fields[0].GetUInt32();
+
+        CreatureModelInfo modelInfo;
+
+        modelInfo.bounding_radius      = fields[1].GetFloat();
+        modelInfo.combat_reach         = fields[2].GetFloat();
+        modelInfo.gender               = fields[3].GetUInt8();
+        modelInfo.modelid_other_gender = fields[4].GetUInt32();
+
+        // Checks
+
+        if (!sCreatureDisplayInfoStore.LookupEntry(modelId))
+            sLog->outErrorDb("Table `creature_model_info` has model for not existed display id (%u).", modelId);
+
+        if (modelInfo.gender > GENDER_NONE)
         {
-            //sLog->outErrorDb("Creature model (Entry: %u) has invalid combat reach (%f), setting it to 0.5", mInfo->modelid, mInfo->combat_reach);
-            const_cast<CreatureModelInfo*>(mInfo)->combat_reach = DEFAULT_COMBAT_REACH;
+            sLog->outErrorDb("Table `creature_model_info` has wrong gender (%u) for display id (%u).", uint32(modelInfo.gender), modelId);
+            modelInfo.gender = GENDER_MALE;
         }
-    }
 
-    sLog->outString(">> Loaded %u creature model based info in %u ms", sCreatureModelStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+        if (modelInfo.modelid_other_gender && !sCreatureDisplayInfoStore.LookupEntry(modelInfo.modelid_other_gender))
+        {
+            sLog->outErrorDb("Table `creature_model_info` has not existed alt.gender model (%u) for existed display id (%u).", modelInfo.modelid_other_gender, modelId);
+            modelInfo.modelid_other_gender = 0;
+        }
+
+        if (modelInfo.combat_reach < 0.1f)
+        {
+            modelInfo.combat_reach = DEFAULT_COMBAT_REACH;
+        }
+
+        CreatureModelStore[modelId] = modelInfo;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %u creature model based info in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -6141,9 +6161,8 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
         }
     }
 
+    // minfo is not actually used but the mount_id was updated
     CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(mount_id);
-    if (minfo)
-        mount_id = minfo->modelid;
 
     return mount_id;
 }

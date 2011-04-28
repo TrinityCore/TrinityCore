@@ -46,7 +46,6 @@
 extern SQLStorage sCreatureStorage;
 extern SQLStorage sCreatureDataAddonStorage;
 extern SQLStorage sCreatureInfoAddonStorage;
-extern SQLStorage sCreatureModelStorage;
 extern SQLStorage sEquipmentStorage;
 extern SQLStorage sGOStorage;
 extern SQLStorage sPageTextStore;
@@ -652,8 +651,8 @@ class ObjectMgr
         ArenaTeamMap::iterator GetArenaTeamMapEnd()   { return mArenaTeamMap.end(); }
 
         static CreatureInfo const *GetCreatureTemplate(uint32 id) { return sCreatureStorage.LookupEntry<CreatureInfo>(id); }
-        CreatureModelInfo const *GetCreatureModelInfo(uint32 modelid);
-        CreatureModelInfo const* GetCreatureModelRandomGender(uint32 display_id);
+        CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
+        CreatureModelInfo const* GetCreatureModelRandomGender(uint32 &displayID);
         uint32 ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data = NULL);
         static void ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);
@@ -1383,6 +1382,7 @@ class ObjectMgr
 
         MapObjectGuids mMapObjectGuids;
         CreatureDataMap mCreatureDataMap;
+        CreatureModelContainer CreatureModelStore;
         LinkedRespawnMap mLinkedRespawnMap;
         CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;
