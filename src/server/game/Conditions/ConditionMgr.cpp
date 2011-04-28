@@ -1226,7 +1226,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             {
                 case SPELL_TARGET_TYPE_GAMEOBJECT:
                 {
-                    if (cond->mConditionValue2 && !sGOStorage.LookupEntry<GameObjectInfo>(cond->mConditionValue2))
+                    if (cond->mConditionValue2 && !sObjectMgr->GetGameObjectTemplate(cond->mConditionValue2))
                     {
                         sLog->outErrorDb("SpellTarget condition has non existing gameobject (%u) as target, skipped", cond->mConditionValue2);
                         return false;
@@ -1369,7 +1369,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_NEAR_GAMEOBJECT:
         {
-            if (!sGOStorage.LookupEntry<GameObjectInfo>(cond->mConditionValue1))
+            if (!sObjectMgr->GetGameObjectTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("NearGameObject condition has non existing gameobject template entry (%u), skipped", cond->mConditionValue1);
                 return false;

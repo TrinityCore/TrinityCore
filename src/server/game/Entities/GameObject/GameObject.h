@@ -38,15 +38,15 @@ class GameObjectAI;
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
 // from `gameobject_template`
-struct GameObjectInfo
+struct GameObjectTemplate
 {
-    uint32  id;
+    uint32  entry;
     uint32  type;
     uint32  displayId;
-    char   *name;
-    char   *IconName;
-    char   *castBarCaption;
-    char   *unk1;
+    const char* name;
+    const char* IconName;
+    const char* castBarCaption;
+    const char* unk1;
     uint32  faction;
     uint32  flags;
     float   size;
@@ -398,9 +398,11 @@ struct GameObjectInfo
         // not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct
         {
-            uint32 data[24];
+            uint32 data[MAX_GAMEOBJECT_DATA];
         } raw;
     };
+
+
     char const* AIName;
     uint32 ScriptId;
 
@@ -528,6 +530,9 @@ struct GameObjectInfo
     }
 };
 
+// Benchmarked: Faster than std::map (insert/find)
+typedef UNORDERED_MAP<uint32, GameObjectTemplate> GameObjectTemplateContainer;
+
 class OPvPCapturePoint;
 
 union GameObjectValue
@@ -620,7 +625,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
-        GameObjectInfo const* GetGOInfo() const { return m_goInfo; }
+        GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
         GameObjectValue * GetGOValue() const { return m_goValue; }
 
@@ -791,7 +796,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         ChairSlotAndUser ChairListSlots;
 
         uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
-        GameObjectInfo const* m_goInfo;
+        GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
 

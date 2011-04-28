@@ -213,12 +213,12 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
 /// Only _static_ data send in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
 {
-    uint32 entryID;
-    recv_data >> entryID;
+    uint32 entry;
+    recv_data >> entry;
     uint64 guid;
     recv_data >> guid;
 
-    const GameObjectInfo *info = ObjectMgr::GetGameObjectInfo(entryID);
+    const GameObjectTemplate *info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
     {
         std::string Name;
@@ -232,15 +232,15 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(entryID))
+            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(entry))
             {
                 sObjectMgr->GetLocaleString(gl->Name, loc_idx, Name);
                 sObjectMgr->GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
             }
         }
-        sLog->outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name, entryID);
+        sLog->outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name, entry);
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 150);
-        data << uint32(entryID);
+        data << uint32(entry);
         data << uint32(info->type);
         data << uint32(info->displayId);
         data << Name;
@@ -258,9 +258,9 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
     else
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-            GUID_LOPART(guid), entryID);
+            GUID_LOPART(guid), entry);
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4);
-        data << uint32(entryID | 0x80000000);
+        data << uint32(entry | 0x80000000);
         SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }

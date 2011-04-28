@@ -683,7 +683,7 @@ void PoolMgr::LoadFromDB()
                     continue;
                 }
 
-                GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(data->id);
+                GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(data->id);
                 if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
                     goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
                     goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
