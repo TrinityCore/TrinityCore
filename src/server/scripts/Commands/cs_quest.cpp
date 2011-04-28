@@ -76,18 +76,14 @@ public:
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
-        {
-            ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
-            if (!pProto)
-                continue;
+        ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
+        ItemTemplateContainer::const_iterator result = find_if(itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
 
-            if (pProto->StartQuest == entry)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, pProto->ItemId);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
+        if (result != itc->end())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, result->second.ItemId);
+            handler->SetSentErrorMessage(true);
+            return false;
         }
 
         // ok, normal (creature/GO starting) quest

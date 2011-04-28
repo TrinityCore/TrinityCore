@@ -261,7 +261,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (pItem->GetProto()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
+    if (pItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
     {
         _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, NULL, NULL);
         return;
@@ -285,7 +285,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
 
     sLog->outDetail("STORAGE: Item Query = %u", item);
 
-    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item);
+    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(item);
     if (pProto)
     {
         std::string Name        = pProto->Name1;
@@ -446,7 +446,7 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
     //sLog->outDetail("STORAGE: Read bag = %u, slot = %u", bag, slot);
     Item *pItem = _player->GetItemByPos(bag, slot);
 
-    if (pItem && pItem->GetProto()->PageText)
+    if (pItem && pItem->GetTemplate()->PageText)
     {
         WorldPacket data;
 
@@ -550,7 +550,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
             }
         }
 
-        ItemPrototype const *pProto = pItem->GetProto();
+        ItemTemplate const *pProto = pItem->GetTemplate();
         if (pProto)
         {
             if (pProto->SellPrice > 0)
@@ -764,7 +764,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
     {
         if (VendorItem const* crItem = vItems->GetItem(vendorslot))
         {
-            if (ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(crItem->item))
+            if (ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(crItem->item))
             {
                 if ((pProto->AllowableClass & _player->getClassMask()) == 0 && pProto->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
                     continue;
@@ -1058,7 +1058,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
         return;
     }
 
-    if (!(gift->GetProto()->Flags & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
+    if (!(gift->GetTemplate()->Flags & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
         return;
@@ -1109,7 +1109,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
     }
 
     // maybe not correct check  (it is better than nothing)
-    if (item->GetProto()->MaxCount>0)
+    if (item->GetTemplate()->MaxCount>0)
     {
         _player->SendEquipError(EQUIP_ERR_UNIQUE_CANT_BE_WRAPPED, item, NULL);
         return;
@@ -1167,7 +1167,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
     if (!itemTarget)                                         //missing item to socket
         return;
 
-    ItemPrototype const* itemProto = itemTarget->GetProto();
+    ItemTemplate const* itemProto = itemTarget->GetTemplate();
     if (!itemProto)
         return;
 
@@ -1180,7 +1180,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
 
     GemPropertiesEntry const *GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
-        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetProto()->GemProperties) : NULL;
+        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
 
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
     {
@@ -1225,7 +1225,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
             continue;
 
         // continue check for case when attempt add 2 similar unique equipped gems in one item.
-        ItemPrototype const* iGemProto = Gems[i]->GetProto();
+        ItemTemplate const* iGemProto = Gems[i]->GetTemplate();
 
         // unique item (for new and already placed bit removed enchantments
         if (iGemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
@@ -1270,14 +1270,14 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
                     if (Gems[j])
                     {
                         // new gem
-                        if (iGemProto->ItemLimitCategory == Gems[j]->GetProto()->ItemLimitCategory)
+                        if (iGemProto->ItemLimitCategory == Gems[j]->GetTemplate()->ItemLimitCategory)
                             ++limit_newcount;
                     }
                     else if (OldEnchants[j])
                     {
                         // existing gem
                         if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
-                            if (ItemPrototype const* jProto = ObjectMgr::GetItemPrototype(enchantEntry->GemID))
+                            if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(enchantEntry->GemID))
                                 if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
                                     ++limit_newcount;
                     }
@@ -1328,7 +1328,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
     {
         _player->ApplyEnchantment(itemTarget,BONUS_ENCHANTMENT_SLOT,false);
-        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetProto()->socketBonus : 0), 0, 0);
+        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0), 0, 0);
         _player->ApplyEnchantment(itemTarget,BONUS_ENCHANTMENT_SLOT,true);
         //it is not displayed, client has an inbuilt system to determine if the bonus is activated
     }

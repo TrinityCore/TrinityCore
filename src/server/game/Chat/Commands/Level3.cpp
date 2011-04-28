@@ -261,7 +261,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
 
     sLog->outDetail(GetTrinityString(LANG_ADDITEM), itemId, count);
 
-    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(itemId);
+    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemId);
     if (!pProto)
     {
         PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
@@ -333,48 +333,45 @@ bool ChatHandler::HandleAddItemSetCommand(const char *args)
         return false;
     }
 
-    Player* pl = m_session->GetPlayer();
-    Player* plTarget = getSelectedPlayer();
-    if (!plTarget)
-        plTarget = pl;
+    Player* player = m_session->GetPlayer();
+    Player* playerTarget = getSelectedPlayer();
+    if (!playerTarget)
+        playerTarget = player;
 
     sLog->outDetail(GetTrinityString(LANG_ADDITEMSET), itemsetId);
 
     bool found = false;
-    for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
+    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
-        if (!pProto)
-            continue;
-
-        if (pProto->ItemSet == itemsetId)
+        if (itr->second.ItemSet == itemsetId)
         {
             found = true;
             ItemPosCountVec dest;
-            uint8 msg = plTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, pProto->ItemId, 1);
+            uint8 msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.ItemId, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                Item* item = plTarget->StoreNewItem(dest, pProto->ItemId, true);
+                Item* item = playerTarget->StoreNewItem(dest, itr->second.ItemId, true);
 
                 // remove binding (let GM give it to another player later)
-                if (pl == plTarget)
+                if (player == playerTarget)
                     item->SetBinding(false);
 
-                pl->SendNewItem(item,1,false,true);
-                if (pl != plTarget)
-                    plTarget->SendNewItem(item,1,true,false);
+                player->SendNewItem(item, 1, false, true);
+                if (player != playerTarget)
+                    playerTarget->SendNewItem(item, 1, true, false);
             }
             else
             {
-                pl->SendEquipError(msg, NULL, NULL, pProto->ItemId);
-                PSendSysMessage(LANG_ITEM_CANNOT_CREATE, pProto->ItemId, 1);
+                player->SendEquipError(msg, NULL, NULL, itr->second.ItemId);
+                PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.ItemId, 1);
             }
         }
     }
 
     if (!found)
     {
-        PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND,itemsetId);
+        PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, itemsetId);
 
         SetSentErrorMessage(true);
         return false;
@@ -400,7 +397,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
         return false;
     }
 
-    ItemPrototype const* itemProto = ObjectMgr::GetItemPrototype(item_id);
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
     if (!itemProto)
     {
         PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, item_id);
@@ -759,17 +756,14 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in `item_template`
-    for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
+    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype >(id);
-        if (!pProto)
-            continue;
-
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
             uint8 uloc_idx = uint8(loc_idx);
-            if (ItemLocale const *il = sObjectMgr->GetItemLocale(pProto->ItemId))
+            if (ItemLocale const *il = sObjectMgr->GetItemLocale(itr->second.ItemId))
             {
                 if (il->Name.size() > uloc_idx && !il->Name[uloc_idx].empty())
                 {
@@ -784,9 +778,9 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
                         }
 
                         if (m_session)
-                            PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
+                            PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
                         else
-                            PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
+                            PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
 
                         if (!found)
                             found = true;
@@ -797,7 +791,7 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
             }
         }
 
-        std::string name = pProto->Name1;
+        std::string name = itr->second.Name1;
         if (name.empty())
             continue;
 
@@ -810,9 +804,9 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
             }
 
             if (m_session)
-                PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
+                PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
             else
-                PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
+                PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
 
             if (!found)
                 found = true;
@@ -4265,7 +4259,7 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
         if (!item_id)
             return false;
 
-        ItemPrototype const* item_proto = ObjectMgr::GetItemPrototype(item_id);
+        ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(item_id);
         if (!item_proto)
         {
             PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, item_id);
