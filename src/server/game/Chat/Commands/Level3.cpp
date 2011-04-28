@@ -684,7 +684,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
         return false;
     }
 
-    CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(cr_id);
+    CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(cr_id);
     if (!cInfo)
     {
         PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, cr_id);
@@ -1223,21 +1223,18 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
     uint32 count = 0;
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-    for (uint32 id = 0; id< sCreatureStorage.MaxEntry; ++id)
+    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
     {
-        CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo> (id);
-        if (!cInfo)
-            continue;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        uint32 id = itr->second.Entry;
+        uint8 localeIndex = GetSessionDbLocaleIndex();
+        if (localeIndex >= 0)
         {
-            uint8 uloc_idx = uint8(loc_idx);
-            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale (id))
+            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(id))
             {
-                if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty ())
+                if (cl->Name.size() > localeIndex && !cl->Name[localeIndex].empty ())
                 {
-                    std::string name = cl->Name[uloc_idx];
+                    std::string name = cl->Name[localeIndex];
 
                     if (Utf8FitTo (name, wnamepart))
                     {
@@ -1261,7 +1258,7 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
             }
         }
 
-        std::string name = cInfo->Name;
+        std::string name = itr->second.Name;
         if (name.empty ())
             continue;
 
