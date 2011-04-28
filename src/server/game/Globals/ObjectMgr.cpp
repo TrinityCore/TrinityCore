@@ -5600,27 +5600,51 @@ void ObjectMgr::LoadInstanceTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    SQLInstanceLoader loader;
-    loader.Load(sInstanceTemplate);
+    QueryResult result = WorldDatabase.Query("SELECT map, parent, script, allowMount FROM instance_template");
 
-    for (uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
+    if (!result)
     {
-        InstanceTemplate* temp = const_cast<InstanceTemplate*>(ObjectMgr::GetInstanceTemplate(i));
-        if (!temp)
-            continue;
-
-        if (!MapManager::IsValidMAP(temp->map))
-            sLog->outErrorDb("ObjectMgr::LoadInstanceTemplate: bad mapid %d for template!", temp->map);
-
-        if (!MapManager::IsValidMapCoord(temp->parent,temp->startLocX,temp->startLocY,temp->startLocZ,temp->startLocO))
-        {
-            sLog->outErrorDb("ObjectMgr::LoadInstanceTemplate: bad parent entrance coordinates for map id %d template!", temp->map);
-            temp->parent = 0;                               // will have wrong continent 0 parent, at least existed
-        }
+        sLog->outString(">> Loaded 0 instance templates. DB table `page_text` is empty!");
+        sLog->outString();
+        return;
     }
 
-    sLog->outString(">> Loaded %u Instance Template definitions in %u ms", sInstanceTemplate.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint16 mapID = fields[0].GetUInt16();
+
+        if (!MapManager::IsValidMAP(mapID, true))
+        {
+            sLog->outErrorDb("ObjectMgr::LoadInstanceTemplate: bad mapid %d for template!", mapID);
+            continue;
+        }
+
+        InstanceTemplate instanceTemplate;
+
+        instanceTemplate.AllowMount = fields[3].GetBool();
+        instanceTemplate.Parent = fields[1].GetUInt16();
+        instanceTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetCString());
+
+        InstanceTemplateStore[mapID] = instanceTemplate;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %u instance templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
+}
+
+InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)
+{
+    InstanceTemplateContainer::const_iterator itr = InstanceTemplateStore.find(uint16(mapID));
+    if (itr != InstanceTemplateStore.end())
+        return &(itr->second);
+
+    return NULL;
 }
 
 void ObjectMgr::LoadInstanceEncounters()
@@ -6608,12 +6632,12 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 
     if (mapEntry->IsDungeon())
     {
-        const InstanceTemplate *iTemplate = ObjectMgr::GetInstanceTemplate(Map);
+        const InstanceTemplate *iTemplate = sObjectMgr->GetInstanceTemplate(Map);
 
         if (!iTemplate)
             return NULL;
 
-        parentId = iTemplate->parent;
+        parentId = iTemplate->Parent;
         useParentDbValue = true;
     }
 
