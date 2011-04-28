@@ -561,6 +561,77 @@ void ObjectMgr::LoadCreatureTemplates()
     sLog->outString();
 }
 
+void ObjectMgr::LoadCreatureTemplateAddons()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0       1       2      3       4       5      6
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras FROM creature_template_addon");
+
+    if (!result)
+    {
+        sLog->outString(">> Loaded 0 creature template addon definitions. DB table `creature_addon` is empty.");
+        sLog->outString();
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        if (!sCreatureStorage.LookupEntry<CreatureInfo>(entry))
+        {
+            sLog->outErrorDb("Creature template (Entry: %u) does not exist but has a record in `creature_template_addon`", entry);
+            continue;
+        }
+
+        CreatureAddon creatureAddon;
+
+        creatureAddon.path_id = fields[1].GetUInt32();
+        creatureAddon.mount   = fields[2].GetUInt32();
+        creatureAddon.bytes1  = fields[3].GetUInt32();
+        creatureAddon.bytes2  = fields[4].GetUInt32();
+        creatureAddon.emote   = fields[5].GetUInt32();
+
+        Tokens tokens(fields[6].GetString(), ' ');
+        uint8 i = 0;
+        creatureAddon.auras.resize(tokens.size());
+        for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        {
+            SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(uint32(atol(*itr)));
+            if (!AdditionalSpellInfo)
+            {
+                sLog->outErrorDb("Creature (GUID: %u) has wrong spell %u defined in `auras` field in `creature_addon`.", entry, uint32(atol(*itr)));
+                continue;
+            }
+            creatureAddon.auras[i++] = uint32(atol(*itr));
+        }
+
+        if (creatureAddon.mount)
+        {
+            if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
+            {
+                sLog->outErrorDb("Creature (GUID: %u) has invalid displayInfoId (%u) for mount defined in `creature_addon`", entry, creatureAddon.mount);
+                creatureAddon.mount = 0;
+            }
+        }
+
+        if (!sEmotesStore.LookupEntry(creatureAddon.emote))
+            sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
+
+        CreatureTemplateAddonStore[entry] = creatureAddon;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %u creature template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
 void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 {
     if (!cInfo)
@@ -935,6 +1006,15 @@ CreatureAddon const * ObjectMgr::GetCreatureAddon(uint32 lowguid)
 {
     CreatureAddonContainer::const_iterator itr = CreatureAddonStore.find(lowguid);
     if (itr != CreatureAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
+}
+
+CreatureAddon const * ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
+{
+    CreatureAddonContainer::const_iterator itr = CreatureTemplateAddonStore.find(entry);
+    if (itr != CreatureTemplateAddonStore.end())
         return &(itr->second);
 
     return NULL;
