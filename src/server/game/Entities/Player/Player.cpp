@@ -6922,7 +6922,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         Map const *pMap = GetMap();
         if (pMap && pMap->IsDungeon())
         {
-            InstanceTemplate const *pInstance = ObjectMgr::GetInstanceTemplate(pMap->GetId());
+            InstanceTemplate const *pInstance = sObjectMgr->GetInstanceTemplate(pMap->GetId());
             if (pInstance)
             {
                 AccessRequirement const *pAccessRequirement = sObjectMgr->GetAccessRequirement(pMap->GetId(), ((InstanceMap*)pMap)->GetDifficulty());

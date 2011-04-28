@@ -49,7 +49,6 @@ extern SQLStorage sCreatureInfoAddonStorage;
 extern SQLStorage sEquipmentStorage;
 extern SQLStorage sGOStorage;
 extern SQLStorage sItemStorage;
-extern SQLStorage sInstanceTemplate;
 
 class Group;
 class Guild;
@@ -76,8 +75,11 @@ struct PageText
 #pragma pack(pop)
 #endif
 
-// Faster (insert/find) than UNORDERED_MAP in this case
+// Benchmarked: Faster than UNORDERED_MAP (insert/find)
 typedef std::map<uint32, PageText> PageTextContainer;
+
+// Benchmarked: Faster than std::map (insert/find)
+typedef UNORDERED_MAP<uint16, InstanceTemplate> InstanceTemplateContainer;
 
 struct GameTele
 {
@@ -698,10 +700,7 @@ class ObjectMgr
             return NULL;
         }
 
-        static InstanceTemplate const* GetInstanceTemplate(uint32 map)
-        {
-            return sInstanceTemplate.LookupEntry<InstanceTemplate>(map);
-        }
+        InstanceTemplate const* GetInstanceTemplate(uint32 mapID);
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
 
@@ -1367,6 +1366,7 @@ class ObjectMgr
         LocaleConstant DBCLocaleIndex;
 
         PageTextContainer PageTextStore;
+        InstanceTemplateContainer InstanceTemplateStore;
 
     private:
         void LoadScripts(ScriptsType type);
