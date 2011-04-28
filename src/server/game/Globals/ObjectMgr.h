@@ -45,7 +45,6 @@
 #include <functional>
 
 extern SQLStorage sCreatureStorage;
-extern SQLStorage sCreatureDataAddonStorage;
 extern SQLStorage sCreatureInfoAddonStorage;
 extern SQLStorage sGOStorage;
 
@@ -679,14 +678,11 @@ class ObjectMgr
         uint32 ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data = NULL);
         static void ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);
-        static CreatureDataAddon const *GetCreatureAddon(uint32 lowguid)
-        {
-            return sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(lowguid);
-        }
+        CreatureAddon const *GetCreatureAddon(uint32 lowguid);
 
-        static CreatureDataAddon const *GetCreatureTemplateAddon(uint32 entry)
+        static CreatureAddon const *GetCreatureTemplateAddon(uint32 entry)
         {
-            return sCreatureInfoAddonStorage.LookupEntry<CreatureDataAddon>(entry);
+            return sCreatureInfoAddonStorage.LookupEntry<CreatureAddon>(entry);
         }
 
         ItemTemplate const* GetItemTemplate(uint32 entry);
@@ -1371,8 +1367,6 @@ class ObjectMgr
     private:
         void LoadScripts(ScriptsType type);
         void CheckScripts(ScriptsType type, std::set<int32>& ids);
-        uint32 LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName);
-        void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelations& map, std::string table, bool starter, bool go);
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
@@ -1409,6 +1403,7 @@ class ObjectMgr
         MapObjectGuids mMapObjectGuids;
         CreatureDataMap mCreatureDataMap;
         CreatureModelContainer CreatureModelStore;
+        CreatureAddonContainer CreatureAddonStore;
         EquipmentInfoContainer EquipmentInfoStore;
         LinkedRespawnMap mLinkedRespawnMap;
         CreatureLocaleMap mCreatureLocaleMap;

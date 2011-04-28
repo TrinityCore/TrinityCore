@@ -860,165 +860,84 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
     const_cast<CreatureInfo*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);
 }
 
-void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr)
-{
-    // Now add the auras, format "spellid effectindex spellid effectindex..."
-    char *p,*s;
-    std::map<uint32, uint32> val;
-    s=p=(char*)reinterpret_cast<char const*>(addon->auras);
-    if (p)
-    {
-        uint32 currSpellId = 0;
-        bool spell = true;
-        while (p[0] != 0)
-        {
-            ++p;
-            if (p[0] == ' ' || p[0] == 0)
-            {
-                if (spell)
-                    currSpellId = atoi(s);
-                else
-                {
-                    uint8 eff = atoi(s);
-                    if (eff >=3)
-                    {
-                        sLog->outErrorDb("Creature (%s: %u) has wrong `auras` data in `%s`(too high aura effect: %d for spell: %d)",guidEntryStr,addon->guidOrEntry,table,eff,currSpellId);
-                    }
-                    val[currSpellId] |= 1<<eff;
-                }
-                spell = !spell;
-                if (p[0] == 0)
-                    break;
-                s=++p;
-            }
-        }
-
-        // free char* loaded memory
-        delete[] (char*)reinterpret_cast<char const*>(addon->auras);
-
-        // wrong list
-        if (!spell)
-        {
-            addon->auras = NULL;
-            sLog->outErrorDb("Creature (%s: %u) has wrong `auras` data in `%s`.",guidEntryStr,addon->guidOrEntry,table);
-            return;
-        }
-    }
-
-    // empty list
-    if (val.empty())
-    {
-        addon->auras = NULL;
-        return;
-    }
-
-    // replace by new structures array
-    const_cast<CreatureDataAddonAura*&>(addon->auras) = new CreatureDataAddonAura[val.size()+1];
-
-    uint32 i=0;
-    for (std::map<uint32, uint32>::iterator itr = val.begin(); itr != val.end();++itr)
-    {
-        CreatureDataAddonAura& cAura = const_cast<CreatureDataAddonAura&>(addon->auras[i]);
-        cAura.spell_id = itr->first;
-        cAura.effectMask  = itr->second;
-        if (cAura.effectMask > 7 || !cAura.effectMask)
-        {
-            sLog->outErrorDb("Creature (%s: %u) has wrong effect for spell %u in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,cAura.spell_id,table);
-            continue;
-        }
-        SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(cAura.spell_id);
-        if (!AdditionalSpellInfo)
-        {
-            sLog->outErrorDb("Creature (%s: %u) has wrong spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,cAura.spell_id,table);
-            continue;
-        }
-        for (uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
-        {
-            if ((1<<eff) & cAura.effectMask)
-            {
-                if (!AdditionalSpellInfo->Effect[eff] || !AdditionalSpellInfo->EffectApplyAuraName[eff])
-                {
-                    sLog->outErrorDb("Creature (%s: %u) has not aura effect %u of spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,eff,cAura.spell_id,table);
-                    continue;
-                }
-                else if (AdditionalSpellInfo->Effect[eff] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
-                {
-                    sLog->outErrorDb("Creature (%s: %u) has persistent area aura effect %u of spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,eff,cAura.spell_id,table);
-                    continue;
-                }
-            }
-        }
-
-        ++i;
-    }
-
-    // fill terminator element (after last added)
-    CreatureDataAddonAura& endAura = const_cast<CreatureDataAddonAura&>(addon->auras[i]);
-    endAura.spell_id   = 0;
-    endAura.effectMask = 0;
-}
-
-uint32 ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName)
-{
-    creatureaddons.Load();
-
-    // check data correctness and convert 'auras'
-    for (uint32 i = 1; i < creatureaddons.MaxEntry; ++i)
-    {
-        CreatureDataAddon const* addon = creatureaddons.LookupEntry<CreatureDataAddon>(i);
-        if (!addon)
-            continue;
-
-        if (addon->mount)
-        {
-            if (!sCreatureDisplayInfoStore.LookupEntry(addon->mount))
-            {
-                sLog->outErrorDb("Creature (%s %u) have invalid displayInfoId for mount (%u) defined in `%s`.", entryName, addon->guidOrEntry, addon->mount, creatureaddons.GetTableName());
-                const_cast<CreatureDataAddon*>(addon)->mount = 0;
-            }
-        }
-
-        if (!sEmotesStore.LookupEntry(addon->emote))
-            sLog->outErrorDb("Creature (%s %u) have invalid emote (%u) defined in `%s`.", entryName, addon->guidOrEntry, addon->emote, creatureaddons.GetTableName());
-
-        /*if (addon->move_flags & (MONSTER_MOVE_UNK1|MONSTER_MOVE_UNK4))
-        {
-            sLog->outErrorDb("Creature (%s %u) movement flags mask defined in `%s` include forbidden  flags (" I32FMT ") that can crash client, cleanup at load.", entryName, addon->guidOrEntry, creatureaddons.GetTableName(), (MONSTER_MOVE_UNK1|MONSTER_MOVE_UNK4));
-            const_cast<CreatureDataAddon*>(addon)->move_flags &= ~(MONSTER_MOVE_UNK1|MONSTER_MOVE_UNK4);
-        }*/
-
-        ConvertCreatureAddonAuras(const_cast<CreatureDataAddon*>(addon), creatureaddons.GetTableName(), entryName);
-    }
-
-    return creatureaddons.RecordCount;
-}
-
 void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    uint32 count = LoadCreatureAddons(sCreatureInfoAddonStorage,"Entry");
+    //                                                0       1       2      3       4       5      6
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras FROM creature_addon");
 
-    // check entry ids
-    for (uint32 i = 1; i < sCreatureInfoAddonStorage.MaxEntry; ++i)
-        if (CreatureDataAddon const* addon = sCreatureInfoAddonStorage.LookupEntry<CreatureDataAddon>(i))
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(addon->guidOrEntry))
-                sLog->outErrorDb("Creature (Entry: %u) does not exist but has a record in `%s`",addon->guidOrEntry, sCreatureInfoAddonStorage.GetTableName());
+    if (!result)
+    {
+        sLog->outString(">> Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
+        sLog->outString();
+        return;
+    }
 
-    sLog->outString(">> Loaded %u creature template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    uint32 count = 0;
+    do
+    {
+        Field *fields = result->Fetch();
 
-    sLog->outString("Loading Creature Addon Data...");
-    count = LoadCreatureAddons(sCreatureDataAddonStorage,"GUID");
+        uint32 guid = fields[0].GetUInt32();
 
-    // check entry ids
-    for (uint32 i = 1; i < sCreatureDataAddonStorage.MaxEntry; ++i)
-        if (CreatureDataAddon const* addon = sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(i))
-            if (mCreatureDataMap.find(addon->guidOrEntry) == mCreatureDataMap.end())
-                sLog->outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`",addon->guidOrEntry);
+        if (mCreatureDataMap.find(guid) == mCreatureDataMap.end())
+        {
+            sLog->outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
+            continue;
+        }
+
+        CreatureAddon creatureAddon;
+
+        creatureAddon.path_id = fields[1].GetUInt32();
+        creatureAddon.mount   = fields[2].GetUInt32();
+        creatureAddon.bytes1  = fields[3].GetUInt32();
+        creatureAddon.bytes2  = fields[4].GetUInt32();
+        creatureAddon.emote   = fields[5].GetUInt32();
+
+        Tokens tokens(fields[6].GetString(), ' ');
+        uint8 i = 0;
+        creatureAddon.auras.resize(tokens.size());
+        for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        {
+            SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(uint32(atol(*itr)));
+            if (!AdditionalSpellInfo)
+            {
+                sLog->outErrorDb("Creature (GUID: %u) has wrong spell %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
+                continue;
+            }
+            creatureAddon.auras[i++] = uint32(atol(*itr));
+        }
+
+      if (creatureAddon.mount)
+        {
+            if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
+            {
+                sLog->outErrorDb("Creature (GUID: %u) has invalid displayInfoId (%u) for mount defined in `creature_addon`", guid, creatureAddon.mount);
+                creatureAddon.mount = 0;
+            }
+        }
+
+        if (!sEmotesStore.LookupEntry(creatureAddon.emote))
+            sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
+
+        CreatureAddonStore[guid] = creatureAddon;
+
+        ++count;
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u creature addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
+}
+
+CreatureAddon const * ObjectMgr::GetCreatureAddon(uint32 lowguid)
+{
+    CreatureAddonContainer::const_iterator itr = CreatureAddonStore.find(lowguid);
+    if (itr != CreatureAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
 }
 
 EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
@@ -1457,16 +1376,12 @@ void ObjectMgr::LoadCreatures()
 {
     uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
-    //                                                0              1   2    3
-    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid,"
-    //   4             5           6           7           8            9              10         11
-        "equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint,"
-    //   12         13       14          15            16         17             18        19
-        "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, eventEntry, pool_entry,"
-    //   20                21                   22
-        "creature.npcflag, creature.unit_flags, creature.dynamicflags "
-        "FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
+    //                                                         0     1   2      3           4            5         6            7           8            9            10
+    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
+    //          11            12        13        14           15           16        17          18          19                 20                  21                   22
+        "currentwaypoint, curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags "
+        "FROM creature "
+        "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
 
     if (!result)
@@ -1476,7 +1391,7 @@ void ObjectMgr::LoadCreatures()
         return;
     }
 
-    // build single time for check creature data
+    // Build single time for check creature data
     std::set<uint32> difficultyCreatures[MAX_DIFFICULTY - 1];
     for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
         if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
@@ -1484,7 +1399,7 @@ void ObjectMgr::LoadCreatures()
                 if (cInfo->DifficultyEntry[diff])
                     difficultyCreatures[diff].insert(cInfo->DifficultyEntry[diff]);
 
-    // build single time for check spawnmask
+    // Build single time for check spawnmask
     std::map<uint32,uint32> spawnMasks;
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
@@ -1492,9 +1407,7 @@ void ObjectMgr::LoadCreatures()
                 if (GetMapDifficultyData(i,Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
-    //TODO: remove this
-    //sGameEventMgr->mGameEventCreatureGuids.resize(52*2-1);
-
+    uint32 count = 0;
     do
     {
         Field *fields = result->Fetch();
@@ -1557,17 +1470,8 @@ void ObjectMgr::LoadCreatures()
         if (!ok)
             continue;
 
-        // I do not know why but in db most display id are not zero
-        /*if (data.displayid == 11686 || data.displayid == 24719)
-        {
-            (const_cast<CreatureInfo*>(cInfo))->flags_extra |= CREATURE_FLAG_EXTRA_TRIGGER;
-        }
-        else if (data.displayid == cInfo->DisplayID_A || data.displayid == cInfo->DisplayID_A2
-            || data.displayid == cInfo->DisplayID_H || data.displayid == cInfo->DisplayID_H2)
-            data.displayid = 0;
-            */
-
-        if (data.equipmentId > 0)                            // -1 no equipment, 0 use default
+        // -1 no equipment, 0 use default
+        if (data.equipmentId > 0)
         {
             if (!GetEquipmentInfo(data.equipmentId))
             {
@@ -1618,28 +1522,15 @@ void ObjectMgr::LoadCreatures()
             data.npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
         }
 
-        //if (entry == 32307 || entry == 32308)
-        /*if (entry == 30739 || entry == 30740)
-        {
-            gameEvent = 51;
-            uint32 guid2 = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
-            CreatureData& data2 = mCreatureDataMap[guid2];
-            data2 = data;
-//            data2.id = (entry == 32307 ? 32308 : 32307);
-            data2.id = (entry == 30739 ? 30740 : 30739);
-            data2.displayid = 0;
-            sGameEventMgr->mGameEventCreatureGuids[51+51].push_back(guid);
-            sGameEventMgr->mGameEventCreatureGuids[51+50].push_back(guid2);
-        }*/
-
-        if (gameEvent == 0 && PoolId == 0)                      // if not this is to be managed by GameEvent System or Pool system
+        // Add to grid if not managed by the game event or pool system
+        if (gameEvent == 0 && PoolId == 0)
             AddCreatureToGrid(guid, &data);
 
         ++count;
 
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %u creatures in %u ms", (uint32)mCreatureDataMap.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded %u creatures in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
