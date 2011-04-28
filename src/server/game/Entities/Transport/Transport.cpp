@@ -54,7 +54,7 @@ void MapManager::LoadTransports()
 
         Transport *t = new Transport(period, scriptId);
 
-        const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(entry);
+        const GameObjectTemplate *goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
         if (!goinfo)
         {
@@ -207,7 +207,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
     Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);
 
-    GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(entry);
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
     if (!goinfo)
     {
@@ -223,7 +223,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     //SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
     SetUInt32Value(GAMEOBJECT_FLAGS, MAKE_PAIR32(0x28, 0x64));
     SetUInt32Value(GAMEOBJECT_LEVEL, m_period);
-    SetEntry(goinfo->id);
+    SetEntry(goinfo->entry);
 
     SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 

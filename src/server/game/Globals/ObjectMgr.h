@@ -45,7 +45,6 @@
 #include <functional>
 
 extern SQLStorage sCreatureStorage;
-extern SQLStorage sGOStorage;
 
 class Group;
 class Guild;
@@ -640,11 +639,12 @@ class ObjectMgr
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
         Player* GetPlayerByLowGUID(uint32 lowguid) const;
 
-        static GameObjectInfo const *GetGameObjectInfo(uint32 id) { return sGOStorage.LookupEntry<GameObjectInfo>(id); }
+        GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
+        GameObjectTemplateContainer const* GetGameObjectTemplates() { return &GameObjectTemplateStore; }
         int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
 
-        void LoadGameobjectInfo();
-        void AddGameobjectInfo(GameObjectInfo *goinfo);
+        void LoadGameObjectTemplate();
+        void AddGameobjectInfo(GameObjectTemplate *goinfo);
 
         Group * GetGroupByGUID(uint32 guid) const;
         void AddGroup(Group* group) { mGroupSet.insert(group); }
@@ -1405,6 +1405,7 @@ class ObjectMgr
         CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;
         GameObjectLocaleMap mGameObjectLocaleMap;
+        GameObjectTemplateContainer GameObjectTemplateStore;
 
         ItemTemplateContainer ItemTemplateStore;
         ItemLocaleMap mItemLocaleMap;

@@ -1282,7 +1282,7 @@ class SmartAIMgr
         }
         inline bool IsGameObjectValid(SmartScriptHolder e, uint32 entry)
         {
-            if (!sGOStorage.LookupEntry<GameObjectInfo>(uint32(entry)))
+            if (!sObjectMgr->GetGameObjectTemplate(entry))
             {
                 sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent GameObject entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;

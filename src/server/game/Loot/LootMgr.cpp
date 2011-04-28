@@ -1522,19 +1522,18 @@ void LoadLootTemplates_Gameobject()
     uint32 count = LootTemplates_Gameobject.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sGOStorage.MaxEntry; ++i)
+    GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
+    for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
-        if (GameObjectInfo const* gInfo = sGOStorage.LookupEntry<GameObjectInfo>(i))
+        if (uint32 lootid = itr->second.GetLootId())
         {
-            if (uint32 lootid = gInfo->GetLootId())
-            {
-                if (sObjectMgr->IsGoOfSpecificEntrySpawned(gInfo->id) && ids_set.find(lootid) == ids_set.end())
-                    LootTemplates_Gameobject.ReportNotExistedId(lootid);
-                else
-                    ids_setUsed.insert(lootid);
-            }
+            if (sObjectMgr->IsGoOfSpecificEntrySpawned(itr->second.entry) && ids_set.find(lootid) == ids_set.end())
+                LootTemplates_Gameobject.ReportNotExistedId(lootid);
+            else
+                ids_setUsed.insert(lootid);
         }
     }
+
     for (LootIdSet::const_iterator itr = ids_setUsed.begin(); itr != ids_setUsed.end(); ++itr)
         ids_set.erase(*itr);
 

@@ -1284,7 +1284,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadPageTexts();
 
     sLog->outString("Loading Game Object Templates...");         // must be after LoadPageTexts
-    sObjectMgr->LoadGameobjectInfo();
+    sObjectMgr->LoadGameObjectTemplate();
 
     sLog->outString("Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
