@@ -182,7 +182,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         return;
     }
 
-    if (it->GetProto()->Flags & ITEM_PROTO_FLAG_CONJURED || it->GetUInt32Value(ITEM_FIELD_DURATION))
+    if (it->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || it->GetUInt32Value(ITEM_FIELD_DURATION))
     {
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
         return;
@@ -207,7 +207,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(GetAccountId(),"GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-            GetPlayerName(),GetAccountId(),it->GetProto()->Name1,it->GetEntry(),count);
+            GetPlayerName(),GetAccountId(),it->GetTemplate()->Name1,it->GetEntry(),count);
     }
 
     pl->ModifyMoney(-int32(deposit));

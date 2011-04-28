@@ -651,7 +651,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Creature.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -668,7 +668,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Disenchant.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -685,7 +685,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Fishing.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -702,7 +702,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Gameobject.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -719,7 +719,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Item.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -736,7 +736,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Mail.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -753,7 +753,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Milling.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -770,7 +770,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Pickpocketing.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -787,7 +787,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Prospecting.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -804,7 +804,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Reference.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -821,7 +821,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Skinning.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -838,7 +838,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Spell.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -933,7 +933,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
 
-            ItemPrototype const *pItemProto = ObjectMgr::GetItemPrototype(cond->mSourceEntry);
+            ItemTemplate const *pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto)
             {
                 sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `item_tamplate`, ignoring.", cond->mSourceEntry);
@@ -1049,7 +1049,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM:
         {
-            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
             if (!proto)
             {
                 sLog->outErrorDb("Item condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1065,7 +1065,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM_EQUIPPED:
         {
-            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
             if (!proto)
             {
                 sLog->outErrorDb("ItemEquipped condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1332,7 +1332,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_NOITEM:
         {
-            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
             if (!proto)
             {
                 sLog->outErrorDb("NoItem condition has non existing item (%u), skipped", cond->mConditionValue1);

@@ -2322,7 +2322,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
 
     if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
     {
-        ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(vItem->item);
+        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item);
 
         uint32 diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
         if ((vCount->count + diff * pProto->BuyCount) >= vItem->maxcount)
@@ -2361,7 +2361,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
     {
-        ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(vItem->item);
+        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item);
 
         uint32 diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
         if ((vCount->count + diff * pProto->BuyCount) < vItem->maxcount)

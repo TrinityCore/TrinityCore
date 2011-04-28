@@ -201,9 +201,9 @@ public:
 
         sObjectMgr->AddVendorItem(vendor_entry,itemId,maxcount,incrtime,extendedcost);
 
-        ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(itemId);
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,pProto->Name1,maxcount,incrtime,extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,itemTemplate->Name1,maxcount,incrtime,extendedcost);
         return true;
     }
 
@@ -419,9 +419,9 @@ public:
             return false;
         }
 
-        ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(itemId);
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,pProto->Name1);
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,itemTemplate->Name1);
         return true;
     }
 
@@ -1299,7 +1299,7 @@ public:
         uint32 ItemID = atoi(pItemID);
         uint32 SlotID = atoi(pSlotID);
 
-        ItemPrototype* tmpItem = ObjectMgr::GetItemPrototype(ItemID);
+        ItemPrototype* tmpItem = sObjectMgr->GetItemTemplate(ItemID);
 
         bool added = false;
         if (tmpItem)

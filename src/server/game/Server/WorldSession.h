@@ -29,7 +29,7 @@
 #include "DatabaseEnv.h"
 #include "World.h"
 
-struct ItemPrototype;
+struct ItemTemplate;
 struct AuctionEntry;
 struct DeclinedName;
 struct MovementInfo;
@@ -600,7 +600,7 @@ class WorldSession
         void HandleQueryNextMailTime(WorldPacket & recv_data);
         void HandleCancelChanneling(WorldPacket & recv_data);
 
-        void SendItemPageInfo(ItemPrototype *itemProto);
+        void SendItemPageInfo(ItemTemplate *itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);

@@ -66,7 +66,7 @@ class Bag : public Item
         Item* m_bagslot[MAX_BAG_SIZE];
 };
 
-inline Item* NewItemOrBag(ItemPrototype const * proto)
+inline Item* NewItemOrBag(ItemTemplate const * proto)
 {
     return (proto->InventoryType == INVTYPE_BAG) ? new Bag : new Item;
 }

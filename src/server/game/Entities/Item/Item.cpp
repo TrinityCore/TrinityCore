@@ -28,7 +28,7 @@
 
 void AddItemsSetItem(Player* player,Item* item)
 {
-    ItemPrototype const* proto = item->GetProto();
+    ItemTemplate const* proto = item->GetTemplate();
     uint32 setid = proto->ItemSet;
 
     ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
@@ -109,7 +109,7 @@ void AddItemsSetItem(Player* player,Item* item)
     }
 }
 
-void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
+void RemoveItemsSetItem(Player*player,ItemTemplate const *proto)
 {
     uint32 setid = proto->ItemSet;
 
@@ -167,7 +167,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
     }
 }
 
-bool ItemCanGoIntoBag(ItemPrototype const *pProto, ItemPrototype const *pBagProto)
+bool ItemCanGoIntoBag(ItemTemplate const *pProto, ItemTemplate const *pBagProto)
 {
     if (!pProto || !pBagProto)
         return false;
@@ -263,7 +263,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
     SetUInt64Value(ITEM_FIELD_CONTAINED, owner ? owner->GetGUID() : 0);
 
-    ItemPrototype const *itemProto = ObjectMgr::GetItemPrototype(itemid);
+    ItemTemplate const *itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
         return false;
 
@@ -297,7 +297,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
     if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
-        sScriptMgr->OnItemExpire(owner, GetProto());
+        sScriptMgr->OnItemExpire(owner, GetTemplate());
         owner->DestroyItem(GetBagSlot(), GetSlot(), true);
         return;
     }
@@ -390,7 +390,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     SetEntry(entry);
     SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
 
-    ItemPrototype const* proto = GetProto();
+    ItemTemplate const* proto = GetTemplate();
     if (!proto)
         return false;
 
@@ -484,9 +484,9 @@ void Item::DeleteFromInventoryDB(SQLTransaction& trans)
     DeleteFromInventoryDB(trans, GetGUIDLow());
 }
 
-ItemPrototype const *Item::GetProto() const
+ItemTemplate const *Item::GetTemplate() const
 {
-    return ObjectMgr::GetItemPrototype(GetEntry());
+    return sObjectMgr->GetItemTemplate(GetEntry());
 }
 
 Player* Item::GetOwner()const
@@ -510,7 +510,7 @@ uint32 Item::GetSkill()
         0,SKILL_CLOTH,SKILL_LEATHER,SKILL_MAIL,SKILL_PLATE_MAIL,0,SKILL_SHIELD,0,0,0,0
     };
 
-    ItemPrototype const* proto = GetProto();
+    ItemTemplate const* proto = GetTemplate();
 
     switch (proto->Class)
     {
@@ -533,7 +533,7 @@ uint32 Item::GetSkill()
 
 uint32 Item::GetSpell()
 {
-    ItemPrototype const* proto = GetProto();
+    ItemTemplate const* proto = GetTemplate();
 
     switch (proto->Class)
     {
@@ -573,7 +573,7 @@ uint32 Item::GetSpell()
 
 int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
 {
-    ItemPrototype const *itemProto = sItemStorage.LookupEntry<ItemPrototype>(item_id);
+    ItemTemplate const *itemProto = sObjectMgr->GetItemTemplate(item_id);
 
     if (!itemProto)
         return 0;
@@ -804,7 +804,7 @@ bool Item::IsBoundByEnchant() const
     return false;
 }
 
-uint8 Item::CanBeMergedPartlyWith(ItemPrototype const* proto) const
+uint8 Item::CanBeMergedPartlyWith(ItemTemplate const* proto) const
 {
     // not allow merge looting currently items
     if (m_lootGenerated)
@@ -823,7 +823,7 @@ uint8 Item::CanBeMergedPartlyWith(ItemPrototype const* proto) const
 
 bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 {
-    ItemPrototype const* proto = GetProto();
+    ItemTemplate const* proto = GetTemplate();
 
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
@@ -859,7 +859,7 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 
 bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
 {
-    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET, GetProto()->ItemId);
+    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET, GetTemplate()->ItemId);
     if (conditions.empty())
         return true;
 
@@ -921,7 +921,7 @@ bool Item::GemsFitSockets() const
     bool fits = true;
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
-        uint8 SocketColor = GetProto()->Socket[enchant_slot-SOCK_ENCHANTMENT_SLOT].Color;
+        uint8 SocketColor = GetTemplate()->Socket[enchant_slot-SOCK_ENCHANTMENT_SLOT].Color;
 
         uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
         if (!enchant_id)
@@ -942,7 +942,7 @@ bool Item::GemsFitSockets() const
         uint32 gemid = enchantEntry->GemID;
         if (gemid)
         {
-            ItemPrototype const* gemProto = sItemStorage.LookupEntry<ItemPrototype>(gemid);
+            ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
             if (gemProto)
             {
                 GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GemProperties);
@@ -988,7 +988,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!enchantEntry)
             continue;
 
-        ItemPrototype const* gemProto = ObjectMgr::GetItemPrototype(enchantEntry->GemID);
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(enchantEntry->GemID);
         if (!gemProto)
             continue;
 
@@ -1000,7 +1000,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 
 bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const
 {
-    ItemPrototype const* proto = GetProto();
+    ItemTemplate const* proto = GetTemplate();
     return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
 }
 
@@ -1023,7 +1023,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
     if (count < 1)
         return NULL;                                        //don't create item at zero count
 
-    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item);
+    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(item);
     if (pProto)
     {
         if (count > pProto->GetMaxStackSize())

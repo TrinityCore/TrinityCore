@@ -201,13 +201,13 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recv_data
             data << uint8(qRew->GetRewItemsCount());
             if (qRew->GetRewItemsCount())
             {
-                ItemPrototype const* iProto = NULL;
+                ItemTemplate const* iProto = NULL;
                 for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
                 {
                     if (!qRew->RewItemId[i])
                         continue;
 
-                    iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
+                    iProto = sObjectMgr->GetItemTemplate(qRew->RewItemId[i]);
 
                     data << uint32(qRew->RewItemId[i]);
                     data << uint32(iProto ? iProto->DisplayInfoID : 0);
@@ -491,13 +491,13 @@ void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntr
     data << uint8(itemNum);
     if (itemNum)
     {
-        ItemPrototype const* iProto = NULL;
+        ItemTemplate const* iProto = NULL;
         for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         {
             if (!qRew->RewItemId[i])
                 continue;
 
-            iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
+            iProto = sObjectMgr->GetItemTemplate(qRew->RewItemId[i]);
 
             data << uint32(qRew->RewItemId[i]);
             data << uint32(iProto ? iProto->DisplayInfoID : 0);

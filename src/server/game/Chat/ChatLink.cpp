@@ -111,7 +111,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate item
-    _item = ObjectMgr::GetItemPrototype(itemEntry);
+    _item = sObjectMgr->GetItemTemplate(itemEntry);
     if (!_item)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid itemEntry %u in |item command", iss.str().c_str(), itemEntry);
