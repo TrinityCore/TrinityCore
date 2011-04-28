@@ -87,7 +87,7 @@ bool GameObject::AIM_Initialize()
 
 std::string GameObject::GetAIName() const
 {
-    return ObjectMgr::GetGameObjectInfo(GetEntry())->AIName;
+    return sObjectMgr->GetGameObjectTemplate(GetEntry())->AIName;
 }
 
 void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
@@ -113,7 +113,7 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
                     ownerType = "pet";
 
                 sLog->outError("Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
-                    GetGUIDLow(), GetGOInfo()->id, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(owner_guid), ownerType);
+                    GetGUIDLow(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(owner_guid), ownerType);
             }
         }
     }
@@ -146,7 +146,7 @@ void GameObject::RemoveFromWorld()
             if (Unit * owner = GetOwner())
                 owner->RemoveGameObject(this,false);
             else
-                sLog->outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
+                sLog->outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->entry,GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
@@ -175,14 +175,14 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
             return false;
     }
 
-    GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(name_id);
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(name_id);
     if (!goinfo)
     {
         sLog->outErrorDb("Gameobject (GUID: %u Entry: %u) not created: it have not exist entry in `gameobject_template`. Map: %u  (X: %f Y: %f Z: %f) ang: %f rotation0: %f rotation1: %f rotation2: %f rotation3: %f",guidlow, name_id, map->GetId(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3);
         return false;
     }
 
-    Object::_Create(guidlow, goinfo->id, HIGHGUID_GAMEOBJECT);
+    Object::_Create(guidlow, goinfo->entry, HIGHGUID_GAMEOBJECT);
 
     m_goInfo = goinfo;
 
@@ -202,7 +202,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
     SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
 
-    SetEntry(goinfo->id);
+    SetEntry(goinfo->entry);
 
     SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 
@@ -276,7 +276,7 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_TRAP:
                 {
                     // Arming Time for GAMEOBJECT_TYPE_TRAP (6)
-                    GameObjectInfo const* goInfo = GetGOInfo();
+                    GameObjectTemplate const* goInfo = GetGOInfo();
                     // Bombs
                     if (goInfo->trap.type == 2)
                         m_cooldownTime = time(NULL) + 10;   // Hardcoded tooltip value
@@ -386,7 +386,7 @@ void GameObject::Update(uint32 diff)
             if (isSpawned())
             {
                 // traps can have time and can not have
-                GameObjectInfo const* goInfo = GetGOInfo();
+                GameObjectTemplate const* goInfo = GetGOInfo();
                 if (goInfo->type == GAMEOBJECT_TYPE_TRAP)
                 {
                     if (m_cooldownTime >= time(NULL))
@@ -653,7 +653,7 @@ void GameObject::SaveToDB()
 
 void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 {
-    const GameObjectInfo *goI = GetGOInfo();
+    const GameObjectTemplate *goI = GetGOInfo();
 
     if (!goI)
         return;
@@ -816,7 +816,7 @@ bool GameObject::hasInvolvedQuest(uint32 quest_id) const
 bool GameObject::IsTransport() const
 {
     // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectInfo const * gInfo = GetGOInfo();
+    GameObjectTemplate const * gInfo = GetGOInfo();
     if (!gInfo) return false;
     return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT;
 }
@@ -825,7 +825,7 @@ bool GameObject::IsTransport() const
 bool GameObject::IsDynTransport() const
 {
     // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectInfo const * gInfo = GetGOInfo();
+    GameObjectTemplate const * gInfo = GetGOInfo();
     if (!gInfo) return false;
     return gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
 }
@@ -919,7 +919,7 @@ bool GameObject::ActivateToQuest(Player *pTarget) const
 
 void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 {
-    GameObjectInfo const* trapInfo = sGOStorage.LookupEntry<GameObjectInfo>(trapEntry);
+    GameObjectTemplate const* trapInfo = sObjectMgr->GetGameObjectTemplate(trapEntry);
     if (!trapInfo || trapInfo->type != GAMEOBJECT_TYPE_TRAP)
         return;
 
@@ -1084,7 +1084,7 @@ void GameObject::Use(Unit* user)
         //Sitting: Wooden bench, chairs enzz
         case GAMEOBJECT_TYPE_CHAIR:                         //7
         {
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
             if (!info)
                 return;
 
@@ -1174,7 +1174,7 @@ void GameObject::Use(Unit* user)
         //big gun, its a spell/aura
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
 
             if (user->GetTypeId() == TYPEID_PLAYER)
             {
@@ -1210,7 +1210,7 @@ void GameObject::Use(Unit* user)
                 if (Battleground* bg = player->GetBattleground())
                     bg->EventPlayerUsedGO(player, this);
 
-                player->CastedCreatureOrGO(info->id, GetGUID(), 0);
+                player->CastedCreatureOrGO(info->entry, GetGUID(), 0);
             }
 
             if (uint32 trapEntry = info->goober.linkedTrapId)
@@ -1237,7 +1237,7 @@ void GameObject::Use(Unit* user)
         }
         case GAMEOBJECT_TYPE_CAMERA:                        //13
         {
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
             if (!info)
                 return;
 
@@ -1343,7 +1343,7 @@ void GameObject::Use(Unit* user)
 
             Unit* owner = GetOwner();
 
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
 
             // ritual owner is set for GO's without owner (not summoned)
             if (!m_ritualOwner && !owner)
@@ -1421,7 +1421,7 @@ void GameObject::Use(Unit* user)
         }
         case GAMEOBJECT_TYPE_SPELLCASTER:                   //22
         {
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
             if (!info)
                 return;
 
@@ -1443,7 +1443,7 @@ void GameObject::Use(Unit* user)
         }
         case GAMEOBJECT_TYPE_MEETINGSTONE:                  //23
         {
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
 
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1464,7 +1464,7 @@ void GameObject::Use(Unit* user)
             if (level < info->meetingstone.minLevel)
                 return;
 
-            if (info->id == 194097)
+            if (info->entry == 194097)
                 spellId = 61994;                            // Ritual of Summoning
             else
                 spellId = 59782;                            // Summoning Stone Effect
@@ -1508,7 +1508,7 @@ void GameObject::Use(Unit* user)
             Player* player = user->ToPlayer();
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->id);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
             return;
         }
 
@@ -1533,10 +1533,10 @@ void GameObject::Use(Unit* user)
                 // 179786 - Warsong Flag
                 // EotS:
                 // 184142 - Netherstorm Flag
-                GameObjectInfo const* info = GetGOInfo();
+                GameObjectTemplate const* info = GetGOInfo();
                 if (info)
                 {
-                    switch(info->id)
+                    switch(info->entry)
                     {
                         case 179785:                        // Silverwing Flag
                             // check if it's correct bg
@@ -1561,7 +1561,7 @@ void GameObject::Use(Unit* user)
         }
         case GAMEOBJECT_TYPE_BARBER_CHAIR:                  //32
         {
-            GameObjectInfo const* info = GetGOInfo();
+            GameObjectTemplate const* info = GetGOInfo();
             if (!info)
                 return;
 

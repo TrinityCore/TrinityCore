@@ -612,7 +612,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
         return false;
     }
 
-    GameObjectInfo const * gInfo = ObjectMgr::GetGameObjectInfo(go_id);
+    GameObjectTemplate const * gInfo = sObjectMgr->GetGameObjectTemplate(go_id);
     if (!gInfo)
     {
         PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, go_id);
@@ -1307,21 +1307,17 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
     uint32 count = 0;
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-    for (uint32 id = 0; id< sGOStorage.MaxEntry; id++)
+    GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
+    for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
-        GameObjectInfo const* gInfo = sGOStorage.LookupEntry<GameObjectInfo>(id);
-        if (!gInfo)
-            continue;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        uint8 localeIndex = GetSessionDbLocaleIndex();
+        if (localeIndex >= 0)
         {
-            uint8 uloc_idx = uint8(loc_idx);
-            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(id))
+            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(itr->second.entry))
             {
-                if (gl->Name.size() > uloc_idx && !gl->Name[uloc_idx].empty())
+                if (gl->Name.size() > localeIndex && !gl->Name[localeIndex].empty())
                 {
-                    std::string name = gl->Name[uloc_idx];
+                    std::string name = gl->Name[localeIndex];
 
                     if (Utf8FitTo(name, wnamepart))
                     {
@@ -1332,9 +1328,9 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
                         }
 
                         if (m_session)
-                            PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
+                            PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
                         else
-                            PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
+                            PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
 
                         if (!found)
                             found = true;
@@ -1345,7 +1341,7 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
             }
         }
 
-        std::string name = gInfo->name;
+        std::string name = itr->second.name;
         if (name.empty())
             continue;
 
@@ -1358,9 +1354,9 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
             }
 
             if (m_session)
-                PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
+                PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
             else
-                PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
+                PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
 
             if (!found)
                 found = true;

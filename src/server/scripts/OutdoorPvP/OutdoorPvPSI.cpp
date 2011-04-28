@@ -216,7 +216,7 @@ bool OutdoorPvPSI::HandleCustomSpell(Player *plr, uint32 spellId, GameObject *go
     if (!go || spellId != SI_SILITHYST_FLAG_GO_SPELL)
         return false;
     plr->CastSpell(plr,SI_SILITHYST_FLAG,true);
-    if (go->GetGOInfo()->id == SI_SILITHYST_MOUND)
+    if (go->GetGOInfo()->entry == SI_SILITHYST_MOUND)
     {
         // despawn go
         go->SetRespawnTime(0);

@@ -120,7 +120,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
     sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Creating capture point %u", entry);
 
     // check info existence
-    GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(entry);
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
     {
         sLog->outError("OutdoorPvP: GO %u is not capture point!", entry);

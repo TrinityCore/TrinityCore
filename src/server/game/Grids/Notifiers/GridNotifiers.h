@@ -1214,7 +1214,7 @@ namespace Trinity
           x(_x), y(_y), z(_z), range(_range), entry(_entry) {}
         bool operator() (GameObject* go)
         {
-            if (!entry || (go->GetGOInfo() && go->GetGOInfo()->id == entry))
+            if (!entry || (go->GetGOInfo() && go->GetGOInfo()->entry == entry))
                 return go->IsInRange(x, y, z, range);
             else return false;
         }
