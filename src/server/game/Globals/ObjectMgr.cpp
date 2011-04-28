@@ -1023,53 +1023,77 @@ void ObjectMgr::LoadCreatureAddons()
 
 EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
 {
-    return sEquipmentStorage.LookupEntry<EquipmentInfo>(entry);
+    EquipmentInfoContainer::const_iterator itr = EquipmentInfoStore.find(entry);
+    if (itr != EquipmentInfoStore.end())
+        return &(itr->second);
+
+    return NULL;
 }
 
 void ObjectMgr::LoadEquipmentTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    sEquipmentStorage.Load();
+    QueryResult result = WorldDatabase.Query("SELECT entry, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
 
-    for (uint32 i = 0; i < sEquipmentStorage.MaxEntry; ++i)
+    if (!result)
     {
-        EquipmentInfo const* eqInfo = sEquipmentStorage.LookupEntry<EquipmentInfo>(i);
+        sLog->outString(">> Loaded 0 creature equipment templates. DB table `creature_equip_template` is empty!");
+        sLog->outString();
+        return;
+    }
 
-        if (!eqInfo)
-            continue;
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
 
-        for (uint8 j = 0; j < 3; ++j)
+        uint16 entry = fields[0].GetUInt16();
+
+        EquipmentInfo equipmentInfo;
+
+        equipmentInfo.ItemEntry[0] = fields[1].GetUInt32();
+        equipmentInfo.ItemEntry[1] = fields[2].GetUInt32();
+        equipmentInfo.ItemEntry[2] = fields[3].GetUInt32();
+
+        for (uint8 i = 0; i < 3; ++i)
         {
-            if (!eqInfo->equipentry[j])
-               continue;
+            if (!equipmentInfo.ItemEntry[i])
+                continue;
 
-            ItemEntry const *dbcitem = sItemStore.LookupEntry(eqInfo->equipentry[j]);
+           ItemEntry const *dbcItem = sItemStore.LookupEntry(equipmentInfo.ItemEntry[i]);
 
-            if (!dbcitem)
+            if (!dbcItem)
             {
-                sLog->outErrorDb("Unknown item (entry=%u) in creature_equip_template.equipentry%u for entry = %u, forced to 0.", eqInfo->equipentry[j], j+1, i);
-                const_cast<EquipmentInfo*>(eqInfo)->equipentry[j] = 0;
+                sLog->outErrorDb("Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u, forced to 0.",
+                    equipmentInfo.ItemEntry[i], i+1, entry);
+                equipmentInfo.ItemEntry[i] = 0;
                 continue;
             }
 
-            if (dbcitem->InventoryType != INVTYPE_WEAPON &&
-                    dbcitem->InventoryType != INVTYPE_SHIELD &&
-                    dbcitem->InventoryType != INVTYPE_RANGED &&
-                    dbcitem->InventoryType != INVTYPE_2HWEAPON &&
-                    dbcitem->InventoryType != INVTYPE_WEAPONMAINHAND &&
-                    dbcitem->InventoryType != INVTYPE_WEAPONOFFHAND &&
-                    dbcitem->InventoryType != INVTYPE_HOLDABLE &&
-                    dbcitem->InventoryType != INVTYPE_THROWN &&
-                    dbcitem->InventoryType != INVTYPE_RANGEDRIGHT)
+            if (dbcItem->InventoryType != INVTYPE_WEAPON &&
+                dbcItem->InventoryType != INVTYPE_SHIELD &&
+                dbcItem->InventoryType != INVTYPE_RANGED &&
+                dbcItem->InventoryType != INVTYPE_2HWEAPON &&
+                dbcItem->InventoryType != INVTYPE_WEAPONMAINHAND &&
+                dbcItem->InventoryType != INVTYPE_WEAPONOFFHAND &&
+                dbcItem->InventoryType != INVTYPE_HOLDABLE &&
+                dbcItem->InventoryType != INVTYPE_THROWN &&
+                dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
-                sLog->outErrorDb("Item (entry=%u) in creature_equip_template.equipentry%u for entry = %u is not equipable in a hand, forced to 0.", eqInfo->equipentry[j], j+1, i);
-                const_cast<EquipmentInfo*>(eqInfo)->equipentry[j] = 0;
+                sLog->outErrorDb("Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u is not equipable in a hand, forced to 0.",
+                    equipmentInfo.ItemEntry[i], i+1, entry);
+                equipmentInfo.ItemEntry[i] = 0;
             }
         }
-    }
 
-    sLog->outString(">> Loaded %u equipment templates in %u ms", sEquipmentStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+        EquipmentInfoStore[entry] = equipmentInfo;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %u equipment templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 

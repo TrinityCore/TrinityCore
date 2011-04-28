@@ -230,9 +230,11 @@ struct PointOfInterestLocale
 
 struct EquipmentInfo
 {
-    uint32  entry;
-    uint32  equipentry[3];
+    uint32  ItemEntry[3];
 };
+
+// Benchmarked: Faster than std::map (insert/find)
+typedef UNORDERED_MAP<uint16, EquipmentInfo> EquipmentInfoContainer;
 
 // from `creature` table
 struct CreatureData
