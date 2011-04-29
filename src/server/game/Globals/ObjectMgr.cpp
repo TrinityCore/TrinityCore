@@ -569,7 +569,7 @@ void ObjectMgr::LoadCreatureTemplates()
         uint32 entry = fields[0].GetUInt32();
 
 
-        CreatureTemplate creatureTemplate;
+        CreatureTemplate& creatureTemplate = CreatureTemplateStore[entry];
 
         creatureTemplate.Entry = entry;
 
@@ -659,9 +659,6 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.flags_extra        = fields[82].GetUInt32();
         creatureTemplate.ScriptID           = GetScriptId(fields[83].GetCString());
 
-        // Add to map
-        CreatureTemplateStore[entry] = creatureTemplate;
-
         ++count;
     }
     while (result->NextRow());
@@ -703,7 +700,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             continue;
         }
 
-        CreatureAddon creatureAddon;
+        CreatureAddon& creatureAddon = CreatureTemplateAddonStore[entry];
 
         creatureAddon.path_id = fields[1].GetUInt32();
         creatureAddon.mount   = fields[2].GetUInt32();
@@ -736,8 +733,6 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
             sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
-
-        CreatureTemplateAddonStore[entry] = creatureAddon;
 
         ++count;
     }
@@ -1073,7 +1068,7 @@ void ObjectMgr::LoadCreatureAddons()
             continue;
         }
 
-        CreatureAddon creatureAddon;
+        CreatureAddon& creatureAddon = CreatureAddonStore[guid];
 
         creatureAddon.path_id = fields[1].GetUInt32();
         creatureAddon.mount   = fields[2].GetUInt32();
@@ -1106,8 +1101,6 @@ void ObjectMgr::LoadCreatureAddons()
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
             sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
-
-        CreatureAddonStore[guid] = creatureAddon;
 
         ++count;
     }
@@ -1164,7 +1157,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
         uint16 entry = fields[0].GetUInt16();
 
-        EquipmentInfo equipmentInfo;
+        EquipmentInfo& equipmentInfo = EquipmentInfoStore[entry];
 
         equipmentInfo.ItemEntry[0] = fields[1].GetUInt32();
         equipmentInfo.ItemEntry[1] = fields[2].GetUInt32();
@@ -1200,8 +1193,6 @@ void ObjectMgr::LoadEquipmentTemplates()
                 equipmentInfo.ItemEntry[i] = 0;
             }
         }
-
-        EquipmentInfoStore[entry] = equipmentInfo;
 
         ++count;
     }
@@ -1300,7 +1291,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         uint32 modelId = fields[0].GetUInt32();
 
-        CreatureModelInfo modelInfo;
+        CreatureModelInfo& modelInfo =  CreatureModelStore[modelId];
 
         modelInfo.bounding_radius      = fields[1].GetFloat();
         modelInfo.combat_reach         = fields[2].GetFloat();
@@ -1328,8 +1319,6 @@ void ObjectMgr::LoadCreatureModelInfo()
         {
             modelInfo.combat_reach = DEFAULT_COMBAT_REACH;
         }
-
-        CreatureModelStore[modelId] = modelInfo;
 
         ++count;
     }
@@ -2317,13 +2306,13 @@ void ObjectMgr::LoadItemTemplates()
 
         uint32 entry = fields[0].GetUInt32();
 
-        ItemTemplate itemTemplate;
+        ItemTemplate& itemTemplate = ItemTemplateStore[entry];
 
         itemTemplate.ItemId                    = entry;
         itemTemplate.Class                     = uint32(fields[1].GetUInt8());
         itemTemplate.SubClass                  = uint32(fields[2].GetUInt8());
         itemTemplate.Unk0                      = fields[3].GetInt32();
-        itemTemplate.Name1                     = fields[4].GetCString();
+        itemTemplate.Name1                     = fields[4].GetString();
         itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
         itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
         itemTemplate.Flags                     = uint32(fields[7].GetInt64());
@@ -2387,7 +2376,7 @@ void ObjectMgr::LoadItemTemplates()
         }
 
         itemTemplate.Bonding        = uint32(fields[101].GetUInt8());
-        itemTemplate.Description    = fields[102].GetCString();
+        itemTemplate.Description    = fields[102].GetString();
         itemTemplate.PageText       = fields[103].GetUInt32();
         itemTemplate.LanguageID     = uint32(fields[104].GetUInt8());
         itemTemplate.PageMaterial   = uint32(fields[105].GetUInt8());
@@ -2829,8 +2818,6 @@ void ObjectMgr::LoadItemTemplates()
             sLog->outErrorDb("Item (Entry: %u) has wrong HolidayId value (%u)", entry, itemTemplate.HolidayId);
             itemTemplate.HolidayId = 0;
         }
-
-        ItemTemplateStore[entry] = itemTemplate;
 
         ++count;
     }
@@ -5768,12 +5755,10 @@ void ObjectMgr::LoadPageTexts()
     {
         Field* fields = result->Fetch();
 
-        PageText pageText;
+        PageText& pageText =  PageTextStore[fields[0].GetUInt32()];
 
         pageText.Text     = fields[1].GetString();
         pageText.NextPage = fields[2].GetInt16();
-
-        PageTextStore[fields[0].GetUInt32()] = pageText;
 
         ++count;
     }
@@ -7221,15 +7206,15 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         uint32 entry = fields[0].GetUInt32();
 
-        GameObjectTemplate got;
+        GameObjectTemplate& got = GameObjectTemplateStore[entry];
 
         got.entry          = entry;
         got.type           = uint32(fields[1].GetUInt8());
         got.displayId      = fields[2].GetUInt32();
-        got.name           = fields[3].GetCString();
-        got.IconName       = fields[4].GetCString();
-        got.castBarCaption = fields[5].GetCString();
-        got.unk1           = fields[6].GetCString();
+        got.name           = fields[3].GetString();
+        got.IconName       = fields[4].GetString();
+        got.castBarCaption = fields[5].GetString();
+        got.unk1           = fields[6].GetString();
         got.faction        = uint32(fields[7].GetUInt16());
         got.flags          = fields[8].GetUInt32();
         got.size           = fields[9].GetFloat();
@@ -7244,7 +7229,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[16 + i].GetUInt32();
         }
 
-        got.AIName = fields[40].GetCString();
+        got.AIName = fields[40].GetString();
         got.ScriptId = GetScriptId(fields[41].GetCString());
 
         // Checks
@@ -7378,10 +7363,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             break;
         }
 
-        // Add to gameobject to map
-        GameObjectTemplateStore[entry] = got;
-
-        ++count;
+       ++count;
     }
     while (result->NextRow());
 
@@ -8466,7 +8448,7 @@ void ObjectMgr::LoadGameObjectForQuests()
 
     mGameObjectForQuestSet.clear();                         // need for reload case
 
-    if (!sObjectMgr->GetGameObjectTemplates()->empty())
+    if (sObjectMgr->GetGameObjectTemplates()->empty())
     {
         sLog->outString(">> Loaded 0 GameObjects for quests");
         sLog->outString();

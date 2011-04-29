@@ -203,7 +203,7 @@ public:
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,itemTemplate->Name1,maxcount,incrtime,extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,itemTemplate->Name1.c_str(), maxcount,incrtime,extendedcost);
         return true;
     }
 
@@ -421,7 +421,7 @@ public:
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,itemTemplate->Name1);
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,itemTemplate->Name1.c_str());
         return true;
     }
 
