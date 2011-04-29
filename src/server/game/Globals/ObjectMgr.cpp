@@ -2348,8 +2348,8 @@ void ObjectMgr::LoadItemTemplates()
 
         for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
         {
-            itemTemplate.Damage[i].DamageMax  = fields[50 + i*3].GetFloat();
-            itemTemplate.Damage[i].DamageMin  = fields[51 + i*3].GetFloat();
+            itemTemplate.Damage[i].DamageMin  = fields[50 + i*3].GetFloat();
+            itemTemplate.Damage[i].DamageMax  = fields[51 + i*3].GetFloat();
             itemTemplate.Damage[i].DamageType = uint32(fields[52 + i*3].GetUInt8());
         }
 
