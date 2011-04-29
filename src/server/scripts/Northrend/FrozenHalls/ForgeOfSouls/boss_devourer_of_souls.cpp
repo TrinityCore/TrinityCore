@@ -61,7 +61,7 @@ enum Spells
     SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
     SPELL_WAILING_SOULS                           = 68873,  // the actual spell
     H_SPELL_WAILING_SOULS                         = 70324,
-//    68871,68873,68875,68876,68899,68912,70324,
+//    68871, 68873, 68875, 68876, 68899, 68912, 70324,
 // 68899 trigger 68871
 };
 
@@ -288,7 +288,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                         case EVENT_WAILING_SOULS:
                             me->SetDisplayId(DISPLAY_DESIRE);
-                            DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL,SAY_FACE_DESIRE_WAILING_SOUL), me);
+                            DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL, SAY_FACE_DESIRE_WAILING_SOUL), me);
                             DoScriptText(EMOTE_WAILING_SOUL, me);
                             DoCast(me, SPELL_WAILING_SOULS_STARTING);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -332,7 +332,7 @@ class boss_devourer_of_souls : public CreatureScript
                                 me->SetDisplayId(DISPLAY_ANGER);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                                 me->GetMotionMaster()->MoveChase(me->getVictim());
-                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000,70000));
+                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
                             }
                             break;
                     }

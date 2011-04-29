@@ -115,7 +115,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -128,7 +128,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -155,9 +155,9 @@ public:
 
                 //second top aggro target in normal, random target in heroic correct?
                 if (IsHeroic())
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 else
-                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
+                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                 if (pTarget)
                     DoCast(pTarget, SPELL_POLYMORPH);
@@ -184,7 +184,7 @@ public:
             {
                 DoScriptText(EMOTE_ARCANE_EXP, me);
 
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(false);
@@ -196,7 +196,7 @@ public:
                     float Y = pTarget->GetPositionY();
                     float Z = pTarget->GetPositionZ();
 
-                    DoTeleportTo(X,Y,Z);
+                    DoTeleportTo(X, Y, Z);
 
                     DoCast(pTarget, SPELL_BLINK_TELEPORT);
                     Blink = true;

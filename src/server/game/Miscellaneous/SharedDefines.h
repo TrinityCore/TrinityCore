@@ -1228,7 +1228,7 @@ enum DispelType
 
 #define DISPEL_ALL_MASK ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON))
 
-//To all Immune system,if target has immunes,
+//To all Immune system, if target has immunes,
 //some spell that related to ImmuneToDispel or ImmuneToSchool or ImmuneToDamage type can't cast to it,
 //some spell_effects that related to ImmuneToEffect<effect>(only this effect in the spell) can't cast to it,
 //some aura(related to Mechanics or ImmuneToState<aura>) can't apply to it.

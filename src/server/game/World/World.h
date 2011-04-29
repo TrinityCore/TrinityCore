@@ -637,7 +637,7 @@ class World
 
         void UpdateSessions(uint32 diff);
         /// Set a server rate (see #Rates)
-        void setRate(Rates rate,float value) { rate_values[rate]=value; }
+        void setRate(Rates rate, float value) { rate_values[rate]=value; }
         /// Get a server rate (see #Rates)
         float getRate(Rates rate) const { return rate_values[rate]; }
 
@@ -668,7 +668,7 @@ class World
         }
 
         /// Set a server configuration element (see #WorldConfigs)
-        void setIntConfig(WorldIntConfigs index,uint32 value)
+        void setIntConfig(WorldIntConfigs index, uint32 value)
         {
             if (index < INT_CONFIG_VALUE_COUNT)
                 m_int_configs[index] = value;
@@ -776,7 +776,7 @@ class World
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
-        typedef std::map<uint32,uint64> WorldStatesMap;
+        typedef std::map<uint32, uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
         uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
@@ -797,7 +797,7 @@ class World
         static int32 m_visibility_notify_periodInBGArenas;
 
         // CLI command holder to be thread safe
-        ACE_Based::LockedQueue<CliCommandHolder*,ACE_Thread_Mutex> cliCmdQueue;
+        ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;
 
         // next daily quests and random bg reset time
         time_t m_NextDailyQuestReset;

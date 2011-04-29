@@ -129,7 +129,7 @@ void PlayerRelocationNotifier::Visit(PlayerMapType &m)
 
         vis_guids.erase(plr->GetGUID());
 
-        i_player.UpdateVisibilityOf(plr,i_data,i_visibleNow);
+        i_player.UpdateVisibilityOf(plr, i_data, i_visibleNow);
 
         if (plr->m_seer->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
             continue;
@@ -148,7 +148,7 @@ void PlayerRelocationNotifier::Visit(CreatureMapType &m)
 
         vis_guids.erase(c->GetGUID());
 
-        i_player.UpdateVisibilityOf(c,i_data,i_visibleNow);
+        i_player.UpdateVisibilityOf(c, i_data, i_visibleNow);
 
         if (relocated_for_ai && !c->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
             CreatureUnitRelocationWorker(c, &i_player);

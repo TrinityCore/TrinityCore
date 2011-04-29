@@ -19,8 +19,8 @@
 #include "naxxramas.h"
 
 #define SPELL_MORTAL_WOUND      25646
-#define SPELL_ENRAGE            RAID_MODE(28371,54427)
-#define SPELL_DECIMATE          RAID_MODE(28374,54426)
+#define SPELL_ENRAGE            RAID_MODE(28371, 54427)
+#define SPELL_DECIMATE          RAID_MODE(28374, 54426)
 #define SPELL_BERSERK           26662
 #define SPELL_INFECTED_WOUND    29306
 
@@ -123,7 +123,7 @@ public:
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
-                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % RAID_MODE(1,3)]);
+                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }

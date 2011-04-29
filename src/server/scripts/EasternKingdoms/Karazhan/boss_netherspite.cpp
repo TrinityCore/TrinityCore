@@ -52,11 +52,11 @@ enum Netherspite_Portal{
 };
 
 const uint32 PortalID[3] = {17369, 17367, 17368};
-const uint32 PortalVisual[3] = {30487,30490,30491};
-const uint32 PortalBeam[3] = {30465,30464,30463};
-const uint32 PlayerBuff[3] = {30421,30422,30423};
-const uint32 NetherBuff[3] = {30466,30467,30468};
-const uint32 PlayerDebuff[3] = {38637,38638,38639};
+const uint32 PortalVisual[3] = {30487, 30490, 30491};
+const uint32 PortalBeam[3] = {30465, 30464, 30463};
+const uint32 PlayerBuff[3] = {30421, 30422, 30423};
+const uint32 NetherBuff[3] = {30466, 30467, 30468};
+const uint32 PlayerDebuff[3] = {38637, 38638, 38639};
 
 class boss_netherspite : public CreatureScript
 {
@@ -110,10 +110,10 @@ public:
             yh = pTarget->GetPositionY();
 
             // check if target is between (not checking distance from the beam yet)
-            if (dist(xn,yn,xh,yh) >= dist(xn,yn,xp,yp) || dist(xp,yp,xh,yh) >= dist(xn,yn,xp,yp))
+            if (dist(xn, yn, xh, yh) >= dist(xn, yn, xp, yp) || dist(xp, yp, xh, yh) >= dist(xn, yn, xp, yp))
                 return false;
             // check  distance from the beam
-            return (abs((xn-xp)*yh+(yp-yn)*xh-xn*yp+xp*yn)/dist(xn,yn,xp,yp) < 1.5f);
+            return (abs((xn-xp)*yh+(yp-yn)*xh-xn*yp+xp*yn)/dist(xn, yn, xp, yp) < 1.5f);
         }
 
         float dist(float xa, float ya, float xb, float yb) // auxiliary method for distance
@@ -141,7 +141,7 @@ public:
             pos[BLUE_PORTAL] = (r>1 ? 1: 2); // Blue Portal not on the left side (0)
 
             for (int i=0; i<3; ++i)
-                if (Creature *portal = me->SummonCreature(PortalID[i],PortalCoord[pos[i]][0],PortalCoord[pos[i]][1],PortalCoord[pos[i]][2],0,TEMPSUMMON_TIMED_DESPAWN,60000))
+                if (Creature *portal = me->SummonCreature(PortalID[i], PortalCoord[pos[i]][0], PortalCoord[pos[i]][1], PortalCoord[pos[i]][2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 {
                     PortalGUID[i] = portal->GetGUID();
                     portal->AddAura(PortalVisual[i], portal);
@@ -181,9 +181,9 @@ public:
                             Player* p = i->getSource();
                             if (p && p->isAlive() // alive
                                 && (!pTarget || pTarget->GetDistance2d(portal)>p->GetDistance2d(portal)) // closer than current best
-                                && !p->HasAura(PlayerDebuff[j],0) // not exhausted
-                                && !p->HasAura(PlayerBuff[(j+1)%3],0) // not on another beam
-                                && !p->HasAura(PlayerBuff[(j+2)%3],0)
+                                && !p->HasAura(PlayerDebuff[j], 0) // not exhausted
+                                && !p->HasAura(PlayerBuff[(j+1)%3], 0) // not on another beam
+                                && !p->HasAura(PlayerBuff[(j+2)%3], 0)
                                 && IsBetween(me, p, portal)) // on the beam
                                 pTarget = p;
                         }
@@ -206,7 +206,7 @@ public:
                             BeamerGUID[j] = 0;
                         }
                         // create new one and start beaming on the target
-                        if (Creature *beamer = portal->SummonCreature(PortalID[j],portal->GetPositionX(),portal->GetPositionY(),portal->GetPositionZ(),portal->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,60000))
+                        if (Creature *beamer = portal->SummonCreature(PortalID[j], portal->GetPositionX(), portal->GetPositionY(), portal->GetPositionZ(), portal->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
                         {
                             beamer->CastSpell(pTarget, PortalBeam[j], false);
                             BeamerGUID[j] = beamer->GetGUID();
@@ -227,7 +227,7 @@ public:
             PortalPhase = true;
             PortalTimer = 10000;
             EmpowermentTimer = 10000;
-            DoScriptText(EMOTE_PHASE_PORTAL,me);
+            DoScriptText(EMOTE_PHASE_PORTAL, me);
         }
 
         void SwitchToBanishPhase()
@@ -239,7 +239,7 @@ public:
             DestroyPortals();
             PhaseTimer = 30000;
             PortalPhase = false;
-            DoScriptText(EMOTE_PHASE_BANISH,me);
+            DoScriptText(EMOTE_PHASE_BANISH, me);
 
             for (int i=0; i<3; ++i)
                 me->RemoveAurasDueToSpell(NetherBuff[i]);
@@ -271,7 +271,7 @@ public:
             // Void Zone
             if (VoidZoneTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,45,true),SPELL_VOIDZONE,true);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true), SPELL_VOIDZONE, true);
                 VoidZoneTimer = 15000;
             } else VoidZoneTimer -= diff;
 
@@ -314,9 +314,9 @@ public:
                 // Netherbreath
                 if (NetherbreathTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,40,true))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                         DoCast(pTarget, SPELL_NETHERBREATH);
-                    NetherbreathTimer = urand(5000,7000);
+                    NetherbreathTimer = urand(5000, 7000);
                 } else NetherbreathTimer -= diff;
 
                 if (PhaseTimer <= diff)

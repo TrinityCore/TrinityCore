@@ -86,8 +86,8 @@ class npc_forest_frog : public CreatureScript
 
                     if (cEntry) me->UpdateEntry(cEntry);
 
-                    if (cEntry == 24408) pInstance->SetData(TYPE_RAND_VENDOR_1,DONE);
-                    if (cEntry == 24409) pInstance->SetData(TYPE_RAND_VENDOR_2,DONE);
+                    if (cEntry == 24408) pInstance->SetData(TYPE_RAND_VENDOR_1, DONE);
+                    if (cEntry == 24409) pInstance->SetData(TYPE_RAND_VENDOR_2, DONE);
                 }
             }
 

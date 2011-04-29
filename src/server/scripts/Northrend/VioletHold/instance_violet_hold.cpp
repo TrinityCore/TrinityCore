@@ -200,7 +200,7 @@ public:
             uiDoorIntegrity = 100;
 
             uiWaveCount = 0;
-            uiLocation = urand(0,5);
+            uiLocation = urand(0, 5);
             uiFirstBoss = 0;
             uiSecondBoss = 0;
             uiCountErekemGuards = 0;
@@ -469,9 +469,9 @@ public:
 
         void SpawnPortal()
         {
-            SetData(DATA_PORTAL_LOCATION, (GetData(DATA_PORTAL_LOCATION) + urand(1,5))%6);
+            SetData(DATA_PORTAL_LOCATION, (GetData(DATA_PORTAL_LOCATION) + urand(1, 5))%6);
             if (Creature* pSinclari = instance->GetCreature(uiSinclari))
-                if(Creature* portal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[GetData(DATA_PORTAL_LOCATION)],TEMPSUMMON_CORPSE_DESPAWN))
+                if(Creature* portal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, PortalLocation[GetData(DATA_PORTAL_LOCATION)], TEMPSUMMON_CORPSE_DESPAWN))
                     uiTeleportationPortal = portal->GetGUID();
         }
 
@@ -482,7 +482,7 @@ public:
             switch(uiBoss)
             {
                 case BOSS_MORAGG:
-                    HandleGameObject(uiMoraggCell,bForceRespawn);
+                    HandleGameObject(uiMoraggCell, bForceRespawn);
                     pBoss = instance->GetCreature(uiMoragg);
                     if (pBoss)
                         pBoss->GetMotionMaster()->MovePoint(0, BossStartMove1);
@@ -516,25 +516,25 @@ public:
                     }
                     break;
                 case BOSS_ICHORON:
-                    HandleGameObject(uiIchoronCell,bForceRespawn);
+                    HandleGameObject(uiIchoronCell, bForceRespawn);
                     pBoss = instance->GetCreature(uiIchoron);
                     if (pBoss)
                         pBoss->GetMotionMaster()->MovePoint(0, BossStartMove3);
                     break;
                 case BOSS_LAVANTHOR:
-                    HandleGameObject(uiLavanthorCell,bForceRespawn);
+                    HandleGameObject(uiLavanthorCell, bForceRespawn);
                     pBoss = instance->GetCreature(uiLavanthor);
                     if (pBoss)
                         pBoss->GetMotionMaster()->MovePoint(0, BossStartMove4);
                     break;
                 case BOSS_XEVOZZ:
-                    HandleGameObject(uiXevozzCell,bForceRespawn);
+                    HandleGameObject(uiXevozzCell, bForceRespawn);
                     pBoss = instance->GetCreature(uiXevozz);
                     if (pBoss)
                         pBoss->GetMotionMaster()->MovePoint(0, BossStartMove5);
                     break;
                 case BOSS_ZURAMAT:
-                    HandleGameObject(uiZuramatCell,bForceRespawn);
+                    HandleGameObject(uiZuramatCell, bForceRespawn);
                     pBoss = instance->GetCreature(uiZuramat);
                     if (pBoss)
                         pBoss->GetMotionMaster()->MovePoint(0, BossStartMove6);
@@ -570,7 +570,7 @@ public:
             {
                 case 6:
                     if (uiFirstBoss == 0)
-                        uiFirstBoss = urand(1,6);
+                        uiFirstBoss = urand(1, 6);
                     if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                     {
                         if(Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
@@ -583,7 +583,7 @@ public:
                     if (uiSecondBoss == 0)
                         do
                         {
-                            uiSecondBoss = urand(1,6);
+                            uiSecondBoss = urand(1, 6);
                         } while (uiSecondBoss == uiFirstBoss);
                     if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                     {
@@ -597,7 +597,7 @@ public:
                 {
                     Creature* pSinclari = instance->GetCreature(uiSinclari);
                     if (pSinclari)
-                        pSinclari->SummonCreature(CREATURE_CYANIGOSA,CyanigosasSpawnLocation,TEMPSUMMON_DEAD_DESPAWN);
+                        pSinclari->SummonCreature(CREATURE_CYANIGOSA, CyanigosasSpawnLocation, TEMPSUMMON_DEAD_DESPAWN);
                     break;
                 }
                 case 1:
@@ -701,7 +701,7 @@ public:
                 StartBossEncounter(uiFirstBoss, false);
                 StartBossEncounter(uiSecondBoss, false);
 
-                SetData(DATA_MAIN_DOOR,GO_STATE_ACTIVE);
+                SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
                 SetData(DATA_WAVE_COUNT, 0);
                 uiMainEventPhase = NOT_STARTED;
 
@@ -719,12 +719,12 @@ public:
                             {
                                 pGuard->SetVisible(true);
                                 pGuard->SetReactState(REACT_AGGRESSIVE);
-                                pGuard->GetMotionMaster()->MovePoint(1,pGuard->GetHomePosition());
+                                pGuard->GetMotionMaster()->MovePoint(1, pGuard->GetHomePosition());
                             }
                         }
                     }
-                    pSinclari->GetMotionMaster()->MovePoint(1,pSinclari->GetHomePosition());
-                    pSinclari->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
+                    pSinclari->GetMotionMaster()->MovePoint(1, pSinclari->GetHomePosition());
+                    pSinclari->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
             }
 
@@ -771,14 +771,14 @@ public:
                 {
                     if(uiDoorSpellTimer < diff)
                     {
-                        SetData(DATA_DOOR_INTEGRITY,GetData(DATA_DOOR_INTEGRITY)-1);
+                        SetData(DATA_DOOR_INTEGRITY, GetData(DATA_DOOR_INTEGRITY)-1);
                         uiDoorSpellTimer =2000;
                     } else uiDoorSpellTimer -= diff;
                 }
                 // else set door state to active (means door will open and group have failed to sustain mob invasion on the door)
                 else
                 {
-                    SetData(DATA_MAIN_DOOR,GO_STATE_ACTIVE);
+                    SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
                     uiMainEventPhase = FAIL;
                 }
             }
@@ -792,7 +792,7 @@ public:
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->isAlive())
-                    creature->CastSpell(creature,SPELL_ARCANE_LIGHTNING,true);  // Who should cast the spell?
+                    creature->CastSpell(creature, SPELL_ARCANE_LIGHTNING, true);  // Who should cast the spell?
             }
         }
 

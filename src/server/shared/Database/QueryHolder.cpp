@@ -44,7 +44,7 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
 {
     if (!format)
     {
-        sLog->outError("Query (index: %zu) is empty.",index);
+        sLog->outError("Query (index: %zu) is empty.", index);
         return false;
     }
 
@@ -56,7 +56,7 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
 
     if (res == -1)
     {
-        sLog->outError("SQL Query truncated (and not execute) for format: %s",format);
+        sLog->outError("SQL Query truncated (and not execute) for format: %s", format);
         return false;
     }
 

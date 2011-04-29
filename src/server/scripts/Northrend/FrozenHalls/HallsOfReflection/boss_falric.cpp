@@ -79,7 +79,7 @@ public:
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
+            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
         }
 
         void JustDied(Unit* /*killer*/)
@@ -92,7 +92,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -122,7 +122,7 @@ public:
                     break;
                 case EVENT_DEFILING_HORROR:
                     DoCast(SPELL_DEFILING_HORROR);
-                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
+                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
                     break;
             }
 
@@ -131,7 +131,7 @@ public:
                 || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
             {
                 uiHopelessnessCount++;
-                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS,H_SPELL_HOPELESSNESS));
+                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
             }
 
             DoMeleeAttackIfReady();

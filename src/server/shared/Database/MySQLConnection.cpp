@@ -340,7 +340,7 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         }
         else if (sLog->GetSQLDriverQueryLogging())
         {
-            sLog->outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
+            sLog->outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
         }
 
         *pResult = mysql_store_result(m_Mysql);

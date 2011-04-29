@@ -54,7 +54,7 @@ SimpleAI::SimpleAI(Creature *c) : ScriptedAI(c)
     Kill_Spell = 0;
     Kill_Target_Type = 0;
 
-    memset(Spell,0,sizeof(Spell));
+    memset(Spell, 0, sizeof(Spell));
 
     EnterEvadeMode();
 }
@@ -97,7 +97,7 @@ void SimpleAI::EnterCombat(Unit *who)
                 Spell_Timer[9] = Spell[9].First_Cast;
             else Spell_Timer[9] = 1000;
 
-            uint8 random_text = urand(0,2);
+            uint8 random_text = urand(0, 2);
 
             //Random text
             if (Aggro_TextId[random_text])
@@ -110,7 +110,7 @@ void SimpleAI::EnterCombat(Unit *who)
 
 void SimpleAI::KilledUnit(Unit *victim)
 {
-    uint8 random_text = urand(0,2);
+    uint8 random_text = urand(0, 2);
 
     //Random yell
     if (Kill_TextId[random_text])
@@ -134,13 +134,13 @@ void SimpleAI::KilledUnit(Unit *victim)
         pTarget = me->getVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
+        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
         break;
     case CAST_HOSTILE_LAST_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
+        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
         break;
     case CAST_HOSTILE_RANDOM:
-        pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
         break;
     case CAST_KILLEDUNIT_VICTIM:
         pTarget = victim;
@@ -158,7 +158,7 @@ void SimpleAI::DamageTaken(Unit *killer, uint32 &damage)
     if (me->GetHealth() > damage)
         return;
 
-    uint8 random_text = urand(0,2);
+    uint8 random_text = urand(0, 2);
 
     //Random yell
     if (Death_TextId[random_text])
@@ -182,13 +182,13 @@ void SimpleAI::DamageTaken(Unit *killer, uint32 &damage)
         pTarget = me->getVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
+        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
         break;
     case CAST_HOSTILE_LAST_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
+        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
         break;
     case CAST_HOSTILE_RANDOM:
-        pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
         break;
     case CAST_JUSTDIED_KILLER:
         pTarget = killer;
@@ -233,13 +233,13 @@ void SimpleAI::UpdateAI(const uint32 diff)
                     pTarget = me->getVictim();
                     break;
                 case CAST_HOSTILE_SECOND_AGGRO:
-                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
+                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
                     break;
                 case CAST_HOSTILE_LAST_AGGRO:
-                    pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
+                    pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
                     break;
                 case CAST_HOSTILE_RANDOM:
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     break;
                 }
 
@@ -253,7 +253,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
 
                     //Yell and sound use the same number so that you can make
                     //the Creature yell with the correct sound effect attached
-                    uint8 random_text = urand(0,2);
+                    uint8 random_text = urand(0, 2);
 
                     //Random yell
                     if (Spell[i].TextId[random_text])

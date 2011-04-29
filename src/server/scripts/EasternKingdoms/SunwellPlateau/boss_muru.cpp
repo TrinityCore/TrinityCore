@@ -148,16 +148,16 @@ public:
             switch(summoned->GetEntry())
             {
                 case CREATURE_DARK_FIENDS:
-                    summoned->CastSpell(summoned,SPELL_DARKFIEND_VISUAL,false);
+                    summoned->CastSpell(summoned, SPELL_DARKFIEND_VISUAL, false);
                     break;
                 case CREATURE_DARKNESS:
                     summoned->AddUnitState(UNIT_STAT_STUNNED);
-                    float x,y,z,o;
-                    summoned->GetHomePosition(x,y,z,o);
-                    me->SummonCreature(CREATURE_DARK_FIENDS, x,y,z,o, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    float x, y, z, o;
+                    summoned->GetHomePosition(x, y, z, o);
+                    me->SummonCreature(CREATURE_DARK_FIENDS, x, y, z, o, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     break;
             }
-            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
+            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
             Summons.Summon(summoned);
         }
 
@@ -248,7 +248,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoCastAOE(SPELL_NEGATIVE_ENERGY,false);
+            DoCastAOE(SPELL_NEGATIVE_ENERGY, false);
 
             if (pInstance)
                 pInstance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
@@ -276,10 +276,10 @@ public:
                     me->SetVisible(false);
                     break;
                 case CREATURE_DARK_FIENDS:
-                    summoned->CastSpell(summoned,SPELL_DARKFIEND_VISUAL,false);
+                    summoned->CastSpell(summoned, SPELL_DARKFIEND_VISUAL, false);
                     break;
             }
-            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
+            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
             Summons.Summon(summoned);
         }
 
@@ -331,13 +331,13 @@ public:
                             {
                                 DarkFiend = false;
                                 for (uint8 i = 0; i < 8; ++i)
-                                    me->SummonCreature(CREATURE_DARK_FIENDS,DarkFiends[i][0],DarkFiends[i][1],DarkFiends[i][2], DarkFiends[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    me->SummonCreature(CREATURE_DARK_FIENDS, DarkFiends[i][0], DarkFiends[i][1], DarkFiends[i][2], DarkFiends[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
                                 Timer[TIMER_DARKNESS] = 42000;
                             }
                             break;
                         case TIMER_HUMANOIDES:
                             for (uint8 i = 0; i < 6; ++i)
-                                me->SummonCreature(uint32(Humanoides[i][0]),Humanoides[i][1],Humanoides[i][2],Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                me->SummonCreature(uint32(Humanoides[i][0]), Humanoides[i][1], Humanoides[i][2], Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
                             Timer[TIMER_HUMANOIDES] = 60000;
                             break;
                         case TIMER_PHASE:
@@ -415,9 +415,9 @@ public:
 
         void SpellHit(Unit* /*caster*/, const SpellEntry* Spell)
         {
-            float x,y,z,o;
-            me->GetHomePosition(x,y,z,o);
-            DoTeleportTo(x,y,z);
+            float x, y, z, o;
+            me->GetHomePosition(x, y, z, o);
+            DoTeleportTo(x, y, z);
             InAction = true;
             switch(Spell->Id)
             {
@@ -535,15 +535,15 @@ public:
             PulseTimer = 3000;
             VoidBlastTimer = 45000; //is this a correct timer?
 
-            float x,y,z,o;
-            me->GetHomePosition(x,y,z,o);
-            DoTeleportTo(x,y,71);
+            float x, y, z, o;
+            me->GetHomePosition(x, y, z, o);
+            DoTeleportTo(x, y, 71);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             for (uint8 i = 0; i < 8; ++i)
-                me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
+                me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -629,7 +629,7 @@ public:
                         me->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
                         break;
                     case 3:
-                        SpellTimer = urand(400,900);
+                        SpellTimer = urand(400, 900);
                         NeedForAHack = 1;
                         if (Unit* Temp = me->getVictim())
                         {

@@ -569,7 +569,7 @@ void BattlegroundEY::RespawnFlagAfterDrop()
     if (obj)
         obj->Delete();
     else
-        sLog->outError("BattlegroundEY: Unknown dropped flag guid: %u",GUID_LOPART(GetDroppedFlagGUID()));
+        sLog->outError("BattlegroundEY: Unknown dropped flag guid: %u", GUID_LOPART(GetDroppedFlagGUID()));
 
     SetDroppedFlagGUID(0);
 }
@@ -687,9 +687,9 @@ void BattlegroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     m_PointState[Point] = EY_POINT_NO_OWNER;
 
     if (Team == ALLIANCE)
-        SendMessageToAll(m_LosingPointTypes[Point].MessageIdAlliance,CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
+        SendMessageToAll(m_LosingPointTypes[Point].MessageIdAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
     else
-        SendMessageToAll(m_LosingPointTypes[Point].MessageIdHorde,CHAT_MSG_BG_SYSTEM_HORDE, Source);
+        SendMessageToAll(m_LosingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, Source);
 
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
@@ -731,9 +731,9 @@ void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
     m_PointState[Point] = EY_POINT_UNDER_CONTROL;
 
     if (Team == ALLIANCE)
-        SendMessageToAll(m_CapturingPointTypes[Point].MessageIdAlliance,CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
+        SendMessageToAll(m_CapturingPointTypes[Point].MessageIdAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
     else
-        SendMessageToAll(m_CapturingPointTypes[Point].MessageIdHorde,CHAT_MSG_BG_SYSTEM_HORDE, Source);
+        SendMessageToAll(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, Source);
 
     if (m_BgCreatures[Point])
         DelCreature(Point);
@@ -744,7 +744,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
         sLog->outError("BatteGroundEY: Failed to spawn spirit guide! point: %u, team: %u, graveyard_id: %u",
             Point, Team, m_CapturingPointTypes[Point].GraveYardId);
 
-//    SpawnBGCreature(Point,RESPAWN_IMMEDIATELY);
+//    SpawnBGCreature(Point, RESPAWN_IMMEDIATELY);
 
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
@@ -754,7 +754,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
 
     Creature* trigger = GetBGCreature(Point + 6);//0-5 spirit guides
     if (!trigger)
-       trigger = AddCreature(WORLD_TRIGGER,Point+6,Team,BG_EY_TriggerPositions[Point][0],BG_EY_TriggerPositions[Point][1],BG_EY_TriggerPositions[Point][2],BG_EY_TriggerPositions[Point][3]);
+       trigger = AddCreature(WORLD_TRIGGER, Point+6, Team, BG_EY_TriggerPositions[Point][0], BG_EY_TriggerPositions[Point][1], BG_EY_TriggerPositions[Point][2], BG_EY_TriggerPositions[Point][3]);
 
     //add bonus honor aura trigger creature when node is accupied
     //cast bonus aura (+50% honor in 25yards)
@@ -910,7 +910,7 @@ WorldSafeLocsEntry const *BattlegroundEY::GetClosestGraveYard(Player* player)
         {
             entry = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[i].GraveYardId);
             if (!entry)
-                sLog->outError("BattlegroundEY: Not found graveyard: %u",m_CapturingPointTypes[i].GraveYardId);
+                sLog->outError("BattlegroundEY: Not found graveyard: %u", m_CapturingPointTypes[i].GraveYardId);
             else
             {
                 distance = (entry->x - plr_x)*(entry->x - plr_x) + (entry->y - plr_y)*(entry->y - plr_y) + (entry->z - plr_z)*(entry->z - plr_z);

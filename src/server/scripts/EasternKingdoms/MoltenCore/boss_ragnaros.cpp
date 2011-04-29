@@ -209,7 +209,7 @@ class boss_ragnaros : public CreatureScript
                                 break;
                             case EVENT_HAND_OF_RAGNAROS:
                                 DoCast(me, SPELL_HAND_OF_RAGNAROS);
-                                if (urand(0,1))
+                                if (urand(0, 1))
                                     DoScriptText(SAY_HAND, me);
                                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20000);
                                 break;
@@ -260,7 +260,7 @@ class boss_ragnaros : public CreatureScript
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
                                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
+                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
                                                     pSummoned->AI()->AttackStart(pTarget);
 
                                         _hasSubmergedOnce = true;
@@ -275,7 +275,7 @@ class boss_ragnaros : public CreatureScript
 
                                         for (uint8 i = 0; i < 8; ++i)
                                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
+                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
                                                     pSummoned->AI()->AttackStart(pTarget);
 
                                         _isBanished = true;

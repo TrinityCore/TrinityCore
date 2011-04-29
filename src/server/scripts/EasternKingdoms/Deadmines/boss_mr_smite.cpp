@@ -67,9 +67,9 @@ public:
 
         void Reset()
         {
-            uiTrashTimer = urand(5000,9000);
+            uiTrashTimer = urand(5000, 9000);
             uiSlamTimer = 9000;
-            uiNimbleReflexesTimer = urand(15500,31600);
+            uiNimbleReflexesTimer = urand(15500, 31600);
 
             uiHealth = 0;
 
@@ -86,7 +86,7 @@ public:
 
         bool bCheckChances()
         {
-            uint32 uiChances = urand(0,99);
+            uint32 uiChances = urand(0, 99);
             if (uiChances <= 15)
                 return false;
             else
@@ -103,7 +103,7 @@ public:
             {
                 if (bCheckChances())
                     DoCast(me, SPELL_TRASH);
-                uiTrashTimer = urand(6000,15500);
+                uiTrashTimer = urand(6000, 15500);
             } else uiTrashTimer -= uiDiff;
 
             if (uiSlamTimer <= uiDiff)
@@ -117,17 +117,17 @@ public:
             {
                 if (bCheckChances())
                     DoCast(me, SPELL_NIMBLE_REFLEXES);
-                uiNimbleReflexesTimer = urand(27300,60100);
+                uiNimbleReflexesTimer = urand(27300, 60100);
             } else uiNimbleReflexesTimer -= uiDiff;
         /*END ACID-AI*/
 
             if ((uiHealth == 0 && !HealthAbovePct(66)) || (uiHealth == 1 && !HealthAbovePct(33)))
             {
                 ++uiHealth;
-                DoCastAOE(SPELL_SMITE_STOMP,false);
+                DoCastAOE(SPELL_SMITE_STOMP, false);
                 SetCombatMovement(false);
                 if (pInstance)
-                    if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_SMITE_CHEST)))
+                    if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_SMITE_CHEST)))
                     {
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(1, pGo->GetPositionX() - 3.0f, pGo->GetPositionY(), pGo->GetPositionZ());

@@ -127,7 +127,7 @@ public:
                 else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
                 {
                     pInstance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT,13);
+                    pInstance->SetData(DATA_WAVE_COUNT, 13);
                 }
             }
         }

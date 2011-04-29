@@ -62,9 +62,9 @@ public:
         {
             Phase = 1;
 
-            CleaveTimer = urand(10000,15000);
+            CleaveTimer = urand(10000, 15000);
             CurseTimer = 30000;
-            RandomYellTimer = urand(30000,60000);              //Occasionally yell
+            RandomYellTimer = urand(30000, 60000);              //Occasionally yell
             ChargeTimer = 20000;
             ResetTimer = 0;
         }
@@ -86,7 +86,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL1,SAY_KILL2), me);
+            DoScriptText(RAND(SAY_KILL1, SAY_KILL2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -159,7 +159,7 @@ public:
                     Attumen = pAttumen->GetGUID();
                     pAttumen->AI()->AttackStart(me->getVictim());
                     SetMidnight(pAttumen, me->GetGUID());
-                    DoScriptText(RAND(SAY_APPEAR1,SAY_APPEAR2,SAY_APPEAR3), pAttumen);
+                    DoScriptText(RAND(SAY_APPEAR1, SAY_APPEAR2, SAY_APPEAR3), pAttumen);
                 }
             }
             else if (Phase == 2 && HealthBelowPct(25))
@@ -185,7 +185,7 @@ public:
                                 pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
                                 pAttumen->SetUInt64Value(UNIT_FIELD_TARGET, pAttumen->getVictim()->GetGUID());
                             }
-                            pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X,1);
+                            pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X, 1);
                         }
                     } else Mount_Timer -= diff;
                 }
@@ -206,7 +206,7 @@ public:
             float newX = me->GetPositionX() + cos(angle)*(distance/2) ;
             float newY = me->GetPositionY() + sin(angle)*(distance/2) ;
             float newZ = 50;
-            //me->Relocate(newX,newY,newZ,angle);
+            //me->Relocate(newX, newY, newZ, angle);
             //me->SendMonsterMove(newX, newY, newZ, 0, true, 1000);
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(0, newX, newY, newZ);
@@ -215,7 +215,7 @@ public:
             newY = me->GetPositionY() + sin(angle)*(distance/2) ;
             pAttumen->GetMotionMaster()->Clear();
             pAttumen->GetMotionMaster()->MovePoint(0, newX, newY, newZ);
-            //pAttumen->Relocate(newX,newY,newZ,-angle);
+            //pAttumen->Relocate(newX, newY, newZ, -angle);
             //pAttumen->SendMonsterMove(newX, newY, newZ, 0, true, 1000);
             Mount_Timer = 1000;
         }
@@ -257,7 +257,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
     if (CleaveTimer <= diff)
     {
         DoCast(me->getVictim(), SPELL_SHADOWCLEAVE);
-        CleaveTimer = urand(10000,15000);
+        CleaveTimer = urand(10000, 15000);
     } else CleaveTimer -= diff;
 
     if (CurseTimer <= diff)
@@ -268,8 +268,8 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
 
     if (RandomYellTimer <= diff)
     {
-        DoScriptText(RAND(SAY_RANDOM1,SAY_RANDOM2), me);
-        RandomYellTimer = urand(30000,60000);
+        DoScriptText(RAND(SAY_RANDOM1, SAY_RANDOM2), me);
+        RandomYellTimer = urand(30000, 60000);
     } else RandomYellTimer -= diff;
 
     if (me->GetUInt32Value(UNIT_FIELD_DISPLAYID) == MOUNTED_DISPLAYID)

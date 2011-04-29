@@ -112,7 +112,7 @@ class example_creature : public CreatureScript
                 m_uiPhase = 1;                                      // Start in phase 1
                 m_uiPhaseTimer = 60000;                             // 60 seconds
                 m_uiSpell1Timer = 5000;                             //  5 seconds
-                m_uiSpell2Timer = urand(10000,20000);               // between 10 and 20 seconds
+                m_uiSpell2Timer = urand(10000, 20000);               // between 10 and 20 seconds
                 m_uiSpell3Timer = 19000;                            // 19 seconds
                 m_uiBeserkTimer = 120000;                           //  2 minutes
 
@@ -170,7 +170,7 @@ class example_creature : public CreatureScript
                     if (m_uiSayTimer <= uiDiff)
                     {
                         //Random switch between 5 outcomes
-                        DoScriptText(RAND(SAY_RANDOM_0,SAY_RANDOM_1,SAY_RANDOM_2,SAY_RANDOM_3,SAY_RANDOM_4), me);
+                        DoScriptText(RAND(SAY_RANDOM_0, SAY_RANDOM_1, SAY_RANDOM_2, SAY_RANDOM_3, SAY_RANDOM_4), me);
 
                         m_uiSayTimer = 45000;                      //Say something agian in 45 seconds
                     }

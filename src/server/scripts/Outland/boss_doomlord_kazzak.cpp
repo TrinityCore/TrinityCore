@@ -87,7 +87,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2), me);
         }
 
         void KilledUnit(Unit* victim)
@@ -98,7 +98,7 @@ public:
 
                 DoCast(me, SPELL_CAPTURESOUL);
 
-                DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), me);
+                DoScriptText(RAND(SAY_KILL1, SAY_KILL2, SAY_KILL3), me);
         }
 
         void JustDied(Unit * /*victim*/)

@@ -77,7 +77,7 @@ public:
                         FlyBackTimer = 500;
                         break;
                     case 1:
-                        plr->GetClosePoint(x,y,z, me->GetObjectSize());
+                        plr->GetClosePoint(x, y, z, me->GetObjectSize());
                         z += 2.5; x -= 2; y -= 1.5;
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
                         me->SetUInt64Value(UNIT_FIELD_TARGET, plr->GetGUID());

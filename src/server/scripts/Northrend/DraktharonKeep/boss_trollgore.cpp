@@ -83,16 +83,16 @@ public:
         {
             uiConsumeTimer = 15*IN_MILLISECONDS;
             uiAuraCountTimer = 15500;
-            uiCrushTimer = urand(1*IN_MILLISECONDS,5*IN_MILLISECONDS);
-            uiInfectedWoundTimer = urand(60*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            uiCrushTimer = urand(1*IN_MILLISECONDS, 5*IN_MILLISECONDS);
+            uiInfectedWoundTimer = urand(60*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
-            uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
+            uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
 
             bAchiev = IsHeroic();
 
             lSummons.DespawnAll();
 
-            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
 
             if (pInstance)
                 pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
@@ -114,10 +114,10 @@ public:
 
             if (uiSpawnTimer <= diff)
             {
-                uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
+                uint32 spawnNumber = urand(2, DUNGEON_MODE(3, 5));
                 for (uint8 i = 0; i < spawnNumber; ++i)
-                    DoSummon(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
-                uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
+                    DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
+                uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             } else uiSpawnTimer -= diff;
 
             if (uiConsumeTimer <= diff)
@@ -129,7 +129,7 @@ public:
 
             if (bAchiev)
             {
-                Aura *pConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+                Aura *pConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
                 if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
                     bAchiev = false;
             }
@@ -137,20 +137,20 @@ public:
             if (uiCrushTimer <= diff)
             {
                 DoCastVictim(SPELL_CRUSH);
-                uiCrushTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
+                uiCrushTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else uiCrushTimer -= diff;
 
             if (uiInfectedWoundTimer <= diff)
             {
                 DoCastVictim(SPELL_INFECTED_WOUND);
-                uiInfectedWoundTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
+                uiInfectedWoundTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
             } else uiInfectedWoundTimer -= diff;
 
             if (uiExplodeCorpseTimer <= diff)
             {
                 DoCast(SPELL_CORPSE_EXPLODE);
                 DoScriptText(SAY_EXPLODE, me);
-                uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
+                uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
             } else uiExplodeCorpseTimer -= diff;
 
             DoMeleeAttackIfReady();

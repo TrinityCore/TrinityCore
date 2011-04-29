@@ -97,7 +97,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(SAY_DEATH,me);
+            DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
                 pInstance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
@@ -105,12 +105,12 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_SLAY_3,me); //SAY_SLAY_3 on death?
+            DoScriptText(SAY_SLAY_3, me); //SAY_SLAY_3 on death?
 
             if (pInstance)
             {
@@ -147,22 +147,22 @@ public:
             {
                 DoCast(me, SPELL_SUMMON_SWARMERS, true);
                 DoCast(me, SPELL_SUMMON_SWARMERS);
-                if (urand(1,3) == 3) // 33% chance of dialog
-                    DoScriptText(RAND(SAY_EGG_SAC_1,SAY_EGG_SAC_2), me);
+                if (urand(1, 3) == 3) // 33% chance of dialog
+                    DoScriptText(RAND(SAY_EGG_SAC_1, SAY_EGG_SAC_2), me);
 
                 uiSwarmerSpawnTimer = 10*IN_MILLISECONDS;
             } else uiSwarmerSpawnTimer -= diff;
 
             if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
             {
-                me->MonsterTextEmote(EMOTE_HATCHES,me->GetGUID(),true);
+                me->MonsterTextEmote(EMOTE_HATCHES, me->GetGUID(), true);
                 DoCast(me, SPELL_SUMMON_SWARM_GUARD);
                 bGuardSpawned = true;
             } else uiGuardSpawnTimer -= diff;
 
             if (uiEnragueTimer <= diff)
             {
-                if (me->HasAura(SPELL_ENRAGE,0))
+                if (me->HasAura(SPELL_ENRAGE, 0))
                     return;
 
                 float x, y, z, o;
