@@ -61,7 +61,7 @@ enum Spells
     SPELL_DECIMATE                          = 71123,
 };
 
-#define MUTATED_INFECTION RAID_MODE<int32>(69674,71224,73022,73023)
+#define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
 
 enum Events
 {

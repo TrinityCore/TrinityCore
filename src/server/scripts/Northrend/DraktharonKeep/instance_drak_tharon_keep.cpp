@@ -211,7 +211,7 @@ public:
             OUT_LOAD_INST_DATA(in);
 
             char dataHead1, dataHead2;
-            uint16 data0,data1,data2,data3;
+            uint16 data0, data1, data2, data3;
 
             std::istringstream loadStream(in);
             loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;

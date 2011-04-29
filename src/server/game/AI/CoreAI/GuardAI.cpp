@@ -62,7 +62,7 @@ void GuardAI::MoveInLineOfSight(Unit* unit)
         unit->isInAccessiblePlaceFor(me))
     {
         float attackRadius = me->GetAttackDistance(unit);
-        if (me->IsWithinDistInMap(unit,attackRadius))
+        if (me->IsWithinDistInMap(unit, attackRadius))
         {
             //Need add code to let guard support player
             AttackStart(unit);

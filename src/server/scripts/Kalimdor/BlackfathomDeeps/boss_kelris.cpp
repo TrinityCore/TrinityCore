@@ -56,8 +56,8 @@ public:
 
         void Reset()
         {
-            uiMindBlastTimer = urand(2000,5000);
-            uiSleepTimer = urand(9000,12000);
+            uiMindBlastTimer = urand(2000, 5000);
+            uiSleepTimer = urand(9000, 12000);
             if (pInstance)
                 pInstance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
@@ -84,7 +84,7 @@ public:
             if (uiMindBlastTimer < diff)
             {
                 DoCastVictim(SPELL_MIND_BLAST);
-                uiMindBlastTimer = urand(7000,9000);
+                uiMindBlastTimer = urand(7000, 9000);
             } else uiMindBlastTimer -= diff;
 
             if (uiSleepTimer < diff)
@@ -94,7 +94,7 @@ public:
                     DoScriptText(SAY_SLEEP, me);
                     DoCast(pTarget, SPELL_SLEEP);
                 }
-                uiSleepTimer = urand(15000,20000);
+                uiSleepTimer = urand(15000, 20000);
             } else uiSleepTimer -= diff;
 
             DoMeleeAttackIfReady();

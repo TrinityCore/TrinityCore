@@ -36,9 +36,9 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
     if (!pEnemy)
     {
         if (!IS_UNIT_GUID(guid))
-            sLog->outError("WORLD: Object %u (TypeID: %u) isn't player, pet or creature",GUID_LOPART(guid),GuidHigh2TypeId(GUID_HIPART(guid)));
+            sLog->outError("WORLD: Object %u (TypeID: %u) isn't player, pet or creature", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
         else
-            sLog->outError("WORLD: Enemy %s %u not found",GetLogNameForGuid(guid),GUID_LOPART(guid));
+            sLog->outError("WORLD: Enemy %s %u not found", GetLogNameForGuid(guid), GUID_LOPART(guid));
 
         // stop attack state at client
         SendAttackStop(NULL);
@@ -52,7 +52,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
         return;
     }
 
-    _player->Attack(pEnemy,true);
+    _player->Attack(pEnemy, true);
 }
 
 void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recv_data*/)
@@ -69,7 +69,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket & recv_data)
 
     if (sheathed >= MAX_SHEATH_STATE)
     {
-        sLog->outError("Unknown sheath state %u ??",sheathed);
+        sLog->outError("Unknown sheath state %u ??", sheathed);
         return;
     }
 

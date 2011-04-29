@@ -172,7 +172,7 @@ public:
 
         void KilledUnit(Unit* /*pVictim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void DespawnGolem()
@@ -263,7 +263,7 @@ public:
                 if (m_uiShatteringStomp_Timer <= uiDiff)
                 {
                     // Should he stomp even if he has no brittle golem to shatter?
-                    DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2), me);
+                    DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2), me);
 
                     DoCast(me, SPELL_SHATTERING_STOMP_N);
 
@@ -297,7 +297,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                DoScriptText(RAND(SAY_FORGE_1,SAY_FORGE_2), me);
+                DoScriptText(RAND(SAY_FORGE_1, SAY_FORGE_2), me);
 
                 m_bHasTemper = true;
 

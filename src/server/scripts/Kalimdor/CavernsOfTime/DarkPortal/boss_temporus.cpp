@@ -81,7 +81,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -89,7 +89,7 @@ public:
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
-                pInstance->SetData(TYPE_RIFT,SPECIAL);
+                pInstance->SetData(TYPE_RIFT, SPECIAL);
         }
 
         void MoveInLineOfSight(Unit *who)
@@ -97,7 +97,7 @@ public:
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
             {
-                if (me->IsWithinDistInMap(who,20.0f))
+                if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     DoScriptText(SAY_BANISH, me);
 

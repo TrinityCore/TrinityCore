@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: GO_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843,12982, 2936. Soulwell
+SDComment: Quest support: 4285, 4287, 4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089, 12843, 12982, 2936. Soulwell
 SDCategory: Game Objects
 EndScriptData */
 
@@ -67,7 +67,7 @@ public:
 
     bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
     {
-        pPlayer->CastSpell(pPlayer,SPELL_SUMMON_GHOST_SABER,true);
+        pPlayer->CastSpell(pPlayer, SPELL_SUMMON_GHOST_SABER, true);
         return false;
     }
 };
@@ -148,7 +148,7 @@ public:
     {
         if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !pPlayer->HasSpell(26086))
         {
-            pPlayer->CastSpell(pPlayer,26095,false);
+            pPlayer->CastSpell(pPlayer, 26095, false);
         }
         return true;
     }
@@ -167,7 +167,7 @@ public:
     {
         if (pPlayer->HasSkill(SKILL_ENGINERING) && pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !pPlayer->HasSpell(22704))
         {
-            pPlayer->CastSpell(pPlayer,22864,false);
+            pPlayer->CastSpell(pPlayer, 22864, false);
         }
         return true;
     }
@@ -213,7 +213,7 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
     {
         if (pPlayer->GetQuestRewardStatus(7761))
-            pPlayer->CastSpell(pPlayer,23460,true);
+            pPlayer->CastSpell(pPlayer, 23460, true);
 
         return true;
     }
@@ -232,7 +232,7 @@ public:
     {
         if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetSkillValue(SKILL_ALCHEMY) >= 300 && !pPlayer->HasSpell(24266))
         {
-            pPlayer->CastSpell(pPlayer,24267,false);
+            pPlayer->CastSpell(pPlayer, 24267, false);
         }
         return true;
     }
@@ -254,7 +254,7 @@ public:
             return true;
 
         if (pPlayer->GetQuestStatus(4296) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->CastSpell(pPlayer,15065,false);
+            pPlayer->CastSpell(pPlayer, 15065, false);
 
         return true;
     }
@@ -272,7 +272,7 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
     {
         if (pPlayer->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-         pPlayer->CastSpell(pPlayer,33382,true);
+         pPlayer->CastSpell(pPlayer, 33382, true);
 
         return true;
     }
@@ -473,10 +473,10 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
     {
         //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
-        //pPlayer->CastSpell(pPlayer,SPELL_SUMMON_RIZZLE,false);
+        //pPlayer->CastSpell(pPlayer, SPELL_SUMMON_RIZZLE, false);
 
         if (Creature* pCreature = pPlayer->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
-            pCreature->CastSpell(pPlayer,SPELL_BLACKJACK,false);
+            pCreature->CastSpell(pPlayer, SPELL_BLACKJACK, false);
 
         return false;
     }
@@ -569,12 +569,12 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->CastSpell(pPlayer,SPELL_CREATE_1_FLASK_OF_BEAST,false);
+                pPlayer->CastSpell(pPlayer, SPELL_CREATE_1_FLASK_OF_BEAST, false);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->CastSpell(pPlayer,SPELL_CREATE_5_FLASK_OF_BEAST,false);
+                pPlayer->CastSpell(pPlayer, SPELL_CREATE_5_FLASK_OF_BEAST, false);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
@@ -628,12 +628,12 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->CastSpell(pPlayer,SPELL_CREATE_1_FLASK_OF_SORCERER,false);
+                pPlayer->CastSpell(pPlayer, SPELL_CREATE_1_FLASK_OF_SORCERER, false);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->CastSpell(pPlayer,SPELL_CREATE_5_FLASK_OF_SORCERER,false);
+                pPlayer->CastSpell(pPlayer, SPELL_CREATE_5_FLASK_OF_SORCERER, false);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
@@ -681,21 +681,21 @@ public:
                 if (pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
                 {
                     pPlayer->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer,SPELL_YELLOW_PUNCH_CARD,true);
+                    pPlayer->CastSpell(pPlayer, SPELL_YELLOW_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_B:
                 if (pPlayer->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
                 {
                     pPlayer->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer,SPELL_BLUE_PUNCH_CARD,true);
+                    pPlayer->CastSpell(pPlayer, SPELL_BLUE_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_C:
                 if (pPlayer->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
                 {
                     pPlayer->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer,SPELL_RED_PUNCH_CARD,true);
+                    pPlayer->CastSpell(pPlayer, SPELL_RED_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_D:
@@ -856,16 +856,16 @@ public:
         switch(pPrisoner->GetEntry())
         {
             case NPC_EBON_BLADE_PRISONER_HUMAN:
-                pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_H,true);
+                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_H, true);
                 break;
             case NPC_EBON_BLADE_PRISONER_NE:
-                pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_NE,true);
+                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_NE, true);
                 break;
             case NPC_EBON_BLADE_PRISONER_TROLL:
-                pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_TROLL,true);
+                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_TROLL, true);
                 break;
             case NPC_EBON_BLADE_PRISONER_ORC:
-                pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_ORC,true);
+                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_ORC, true);
                 break;
         }
         return true;
@@ -912,10 +912,10 @@ public:
 
     bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
-        if (pPlayer->HasItemCount(ITEM_CUERGOS_KEY,1))
+        if (pPlayer->HasItemCount(ITEM_CUERGOS_KEY, 1))
             return false;
 
-        pPlayer->CastSpell(pPlayer,SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB,true);
+        pPlayer->CastSpell(pPlayer, SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB, true);
 
         return true;
     }
@@ -1009,7 +1009,7 @@ public:
         if (qInfo)
         {
             //TODO: prisoner should help player for a short period of time
-            pPlayer->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0],0);
+            pPlayer->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0], 0);
             pPrisoner->DisappearAndDie();
         }
         return true;
@@ -1036,12 +1036,12 @@ public:
     {
         if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
-            Creature *pTadpole = pGO->FindNearestCreature(NPC_WINTERFIN_TADPOLE,1.0f);
+            Creature *pTadpole = pGO->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
             if (pTadpole)
             {
                 pGO->UseDoorOrButton();
                 pTadpole->DisappearAndDie();
-                pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE,0);
+                pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE, 0);
                 //FIX: Summon minion tadpole
             }
         }
@@ -1072,14 +1072,14 @@ public:
         if ((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
             (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
         {
-            Creature *pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT,1.0f);
+            Creature *pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT, 1.0f);
             if (!pPrisoner)
-                pPrisoner = pGO->FindNearestCreature(NPC_KUL,1.0f);
+                pPrisoner = pGO->FindNearestCreature(NPC_KUL, 1.0f);
             if (pPrisoner)
             {
                 pGO->UseDoorOrButton();
                 pPrisoner->DisappearAndDie();
-                pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
+                pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(), 0);
             }
         }
         return true;
@@ -1133,11 +1133,11 @@ public:
             Creature* pTarget = GetClosestCreatureWithEntry(pPlayer, NPC_OUTHOUSE_BUNNY, 3.0f);
             if (pTarget)
             {
-                pTarget->AI()->SetData(1,pPlayer->getGender());
+                pTarget->AI()->SetData(1, pPlayer->getGender());
                 pGO->CastSpell(pTarget, SPELL_INDISPOSED_III);
             }
             pGO->CastSpell(pPlayer, SPELL_INDISPOSED);
-            if (pPlayer->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER,1))
+            if (pPlayer->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER, 1))
                 pGO->CastSpell(pPlayer, SPELL_CREATE_AMBERSEEDS);
             return true;
         }
@@ -1168,8 +1168,8 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject *pGO)
     {
         pPlayer->SendLoot(pGO->GetGUID(), LOOT_CORPSE);
-        pGO->SummonCreature(NPC_HIVE_AMBUSHER,pGO->GetPositionX()+1,pGO->GetPositionY(),pGO->GetPositionZ(),pGO->GetAngle(pPlayer),TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-        pGO->SummonCreature(NPC_HIVE_AMBUSHER,pGO->GetPositionX(),pGO->GetPositionY()+1,pGO->GetPositionZ(),pGO->GetAngle(pPlayer),TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        pGO->SummonCreature(NPC_HIVE_AMBUSHER, pGO->GetPositionX()+1, pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        pGO->SummonCreature(NPC_HIVE_AMBUSHER, pGO->GetPositionX(), pGO->GetPositionY()+1, pGO->GetPositionZ(), pGO->GetAngle(pPlayer), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         return true;
     }
 };

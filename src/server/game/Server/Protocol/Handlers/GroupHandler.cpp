@@ -930,7 +930,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recv_data)
             data << (uint8)  1;
         }
     }
-    data.put<uint64>(maskPos,auramask);                     // GROUP_UPDATE_FLAG_AURAS
+    data.put<uint64>(maskPos, auramask);                     // GROUP_UPDATE_FLAG_AURAS
 
     if (pet)
     {
@@ -956,7 +956,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recv_data)
                 data << (uint8)  1;
             }
         }
-        data.put<uint64>(petMaskPos,petauramask);           // GROUP_UPDATE_FLAG_PET_AURAS
+        data.put<uint64>(petMaskPos, petauramask);           // GROUP_UPDATE_FLAG_PET_AURAS
     }
     else
     {

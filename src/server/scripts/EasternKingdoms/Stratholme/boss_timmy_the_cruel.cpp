@@ -56,7 +56,7 @@ public:
         {
             if (!HasYelled)
             {
-                me->MonsterYell(SAY_SPAWN,LANG_UNIVERSAL,0);
+                me->MonsterYell(SAY_SPAWN, LANG_UNIVERSAL, 0);
                 HasYelled = true;
             }
         }

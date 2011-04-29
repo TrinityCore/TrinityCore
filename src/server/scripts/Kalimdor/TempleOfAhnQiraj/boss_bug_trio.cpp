@@ -194,11 +194,11 @@ public:
             if (Charge_Timer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                 {
                     DoCast(pTarget, SPELL_CHARGE);
-                    //me->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
+                    //me->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true, 1);
                     AttackStart(pTarget);
                 }
 
@@ -210,7 +210,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_KNOCKBACK);
                 if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(),-80);
+                    DoModifyThreatPercent(me->getVictim(), -80);
                 KnockBack_Timer = 15000 + rand()%10000;
             } else KnockBack_Timer -= diff;
 
@@ -273,8 +273,8 @@ public:
 
             for (uint8 i = 0; i < 10; ++i)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
-                Creature* Summoned = me->SummonCreature(15621,me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,90000);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Creature* Summoned = me->SummonCreature(15621, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
                 if (Summoned && pTarget)
                     Summoned->AI()->AttackStart(pTarget);
             }
@@ -306,7 +306,7 @@ public:
                     Unit *pKri = Unit::GetUnit((*me), pInstance->GetData64(DATA_KRI));
                     Unit *pVem = Unit::GetUnit((*me), pInstance->GetData64(DATA_VEM));
 
-                    switch (urand(0,2))
+                    switch (urand(0, 2))
                     {
                         case 0:
                             if (pKri)

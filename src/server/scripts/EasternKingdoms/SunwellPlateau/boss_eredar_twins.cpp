@@ -120,13 +120,13 @@ public:
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
                 if (Temp)
                 {
                     if (Temp->isDead())
                         CAST_CRE(Temp)->Respawn();
                     else if (Temp->getVictim())
-                        me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
+                        me->getThreatManager().addThreat(Temp->getVictim(), 0.0f);
                 }
             }
 
@@ -152,7 +152,7 @@ public:
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -164,7 +164,7 @@ public:
         void KilledUnit(Unit * /*victim*/)
         {
             if (rand()%4 == 0)
-                DoScriptText(RAND(YELL_SAC_KILL_1,YELL_SAC_KILL_2), me);
+                DoScriptText(RAND(YELL_SAC_KILL_1, YELL_SAC_KILL_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -181,7 +181,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
+        void SpellHitTarget(Unit *pTarget, const SpellEntry* spell)
         {
             switch(spell->Id)
             {
@@ -231,7 +231,7 @@ public:
                 if (pInstance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
+                    Temp = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
@@ -301,10 +301,10 @@ public:
                 for (uint8 i = 0; i<3; ++i)
                 {
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    temp = DoSpawnCreature(MOB_SHADOW_IMAGE,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN,10000);
+                    temp = DoSpawnCreature(MOB_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
                     if (temp && pTarget)
                     {
-                        temp->AddThreat(pTarget,1000000);//don't change target(healers)
+                        temp->AddThreat(pTarget, 1000000);//don't change target(healers)
                         temp->AI()->AttackStart(pTarget);
                     }
                 }
@@ -382,13 +382,13 @@ public:
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
                 if (Temp)
                 {
                     if (Temp->isDead())
                         CAST_CRE(Temp)->Respawn();
                     else if (Temp->getVictim())
-                        me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
+                        me->getThreatManager().addThreat(Temp->getVictim(), 0.0f);
                 }
             }
 
@@ -415,7 +415,7 @@ public:
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -459,7 +459,7 @@ public:
         {
             if (rand()%4 == 0)
             {
-                DoScriptText(RAND(YELL_ALY_KILL_1,YELL_ALY_KILL_2), me);
+                DoScriptText(RAND(YELL_ALY_KILL_1, YELL_ALY_KILL_2), me);
             }
         }
 
@@ -476,7 +476,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
+        void SpellHitTarget(Unit *pTarget, const SpellEntry* spell)
         {
             switch(spell->Id)
             {
@@ -568,7 +568,7 @@ public:
                 if (pInstance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
+                    Temp = Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
@@ -582,12 +582,12 @@ public:
             {
                 if (pInstance)
                 {
-                    Creature* sisiter = Unit::GetCreature((*me),pInstance->GetData64(DATA_SACROLASH));
+                    Creature* sisiter = Unit::GetCreature((*me), pInstance->GetData64(DATA_SACROLASH));
                     if (sisiter && !sisiter->isDead() && sisiter->getVictim())
                     {
-                        me->AddThreat(sisiter->getVictim(),0.0f);
+                        me->AddThreat(sisiter->getVictim(), 0.0f);
                         DoStartNoMovement(sisiter->getVictim());
-                        me->Attack(sisiter->getVictim(),false);
+                        me->Attack(sisiter->getVictim(), false);
                     }
                 }
             }
@@ -701,7 +701,7 @@ public:
 
         void EnterCombat(Unit * /*who*/){}
 
-        void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
+        void SpellHitTarget(Unit *pTarget, const SpellEntry* spell)
         {
             switch(spell->Id)
             {
@@ -714,7 +714,7 @@ public:
                     {
                         pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
                         pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
-                    } else pTarget->CastSpell(pTarget,SPELL_DARK_TOUCHED,true);
+                    } else pTarget->CastSpell(pTarget, SPELL_DARK_TOUCHED, true);
                 }
                 break;
             }

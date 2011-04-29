@@ -194,9 +194,9 @@ public:
         {
             if (ChangeTargetTimer <= diff)
             {
-                if (Unit *temp = Unit::GetUnit(*me,TargetGUID))
+                if (Unit *temp = Unit::GetUnit(*me, TargetGUID))
                 {
-                    me->GetMotionMaster()->MoveFollow(temp,0.0f,0.0f);
+                    me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
                     TargetGUID = 0;
                 }
                 else
@@ -274,9 +274,9 @@ public:
             DrainNordrassilTimer = 0;
             FearTimer = 42000;
             AirBurstTimer = 30000;
-            GripOfTheLegionTimer = urand(5000,25000);
+            GripOfTheLegionTimer = urand(5000, 25000);
             DoomfireTimer = 20000;
-            SoulChargeTimer = urand(2000,30000);
+            SoulChargeTimer = urand(2000, 30000);
             SoulChargeCount = 0;
             MeleeRangeCheckTimer = 15000;
             HandOfDeathTimer = 2000;
@@ -303,7 +303,7 @@ public:
 
         void KilledUnit(Unit * victim)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
 
             if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
                 GainSoulCharge(CAST_PLR(victim));
@@ -330,7 +330,7 @@ public:
                     break;
             }
 
-            SoulChargeTimer = urand(2000,30000);
+            SoulChargeTimer = urand(2000, 30000);
             ++SoulChargeCount;
         }
 
@@ -397,12 +397,12 @@ public:
 
             if (summoned->GetEntry() == CREATURE_DOOMFIRE)
             {
-                summoned->CastSpell(summoned,SPELL_DOOMFIRE_SPAWN,false);
-                summoned->CastSpell(summoned,SPELL_DOOMFIRE,true,0,0,me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
+                summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
 
                 if (Unit *DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
                 {
-                    summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit,0.0f,0.0f);
+                    summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
                     DoomfireSpiritGUID = 0;
                 }
             }
@@ -412,11 +412,11 @@ public:
         void SummonDoomfire(Unit *pTarget)
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
-                pTarget->GetPositionX()+15.0f,pTarget->GetPositionY()+15.0f,pTarget->GetPositionZ(),0,
+                pTarget->GetPositionX()+15.0f, pTarget->GetPositionY()+15.0f, pTarget->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
-                pTarget->GetPositionX()-15.0f,pTarget->GetPositionY()-15.0f,pTarget->GetPositionZ(),0,
+                pTarget->GetPositionX()-15.0f, pTarget->GetPositionY()-15.0f, pTarget->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
@@ -428,7 +428,7 @@ public:
             uint32 chargeSpell = 0;
             uint32 unleashSpell = 0;
 
-            switch (urand(0,2))
+            switch (urand(0, 2))
             {
                 case 0:
                     chargeSpell = SPELL_SOUL_CHARGE_RED;
@@ -453,7 +453,7 @@ public:
             }
 
             if (HasCast)
-                SoulChargeTimer = urand(2000,30000);
+                SoulChargeTimer = urand(2000, 30000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -584,18 +584,18 @@ public:
             if (GripOfTheLegionTimer <= diff)
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
-                GripOfTheLegionTimer = urand(5000,25000);
+                GripOfTheLegionTimer = urand(5000, 25000);
             } else GripOfTheLegionTimer -= diff;
 
             if (AirBurstTimer <= diff)
             {
-                if (urand(0,1))
+                if (urand(0, 1))
                     DoScriptText(SAY_AIR_BURST1, me);
                 else
                     DoScriptText(SAY_AIR_BURST2, me);
 
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
-                AirBurstTimer = urand(25000,40000);
+                AirBurstTimer = urand(25000, 40000);
             } else AirBurstTimer -= diff;
 
             if (FearTimer <= diff)
@@ -606,7 +606,7 @@ public:
 
             if (DoomfireTimer <= diff)
             {
-                if (urand(0,1))
+                if (urand(0, 1))
                     DoScriptText(SAY_DOOMFIRE1, me);
                 else
                     DoScriptText(SAY_DOOMFIRE2, me);

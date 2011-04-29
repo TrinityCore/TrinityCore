@@ -90,7 +90,7 @@ public:
         {
             _EnterCombat();
             Enraged = false;
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me);
             events.ScheduleEvent(EVENT_HATEFUL, 1200);
             events.ScheduleEvent(EVENT_BERSERK, 360000);
 
@@ -129,7 +129,7 @@ public:
                         if (!pMostHPTarget)
                             pMostHPTarget = me->getVictim();
 
-                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);
+                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE, H_SPELL_HATEFUL_STRIKE), true);
 
                         events.ScheduleEvent(EVENT_HATEFUL, 1200);
                         break;

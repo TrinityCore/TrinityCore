@@ -1971,7 +1971,7 @@ bool Guild::Validate()
     // Validate ranks data
     // GUILD RANKS represent a sequence starting from 0 = GUILD_MASTER (ALL PRIVILEGES) to max 9 (lowest privileges).
     // The lower rank id is considered higher rank - so promotion does rank-- and demotion does rank++
-    // Between ranks in sequence cannot be gaps - so 0,1,2,4 is impossible
+    // Between ranks in sequence cannot be gaps - so 0, 1, 2, 4 is impossible
     // Min ranks count is 5 and max is 10.
     bool broken_ranks = false;
     if (_GetRanksSize() < GUILD_RANKS_MIN_COUNT || _GetRanksSize() > GUILD_RANKS_MAX_COUNT)
@@ -2296,7 +2296,7 @@ void Guild::_CreateRank(const std::string& name, uint32 rights)
     if (_GetRanksSize() >= GUILD_RANKS_MAX_COUNT)
         return;
 
-    // Ranks represent sequence 0,1,2,... where 0 means guildmaster
+    // Ranks represent sequence 0, 1, 2, ... where 0 means guildmaster
     uint8 newRankId = _GetRanksSize();
 
     RankInfo info(m_id, newRankId, name, rights, 0);

@@ -83,7 +83,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     if (rand()%2)
                         return;
 
-                    DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
                 }
 
                 void JustDied(Unit* /*Killer*/)
@@ -118,7 +118,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                         if (rand()%2)
                                             return;
 
-                        DoScriptText(RAND(SAY_HAMMER_1,SAY_HAMMER_2), me);
+                        DoScriptText(RAND(SAY_HAMMER_1, SAY_HAMMER_2), me);
                         Jackhammer_Timer = 30000;
                     }
                     else

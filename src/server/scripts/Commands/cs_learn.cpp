@@ -37,7 +37,7 @@ public:
         static ChatCommand learnAllMyCommandTable[] =
         {
             { "class",        SEC_ADMINISTRATOR,  false, &HandleLearnAllMyClassCommand,     "", NULL },
-            { "pettalents",   SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand,"", NULL },
+            { "pettalents",   SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand, "", NULL },
             { "spells",       SEC_ADMINISTRATOR,  false, &HandleLearnAllMySpellsCommand,    "", NULL },
             { "talents",      SEC_ADMINISTRATOR,  false, &HandleLearnAllMyTalentsCommand,   "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
@@ -83,13 +83,13 @@ public:
         if (!spell || !sSpellStore.LookupEntry(spell))
             return false;
 
-        char const* allStr = strtok(NULL," ");
+        char const* allStr = strtok(NULL, " ");
         bool allRanks = allStr ? (strncmp(allStr, "all", strlen(allStr)) == 0) : false;
 
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
-        if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo,handler->GetSession()->GetPlayer()))
+        if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
         {
-            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN,spell);
+            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spell);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -99,7 +99,7 @@ public:
             if (targetPlayer == handler->GetSession()->GetPlayer())
                 handler->SendSysMessage(LANG_YOU_KNOWN_SPELL);
             else
-                handler->PSendSysMessage(LANG_TARGET_KNOWN_SPELL,handler->GetNameLink(targetPlayer).c_str());
+                handler->PSendSysMessage(LANG_TARGET_KNOWN_SPELL, handler->GetNameLink(targetPlayer).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -172,7 +172,7 @@ public:
                 continue;
 
             // skip broken spells
-            if (!SpellMgr::IsSpellValid(spellInfo,handler->GetSession()->GetPlayer(),false))
+            if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
             handler->GetSession()->GetPlayer()->learnSpell(i, false);
@@ -215,7 +215,7 @@ public:
                 continue;
 
             SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
-            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo,handler->GetSession()->GetPlayer(),false))
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
             // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
@@ -294,7 +294,7 @@ public:
                 continue;
 
             SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid);
-            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo,handler->GetSession()->GetPlayer(),false))
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
             // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
@@ -320,13 +320,13 @@ public:
     static bool HandleLearnAllDefaultCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        if (!handler->extractPlayerTarget((char*)args,&target))
+        if (!handler->extractPlayerTarget((char*)args, &target))
             return false;
 
         target->learnDefaultSpells();
         target->learnQuestRewardedSpells();
 
-        handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST,handler->GetNameLink(target).c_str());
+        handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, handler->GetNameLink(target).c_str());
         return true;
     }
 
@@ -342,7 +342,7 @@ public:
             if ((skillInfo->categoryId == SKILL_CATEGORY_PROFESSION || skillInfo->categoryId == SKILL_CATEGORY_SECONDARY) &&
                 skillInfo->canLink)                             // only prof. with recipes have
             {
-                HandleLearnSkillRecipesHelper(handler->GetSession()->GetPlayer(),skillInfo->id);
+                HandleLearnSkillRecipesHelper(handler->GetSession()->GetPlayer(), skillInfo->id);
             }
         }
 
@@ -367,7 +367,7 @@ public:
 
         std::wstring wnamepart;
 
-        if (!Utf8toWStr(args,wnamepart))
+        if (!Utf8toWStr(args, wnamepart))
             return false;
 
         // converting string that we try to find to lower case
@@ -419,14 +419,14 @@ public:
         if (!targetSkillInfo)
             return false;
 
-        HandleLearnSkillRecipesHelper(target,targetSkillInfo->id);
+        HandleLearnSkillRecipesHelper(target, targetSkillInfo->id);
 
         uint16 maxLevel = target->GetPureMaxSkillValue(targetSkillInfo->id);
         target->SetSkill(targetSkillInfo->id, target->GetSkillStep(targetSkillInfo->id), maxLevel, maxLevel);
         handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name.c_str());
         return true;
     }
-    static void HandleLearnSkillRecipesHelper(Player* player,uint32 skill_id)
+    static void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id)
     {
         uint32 classmask = player->getClassMask();
 
@@ -453,7 +453,7 @@ public:
                 continue;
 
             SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
-            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo,player,false))
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 
             player->learnSpell(skillLine->spellId, false);

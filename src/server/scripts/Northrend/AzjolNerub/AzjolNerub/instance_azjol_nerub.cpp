@@ -89,7 +89,7 @@ public:
                 case 192395:
                     uiKrikthirDoor = go->GetGUID();
                     if (auiEncounter[0] == DONE)
-                        HandleGameObject(0,true,go);
+                        HandleGameObject(0, true, go);
                     break;
                 case 192396:
                     uiAnubarakDoor[0] = go->GetGUID();
@@ -125,7 +125,7 @@ public:
             case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:
                 auiEncounter[0] = data;
                 if (data == DONE)
-                    HandleGameObject(uiKrikthirDoor,true);
+                    HandleGameObject(uiKrikthirDoor, true);
                 break;
             case DATA_HADRONOX_EVENT:
                 auiEncounter[1] = data;
@@ -182,7 +182,7 @@ public:
             OUT_LOAD_INST_DATA(in);
 
             char dataHead1, dataHead2;
-            uint16 data0,data1,data2;
+            uint16 data0, data1, data2;
 
             std::istringstream loadStream(in);
             loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2;

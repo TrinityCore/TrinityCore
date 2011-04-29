@@ -173,7 +173,7 @@ public:
                 Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
                 if (Shade && Shade->isAlive() && me->isAlive())
                 {
-                    if (me->IsWithinDist(Shade, 20,false))
+                    if (me->IsWithinDist(Shade, 20, false))
                     {
                         me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveIdle();
@@ -208,7 +208,7 @@ public:
             AkamaGUID = pInstance ? pInstance->GetData64(DATA_AKAMA_SHADE) : 0;
             me->setActive(true);//if view distance is too low
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
         }
 
         InstanceScript* pInstance;
@@ -381,7 +381,7 @@ public:
         void FindChannelers()
         {
             std::list<Creature*> ChannelerList;
-            me->GetCreatureListWithEntryInGrid(ChannelerList,CREATURE_CHANNELER,50.0f);
+            me->GetCreatureListWithEntryInGrid(ChannelerList, CREATURE_CHANNELER, 50.0f);
 
             if (!ChannelerList.empty())
             {
@@ -437,7 +437,7 @@ public:
                             if (Creature* Akama = Unit::GetCreature(*me, AkamaGUID))
                             {
                                 float x, y, z;
-                                Akama->GetPosition(x,y,z);
+                                Akama->GetPosition(x, y, z);
                                 // They move towards AKama
                                 Defender->GetMotionMaster()->MovePoint(0, x, y, z);
                                 Defender->AI()->AttackStart(Akama);

@@ -317,7 +317,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
             }
             else
             {
-                if (flags3 & 0x8000)                         // probably x,y,z coords there
+                if (flags3 & 0x8000)                         // probably x, y, z coords there
                 {
                     *data << (float)0;
                     *data << (float)0;
@@ -1141,7 +1141,7 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
 
 bool Object::PrintIndexError(uint32 index, bool set) const
 {
-    sLog->outError("Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u",(set ? "set value to" : "get value from"),index,m_valuesCount,GetTypeId(),m_objectType);
+    sLog->outError("Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
 
     // ASSERT must fail after function call
     return false;
@@ -1349,15 +1349,15 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 {
     if (!IsInMap(obj)) return false;
-    float ox,oy,oz;
-    obj->GetPosition(ox,oy,oz);
+    float ox, oy, oz;
+    obj->GetPosition(ox, oy, oz);
     return(IsWithinLOS(ox, oy, oz));
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
-    float x,y,z;
-    GetPosition(x,y,z);
+    float x, y, z;
+    GetPosition(x, y, z);
     VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);
 }
@@ -1571,40 +1571,40 @@ void WorldObject::GetRandomPoint(const Position &pos, float distance, float &ran
 
     Trinity::NormalizeMapCoord(rand_x);
     Trinity::NormalizeMapCoord(rand_y);
-    UpdateGroundPositionZ(rand_x,rand_y,rand_z);            // update to LOS height if available
+    UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
 }
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
-    float new_z = GetBaseMap()->GetHeight(x,y,z,true);
+    float new_z = GetBaseMap()->GetHeight(x, y, z, true);
     if (new_z > INVALID_HEIGHT)
         z = new_z+ 0.05f;                                   // just to be sure that we are not a few pixel under the surface
 }
 
 bool Position::IsPositionValid() const
 {
-    return Trinity::IsValidMapCoord(m_positionX,m_positionY,m_positionZ,m_orientation);
+    return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
 void WorldObject::MonsterSay(const char* text, uint32 language, uint64 TargetGuid)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data,CHAT_MSG_MONSTER_SAY,text,language,GetName(),TargetGuid);
-    SendMessageToSetInRange(&data,sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY),true);
+    BuildMonsterChat(&data, CHAT_MSG_MONSTER_SAY, text, language, GetName(), TargetGuid);
+    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
 void WorldObject::MonsterYell(const char* text, uint32 language, uint64 TargetGuid)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,text,language,GetName(),TargetGuid);
-    SendMessageToSetInRange(&data,sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL),true);
+    BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, text, language, GetName(), TargetGuid);
+    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
 
 void WorldObject::MonsterTextEmote(const char* text, uint64 TargetGuid, bool IsBossEmote)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data,IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE,text,LANG_UNIVERSAL,GetName(),TargetGuid);
-    SendMessageToSetInRange(&data,sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true);
+    BuildMonsterChat(&data, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, text, LANG_UNIVERSAL, GetName(), TargetGuid);
+    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
 }
 
 void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossWhisper)
@@ -1614,7 +1614,7 @@ void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossW
         return;
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data,IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER,text,LANG_UNIVERSAL,GetName(),receiver);
+    BuildMonsterChat(&data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, text, LANG_UNIVERSAL, GetName(), receiver);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -1884,10 +1884,10 @@ namespace Trinity
                 : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language), i_targetGUID(targetGUID) {}
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                char const* text = sObjectMgr->GetTrinityString(i_textId,loc_idx);
+                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
 
                 // TODO: i_object.GetName() also must be localized?
-                i_object.BuildMonsterChat(&data,i_msgtype,text,i_language,i_object.GetNameForLocaleIdx(loc_idx),i_targetGUID);
+                i_object.BuildMonsterChat(&data, i_msgtype, text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
         private:
@@ -1907,9 +1907,9 @@ void WorldObject::MonsterSay(int32 textId, uint32 language, uint64 TargetGuid)
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Trinity::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_SAY, textId,language,TargetGuid);
+    Trinity::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_SAY, textId, language, TargetGuid);
     Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> say_do(say_build);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> > say_worker(this,sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY),say_do);
+    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
     TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
 }
@@ -1922,16 +1922,16 @@ void WorldObject::MonsterYell(int32 textId, uint32 language, uint64 TargetGuid)
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Trinity::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_YELL, textId,language,TargetGuid);
+    Trinity::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_YELL, textId, language, TargetGuid);
     Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> say_do(say_build);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> > say_worker(this,sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL),say_do);
+    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), say_do);
     TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
 }
 
 void WorldObject::MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid)
 {
-    Trinity::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_YELL, textId,language,TargetGuid);
+    Trinity::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_YELL, textId, language, TargetGuid);
     Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> say_do(say_build);
 
     uint32 zoneid = GetZoneId();
@@ -1950,9 +1950,9 @@ void WorldObject::MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossE
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Trinity::MonsterChatBuilder say_build(*this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId,LANG_UNIVERSAL,TargetGuid);
+    Trinity::MonsterChatBuilder say_build(*this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId, LANG_UNIVERSAL, TargetGuid);
     Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> say_do(say_build);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> > say_worker(this,sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),say_do);
+    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), say_do);
     TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 }
@@ -1967,7 +1967,7 @@ void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisp
     char const* text = sObjectMgr->GetTrinityString(textId, loc_idx);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data,IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER,text,LANG_UNIVERSAL,GetNameForLocaleIdx(loc_idx),receiver);
+    BuildMonsterChat(&data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, text, LANG_UNIVERSAL, GetNameForLocaleIdx(loc_idx), receiver);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -2060,7 +2060,7 @@ void WorldObject::AddObjectToRemoveList()
     Map* map = FindMap();
     if (!map)
     {
-        sLog->outError("Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).",GetTypeId(),GetEntry(),GetGUIDLow(),GetMapId());
+        sLog->outError("Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).", GetTypeId(), GetEntry(), GetGUIDLow(), GetMapId());
         return;
     }
 
@@ -2196,7 +2196,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
     {
-        sLog->outError("Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pet->GetGUIDLow(),pet->GetEntry(),pet->GetPositionX(),pet->GetPositionY());
+        sLog->outError("Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUIDLow(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return NULL;
     }
@@ -2215,7 +2215,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     pet->setPowerType(POWER_MANA);
     pet->SetUInt32Value(UNIT_NPC_FLAGS , 0);
-    pet->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+    pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
     pet->InitStatsForLevel(getLevel());
 
     SetMinion(pet, true);
@@ -2287,7 +2287,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
     Map *map = GetMap();
     GameObject *go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x,y,z,ang,rotation0,rotation1,rotation2,rotation3,100,GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;
@@ -2385,16 +2385,16 @@ namespace Trinity
                 if (c == i_searcher || c == &i_object)
                     return;
 
-                float x,y,z;
+                float x, y, z;
 
                 if (!c->isAlive() || c->HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) ||
-                    !c->GetMotionMaster()->GetDestination(x,y,z))
+                    !c->GetMotionMaster()->GetDestination(x, y, z))
                 {
                     x = c->GetPositionX();
                     y = c->GetPositionY();
                 }
 
-                add(c,x,y);
+                add(c, x, y);
             }
 
             template<class T>
@@ -2404,19 +2404,19 @@ namespace Trinity
                 if (u == i_searcher || u == &i_object)
                     return;
 
-                float x,y;
+                float x, y;
 
                 x = u->GetPositionX();
                 y = u->GetPositionY();
 
-                add(u,x,y);
+                add(u, x, y);
             }
 
             // we must add used pos that can fill places around center
             void add(WorldObject* u, float x, float y) const
             {
                 // u is too nearest/far away to i_object
-                if (!i_object.IsInRange2d(x,y,i_selector.m_dist - i_selector.m_size,i_selector.m_dist + i_selector.m_size))
+                if (!i_object.IsInRange2d(x, y, i_selector.m_dist - i_selector.m_size, i_selector.m_dist + i_selector.m_size))
                     return;
 
                 float angle = i_object.GetAngle(u)-i_angle;
@@ -2428,8 +2428,8 @@ namespace Trinity
                     angle += 2.0f * M_PI;
 
                 // dist include size of u
-                float dist2d = i_object.GetDistance2d(x,y);
-                i_selector.AddUsedPos(u->GetObjectSize(),angle,dist2d + i_object.GetObjectSize());
+                float dist2d = i_object.GetDistance2d(x, y);
+                i_selector.AddUsedPos(u->GetObjectSize(), angle, dist2d + i_object.GetObjectSize());
             }
         private:
             WorldObject const& i_object;
@@ -2453,15 +2453,15 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 
 void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
 {
-    GetNearPoint2D(x,y,distance2d+searcher_size,absAngle);
+    GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
     z = GetPositionZ();
-    UpdateGroundPositionZ(x,y,z);
+    UpdateGroundPositionZ(x, y, z);
 
     /*
     // if detection disabled, return first point
     if (!sWorld->getIntConfig(CONFIG_DETECT_POS_COLLISION))
     {
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
         return;
     }
 
@@ -2471,7 +2471,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     bool first_los_conflict = false;                        // first point LOS problems
 
     // prepare selector for work
-    ObjectPosSelector selector(GetPositionX(),GetPositionY(),GetObjectSize(),distance2d+searcher_size);
+    ObjectPosSelector selector(GetPositionX(), GetPositionY(), GetObjectSize(), distance2d+searcher_size);
 
     // adding used positions around object
     {
@@ -2480,8 +2480,8 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
-        Trinity::NearUsedPosDo u_do(*this,searcher,absAngle,selector);
-        Trinity::WorldObjectWorker<Trinity::NearUsedPosDo> worker(this,u_do);
+        Trinity::NearUsedPosDo u_do(*this, searcher, absAngle, selector);
+        Trinity::WorldObjectWorker<Trinity::NearUsedPosDo> worker(this, u_do);
 
         TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::NearUsedPosDo>, GridTypeMapContainer  > grid_obj_worker(worker);
         TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::NearUsedPosDo>, WorldTypeMapContainer > world_obj_worker(worker);
@@ -2494,9 +2494,9 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     // maybe can just place in primary position
     if (selector.CheckOriginal())
     {
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
 
-        if (IsWithinLOS(x,y,z))
+        if (IsWithinLOS(x, y, z))
             return;
 
         first_los_conflict = true;                          // first point have LOS problems
@@ -2507,11 +2507,11 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     // special case when one from list empty and then empty side preferred
     if (selector.FirstAngle(angle))
     {
-        GetNearPoint2D(x,y,distance2d,absAngle+angle);
+        GetNearPoint2D(x, y, distance2d, absAngle+angle);
         z = GetPositionZ();
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
 
-        if (IsWithinLOS(x,y,z))
+        if (IsWithinLOS(x, y, z))
             return;
     }
 
@@ -2521,11 +2521,11 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     // select in positions after current nodes (selection one by one)
     while (selector.NextAngle(angle))                        // angle for free pos
     {
-        GetNearPoint2D(x,y,distance2d,absAngle+angle);
+        GetNearPoint2D(x, y, distance2d, absAngle+angle);
         z = GetPositionZ();
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
 
-        if (IsWithinLOS(x,y,z))
+        if (IsWithinLOS(x, y, z))
             return;
     }
 
@@ -2537,7 +2537,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
         x = first_x;
         y = first_y;
 
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
         return;
     }
 
@@ -2546,11 +2546,11 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     {
         if (!selector.FirstAngle(angle))                     // _used_ pos
         {
-            GetNearPoint2D(x,y,distance2d,absAngle+angle);
+            GetNearPoint2D(x, y, distance2d, absAngle+angle);
             z = GetPositionZ();
-            UpdateGroundPositionZ(x,y,z);                   // update to LOS height if available
+            UpdateGroundPositionZ(x, y, z);                   // update to LOS height if available
 
-            if (IsWithinLOS(x,y,z))
+            if (IsWithinLOS(x, y, z))
                 return;
         }
     }
@@ -2561,11 +2561,11 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     // select in positions after current nodes (selection one by one)
     while (selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
     {
-        GetNearPoint2D(x,y,distance2d,absAngle+angle);
+        GetNearPoint2D(x, y, distance2d, absAngle+angle);
         z = GetPositionZ();
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
 
-        if (IsWithinLOS(x,y,z))
+        if (IsWithinLOS(x, y, z))
             return;
     }
 
@@ -2573,7 +2573,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     x = first_x;
     y = first_y;
 
-    UpdateGroundPositionZ(x,y,z);                           // update to LOS height if available
+    UpdateGroundPositionZ(x, y, z);                           // update to LOS height if available
     */
 }
 
@@ -2599,7 +2599,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     floor = GetMap()->GetHeight(destx, desty, pos.m_positionZ, true);
     destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
 
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),pos.m_positionX,pos.m_positionY,pos.m_positionZ+0.5f,destx,desty,destz+0.5f,destx,desty,destz,-0.5f);
+    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
 
     // collision occured
     if (col)
@@ -2647,7 +2647,7 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
 {
-    WorldPacket data(SMSG_PLAY_OBJECT_SOUND,4+8);
+    WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4+8);
     data << uint32(sound_id);
     data << uint64(GetGUID());
     if (target)

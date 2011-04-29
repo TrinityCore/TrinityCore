@@ -107,13 +107,13 @@ public:
                 case GO_EXIT_GATE:
                     uiExitGate = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(uiExitGate,true);
+                        HandleGameObject(uiExitGate, true);
                     break;
                 case GO_MALGANIS_CHEST_N:
                 case GO_MALGANIS_CHEST_H:
                     uiMalGanisChest = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     break;
             }
         }
@@ -137,15 +137,15 @@ public:
                     switch(m_auiEncounter[3])
                     {
                         case NOT_STARTED:
-                            HandleGameObject(uiMalGanisGate2,true);
+                            HandleGameObject(uiMalGanisGate2, true);
                             break;
                         case IN_PROGRESS:
-                            HandleGameObject(uiMalGanisGate2,false);
+                            HandleGameObject(uiMalGanisGate2, false);
                             break;
                         case DONE:
                             HandleGameObject(uiExitGate, true);
                             if (GameObject* go = instance->GetGameObject(uiMalGanisChest))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                             break;
                     }
                     break;

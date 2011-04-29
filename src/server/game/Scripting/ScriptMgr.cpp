@@ -32,12 +32,12 @@
 #define SCR_REG_LST(T) ScriptRegistry<T>::ScriptPointerList
 
 // Utility macros for looping over scripts.
-#define FOR_SCRIPTS(T,C,E) \
+#define FOR_SCRIPTS(T, C, E) \
     if (SCR_REG_LST(T).empty()) \
         return; \
     for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
         C != SCR_REG_LST(T).end(); ++C)
-#define FOR_SCRIPTS_RET(T,C,E,R) \
+#define FOR_SCRIPTS_RET(T, C, E, R) \
     if (SCR_REG_LST(T).empty()) \
         return R; \
     for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
@@ -47,11 +47,11 @@
     itr->second
 
 // Utility macros for finding specific scripts.
-#define GET_SCRIPT(T,I,V) \
+#define GET_SCRIPT(T, I, V) \
     T* V = ScriptRegistry<T>::GetScriptById(I); \
     if (!V) \
         return;
-#define GET_SCRIPT_RET(T,I,V,R) \
+#define GET_SCRIPT_RET(T, I, V, R) \
     T* V = ScriptRegistry<T>::GetScriptById(I); \
     if (!V) \
         return R;
@@ -463,7 +463,7 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
     FOREACH_SCRIPT(FormulaScript)->OnGroupRateCalculation(rate, count, isRaid);
 }
 
-#define SCR_MAP_BGN(M,V,I,E,C,T) \
+#define SCR_MAP_BGN(M, V, I, E, C, T) \
     if (V->GetEntry()->T()) \
     { \
         FOR_SCRIPTS(M, I, E) \
