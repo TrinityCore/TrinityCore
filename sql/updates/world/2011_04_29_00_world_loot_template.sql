@@ -1,5 +1,5 @@
 -- Nefarian T2 Head
-SET @REF:= 34348; (found by StoredProc)
+SET @REF:= 34348; -- (found by StoredProc)
 
 -- Delete all so we can also renumber the itemids on refs for old loot
 DELETE FROM `creature_loot_template` WHERE `entry`=11583; 
