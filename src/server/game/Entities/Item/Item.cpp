@@ -804,7 +804,7 @@ bool Item::IsBoundByEnchant() const
     return false;
 }
 
-uint8 Item::CanBeMergedPartlyWith(ItemTemplate const* proto) const
+InventoryResult Item::CanBeMergedPartlyWith(ItemTemplate const* proto) const
 {
     // not allow merge looting currently items
     if (m_lootGenerated)
