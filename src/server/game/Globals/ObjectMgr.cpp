@@ -2368,7 +2368,7 @@ void ObjectMgr::LoadItemTemplates()
         {
             itemTemplate.Spells[i].SpellId               = fields[66 + i*7  ].GetInt32();
             itemTemplate.Spells[i].SpellTrigger          = uint32(fields[67 + i*7].GetUInt8());
-            itemTemplate.Spells[i].SpellCharges          = uint32(fields[68 + i*7].GetInt16());
+            itemTemplate.Spells[i].SpellCharges          = int32(fields[68 + i*7].GetInt16());
             itemTemplate.Spells[i].SpellPPMRate          = fields[69 + i*7].GetFloat();
             itemTemplate.Spells[i].SpellCooldown         = fields[70 + i*7].GetInt32();
             itemTemplate.Spells[i].SpellCategory         = uint32(fields[71 + i*7].GetUInt16());
@@ -2382,10 +2382,10 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.PageMaterial   = uint32(fields[105].GetUInt8());
         itemTemplate.StartQuest     = fields[106].GetUInt32();
         itemTemplate.LockID         = fields[107].GetUInt32();
-        itemTemplate.Material       = uint32(fields[108].GetInt8());
+        itemTemplate.Material       = int32(fields[108].GetInt8());
         itemTemplate.Sheath         = uint32(fields[109].GetUInt8());
         itemTemplate.RandomProperty = fields[110].GetUInt32();
-        itemTemplate.RandomSuffix   = fields[111].GetUInt32();
+        itemTemplate.RandomSuffix   = fields[111].GetInt32();
         itemTemplate.Block          = fields[112].GetUInt32();
         itemTemplate.ItemSet        = fields[113].GetUInt32();
         itemTemplate.MaxDurability  = uint32(fields[114].GetUInt16());
