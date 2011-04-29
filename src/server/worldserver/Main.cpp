@@ -66,7 +66,7 @@ void usage(const char *prog)
         "    -s install               install service\n\r"
         "    -s uninstall             uninstall service\n\r"
         #endif
-        ,prog);
+        , prog);
 }
 
 /// Launch the Trinity server

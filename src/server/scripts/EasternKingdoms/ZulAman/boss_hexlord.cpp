@@ -264,7 +264,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Unit* Temp = Unit::GetUnit((*me),AddGUID[i]);
+                    Unit* Temp = Unit::GetUnit((*me), AddGUID[i]);
                     if (Temp && Temp->isAlive())
                         CAST_CRE(Temp)->AI()->AttackStart(me->getVictim());
                     else
@@ -277,7 +277,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                switch (urand(0,1))
+                switch (urand(0, 1))
                 {
                     case 0:
                         me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
@@ -300,7 +300,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 for (uint8 i = 0; i < 4 ; ++i)
                 {
-                    Unit* Temp = Unit::GetUnit((*me),AddGUID[i]);
+                    Unit* Temp = Unit::GetUnit((*me), AddGUID[i]);
                     if (Temp && Temp->isAlive())
                         Temp->DealDamage(Temp, Temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
@@ -371,7 +371,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     DoCast(me, SPELL_DRAIN_POWER, true);
                     me->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
-                    DrainPower_Timer = urand(40000,55000);    // must cast in 60 sec, or buff/debuff will disappear
+                    DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
                 } else DrainPower_Timer -= diff;
 
                 if (SpiritBolts_Timer <= diff)
@@ -410,7 +410,7 @@ class boss_hexlord_malacrass : public CreatureScript
                         //me->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SIPHON_SOUL);
 
                         PlayerGUID = pTarget->GetGUID();
-                        PlayerAbility_Timer = urand(8000,10000);
+                        PlayerAbility_Timer = urand(8000, 10000);
                         PlayerClass = pTarget->getClass() - 1;
 
                         if (PlayerClass == CLASS_DRUID-1)
@@ -428,7 +428,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     //if (pTarget && pTarget->isAlive())
                     //{
                         UseAbility();
-                        PlayerAbility_Timer = urand(8000,10000);
+                        PlayerAbility_Timer = urand(8000, 10000);
                     //}
                 } else PlayerAbility_Timer -= diff;
 
@@ -437,7 +437,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void UseAbility()
             {
-                uint8 random = urand(0,2);
+                uint8 random = urand(0, 2);
                 Unit *pTarget = NULL;
                 switch(PlayerAbility[PlayerClass][random].target)
                 {
@@ -599,7 +599,7 @@ class boss_alyson_antille : public CreatureScript
                     }
                     else
                     {
-                        if (urand(0,1))
+                        if (urand(0, 1))
                             pTarget = DoSelectLowestHpFriendly(50, 0);
                         else
                             pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -611,7 +611,7 @@ class boss_alyson_antille : public CreatureScript
 
                 /*if (dispelmagic_timer <= diff)
                 {
-                if (urand(0,1))
+                if (urand(0, 1))
                 {
                     Unit *pTarget = SelectTarget();
 
@@ -865,7 +865,7 @@ class boss_fenstalker : public CreatureScript
                 if (volatileinf_timer <= diff)
                 {
                     // core bug
-                    me->getVictim()->CastSpell(me->getVictim(),SPELL_VOLATILE_INFECTION, false);
+                    me->getVictim()->CastSpell(me->getVictim(), SPELL_VOLATILE_INFECTION, false);
                     volatileinf_timer = 12000;
                 } else volatileinf_timer -= diff;
 

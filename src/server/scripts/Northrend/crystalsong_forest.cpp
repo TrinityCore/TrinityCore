@@ -87,13 +87,13 @@ public:
             }else
             {
                 if (!uiTargetGUID)
-                    if (Creature* pOrb = GetClosestCreatureWithEntry(me,NPC_TRANSITUS_SHIELD_DUMMY,32.0f))
+                    if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
                         uiTargetGUID = pOrb->GetGUID();
 
             }
 
-            if (Creature* pOrb = me->GetCreature(*me,uiTargetGUID))
-                DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
+            if (Creature* pOrb = me->GetCreature(*me, uiTargetGUID))
+                DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
 
         }
     };

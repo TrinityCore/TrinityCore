@@ -204,7 +204,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
         }
 
         void JustSummoned(Creature *summoned)
@@ -212,11 +212,11 @@ public:
             if (summoned->GetEntry() == ENTRY_STOLEN_SOUL)
             {
                 //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
-                summoned->CastSpell(summoned,SPELL_STOLEN_SOUL_VISUAL,false);
+                summoned->CastSpell(summoned, SPELL_STOLEN_SOUL_VISUAL, false);
                 summoned->SetDisplayId(soulmodel);
                 summoned->setFaction(me->getFaction());
 
-                if (Unit *pTarget = Unit::GetUnit(*me,soulholder))
+                if (Unit *pTarget = Unit::GetUnit(*me, soulholder))
                 {
 
                 CAST_AI(mob_stolen_soul::mob_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
@@ -230,7 +230,7 @@ public:
             if (rand()%2)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -259,14 +259,14 @@ public:
 
             if (StolenSoul_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (me->IsNonMeleeSpellCasted(false))
                             me->InterruptNonMeleeSpells(true);
 
-                        uint32 i = urand(1,2);
+                        uint32 i = urand(1, 2);
                         if (i == 1)
                             DoScriptText(SAY_ROAR, me);
                         else
@@ -286,7 +286,7 @@ public:
 
             if (Ribbon_of_Souls_timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);

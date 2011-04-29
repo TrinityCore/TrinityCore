@@ -288,7 +288,7 @@ inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
         (spellInfo->TotemCategory[0] != 0 || spellInfo->EffectItemType[0]==0)));
 }
 
-bool IsHigherHankOfSpell(uint32 spellId_1,uint32 spellId_2);
+bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2);
 bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
@@ -302,7 +302,7 @@ inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
     if (!IsPassiveSpell(spellProto->Id))
         return false;
 
-    return !IsSpellHaveEffect(spellProto,SPELL_EFFECT_APPLY_AURA);
+    return !IsSpellHaveEffect(spellProto, SPELL_EFFECT_APPLY_AURA);
 }
 
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
@@ -679,11 +679,11 @@ enum SpellGroup
 
 //                  spell_id, group_id
 typedef std::multimap<uint32, SpellGroup > SpellSpellGroupMap;
-typedef std::pair<SpellSpellGroupMap::const_iterator,SpellSpellGroupMap::const_iterator> SpellSpellGroupMapBounds;
+typedef std::pair<SpellSpellGroupMap::const_iterator, SpellSpellGroupMap::const_iterator> SpellSpellGroupMapBounds;
 
 //                      group_id, spell_id
 typedef std::multimap<SpellGroup, int32> SpellGroupSpellMap;
-typedef std::pair<SpellGroupSpellMap::const_iterator,SpellGroupSpellMap::const_iterator> SpellGroupSpellMapBounds;
+typedef std::pair<SpellGroupSpellMap::const_iterator, SpellGroupSpellMap::const_iterator> SpellGroupSpellMapBounds;
 
 enum SpellGroupStackRule
 {
@@ -784,12 +784,12 @@ struct SpellArea
     bool IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const;
 };
 
-typedef std::multimap<uint32,SpellArea> SpellAreaMap;
-typedef std::multimap<uint32,SpellArea const*> SpellAreaForQuestMap;
-typedef std::multimap<uint32,SpellArea const*> SpellAreaForAuraMap;
-typedef std::multimap<uint32,SpellArea const*> SpellAreaForAreaMap;
-typedef std::pair<SpellAreaMap::const_iterator,SpellAreaMap::const_iterator> SpellAreaMapBounds;
-typedef std::pair<SpellAreaForQuestMap::const_iterator,SpellAreaForQuestMap::const_iterator> SpellAreaForQuestMapBounds;
+typedef std::multimap<uint32, SpellArea> SpellAreaMap;
+typedef std::multimap<uint32, SpellArea const*> SpellAreaForQuestMap;
+typedef std::multimap<uint32, SpellArea const*> SpellAreaForAuraMap;
+typedef std::multimap<uint32, SpellArea const*> SpellAreaForAreaMap;
+typedef std::pair<SpellAreaMap::const_iterator, SpellAreaMap::const_iterator> SpellAreaMapBounds;
+typedef std::pair<SpellAreaForQuestMap::const_iterator, SpellAreaForQuestMap::const_iterator> SpellAreaForQuestMapBounds;
 typedef std::pair<SpellAreaForAuraMap::const_iterator, SpellAreaForAuraMap::const_iterator>  SpellAreaForAuraMapBounds;
 typedef std::pair<SpellAreaForAreaMap::const_iterator, SpellAreaForAreaMap::const_iterator>  SpellAreaForAreaMapBounds;
 
@@ -807,11 +807,11 @@ typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
 
 //                   spell_id  req_spell
 typedef std::multimap<uint32, uint32> SpellRequiredMap;
-typedef std::pair<SpellRequiredMap::const_iterator,SpellRequiredMap::const_iterator> SpellRequiredMapBounds;
+typedef std::pair<SpellRequiredMap::const_iterator, SpellRequiredMap::const_iterator> SpellRequiredMapBounds;
 
 //                   req_spell spell_id
 typedef std::multimap<uint32, uint32> SpellsRequiringSpellMap;
-typedef std::pair<SpellsRequiringSpellMap::const_iterator,SpellsRequiringSpellMap::const_iterator> SpellsRequiringSpellMapBounds;
+typedef std::pair<SpellsRequiringSpellMap::const_iterator, SpellsRequiringSpellMap::const_iterator> SpellsRequiringSpellMapBounds;
 
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
@@ -832,10 +832,10 @@ struct SpellLearnSpellNode
 };
 
 typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
-typedef std::pair<SpellLearnSpellMap::const_iterator,SpellLearnSpellMap::const_iterator> SpellLearnSpellMapBounds;
+typedef std::pair<SpellLearnSpellMap::const_iterator, SpellLearnSpellMap::const_iterator> SpellLearnSpellMapBounds;
 
 typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
-typedef std::pair<SkillLineAbilityMap::const_iterator,SkillLineAbilityMap::const_iterator> SkillLineAbilityMapBounds;
+typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::const_iterator> SkillLineAbilityMapBounds;
 
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
@@ -918,7 +918,7 @@ class SpellMgr
         SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const
         {
             spell_id = GetFirstSpellInChain(spell_id);
-            return SpellSpellGroupMapBounds(mSpellSpellGroup.lower_bound(spell_id),mSpellSpellGroup.upper_bound(spell_id));
+            return SpellSpellGroupMapBounds(mSpellSpellGroup.lower_bound(spell_id), mSpellSpellGroup.upper_bound(spell_id));
         }
         uint32 IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) const
         {
@@ -933,7 +933,7 @@ class SpellMgr
 
         SpellGroupSpellMapBounds GetSpellGroupSpellMapBounds(SpellGroup group_id) const
         {
-            return SpellGroupSpellMapBounds(mSpellGroupSpell.lower_bound(group_id),mSpellGroupSpell.upper_bound(group_id));
+            return SpellGroupSpellMapBounds(mSpellGroupSpell.lower_bound(group_id), mSpellGroupSpell.upper_bound(group_id));
         }
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells) const
         {
@@ -1152,12 +1152,12 @@ class SpellMgr
 
         SpellRequiredMapBounds GetSpellsRequiredForSpellBounds(uint32 spell_id) const
         {
-            return SpellRequiredMapBounds(mSpellReq.lower_bound(spell_id),mSpellReq.upper_bound(spell_id));
+            return SpellRequiredMapBounds(mSpellReq.lower_bound(spell_id), mSpellReq.upper_bound(spell_id));
         }
 
         SpellsRequiringSpellMapBounds GetSpellsRequiringSpellBounds(uint32 spell_id) const
         {
-            return SpellsRequiringSpellMapBounds(mSpellsReqSpell.lower_bound(spell_id),mSpellsReqSpell.upper_bound(spell_id));
+            return SpellsRequiringSpellMapBounds(mSpellsReqSpell.lower_bound(spell_id), mSpellsReqSpell.upper_bound(spell_id));
         }
         bool IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const
         {
@@ -1191,7 +1191,7 @@ class SpellMgr
             return mEnchantCustomAttr[ench_id];
         }
 
-        uint8 IsHighRankOfSpell(uint32 spell1,uint32 spell2) const
+        uint8 IsHighRankOfSpell(uint32 spell1, uint32 spell2) const
         {
             SpellChainMap::const_iterator itr1 = mSpellChains.find(spell1);
             SpellChainMap::const_iterator itr2 = mSpellChains.find(spell2);
@@ -1204,7 +1204,7 @@ class SpellMgr
             return false;
         }
 
-        bool IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const;
+        bool IsRankSpellDueToSpell(SpellEntry const *spellInfo_1, uint32 spellId_2) const;
         static bool canStackSpellRanks(SpellEntry const *spellInfo);
         bool CanAurasStack(Aura const *aura1, Aura const *aura2, bool sameCaster) const;
 
@@ -1227,10 +1227,10 @@ class SpellMgr
 
         SpellLearnSpellMapBounds GetSpellLearnSpellMapBounds(uint32 spell_id) const
         {
-            return SpellLearnSpellMapBounds(mSpellLearnSpells.lower_bound(spell_id),mSpellLearnSpells.upper_bound(spell_id));
+            return SpellLearnSpellMapBounds(mSpellLearnSpells.lower_bound(spell_id), mSpellLearnSpells.upper_bound(spell_id));
         }
 
-        bool IsSpellLearnToSpell(uint32 spell_id1,uint32 spell_id2) const
+        bool IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
         {
             SpellLearnSpellMapBounds bounds = GetSpellLearnSpellMapBounds(spell_id1);
             for (SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
@@ -1256,7 +1256,7 @@ class SpellMgr
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const
         {
-            return SkillLineAbilityMapBounds(mSkillLineAbilityMap.lower_bound(spell_id),mSkillLineAbilityMap.upper_bound(spell_id));
+            return SkillLineAbilityMapBounds(mSkillLineAbilityMap.lower_bound(spell_id), mSkillLineAbilityMap.upper_bound(spell_id));
         }
 
         PetAura const* GetPetAura(uint32 spell_id, uint8 eff)
@@ -1304,30 +1304,30 @@ class SpellMgr
 
         SpellAreaMapBounds GetSpellAreaMapBounds(uint32 spell_id) const
         {
-            return SpellAreaMapBounds(mSpellAreaMap.lower_bound(spell_id),mSpellAreaMap.upper_bound(spell_id));
+            return SpellAreaMapBounds(mSpellAreaMap.lower_bound(spell_id), mSpellAreaMap.upper_bound(spell_id));
         }
 
         SpellAreaForQuestMapBounds GetSpellAreaForQuestMapBounds(uint32 quest_id, bool active) const
         {
             if (active)
-                return SpellAreaForQuestMapBounds(mSpellAreaForActiveQuestMap.lower_bound(quest_id),mSpellAreaForActiveQuestMap.upper_bound(quest_id));
+                return SpellAreaForQuestMapBounds(mSpellAreaForActiveQuestMap.lower_bound(quest_id), mSpellAreaForActiveQuestMap.upper_bound(quest_id));
             else
-                return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id),mSpellAreaForQuestMap.upper_bound(quest_id));
+                return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id), mSpellAreaForQuestMap.upper_bound(quest_id));
         }
 
         SpellAreaForQuestMapBounds GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const
         {
-            return SpellAreaForQuestMapBounds(mSpellAreaForQuestEndMap.lower_bound(quest_id),mSpellAreaForQuestEndMap.upper_bound(quest_id));
+            return SpellAreaForQuestMapBounds(mSpellAreaForQuestEndMap.lower_bound(quest_id), mSpellAreaForQuestEndMap.upper_bound(quest_id));
         }
 
         SpellAreaForAuraMapBounds GetSpellAreaForAuraMapBounds(uint32 spell_id) const
         {
-            return SpellAreaForAuraMapBounds(mSpellAreaForAuraMap.lower_bound(spell_id),mSpellAreaForAuraMap.upper_bound(spell_id));
+            return SpellAreaForAuraMapBounds(mSpellAreaForAuraMap.lower_bound(spell_id), mSpellAreaForAuraMap.upper_bound(spell_id));
         }
 
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const
         {
-            return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id),mSpellAreaForAreaMap.upper_bound(area_id));
+            return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id), mSpellAreaForAreaMap.upper_bound(area_id));
         }
 
         bool IsSrcTargetSpell(SpellEntry const *spellInfo) const;

@@ -99,7 +99,7 @@ public:
                 w_loops = World::m_worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(w_lastchange,curtime) > _delaytime)
+            else if (getMSTimeDiff(w_lastchange, curtime) > _delaytime)
             {
                 sLog->outError("World Thread hangs, kicking out server!");
                 ASSERT(false);

@@ -239,7 +239,7 @@ class boss_zuljin : public CreatureScript
                 if (Intro_Timer)
                     return;
 
-                switch (urand(0,1))
+                switch (urand(0, 1))
                 {
                     case 0:
                         me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
@@ -262,7 +262,7 @@ class boss_zuljin : public CreatureScript
                 Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
 
                 if (Unit *Temp = Unit::GetUnit(*me, SpiritGUID[3]))
-                    Temp->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
+                    Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
             }
 
             void AttackStart(Unit *who)
@@ -358,7 +358,7 @@ class boss_zuljin : public CreatureScript
                     if (Phase > 0)
                     {
                         if (Unit *Temp = Unit::GetUnit(*me, SpiritGUID[Phase - 1]))
-                            Temp->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
+                            Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
                     }
                     if (Unit *Temp = Unit::GetUnit(*me, SpiritGUID[NextPhase - 1]))
                         Temp->CastSpell(me, SPELL_SIPHON_SOUL, false); // should m cast on temp

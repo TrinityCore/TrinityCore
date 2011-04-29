@@ -212,7 +212,7 @@ public:
                 {
                     for (uint8 i = 0; i < 2; ++i)
                     {
-                        if (Creature *Guardian = me->SummonCreature(CREATURE_GUARDIAN,SpawnPointGuardian[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                        if (Creature *Guardian = me->SummonCreature(CREATURE_GUARDIAN, SpawnPointGuardian[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
                         {
                             Guardian->AddThreat(me->getVictim(), 0.0f);
                             DoZoneInCombat(Guardian);
@@ -229,7 +229,7 @@ public:
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
-                                if (Creature *Venomancer = me->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                                if (Creature *Venomancer = me->SummonCreature(CREATURE_VENOMANCER, SpawnPoint[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 {
                                     Venomancer->AddThreat(me->getVictim(), 0.0f);
                                     DoZoneInCombat(Venomancer);
@@ -248,7 +248,7 @@ public:
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
-                                if (Creature *Datter = me->SummonCreature(CREATURE_DATTER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                                if (Creature *Datter = me->SummonCreature(CREATURE_DATTER, SpawnPoint[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 {
                                     Datter->AddThreat(me->getVictim(), 0.0f);
                                     DoZoneInCombat(Datter);
@@ -337,7 +337,7 @@ public:
         {
             if (pVictim == me)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void JustSummoned(Creature* summon)

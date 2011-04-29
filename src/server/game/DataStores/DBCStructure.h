@@ -32,11 +32,11 @@
 
 // Structures using to access raw DBC data and required packing to portability
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
+// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
-#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
 
 struct AchievementEntry
@@ -254,13 +254,13 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
         struct
         {
-            uint32  teamtype;                               // 3 {2,3,5}
+            uint32  teamtype;                               // 3 {2, 3, 5}
         } highest_team_rating;
 
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING      = 39
         struct
         {
-            uint32  teamtype;                               // 3 {2,3,5}
+            uint32  teamtype;                               // 3 {2, 3, 5}
             uint32  teamrating;                             // 4
         } reach_team_rating;
 
@@ -1214,7 +1214,7 @@ struct MapEntry
     float   entrance_x;                                     // 60 entrance x coordinate (if exist single entry)
     float   entrance_y;                                     // 61 entrance y coordinate (if exist single entry)
                                                             // 62 -1, 0 and 720
-    uint32  addon;                                          // 63 (0-original maps,1-tbc addon)
+    uint32  addon;                                          // 63 (0-original maps, 1-tbc addon)
     uint32  unk_time;                                       // 64 some kind of time?
     //uint32 maxPlayers;                                    // 65 max players
 
@@ -1584,9 +1584,9 @@ struct SpellEntry
 };
 
 typedef std::set<uint32> SpellCategorySet;
-typedef std::map<uint32,SpellCategorySet > SpellCategoryStore;
+typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
 typedef std::set<uint32> PetFamilySpellsSet;
-typedef std::map<uint32,PetFamilySpellsSet > PetFamilySpellsStore;
+typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
 
 struct SpellCastTimesEntry
 {
@@ -1599,7 +1599,7 @@ struct SpellCastTimesEntry
 struct SpellDifficultyEntry
 {
     uint32     ID;                                          // 0
-    int32      SpellID[MAX_DIFFICULTY];                     // 1-4 instance modes: 10N,25N,10H,25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
+    int32      SpellID[MAX_DIFFICULTY];                     // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
 };
 
 struct SpellFocusObjectEntry
@@ -1920,7 +1920,7 @@ struct WorldMapAreaEntry
     float   x1;                                             // 6
     float   x2;                                             // 7
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
-    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1,x2,y1,y2 coordinates)
+    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
     // uint32  someMapID;                                   // 10
 };
 
@@ -1974,18 +1974,18 @@ struct TalentSpellPos
     uint8  rank;
 };
 
-typedef std::map<uint32,TalentSpellPos> TalentSpellPosMap;
+typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
 
 struct TaxiPathBySourceAndDestination
 {
-    TaxiPathBySourceAndDestination() : ID(0),price(0) {}
-    TaxiPathBySourceAndDestination(uint32 _id,uint32 _price) : ID(_id),price(_price) {}
+    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
 
     uint32    ID;
     uint32    price;
 };
-typedef std::map<uint32,TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32,TaxiPathSetForSource> TaxiPathSetBySource;
+typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
+typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
 struct TaxiPathNodePtr
 {
@@ -1995,7 +1995,7 @@ struct TaxiPathNodePtr
     operator TaxiPathNodeEntry const& () const { return *i_ptr; }
 };
 
-typedef Path<TaxiPathNodePtr,TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 14

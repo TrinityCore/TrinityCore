@@ -111,7 +111,7 @@ public:
 
         void InitWorldState(bool Enable = true)
         {
-            DoUpdateWorldState(WORLD_STATE_BM,Enable ? 1 : 0);
+            DoUpdateWorldState(WORLD_STATE_BM, Enable ? 1 : 0);
             DoUpdateWorldState(WORLD_STATE_BM_SHIELD, 100);
             DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
         }
@@ -130,7 +130,7 @@ public:
             if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return;
 
-            pPlayer->SendUpdateWorldState(WORLD_STATE_BM,0);
+            pPlayer->SendUpdateWorldState(WORLD_STATE_BM, 0);
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -267,7 +267,7 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Dark Portal: Summoning rift boss entry %u.",entry);
+            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Dark Portal: Summoning rift boss entry %u.", entry);
 
             Position pos;
             me->GetRandomNearPosition(pos, 10.0f);
@@ -286,18 +286,18 @@ public:
         {
             if (Creature* pMedivh = instance->GetCreature(MedivhGUID))
             {
-                uint8 tmp = urand(0,2);
+                uint8 tmp = urand(0, 2);
 
                 if (tmp >= CurrentRiftId)
                     ++tmp;
 
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
+                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).", tmp, CurrentRiftId);
 
                 CurrentRiftId = tmp;
 
                 Creature* pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
-                    PortalLocation[tmp][0],PortalLocation[tmp][1],PortalLocation[tmp][2],PortalLocation[tmp][3],
-                    TEMPSUMMON_CORPSE_DESPAWN,0);
+                    PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
+                    TEMPSUMMON_CORPSE_DESPAWN, 0);
                 if (pTemp)
                 {
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -306,11 +306,11 @@ public:
                     if (Creature* pBoss = SummonedPortalBoss(pTemp))
                     {
                         if (pBoss->GetEntry() == C_AEONUS)
-                            pBoss->AddThreat(pMedivh,0.0f);
+                            pBoss->AddThreat(pMedivh, 0.0f);
                         else
                         {
-                            pBoss->AddThreat(pTemp,0.0f);
-                            pTemp->CastSpell(pBoss,SPELL_RIFT_CHANNEL,false);
+                            pBoss->AddThreat(pTemp, 0.0f);
+                            pTemp->CastSpell(pBoss, SPELL_RIFT_CHANNEL, false);
                         }
                     }
                 }

@@ -56,26 +56,26 @@ const Position WaypointPositions[12] =
 
 const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
 const uint32 SPELL_MARK[]       =   {28832, 28833, 28834, 28835};
-#define SPELL_PRIMARY(i)            RAID_MODE(SPELL_PRIMARY_N[i],SPELL_PRIMARY_H[i])
+#define SPELL_PRIMARY(i)            RAID_MODE(SPELL_PRIMARY_N[i], SPELL_PRIMARY_H[i])
 const uint32 SPELL_PRIMARY_N[]  =   {28884, 28863, 28882, 28883};
 const uint32 SPELL_PRIMARY_H[]  =   {57467, 57463, 57369, 57466};
-#define SPELL_SECONDARY(i)          RAID_MODE(SPELL_SECONDARY_N[i],SPELL_SECONDARY_H[i])
+#define SPELL_SECONDARY(i)          RAID_MODE(SPELL_SECONDARY_N[i], SPELL_SECONDARY_H[i])
 const uint32 SPELL_SECONDARY_N[]=   {0, 57374, 0, 57376};
 const uint32 SPELL_SECONDARY_H[]=   {0, 57464, 0, 57465};
 const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 #define SPELL_BERSERK               26662
 
-// used by 16063,16064,16065,30549, but signed for 16063
+// used by 16063, 16064, 16065, 30549, but signed for 16063
 const int32 SAY_AGGRO[]     =   {-1533051, -1533044, -1533065, -1533058};
 const int32 SAY_TAUNT[3][4] ={  {-1533052, -1533045, -1533071, -1533059},
                                 {-1533053, -1533046, -1533072, -1533060},
-                                {-1533054, -1533047, -1533073, -1533061},};
+                                {-1533054, -1533047, -1533073, -1533061}, };
 const int32 SAY_SPECIAL[]   =   {-1533055, -1533048, -1533070, -1533062};
 const int32 SAY_SLAY[]      =   {-1533056, -1533049, -1533068, -1533063};
 const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
 
-#define SAY_BARON_AGGRO     RAND(-1533065,-1533066,-1533067)
-#define SAY_BARON_SLAY      RAND(-1533068,-1533069)
+#define SAY_BARON_AGGRO     RAND(-1533065, -1533066, -1533067)
+#define SAY_BARON_SLAY      RAND(-1533068, -1533069)
 
 class boss_four_horsemen : public CreatureScript
 {

@@ -143,8 +143,8 @@ public:
                             IsSelfRooted = true;
 
                         //Cast spell
-                        if (Healing) DoCastSpell(me,info);
-                        else DoCastSpell(me->getVictim(),info);
+                        if (Healing) DoCastSpell(me, info);
+                        else DoCastSpell(me->getVictim(), info);
 
                         //Set our global cooldown
                         GlobalCooldown = GENERIC_CREATURE_COOLDOWN;

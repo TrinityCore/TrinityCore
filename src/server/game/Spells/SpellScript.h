@@ -159,7 +159,7 @@ class SpellScript : public _SpellScript
         class EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
         {
             public:
-                EffectHandler(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 std::string ToString();
                 bool CheckEffect(SpellEntry const* spellEntry, uint8 effIndex);
                 void Call(SpellScript* spellScript, SpellEffIndex effIndex);
@@ -190,7 +190,7 @@ class SpellScript : public _SpellScript
 
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CheckCastHandlerFunction : public SpellScript::CheckCastHandler { public: CheckCastHandlerFunction(SpellCheckCastFnType _checkCastHandlerScript) : SpellScript::CheckCastHandler((SpellScript::SpellCheckCastFnType)_checkCastHandlerScript) {} }; \
-        class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) {} }; \
         class UnitTargetHandlerFunction : public SpellScript::UnitTargetHandler { public: UnitTargetHandlerFunction(SpellUnitTargetFnType _pUnitTargetHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::UnitTargetHandler((SpellScript::SpellUnitTargetFnType)_pUnitTargetHandlerScript, _effIndex, _targetType) {} }; \
 
@@ -337,7 +337,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_MANASHIELD,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD,
     /*AURA_SCRIPT_HOOK_APPLY,
-    AURA_SCRIPT_HOOK_REMOVE,*/
+    AURA_SCRIPT_HOOK_REMOVE, */
 };
 #define HOOK_AURA_EFFECT_START HOOK_AURA_EFFECT_APPLY
 #define HOOK_AURA_EFFECT_END HOOK_AURA_EFFECT_CALC_SPELLMOD + 1
@@ -370,7 +370,7 @@ class AuraScript : public _SpellScript
         class EffectPeriodicHandler : public EffectBase
         {
             public:
-                EffectPeriodicHandler(AuraEffectPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectPeriodicHandler(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 void Call(AuraScript * auraScript, AuraEffect const * _aurEff);
             private:
                 AuraEffectPeriodicFnType pEffectHandlerScript;
@@ -378,7 +378,7 @@ class AuraScript : public _SpellScript
         class EffectUpdatePeriodicHandler : public EffectBase
         {
             public:
-                EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 void Call(AuraScript * auraScript, AuraEffect * aurEff);
             private:
                 AuraEffectUpdatePeriodicFnType pEffectHandlerScript;
@@ -386,7 +386,7 @@ class AuraScript : public _SpellScript
         class EffectCalcAmountHandler : public EffectBase
         {
             public:
-                EffectCalcAmountHandler(AuraEffectCalcAmountFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectCalcAmountHandler(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 void Call(AuraScript * auraScript, AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
             private:
                 AuraEffectCalcAmountFnType pEffectHandlerScript;
@@ -394,7 +394,7 @@ class AuraScript : public _SpellScript
         class EffectCalcPeriodicHandler : public EffectBase
         {
             public:
-                EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 void Call(AuraScript * auraScript, AuraEffect const* aurEff, bool & isPeriodic, int32 & periodicTimer);
             private:
                 AuraEffectCalcPeriodicFnType pEffectHandlerScript;
@@ -402,7 +402,7 @@ class AuraScript : public _SpellScript
         class EffectCalcSpellModHandler : public EffectBase
         {
             public:
-                EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 void Call(AuraScript * auraScript, AuraEffect const* aurEff, SpellModifier *& spellMod);
             private:
                 AuraEffectCalcSpellModFnType pEffectHandlerScript;
@@ -410,7 +410,7 @@ class AuraScript : public _SpellScript
         class EffectApplyHandler : public EffectBase
         {
             public:
-                EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode);
+                EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode);
                 void Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraEffectHandleModes _mode);
             private:
                 AuraEffectApplicationModeFnType pEffectHandlerScript;
@@ -434,14 +434,14 @@ class AuraScript : public _SpellScript
         };
 
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
-        class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
-        class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
-        class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
-        class EffectCalcPeriodicHandlerFunction : public AuraScript::EffectCalcPeriodicHandler { public: EffectCalcPeriodicHandlerFunction(AuraEffectCalcPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcPeriodicHandler((AuraScript::AuraEffectCalcPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
-        class EffectCalcSpellModHandlerFunction : public AuraScript::EffectCalcSpellModHandler { public: EffectCalcSpellModHandlerFunction(AuraEffectCalcSpellModFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcSpellModHandler((AuraScript::AuraEffectCalcSpellModFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
-        class EffectApplyHandlerFunction : public AuraScript::EffectApplyHandler { public: EffectApplyHandlerFunction(AuraEffectApplicationModeFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode) : AuraScript::EffectApplyHandler((AuraScript::AuraEffectApplicationModeFnType)_pEffectHandlerScript, _effIndex, _effName, _mode) {} }; \
-        class EffectAbsorbFunction : public AuraScript::EffectAbsorbHandler { public: EffectAbsorbFunction(AuraEffectAbsorbFnType _pEffectHandlerScript,uint8 _effIndex) : AuraScript::EffectAbsorbHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) {} }; \
-        class EffectManaShieldFunction : public AuraScript::EffectManaShieldHandler { public: EffectManaShieldFunction(AuraEffectAbsorbFnType _pEffectHandlerScript,uint8 _effIndex) : AuraScript::EffectManaShieldHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) {} }; \
+        class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class EffectCalcPeriodicHandlerFunction : public AuraScript::EffectCalcPeriodicHandler { public: EffectCalcPeriodicHandlerFunction(AuraEffectCalcPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcPeriodicHandler((AuraScript::AuraEffectCalcPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class EffectCalcSpellModHandlerFunction : public AuraScript::EffectCalcSpellModHandler { public: EffectCalcSpellModHandlerFunction(AuraEffectCalcSpellModFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcSpellModHandler((AuraScript::AuraEffectCalcSpellModFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class EffectApplyHandlerFunction : public AuraScript::EffectApplyHandler { public: EffectApplyHandlerFunction(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode) : AuraScript::EffectApplyHandler((AuraScript::AuraEffectApplicationModeFnType)_pEffectHandlerScript, _effIndex, _effName, _mode) {} }; \
+        class EffectAbsorbFunction : public AuraScript::EffectAbsorbHandler { public: EffectAbsorbFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectAbsorbHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) {} }; \
+        class EffectManaShieldFunction : public AuraScript::EffectManaShieldHandler { public: EffectManaShieldFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectManaShieldHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) {} }; \
 
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 

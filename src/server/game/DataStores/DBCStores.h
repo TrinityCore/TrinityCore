@@ -34,7 +34,7 @@ TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
 AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
-AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id);
+AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id);
 uint32 GetAreaFlagByMapId(uint32 mapid);
 
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid);
@@ -54,7 +54,7 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
 void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
-typedef std::map<uint32/*pair32(map,diff)*/,MapDifficulty> MapDifficultyMap;
+typedef std::map<uint32/*pair32(map, diff)*/, MapDifficulty> MapDifficultyMap;
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
 

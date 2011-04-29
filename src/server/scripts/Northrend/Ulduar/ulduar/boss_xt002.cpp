@@ -274,7 +274,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -314,7 +314,7 @@ public:
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(pTarget, RAID_MODE(SPELL_GRAVITY_BOMB_10,SPELL_GRAVITY_BOMB_25));
+                        DoCast(pTarget, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
                         uiGravityBombTarget = pTarget->GetGUID();
                     }
                     uiGravityBombTimer = TIMER_GRAVITY_BOMB;
@@ -425,7 +425,7 @@ public:
                 {
                     if (Unit *pGravityBombTarget = me->GetUnit(*me, uiGravityBombTarget))
                     {
-                        pGravityBombTarget->RemoveAurasDueToSpell(RAID_MODE(SPELL_GRAVITY_BOMB_10,SPELL_GRAVITY_BOMB_25));
+                        pGravityBombTarget->RemoveAurasDueToSpell(RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
                         if (hardMode)
                         {
                             //Remains spawned for 3 minutes

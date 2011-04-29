@@ -25,7 +25,7 @@
 
 #ifdef MAP_BASED_RAND_GEN
 #define rand_norm() unit.rand_norm()
-#define urand(a,b) unit.urand(a,b)
+#define urand(a, b) unit.urand(a, b)
 #endif
 
 template<class T>
@@ -33,7 +33,7 @@ void
 ConfusedMovementGenerator<T>::Initialize(T &unit)
 {
     const float wander_distance = 11;
-    float x,y,z;
+    float x, y, z;
     x = unit.GetPositionX();
     y = unit.GetPositionY();
     z = unit.GetPositionZ();
@@ -140,7 +140,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
                 // arrived, stop and wait a bit
                 unit.ClearUnitState(UNIT_STAT_MOVE);
 
-                i_nextMove = urand(1,MAX_CONF_WAYPOINTS);
+                i_nextMove = urand(1, MAX_CONF_WAYPOINTS);
                 i_nextMoveTime.Reset(urand(0, 1500-1));     // TODO: check the minimum reset time, should be probably higher
             }
         }

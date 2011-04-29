@@ -34,7 +34,7 @@ struct ObjectPosSelector
 {
     struct UsedPos
     {
-        UsedPos(float sign_, float size_,float dist_) : sign(sign_), size(size_),dist(dist_) {}
+        UsedPos(float sign_, float size_, float dist_) : sign(sign_), size(size_), dist(dist_) {}
 
         float sign;
 
@@ -42,11 +42,11 @@ struct ObjectPosSelector
         float dist;                                         // dist to central point (including central point size)
     };
 
-    typedef std::multimap<float,UsedPos> UsedPosList;       // abs(angle)->Node
+    typedef std::multimap<float, UsedPos> UsedPosList;       // abs(angle)->Node
 
-    ObjectPosSelector(float x,float y,float size,float dist);
+    ObjectPosSelector(float x, float y, float size, float dist);
 
-    void AddUsedPos(float size,float angle,float dist);
+    void AddUsedPos(float size, float angle, float dist);
     void InitializeAngle();
 
     bool FirstAngle(float& angle);
@@ -68,8 +68,8 @@ struct ObjectPosSelector
 
     bool CheckOriginal() const
     {
-        return (m_UsedPosLists[USED_POS_PLUS].empty()  || CheckAngle( *m_UsedPosLists[USED_POS_PLUS].begin(),1.0,0)) &&
-            (m_UsedPosLists[USED_POS_MINUS].empty() || CheckAngle( *m_UsedPosLists[USED_POS_MINUS].begin(),-1.0,0));
+        return (m_UsedPosLists[USED_POS_PLUS].empty()  || CheckAngle( *m_UsedPosLists[USED_POS_PLUS].begin(), 1.0, 0)) &&
+            (m_UsedPosLists[USED_POS_MINUS].empty() || CheckAngle( *m_UsedPosLists[USED_POS_MINUS].begin(), -1.0, 0));
     }
 
     bool IsNonBalanced() const { return m_UsedPosLists[USED_POS_PLUS].empty() != m_UsedPosLists[USED_POS_MINUS].empty(); }

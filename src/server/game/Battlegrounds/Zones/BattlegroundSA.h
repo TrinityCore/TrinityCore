@@ -170,10 +170,10 @@ const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
     { 1236.213f, 92.287f, 64.965f, 5.751f },
     { 1215.11f, 57.772f, 64.739f, 5.78f } ,
     //Demolishers
-    { 1611.597656f,-117.270073f,8.719355f,2.513274f},
-    { 1575.562500f,-158.421875f,5.024450f,2.129302f},
-    { 1618.047729f,61.424641f,7.248210f,3.979351f},
-    { 1575.103149f,98.873344f,2.830360f,3.752458f},
+    { 1611.597656f, -117.270073f, 8.719355f, 2.513274f},
+    { 1575.562500f, -158.421875f, 5.024450f, 2.129302f},
+    { 1618.047729f, 61.424641f, 7.248210f, 3.979351f},
+    { 1575.103149f, 98.873344f, 2.830360f, 3.752458f},
     //trigger
     { 1453.49f, -250.453f, 30.896f, 4.2883f},
     { 1377.05f, 97.036f, 30.8605f, 2.46539f},
@@ -240,19 +240,19 @@ const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     { 1230.75f, -210.724f, 67.611f, 0.5023f },
     { 1217.8f, 79.532f, 66.58f, 5.745f },
     //Flagpoles
-    { 1215.114258f,-65.711861f,70.084267f,-3.124123f},
-    {1338.863892f,-153.336533f,30.895121f,-2.530723f},
-    {1309.124268f,9.410645f,30.893402f,-1.623156f},
+    { 1215.114258f, -65.711861f, 70.084267f, -3.124123f},
+    {1338.863892f, -153.336533f, 30.895121f, -2.530723f},
+    {1309.124268f, 9.410645f, 30.893402f, -1.623156f},
     //Flags
-    { 1215.108032f,-65.715767f,70.084267f,-3.124123f},
-    { 1338.859253f,-153.327316f,30.895077f,-2.530723f},
-    { 1309.192017f,9.416233f,30.893402f,1.518436f},
+    { 1215.108032f, -65.715767f, 70.084267f, -3.124123f},
+    { 1338.859253f, -153.327316f, 30.895077f, -2.530723f},
+    { 1309.192017f, 9.416233f, 30.893402f, 1.518436f},
     //Portal
     {1468.380005f, -225.798996f, 30.896200f, 0.0f}, //blue
-    {1394.270020f, 72.551399f, 31.054300f, 0.0f},//green
-    {1065.260010f, -89.79501f, 81.073402f, 0.0f},//yellow
-    {1216.069946f, 47.904301f, 54.278198f,0.0f}, //purple
-    {1255.569946f, -233.548996f, 56.43699f, 0.0f},//red
+    {1394.270020f, 72.551399f, 31.054300f, 0.0f}, //green
+    {1065.260010f, -89.79501f, 81.073402f, 0.0f}, //yellow
+    {1216.069946f, 47.904301f, 54.278198f, 0.0f}, //purple
+    {1255.569946f, -233.548996f, 56.43699f, 0.0f}, //red
     //Bombs
     {1333.45f, 211.354f, 31.0538f, 5.03666f},
     {1334.29f, 209.582f, 31.0532f, 1.28088f},
@@ -346,8 +346,8 @@ const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     190723,
     192549,
     192834,
-    0,// Boat
-    0,// Boat
+    0, // Boat
+    0, // Boat
     192687,
     192685,
     192689,
@@ -481,7 +481,7 @@ class BattlegroundSA : public Battleground
         void EndBattleground(uint32 winner);
 
         /// CAlled when a player leave battleground
-        void RemovePlayer(Player *plr,uint64 guid);
+        void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
 
         /* Scorekeeping */
@@ -566,7 +566,7 @@ class BattlegroundSA : public Battleground
         bool SignaledRoundTwoHalfMin;
         /// for know if second round has been init
         bool InitSecondRound;
-        std::map<uint32/*id*/,uint32/*timer*/> DemoliserRespawnList;
+        std::map<uint32/*id*/, uint32/*timer*/> DemoliserRespawnList;
 
 };
 #endif

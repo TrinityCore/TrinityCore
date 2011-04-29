@@ -243,7 +243,7 @@ void UpdateWorldState(Map *map, uint32 id, uint32 state)
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             if (Player* pPlayer = itr->getSource())
-                pPlayer->SendUpdateWorldState(id,state);
+                pPlayer->SendUpdateWorldState(id, state);
         }
     }
 }
@@ -377,11 +377,11 @@ public:
                 uiTotal_scourge = ENCOUNTER_TOTAL_SCOURGE;
                 uiSummon_counter = 0;
 
-                uiAnti_magic_zone = urand(1000,6000);
-                uiDeath_strike = urand(5000,10000);
-                uiDeath_embrace = urand(5000,10000);
-                uiIcy_touch = urand(5000,10000);
-                uiUnholy_blight = urand(5000,10000);
+                uiAnti_magic_zone = urand(1000, 6000);
+                uiDeath_strike = urand(5000, 10000);
+                uiDeath_embrace = urand(5000, 10000);
+                uiIcy_touch = urand(5000, 10000);
+                uiUnholy_blight = urand(5000, 10000);
 
                 uiFight_speech = 15000;
                 uiSpawncheck = 1000;
@@ -1381,11 +1381,11 @@ public:
 
                 if (uiFight_speech <= diff)
                 {
-                    DoScriptText(RAND(SAY_LIGHT_OF_DAWN09,SAY_LIGHT_OF_DAWN10,SAY_LIGHT_OF_DAWN11,
-                                      SAY_LIGHT_OF_DAWN12,SAY_LIGHT_OF_DAWN13,SAY_LIGHT_OF_DAWN14,
-                                      SAY_LIGHT_OF_DAWN15,SAY_LIGHT_OF_DAWN16,SAY_LIGHT_OF_DAWN17,
-                                      SAY_LIGHT_OF_DAWN18,SAY_LIGHT_OF_DAWN19,SAY_LIGHT_OF_DAWN20,
-                                      SAY_LIGHT_OF_DAWN21,SAY_LIGHT_OF_DAWN22,SAY_LIGHT_OF_DAWN23,
+                    DoScriptText(RAND(SAY_LIGHT_OF_DAWN09, SAY_LIGHT_OF_DAWN10, SAY_LIGHT_OF_DAWN11,
+                                      SAY_LIGHT_OF_DAWN12, SAY_LIGHT_OF_DAWN13, SAY_LIGHT_OF_DAWN14,
+                                      SAY_LIGHT_OF_DAWN15, SAY_LIGHT_OF_DAWN16, SAY_LIGHT_OF_DAWN17,
+                                      SAY_LIGHT_OF_DAWN18, SAY_LIGHT_OF_DAWN19, SAY_LIGHT_OF_DAWN20,
+                                      SAY_LIGHT_OF_DAWN21, SAY_LIGHT_OF_DAWN22, SAY_LIGHT_OF_DAWN23,
                                       SAY_LIGHT_OF_DAWN24), me);
                     uiFight_speech = 15000 + rand()%5000;
                 } else uiFight_speech -= diff;
@@ -1535,7 +1535,7 @@ public:
         {
             if (Creature* pTemp = Unit::GetCreature(*me, ui_GUID))
                 if (pTemp->isAlive())
-                    if (Unit* pTarger = SelectTarget(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarger = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         if (pTarger->isAlive())
                         {
                             // pTemp->DeleteThreatList();

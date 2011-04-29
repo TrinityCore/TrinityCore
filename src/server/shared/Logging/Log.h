@@ -113,23 +113,23 @@ class Log
         void ResetColor(bool stdout_stream);
 
         void outDB( LogTypes type, const char * str );
-        void outString( const char * str, ... )                 ATTR_PRINTF(2,3);
+        void outString( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outString( );
-        void outStringInLine( const char * str, ... )           ATTR_PRINTF(2,3);
-        void outError( const char * err, ... )                  ATTR_PRINTF(2,3);
-        void outCrash( const char * err, ... )                  ATTR_PRINTF(2,3);
-        void outBasic( const char * str, ... )                  ATTR_PRINTF(2,3);
-        void outDetail( const char * str, ... )                 ATTR_PRINTF(2,3);
-        void outDebug(DebugLogFilters f, const char* str, ...)  ATTR_PRINTF(3,4);
-        void outStaticDebug( const char * str, ... )            ATTR_PRINTF(2,3);
-        void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2,3);
-        void outErrorDb( const char * str, ... )                ATTR_PRINTF(2,3);
-        void outChar( const char * str, ... )                   ATTR_PRINTF(2,3);
-        void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
-        void outRemote( const char * str, ... )                 ATTR_PRINTF(2,3);
-        void outChat( const char * str, ... )                   ATTR_PRINTF(2,3);
-        void outArena( const char * str, ... )                  ATTR_PRINTF(2,3);
-        void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2,3);
+        void outStringInLine( const char * str, ... )           ATTR_PRINTF(2, 3);
+        void outError( const char * err, ... )                  ATTR_PRINTF(2, 3);
+        void outCrash( const char * err, ... )                  ATTR_PRINTF(2, 3);
+        void outBasic( const char * str, ... )                  ATTR_PRINTF(2, 3);
+        void outDetail( const char * str, ... )                 ATTR_PRINTF(2, 3);
+        void outDebug(DebugLogFilters f, const char* str, ...)  ATTR_PRINTF(3, 4);
+        void outStaticDebug( const char * str, ... )            ATTR_PRINTF(2, 3);
+        void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2, 3);
+        void outErrorDb( const char * str, ... )                ATTR_PRINTF(2, 3);
+        void outChar( const char * str, ... )                   ATTR_PRINTF(2, 3);
+        void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
+        void outRemote( const char * str, ... )                 ATTR_PRINTF(2, 3);
+        void outChat( const char * str, ... )                   ATTR_PRINTF(2, 3);
+        void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
+        void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2, 3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
         static void outTimestamp(FILE* file);
@@ -150,7 +150,7 @@ class Log
         void SetLogDBLater(bool value) { m_enableLogDBLater = value; }
         bool GetSQLDriverQueryLogging() const { return m_sqlDriverQueryLogging; }
     private:
-        FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
+        FILE* openLogFile(char const* configFileName, char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);
 
         FILE* raLogfile;

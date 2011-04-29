@@ -85,10 +85,10 @@ public:
                 pCreatureTarget->GetEntry() == NPC_DYING_KODO ||
                 pCreatureTarget->GetEntry() == NPC_ANCIENT_KODO)
             {
-                pCaster->CastSpell(pCaster,SPELL_KODO_KOMBO_PLAYER_BUFF,true);
+                pCaster->CastSpell(pCaster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
 
                 pCreatureTarget->UpdateEntry(NPC_TAMED_KODO);
-                pCreatureTarget->CastSpell(pCreatureTarget,SPELL_KODO_KOMBO_DESPAWN_BUFF,false);
+                pCreatureTarget->CastSpell(pCreatureTarget, SPELL_KODO_KOMBO_DESPAWN_BUFF, false);
 
                 if (pCreatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                     pCreatureTarget->GetMotionMaster()->MoveIdle();
@@ -127,7 +127,7 @@ public:
 
                 if (me->IsWithinDistInMap(pWho, 10.0f))
                 {
-                    DoScriptText(RAND(SAY_SMEED_HOME_1,SAY_SMEED_HOME_2,SAY_SMEED_HOME_3), pWho);
+                    DoScriptText(RAND(SAY_SMEED_HOME_1, SAY_SMEED_HOME_2, SAY_SMEED_HOME_3), pWho);
 
                     //spell have no implemented effect (dummy), so useful to notify spellHit
                     DoCast(me, SPELL_KODO_KOMBO_GOSSIP, true);
@@ -179,7 +179,7 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
             if (pPlayer->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->SummonCreature(11876, pPlayer->GetInnPosX(),pPlayer->GetInnPosY(),pPlayer->GetInnPosZ(),0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
+                pPlayer->SummonCreature(11876, pPlayer->GetInnPosX(), pPlayer->GetInnPosY(), pPlayer->GetInnPosZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
             return true;
     }

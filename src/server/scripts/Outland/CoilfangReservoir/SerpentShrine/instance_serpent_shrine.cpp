@@ -143,16 +143,16 @@ class instance_serpent_shrine : public InstanceMapScript
 
                                     if (!pPlayer->HasAura(SPELL_SCALDINGWATER))
                                     {
-                                        pPlayer->CastSpell(pPlayer, SPELL_SCALDINGWATER,true);
+                                        pPlayer->CastSpell(pPlayer, SPELL_SCALDINGWATER, true);
                                     }
                                 } else if (Water == WATERSTATE_FRENZY)
                                 {
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
                                     {
-                                        if (Creature* frenzy = pPlayer->SummonCreature(MOB_COILFANG_FRENZY,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ(),pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,2000))
+                                        if (Creature* frenzy = pPlayer->SummonCreature(MOB_COILFANG_FRENZY, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
                                         {
-                                            frenzy->Attack(pPlayer,false);
+                                            frenzy->Attack(pPlayer, false);
                                             frenzy->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
                                         }
                                         DoSpawnFrenzy = false;

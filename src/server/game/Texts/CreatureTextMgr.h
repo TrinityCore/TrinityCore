@@ -62,7 +62,7 @@ class CreatureTextMgr
         void LoadCreatureTexts();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }
 
-        void SendSound(Creature* source,uint32 sound, ChatType msgtype, uint64 whisperGuid, TextRange range, Team team, bool gmOnly);
+        void SendSound(Creature* source, uint32 sound, ChatType msgtype, uint64 whisperGuid, TextRange range, Team team, bool gmOnly);
         void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error

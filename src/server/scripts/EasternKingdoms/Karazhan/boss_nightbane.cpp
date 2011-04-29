@@ -48,14 +48,14 @@ EndScriptData */
 
 float IntroWay[8][3] =
 {
-    {-11053.37f,-1794.48f,149.00f},
-    {-11141.07f,-1841.40f,125.00f},
-    {-11187.28f,-1890.23f,125.00f},
-    {-11189.20f,-1931.25f,125.00f},
-    {-11153.76f,-1948.93f,125.00f},
-    {-11128.73f,-1929.75f,125.00f},
-    {-11140.00f,-1915.00f,122.00f},
-    {-11163.00f,-1903.00f,91.473f}
+    {-11053.37f, -1794.48f, 149.00f},
+    {-11141.07f, -1841.40f, 125.00f},
+    {-11187.28f, -1890.23f, 125.00f},
+    {-11189.20f, -1931.25f, 125.00f},
+    {-11153.76f, -1948.93f, 125.00f},
+    {-11128.73f, -1929.75f, 125.00f},
+    {-11140.00f, -1915.00f, 122.00f},
+    {-11163.00f, -1903.00f, 91.473f}
 };
 
 class boss_nightbane : public CreatureScript
@@ -140,7 +140,7 @@ public:
 
             if (!Intro)
             {
-                me->SetHomePosition(IntroWay[7][0],IntroWay[7][1],IntroWay[7][2],0);
+                me->SetHomePosition(IntroWay[7][0], IntroWay[7][1], IntroWay[7][2], 0);
                 me->GetMotionMaster()->MoveTargetedHome();
             }
         }
@@ -193,7 +193,7 @@ public:
                 if (id >= 8)
                 {
                     Intro = false;
-                    me->SetHomePosition(IntroWay[7][0],IntroWay[7][1],IntroWay[7][2],0);
+                    me->SetHomePosition(IntroWay[7][0], IntroWay[7][1], IntroWay[7][2], 0);
                     return;
                 }
 
@@ -242,11 +242,11 @@ public:
             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             (*me).GetMotionMaster()->Clear(false);
-            (*me).GetMotionMaster()->MovePoint(0,IntroWay[2][0],IntroWay[2][1],IntroWay[2][2]);
+            (*me).GetMotionMaster()->MovePoint(0, IntroWay[2][0], IntroWay[2][1], IntroWay[2][2]);
 
             Flying = true;
 
-            FlyTimer = urand(45000,60000); //timer wrong between 45 and 60 seconds
+            FlyTimer = urand(45000, 60000); //timer wrong between 45 and 60 seconds
             ++FlyCount;
 
             RainofBonesTimer = 5000; //timer wrong (maybe)
@@ -265,11 +265,11 @@ public:
                     {
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                        me->GetMotionMaster()->MovePoint(8,IntroWay[7][0],IntroWay[7][1],IntroWay[7][2]);
+                        me->GetMotionMaster()->MovePoint(8, IntroWay[7][0], IntroWay[7][1], IntroWay[7][2]);
                     }
                     else
                     {
-                        me->GetMotionMaster()->MovePoint(MovePhase,IntroWay[MovePhase][0],IntroWay[MovePhase][1],IntroWay[MovePhase][2]);
+                        me->GetMotionMaster()->MovePoint(MovePhase, IntroWay[MovePhase][0], IntroWay[MovePhase][1], IntroWay[MovePhase][2]);
                         ++MovePhase;
                     }
                 }
@@ -279,11 +279,11 @@ public:
                     {
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                        me->GetMotionMaster()->MovePoint(8,IntroWay[7][0],IntroWay[7][1],IntroWay[7][2]);
+                        me->GetMotionMaster()->MovePoint(8, IntroWay[7][0], IntroWay[7][1], IntroWay[7][2]);
                     }
                     else
                     {
-                        me->GetMotionMaster()->MovePoint(MovePhase,IntroWay[MovePhase][0],IntroWay[MovePhase][1],IntroWay[MovePhase][2]);
+                        me->GetMotionMaster()->MovePoint(MovePhase, IntroWay[MovePhase][0], IntroWay[MovePhase][1], IntroWay[MovePhase][2]);
                         ++MovePhase;
                     }
                 }
@@ -310,7 +310,7 @@ public:
                 if (BellowingRoarTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_BELLOWING_ROAR);
-                    BellowingRoarTimer = urand(30000,40000);
+                    BellowingRoarTimer = urand(30000, 40000);
                 } else BellowingRoarTimer -= diff;
 
                 if (SmolderingBreathTimer <= diff)
@@ -402,10 +402,10 @@ public:
 
                 if (FlyTimer <= diff) //landing
                 {
-                    me->MonsterYell(RAND(*YELL_LAND_PHASE_1,*YELL_LAND_PHASE_2), LANG_UNIVERSAL, 0);
+                    me->MonsterYell(RAND(*YELL_LAND_PHASE_1, *YELL_LAND_PHASE_2), LANG_UNIVERSAL, 0);
 
                     me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MovePoint(3,IntroWay[3][0],IntroWay[3][1],IntroWay[3][2]);
+                    me->GetMotionMaster()->MovePoint(3, IntroWay[3][0], IntroWay[3][1], IntroWay[3][2]);
 
                     Flying = true;
                 } else FlyTimer -= diff;

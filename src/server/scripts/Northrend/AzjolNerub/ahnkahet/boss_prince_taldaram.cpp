@@ -22,9 +22,9 @@ enum Spells
 {
     SPELL_BLOODTHIRST                             = 55968, //Trigger Spell + add aura
     SPELL_CONJURE_FLAME_SPHERE                    = 55931,
-    SPELL_FLAME_SPHERE_SUMMON_1                   = 55895,// 1x 30106
-    H_SPELL_FLAME_SPHERE_SUMMON_1                 = 59511,// 1x 31686
-    H_SPELL_FLAME_SPHERE_SUMMON_2                 = 59512,// 1x 31687
+    SPELL_FLAME_SPHERE_SUMMON_1                   = 55895, // 1x 30106
+    H_SPELL_FLAME_SPHERE_SUMMON_1                 = 59511, // 1x 31686
+    H_SPELL_FLAME_SPHERE_SUMMON_2                 = 59512, // 1x 31687
     SPELL_FLAME_SPHERE_SPAWN_EFFECT               = 55891,
     SPELL_FLAME_SPHERE_VISUAL                     = 55928,
     SPELL_FLAME_SPHERE_PERIODIC                   = 55926,
@@ -103,7 +103,7 @@ public:
         void Reset()
         {
             uiBloodthirstTimer = 10*IN_MILLISECONDS;
-            uiVanishTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
+            uiVanishTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
             uiEmbraceTimer = 20*IN_MILLISECONDS;
             uiFlamesphereTimer = 5*IN_MILLISECONDS;
             uiEmbraceTakenDamage = 0;
@@ -138,7 +138,7 @@ public:
                         Unit *pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         if (pSphereTarget && pSpheres[0])
                         {
-                            float angle,x,y;
+                            float angle, x, y;
                             angle = pSpheres[0]->GetAngle(pSphereTarget);
                             x = pSpheres[0]->GetPositionX() + DATA_SPHERE_DISTANCE * cos(angle);
                             y = pSpheres[0]->GetPositionY() + DATA_SPHERE_DISTANCE * sin(angle);
@@ -152,7 +152,7 @@ public:
                             pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
                             if (pSphereTarget && pSpheres[1] && pSpheres[2])
                             {
-                                float angle,x,y;
+                                float angle, x, y;
                                 angle = pSpheres[1]->GetAngle(pSphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
                                 x = pSpheres[1]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * cos(angle);
                                 y = pSpheres[1]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * sin(angle);
@@ -224,7 +224,7 @@ public:
                             //He only vanishes if there are 3 or more alive players
                             if (target_list.size() > 2)
                             {
-                                DoScriptText(RAND(SAY_VANISH_1,SAY_VANISH_2), me);
+                                DoScriptText(RAND(SAY_VANISH_1, SAY_VANISH_2), me);
                                 DoCast(me, SPELL_VANISH);
                                 Phase = JUST_VANISHED;
                                 uiPhaseTimer = 500;
@@ -232,7 +232,7 @@ public:
                                     uiEmbraceTarget = pEmbraceTarget->GetGUID();
 
                             }
-                            uiVanishTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
+                            uiVanishTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
                         } else uiVanishTimer -= diff;
 
                         DoMeleeAttackIfReady();
@@ -278,7 +278,7 @@ public:
                 uiPhaseTimer = 0;
                 uiEmbraceTarget = 0;
             }
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         bool CheckSpheres()
@@ -320,7 +320,7 @@ public:
             me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
             me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
             uint64 prison_GUID = pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
-            pInstance->HandleGameObject(prison_GUID,true);
+            pInstance->HandleGameObject(prison_GUID, true);
         }
     };
 
@@ -398,8 +398,8 @@ public:
 
             switch(pGO->GetEntry())
             {
-                case GO_SPHERE1: pInstance->SetData(DATA_SPHERE1_EVENT,IN_PROGRESS); break;
-                case GO_SPHERE2: pInstance->SetData(DATA_SPHERE2_EVENT,IN_PROGRESS); break;
+                case GO_SPHERE1: pInstance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS); break;
+                case GO_SPHERE2: pInstance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS); break;
             }
 
             CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();

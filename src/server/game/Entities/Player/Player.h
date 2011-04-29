@@ -188,7 +188,7 @@ struct ActionButton
 
 #define  MAX_ACTION_BUTTONS 144                             //checked in 3.2.0
 
-typedef std::map<uint8,ActionButton> ActionButtonList;
+typedef std::map<uint8, ActionButton> ActionButtonList;
 
 struct PlayerCreateInfoItem
 {
@@ -238,7 +238,7 @@ typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
 struct PlayerInfo
 {
                                                             // existence checked by displayId != 0
-    PlayerInfo() : displayId_m(0),displayId_f(0),levelInfo(NULL)
+    PlayerInfo() : displayId_m(0), displayId_f(0), levelInfo(NULL)
     {
     }
 
@@ -687,8 +687,8 @@ enum TransferAbortReason
     TRANSFER_ABORT_NOT_FOUND                = 0x03,         // Transfer Aborted: instance not found
     TRANSFER_ABORT_TOO_MANY_INSTANCES       = 0x04,         // You have entered too many instances recently.
     TRANSFER_ABORT_ZONE_IN_COMBAT           = 0x06,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL          = 0x07,         // You must have <TBC,WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY               = 0x08,         // <Normal,Heroic,Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL          = 0x07,         // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY               = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
     TRANSFER_ABORT_UNIQUE_MESSAGE           = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
     TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES = 0x0A,         // Additional instances cannot be launched, please try again later.
     TRANSFER_ABORT_NEED_GROUP               = 0x0B,         // 3.1
@@ -890,7 +890,7 @@ class PlayerTaxi
             else
                 return false;
         }
-        void AppendTaximaskTo(ByteBuffer& data,bool all);
+        void AppendTaximaskTo(ByteBuffer& data, bool all);
 
         // Destinations
         bool LoadTaxiDestinationsFromString(const std::string& values, uint32 team);
@@ -1086,8 +1086,8 @@ class Player : public Unit, public GridObject<Player>
 
         bool ToggleAFK();
         bool ToggleDND();
-        bool isAFK() const { return HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_AFK); }
-        bool isDND() const { return HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_DND); }
+        bool isAFK() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK); }
+        bool isDND() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND); }
         uint8 chatTag() const;
         std::string afkMsg;
         std::string dndMsg;
@@ -1131,7 +1131,7 @@ class Player : public Unit, public GridObject<Player>
 
         void setDeathState(DeathState s);                   // overwrite Unit::setDeathState
 
-        void InnEnter (time_t time,uint32 mapid, float x,float y,float z)
+        void InnEnter (time_t time, uint32 mapid, float x, float y, float z)
         {
             inn_pos_mapid = mapid;
             inn_pos_x = x;
@@ -1162,7 +1162,7 @@ class Player : public Unit, public GridObject<Player>
         void Say(const std::string& text, const uint32 language);
         void Yell(const std::string& text, const uint32 language);
         void TextEmote(const std::string& text);
-        void Whisper(const std::string& text, const uint32 language,uint64 receiver);
+        void Whisper(const std::string& text, const uint32 language, uint64 receiver);
         void BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const;
 
         /*********************************************************/
@@ -1189,12 +1189,12 @@ class Player : public Unit, public GridObject<Player>
         Item* GetShield(bool useable = false) const;
         static uint8 GetAttackBySlot(uint8 slot);        // MAX_ATTACK if not weapon slot
         std::vector<Item *> &GetItemUpdateQueue() { return m_itemUpdateQueue; }
-        static bool IsInventoryPos(uint16 pos) { return IsInventoryPos(pos >> 8,pos & 255); }
+        static bool IsInventoryPos(uint16 pos) { return IsInventoryPos(pos >> 8, pos & 255); }
         static bool IsInventoryPos(uint8 bag, uint8 slot);
-        static bool IsEquipmentPos(uint16 pos) { return IsEquipmentPos(pos >> 8,pos & 255); }
+        static bool IsEquipmentPos(uint16 pos) { return IsEquipmentPos(pos >> 8, pos & 255); }
         static bool IsEquipmentPos(uint8 bag, uint8 slot);
         static bool IsBagPos(uint16 pos);
-        static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8,pos & 255); }
+        static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
@@ -1205,8 +1205,8 @@ class Player : public Unit, public GridObject<Player>
         bool CanNoReagentCast(SpellEntry const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
-        InventoryResult CanTakeMoreSimilarItems(Item* pItem) const { return _CanTakeMoreSimilarItems(pItem->GetEntry(),pItem->GetCount(),pItem); }
-        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count) const { return _CanTakeMoreSimilarItems(entry,count,NULL); }
+        InventoryResult CanTakeMoreSimilarItems(Item* pItem) const { return _CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem); }
+        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count) const { return _CanTakeMoreSimilarItems(entry, count, NULL); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL) const
         {
             return _CanStoreItem(bag, slot, dest, item, count, NULL, false, no_space_count);
@@ -1219,7 +1219,7 @@ class Player : public Unit, public GridObject<Player>
             return _CanStoreItem(bag, slot, dest, pItem->GetEntry(), count, pItem, swap, NULL);
 
         }
-        InventoryResult CanStoreItems(Item** pItem,int count) const;
+        InventoryResult CanStoreItems(Item** pItem, int count) const;
         InventoryResult CanEquipNewItem(uint8 slot, uint16& dest, uint32 item, bool swap) const;
         InventoryResult CanEquipItem(uint8 slot, uint16& dest, Item *pItem, bool swap, bool not_loading = true) const;
 
@@ -1240,7 +1240,7 @@ class Player : public Unit, public GridObject<Player>
         void AutoUnequipOffhandIfNeed(bool force = false);
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
-        void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG,NULL_SLOT,loot_id,store,broadcast); }
+        void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot);
 
         InventoryResult _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
@@ -1289,7 +1289,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsUseEquipedWeapon(bool mainhand) const
         {
             // disarm applied only to mainhand weapon
-            return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED));
+            return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED));
         }
         bool IsTwoHandUsed() const
         {
@@ -1473,7 +1473,7 @@ class Player : public Unit, public GridObject<Player>
         static float  GetFloatValueFromArray(Tokens const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);
         static uint32 GetLevelFromDB(uint64 guid);
-        static bool   LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float& o, bool& in_flight, uint64 guid);
+        static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid);
 
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE ; }
 
@@ -1485,10 +1485,10 @@ class Player : public Unit, public GridObject<Player>
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
-        static void SetUInt32ValueInArray(Tokens& data,uint16 index, uint32 value);
-        static void SetFloatValueInArray(Tokens& data,uint16 index, float value);
+        static void SetUInt32ValueInArray(Tokens& data, uint16 index, uint32 value);
+        static void SetFloatValueInArray(Tokens& data, uint16 index, float value);
         static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
-        static void SavePositionInDB(uint32 mapid, float x,float y,float z,float o,uint32 zone,uint64 guid);
+        static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid);
 
         static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
         static void DeleteOldCharacters();
@@ -1500,7 +1500,7 @@ class Player : public Unit, public GridObject<Player>
         void SetBindPoint(uint64 guid);
         void SendTalentWipeConfirm(uint64 guid);
         void ResetPetTalents();
-        void CalcRage(uint32 damage,bool attacker);
+        void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();
@@ -1707,7 +1707,7 @@ class Player : public Unit, public GridObject<Player>
             m_resurrectHealth = health;
             m_resurrectMana = mana;
         }
-        void clearResurrectRequestData() { setResurrectRequestData(0,0,0.0f,0.0f,0.0f,0,0); }
+        void clearResurrectRequestData() { setResurrectRequestData(0, 0, 0.0f, 0.0f, 0.0f, 0, 0); }
         bool isRessurectRequestedBy(uint64 guid) const { return m_resurrectGUID == guid; }
         bool isRessurectRequested() const { return m_resurrectGUID != 0; }
         void ResurectUsingRequestData();
@@ -1737,7 +1737,7 @@ class Player : public Unit, public GridObject<Player>
                 (*itr)->SetPvP(state);
         }
         void UpdatePvP(bool state, bool override=false);
-        void UpdateZone(uint32 newZone,uint32 newArea);
+        void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
 
         void UpdateZoneDependentAuras(uint32 zone_id);    // zones
@@ -1766,7 +1766,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInSameRaidWith(Player const* p) const { return p == this || (GetGroup() != NULL && GetGroup() == p->GetGroup()); }
         void UninviteFromGroup();
         static void RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, uint64 kicker = 0 , const char* reason = NULL);
-        void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(),GetGUID(), method); }
+        void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
         void SetInGuild(uint32 GuildId) { SetUInt32Value(PLAYER_GUILDID, GuildId); }
@@ -1992,7 +1992,7 @@ class Player : public Unit, public GridObject<Player>
 
         void UpdateSkillsForLevel();
         void UpdateSkillsToMaxSkillsForLevel();             // for .levelup
-        void ModifySkillBonus(uint32 skillid,int32 val, bool talent);
+        void ModifySkillBonus(uint32 skillid, int32 val, bool talent);
 
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
@@ -2044,11 +2044,11 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const * aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, AuraEffect const * aura, bool apply);
 
-        void _ApplyItemMods(Item *item,uint8 slot,bool apply);
+        void _ApplyItemMods(Item *item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
-        void _ApplyItemBonuses(ItemTemplate const *proto,uint8 slot,bool apply, bool only_level_scale = false);
+        void _ApplyItemBonuses(ItemTemplate const *proto, uint8 slot, bool apply, bool only_level_scale = false);
         void _ApplyWeaponDamage(uint8 slot, ItemTemplate const *proto, ScalingStatValuesEntry const *ssv, bool apply);
         void _ApplyAmmoBonuses();
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
@@ -2060,7 +2060,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyEquipSpell(SpellEntry const* spellInfo, Item* item, bool apply, bool form_change = false);
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
-        void CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 cast_count, uint32 glyphIndex);
+        void CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex);
         void CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const * proto);
 
         void SendEquipmentSetList();
@@ -2225,7 +2225,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
         /*********************************************************/
-        void UpdateFallInformationIfNeed(MovementInfo const& minfo,uint16 opcode);
+        void UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode);
         Unit *m_mover;
         WorldObject *m_seer;
         void SetFallInformation(uint32 time, float z)
@@ -2759,8 +2759,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 };
 
-void AddItemsSetItem(Player*player,Item *item);
-void RemoveItemsSetItem(Player*player,ItemTemplate const *proto);
+void AddItemsSetItem(Player*player, Item *item);
+void RemoveItemsSetItem(Player*player, ItemTemplate const *proto);
 
 // "the bodies of template functions must be made available in a header file"
 template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)

@@ -30,12 +30,12 @@ EndScriptData */
 //Trash Waves
 float NalorakkWay[8][3] =
 {
-    { 18.569f, 1414.512f, 11.42f},// waypoint 1
+    { 18.569f, 1414.512f, 11.42f}, // waypoint 1
     {-17.264f, 1419.551f, 12.62f},
-    {-52.642f, 1419.357f, 27.31f},// waypoint 2
+    {-52.642f, 1419.357f, 27.31f}, // waypoint 2
     {-69.908f, 1419.721f, 27.31f},
     {-79.929f, 1395.958f, 27.31f},
-    {-80.072f, 1374.555f, 40.87f},// waypoint 3
+    {-80.072f, 1374.555f, 40.87f}, // waypoint 3
     {-80.072f, 1314.398f, 40.87f},
     {-80.072f, 1295.775f, 48.60f} // waypoint 4
 };
@@ -135,11 +135,11 @@ class boss_nalorakk : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     inMove = false;
                     waitTimer = 0;
-                    me->SetSpeed(MOVE_RUN,2);
+                    me->SetSpeed(MOVE_RUN, 2);
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 }else
                 {
-                    (*me).GetMotionMaster()->MovePoint(0,NalorakkWay[7][0],NalorakkWay[7][1],NalorakkWay[7][2]);
+                    (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
                 }
 
                 if (pInstance)
@@ -180,7 +180,7 @@ class boss_nalorakk : public CreatureScript
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
                 {
-                    if ((*i) && me->IsWithinDistInMap((*i),25))
+                    if ((*i) && me->IsWithinDistInMap((*i), 25))
                     {
                         (*i)->SetNoCallAssistance(true);
                         (*i)->AI()->AttackStart(pTarget);
@@ -214,7 +214,7 @@ class boss_nalorakk : public CreatureScript
                                         me->MonsterYell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL, 0);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE1);
 
-                                        (*me).GetMotionMaster()->MovePoint(1,NalorakkWay[1][0],NalorakkWay[1][1],NalorakkWay[1][2]);
+                                        (*me).GetMotionMaster()->MovePoint(1, NalorakkWay[1][0], NalorakkWay[1][1], NalorakkWay[1][2]);
                                         MovePhase ++;
                                         inMove = true;
 
@@ -227,7 +227,7 @@ class boss_nalorakk : public CreatureScript
                                         me->MonsterYell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL, 0);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE2);
 
-                                        (*me).GetMotionMaster()->MovePoint(3,NalorakkWay[3][0],NalorakkWay[3][1],NalorakkWay[3][2]);
+                                        (*me).GetMotionMaster()->MovePoint(3, NalorakkWay[3][0], NalorakkWay[3][1], NalorakkWay[3][2]);
                                         MovePhase ++;
                                         inMove = true;
 
@@ -240,7 +240,7 @@ class boss_nalorakk : public CreatureScript
                                         me->MonsterYell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL, 0);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE3);
 
-                                        (*me).GetMotionMaster()->MovePoint(6,NalorakkWay[6][0],NalorakkWay[6][1],NalorakkWay[6][2]);
+                                        (*me).GetMotionMaster()->MovePoint(6, NalorakkWay[6][0], NalorakkWay[6][1], NalorakkWay[6][2]);
                                         MovePhase ++;
                                         inMove = true;
 
@@ -288,7 +288,7 @@ class boss_nalorakk : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                switch (urand(0,1))
+                switch (urand(0, 1))
                 {
                     case 0:
                         me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
@@ -348,7 +348,7 @@ class boss_nalorakk : public CreatureScript
                     if (waitTimer <= diff)
                     {
                         (*me).GetMotionMaster()->MovementExpired();
-                        (*me).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
+                        (*me).GetMotionMaster()->MovePoint(MovePhase, NalorakkWay[MovePhase][0], NalorakkWay[MovePhase][1], NalorakkWay[MovePhase][2]);
                         waitTimer = 0;
                     } else waitTimer -= diff;
                 }

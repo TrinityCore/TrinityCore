@@ -67,7 +67,7 @@ public:
 
     struct boss_volazjAI : public ScriptedAI
     {
-        boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature),Summons(me)
+        boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
         {
             pInstance = pCreature->GetInstanceScript();
         }
@@ -127,12 +127,12 @@ public:
                     if (!plr || !plr->isAlive())
                         continue;
                     // Summon clone
-                    if (Unit *summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,0))
+                    if (Unit *summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
                         plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // set phase
-                        summon->SetPhaseMask((1<<(4+insanityHandled)),true);
+                        summon->SetPhaseMask((1<<(4+insanityHandled)), true);
                     }
                 }
                 ++insanityHandled;
@@ -162,7 +162,7 @@ public:
             }
 
             // Visible for all players in insanity
-            me->SetPhaseMask((1|16|32|64|128|256),true);
+            me->SetPhaseMask((1|16|32|64|128|256), true);
             // Used for Insanity handling
             insanityHandled = 0;
 
@@ -309,7 +309,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
 

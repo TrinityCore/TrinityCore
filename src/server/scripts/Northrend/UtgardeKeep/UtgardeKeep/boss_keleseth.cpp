@@ -96,7 +96,7 @@ public:
 
             if (FrostTombGUID)
             {
-                Unit* FrostTomb = Unit::GetUnit((*me),FrostTombGUID);
+                Unit* FrostTomb = Unit::GetUnit((*me), FrostTombGUID);
                 if (FrostTomb)
                     FrostTomb->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
             }
@@ -104,7 +104,7 @@ public:
 
         void UpdateAI(const uint32 /*diff*/)
         {
-            Unit* temp = Unit::GetUnit((*me),FrostTombGUID);
+            Unit* temp = Unit::GetUnit((*me), FrostTombGUID);
             if ((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp)
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
@@ -282,7 +282,7 @@ public:
         void Reset()
         {
             Respawn_Time = 12000;
-            Decrepify_Timer = urand(10000,20000);
+            Decrepify_Timer = urand(10000, 20000);
             isDead = false;
         }
 

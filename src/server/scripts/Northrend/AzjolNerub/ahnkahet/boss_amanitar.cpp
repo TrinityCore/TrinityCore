@@ -65,9 +65,9 @@ public:
 
         void Reset()
         {
-            uiRootTimer = urand(5*IN_MILLISECONDS,9*IN_MILLISECONDS);
-            uiBashTimer = urand(10*IN_MILLISECONDS,14*IN_MILLISECONDS);
-            uiBoltTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
+            uiRootTimer = urand(5*IN_MILLISECONDS, 9*IN_MILLISECONDS);
+            uiBashTimer = urand(10*IN_MILLISECONDS, 14*IN_MILLISECONDS);
+            uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiSpawnTimer = 0;
 
             me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
@@ -110,9 +110,9 @@ public:
                 {
                     Position pos;
                     victim->GetPosition(&pos);
-                    me->GetRandomNearPosition(pos, float(urand(5,80)));
+                    me->GetRandomNearPosition(pos, float(urand(5, 80)));
                     me->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILLISECONDS);
-                    me->GetRandomNearPosition(pos, float(urand(5,80)));
+                    me->GetRandomNearPosition(pos, float(urand(5, 80)));
                     me->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILLISECONDS);
                 }
             }
@@ -127,27 +127,27 @@ public:
             if (uiSpawnTimer <= diff)
             {
                 SpawnAdds();
-                uiSpawnTimer = urand(35*IN_MILLISECONDS,40*IN_MILLISECONDS);
+                uiSpawnTimer = urand(35*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             } else uiSpawnTimer -= diff;
 
             if (uiRootTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_ENTANGLING_ROOTS);
-                uiRootTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                uiRootTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiRootTimer -= diff;
 
             if (uiBashTimer <= diff)
             {
                 DoCastVictim(SPELL_BASH);
-                uiBashTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                uiBashTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiBashTimer -= diff;
 
             if (uiBoltTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_VENOM_BOLT_VOLLEY);
-                uiBoltTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiBoltTimer -= diff;
 
             DoMeleeAttackIfReady();

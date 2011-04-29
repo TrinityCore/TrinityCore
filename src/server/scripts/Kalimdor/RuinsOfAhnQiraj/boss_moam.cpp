@@ -78,11 +78,11 @@ public:
 
         void Reset()
         {
-            uiTrampleTimer = urand(3000,7000);
-            uiDrainManaTimer = urand(3000,7000);
+            uiTrampleTimer = urand(3000, 7000);
+            uiDrainManaTimer = urand(3000, 7000);
             uiPhaseTimer = 90000;
             Phase = NORMAL;
-            me->SetPower(POWER_MANA,0);
+            me->SetPower(POWER_MANA, 0);
 
             if (pInstance)
                 pInstance->SetData(DATA_MOAM_EVENT, NOT_STARTED);
@@ -126,21 +126,21 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_ARCANEERUPTION);
                     DoScriptText(EMOTE_MANA_FULL, me);
-                    me->SetPower(POWER_MANA,0);
+                    me->SetPower(POWER_MANA, 0);
                 }
 
                 //Trample Spell
                 if (uiTrampleTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_TRAMPLE);
-                    uiTrampleTimer = urand(3000,7000);
+                    uiTrampleTimer = urand(3000, 7000);
                 } else uiTrampleTimer -= diff;
 
                 //Drain Mana
                 if (uiDrainManaTimer <= diff)
                 {
                     DrainMana();
-                    uiDrainManaTimer = urand(3000,7000);
+                    uiDrainManaTimer = urand(3000, 7000);
                 } else uiDrainManaTimer -= diff;
 
                 DoMeleeAttackIfReady();

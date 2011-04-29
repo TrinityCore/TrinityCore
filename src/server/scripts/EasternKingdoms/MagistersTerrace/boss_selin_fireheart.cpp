@@ -203,7 +203,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }
 
         void MovementInform(uint32 type, uint32 id)

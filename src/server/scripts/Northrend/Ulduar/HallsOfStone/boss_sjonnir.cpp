@@ -186,7 +186,7 @@ public:
             {
                 uint32 uiSummonPipe = rand()%2;
                 me->SummonCreature(uiEncounterTimer > DATA_TIME_BEFORE_OOZE ? CREATURE_MALFORMED_OOZE :
-                                           RAND(CREATURE_FORGED_IRON_DWARF,CREATURE_FORGED_IRON_TROGG),
+                                           RAND(CREATURE_FORGED_IRON_DWARF, CREATURE_FORGED_IRON_TROGG),
                                            PipeLocations[uiSummonPipe].x, PipeLocations[uiSummonPipe].y, PipeLocations[uiSummonPipe].z, 0.0f,
                                            TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                 uiSummonTimer = 20000;
@@ -231,7 +231,7 @@ public:
         {
             if (victim == me)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void KilledIronSludge()

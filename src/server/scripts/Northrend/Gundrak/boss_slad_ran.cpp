@@ -145,23 +145,23 @@ public:
                 {
                     if (uiPhase == 1)
                         for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                            me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                            me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                     if (uiPhase == 2)
                         for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                            me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                            me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                     uiSpawnTimer = 5*IN_MILLISECONDS;
                 } else uiSpawnTimer -= diff;
             }
 
             if (uiPhase == 0 && HealthBelowPct(30))
             {
-                DoScriptText(SAY_SUMMON_SNAKES,me);
+                DoScriptText(SAY_SUMMON_SNAKES, me);
                 uiPhase = 1;
             }
 
             if (uiPhase == 1 && HealthBelowPct(25))
             {
-                DoScriptText(SAY_SUMMON_CONSTRICTORS,me);
+                DoScriptText(SAY_SUMMON_CONSTRICTORS, me);
                 uiPhase = 2;
             }
 
@@ -178,12 +178,12 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void JustSummoned(Creature* summoned)
         {
-            summoned->GetMotionMaster()->MovePoint(0,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ());
+            summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             lSummons.Summon(summoned);
         }
     };

@@ -148,7 +148,7 @@ public:
                 case PHASE_1:
                     if (uiTimer <= diff)
                     {
-                        Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                        Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE, CREATURE_HULKING_CORPSE, CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                         pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                         //If spell is casted stops casting arcane field so no spell casting
                         //DoCast(me, SPELL_SUMMON_MINIONS);
@@ -159,9 +159,9 @@ public:
                         if (uiCrystalHandlerTimer <= diff)
                         {
                             DoScriptText(SAY_NECRO_ADD, me);
-                            Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                            Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                             pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
-                            uiCrystalHandlerTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                            uiCrystalHandlerTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                         } else uiCrystalHandlerTimer -= diff;
                     }
                     break;
@@ -169,9 +169,9 @@ public:
                     if (uiTimer <= diff)
                     {
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
-                                                         RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
-                        uiTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
+                            DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY),
+                                                         RAND(H_SPELL_ARCANE_BLAST, H_SPELL_BLIZZARD, H_SPELL_FROSTBOLT, H_SPELL_WRATH_OF_MISERY)));
+                        uiTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
                     } else uiTimer -= diff;
                     break;
                 default:
@@ -268,7 +268,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-                CAST_AI(boss_novos::boss_novosAI,pNovos->AI())->RemoveCrystal();
+                CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->RemoveCrystal();
         }
 
         void UpdateAI(const uint32 diff)
@@ -278,7 +278,7 @@ public:
 
             if (uiFlashOfDarknessTimer <= diff)
             {
-                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
+                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS, H_SPELL_FLASH_OF_DARKNESS));
                 uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
             } else uiFlashOfDarknessTimer -= diff;
 

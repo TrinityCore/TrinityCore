@@ -86,26 +86,26 @@ enum eAchievementData
 
 const Position Pos[20] =
 {
-    {630.366f,216.772f,360.891f,3.001970f},
-    {630.594f,231.846f,360.891f,3.124140f},
-    {630.435f,337.246f,360.886f,3.211410f},
-    {630.493f,313.349f,360.886f,3.054330f},
-    {630.444f,321.406f,360.886f,3.124140f},
-    {630.366f,247.307f,360.888f,3.211410f},
-    {630.698f,305.311f,360.886f,3.001970f},
-    {630.500f,224.559f,360.891f,3.054330f},
-    {630.668f,239.840f,360.890f,3.159050f},
-    {630.384f,329.585f,360.886f,3.159050f},
-    {543.220f,313.451f,360.886f,0.104720f},
-    {543.356f,329.408f,360.886f,6.248280f},
-    {543.076f,247.458f,360.888f,6.213370f},
-    {543.117f,232.082f,360.891f,0.069813f},
-    {543.161f,305.956f,360.886f,0.157080f},
-    {543.277f,321.482f,360.886f,0.052360f},
-    {543.316f,337.468f,360.886f,6.195920f},
-    {543.280f,239.674f,360.890f,6.265730f},
-    {543.265f,217.147f,360.891f,0.174533f},
-    {543.256f,224.831f,360.891f,0.122173f}
+    {630.366f, 216.772f, 360.891f, 3.001970f},
+    {630.594f, 231.846f, 360.891f, 3.124140f},
+    {630.435f, 337.246f, 360.886f, 3.211410f},
+    {630.493f, 313.349f, 360.886f, 3.054330f},
+    {630.444f, 321.406f, 360.886f, 3.124140f},
+    {630.366f, 247.307f, 360.888f, 3.211410f},
+    {630.698f, 305.311f, 360.886f, 3.001970f},
+    {630.500f, 224.559f, 360.891f, 3.054330f},
+    {630.668f, 239.840f, 360.890f, 3.159050f},
+    {630.384f, 329.585f, 360.886f, 3.159050f},
+    {543.220f, 313.451f, 360.886f, 0.104720f},
+    {543.356f, 329.408f, 360.886f, 6.248280f},
+    {543.076f, 247.458f, 360.888f, 6.213370f},
+    {543.117f, 232.082f, 360.891f, 0.069813f},
+    {543.161f, 305.956f, 360.886f, 0.157080f},
+    {543.277f, 321.482f, 360.886f, 0.052360f},
+    {543.316f, 337.468f, 360.886f, 6.195920f},
+    {543.280f, 239.674f, 360.890f, 6.265730f},
+    {543.265f, 217.147f, 360.891f, 0.174533f},
+    {543.256f, 224.831f, 360.891f, 0.122173f}
 };
 
 class boss_ignis : public CreatureScript
@@ -169,10 +169,10 @@ public:
             {
                 // Shattered
                 if (Shattered)
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_SHATTERED_10,ACHIEVEMENT_SHATTERED_25));
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_SHATTERED_10, ACHIEVEMENT_SHATTERED_25));
                 // Stokin' the Furnace
                 if (EncounterTime <= MAX_ENCOUNTER_TIME)
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_STOKIN_THE_FURNACE_10,ACHIEVEMENT_STOKIN_THE_FURNACE_25));
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_STOKIN_THE_FURNACE_10, ACHIEVEMENT_STOKIN_THE_FURNACE_25));
             }
         }
 
@@ -196,7 +196,7 @@ public:
                     case EVENT_JET:
                         me->MonsterTextEmote(EMOTE_JETS, 0, true);
                         DoCastAOE(SPELL_FLAME_JETS);
-                        events.RescheduleEvent(EVENT_JET,urand(35000,40000));
+                        events.RescheduleEvent(EVENT_JET, urand(35000, 40000));
                         break;
                     case EVENT_SLAG_POT:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -207,7 +207,7 @@ public:
                             events.DelayEvents(3000);
                             events.ScheduleEvent(EVENT_GRAB_POT, 500);
                         }
-                        events.RescheduleEvent(EVENT_SLAG_POT,RAID_MODE(30000, 15000));
+                        events.RescheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
                         break;
                     case EVENT_GRAB_POT:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
@@ -240,14 +240,14 @@ public:
                         if (Unit *pTarget = me->getVictim())
                             me->SummonCreature(NPC_GROUND_SCORCH, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
                         DoCast(SPELL_SCORCH);
-                        events.RescheduleEvent(EVENT_SCORCH,25000);
+                        events.RescheduleEvent(EVENT_SCORCH, 25000);
                         break;
                     case EVENT_CONSTRUCT:
                         DoScriptText(SAY_SUMMON, me);
                         DoSummon(NPC_IRON_CONSTRUCT, Pos[rand()%20], 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
                         DoCast(SPELL_STRENGHT);
                         DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
-                        events.RescheduleEvent(EVENT_CONSTRUCT,RAID_MODE(40000, 30000));
+                        events.RescheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
@@ -409,10 +409,10 @@ public:
             {
                 if(HeatTimer <= uiDiff)
                 {
-                    Creature* Construct = me->GetCreature(*me ,ConstructGUID);
+                    Creature* Construct = me->GetCreature(*me , ConstructGUID);
                     if (Construct && !Construct->HasAura(SPELL_MOLTEN))
                     {
-                        me->AddAura(SPELL_HEAT,Construct);
+                        me->AddAura(SPELL_HEAT, Construct);
                         HeatTimer=1000;
                     }
                 }
