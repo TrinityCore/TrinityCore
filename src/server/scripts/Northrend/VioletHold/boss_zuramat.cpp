@@ -171,14 +171,14 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void JustSummoned(Creature* summon)
         {
             summon->AI()->AttackStart(me->getVictim());
             summon->AI()->DoCastAOE(SPELL_ZURAMAT_ADD_2);
-            summon->SetPhaseMask(17,true);
+            summon->SetPhaseMask(17, true);
         }
     };
 

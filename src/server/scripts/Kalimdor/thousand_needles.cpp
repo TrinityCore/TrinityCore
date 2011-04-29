@@ -234,7 +234,7 @@ public:
             DoScriptText(SAY_START, pCreature, pPlayer);
             pCreature->setFaction(FACTION_ESCORTEE);
 
-            if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountain::npc_paoka_swiftmountainAI,pCreature->AI()))
+            if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountain::npc_paoka_swiftmountainAI, pCreature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
         return true;
@@ -415,7 +415,7 @@ public:
         {
             if (Creature* panther = pGo->FindNearestCreature(ENRAGED_PANTHER, 5, true))
             {
-                panther->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                panther->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 panther->SetReactState(REACT_AGGRESSIVE);
                 panther->AI()->AttackStart(pPlayer);
             }

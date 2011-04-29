@@ -386,8 +386,8 @@ public:
 
         void TombOfSevenReset()
         {
-            HandleGameObject(GoTombExitGUID,false);//event reseted, close exit door
-            HandleGameObject(GoTombEnterGUID,true);//event reseted, open entrance door
+            HandleGameObject(GoTombExitGUID, false);//event reseted, close exit door
+            HandleGameObject(GoTombEnterGUID, true);//event reseted, open entrance door
             for (uint8 i = 0; i < 7; ++i)
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
@@ -414,16 +414,16 @@ public:
 
         void TombOfSevenStart()
         {
-            HandleGameObject(GoTombExitGUID,false);//event started, close exit door
-            HandleGameObject(GoTombEnterGUID,false);//event started, close entrance door
+            HandleGameObject(GoTombExitGUID, false);//event started, close exit door
+            HandleGameObject(GoTombEnterGUID, false);//event started, close entrance door
             SetData(TYPE_TOMB_OF_SEVEN, IN_PROGRESS);
         }
 
         void TombOfSevenEnd()
         {
-            DoRespawnGameObject(GoChestGUID,DAY);
-            HandleGameObject(GoTombExitGUID,true);//event done, open exit door
-            HandleGameObject(GoTombEnterGUID,true);//event done, open entrance door
+            DoRespawnGameObject(GoChestGUID, DAY);
+            HandleGameObject(GoTombExitGUID, true);//event done, open exit door
+            HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
             TombEventStarterGUID = 0;
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }

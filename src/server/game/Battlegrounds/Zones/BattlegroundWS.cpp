@@ -38,13 +38,13 @@ enum BG_WSG_Rewards
 };
 
 uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] = {
-    {20,40,40}, // normal honor
-    {60,40,80}  // holiday
+    {20, 40, 40}, // normal honor
+    {60, 40, 80}  // holiday
 };
 
 uint32 BG_WSG_Reputation[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] = {
-    {0,35,0}, // normal honor
-    {0,45,0}  // holiday
+    {0, 35, 0}, // normal honor
+    {0, 45, 0}  // holiday
 };
 
 BattlegroundWS::BattlegroundWS()
@@ -143,9 +143,9 @@ void BattlegroundWS::Update(uint32 diff)
           if (m_FlagDebuffState == 0 && m_FlagSpellForceTimer >= 600000)  //10 minutes
           {
             if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[0]))
-              plr->CastSpell(plr,WS_SPELL_FOCUSED_ASSAULT,true);
+              plr->CastSpell(plr, WS_SPELL_FOCUSED_ASSAULT, true);
             if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[1]))
-              plr->CastSpell(plr,WS_SPELL_FOCUSED_ASSAULT,true);
+              plr->CastSpell(plr, WS_SPELL_FOCUSED_ASSAULT, true);
             m_FlagDebuffState = 1;
           }
           else if (m_FlagDebuffState == 1 && m_FlagSpellForceTimer >= 900000) //15 minutes
@@ -153,12 +153,12 @@ void BattlegroundWS::Update(uint32 diff)
             if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[0]))
             {
               plr->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
-              plr->CastSpell(plr,WS_SPELL_BRUTAL_ASSAULT,true);
+              plr->CastSpell(plr, WS_SPELL_BRUTAL_ASSAULT, true);
             }
             if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[1]))
             {
               plr->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
-              plr->CastSpell(plr,WS_SPELL_BRUTAL_ASSAULT,true);
+              plr->CastSpell(plr, WS_SPELL_BRUTAL_ASSAULT, true);
             }
             m_FlagDebuffState = 2;
           }
@@ -242,7 +242,7 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    RespawnFlag(team,false);
+    RespawnFlag(team, false);
     if (team == ALLIANCE)
     {
         SpawnBGObject(BG_WS_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
@@ -260,9 +260,9 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
     if (obj)
         obj->Delete();
     else
-        sLog->outError("unknown droped flag bg, guid: %u",GUID_LOPART(GetDroppedFlagGUID(team)));
+        sLog->outError("unknown droped flag bg, guid: %u", GUID_LOPART(GetDroppedFlagGUID(team)));
 
-    SetDroppedFlagGUID(0,team);
+    SetDroppedFlagGUID(0, team);
     m_BothFlagsKept = false;
 }
 
@@ -509,9 +509,9 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player *Source, GameObject* target
             m_FlagState[BG_TEAM_ALLIANCE] = BG_WS_FLAG_STATE_ON_PLAYER;
             UpdateFlagState(HORDE, BG_WS_FLAG_STATE_ON_PLAYER);
             if (m_FlagDebuffState == 1)
-              Source->CastSpell(Source,WS_SPELL_FOCUSED_ASSAULT,true);
+              Source->CastSpell(Source, WS_SPELL_FOCUSED_ASSAULT, true);
             if (m_FlagDebuffState == 2)
-              Source->CastSpell(Source,WS_SPELL_BRUTAL_ASSAULT,true);
+              Source->CastSpell(Source, WS_SPELL_BRUTAL_ASSAULT, true);
             UpdateWorldState(BG_WS_FLAG_UNK_ALLIANCE, 1);
         }
         //called in HandleGameObjectUseOpcode:
@@ -543,9 +543,9 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player *Source, GameObject* target
             m_FlagState[BG_TEAM_HORDE] = BG_WS_FLAG_STATE_ON_PLAYER;
             UpdateFlagState(ALLIANCE, BG_WS_FLAG_STATE_ON_PLAYER);
             if (m_FlagDebuffState == 1)
-              Source->CastSpell(Source,WS_SPELL_FOCUSED_ASSAULT,true);
+              Source->CastSpell(Source, WS_SPELL_FOCUSED_ASSAULT, true);
             if (m_FlagDebuffState == 2)
-              Source->CastSpell(Source,WS_SPELL_BRUTAL_ASSAULT,true);
+              Source->CastSpell(Source, WS_SPELL_BRUTAL_ASSAULT, true);
             UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 1);
         }
         //called in HandleGameObjectUseOpcode:
@@ -652,7 +652,7 @@ void BattlegroundWS::HandleAreaTrigger(Player *Source, uint32 Trigger)
     }
 
     //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid,Source);
+    //    HandleTriggerBuff(buff_guid, Source);
 }
 
 bool BattlegroundWS::SetupBattleground()

@@ -325,7 +325,7 @@ public:
                         me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                     if (rand()%100 < 75)
-                        me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f,0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                     me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                 }
             }
@@ -577,16 +577,16 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                  pPlayer->CastSpell(pPlayer,40642,false);
+                  pPlayer->CastSpell(pPlayer, 40642, false);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                  pPlayer->CastSpell(pPlayer,40640,false);
+                  pPlayer->CastSpell(pPlayer, 40640, false);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
-                  pPlayer->CastSpell(pPlayer,40632,false);
+                  pPlayer->CastSpell(pPlayer, 40632, false);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4:
-                  pPlayer->CastSpell(pPlayer,40644,false);
+                  pPlayer->CastSpell(pPlayer, 40644, false);
                 break;
         }
     }
@@ -679,12 +679,12 @@ public:
             switch(i)
             {
                 case 3:
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99f,5420.33f,-34.53f,0.0f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55f,5412.79f,-34.53f,0.0f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 11:
                     if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                        pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB,me);
+                        pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
                     break;
             }
         }

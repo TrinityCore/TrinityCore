@@ -84,7 +84,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
-            m_uiOperaEvent      = urand(1,3);
+            m_uiOperaEvent      = urand(1, 3);
             m_uiOzDeathCount    = 0;
 
             m_uiCurtainGUID         = 0;
@@ -149,7 +149,7 @@ public:
                 case TYPE_NETHERSPITE:          m_auiEncounter[8] = uiData; break;
                 case TYPE_CHESS:
                     if (uiData == DONE)
-                        DoRespawnGameObject(DustCoveredChest,DAY);
+                        DoRespawnGameObject(DustCoveredChest, DAY);
                     m_auiEncounter[9]  = uiData;
                     break;
                 case TYPE_MALCHEZZAR:           m_auiEncounter[10] = uiData; break;

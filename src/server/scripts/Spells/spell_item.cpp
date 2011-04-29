@@ -834,9 +834,9 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 
                 Player* target = GetHitUnit()->ToPlayer();
 
-                static const uint32 items[] = {ITEM_HEART_CANDY_1,ITEM_HEART_CANDY_2,ITEM_HEART_CANDY_3,ITEM_HEART_CANDY_4,ITEM_HEART_CANDY_5,ITEM_HEART_CANDY_6,ITEM_HEART_CANDY_7,ITEM_HEART_CANDY_8};
+                static const uint32 items[] = {ITEM_HEART_CANDY_1, ITEM_HEART_CANDY_2, ITEM_HEART_CANDY_3, ITEM_HEART_CANDY_4, ITEM_HEART_CANDY_5, ITEM_HEART_CANDY_6, ITEM_HEART_CANDY_7, ITEM_HEART_CANDY_8};
 
-                target->AddItem(items[urand(0,7)],1);
+                target->AddItem(items[urand(0, 7)], 1);
             }
 
             void Register()

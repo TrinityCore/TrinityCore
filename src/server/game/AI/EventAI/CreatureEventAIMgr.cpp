@@ -34,7 +34,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     m_CreatureEventAI_TextMap.clear();
 
     // Load EventAI Text
-    sObjectMgr->LoadTrinityStrings("creature_ai_texts",MIN_CREATURE_AI_TEXT_STRING_ID,MAX_CREATURE_AI_TEXT_STRING_ID);
+    sObjectMgr->LoadTrinityStrings("creature_ai_texts", MIN_CREATURE_AI_TEXT_STRING_ID, MAX_CREATURE_AI_TEXT_STRING_ID);
 
     // Gather Additional data from EventAI Texts
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
@@ -62,33 +62,33 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
         // range negative
         if (i > MIN_CREATURE_AI_TEXT_STRING_ID || i <= MAX_CREATURE_AI_TEXT_STRING_ID)
         {
-            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` is not in valid range(%d-%d)",i,MIN_CREATURE_AI_TEXT_STRING_ID,MAX_CREATURE_AI_TEXT_STRING_ID);
+            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` is not in valid range(%d-%d)", i, MIN_CREATURE_AI_TEXT_STRING_ID, MAX_CREATURE_AI_TEXT_STRING_ID);
             continue;
         }
 
         // range negative (don't must be happen, loaded from same table)
         if (!sObjectMgr->GetTrinityStringLocale(i))
         {
-            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` not found",i);
+            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` not found", i);
             continue;
         }
 
         if (temp.SoundId)
         {
             if (!sSoundEntriesStore.LookupEntry(temp.SoundId))
-                sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Sound %u but sound does not exist.",i,temp.SoundId);
+                sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Sound %u but sound does not exist.", i, temp.SoundId);
         }
 
         if (!GetLanguageDescByID(temp.Language))
-            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` using Language %u but Language does not exist.",i,temp.Language);
+            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` using Language %u but Language does not exist.", i, temp.Language);
 
         if (temp.Type > CHAT_TYPE_ZONE_YELL)
-            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
+            sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Type %u but this Chat Type does not exist.", i, temp.Type);
 
         if (temp.Emote)
         {
             if (!sEmotesStore.LookupEntry(temp.Emote))
-                sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Emote %u but emote does not exist.",i,temp.Emote);
+                sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Emote %u but emote does not exist.", i, temp.Emote);
         }
 
         m_CreatureEventAI_TextMap[i] = temp;
@@ -133,9 +133,9 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
         temp.orientation = fields[4].GetFloat();
         temp.SpawnTimeSecs = fields[5].GetUInt32();
 
-        if (!Trinity::IsValidMapCoord(temp.position_x,temp.position_y,temp.position_z,temp.orientation))
+        if (!Trinity::IsValidMapCoord(temp.position_x, temp.position_y, temp.position_z, temp.orientation))
         {
-            sLog->outErrorDb("CreatureEventAI:  Summon id %u have wrong coordinates (%f,%f,%f,%f), skipping.", i,temp.position_x,temp.position_y,temp.position_z,temp.orientation);
+            sLog->outErrorDb("CreatureEventAI:  Summon id %u have wrong coordinates (%f, %f, %f, %f), skipping.", i, temp.position_x, temp.position_y, temp.position_z, temp.orientation);
             continue;
         }
 
@@ -189,7 +189,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         //Report any errors in event
         if (e_type >= EVENT_T_END)
         {
-            sLog->outErrorDb("CreatureEventAI:  Event %u have wrong type (%u), skipping.", i,e_type);
+            sLog->outErrorDb("CreatureEventAI:  Event %u have wrong type (%u), skipping.", i, e_type);
             continue;
         }
         temp.event_type = EventAI_Type(e_type);
@@ -351,7 +351,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             {
                 if (!sEmotesTextStore.LookupEntry(temp.receive_emote.emoteId))
                 {
-                    sLog->outErrorDb("CreatureEventAI: Creature %u using event %u: param1 (EmoteTextId: %u) are not valid.",temp.creature_id, i, temp.receive_emote.emoteId);
+                    sLog->outErrorDb("CreatureEventAI: Creature %u using event %u: param1 (EmoteTextId: %u) are not valid.", temp.creature_id, i, temp.receive_emote.emoteId);
                     continue;
                 }
                 if (temp.receive_emote.condition)
@@ -362,7 +362,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     cond.mConditionValue2 = temp.receive_emote.conditionValue2;
                     if (!sConditionMgr->isConditionTypeValid(&cond))
                     {
-                        sLog->outErrorDb("CreatureEventAI: Creature %u using event %u: param2 (Condition: %u) are not valid.",temp.creature_id, i, temp.receive_emote.condition);
+                        sLog->outErrorDb("CreatureEventAI: Creature %u using event %u: param2 (Condition: %u) are not valid.", temp.creature_id, i, temp.receive_emote.condition);
                         continue;
                     }
                 }
@@ -462,7 +462,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         {
                             if (action.morph.creatureId)
                             {
-                                sLog->outErrorDb("CreatureEventAI:  Event %u Action %u have unused ModelId %u with also set creature id %u.", i, j+1, action.morph.modelId,action.morph.creatureId);
+                                sLog->outErrorDb("CreatureEventAI:  Event %u Action %u have unused ModelId %u with also set creature id %u.", i, j+1, action.morph.modelId, action.morph.creatureId);
                                 action.morph.modelId = 0;
                             }
                             else if (!sCreatureDisplayInfoStore.LookupEntry(action.morph.modelId))
@@ -509,7 +509,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         {
                             //output as debug for now, also because there's no general rule all spells have RecoveryTime
                             if (temp.event_param3 < spell->RecoveryTime)
-                                sLog->outDebug("CreatureEventAI:  Event %u Action %u uses SpellID %u but cooldown is longer(%u) than minumum defined in event param3(%u).", i, j+1,action.cast.spellId, spell->RecoveryTime, temp.event_param3);
+                                sLog->outDebug("CreatureEventAI:  Event %u Action %u uses SpellID %u but cooldown is longer(%u) than minumum defined in event param3(%u).", i, j+1, action.cast.spellId, spell->RecoveryTime, temp.event_param3);
                         }
                     }
                     */
@@ -618,7 +618,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     if (action.random_phase_range.phaseMin >= action.random_phase_range.phaseMax)
                     {
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u attempts to set phaseMax <= phaseMin.", i, j+1);
-                        std::swap(action.random_phase_range.phaseMin,action.random_phase_range.phaseMax);
+                        std::swap(action.random_phase_range.phaseMin, action.random_phase_range.phaseMax);
                         // equal case processed at call
                     }
                     break;

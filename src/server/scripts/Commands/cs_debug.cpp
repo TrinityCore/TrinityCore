@@ -58,7 +58,7 @@ public:
             { "opcode",         SEC_ADMINISTRATOR,  false, &HandleDebugSendOpcodeCommand,         "", NULL },
             { "poi",            SEC_ADMINISTRATOR,  false, &HandleDebugSendPoiCommand,            "", NULL },
             { "qpartymsg",      SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestPartyMsgCommand,  "", NULL },
-            { "qinvalidmsg",    SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestInvalidMsgCommand,"", NULL },
+            { "qinvalidmsg",    SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestInvalidMsgCommand, "", NULL },
             { "sellerror",      SEC_ADMINISTRATOR,  false, &HandleDebugSendSellErrorCommand,      "", NULL },
             { "setphaseshift",  SEC_ADMINISTRATOR,  false, &HandleDebugSendSetPhaseShiftCommand,  "", NULL },
             { "spellfail",      SEC_ADMINISTRATOR,  false, &HandleDebugSendSpellFailCommand,      "", NULL },
@@ -73,7 +73,7 @@ public:
             { "arena",          SEC_ADMINISTRATOR,  false, &HandleDebugArenaCommand,           "", NULL },
             { "bg",             SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundCommand,    "", NULL },
             { "getitemstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemStateCommand,    "", NULL },
-            { "lootrecipient",  SEC_GAMEMASTER,     false, &HandleDebugGetLootRecipientCommand,"", NULL },
+            { "lootrecipient",  SEC_GAMEMASTER,     false, &HandleDebugGetLootRecipientCommand, "", NULL },
             { "getvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugGetValueCommand,        "", NULL },
             { "getitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemValueCommand,    "", NULL },
             { "Mod32Value",     SEC_ADMINISTRATOR,  false, &HandleDebugMod32ValueCommand,      "", NULL },
@@ -85,7 +85,7 @@ public:
             { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugSpawnVehicleCommand,    "", NULL },
             { "setvid",         SEC_ADMINISTRATOR,  false, &HandleDebugSetVehicleIdCommand,    "", NULL },
             { "entervehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugEnterVehicleCommand,    "", NULL },
-            { "uws",            SEC_ADMINISTRATOR,  false, &HandleDebugUpdateWorldStateCommand,"", NULL },
+            { "uws",            SEC_ADMINISTRATOR,  false, &HandleDebugUpdateWorldStateCommand, "", NULL },
             { "update",         SEC_ADMINISTRATOR,  false, &HandleDebugUpdateCommand,          "", NULL },
             { "itemexpire",     SEC_ADMINISTRATOR,  false, &HandleDebugItemExpireCommand,      "", NULL },
             { "areatriggers",   SEC_ADMINISTRATOR,  false, &HandleDebugAreaTriggersCommand,    "", NULL },
@@ -177,9 +177,9 @@ public:
         }
 
         if (handler->GetSession()->GetPlayer()->GetSelection())
-            unit->PlayDistanceSound(dwSoundId,handler->GetSession()->GetPlayer());
+            unit->PlayDistanceSound(dwSoundId, handler->GetSession()->GetPlayer());
         else
-            unit->PlayDirectSound(dwSoundId,handler->GetSession()->GetPlayer());
+            unit->PlayDirectSound(dwSoundId, handler->GetSession()->GetPlayer());
 
         handler->PSendSysMessage(LANG_YOU_HEAR_SOUND, dwSoundId);
         return true;
@@ -239,7 +239,7 @@ public:
         uint32 icon = atol(icon_text);
         uint32 flags = atol(flags_text);
 
-        sLog->outDetail("Command : POI, NPC = %u, icon = %u flags = %u", target->GetGUIDLow(), icon,flags);
+        sLog->outDetail("Command : POI, NPC = %u, icon = %u flags = %u", target->GetGUIDLow(), icon, flags);
         pPlayer->PlayerTalkClass->SendPointOfInterest(target->GetPositionX(), target->GetPositionY(), Poi_Icon(icon), flags, 30, "Test POI");
         return true;
     }
@@ -736,14 +736,14 @@ public:
         std::list<HostileReference*>& tlist = target->getThreatManager().getThreatList();
         std::list<HostileReference*>::iterator itr;
         uint32 cnt = 0;
-        handler->PSendSysMessage("Threat list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
+        handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName(), target->GetGUIDLow());
         for (itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             Unit* unit = (*itr)->getTarget();
             if (!unit)
                 continue;
             ++cnt;
-            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f",cnt,unit->GetName(), unit->GetGUIDLow(), (*itr)->getThreat());
+            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", cnt, unit->GetName(), unit->GetGUIDLow(), (*itr)->getThreat());
         }
         handler->SendSysMessage("End of threat list.");
         return true;
@@ -756,13 +756,13 @@ public:
             target = handler->GetSession()->GetPlayer();
         HostileReference* ref = target->getHostileRefManager().getFirst();
         uint32 cnt = 0;
-        handler->PSendSysMessage("Hostil reference list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
+        handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName(), target->GetGUIDLow());
         while (ref)
         {
             if (Unit * unit = ref->getSource()->getOwner())
             {
                 ++cnt;
-                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f",cnt,unit->GetName(), unit->GetGUIDLow(), ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", cnt, unit->GetName(), unit->GetGUIDLow(), ref->getThreat());
             }
             ref = ref->next();
         }
@@ -1003,11 +1003,11 @@ public:
         {
             // reset all states
             for (int i = 1; i <= 32; ++i)
-                unit->ModifyAuraState(AuraState(i),false);
+                unit->ModifyAuraState(AuraState(i), false);
             return true;
         }
 
-        unit->ModifyAuraState(AuraState(abs(state)),state > 0);
+        unit->ModifyAuraState(AuraState(abs(state)), state > 0);
         return true;
     }
 
@@ -1048,13 +1048,13 @@ public:
         {
             iValue = (uint32)atoi(py);
             target->SetUInt32Value(Opcode , iValue);
-            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode,iValue);
+            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode, iValue);
         }
         else
         {
             fValue = (float)atof(py);
             target->SetFloatValue(Opcode , fValue);
-            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode,fValue);
+            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
         }
 
         return true;
@@ -1132,7 +1132,7 @@ public:
         CurrentValue += Value;
         handler->GetSession()->GetPlayer()->SetUInt32Value(Opcode , (uint32)CurrentValue);
 
-        handler->PSendSysMessage(LANG_CHANGE_32BIT_FIELD, Opcode,CurrentValue);
+        handler->PSendSysMessage(LANG_CHANGE_32BIT_FIELD, Opcode, CurrentValue);
 
         return true;
     }
@@ -1175,15 +1175,15 @@ public:
         {
             value=chr->GetUInt32Value(updateIndex);
 
-            handler->PSendSysMessage(LANG_UPDATE, chr->GetGUIDLow(),updateIndex,value);
+            handler->PSendSysMessage(LANG_UPDATE, chr->GetGUIDLow(), updateIndex, value);
             return true;
         }
 
         value=atoi(pvalue);
 
-        handler->PSendSysMessage(LANG_UPDATE_CHANGE, chr->GetGUIDLow(),updateIndex,value);
+        handler->PSendSysMessage(LANG_UPDATE_CHANGE, chr->GetGUIDLow(), updateIndex, value);
 
-        chr->SetUInt32Value(updateIndex,value);
+        chr->SetUInt32Value(updateIndex, value);
 
         return true;
     }

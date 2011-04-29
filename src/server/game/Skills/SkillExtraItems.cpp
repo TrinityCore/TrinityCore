@@ -44,7 +44,7 @@ struct SkillExtraItemEntry
 };
 
 // map to store the extra item creation info, the key is the spellId of the creation spell, the mapped value is the assigned SkillExtraItemEntry
-typedef std::map<uint32,SkillExtraItemEntry> SkillExtraItemMap;
+typedef std::map<uint32, SkillExtraItemEntry> SkillExtraItemMap;
 
 SkillExtraItemMap SkillExtraItemStore;
 
@@ -82,7 +82,7 @@ void LoadSkillExtraItemTable()
         uint32 requiredSpecialization = fields[1].GetUInt32();
         if (!sSpellStore.LookupEntry(requiredSpecialization))
         {
-            sLog->outError("Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId,requiredSpecialization);
+            sLog->outError("Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId, requiredSpecialization);
             continue;
         }
 

@@ -158,7 +158,7 @@ public:
                             However, if there are not at least 9 people outside of 15 yards
                             he will start casting it on players inside 15 yards melee and tank included.
                         */
-                        Unit* target = CheckPlayersInRange(RAID_MODE<uint32>(4,9), 15.0f, 50.f);
+                        Unit* target = CheckPlayersInRange(RAID_MODE<uint32>(4, 9), 15.0f, 50.f);
                         if (!target)
                             target = SelectTarget(SELECT_TARGET_RANDOM);
                         DoCast(target, SPELL_MARK_OF_THE_FACELESS);

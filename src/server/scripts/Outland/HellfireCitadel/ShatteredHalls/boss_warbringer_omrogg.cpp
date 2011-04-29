@@ -190,13 +190,13 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void Reset()
             {
-                if (Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID))
+                if (Unit* pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID))
                 {
                     pLeftHead->setDeathState(JUST_DIED);
                     LeftHeadGUID = 0;
                 }
 
-                if (Unit* pRightHead  = Unit::GetUnit(*me,RightHeadGUID))
+                if (Unit* pRightHead  = Unit::GetUnit(*me, RightHeadGUID))
                 {
                     pRightHead->setDeathState(JUST_DIED);
                     RightHeadGUID = 0;
@@ -221,8 +221,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void DoYellForThreat()
             {
-                Unit *pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
-                Unit *pRightHead = Unit::GetUnit(*me,RightHeadGUID);
+                Unit *pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID);
+                Unit *pRightHead = Unit::GetUnit(*me, RightHeadGUID);
 
                 if (!pLeftHead || !pRightHead)
                     return;
@@ -242,7 +242,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
                 me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
-                if (Unit *pLeftHead = Unit::GetUnit(*me,LeftHeadGUID))
+                if (Unit *pLeftHead = Unit::GetUnit(*me, LeftHeadGUID))
                 {
                     iaggro = rand()%3;
 
@@ -271,8 +271,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
-                Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
+                Unit* pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID);
+                Unit* pRightHead = Unit::GetUnit(*me, RightHeadGUID);
 
                 if (!pLeftHead || !pRightHead)
                     return;
@@ -297,8 +297,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
-                Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
+                Unit* pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID);
+                Unit* pRightHead = Unit::GetUnit(*me, RightHeadGUID);
 
                 if (!pLeftHead || !pRightHead)
                     return;
@@ -317,8 +317,8 @@ class boss_warbringer_omrogg : public CreatureScript
                 {
                     Delay_Timer = 3500;
 
-                    Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
-                    Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
+                    Unit* pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID);
+                    Unit* pRightHead = Unit::GetUnit(*me, RightHeadGUID);
 
                     if (!pLeftHead || !pRightHead)
                         return;
@@ -383,7 +383,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (ResetThreat_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoYellForThreat();
                         DoResetThreat();

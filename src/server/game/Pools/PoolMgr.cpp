@@ -193,7 +193,7 @@ void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, uint32 guid)
             if (!guid || EqualChanced[i].guid == guid)
             {
                 Despawn1Object(EqualChanced[i].guid);
-                spawns.RemoveObject<T>(EqualChanced[i].guid,poolId);
+                spawns.RemoveObject<T>(EqualChanced[i].guid, poolId);
             }
         }
     }
@@ -206,7 +206,7 @@ void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, uint32 guid)
             if (!guid || ExplicitlyChanced[i].guid == guid)
             {
                 Despawn1Object(ExplicitlyChanced[i].guid);
-                spawns.RemoveObject<T>(ExplicitlyChanced[i].guid,poolId);
+                spawns.RemoveObject<T>(ExplicitlyChanced[i].guid, poolId);
             }
         }
     }
@@ -364,7 +364,7 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
             Creature* pCreature = new Creature;
-            //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u",guid);
+            //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
             if (!pCreature->LoadFromDB(obj->guid, map))
             {
                 delete pCreature;
@@ -566,7 +566,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT entry,max_limit FROM pool_template");
+        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
         if (!result)
         {
             mPoolTemplate.clear();
@@ -626,7 +626,7 @@ void PoolMgr::LoadFromDB()
                 }
                 if (pool_id > max_pool_id)
                 {
-                    sLog->outErrorDb("`pool_creature` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
+                    sLog->outErrorDb("`pool_creature` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", pool_id);
                     continue;
                 }
                 if (chance < 0 || chance > 100)
@@ -694,7 +694,7 @@ void PoolMgr::LoadFromDB()
 
                 if (pool_id > max_pool_id)
                 {
-                    sLog->outErrorDb("`pool_gameobject` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
+                    sLog->outErrorDb("`pool_gameobject` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", pool_id);
                     continue;
                 }
 
@@ -748,17 +748,17 @@ void PoolMgr::LoadFromDB()
 
                 if (mother_pool_id > max_pool_id)
                 {
-                    sLog->outErrorDb("`pool_pool` mother_pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",mother_pool_id);
+                    sLog->outErrorDb("`pool_pool` mother_pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", mother_pool_id);
                     continue;
                 }
                 if (child_pool_id > max_pool_id)
                 {
-                    sLog->outErrorDb("`pool_pool` included pool_id (%u) is out of range compared to max pool id in `pool_template`, skipped.",child_pool_id);
+                    sLog->outErrorDb("`pool_pool` included pool_id (%u) is out of range compared to max pool id in `pool_template`, skipped.", child_pool_id);
                     continue;
                 }
                 if (mother_pool_id == child_pool_id)
                 {
-                    sLog->outErrorDb("`pool_pool` pool_id (%u) includes itself, dead-lock detected, skipped.",child_pool_id);
+                    sLog->outErrorDb("`pool_pool` pool_id (%u) includes itself, dead-lock detected, skipped.", child_pool_id);
                     continue;
                 }
                 if (chance < 0 || chance > 100)
@@ -849,7 +849,7 @@ void PoolMgr::LoadFromDB()
 
                 if (pool_id > max_pool_id)
                 {
-                    sLog->outErrorDb("`pool_quest` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
+                    sLog->outErrorDb("`pool_quest` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", pool_id);
                     continue;
                 }
 

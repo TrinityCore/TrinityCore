@@ -75,7 +75,7 @@ class PreparedStatement
         explicit PreparedStatement(uint32 index);
         ~PreparedStatement();
 
-        void setBool(const uint8 index,const bool value);
+        void setBool(const uint8 index, const bool value);
         void setUInt8(const uint8 index, const uint8 value);
         void setUInt16(const uint8 index, const uint16 value);
         void setUInt32(const uint8 index, const uint32 value);
@@ -109,7 +109,7 @@ class MySQLPreparedStatement
         MySQLPreparedStatement(MYSQL_STMT* stmt);
         ~MySQLPreparedStatement();
 
-        void setBool(const uint8 index,const bool value);
+        void setBool(const uint8 index, const bool value);
         void setUInt8(const uint8 index, const uint8 value);
         void setUInt16(const uint8 index, const uint16 value);
         void setUInt32(const uint8 index, const uint32 value);
