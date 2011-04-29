@@ -1170,7 +1170,7 @@ void ObjectMgr::LoadEquipmentTemplates()
         equipmentInfo.ItemEntry[1] = fields[2].GetUInt32();
         equipmentInfo.ItemEntry[2] = fields[3].GetUInt32();
 
-        for (uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
         {
             if (!equipmentInfo.ItemEntry[i])
                 continue;
@@ -5768,8 +5768,6 @@ void ObjectMgr::LoadPageTexts()
     {
         Field* fields = result->Fetch();
 
-        const char* text = fields[1].GetCString();
-
         PageText pageText;
 
         pageText.Text     = fields[1].GetString();
@@ -5865,8 +5863,8 @@ void ObjectMgr::LoadInstanceTemplate()
         InstanceTemplate instanceTemplate;
 
         instanceTemplate.AllowMount = fields[3].GetBool();
-        instanceTemplate.Parent = fields[1].GetUInt16();
-        instanceTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetCString());
+        instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetCString());
 
         InstanceTemplateStore[mapID] = instanceTemplate;
 

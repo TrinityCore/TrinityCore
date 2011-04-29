@@ -76,6 +76,8 @@ enum CreatureFlagsExtra
 
 #define MAX_CREATURE_QUEST_ITEMS 6
 
+#define MAX_EQUIPMENT_ITEMS 3
+
 // from `creature_template` table
 struct CreatureTemplate
 {
@@ -228,7 +230,7 @@ struct PointOfInterestLocale
 
 struct EquipmentInfo
 {
-    uint32  ItemEntry[3];
+    uint32  ItemEntry[MAX_EQUIPMENT_ITEMS];
 };
 
 // Benchmarked: Faster than std::map (insert/find)
