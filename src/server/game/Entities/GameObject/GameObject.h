@@ -43,10 +43,10 @@ struct GameObjectTemplate
     uint32  entry;
     uint32  type;
     uint32  displayId;
-    const char* name;
-    const char* IconName;
-    const char* castBarCaption;
-    const char* unk1;
+    std::string name;
+    std::string IconName;
+    std::string castBarCaption;
+    std::string unk1;
     uint32  faction;
     uint32  flags;
     float   size;
@@ -403,7 +403,7 @@ struct GameObjectTemplate
     };
 
 
-    char const* AIName;
+    std::string AIName;
     uint32 ScriptId;
 
     // helpers
