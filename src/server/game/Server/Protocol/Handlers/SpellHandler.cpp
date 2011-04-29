@@ -109,7 +109,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint8 msg = pUser->CanUseItem(pItem);
+    InventoryResult msg = pUser->CanUseItem(pItem);
     if (msg != EQUIP_ERR_OK)
     {
         pUser->SendEquipError(msg, pItem, NULL);

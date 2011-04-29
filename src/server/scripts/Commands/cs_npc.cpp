@@ -1299,7 +1299,7 @@ public:
         uint32 ItemID = atoi(pItemID);
         uint32 SlotID = atoi(pSlotID);
 
-        ItemPrototype* tmpItem = sObjectMgr->GetItemTemplate(ItemID);
+        ItemTemplate* tmpItem = sObjectMgr->GetItemTemplate(ItemID);
 
         bool added = false;
         if (tmpItem)

@@ -757,10 +757,10 @@ bool Guild::MoveItemData::CheckItem(uint32& splitedAmount)
     return true;
 }
 
-uint8 Guild::MoveItemData::CanStore(Item* pItem, bool swap, bool sendError)
+bool Guild::MoveItemData::CanStore(Item* pItem, bool swap, bool sendError)
 {
     m_vec.clear();
-    uint8 msg = _CanStore(pItem, swap);
+    InventoryResult msg = _CanStore(pItem, swap);
     if (sendError && msg != EQUIP_ERR_OK)
         m_pPlayer->SendEquipError(msg, pItem);
     return (msg == EQUIP_ERR_OK);
@@ -848,7 +848,7 @@ void Guild::PlayerMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData
         pFrom->GetItem()->GetEntry(), count);
 }
 
-inline uint8 Guild::PlayerMoveItemData::_CanStore(Item* pItem, bool swap)
+inline InventoryResult Guild::PlayerMoveItemData::_CanStore(Item* pItem, bool swap)
 {
     return m_pPlayer->CanStoreItem(m_container, m_slotId, m_vec, pItem, swap);
 }
@@ -1020,7 +1020,7 @@ void Guild::BankMoveItemData::_CanStoreItemInTab(Item* pItem, uint8 skipSlotId, 
     }
 }
 
-uint8 Guild::BankMoveItemData::_CanStore(Item* pItem, bool swap)
+InventoryResult Guild::BankMoveItemData::_CanStore(Item* pItem, bool swap)
 {
     sLog->outDebug(LOG_FILTER_GUILD, "GUILD STORAGE: CanStore() tab = %u, slot = %u, item = %u, count = %u",
         m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());

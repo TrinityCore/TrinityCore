@@ -249,7 +249,7 @@ public:
         if (!*args)
             return false;
 
-        uint8 msg = atoi(args);
+        InventoryResult msg = InventoryResult(atoi(args));
         handler->GetSession()->GetPlayer()->SendEquipError(msg, NULL, NULL);
         return true;
     }
@@ -259,7 +259,7 @@ public:
         if (!*args)
             return false;
 
-        uint8 msg = atoi(args);
+        SellResult msg = SellResult(atoi(args));
         handler->GetSession()->GetPlayer()->SendSellError(msg, 0, 0, 0);
         return true;
     }
@@ -269,7 +269,7 @@ public:
         if (!*args)
             return false;
 
-        uint8 msg = atoi(args);
+        BuyResult msg = BuyResult(atoi(args));
         handler->GetSession()->GetPlayer()->SendBuyError(msg, 0, 0, 0);
         return true;
     }
