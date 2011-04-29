@@ -34,7 +34,7 @@ Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         vis_guids.erase(iter->getSource()->GetGUID());
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
+        i_player.UpdateVisibilityOf(iter->getSource(), i_data, i_visibleNow);
     }
 }
 
@@ -413,7 +413,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 
         data = new WorldPacket(SMSG_MESSAGECHAT, 200);
 
-        i_builder(*data,loc_idx);
+        i_builder(*data, loc_idx);
 
         i_data_cache[cache_idx] = data;
     }
@@ -438,7 +438,7 @@ void Trinity::LocalizedPacketListDo<Builder>::operator()(Player* p)
 
         data_list = &i_data_cache[cache_idx];
 
-        i_builder(*data_list,loc_idx);
+        i_builder(*data_list, loc_idx);
     }
     else
         data_list = &i_data_cache[cache_idx];

@@ -137,7 +137,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -183,7 +183,7 @@ public:
                 }
                 else
                 {
-                    DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), me);
+                    DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
 
                     for (uint8 i = 0; i < 10; ++i)
                     {
@@ -234,7 +234,7 @@ public:
                         }
                     }
 
-                    DoScriptText(RAND(SAY_SUMMON_BUBL1,SAY_SUMMON_BUBL2), me);
+                    DoScriptText(RAND(SAY_SUMMON_BUBL1, SAY_SUMMON_BUBL2), me);
 
                     DoScriptText(EMOTE_WATERY_GRAVE, me);
                     WateryGrave_Timer = 30000;

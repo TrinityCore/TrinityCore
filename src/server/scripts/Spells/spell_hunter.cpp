@@ -121,7 +121,7 @@ public:
             if (spellId)
                 caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
             if (spellId == HUNTER_SPELL_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
-                caster->ToPlayer()->AddSpellCooldown(spellId,0,uint32(time(NULL) + 60));
+                caster->ToPlayer()->AddSpellCooldown(spellId, 0, uint32(time(NULL) + 60));
         }
 
         void Register()
@@ -281,7 +281,7 @@ public:
                     spellInfo->Id != HUNTER_SPELL_READINESS &&
                     spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
                     GetSpellRecoveryTime(spellInfo) > 0)
-                    caster->ToPlayer()->RemoveSpellCooldown((itr++)->first,true);
+                    caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
                 else
                     ++itr;
             }

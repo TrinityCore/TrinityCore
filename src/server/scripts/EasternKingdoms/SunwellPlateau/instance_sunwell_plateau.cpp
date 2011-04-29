@@ -129,7 +129,7 @@ public:
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* plr = itr->getSource();
-                    if (plr && !plr->HasAura(45839,0))
+                    if (plr && !plr->HasAura(45839, 0))
                             return plr;
                 }
             }
@@ -226,15 +226,15 @@ public:
                     {
                         if (data == NOT_STARTED || data == DONE)
                         {
-                            HandleGameObject(ForceField,true);
-                            HandleGameObject(KalecgosWall[0],true);
-                            HandleGameObject(KalecgosWall[1],true);
+                            HandleGameObject(ForceField, true);
+                            HandleGameObject(KalecgosWall[0], true);
+                            HandleGameObject(KalecgosWall[1], true);
                         }
                         else if (data == IN_PROGRESS)
                         {
-                            HandleGameObject(ForceField,false);
-                            HandleGameObject(KalecgosWall[0],false);
-                            HandleGameObject(KalecgosWall[1],false);
+                            HandleGameObject(ForceField, false);
+                            HandleGameObject(KalecgosWall[0], false);
+                            HandleGameObject(KalecgosWall[1], false);
                         }
                         m_auiEncounter[0] = data;
                     }

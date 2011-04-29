@@ -51,10 +51,10 @@ public:
             return false;
 
         if (go->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
-            pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
+            pInstance->SetData(TYPE_HYDROMANCER_THESPIA, SPECIAL);
 
         if (go->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
-            pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
+            pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, SPECIAL);
 
         return true;
     }

@@ -26,8 +26,8 @@
 
 #include <map>
 
-typedef std::map<uint16,uint32> AreaFlagByAreaID;
-typedef std::map<uint32,uint32> AreaFlagByMapID;
+typedef std::map<uint16, uint32> AreaFlagByAreaID;
+typedef std::map<uint32, uint32> AreaFlagByMapID;
 
 struct WMOAreaTableTripple
 {
@@ -83,7 +83,7 @@ DBCStorage <DurabilityCostsEntry> sDurabilityCostsStore(DurabilityCostsfmt);
 DBCStorage <EmotesEntry> sEmotesStore(EmotesEntryfmt);
 DBCStorage <EmotesTextEntry> sEmotesTextStore(EmotesTextEntryfmt);
 
-typedef std::map<uint32,SimpleFactionsList> FactionTeamMap;
+typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
 static FactionTeamMap sFactionTeamMap;
 DBCStorage <FactionEntry> sFactionStore(FactionEntryfmt);
 DBCStorage <FactionTemplateEntry> sFactionTemplateStore(FactionTemplateEntryfmt);
@@ -196,9 +196,9 @@ typedef std::list<std::string> StoreProblemList;
 
 uint32 DBCFileCount = 0;
 
-static bool LoadDBC_assert_print(uint32 fsize,uint32 rsize, const std::string& filename)
+static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
 {
-    sLog->outError("Size of '%s' setted by format string (%u) not equal size of C++ structure (%u).",filename.c_str(),fsize,rsize);
+    sLog->outError("Size of '%s' setted by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
 
     // ASSERT must fail after function call
     return false;
@@ -327,9 +327,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphSlotStore,              dbcPath, "GlyphSlot.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBarberShopCostBaseStore,   dbcPath, "gtBarberShopCostBase.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtCombatRatingsStore,        dbcPath, "gtCombatRatings.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToMeleeCritBaseStore,dbcPath, "gtChanceToMeleeCritBase.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToMeleeCritBaseStore, dbcPath, "gtChanceToMeleeCritBase.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToMeleeCritStore,    dbcPath, "gtChanceToMeleeCrit.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToSpellCritBaseStore,dbcPath, "gtChanceToSpellCritBase.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToSpellCritBaseStore, dbcPath, "gtChanceToSpellCritBase.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToSpellCritStore,    dbcPath, "gtChanceToSpellCrit.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTRegenHPStore,           dbcPath, "gtOCTRegenHP.dbc");
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sGtOCTRegenMPStore,           dbcPath, "gtOCTRegenMP.dbc");       -- not used currently
@@ -376,7 +376,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sRandomPropertiesPointsStore, dbcPath, "RandPropPoints.dbc");
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore,dbcPath, "ScalingStatDistribution.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore, dbcPath, "ScalingStatDistribution.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatValuesStore,      dbcPath, "ScalingStatValues.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineStore,              dbcPath, "SkillLine.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineAbilityStore,       dbcPath, "SkillLineAbility.dbc");
@@ -692,7 +692,7 @@ AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
     return sAreaStore.LookupEntry(areaflag);
 }
 
-AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id)
+AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id)
 {
     if (area_flag)
         return sAreaStore.LookupEntry(area_flag);
@@ -725,7 +725,7 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
 
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
 {
-    mapid = GetVirtualMapForMapAndZone(mapid,zoneId);
+    mapid = GetVirtualMapForMapAndZone(mapid, zoneId);
     if (mapid < 2)
         return CONTENT_1_60;
 
@@ -761,7 +761,7 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
     return (itemEntry->categoryMask & reqEntry->categoryMask) == reqEntry->categoryMask;
 }
 
-void Zone2MapCoordinates(float& x,float& y,uint32 zone)
+void Zone2MapCoordinates(float& x, float& y, uint32 zone)
 {
     WorldMapAreaEntry const* maEntry = sWorldMapAreaStore.LookupEntry(zone);
 
@@ -769,12 +769,12 @@ void Zone2MapCoordinates(float& x,float& y,uint32 zone)
     if (!maEntry)
         return;
 
-    std::swap(x,y);                                         // at client map coords swapped
+    std::swap(x, y);                                         // at client map coords swapped
     x = x*((maEntry->x2-maEntry->x1)/100)+maEntry->x1;
     y = y*((maEntry->y2-maEntry->y1)/100)+maEntry->y1;      // client y coord from top to down
 }
 
-void Map2ZoneCoordinates(float& x,float& y,uint32 zone)
+void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
 {
     WorldMapAreaEntry const* maEntry = sWorldMapAreaStore.LookupEntry(zone);
 
@@ -784,12 +784,12 @@ void Map2ZoneCoordinates(float& x,float& y,uint32 zone)
 
     x = (x-maEntry->x1)/((maEntry->x2-maEntry->x1)/100);
     y = (y-maEntry->y1)/((maEntry->y2-maEntry->y1)/100);    // client y coord from top to down
-    std::swap(x,y);                                         // client have map coords swapped
+    std::swap(x, y);                                         // client have map coords swapped
 }
 
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
-    MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId,difficulty));
+    MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId, difficulty));
     return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
 }
 

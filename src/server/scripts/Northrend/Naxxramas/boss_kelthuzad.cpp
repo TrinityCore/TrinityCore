@@ -325,7 +325,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -389,13 +389,13 @@ public:
                     switch(eventId)
                     {
                         case EVENT_WASTE:
-                            DoSummon(NPC_WASTE, Pos[RAND(0,3,6,9)]);
-                            events.RepeatEvent(urand(2000,5000));
+                            DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
+                            events.RepeatEvent(urand(2000, 5000));
                             break;
                         case EVENT_ABOMIN:
                             if (nAbomination < 8)
                             {
-                                DoSummon(NPC_ABOMINATION, Pos[RAND(1,4,7,10)]);
+                                DoSummon(NPC_ABOMINATION, Pos[RAND(1, 4, 7, 10)]);
                                 nAbomination++;
                                 events.RepeatEvent(20000);
                             }
@@ -405,7 +405,7 @@ public:
                         case EVENT_WEAVER:
                             if (nWeaver < 8)
                             {
-                                DoSummon(NPC_WEAVER, Pos[RAND(0,3,6,9)]);
+                                DoSummon(NPC_WEAVER, Pos[RAND(0, 3, 6, 9)]);
                                 nWeaver++;
                                 events.RepeatEvent(25000);
                             }
@@ -419,19 +419,19 @@ public:
                             break;
                         case EVENT_PHASE:
                             events.Reset();
-                            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+                            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
                             spawns.DespawnAll();
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                             me->CastStop();
 
                             DoStartMovement(me->getVictim());
-                            events.ScheduleEvent(EVENT_BOLT, urand(5000,10000));
+                            events.ScheduleEvent(EVENT_BOLT, urand(5000, 10000));
                             events.ScheduleEvent(EVENT_NOVA, 15000);
-                            events.ScheduleEvent(EVENT_DETONATE, urand(30000,40000));
-                            events.ScheduleEvent(EVENT_FISSURE, urand(10000,30000));
-                            events.ScheduleEvent(EVENT_BLAST, urand(60000,120000));
+                            events.ScheduleEvent(EVENT_DETONATE, urand(30000, 40000));
+                            events.ScheduleEvent(EVENT_FISSURE, urand(10000, 30000));
+                            events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
                             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                                events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
+                                events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
                             Phase = 2;
                             break;
                         default:
@@ -463,12 +463,12 @@ public:
                         }
                     }
                 }
-                else if (nGuardiansOfIcecrownCount < RAID_MODE(2,4))
+                else if (nGuardiansOfIcecrownCount < RAID_MODE(2, 4))
                 {
                     if (uiGuardiansOfIcecrownTimer <= diff)
                     {
                         // TODO : Add missing text
-                        if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2,5,8,11)]))
+                        if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
                             pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
                         ++nGuardiansOfIcecrownCount;
                         uiGuardiansOfIcecrownTimer = 5000;
@@ -484,16 +484,16 @@ public:
                     switch(eventId)
                     {
                         case EVENT_BOLT:
-                            DoCastVictim(RAID_MODE(SPELL_FROST_BOLT,H_SPELL_FROST_BOLT));
-                            events.RepeatEvent(urand(5000,10000));
+                            DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
+                            events.RepeatEvent(urand(5000, 10000));
                             break;
                         case EVENT_NOVA:
-                            DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE,H_SPELL_FROST_BOLT_AOE));
-                            events.RepeatEvent(urand(15000,30000));
+                            DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE, H_SPELL_FROST_BOLT_AOE));
+                            events.RepeatEvent(urand(15000, 30000));
                             break;
                         case EVENT_CHAIN:
                         {
-                            uint32 count = urand(1,3);
+                            uint32 count = urand(1, 3);
                             for (uint8 i = 1; i <= count; i++)
                             {
                                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
@@ -507,8 +507,8 @@ public:
                                 }
                             }
                             if (!chained.empty())
-                                DoScriptText(RAND(SAY_CHAIN_1,SAY_CHAIN_2), me);
-                            events.RepeatEvent(urand(100000,180000));
+                                DoScriptText(RAND(SAY_CHAIN_1, SAY_CHAIN_2), me);
+                            events.RepeatEvent(urand(100000, 180000));
                             break;
                         }
                         case EVENT_CHAINED_SPELL:
@@ -533,7 +533,7 @@ public:
                                         switch(player->getClass())
                                         {
                                             case CLASS_DRUID:
-                                                if (urand(0,1))
+                                                if (urand(0, 1))
                                                     player->CastSpell(pTarget, SPELL_MOONFIRE, false);
                                                 else
                                                     player->CastSpell(me, SPELL_LIFEBLOOM, false);
@@ -551,19 +551,19 @@ public:
                                                 player->CastSpell(pTarget, RAND(SPELL_BLADESTORM, SPELL_CLEAVE), false);
                                                 break;
                                             case CLASS_PALADIN:
-                                                if (urand(0,1))
+                                                if (urand(0, 1))
                                                     player->CastSpell(pTarget, SPELL_HAMMER_OF_JUSTICE, false);
                                                 else
                                                     player->CastSpell(me, SPELL_HOLY_SHOCK, false);
                                                 break;
                                             case CLASS_PRIEST:
-                                                if (urand(0,1))
+                                                if (urand(0, 1))
                                                     player->CastSpell(pTarget, SPELL_VAMPIRIC_TOUCH, false);
                                                 else
                                                     player->CastSpell(me, SPELL_RENEW, false);
                                                 break;
                                             case CLASS_SHAMAN:
-                                                if (urand(0,1))
+                                                if (urand(0, 1))
                                                     player->CastSpell(pTarget, SPELL_EARTH_SHOCK, false);
                                                 else
                                                     player->CastSpell(me, SPELL_HEALING_WAVE, false);
@@ -572,7 +572,7 @@ public:
                                                 player->CastSpell(pTarget, RAND(SPELL_HEMORRHAGE, SPELL_MUTILATE), false);
                                                 break;
                                             case CLASS_DEATH_KNIGHT:
-                                                if (urand(0,1))
+                                                if (urand(0, 1))
                                                     player->CastSpell(pTarget, SPELL_PLAGUE_STRIKE, true);
                                                 else
                                                     player->CastSpell(pTarget, SPELL_HOWLING_BLAST, true);
@@ -607,23 +607,23 @@ public:
                                 std::vector<Unit*>::const_iterator itr = unitList.begin();
                                 advance(itr, rand()%unitList.size());
                                 DoCast(*itr, SPELL_MANA_DETONATION);
-                                DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2,SAY_SPECIAL_3), me);
+                                DoScriptText(RAND(SAY_SPECIAL_1, SAY_SPECIAL_2, SAY_SPECIAL_3), me);
                             }
 
-                            events.RepeatEvent(urand(20000,50000));
+                            events.RepeatEvent(urand(20000, 50000));
                             break;
                         }
                         case EVENT_FISSURE:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, SPELL_SHADOW_FISURE);
-                            events.RepeatEvent(urand(10000,45000));
+                            events.RepeatEvent(urand(10000, 45000));
                             break;
                         case EVENT_BLAST:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1,0), 0, true))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(pTarget, SPELL_FROST_BLAST);
                             if (rand()%2)
                                 DoScriptText(SAY_FROST_BLAST, me);
-                            events.RepeatEvent(urand(30000,90000));
+                            events.RepeatEvent(urand(30000, 90000));
                             break;
                         default:
                             events.PopEvent();

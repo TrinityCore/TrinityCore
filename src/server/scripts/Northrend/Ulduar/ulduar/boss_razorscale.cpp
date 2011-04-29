@@ -218,7 +218,7 @@ class boss_razorscale_controller : public CreatureScript
                             events.ScheduleEvent(EVENT_BUILD_HARPOON_3, 90000);
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
-                        for (uint8 n = 0; n < RAID_MODE(2,4); n++)
+                        for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, 0, 0, 0, 0, 180000);
                         break;
                 }

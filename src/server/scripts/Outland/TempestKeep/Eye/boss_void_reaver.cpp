@@ -82,7 +82,7 @@ class boss_void_reaver : public CreatureScript
 
             void KilledUnit(Unit * /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+                DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
             }
 
             void JustDied(Unit * /*victim*/)
@@ -110,7 +110,7 @@ class boss_void_reaver : public CreatureScript
                 if (Pounding_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_POUNDING);
-                    DoScriptText(RAND(SAY_POUNDING1,SAY_POUNDING2), me);
+                    DoScriptText(RAND(SAY_POUNDING1, SAY_POUNDING2), me);
                     Pounding_Timer = 15000; //cast time(3000) + cooldown time(12000)
                 }
                 else
@@ -141,7 +141,7 @@ class boss_void_reaver : public CreatureScript
                         pTarget = me->getVictim();
 
                     if (pTarget)
-                        me->CastSpell(pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, 0, pTarget);
+                        me->CastSpell(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, 0, pTarget);
                     ArcaneOrb_Timer = 3000;
                 }
                 else
@@ -152,7 +152,7 @@ class boss_void_reaver : public CreatureScript
                     DoCast(me->getVictim(), SPELL_KNOCK_AWAY);
                     //Drop 25% aggro
                     if (DoGetThreat(me->getVictim()))
-                        DoModifyThreatPercent(me->getVictim(),-25);
+                        DoModifyThreatPercent(me->getVictim(), -25);
                     KnockAway_Timer = 30000;
                 }
                 else

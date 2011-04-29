@@ -73,7 +73,7 @@ public:
             me->GetNearPoint(me, x, y, z, 1, 100, float(M_PI*2*rand_norm()));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->SetVisible(false);
-            me->CastSpell(me,SPELL_MOLTEN_FLAME,true);
+            me->CastSpell(me, SPELL_MOLTEN_FLAME, true);
         }
     };
 
@@ -138,7 +138,7 @@ public:
                 events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                 me->SetSpeed(MOVE_RUN, 1.2f);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
             else
             {
@@ -147,7 +147,7 @@ public:
                 events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
                 me->SetSpeed(MOVE_RUN, 0.9f);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
             }
             DoResetThreat();
             DoZoneInCombat();
@@ -232,7 +232,7 @@ public:
                         if (pTarget)
                         {
                             //DoCast(pTarget, SPELL_VOLCANIC_SUMMON);//movement bugged
-                            me->SummonCreature(CREATURE_VOLCANO,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
+                            me->SummonCreature(CREATURE_VOLCANO, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
                             DoScriptText(EMOTE_GROUND_CRACK, me);
                             events.DelayEvents(1500, GCD_CAST);
                         }

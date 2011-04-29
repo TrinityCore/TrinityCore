@@ -19,7 +19,7 @@
 #include "ScriptedEscortAI.h"
 
 //How to win friends and influence enemies
-// texts signed for creature 28939 but used for 28939,28940,28610
+// texts signed for creature 28939 but used for 28939, 28940, 28610
 enum win_friends
 {
     SAY_PERSUADE1                     = -1609501,
@@ -86,12 +86,12 @@ public:
                     me->SetReactState(REACT_PASSIVE);
                     DoCastAOE(58111, true);
 
-                    DoScriptText(RAND(SAY_PERSUADE1,SAY_PERSUADE2,SAY_PERSUADE3,
-                                      SAY_PERSUADE4,SAY_PERSUADE5,SAY_PERSUADE6,
+                    DoScriptText(RAND(SAY_PERSUADE1, SAY_PERSUADE2, SAY_PERSUADE3,
+                                      SAY_PERSUADE4, SAY_PERSUADE5, SAY_PERSUADE6,
                                       SAY_PERSUADE7), caster);
 
-                    DoScriptText(RAND(SAY_CRUSADER1,SAY_CRUSADER2,SAY_CRUSADER3,
-                                      SAY_CRUSADER4,SAY_CRUSADER5,SAY_CRUSADER6), me);
+                    DoScriptText(RAND(SAY_CRUSADER1, SAY_CRUSADER2, SAY_CRUSADER3,
+                                      SAY_CRUSADER4, SAY_CRUSADER5, SAY_CRUSADER6), me);
                 }
             }
         }
@@ -183,7 +183,7 @@ public:
         {
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI,pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, pCreature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID());
         }
         return true;
@@ -505,7 +505,7 @@ public:
         void Shout()
         {
             if (rand()%100 < 15)
-                DoScriptText(RAND(SAY_VALROTH3,SAY_VALROTH4,SAY_VALROTH5), me);
+                DoScriptText(RAND(SAY_VALROTH3, SAY_VALROTH4, SAY_VALROTH5), me);
         }
 
         void JustDied(Unit* killer)
@@ -520,7 +520,7 @@ public:
 /*######
 ## npc_a_special_surprise
 ######*/
-//used by 29032,29061,29065,29067,29068,29070,29074,29072,29073,29071 but signed for 29032
+//used by 29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071 but signed for 29032
 enum SpecialSurprise
 {
     SAY_EXEC_START_1            = -1609025,                 // speech for all

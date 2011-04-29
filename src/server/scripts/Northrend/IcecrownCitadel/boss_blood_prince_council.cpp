@@ -619,7 +619,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                     DoZoneInCombat(controller);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
-                events.ScheduleEvent(EVENT_GLITTERING_SPARKS, urand(12000,15000));
+                events.ScheduleEvent(EVENT_GLITTERING_SPARKS, urand(12000, 15000));
                 events.ScheduleEvent(EVENT_CONJURE_FLAME, 20000);
             }
 

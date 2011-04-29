@@ -107,9 +107,9 @@ public:
         {
             if (summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY)
             {
-                if (Unit *pTarget = Unit::GetUnit(*summoned,targetGUID))
+                if (Unit *pTarget = Unit::GetUnit(*summoned, targetGUID))
                 {
-                    pTarget->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f,0);
+                    pTarget->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f, 0);
                     pTarget->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
                     summoned->CastSpell(pTarget, SPELL_RIBBON_OF_SOULS, false);
                 }
@@ -186,8 +186,8 @@ public:
                 if (EventMove_Timer <= diff)
                 {
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    me->SendMonsterMoveWithSpeed(me->GetPositionX(),me->GetPositionY(),HIGHBORNE_LOC_Y_NEW,5000);
-                    me->GetMap()->CreatureRelocation(me,me->GetPositionX(),me->GetPositionY(),HIGHBORNE_LOC_Y_NEW,me->GetOrientation());
+                    me->SendMonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, 5000);
+                    me->GetMap()->CreatureRelocation(me, me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;
                 } else EventMove_Timer -= diff;
             }
@@ -225,7 +225,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer,SPELL_MARK_OF_SHAME,false);
+            pCreature->CastSpell(pPlayer, SPELL_MARK_OF_SHAME, false);
         }
         if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
         {

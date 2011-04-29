@@ -30,17 +30,17 @@ EndScriptData */
 
 enum eUnits
 {
-    CONTAINMENT_CORE_SECURITY_FIELD_ALPHA = 184318,//door opened when Wrath-Scryer Soccothrates dies
-    CONTAINMENT_CORE_SECURITY_FIELD_BETA  = 184319,//door opened when Dalliah the Doomsayer dies
-    POD_ALPHA                             = 183961,//pod first boss wave
-    POD_BETA                              = 183963,//pod second boss wave
-    POD_DELTA                             = 183964,//pod third boss wave
-    POD_GAMMA                             = 183962,//pod fourth boss wave
-    POD_OMEGA                             = 183965,//pod fifth boss wave
-    WARDENS_SHIELD                        = 184802,// warden shield
-    SEAL_SPHERE                           = 184802,//shield 'protecting' mellichar
+    CONTAINMENT_CORE_SECURITY_FIELD_ALPHA = 184318, //door opened when Wrath-Scryer Soccothrates dies
+    CONTAINMENT_CORE_SECURITY_FIELD_BETA  = 184319, //door opened when Dalliah the Doomsayer dies
+    POD_ALPHA                             = 183961, //pod first boss wave
+    POD_BETA                              = 183963, //pod second boss wave
+    POD_DELTA                             = 183964, //pod third boss wave
+    POD_GAMMA                             = 183962, //pod fourth boss wave
+    POD_OMEGA                             = 183965, //pod fifth boss wave
+    WARDENS_SHIELD                        = 184802, // warden shield
+    SEAL_SPHERE                           = 184802, //shield 'protecting' mellichar
 
-    MELLICHAR                             = 20904,//skyriss will kill this unit
+    MELLICHAR                             = 20904, //skyriss will kill this unit
 };
 
 /* Arcatraz encounters:

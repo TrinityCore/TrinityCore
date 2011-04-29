@@ -92,8 +92,8 @@ public:
         {
             uiPhaseTimer = 20*IN_MILLISECONDS;
             uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
-            uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
-            uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
+            uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             Phase = SKELETAL;
             me->SetDisplayId(me->GetNativeDisplayId());
             if (pInstance)
@@ -121,19 +121,19 @@ public:
                     {
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_CURSE_OF_LIFE);
-                        uiCurseOfLifeTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
+                        uiCurseOfLifeTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
                     } else uiCurseOfLifeTimer -= diff;
 
                     if (uiShadowVolleyTimer < diff)
                     {
                         DoCastVictim(SPELL_SHADOW_VOLLEY);
-                        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
+                        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                     } else uiShadowVolleyTimer -= diff;
 
                     if (uiRainOfFireTimer < diff)
                     {
                         DoCastAOE(SPELL_RAIN_OF_FIRE);
-                        uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
+                        uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
                     } else uiRainOfFireTimer -= diff;
 
                     if (uiPhaseTimer < diff)
@@ -148,7 +148,7 @@ public:
                 case GOING_FLESH:
                     if (uiPhaseTimer < diff)
                     {
-                        DoScriptText(RAND(SAY_FLESH_1,SAY_FLESH_2),me);
+                        DoScriptText(RAND(SAY_FLESH_1, SAY_FLESH_2), me);
                         me->SetDisplayId(MODEL_FLESH);
 
                         std::list<Unit *> playerList;
@@ -156,13 +156,13 @@ public:
                         for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
                             Unit *pTemp = (*itr);
-                            me->AddAura(SPELL_GIFT_OF_THARON_JA,pTemp);
+                            me->AddAura(SPELL_GIFT_OF_THARON_JA, pTemp);
                             pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                         uiPhaseTimer = 20*IN_MILLISECONDS;
-                        uiLightningBreathTimer = urand(3*IN_MILLISECONDS,4*IN_MILLISECONDS);
-                        uiEyeBeamTimer = urand(4*IN_MILLISECONDS,8*IN_MILLISECONDS);
-                        uiPoisonCloudTimer = urand(6*IN_MILLISECONDS,7*IN_MILLISECONDS);
+                        uiLightningBreathTimer = urand(3*IN_MILLISECONDS, 4*IN_MILLISECONDS);
+                        uiEyeBeamTimer = urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS);
+                        uiPoisonCloudTimer = urand(6*IN_MILLISECONDS, 7*IN_MILLISECONDS);
                         Phase = FLESH;
                     } else uiPhaseTimer -= diff;
                     break;
@@ -171,20 +171,20 @@ public:
                     {
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_LIGHTNING_BREATH);
-                        uiLightningBreathTimer = urand(6*IN_MILLISECONDS,7*IN_MILLISECONDS);
+                        uiLightningBreathTimer = urand(6*IN_MILLISECONDS, 7*IN_MILLISECONDS);
                     } else uiLightningBreathTimer -= diff;
 
                     if (uiEyeBeamTimer < diff)
                     {
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_EYE_BEAM);
-                        uiEyeBeamTimer = urand(4*IN_MILLISECONDS,6*IN_MILLISECONDS);
+                        uiEyeBeamTimer = urand(4*IN_MILLISECONDS, 6*IN_MILLISECONDS);
                     } else uiEyeBeamTimer -= diff;
 
                     if (uiPoisonCloudTimer < diff)
                     {
                         DoCastAOE(SPELL_POISON_CLOUD);
-                        uiPoisonCloudTimer = urand(10*IN_MILLISECONDS,12*IN_MILLISECONDS);
+                        uiPoisonCloudTimer = urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS);
                     } else uiPoisonCloudTimer -= diff;
 
                     if (uiPhaseTimer < diff)
@@ -198,13 +198,13 @@ public:
                 case GOING_SKELETAL:
                     if (uiPhaseTimer < diff)
                     {
-                        DoScriptText(RAND(SAY_SKELETON_1,SAY_SKELETON_2), me);
+                        DoScriptText(RAND(SAY_SKELETON_1, SAY_SKELETON_2), me);
                         me->DeMorph();
                         Phase = SKELETAL;
                         uiPhaseTimer = 20*IN_MILLISECONDS;
                         uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
-                        uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
-                        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
+                        uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
+                        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
 
                         std::list<Unit *> playerList;
                         SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
@@ -222,12 +222,12 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2),me);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH,me);
+            DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
             {

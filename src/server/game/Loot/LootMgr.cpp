@@ -121,13 +121,13 @@ uint32 LootStore::LoadLootTable()
 
         if (maxcount > std::numeric_limits<uint8>::max())
         {
-            sLog->outErrorDb("Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount,std::numeric_limits<uint8>::max());
+            sLog->outErrorDb("Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount, std::numeric_limits<uint8>::max());
             continue;                                   // error already printed to log/console.
         }
 
         LootStoreItem storeitem = LootStoreItem(item, chanceOrQuestChance, lootmode, group, mincountOrRef, maxcount);
 
-        if (!storeitem.IsValid(*this,entry))            // Validity checks
+        if (!storeitem.IsValid(*this, entry))            // Validity checks
             continue;
 
         // Looking for the template of the entry
@@ -167,7 +167,7 @@ bool LootStore::HaveQuestLootFor(uint32 loot_id) const
     return itr->second->HasQuestDrop(m_LootTemplates);
 }
 
-bool LootStore::HaveQuestLootForPlayer(uint32 loot_id,Player* player) const
+bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player* player) const
 {
     LootTemplateMap::const_iterator tab = m_LootTemplates.find(loot_id);
     if (tab != m_LootTemplates.end())
@@ -219,19 +219,19 @@ uint32 LootStore::LoadAndCollectLootIds(LootIdSet& ids_set)
 void LootStore::CheckLootRefs(LootIdSet* ref_set) const
 {
     for (LootTemplateMap::const_iterator ltItr = m_LootTemplates.begin(); ltItr != m_LootTemplates.end(); ++ltItr)
-        ltItr->second->CheckLootRefs(m_LootTemplates,ref_set);
+        ltItr->second->CheckLootRefs(m_LootTemplates, ref_set);
 }
 
 void LootStore::ReportUnusedIds(LootIdSet const& ids_set) const
 {
     // all still listed ids isn't referenced
     for (LootIdSet::const_iterator itr = ids_set.begin(); itr != ids_set.end(); ++itr)
-        sLog->outErrorDb("Table '%s' entry %d isn't %s and not referenced from loot, and then useless.", GetName(), *itr,GetEntryName());
+        sLog->outErrorDb("Table '%s' entry %d isn't %s and not referenced from loot, and then useless.", GetName(), *itr, GetEntryName());
 }
 
 void LootStore::ReportNotExistedId(uint32 id) const
 {
-    sLog->outErrorDb("Table '%s' entry %d (%s) not exist but used as loot id in DB.", GetName(), id,GetEntryName());
+    sLog->outErrorDb("Table '%s' entry %d (%s) not exist but used as loot id in DB.", GetName(), id, GetEntryName());
 }
 
 //
@@ -953,7 +953,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     }
 
     //update number of items shown
-    b.put<uint8>(count_pos,itemsShown);
+    b.put<uint8>(count_pos, itemsShown);
 
     return b;
 }
@@ -1333,7 +1333,7 @@ void LootTemplate::Verify(LootStore const& lootstore, uint32 id) const
 {
     // Checking group chances
     for (uint32 i=0; i < Groups.size(); ++i)
-        Groups[i].Verify(lootstore,id,i+1);
+        Groups[i].Verify(lootstore, id, i+1);
 
     // TODO: References validity checks
 }
@@ -1352,7 +1352,7 @@ void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_se
     }
 
     for (LootGroups::const_iterator grItr = Groups.begin(); grItr != Groups.end(); ++grItr)
-        grItr->CheckLootRefs(store,ref_set);
+        grItr->CheckLootRefs(store, ref_set);
 }
 bool LootTemplate::addConditionItem(Condition* cond)
 {

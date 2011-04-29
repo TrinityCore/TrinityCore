@@ -102,7 +102,7 @@ public:
                     m_uiTwilightLordKelrisGUID = creature->GetGUID();
                     break;
                 case NPC_LORGUS_JETT:
-                    creature->SetHomePosition(LorgusPosition[urand(0,3)]);
+                    creature->SetHomePosition(LorgusPosition[urand(0, 3)]);
                     break;
             }
         }
@@ -135,7 +135,7 @@ public:
                     break;
                 case GO_AKU_MAI_DOOR:
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0,true,go);
+                        HandleGameObject(0, true, go);
                     m_uiMainDoorGUID = go->GetGUID();
                     break;
             }
@@ -157,7 +157,7 @@ public:
                         if (GameObject* go = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
                         {
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-                            go->SummonCreature(NPC_MORRIDUNE,SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            go->SummonCreature(NPC_MORRIDUNE, SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                         }
                     break;
                 case DATA_FIRE:
@@ -206,7 +206,7 @@ public:
                 case DATA_EVENT:
                     uiDeathTimes = uiData;
                     if (uiDeathTimes == 18)
-                        HandleGameObject(m_uiMainDoorGUID,true);
+                        HandleGameObject(m_uiMainDoorGUID, true);
                     break;
             }
         }

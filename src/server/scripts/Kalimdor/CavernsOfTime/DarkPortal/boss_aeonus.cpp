@@ -83,7 +83,7 @@ public:
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
             {
-                if (me->IsWithinDistInMap(who,20.0f))
+                if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     DoScriptText(SAY_BANISH, me);
                     me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -99,14 +99,14 @@ public:
 
              if (pInstance)
              {
-                 pInstance->SetData(TYPE_RIFT,DONE);
-                 pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed
+                 pInstance->SetData(TYPE_RIFT, DONE);
+                 pInstance->SetData(TYPE_MEDIVH, DONE);//FIXME: later should be removed
              }
         }
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void UpdateAI(const uint32 diff)

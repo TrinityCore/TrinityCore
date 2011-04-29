@@ -38,7 +38,7 @@ bool DBCFileLoader::Load(const char* filename, const char* fmt)
         data = NULL;
     }
 
-    FILE* f = fopen(filename,"rb");
+    FILE* f = fopen(filename, "rb");
     if (!f)
         return false;
 
@@ -177,7 +177,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
 char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char*& sqlDataTable)
 {
     /*
-    format STRING, NA, FLOAT,NA,INT <=>
+    format STRING, NA, FLOAT, NA, INT <=>
     struct{
     char* field0,
     float field1,

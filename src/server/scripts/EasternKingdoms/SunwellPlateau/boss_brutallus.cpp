@@ -129,7 +129,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(YELL_KILL1,YELL_KILL2,YELL_KILL3), me);
+            DoScriptText(RAND(YELL_KILL1, YELL_KILL2, YELL_KILL3), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -139,9 +139,9 @@ public:
             if (pInstance)
             {
                 pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
-                float x,y,z;
-                me->GetPosition(x,y,z);
-                me->SummonCreature(FELMYST, x,y, z+30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+                float x, y, z;
+                me->GetPosition(x, y, z);
+                me->SummonCreature(FELMYST, x, y, z+30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
             }
         }
 
@@ -316,7 +316,7 @@ public:
 
             if (StompTimer <= diff)
             {
-                DoScriptText(RAND(YELL_LOVE1,YELL_LOVE2,YELL_LOVE3), me);
+                DoScriptText(RAND(YELL_LOVE1, YELL_LOVE2, YELL_LOVE3), me);
                 DoCast(me->getVictim(), SPELL_STOMP);
                 StompTimer = 30000;
             } else StompTimer -= diff;
@@ -331,7 +331,7 @@ public:
                         (*i)->CastSpell((*i), SPELL_BURN, true);
                         break;
                     }
-                BurnTimer = urand(60000,180000);
+                BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;
 
             if (BerserkTimer < diff && !Enraged)

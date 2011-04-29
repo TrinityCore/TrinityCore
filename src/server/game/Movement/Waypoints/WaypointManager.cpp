@@ -37,7 +37,7 @@ void WaypointStore::Load()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT id,point,position_x,position_y,position_z,move_flag,delay,action,action_chance FROM waypoint_data ORDER BY id, point");
+    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, move_flag, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
 
     if (!result)
     {
@@ -61,7 +61,7 @@ void WaypointStore::Load()
         if (last_id != id)
             path_data = new WaypointPath;
 
-        float x,y,z;
+        float x, y, z;
         x = fields[2].GetFloat();
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
@@ -99,7 +99,7 @@ void WaypointStore::UpdatePath(uint32 id)
 
     QueryResult result;
 
-    result = WorldDatabase.PQuery("SELECT point,position_x,position_y,position_z,move_flag,delay,action,action_chance FROM waypoint_data WHERE id = %u ORDER BY point", id);
+    result = WorldDatabase.PQuery("SELECT point, position_x, position_y, position_z, move_flag, delay, action, action_chance FROM waypoint_data WHERE id = %u ORDER BY point", id);
 
     if (!result)
         return;
@@ -114,7 +114,7 @@ void WaypointStore::UpdatePath(uint32 id)
 
         WaypointData *wp = new WaypointData;
 
-        float x,y,z;
+        float x, y, z;
         x = fields[1].GetFloat();
         y = fields[2].GetFloat();
         z = fields[3].GetFloat();

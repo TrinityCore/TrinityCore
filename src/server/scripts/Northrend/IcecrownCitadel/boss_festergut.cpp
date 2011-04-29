@@ -53,8 +53,8 @@ enum Spells
 };
 
 // Used for HasAura checks
-#define PUNGENT_BLIGHT_HELPER RAID_MODE<uint32>(69195,71219,73031,73032)
-#define INOCULATED_HELPER     RAID_MODE<uint32>(69291,72101,72102,72103)
+#define PUNGENT_BLIGHT_HELPER RAID_MODE<uint32>(69195, 71219, 73031, 73032)
+#define INOCULATED_HELPER     RAID_MODE<uint32>(69291, 72101, 72102, 72103)
 
 static const uint32 gaseousBlight[3]        = {69157, 69162, 69164};
 static const uint32 gaseousBlightVisual[3]  = {69126, 69152, 69154};
