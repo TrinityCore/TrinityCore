@@ -152,7 +152,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recv_data)
         return;                                             // only at cheat
 
     uint16 dest;
-    uint8 msg = _player->CanEquipItem(NULL_SLOT, dest, pSrcItem, !pSrcItem->IsBag());
+    InventoryResult msg = _player->CanEquipItem(NULL_SLOT, dest, pSrcItem, !pSrcItem->IsBag());
     if (msg != EQUIP_ERR_OK)
     {
         _player->SendEquipError(msg, pSrcItem, NULL);
@@ -246,7 +246,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
     // prevent drop unequipable items (in combat, for example) and non-empty bags
     if (_player->IsEquipmentPos(pos) || _player->IsBagPos(pos))
     {
-        uint8 msg = _player->CanUnequipItem(pos, false);
+        InventoryResult msg = _player->CanUnequipItem(pos, false);
         if (msg != EQUIP_ERR_OK)
         {
             _player->SendEquipError(msg, _player->GetItemByPos(pos), NULL);
@@ -450,7 +450,7 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
     {
         WorldPacket data;
 
-        uint8 msg = _player->CanUseItem(pItem);
+        InventoryResult msg = _player->CanUseItem(pItem);
         if (msg == EQUIP_ERR_OK)
         {
             data.Initialize (SMSG_READ_ITEM_OK, 8);
@@ -627,7 +627,7 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
         }
 
         ItemPosCountVec dest;
-        uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg == EQUIP_ERR_OK)
         {
             _player->ModifyMoney(-(int32)price);
@@ -823,7 +823,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
     // check unequip potability for equipped items and bank bags
     if (_player->IsEquipmentPos (src) || _player->IsBagPos (src))
     {
-        uint8 msg = _player->CanUnequipItem(src, !_player->IsBagPos (src));
+        InventoryResult msg = _player->CanUnequipItem(src, !_player->IsBagPos (src));
         if (msg != EQUIP_ERR_OK)
         {
             _player->SendEquipError(msg, pItem, NULL);
@@ -832,7 +832,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
     }
 
     ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
     if (msg != EQUIP_ERR_OK)
     {
         _player->SendEquipError(msg, pItem, NULL);
@@ -917,7 +917,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
         return;
 
     ItemPosCountVec dest;
-    uint8 msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
     if (msg != EQUIP_ERR_OK)
     {
         _player->SendEquipError(msg, pItem, NULL);
@@ -949,7 +949,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     if (_player->IsBankPos(srcbag, srcslot))                 // moving from bank to inventory
     {
         ItemPosCountVec dest;
-        uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg != EQUIP_ERR_OK)
         {
             _player->SendEquipError(msg, pItem, NULL);
@@ -962,7 +962,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     else                                                    // moving from inventory to bank
     {
         ItemPosCountVec dest;
-        uint8 msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg != EQUIP_ERR_OK)
         {
             _player->SendEquipError(msg, pItem, NULL);
@@ -1294,7 +1294,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
         // for equipped item check all equipment for duplicate equipped gems
         if (itemTarget->IsEquipped())
         {
-            if (uint8 res = _player->CanEquipUniqueItem(Gems[i],slot,limit_newcount >= 0 ? limit_newcount : 0))
+            if (InventoryResult res = _player->CanEquipUniqueItem(Gems[i], slot, std::max(limit_newcount, 0)))
             {
                 _player->SendEquipError(res, itemTarget, NULL);
                 return;
@@ -1308,8 +1308,8 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
     //if a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
 
     //remove ALL enchants
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
-        _player->ApplyEnchantment(itemTarget,EnchantmentSlot(enchant_slot),false);
+    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
+        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), false);
 
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
     {

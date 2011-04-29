@@ -250,7 +250,7 @@ public:
                 {
                     ItemPosCountVec dest;
                     uint32 itemId = 24573;
-                    uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, false);
+                    InventoryResult msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, false);
                     if (msg == EQUIP_ERR_OK)
                     {
                         pPlayer->StoreNewItem(dest, itemId, true);

@@ -105,12 +105,13 @@ public:
             {
                 ItemPosCountVec dest;
                 uint32 itemId = 23614;
-                uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
+                InventoryResult msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
                 if (msg == EQUIP_ERR_OK)
                 {
                     if (Item* item = pPlayer->StoreNewItem(dest, itemId, true))
                         pPlayer->SendNewItem(item, 1, false, true);
-                } else
+                }
+                else
                     pPlayer->SendEquipError(msg, NULL, NULL, itemId);
             }
         }
