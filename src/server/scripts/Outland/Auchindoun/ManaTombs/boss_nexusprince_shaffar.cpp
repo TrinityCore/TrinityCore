@@ -116,7 +116,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
 
             DoZoneInCombat();
             summons.DoZoneInCombat();
@@ -126,9 +126,9 @@ public:
         {
             if (summoned->GetEntry() == NPC_BEACON)
             {
-                summoned->CastSpell(summoned,SPELL_ETHEREAL_BEACON_VISUAL,false);
+                summoned->CastSpell(summoned, SPELL_ETHEREAL_BEACON_VISUAL, false);
 
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     summoned->AI()->AttackStart(pTarget);
             }
 
@@ -142,7 +142,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -201,7 +201,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
 
-                if (!urand(0,3))
+                if (!urand(0, 3))
                     DoScriptText(SAY_SUMMON, me);
 
                 DoCast(me, SPELL_ETHEREAL_BEACON, true);

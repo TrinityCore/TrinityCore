@@ -259,17 +259,17 @@ static const Yells Conversation[22] =
     {0,     "", AKAMA, 2000, 15, true},
     {11466, "You are not prepared!", ILLIDAN_STORMRAGE, 3000, 406, true},
     {0,     "", EMPTY, 1000, 0, true},
-    {0,     "", EMPTY, 0, 0, false},//9
+    {0,     "", EMPTY, 0, 0, false}, //9
     {11476, "Is this it, mortals? Is this all the fury you can muster?", ILLIDAN_STORMRAGE, 8000, 0, true},
     {11491, "Their fury pales before mine, Illidan. We have some unsettled business between us.", MAIEV_SHADOWSONG, 8000, 5, true},
     {11477, "Maiev... How is this even possible?", ILLIDAN_STORMRAGE, 5000, 1, true},
     {11492, "Ah... my long hunt is finally over. Today, Justice will be done!", MAIEV_SHADOWSONG, 8000, 15, true},
-    {11470, "Feel the hatred of ten thousand years!", ILLIDAN_STORMRAGE, 1000, 0, false},//14
-    {11496, "Ahh... It is finished. You are beaten.", MAIEV_SHADOWSONG, 6000, 0, true},//15
+    {11470, "Feel the hatred of ten thousand years!", ILLIDAN_STORMRAGE, 1000, 0, false}, //14
+    {11496, "Ahh... It is finished. You are beaten.", MAIEV_SHADOWSONG, 6000, 0, true}, //15
     {11478, "You have won... Maiev...but the huntress... is nothing...without the hunt... you... are nothing... without me..", ILLIDAN_STORMRAGE, 30000, 65, true}, // Emote dead for now. Kill him later
     {11497, "He is right. I feel nothing... I am nothing... Farewell, champions.", MAIEV_SHADOWSONG, 9000, 0, true},
     {11498, "", MAIEV_SHADOWSONG, 5000, 0, true},
-    {11498, "", EMPTY, 1000, 0, true},//19 Maiev disappear
+    {11498, "", EMPTY, 1000, 0, true}, //19 Maiev disappear
     {11387, "The Light will fill these dismal halls once again. I swear it.", AKAMA, 8000, 0, true},
     {0,     "", EMPTY, 1000, 0, false}//21
 };
@@ -306,14 +306,14 @@ static const Locations HoverPosition[4]=
 static const Locations GlaivePosition[4]=
 {
     {695.105f, 305.303f, 354.256f},
-    {659.338f, 305.303f, 354.256f},//the distance between two glaives is 36
+    {659.338f, 305.303f, 354.256f}, //the distance between two glaives is 36
     {700.105f, 305.303f, 354.256f},
     {664.338f, 305.303f, 354.256f}
 };
 
 static const Locations EyeBlast[2]=
 {
-    {677.0f, 350.0f, 354.0f},//start point, pass through glaive point
+    {677.0f, 350.0f, 354.0f}, //start point, pass through glaive point
     {677.0f, 260.0f, 354.0f}
 };
 
@@ -350,7 +350,7 @@ static const Animation DemonTransformation[10]=
 {
     {SPELL_DEMON_TRANSFORM_1, 0, 1000, 0, 0, 6, true},
     {SPELL_DEMON_TRANSFORM_2, SPELL_DEMON_TRANSFORM_1, 4000, 0, 0, 6, true},
-    {0, 0, 3000, 1073741824, 21322, 6, false},//stunned, cannot cast demon form
+    {0, 0, 3000, 1073741824, 21322, 6, false}, //stunned, cannot cast demon form
     {SPELL_DEMON_TRANSFORM_3, SPELL_DEMON_TRANSFORM_2, 3500, 0, 0, 6, false},
     {SPELL_DEMON_FORM, SPELL_DEMON_TRANSFORM_3, 0, 0, 0, 4, false},
     {SPELL_DEMON_TRANSFORM_1, 0, 1000, 0, 0, 6, false},
@@ -568,7 +568,7 @@ public:
         {
             if (victim == me) return;
             // TODO: Find better way to handle emote
-            switch (urand(0,1))
+            switch (urand(0, 1))
             {
             case 0:
                 me->MonsterYell(SAY_KILL1, LANG_UNIVERSAL, victim->GetGUID());
@@ -1655,8 +1655,8 @@ public:
                 break;
             case 2: // spirit help
                 DoCast(Channel, SPELL_AKAMA_DOOR_CHANNEL);
-                Spirit[0]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL,false);
-                Spirit[1]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL,false);
+                Spirit[0]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL, false);
+                Spirit[1]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL, false);
                 Timer = 5000;
                 break;
             case 3: //open the gate
@@ -1991,7 +1991,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         {
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true);
             Maiev->setDeathState(JUST_DIED);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
         }
         break;
     case 21: // Kill ourself.
@@ -2218,7 +2218,7 @@ public:
                 if (!me->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
                     && !me->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 {
-                    if (Creature* illidan = Unit::GetCreature((*me),IllidanGUID))//summon only in 1. phase
+                    if (Creature* illidan = Unit::GetCreature((*me), IllidanGUID))//summon only in 1. phase
                         if (CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)
                             me->CastSpell(me->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack
                 }

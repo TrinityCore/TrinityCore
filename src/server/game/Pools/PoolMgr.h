@@ -42,7 +42,7 @@ class Pool                                                  // for Pool of Pool 
 };
 
 typedef std::set<uint32> ActivePoolObjects;
-typedef std::map<uint32,uint32> ActivePoolPools;
+typedef std::map<uint32, uint32> ActivePoolPools;
 
 class ActivePoolData
 {

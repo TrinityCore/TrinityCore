@@ -27,14 +27,14 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2)
 {
-    return (urand(0,1)) ? v1 : v2;
+    return (urand(0, 1)) ? v1 : v2;
 }
 
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3)
 {
-    switch (urand(0,2))
+    switch (urand(0, 2))
     {
         default:
         case 0: return v1;
@@ -47,7 +47,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4)
 {
-    switch (urand(0,3))
+    switch (urand(0, 3))
     {
         default:
         case 0: return v1;
@@ -61,7 +61,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
 {
-    switch (urand(0,4))
+    switch (urand(0, 4))
     {
         default:
         case 0: return v1;
@@ -76,7 +76,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6)
 {
-    switch (urand(0,5))
+    switch (urand(0, 5))
     {
         default:
         case 0: return v1;
@@ -92,7 +92,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7)
 {
-    switch (urand(0,6))
+    switch (urand(0, 6))
     {
         default:
         case 0: return v1;
@@ -109,7 +109,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8)
 {
-    switch (urand(0,7))
+    switch (urand(0, 7))
     {
         default:
         case 0: return v1;
@@ -128,7 +128,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9)
 {
-    switch (urand(0,8))
+    switch (urand(0, 8))
     {
         default:
         case 0: return v1;
@@ -148,7 +148,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10)
 {
-    switch (urand(0,9))
+    switch (urand(0, 9))
     {
         default:
         case 0: return v1;
@@ -169,7 +169,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10, const T& v11)
 {
-    switch (urand(0,10))
+    switch (urand(0, 10))
     {
         default:
         case 0: return v1;
@@ -191,7 +191,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10, const T& v11, const T& v12)
 {
-    switch (urand(0,11))
+    switch (urand(0, 11))
     {
         default:
         case 0: return v1;
@@ -214,7 +214,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10, const T& v11, const T& v12, const T& v13)
 {
-    switch (urand(0,12))
+    switch (urand(0, 12))
     {
         default:
         case 0: return v1;
@@ -238,7 +238,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10, const T& v11, const T& v12, const T& v13, const T& v14)
 {
-    switch (urand(0,13))
+    switch (urand(0, 13))
     {
         default:
         case 0: return v1;
@@ -263,7 +263,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10, const T& v11, const T& v12, const T& v13, const T& v14, const T& v15)
 {
-    switch (urand(0,14))
+    switch (urand(0, 14))
     {
         default:
         case 0: return v1;
@@ -289,7 +289,7 @@ inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
               const T& v9, const T& v10, const T& v11, const T& v12, const T& v13, const T& v14, const T& v15, const T& v16)
 {
-    switch (urand(0,15))
+    switch (urand(0, 15))
     {
         default:
         case 0: return v1;

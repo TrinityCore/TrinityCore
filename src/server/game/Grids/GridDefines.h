@@ -65,7 +65,7 @@ typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 
-typedef Grid<Player, AllWorldObjectTypes,AllGridObjectTypes> GridType;
+typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;
 typedef NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTypes> NGridType;
 
 typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
@@ -180,12 +180,12 @@ namespace Trinity
 
     inline bool IsValidMapCoord(float x, float y, float z)
     {
-        return IsValidMapCoord(x,y) && finite(z);
+        return IsValidMapCoord(x, y) && finite(z);
     }
 
     inline bool IsValidMapCoord(float x, float y, float z, float o)
     {
-        return IsValidMapCoord(x,y,z) && finite(o);
+        return IsValidMapCoord(x, y, z) && finite(o);
     }
 }
 #endif

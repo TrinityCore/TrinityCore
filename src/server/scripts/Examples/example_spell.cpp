@@ -245,7 +245,7 @@ class spell_ex_66244 : public SpellScriptLoader
             {
                 OnEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_ex_66244AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodic,EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ex_66244AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_ex_66244AuraScript::HandleEffectCalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);

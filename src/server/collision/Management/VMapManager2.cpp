@@ -161,8 +161,8 @@ namespace VMAP
         InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
-            Vector3 pos1 = convertPositionToInternalRep(x1,y1,z1);
-            Vector3 pos2 = convertPositionToInternalRep(x2,y2,z2);
+            Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
+            Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
             if (pos1 != pos2)
             {
                 result = instanceTree->second->isInLineOfSight(pos1, pos2);
@@ -186,11 +186,11 @@ namespace VMAP
             InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(pMapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
-                Vector3 pos1 = convertPositionToInternalRep(x1,y1,z1);
-                Vector3 pos2 = convertPositionToInternalRep(x2,y2,z2);
+                Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
+                Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
                 Vector3 resultPos;
                 result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, pModifyDist);
-                resultPos = convertPositionToMangosRep(resultPos.x,resultPos.y,resultPos.z);
+                resultPos = convertPositionToMangosRep(resultPos.x, resultPos.y, resultPos.z);
                 rx = resultPos.x;
                 ry = resultPos.y;
                 rz = resultPos.z;
@@ -212,7 +212,7 @@ namespace VMAP
             InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(pMapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
-                Vector3 pos = convertPositionToInternalRep(x,y,z);
+                Vector3 pos = convertPositionToInternalRep(x, y, z);
                 height = instanceTree->second->getHeight(pos, maxSearchDist);
                 if (!(height < G3D::inf()))
                 {

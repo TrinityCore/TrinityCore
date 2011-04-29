@@ -127,7 +127,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void Reset()
@@ -187,8 +187,8 @@ public:
         void SummonCollapsingStar(Unit* target)
         {
             DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
-            me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-            me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
+            me->SummonCreature(CREATURE_COLLAPSING_STAR, target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 100000);
+            me->SummonCreature(CREATURE_BLACK_HOLE, target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -205,7 +205,7 @@ public:
 
             if (HealthBelowPct(2))
             {
-                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667f, -295.101166f,417.321381f,0,0,0,0,0,0);
+                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667f, -295.101166f, 417.321381f, 0, 0, 0, 0, 0, 0);
 
                 // All of them. or random?
                 DoScriptText(SAY_DEATH_1, me);
@@ -259,36 +259,36 @@ public:
 
                 if (QuantumStrike_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE), true);
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE, H_SPELL_QUANTUM_STRIKE), true);
 
                     QuantumStrike_Timer = urand(4000, 14000);
                 } else QuantumStrike_Timer -= diff;
 
                 if (BigBang_Timer <= diff)
                 {
-                    DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), me);
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG), true);
+                    DoScriptText(RAND(SAY_BIG_BANG_1, SAY_BIG_BANG_2), me);
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG, H_SPELL_BIG_BANG), true);
 
                     BigBang_Timer = 90000;
                 } else BigBang_Timer -= diff;
 
                 if (Ascend_Timer <= diff)
                 {
-                    DoCast(me->getVictim(),SPELL_ASCEND, true);
+                    DoCast(me->getVictim(), SPELL_ASCEND, true);
 
                     Ascend_Timer = 480000;
                 } else Ascend_Timer -= diff;
 
                 if (PhasePunch_Timer <= diff)
                 {
-                    DoCast(me->getVictim(),SPELL_PHASE_PUNCH, true);
+                    DoCast(me->getVictim(), SPELL_PHASE_PUNCH, true);
 
                     PhasePunch_Timer = 8000;
                 } else PhasePunch_Timer -= diff;
 
                 if (CosmicSmash_Timer <= diff)
                 {
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH,H_SPELL_COSMIC_SMASH), true);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH, H_SPELL_COSMIC_SMASH), true);
 
                     CosmicSmash_Timer = urand(30000, 60000);
                 } else CosmicSmash_Timer -= diff;
@@ -296,7 +296,7 @@ public:
                 if (Berserk_Timer <= diff)
                 {
                     DoScriptText(SAY_BERSERK, me);
-                    DoCast(me->getVictim(),SPELL_BERSERK, true);
+                    DoCast(me->getVictim(), SPELL_BERSERK, true);
 
                     Berserk_Timer = 360000;
                 } else Berserk_Timer -= diff;
@@ -314,7 +314,7 @@ public:
                     {
                         DoCast(me, SPELL_ASCEND);
                         DoScriptText(SAY_BERSERK, me);
-                        Ascend_Timer = urand(360000,365000);
+                        Ascend_Timer = urand(360000, 365000);
                         Enrage = false;
                     } else Ascend_Timer -= diff;
                 }

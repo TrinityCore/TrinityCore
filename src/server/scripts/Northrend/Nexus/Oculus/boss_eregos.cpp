@@ -92,7 +92,7 @@ enum AmberDrake
     SPELL_AMBER_SHOCK_LANCE                       = 49840,         //(60 yds) - Instant - Deals 4822 to 5602 Arcane damage and detonates all Shock Charges on an enemy dragon. Damage is increased by 6525 for each detonated.
 //  SPELL_AMBER_STOP_TIME                                    //Instant - 1 min cooldown - Halts the passage of time, freezing all enemy dragons in place for 10 sec. This attack applies 5 Shock Charges to each affected target.
     //you do not have access to until you kill the  Mage-Lord Urom.
-    SPELL_AMBER_TEMPORAL_RIFT                     = 49592         //(60 yds) - Channeled - Channels a temporal rift on an enemy dragon for 10 sec. While trapped in the rift, all damage done to the target is increased by 100%. In addition, for every 15,000 damage done to a target affected by Temporal Rift, 1 Shock Charge is generated.
+    SPELL_AMBER_TEMPORAL_RIFT                     = 49592         //(60 yds) - Channeled - Channels a temporal rift on an enemy dragon for 10 sec. While trapped in the rift, all damage done to the target is increased by 100%. In addition, for every 15, 000 damage done to a target affected by Temporal Rift, 1 Shock Charge is generated.
 };
 
 /*Emerald Drake,
@@ -105,7 +105,7 @@ enum EmeraldDrake
     SPELL_RIDE_EMERALD_DRAKE_QUE                  = 49427,         //Apply Aura: Periodic Trigger, Interval: 3 seconds ---> 49346
     SPELL_EMERALD_DRAKE_SADDLE                    = 49346,         //Allows you to ride on the back of an Amber Drake. ---> Dummy
     SPELL_EMERALD_LEECHING_POISON                 = 50328,         //(60 yds) - Instant - Poisons the enemy dragon, leeching 1300 to the caster every 2 sec. for 12 sec. Stacks up to 3 times.
-    SPELL_EMERALD_TOUCH_THE_NIGHTMARE             = 50341,         //(60 yds) - Instant - Consumes 30% of the caster's max health to inflict 25,000 nature damage to an enemy dragon and reduce the damage it deals by 25% for 30 sec.
+    SPELL_EMERALD_TOUCH_THE_NIGHTMARE             = 50341,         //(60 yds) - Instant - Consumes 30% of the caster's max health to inflict 25, 000 nature damage to an enemy dragon and reduce the damage it deals by 25% for 30 sec.
     // you do not have access to until you kill the Mage-Lord Urom
     SPELL_EMERALD_DREAM_FUNNEL                    = 50344         //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
@@ -145,10 +145,10 @@ public:
             if (action != ACTION_SET_NORMAL_EVENTS)
                 return;
 
-            events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3,10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(10,25) * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_ENRAGED_ASSAULT, urand(35,50) * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15,30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(10, 25) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_ENRAGED_ASSAULT, urand(35, 50) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15, 30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
         }
 
         void JustSummoned(Creature* summon)
@@ -169,7 +169,7 @@ public:
                 return;
 
             // TO-DO: See why the spell is not casted
-            summon->CastSpell(summon,SPELL_PLANAR_BLAST,true);
+            summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -208,22 +208,22 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ARCANE_BARRAGE:
-                        DoCast(me->getVictim(),SPELL_ARCANE_BARRAGE);
-                        events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3,10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                        DoCast(me->getVictim(), SPELL_ARCANE_BARRAGE);
+                        events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_ARCANE_VOLLEY:
                         DoCastAOE(SPELL_ARCANE_VOLLEY);
-                        events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(10,25) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(10, 25) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_ENRAGED_ASSAULT:
                         Talk(SAY_ENRAGE);
                         DoCast(SPELL_ENRAGED_ASSAULT);
-                        events.ScheduleEvent(EVENT_ENRAGED_ASSAULT, urand(35,50) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_ENRAGED_ASSAULT, urand(35, 50) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_SUMMON_LEY_WHELP:
                         for (uint8 i = 0; i < 3; i++)
                             DoCast(SPELL_SUMMON_LEY_WHELP);
-                        events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15,30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15, 30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                 }
             }

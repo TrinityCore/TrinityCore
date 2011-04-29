@@ -56,8 +56,8 @@ struct FactionState
     bool needSave;
 };
 
-typedef std::map<RepListID,FactionState> FactionStateList;
-typedef std::map<uint32,ReputationRank> ForcedReactions;
+typedef std::map<RepListID, FactionState> FactionStateList;
+typedef std::map<uint32, ReputationRank> ForcedReactions;
 
 class Player;
 
@@ -127,7 +127,7 @@ class ReputationMgr
         void SetAtWar(RepListID repListID, bool on);
         void SetInactive(RepListID repListID, bool on);
 
-        void ApplyForceReaction(uint32 faction_id,ReputationRank rank,bool apply);
+        void ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply);
 
     public:                                                 // senders
         void SendInitialReputations();

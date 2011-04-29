@@ -493,7 +493,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
     if (!itemguid)
         return;
 
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid,UNIT_NPC_FLAG_VENDOR);
+    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
@@ -604,7 +604,7 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
 
     recv_data >> vendorguid >> slot;
 
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid,UNIT_NPC_FLAG_VENDOR);
+    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
@@ -683,7 +683,7 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
     if (bag == NULL_BAG)
         return;
 
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid,slot,item,count,bag,bagslot);
+    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
 void WorldSession::HandleBuyItemOpcode(WorldPacket & recv_data)
@@ -701,7 +701,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket & recv_data)
     else
         return; // cheating
 
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid,slot,item,count,NULL_BAG,NULL_SLOT);
+    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, NULL_BAG, NULL_SLOT);
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPacket & recv_data)
@@ -722,7 +722,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
 
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid,UNIT_NPC_FLAG_VENDOR);
+    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
@@ -993,7 +993,7 @@ void WorldSession::HandleSetAmmoOpcode(WorldPacket & recv_data)
         GetPlayer()->SetAmmo(item);
 }
 
-void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster,uint32 ItemID,uint32 SpellID)
+void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)
 {
     WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+4+4+1));     // last check 2.0.10
     data << uint64(Target);
@@ -1004,7 +1004,7 @@ void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster,uint32 ItemID
     SendPacket(&data);
 }
 
-void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid,uint32 slot,uint32 Duration)
+void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration)
 {
                                                             // last check 2.0.10
     WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, (8+4+4+8));
@@ -1315,21 +1315,21 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
     {
         if (GemEnchants[i])
         {
-            itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i],0,0);
+            itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0);
             if (Item* guidItem = _player->GetItemByGuid(gem_guids[i]))
                 _player->DestroyItem(guidItem->GetBagSlot(), guidItem->GetSlot(), true);
         }
     }
 
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
-        _player->ApplyEnchantment(itemTarget,EnchantmentSlot(enchant_slot),true);
+        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), true);
 
     bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
     {
-        _player->ApplyEnchantment(itemTarget,BONUS_ENCHANTMENT_SLOT,false);
+        _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, false);
         itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0), 0, 0);
-        _player->ApplyEnchantment(itemTarget,BONUS_ENCHANTMENT_SLOT,true);
+        _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, true);
         //it is not displayed, client has an inbuilt system to determine if the bonus is activated
     }
 
@@ -1347,7 +1347,7 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data)
     recv_data >> eslot;
 
     // apply only to equipped item
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0,eslot))
+    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, eslot))
         return;
 
     Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, eslot);
@@ -1358,7 +1358,7 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data)
     if (!item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
         return;
 
-    GetPlayer()->ApplyEnchantment(item,TEMP_ENCHANTMENT_SLOT,false);
+    GetPlayer()->ApplyEnchantment(item, TEMP_ENCHANTMENT_SLOT, false);
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
 

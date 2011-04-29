@@ -160,7 +160,7 @@ public:
                     switch(uiEventPhase)
                     {
                         case 1:
-                            if (Unit* pUnit = Unit::GetUnit(*me,uiPlayerGUID))
+                            if (Unit* pUnit = Unit::GetUnit(*me, uiPlayerGUID))
                             {
                                 if (GameObject* pGo = pUnit->GetGameObject(SPELL_LUNCH))
                                 {

@@ -295,7 +295,7 @@ public:
             if (pInstance)
             {
                 pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
-                pInstance->SetData64(DATA_SACRIFICED_PLAYER,0);
+                pInstance->SetData64(DATA_SACRIFICED_PLAYER, 0);
             }
         }
 
@@ -355,7 +355,7 @@ public:
                             Phase = SACRIFICING;
                             if (pInstance)
                             {
-                                pInstance->SetData64(DATA_SACRIFICED_PLAYER,pSacrificeTarget->GetGUID());
+                                pInstance->SetData64(DATA_SACRIFICED_PLAYER, pSacrificeTarget->GetGUID());
 
                                 for (uint8 i = 0; i < 3; ++i)
                                     if (Creature* pSummon = me->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))

@@ -172,7 +172,7 @@ public:
                         if (uiStampedeTimer <= diff)
                         {
                             DoCast(me, SPELL_STAMPEDE);
-                            DoScriptText(RAND(SAY_SUMMON_RHINO_1,SAY_SUMMON_RHINO_2,SAY_SUMMON_RHINO_3),me);
+                            DoScriptText(RAND(SAY_SUMMON_RHINO_1, SAY_SUMMON_RHINO_2, SAY_SUMMON_RHINO_3), me);
                             uiStampedeTimer = 15*IN_MILLISECONDS;
                         } else uiStampedeTimer -= diff;
 
@@ -277,7 +277,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
 

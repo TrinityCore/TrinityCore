@@ -116,7 +116,7 @@ void PetAI::UpdateAI(const uint32 diff)
             HandleReturnMovement();
     }
     else if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
-        me->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, me->GetFollowAngle());
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
 
     if (!me->GetCharmInfo())
         return;
@@ -183,7 +183,7 @@ void PetAI::UpdateAI(const uint32 diff)
                 bool spellUsed = false;
                 for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
                 {
-                    Unit* Target = ObjectAccessor::GetUnit(*me,*tar);
+                    Unit* Target = ObjectAccessor::GetUnit(*me, *tar);
 
                     //only buff targets that are in combat, unless the spell can only be cast while out of combat
                     if (!Target)
@@ -352,12 +352,12 @@ void PetAI::HandleReturnMovement()
             // Return to previous position where stay was clicked
             if (!me->GetCharmInfo()->IsCommandAttack())
             {
-                float x,y,z;
+                float x, y, z;
 
                 me->GetCharmInfo()->GetStayPosition(x, y, z);
                 me->GetCharmInfo()->SetIsReturning(true);
                 me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePoint(me->GetGUIDLow(),x,y,z);
+                me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
             }
         }
     }
@@ -389,7 +389,7 @@ void PetAI::DoAttack(Unit *target, bool chase)
 
     if (chase)
     {
-        if (me->Attack(target,true))
+        if (me->Attack(target, true))
         {
             me->GetCharmInfo()->SetIsAtStay(false);
             me->GetCharmInfo()->SetIsFollowing(false);
@@ -403,7 +403,7 @@ void PetAI::DoAttack(Unit *target, bool chase)
         me->GetCharmInfo()->SetIsAtStay(true);
         me->GetCharmInfo()->SetIsFollowing(false);
         me->GetCharmInfo()->SetIsReturning(false);
-        me->Attack(target,true);
+        me->Attack(target, true);
     }
 }
 

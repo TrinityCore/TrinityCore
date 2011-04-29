@@ -114,7 +114,7 @@ enum Spells
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
-#define BOILING_BLOOD_HELPER RAID_MODE<int32>(72385,72441,72442,72443)
+#define BOILING_BLOOD_HELPER RAID_MODE<int32>(72385, 72441, 72442, 72443)
 
 enum Events
 {
@@ -710,7 +710,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                                 float x, y, z;
                                 deathbringer->GetClosePoint(x, y, z, deathbringer->GetObjectSize());
                                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                me->GetMotionMaster()->MovePoint(POINT_CORPSE ,x, y, z);
+                                me->GetMotionMaster()->MovePoint(POINT_CORPSE , x, y, z);
                             }
                             break;
                         case EVENT_OUTRO_HORDE_5:   // move

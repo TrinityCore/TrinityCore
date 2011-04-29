@@ -114,7 +114,7 @@ public:
             Phase1 = true;
 
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
         }
 
         void EnterCombat(Unit * /*who*/)
@@ -127,7 +127,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -218,7 +218,7 @@ public:
                 if (EnrageTimer <= diff)
                 {
                     DoCast(me, SPELL_BERSERK);
-                    DoScriptText(RAND(SAY_ENRAGE1,SAY_ENRAGE2), me);
+                    DoScriptText(RAND(SAY_ENRAGE1, SAY_ENRAGE2), me);
                 } else EnrageTimer -= diff;
             }
 
@@ -289,7 +289,7 @@ public:
                             DoModifyThreatPercent(pTarget, -100);
                         me->AddThreat(pTarget, 50000000.0f);
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                        me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+                        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                                                                 // If VMaps are disabled, this spell can call the whole instance
                         DoCast(me, SPELL_INSIGNIFIGANCE, true);
                         DoCast(pTarget, SPELL_FEL_RAGE_TARGET, true);
@@ -301,7 +301,7 @@ public:
                         //Cast this without triggered so that it appears in combat logs and shows visual.
                         DoCast(me, SPELL_FEL_RAGE_SELF);
 
-                        DoScriptText(RAND(SAY_SPECIAL1,SAY_SPECIAL2), me);
+                        DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
 
                         AcidGeyserTimer = 1000;
                         PhaseChangeTimer = 30000;
@@ -320,7 +320,7 @@ public:
                     EjectTimer += 2000;
                     PhaseChangeTimer = 60000;
                     me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-                    me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                 }
             } else PhaseChangeTimer -= diff;
 

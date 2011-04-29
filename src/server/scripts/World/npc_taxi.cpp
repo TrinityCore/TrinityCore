@@ -71,11 +71,11 @@ public:
         switch(pCreature->GetEntry())
         {
         case 17435: // Azuremyst Isle - Susurrus
-            if (pPlayer->HasItemCount(23843,1,true))
+            if (pPlayer->HasItemCount(23843, 1, true))
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SUSURRUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             break;
         case 20903: // Netherstorm - Protectorate Nether Drake
-            if (pPlayer->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && pPlayer->HasItemCount(29778,1))
+            if (pPlayer->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && pPlayer->HasItemCount(29778, 1))
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NETHER_DRAKE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             break;
         case 18725: // Old Hillsbrad Foothills - Brazen
@@ -165,7 +165,7 @@ public:
             break;
         case 23704: // Dustwallow Marsh - Cassa Crimsonwing
             if (pPlayer->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CRIMSONWING,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+25);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CRIMSONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+25);
             break;
         case 26602:
             if (pCreature->isTaxi())
@@ -194,14 +194,14 @@ public:
         case GOSSIP_ACTION_INFO_DEF:
             //spellId is correct, however it gives flight a somewhat funny effect //TaxiPath 506.
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,32474,true);
+            pPlayer->CastSpell(pPlayer, 32474, true);
             break;
         case GOSSIP_ACTION_INFO_DEF + 1:
             pPlayer->CLOSE_GOSSIP_MENU();
             pPlayer->ActivateTaxiPathTo(627);                  //TaxiPath 627 (possibly 627+628(152->153->154->155))
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
-            if (!pPlayer->HasItemCount(25853,1)) {
+            if (!pPlayer->HasItemCount(25853, 1)) {
                 pPlayer->SEND_GOSSIP_MENU(9780, pCreature->GetGUID());
             } else {
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -210,59 +210,59 @@ public:
             break;
         case GOSSIP_ACTION_INFO_DEF + 3:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,53335,true);               //TaxiPath 1041 (Stormwind Harbor)
+            pPlayer->CastSpell(pPlayer, 53335, true);               //TaxiPath 1041 (Stormwind Harbor)
             break;
         case GOSSIP_ACTION_INFO_DEF + 4:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,33768,true);               //TaxiPath 585 (Gateways Murket and Shaadraz)
+            pPlayer->CastSpell(pPlayer, 33768, true);               //TaxiPath 585 (Gateways Murket and Shaadraz)
             break;
         case GOSSIP_ACTION_INFO_DEF + 5:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,35069,true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
+            pPlayer->CastSpell(pPlayer, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
             break;
         case GOSSIP_ACTION_INFO_DEF + 6:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,33899,true);               //TaxiPath 589 (Aerial Assault Flight (Alliance))
+            pPlayer->CastSpell(pPlayer, 33899, true);               //TaxiPath 589 (Aerial Assault Flight (Alliance))
             break;
         case GOSSIP_ACTION_INFO_DEF + 7:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,35065,true);               //TaxiPath 607 (Taxi - Hellfire Peninsula - Shatter Point to Beach Head)
+            pPlayer->CastSpell(pPlayer, 35065, true);               //TaxiPath 607 (Taxi - Hellfire Peninsula - Shatter Point to Beach Head)
             break;
         case GOSSIP_ACTION_INFO_DEF + 8:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,33659,true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
+            pPlayer->CastSpell(pPlayer, 33659, true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
             break;
         case GOSSIP_ACTION_INFO_DEF + 9:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,33825,true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
+            pPlayer->CastSpell(pPlayer, 33825, true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
             break;
         case GOSSIP_ACTION_INFO_DEF + 10:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,34578,true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
+            pPlayer->CastSpell(pPlayer, 34578, true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
             break;
         case GOSSIP_ACTION_INFO_DEF + 11:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,41278,true);               //TaxiPath 706
+            pPlayer->CastSpell(pPlayer, 41278, true);               //TaxiPath 706
             break;
         case GOSSIP_ACTION_INFO_DEF + 12:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,45071,true);               //TaxiPath 779
+            pPlayer->CastSpell(pPlayer, 45071, true);               //TaxiPath 779
             break;
         case GOSSIP_ACTION_INFO_DEF + 13:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,45113,true);               //TaxiPath 784
+            pPlayer->CastSpell(pPlayer, 45113, true);               //TaxiPath 784
             break;
         case GOSSIP_ACTION_INFO_DEF + 14:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,45353,true);               //TaxiPath 788
+            pPlayer->CastSpell(pPlayer, 45353, true);               //TaxiPath 788
             break;
         case GOSSIP_ACTION_INFO_DEF + 15:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,34905,true);               //TaxiPath 606
+            pPlayer->CastSpell(pPlayer, 34905, true);               //TaxiPath 606
             break;
         case GOSSIP_ACTION_INFO_DEF + 16:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,41279,true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
+            pPlayer->CastSpell(pPlayer, 41279, true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
             break;
         case GOSSIP_ACTION_INFO_DEF + 17:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -290,7 +290,7 @@ public:
             break;
         case GOSSIP_ACTION_INFO_DEF + 23:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,43074,true);               //TaxiPath 736
+            pPlayer->CastSpell(pPlayer, 43074, true);               //TaxiPath 736
             break;
         case GOSSIP_ACTION_INFO_DEF + 24:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -299,7 +299,7 @@ public:
             break;
         case GOSSIP_ACTION_INFO_DEF + 25:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,42295,true);
+            pPlayer->CastSpell(pPlayer, 42295, true);
             break;
         case GOSSIP_ACTION_INFO_DEF + 26:
             pPlayer->GetSession()->SendTaxiMenu(pCreature);

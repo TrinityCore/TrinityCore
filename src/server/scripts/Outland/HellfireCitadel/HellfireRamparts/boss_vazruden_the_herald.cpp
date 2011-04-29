@@ -112,15 +112,15 @@ class boss_nazan : public CreatureScript
                 {
                     summoned->SetLevel(me->getLevel());
                     summoned->setFaction(me->getFaction());
-                    summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SUMMON_LIQUID_FIRE,SPELL_SUMMON_LIQUID_FIRE_H),true);
-                    summoned->CastSpell(summoned,SPELL_FIRE_NOVA_VISUAL,true);
+                    summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SUMMON_LIQUID_FIRE, SPELL_SUMMON_LIQUID_FIRE_H), true);
+                    summoned->CastSpell(summoned, SPELL_FIRE_NOVA_VISUAL, true);
                 }
             }
 
             void SpellHitTarget(Unit *pTarget, const SpellEntry* entry)
             {
                 if (pTarget && entry->Id == uint32(SPELL_FIREBALL))
-                    me->SummonCreature(ENTRY_LIQUID_FIRE,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),pTarget->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,30000);
+                    me->SummonCreature(ENTRY_LIQUID_FIRE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -130,16 +130,16 @@ class boss_nazan : public CreatureScript
 
                 if (Fireball_Timer <= diff)
                 {
-                    if (Unit* pVictim = SelectTarget(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pVictim = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pVictim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
-                    Fireball_Timer = urand(4000,7000);
+                    Fireball_Timer = urand(4000, 7000);
                 }
                 else
                     Fireball_Timer -= diff;
 
                 if (flight) // phase 1 - the flight
                 {
-                    Creature *Vazruden = Unit::GetCreature(*me,VazrudenGUID);
+                    Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
                     if (Fly_Timer < diff || !(Vazruden && Vazruden->isAlive() && Vazruden->HealthAbovePct(20)))
                     {
                         flight = false;
@@ -148,7 +148,7 @@ class boss_nazan : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* pVictim = SelectTarget(SELECT_TARGET_NEAREST,0))
+                        if (Unit* pVictim = SelectTarget(SELECT_TARGET_NEAREST, 0))
                             me->AI()->AttackStart(pVictim);
                         DoStartMovement(me->getVictim());
                         DoScriptText(EMOTE, me);
@@ -160,8 +160,8 @@ class boss_nazan : public CreatureScript
                     if (Turn_Timer <= diff)
                     {
                         uint32 waypoint = (Fly_Timer/10000)%2;
-                        if (!me->IsWithinDist3d(VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2], 5))
-                            me->GetMotionMaster()->MovePoint(0,VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2]);
+                        if (!me->IsWithinDist3d(VazrudenRing[waypoint][0], VazrudenRing[waypoint][1], VazrudenRing[waypoint][2], 5))
+                            me->GetMotionMaster()->MovePoint(0, VazrudenRing[waypoint][0], VazrudenRing[waypoint][1], VazrudenRing[waypoint][2]);
                         Turn_Timer = 10000;
                     }
                     else
@@ -227,13 +227,13 @@ class boss_vazruden : public CreatureScript
 
             void EnterCombat(Unit * /*who*/)
             {
-                DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
             }
 
             void KilledUnit(Unit* who)
             {
                 if (who && who->GetEntry() != ENTRY_VAZRUDEN)
-                    DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+                    DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
             void JustDied(Unit* who)
@@ -263,7 +263,7 @@ class boss_vazruden : public CreatureScript
                 if (Revenge_Timer <= diff)
                 {
                     if (Unit *victim = me->getVictim())
-                        DoCast(victim, DUNGEON_MODE(SPELL_REVENGE,SPELL_REVENGE_H));
+                        DoCast(victim, DUNGEON_MODE(SPELL_REVENGE, SPELL_REVENGE_H));
                     Revenge_Timer = 5000;
                 }
                 else
@@ -346,9 +346,9 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 if (!summoned)
                 {
-                    if (Creature* Vazruden = me->SummonCreature(ENTRY_VAZRUDEN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))
+                    if (Creature* Vazruden = me->SummonCreature(ENTRY_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         VazrudenGUID = Vazruden->GetGUID();
-                    if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))
+                    if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         NazanGUID = Nazan->GetGUID();
                     summoned = true;
                     me->SetVisible(false);
@@ -405,10 +405,10 @@ class boss_vazruden_the_herald : public CreatureScript
                 case 1: // go to the middle and begin the fight
                     if (check <= diff)
                     {
-                        if (!me->IsWithinDist3d(VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],5))
+                        if (!me->IsWithinDist3d(VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 5))
                         {
                             me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(0,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2]);
+                            me->GetMotionMaster()->MovePoint(0, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2]);
                             check = 1000;
                         }
                         else
@@ -439,7 +439,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         }
                         else if (!lootSpawned)
                         {
-                            me->SummonGameObject(DUNGEON_MODE(ENTRY_REINFORCED_FEL_IRON_CHEST, ENTRY_REINFORCED_FEL_IRON_CHEST_H),VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
+                            me->SummonGameObject(DUNGEON_MODE(ENTRY_REINFORCED_FEL_IRON_CHEST, ENTRY_REINFORCED_FEL_IRON_CHEST_H), VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, 0, 0, 0, 0, 0);
                             me->SetLootRecipient(NULL); // don't think this is necessary..
                             //me->Kill(me);
                             lootSpawned = true;
@@ -475,14 +475,14 @@ class mob_hellfire_sentry : public CreatureScript
 
             void Reset()
             {
-                KidneyShot_Timer = urand(3000,7000);
+                KidneyShot_Timer = urand(3000, 7000);
             }
 
             void EnterCombat(Unit* /*who*/) {}
 
             void JustDied(Unit* who)
             {
-                if (Creature *herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD,150))
+                if (Creature *herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD, 150))
                     CAST_AI(boss_vazruden_the_herald::boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(who);
             }
 

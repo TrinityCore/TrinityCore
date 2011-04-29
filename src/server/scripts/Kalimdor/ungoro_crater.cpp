@@ -249,7 +249,7 @@ public:
             {
                 SetFollowPaused(true);
 
-                DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), me);
+                DoScriptText(RAND(SAY_FAINT_1, SAY_FAINT_2, SAY_FAINT_3, SAY_FAINT_4), me);
             }
 
             //what does actually happen here? Emote? Aura?
@@ -263,7 +263,7 @@ public:
             if (HasFollowState(STATE_FOLLOW_POSTEVENT))
                 return;
 
-            DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), me);
+            DoScriptText(RAND(SAY_WAKE_1, SAY_WAKE_2, SAY_WAKE_3, SAY_WAKE_4), me);
 
             SetFollowPaused(false);
         }

@@ -47,7 +47,7 @@ public:
     {
         if (pQuest->GetQuestId() == QUEST_MISSING_IN_ACTION)
         {
-            CAST_AI(npc_corporal_keeshan::npc_corporal_keeshanAI,pCreature->AI())->Start(true, false, pPlayer->GetGUID(),pQuest);
+            CAST_AI(npc_corporal_keeshan::npc_corporal_keeshanAI, pCreature->AI())->Start(true, false, pPlayer->GetGUID(), pQuest);
             DoScriptText(SAY_CORPORAL_1, pCreature);
         }
 
@@ -123,12 +123,12 @@ public:
                             uiPhase = 2;
                             break;
                         case 2:
-                            DoScriptText(SAY_CORPORAL_2,me);
+                            DoScriptText(SAY_CORPORAL_2, me);
                             uiTimer = 15000;
                             uiPhase = 3;
                             break;
                         case 3:
-                            DoScriptText(SAY_CORPORAL_3,me);
+                            DoScriptText(SAY_CORPORAL_3, me);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             SetEscortPaused(false);
                             uiTimer = 0;
@@ -151,13 +151,13 @@ public:
 
             if (uiMockingBlowTimer <= uiDiff)
             {
-                DoCast(me->getVictim(),SPELL_MOCKING_BLOW);
+                DoCast(me->getVictim(), SPELL_MOCKING_BLOW);
                 uiMockingBlowTimer = 5000;
             } else uiMockingBlowTimer -= uiDiff;
 
             if (uiShieldBashTimer <= uiDiff)
             {
-                DoCast(me->getVictim(),SPELL_MOCKING_BLOW);
+                DoCast(me->getVictim(), SPELL_MOCKING_BLOW);
                 uiShieldBashTimer = 8000;
             } else uiShieldBashTimer -= uiDiff;
 

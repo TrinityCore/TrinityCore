@@ -64,7 +64,7 @@ uint32 PrismaticAuras[]=
 
 struct Locations
 {
-    float x,y,z;
+    float x, y, z;
 };
 
 static Locations TeleportPoint[]=
@@ -146,7 +146,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -235,7 +235,7 @@ public:
 
                 TeleportPlayers();
 
-                DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), me);
+                DoScriptText(RAND(SAY_SPELL2, SAY_SPELL3), me);
                 FatalAttractionExplodeTimer = 2000;
                 FatalAttractionTimer = 40000 + rand()%31 * 1000;
             } else FatalAttractionTimer -= diff;
@@ -292,7 +292,7 @@ public:
             //Random taunts
             if (RandomYellTimer <= diff)
             {
-                DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), me);
+                DoScriptText(RAND(SAY_TAUNT1, SAY_TAUNT2, SAY_TAUNT3), me);
                 RandomYellTimer = 60000 + rand()%91 * 1000;
             } else RandomYellTimer -= diff;
 

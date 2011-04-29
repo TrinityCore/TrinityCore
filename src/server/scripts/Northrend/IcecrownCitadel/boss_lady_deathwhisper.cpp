@@ -176,9 +176,9 @@ enum DeprogrammingData
     POINT_DESPAWN           = 384721,
 };
 
-#define NPC_DARNAVAN RAID_MODE<uint32>(NPC_DARNAVAN_10,NPC_DARNAVAN_25,NPC_DARNAVAN_10,NPC_DARNAVAN_25)
-#define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10,NPC_DARNAVAN_CREDIT_25,NPC_DARNAVAN_CREDIT_10,NPC_DARNAVAN_CREDIT_25)
-#define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10,QUEST_DEPROGRAMMING_25,QUEST_DEPROGRAMMING_10,QUEST_DEPROGRAMMING_25)
+#define NPC_DARNAVAN RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
+#define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25, NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25)
+#define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25, QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25)
 
 static const uint32 addEntries[2] = {NPC_CULT_FANATIC, NPC_CULT_ADHERENT};
 
@@ -521,7 +521,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     _SummonAdd(addEntries[addIndexOther], addSpawnPos[addIndexOther*3]);
                     _SummonAdd(addEntries[addIndex], addSpawnPos[addIndexOther*3+1]);
                     _SummonAdd(addEntries[addIndexOther], addSpawnPos[addIndexOther*3+2]);
-                    _SummonAdd(addEntries[urand(0,1)], addSpawnPos[6]);
+                    _SummonAdd(addEntries[urand(0, 1)], addSpawnPos[6]);
                 }
                 ++addWaveCounter;
             }
@@ -537,7 +537,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     _SummonAdd(addEntries[addIndex], addSpawnPos[addIndex*3+2]);
                 }
                 else
-                    _SummonAdd(addEntries[urand(0,1)], addSpawnPos[6]);
+                    _SummonAdd(addEntries[urand(0, 1)], addSpawnPos[6]);
                 ++addWaveCounter;
             }
 

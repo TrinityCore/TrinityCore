@@ -272,7 +272,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
 
         if (money > 0 &&  GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
         {
-            sLog->outCommand(GetAccountId(),"GM %s (Account: %u) mail money: %u to player: %s (Account: %u)",
+            sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail money: %u to player: %s (Account: %u)",
                 GetPlayerName(), GetAccountId(), money, receiver.c_str(), rc_account);
         }
     }
@@ -456,11 +456,11 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
                     // can be calculated early
                     sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
 
-                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid,sender_name))
+                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
-                sLog->outCommand(GetAccountId(),"GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
-                    GetPlayerName(),GetAccountId(),it->GetTemplate()->Name1.c_str(), it->GetEntry(),it->GetCount(),m->COD,sender_name.c_str(),sender_accId);
+                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
+                    GetPlayerName(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receive)
                 sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
@@ -481,7 +481,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
         pl->RemoveMItem(it->GetGUIDLow());
 
         uint32 count = it->GetCount();                      // save counts before store and possible merge with deleting
-        pl->MoveItemToInventory(dest,it,true);
+        pl->MoveItemToInventory(dest, it, true);
 
         pl->SaveInventoryAndGoldToDB(trans);
         pl->_SaveMail(trans);
@@ -694,7 +694,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
-    sLog->outDetail("HandleMailCreateTextItem mailid=%u",mailId);
+    sLog->outDetail("HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

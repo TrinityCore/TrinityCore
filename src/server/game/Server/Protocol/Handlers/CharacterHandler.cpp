@@ -207,7 +207,7 @@ void WorldSession::HandleCharEnum(QueryResult result)
         do
         {
             uint32 guidlow = (*result)[0].GetUInt32();
-            sLog->outDetail("Loading char guid %u from account %u.",guidlow,GetAccountId());
+            sLog->outDetail("Loading char guid %u from account %u.", guidlow, GetAccountId());
             if (Player::BuildEnumData(result, &data))
             {
                 _allowedCharsToLogin.insert(guidlow);
@@ -263,7 +263,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
 void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
 {
     std::string name;
-    uint8 race_,class_;
+    uint8 race_, class_;
 
     recv_data >> name;
 
@@ -321,7 +321,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     if (raceEntry->expansion > Expansion())
     {
         data << (uint8)CHAR_CREATE_EXPANSION;
-        sLog->outError("Expansion %u account:[%d] tried to Create character with expansion %u race (%u)",Expansion(),GetAccountId(),raceEntry->expansion,race_);
+        sLog->outError("Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, race_);
         SendPacket(&data);
         return;
     }
@@ -330,7 +330,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     if (classEntry->expansion > Expansion())
     {
         data << (uint8)CHAR_CREATE_EXPANSION_CLASS;
-        sLog->outError("Expansion %u account:[%d] tried to Create character with expansion %u class (%u)",Expansion(),GetAccountId(),classEntry->expansion,class_);
+        sLog->outError("Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classEntry->expansion, class_);
         SendPacket(&data);
         return;
     }
@@ -359,12 +359,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     {
         data << (uint8)CHAR_NAME_NO_NAME;
         SendPacket(&data);
-        sLog->outError("Account:[%d] but tried to Create character with empty [name] ",GetAccountId());
+        sLog->outError("Account:[%d] but tried to Create character with empty [name] ", GetAccountId());
         return;
     }
 
     // check name limitations
-    uint8 res = ObjectMgr::CheckPlayerName(name,true);
+    uint8 res = ObjectMgr::CheckPlayerName(name, true);
     if (res != CHAR_NAME_SUCCESS)
     {
         data << uint8(res);
@@ -443,7 +443,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
 
     if (!AllowTwoSideAccounts || skipCinematics == 1 || class_ == CLASS_DEATH_KNIGHT)
     {
-        QueryResult result2 = CharacterDatabase.PQuery("SELECT level,race,class FROM characters WHERE account = '%u' %s",
+        QueryResult result2 = CharacterDatabase.PQuery("SELECT level, race, class FROM characters WHERE account = '%u' %s",
             GetAccountId(), (skipCinematics == 1 || class_ == CLASS_DEATH_KNIGHT) ? "" : "LIMIT 1");
         if (result2)
         {
@@ -614,7 +614,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
         return;
     }
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT account,name FROM characters WHERE guid='%u'", GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT account, name FROM characters WHERE guid='%u'", GUID_LOPART(guid));
     if (result)
     {
         Field *fields = result->Fetch();
@@ -627,15 +627,15 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
         return;
 
     std::string IP_str = GetRemoteAddress();
-    sLog->outDetail("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
-    sLog->outChar("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
+    sLog->outDetail("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
+    sLog->outChar("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
     sScriptMgr->OnPlayerDelete(guid);
 
     if (sLog->IsOutCharDump())                                // optimize GetPlayerDump call
     {
         std::string dump;
         if (PlayerDumpWriter().GetDump(GUID_LOPART(guid), dump))
-            sLog->outCharDump(dump.c_str(),GetAccountId(),GUID_LOPART(guid),name.c_str());
+            sLog->outCharDump(dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
     }
 
     Player::DeleteFromDB(guid, GetAccountId());
@@ -649,7 +649,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
 {
     if (PlayerLoading() || GetPlayer() != NULL)
     {
-        sLog->outError("Player tryes to login again, AccountId = %d",GetAccountId());
+        sLog->outError("Player tryes to login again, AccountId = %d", GetAccountId());
         return;
     }
 
@@ -729,11 +729,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         std::string::size_type pos, nextpos;
 
         pos = 0;
-        while ((nextpos= str_motd.find('@',pos)) != std::string::npos)
+        while ((nextpos= str_motd.find('@', pos)) != std::string::npos)
         {
             if (nextpos != pos)
             {
-                data << str_motd.substr(pos,nextpos-pos);
+                data << str_motd.substr(pos, nextpos-pos);
                 ++linecount;
             }
             pos = nextpos+1;
@@ -757,7 +757,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         sLog->outStaticDebug("WORLD: Sent server info");
     }
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid,rank FROM guild_member WHERE guid = '%u'",pCurrChar->GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
     {
         Field* fields = resultGuild->Fetch();
@@ -777,7 +777,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         else
         {
             // remove wrong guild data
-            sLog->outError("Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.",pCurrChar->GetName(),pCurrChar->GetGUIDLow(),pCurrChar->GetGuildId());
+            sLog->outError("Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName(), pCurrChar->GetGUIDLow(), pCurrChar->GetGuildId());
             pCurrChar->SetInGuild(0);
         }
     }
@@ -817,7 +817,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     }
 
     sObjectAccessor->AddObject(pCurrChar);
-    //sLog->outDebug("Player %s added to Map.",pCurrChar->GetName());
+    //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
@@ -860,7 +860,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     pCurrChar->LoadPet();
 
     // Set FFA PvP for non GM in non-rest mode
-    if (sWorld->IsFFAPvPRealm() && !pCurrChar->isGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_RESTING))
+    if (sWorld->IsFFAPvPRealm() && !pCurrChar->isGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
         pCurrChar->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 
     if (pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
@@ -885,7 +885,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShutdowning())
-        sWorld->ShutdownMsg(true,pCurrChar);
+        sWorld->ShutdownMsg(true, pCurrChar);
 
     if (sWorld->getBoolConfig(CONFIG_ALL_TAXI_PATHS))
         pCurrChar->SetTaxiCheater(true);
@@ -895,7 +895,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     std::string IP_str = GetRemoteAddress();
     sLog->outChar("Account: %d (IP: %s) Login Character:[%s] (GUID: %u)",
-        GetAccountId(),IP_str.c_str(),pCurrChar->GetName() ,pCurrChar->GetGUIDLow());
+        GetAccountId(), IP_str.c_str(), pCurrChar->GetName() , pCurrChar->GetGUIDLow());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STAT_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
@@ -916,7 +916,7 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket & recv_data)
     recv_data >> repListID;
     recv_data >> flag;
 
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID,flag);
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
@@ -1027,7 +1027,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
         return;
     }
 
-    uint8 res = ObjectMgr::CheckPlayerName(newname,true);
+    uint8 res = ObjectMgr::CheckPlayerName(newname, true);
     if (res != CHAR_NAME_SUCCESS)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
@@ -1162,7 +1162,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM character_declinedname WHERE guid = '%u'", GUID_LOPART(guid));
-    trans->PAppend("INSERT INTO character_declinedname (guid, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u','%s','%s','%s','%s','%s')",
+    trans->PAppend("INSERT INTO character_declinedname (guid, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u', '%s', '%s', '%s', '%s', '%s')",
         GUID_LOPART(guid), declinedname.name[0].c_str(), declinedname.name[1].c_str(), declinedname.name[2].c_str(), declinedname.name[3].c_str(), declinedname.name[4].c_str());
     CharacterDatabase.CommitTransaction(trans);
 
@@ -1197,7 +1197,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     uint32 Cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
 
     // 0 - ok
-    // 1,3 - not enough money
+    // 1, 3 - not enough money
     // 2 - you have to seat on barber chair
     if (!_player->HasEnoughMoney(Cost))
     {
@@ -1289,7 +1289,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
         return;
     }
 
-    uint8 res = ObjectMgr::CheckPlayerName(newname,true);
+    uint8 res = ObjectMgr::CheckPlayerName(newname, true);
     if (res != CHAR_NAME_SUCCESS)
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
@@ -1509,7 +1509,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         return;
     }
 
-    uint8 res = ObjectMgr::CheckPlayerName(newname,true);
+    uint8 res = ObjectMgr::CheckPlayerName(newname, true);
     if (res != CHAR_NAME_SUCCESS)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
@@ -1654,7 +1654,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         }
 
         // Delete all current quests
-        trans->PAppend("DELETE FROM `character_queststatus` WHERE guid ='%u'",GUID_LOPART(guid));
+        trans->PAppend("DELETE FROM `character_queststatus` WHERE guid ='%u'", GUID_LOPART(guid));
 
         // Delete record of the faction old completed quests
         {
@@ -1669,7 +1669,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                     if (requiredRaces & RACEMASK_ALLIANCE)
                     {
                         quests << uint32(qinfo->GetQuestId());
-                        quests << ",";
+                        quests << ", ";
                     }
                 }
                 else // if (team == BG_TEAM_HORDE)
@@ -1677,7 +1677,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                     if (requiredRaces & RACEMASK_HORDE)
                     {
                         quests << uint32(qinfo->GetQuestId());
-                        quests << ",";
+                        quests << ", ";
                     }
                 }
             }

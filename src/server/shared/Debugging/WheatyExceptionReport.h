@@ -96,7 +96,7 @@ class WheatyExceptionReport
 
         static void WriteStackDetails(PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
 
-        static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO,ULONG, PVOID);
+        static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO, ULONG, PVOID);
 
         static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME *, char * pszBuffer, unsigned cbBuffer);
 
