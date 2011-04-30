@@ -1668,7 +1668,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
 
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    caster->CastSpell(unitTarget, spellInfo, true);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
