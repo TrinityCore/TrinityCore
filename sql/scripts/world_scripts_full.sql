@@ -1779,13 +1779,23 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,12398,6651,6652,6653,6654,6655,6656,6657,6659,10391,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
-(6641,11,0,0, 'achievement_school_of_hard_knocks'),
-(6642,11,0,0, 'achievement_school_of_hard_knocks'),
-(6643,11,0,0, 'achievement_school_of_hard_knocks'),
-(6644,11,0,0, 'achievement_school_of_hard_knocks'),
+(6641,11,0,0, 'achievement_has_orphan_out'),
+(6642,11,0,0, 'achievement_has_orphan_out'),
+(6643,11,0,0, 'achievement_has_orphan_out'),
+(6644,11,0,0, 'achievement_has_orphan_out'),
+(12398,11,0,0, 'achievement_has_orphan_out'),
+(6651,11,0,0, 'achievement_has_orphan_out'),
+(6652,11,0,0, 'achievement_has_orphan_out'),
+(6653,11,0,0, 'achievement_has_orphan_out'),
+(6654,11,0,0, 'achievement_has_orphan_out'),
+(6655,11,0,0, 'achievement_has_orphan_out'),
+(6656,11,0,0, 'achievement_has_orphan_out'),
+(6657,11,0,0, 'achievement_has_orphan_out'),
+(6659,11,0,0, 'achievement_has_orphan_out'),
+(10391,11,0,0, 'achievement_has_orphan_out'),
 (3804,11,0,0, 'achievement_resilient_victory'),
 (3805,11,0,0, 'achievement_resilient_victory'),
 (3806,11,0,0, 'achievement_resilient_victory'),

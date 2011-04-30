@@ -225,6 +225,11 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 124,
 };
 
+enum AchievementCategory
+{
+    CATEGORY_CHILDRENS_WEEK     = 163,
+};
+
 enum AreaFlags
 {
     AREA_FLAG_SNOW             = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
