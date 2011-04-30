@@ -114,6 +114,7 @@ enum Spells
     SPELL_EXORCISM_N                           = 52445,
     SPELL_EXORCISM_H                           = 58822,
     SPELL_HOLY_LIGHT                           = 52444,
+    SPELL_ARCANE_DISRUPTION                    = 49590,
 };
 
 enum GossipMenuArthas
@@ -125,7 +126,7 @@ enum GossipMenuArthas
    GOSSIP_MENU_ARTHAS_5                        = 100005
 };
 
-enum
+enum EncounterData
 {
     ENCOUNTER_WAVES_NUMBER                      = 8,
     ENCOUNTER_WAVES_MAX_SPAWNS                  = 5,
@@ -1202,7 +1203,45 @@ public:
 
 };
 
+class npc_crate_helper : public CreatureScript
+{
+    public:
+        npc_crate_helper() : CreatureScript("npc_create_helper_cot") { }
+
+        struct npc_crate_helperAI : public NullCreatureAI
+        {
+            npc_crate_helperAI(Creature* creature) : NullCreatureAI(creature)
+            {
+                _marked = false;
+            }
+
+            void SpellHit(Unit* caster, SpellEntry const* spell)
+            {
+                if (spell->Id == SPELL_ARCANE_DISRUPTION && !_marked)
+                {
+                    _marked = true;
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
+                    if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
+                    {
+                        crate->SummonGameObject(GO_PLAGUED_CRATE, crate->GetPositionX(), crate->GetPositionY(), crate->GetPositionZ(), crate->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, DAY);
+                        crate->Delete();
+                    }
+                }
+            }
+
+        private:
+            bool _marked;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_crate_helperAI(creature);
+        }
+};
+
 void AddSC_culling_of_stratholme()
 {
     new npc_arthas();
+    new npc_crate_helper();
 }
