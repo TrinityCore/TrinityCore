@@ -22,22 +22,24 @@
 #include "BattlegroundIC.h"
 #include "BattlegroundSA.h"
 
-class achievement_school_of_hard_knocks : public AchievementCriteriaScript
+class achievement_has_orphan_out : public AchievementCriteriaScript
 {
     public:
-        achievement_school_of_hard_knocks() : AchievementCriteriaScript("achievement_school_of_hard_knocks") { }
+        achievement_has_orphan_out() : AchievementCriteriaScript("achievement_has_orphan_out") { }
 
+        static uint32 const OrphanEntries[6];
         bool OnCheck(Player* source, Unit* /*target*/)
         {
-            static uint32 const orphanEntries[6] = {14305, 14444, 22818, 22817, 33533, 33532};
             uint32 currentPet = GUID_ENPART(source->GetCritterGUID());
             for (uint8 i = 0; i < 6; ++i)
-                if (currentPet == orphanEntries[i])
+                if (currentPet == OrphanEntries[i])
                     return true;
 
             return false;
         }
 };
+
+uint32 const achievement_has_orphan_out::OrphanEntries[6] = {14305, 14444, 22818, 22817, 33533, 33532};
 
 class achievement_storm_glory : public AchievementCriteriaScript
 {
@@ -186,7 +188,7 @@ class achievement_bg_sa_artillery : public AchievementCriteriaScript
 
 void AddSC_achievement_scripts()
 {
-    new achievement_school_of_hard_knocks();
+    new achievement_has_orphan_out();
     new achievement_storm_glory();
     new achievement_resilient_victory();
     new achievement_bg_control_all_nodes();
