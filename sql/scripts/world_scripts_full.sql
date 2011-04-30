@@ -463,6 +463,7 @@ UPDATE `creature_template` SET `Scriptname`='boss_meathook' WHERE `entry`=26529;
 UPDATE `creature_template` SET `Scriptname`='boss_epoch' WHERE `entry`=26532;
 UPDATE `creature_template` SET `Scriptname`='boss_mal_ganis' WHERE `entry`=26533;
 UPDATE `creature_template` SET `Scriptname`='boss_infinite_corruptor' WHERE `entry`=32273;
+UPDATE `creature_template` SET `ScriptName`='npc_create_helper_cot' WHERE `entry`=27827;
 
 /* CRYSTALSONG FOREST */
 UPDATE `creature_template` SET `ScriptName`='npc_warmage_violetstand' WHERE `entry` IN (32369,32371,32372);
