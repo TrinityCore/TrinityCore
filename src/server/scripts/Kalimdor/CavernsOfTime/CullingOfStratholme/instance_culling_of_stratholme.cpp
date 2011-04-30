@@ -28,216 +28,284 @@
 4 - Infinite Corruptor (Heroic only)
 */
 
+enum Texts
+{
+    SAY_CRATES_COMPLETED    = 0,
+};
+
+Position const ChromieSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+
 class instance_culling_of_stratholme : public InstanceMapScript
 {
-public:
-    instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
+    public:
+        instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
-    {
-        return new instance_culling_of_stratholme_InstanceMapScript(pMap);
-    }
-
-    struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
-    {
-        instance_culling_of_stratholme_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
-
-        uint64 uiArthas;
-        uint64 uiMeathook;
-        uint64 uiSalramm;
-        uint64 uiEpoch;
-        uint64 uiMalGanis;
-        uint64 uiInfinite;
-
-        uint64 uiShkafGate;
-        uint64 uiMalGanisGate1;
-        uint64 uiMalGanisGate2;
-        uint64 uiExitGate;
-        uint64 uiMalGanisChest;
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-        std::string str_data;
-
-        bool IsEncounterInProgress() const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS) return true;
-
-            return false;
+            return new instance_culling_of_stratholme_InstanceMapScript(pMap);
         }
 
-        void OnCreatureCreate(Creature* creature)
+        struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
         {
-            switch(creature->GetEntry())
+            instance_culling_of_stratholme_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
-                case NPC_ARTHAS:
-                    uiArthas = creature->GetGUID();
-                    break;
-                case NPC_MEATHOOK:
-                    uiMeathook = creature->GetGUID();
-                    break;
-                case NPC_SALRAMM:
-                    uiSalramm = creature->GetGUID();
-                    break;
-                case NPC_EPOCH:
-                    uiEpoch = creature->GetGUID();
-                    break;
-                case NPC_MAL_GANIS:
-                    uiMalGanis = creature->GetGUID();
-                    break;
-                case NPC_INFINITE:
-                    uiInfinite = creature->GetGUID();
-                    break;
-            }
-        }
-
-        void OnGameObjectCreate(GameObject* go)
-        {
-            switch(go->GetEntry())
-            {
-                case GO_SHKAF_GATE:
-                    uiShkafGate = go->GetGUID();
-                    break;
-                case GO_MALGANIS_GATE_1:
-                    uiMalGanisGate1 = go->GetGUID();
-                    break;
-                case GO_MALGANIS_GATE_2:
-                    uiMalGanisGate2 = go->GetGUID();
-                    break;
-                case GO_EXIT_GATE:
-                    uiExitGate = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(uiExitGate, true);
-                    break;
-                case GO_MALGANIS_CHEST_N:
-                case GO_MALGANIS_CHEST_H:
-                    uiMalGanisChest = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE)
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    break;
-            }
-        }
-
-        void SetData(uint32 type, uint32 data)
-        {
-            switch(type)
-            {
-                case DATA_MEATHOOK_EVENT:
-                    m_auiEncounter[0] = data;
-                    break;
-                case DATA_SALRAMM_EVENT:
-                    m_auiEncounter[1] = data;
-                    break;
-                case DATA_EPOCH_EVENT:
-                    m_auiEncounter[2] = data;
-                    break;
-                case DATA_MAL_GANIS_EVENT:
-                    m_auiEncounter[3] = data;
-
-                    switch(m_auiEncounter[3])
-                    {
-                        case NOT_STARTED:
-                            HandleGameObject(uiMalGanisGate2, true);
-                            break;
-                        case IN_PROGRESS:
-                            HandleGameObject(uiMalGanisGate2, false);
-                            break;
-                        case DONE:
-                            HandleGameObject(uiExitGate, true);
-                            if (GameObject* go = instance->GetGameObject(uiMalGanisChest))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                            break;
-                    }
-                    break;
-                case DATA_INFINITE_EVENT:
-                    m_auiEncounter[4] = data;
-                    break;
+                _arthasGUID = 0;
+                _meathookGUID = 0;
+                _salrammGUID = 0;
+                _epochGUID = 0;
+                _malGanisGUID = 0;
+                _infiniteGUID = 0;
+                _shkafGateGUID = 0;
+                _malGanisGate1GUID = 0;
+                _malGanisGate2GUID = 0;
+                _exitGateGUID = 0;
+                _malGanisChestGUID = 0;
+                _genericBunnyGUID = 0;
+                memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
+                _crateCount = 0;
             }
 
-            if (data == DONE)
-                SaveToDB();
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            switch(type)
+            bool IsEncounterInProgress() const
             {
-                case DATA_MEATHOOK_EVENT:             return m_auiEncounter[0];
-                case DATA_SALRAMM_EVENT:              return m_auiEncounter[1];
-                case DATA_EPOCH_EVENT:                return m_auiEncounter[2];
-                case DATA_MAL_GANIS_EVENT:            return m_auiEncounter[3];
-                case DATA_INFINITE_EVENT:             return m_auiEncounter[4];
-            }
-            return 0;
-        }
-
-        uint64 GetData64(uint32 identifier)
-        {
-            switch(identifier)
-            {
-                case DATA_ARTHAS:                     return uiArthas;
-                case DATA_MEATHOOK:                   return uiMeathook;
-                case DATA_SALRAMM:                    return uiSalramm;
-                case DATA_EPOCH:                      return uiEpoch;
-                case DATA_MAL_GANIS:                  return uiMalGanis;
-                case DATA_INFINITE:                   return uiInfinite;
-                case DATA_SHKAF_GATE:                 return uiShkafGate;
-                case DATA_MAL_GANIS_GATE_1:           return uiMalGanisGate1;
-                case DATA_MAL_GANIS_GATE_2:           return uiMalGanisGate2;
-                case DATA_EXIT_GATE:                  return uiExitGate;
-                case DATA_MAL_GANIS_CHEST:            return uiMalGanisChest;
-            }
-            return 0;
-        }
-
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "C S " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4];
-
-            str_data = saveStream.str();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return str_data;
-        }
-
-        void Load(const char* in)
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3, data4;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
-
-            if (dataHead1 == 'C' && dataHead2 == 'S')
-            {
-                m_auiEncounter[0] = data0;
-                m_auiEncounter[1] = data1;
-                m_auiEncounter[2] = data2;
-                m_auiEncounter[3] = data3;
-                m_auiEncounter[4] = data4;
-
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        m_auiEncounter[i] = NOT_STARTED;
+                    if (_encounterState[i] == IN_PROGRESS)
+                        return true;
 
-            } else OUT_LOAD_INST_DATA_FAIL;
+                return false;
+            }
 
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-    };
+            void FillInitialWorldStates(WorldPacket& data)
+            {
+                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
+                data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
+                data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
+                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
+                data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
+            }
 
+            void OnCreatureCreate(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_ARTHAS:
+                        _arthasGUID = creature->GetGUID();
+                        break;
+                    case NPC_MEATHOOK:
+                        _meathookGUID = creature->GetGUID();
+                        break;
+                    case NPC_SALRAMM:
+                        _salrammGUID = creature->GetGUID();
+                        break;
+                    case NPC_EPOCH:
+                        _epochGUID = creature->GetGUID();
+                        break;
+                    case NPC_MAL_GANIS:
+                        _malGanisGUID = creature->GetGUID();
+                        break;
+                    case NPC_INFINITE:
+                        _infiniteGUID = creature->GetGUID();
+                        break;
+                    case NPC_GENERIC_BUNNY:
+                        _genericBunnyGUID = creature->GetGUID();
+                        break;
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_SHKAF_GATE:
+                        _shkafGateGUID = go->GetGUID();
+                        break;
+                    case GO_MALGANIS_GATE_1:
+                        _malGanisGate1GUID = go->GetGUID();
+                        break;
+                    case GO_MALGANIS_GATE_2:
+                        _malGanisGate2GUID = go->GetGUID();
+                        break;
+                    case GO_EXIT_GATE:
+                        _exitGateGUID = go->GetGUID();
+                        if (_encounterState[3] == DONE)
+                            HandleGameObject(_exitGateGUID, true);
+                        break;
+                    case GO_MALGANIS_CHEST_N:
+                    case GO_MALGANIS_CHEST_H:
+                        _malGanisChestGUID = go->GetGUID();
+                        if (_encounterState[3] == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        break;
+                }
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch (type)
+                {
+                    case DATA_MEATHOOK_EVENT:
+                        _encounterState[0] = data;
+                        break;
+                    case DATA_SALRAMM_EVENT:
+                        _encounterState[1] = data;
+                        break;
+                    case DATA_EPOCH_EVENT:
+                        _encounterState[2] = data;
+                        break;
+                    case DATA_MAL_GANIS_EVENT:
+                        _encounterState[3] = data;
+
+                        switch (_encounterState[3])
+                        {
+                            case NOT_STARTED:
+                                HandleGameObject(_malGanisGate2GUID, true);
+                                break;
+                            case IN_PROGRESS:
+                                HandleGameObject(_malGanisGate2GUID, false);
+                                break;
+                            case DONE:
+                                HandleGameObject(_exitGateGUID, true);
+                                if (GameObject* go = instance->GetGameObject(_malGanisChestGUID))
+                                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                                break;
+                        }
+                        break;
+                    case DATA_INFINITE_EVENT:
+                        _encounterState[4] = data;
+                        break;
+                    case DATA_CRATE_COUNT:
+                        _crateCount = data;
+                        if (_crateCount == 5)
+                        {
+                            if (Creature* bunny = instance->GetCreature(_genericBunnyGUID))
+                                bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
+
+                            // Summon Chromie and global whisper
+                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
+                                if (!instance->GetPlayers().isEmpty())
+                                    if (Player* plr = instance->GetPlayers().getFirst()->getSource())
+                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, plr->GetGUID(), CHAT_TYPE_END, LANG_ADDON, TEXT_RANGE_MAP);
+                        }
+                        DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
+                        break;
+                }
+
+                if (data == DONE)
+                    SaveToDB();
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_MEATHOOK_EVENT:
+                        return _encounterState[0];
+                    case DATA_SALRAMM_EVENT:
+                        return _encounterState[1];
+                    case DATA_EPOCH_EVENT:
+                        return _encounterState[2];
+                    case DATA_MAL_GANIS_EVENT:
+                        return _encounterState[3];
+                    case DATA_INFINITE_EVENT:
+                        return _encounterState[4];
+                    case DATA_CRATE_COUNT:
+                        return _crateCount;
+                }
+                return 0;
+            }
+
+            uint64 GetData64(uint32 identifier)
+            {
+                switch (identifier)
+                {
+                    case DATA_ARTHAS:
+                        return _arthasGUID;
+                    case DATA_MEATHOOK:
+                        return _meathookGUID;
+                    case DATA_SALRAMM:
+                        return _salrammGUID;
+                    case DATA_EPOCH:
+                        return _epochGUID;
+                    case DATA_MAL_GANIS:
+                        return _malGanisGUID;
+                    case DATA_INFINITE:
+                        return _infiniteGUID;
+                    case DATA_SHKAF_GATE:
+                        return _shkafGateGUID;
+                    case DATA_MAL_GANIS_GATE_1:
+                        return _malGanisGate1GUID;
+                    case DATA_MAL_GANIS_GATE_2:
+                        return _malGanisGate2GUID;
+                    case DATA_EXIT_GATE:
+                        return _exitGateGUID;
+                    case DATA_MAL_GANIS_CHEST:
+                        return _malGanisChestGUID;
+                }
+                return 0;
+            }
+
+            std::string GetSaveData()
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "C S " << _encounterState[0] << " " << _encounterState[1] << " "
+                    << _encounterState[2] << " " << _encounterState[3] << " " << _encounterState[4];
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(const char* in)
+            {
+                if (!in)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(in);
+
+                char dataHead1, dataHead2;
+                uint16 data0, data1, data2, data3, data4;
+
+                std::istringstream loadStream(in);
+                loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
+
+                if (dataHead1 == 'C' && dataHead2 == 'S')
+                {
+                    _encounterState[0] = data0;
+                    _encounterState[1] = data1;
+                    _encounterState[2] = data2;
+                    _encounterState[3] = data3;
+                    _encounterState[4] = data4;
+
+                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                        if (_encounterState[i] == IN_PROGRESS)
+                            _encounterState[i] = NOT_STARTED;
+
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        private:
+            uint64 _arthasGUID;
+            uint64 _meathookGUID;
+            uint64 _salrammGUID;
+            uint64 _epochGUID;
+            uint64 _malGanisGUID;
+            uint64 _infiniteGUID;
+            uint64 _shkafGateGUID;
+            uint64 _malGanisGate1GUID;
+            uint64 _malGanisGate2GUID;
+            uint64 _exitGateGUID;
+            uint64 _malGanisChestGUID;
+            uint64 _genericBunnyGUID;
+            uint32 _encounterState[MAX_ENCOUNTER];
+            uint32 _crateCount;
+        };
 };
 
 void AddSC_instance_culling_of_stratholme()
