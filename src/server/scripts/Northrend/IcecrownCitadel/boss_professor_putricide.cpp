@@ -355,10 +355,7 @@ class boss_professor_putricide : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MUTATED_PLAGUE);
                 Cleanup();
             }
-            void SummonAddDueToUnstableExperiment(uint32 entry, WorldObject *target)
-            {
-                DoSummon(entry, target);
-            }
+
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -1092,8 +1089,10 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                         break;
                 }
 
-                caster->CastSpell(target, uint32(GetSpellInfo()->EffectBasePoints[stage]+1), true, NULL, NULL, caster->GetGUID());
-                ((boss_professor_putricide::boss_professor_putricideAI*)caster->ToCreature()->AI())->SummonAddDueToUnstableExperiment(stage ? NPC_VOLATILE_OOZE : NPC_GAS_CLOUD, target);
+                uint32 spellid = (GetSpellInfo()->EffectBasePoints[stage]+1);
+
+                if (spellid && target)
+                    caster->CastSpell(target, spellid, true, NULL, NULL, caster->GetGUID());
             }
 
             void Register()
