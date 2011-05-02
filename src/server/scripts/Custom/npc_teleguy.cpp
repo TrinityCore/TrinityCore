@@ -17,7 +17,7 @@ public:
             pPlayer->ADD_GOSSIP_ITEM( 9, "Исцели меня!"                     , GOSSIP_SENDER_MAIN, 1202);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Пиратская Бухта."                 , GOSSIP_SENDER_MAIN, 4035);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Дарнасс."                         , GOSSIP_SENDER_MAIN, 1203);
-            pPlayer->ADD_GOSSIP_ITEM( 5, "Екзодар."                         , GOSSIP_SENDER_MAIN, 1216);
+            pPlayer->ADD_GOSSIP_ITEM( 5, "Экзодар."                         , GOSSIP_SENDER_MAIN, 1216);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Штормград."                       , GOSSIP_SENDER_MAIN, 1206);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Стальгорн."                       , GOSSIP_SENDER_MAIN, 1224);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Гномреган."                       , GOSSIP_SENDER_MAIN, 1222);
@@ -153,7 +153,7 @@ public:
                     pPlayer->ADD_GOSSIP_ITEM( 9, "Исцели меня!"                           , GOSSIP_SENDER_MAIN, 1202);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Пиратская Бухта."                       , GOSSIP_SENDER_MAIN, 4035);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Дарнасс."                               , GOSSIP_SENDER_MAIN, 1203);
-                    pPlayer->ADD_GOSSIP_ITEM( 5, "Екзодар."                               , GOSSIP_SENDER_MAIN, 1216);
+                    pPlayer->ADD_GOSSIP_ITEM( 5, "Экзодар."                               , GOSSIP_SENDER_MAIN, 1216);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Штормград."                             , GOSSIP_SENDER_MAIN, 1206);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Стальгорн."                             , GOSSIP_SENDER_MAIN, 1224);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Гномреган."                             , GOSSIP_SENDER_MAIN, 1222);
