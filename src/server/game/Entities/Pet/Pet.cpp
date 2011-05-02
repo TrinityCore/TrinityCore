@@ -133,7 +133,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             ownerid, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
 
     if (!result)
+    {
+        m_loading = false;
         return false;
+    }
 
     Field *fields = result->Fetch();
 
