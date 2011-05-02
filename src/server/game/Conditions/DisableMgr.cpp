@@ -91,14 +91,14 @@ void DisableMgr::LoadDisables()
 
                 if (flags & SPELL_DISABLE_MAP)
                 {
-                    Tokens tokens(params_0, ', ');
+                    Tokens tokens(params_0, ',');
                     for (uint8 i = 0; i < tokens.size(); )
                         data.params[0].insert(atoi(tokens[i++]));
                 }
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
-                    Tokens tokens(params_1, ', ');
+                    Tokens tokens(params_1, ',');
                     for (uint8 i = 0; i < tokens.size(); )
                         data.params[1].insert(atoi(tokens[i++]));
                 }
