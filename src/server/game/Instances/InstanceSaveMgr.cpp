@@ -227,38 +227,13 @@ bool InstanceSave::UnloadIfEmpty()
         return true;
 }
 
-void InstanceSaveManager::_DelHelper(const char *fields, const char *table, const char *queryTail, ...)
-{
-    Tokens fieldTokens(fields, ',');
-    ASSERT(fieldTokens.size() != 0);
-
-    va_list ap;
-    char szQueryTail [MAX_QUERY_LEN];
-    va_start(ap, queryTail);
-    vsnprintf(szQueryTail, MAX_QUERY_LEN, queryTail, ap);
-    va_end(ap);
-
-    QueryResult result = CharacterDatabase.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            std::ostringstream ss;
-            for (size_t i = 0; i < fieldTokens.size(); i++)
-            {
-                std::string fieldValue = fields[i].GetString();
-                CharacterDatabase.escape_string(fieldValue);
-                ss << (i != 0 ? " AND " : "") << fieldTokens[i] << " = '" << fieldValue << "'";
-            }
-            CharacterDatabase.DirectPExecute("DELETE FROM %s WHERE %s", table, ss.str().c_str());
-        } while (result->NextRow());
-    }
-}
-
 void InstanceSaveManager::LoadInstances()
 {
     uint32 oldMSTime = getMSTime();
+
+    // Delete expired instances (Instance related spawns are removed in the following cleanup queries)
+    CharacterDatabase.DirectExecute("DELETE i FROM instance i LEFT JOIN instance_reset ir ON mapid = map AND i.difficulty = ir.difficulty "
+                                    "WHERE (i.resettime > 0 AND i.resettime < UNIX_TIMESTAMP()) OR (ir.resettime IS NOT NULL AND ir.resettime < UNIX_TIMESTAMP())");
 
     // Delete invalid character_instance and group_instance references
     CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
@@ -385,10 +360,6 @@ void InstanceSaveManager::LoadResetTimes()
             SetResetTimeFor(mapid, difficulty, newresettime);
         } while (result->NextRow());
     }
-
-    // clean expired instances, references to them will be deleted in CleanupInstances
-    // must be done before calculating new reset times
-    _DelHelper("id, map, instance.difficulty", "instance", "LEFT JOIN instance_reset ON mapid = map AND instance.difficulty =  instance_reset.difficulty WHERE (instance.resettime < '"UI64FMTD"' AND instance.resettime > '0') OR (NOT instance_reset.resettime IS NULL AND instance_reset.resettime < '"UI64FMTD"')",  (uint64)now, (uint64)now);
 
     ResetTimeMapDiffInstances::const_iterator in_itr;
 
