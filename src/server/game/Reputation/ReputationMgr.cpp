@@ -45,7 +45,7 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        sLog->outError("ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.",m_player->GetName(), faction_id);
+        sLog->outError("ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", m_player->GetName(), faction_id);
         return 0;
     }
 
@@ -98,7 +98,7 @@ ReputationRank ReputationMgr::GetBaseRank(FactionEntry const* factionEntry) cons
     return ReputationToRank(reputation);
 }
 
-void ReputationMgr::ApplyForceReaction(uint32 faction_id,ReputationRank rank,bool apply)
+void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply)
 {
     if (apply)
         m_forcedReactions[faction_id] = rank;
@@ -248,7 +248,7 @@ void ReputationMgr::Initialize()
             if (newFaction.Flags & FACTION_FLAG_VISIBLE)
                 ++m_visibleFactionCount;
 
-            UpdateRankCounters(REP_HOSTILE,GetBaseRank(factionEntry));
+            UpdateRankCounters(REP_HOSTILE, GetBaseRank(factionEntry));
 
             m_factions[newFaction.ReputationListID] = newFaction;
         }
@@ -354,16 +354,16 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         SetVisible(&itr->second);
 
         if (new_rank <= REP_HOSTILE)
-            SetAtWar(&itr->second,true);
+            SetAtWar(&itr->second, true);
 
         UpdateRankCounters(old_rank, new_rank);
 
         m_player->ReputationChanged(factionEntry);
         m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS,         factionEntry->ID);
         m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION,        factionEntry->ID);
-        m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION,factionEntry->ID);
-        m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION,factionEntry->ID);
-        m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION,factionEntry->ID);
+        m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
+        m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
+        m_player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
 
         return true;
     }
@@ -423,7 +423,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
     if (itr->second.Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN))
         return;
 
-    SetAtWar(&itr->second,on);
+    SetAtWar(&itr->second, on);
 }
 
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
@@ -451,7 +451,7 @@ void ReputationMgr::SetInactive(RepListID repListID, bool on)
     if (itr == m_factions.end())
         return;
 
-    SetInactive(&itr->second,on);
+    SetInactive(&itr->second, on);
 }
 
 void ReputationMgr::SetInactive(FactionState* faction, bool inactive) const
@@ -478,7 +478,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
     // Set initial reputations (so everything is nifty before DB data load)
     Initialize();
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT faction,standing,flags FROM character_reputation WHERE guid = '%u'",GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -506,20 +506,20 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                     SetVisible(faction);                    // have internal checks for forced invisibility
 
                 if (dbFactionFlags & FACTION_FLAG_INACTIVE)
-                    SetInactive(faction,true);              // have internal checks for visibility requirement
+                    SetInactive(faction, true);              // have internal checks for visibility requirement
 
                 if (dbFactionFlags & FACTION_FLAG_AT_WAR)  // DB at war
-                    SetAtWar(faction,true);                 // have internal checks for FACTION_FLAG_PEACE_FORCED
+                    SetAtWar(faction, true);                 // have internal checks for FACTION_FLAG_PEACE_FORCED
                 else                                        // DB not at war
                 {
                     // allow remove if visible (and then not FACTION_FLAG_INVISIBLE_FORCED or FACTION_FLAG_HIDDEN)
                     if (faction->Flags & FACTION_FLAG_VISIBLE)
-                        SetAtWar(faction,false);            // have internal checks for FACTION_FLAG_PEACE_FORCED
+                        SetAtWar(faction, false);            // have internal checks for FACTION_FLAG_PEACE_FORCED
                 }
 
                 // set atWar for hostile
                 if (GetRank(factionEntry) <= REP_HOSTILE)
-                    SetAtWar(faction,true);
+                    SetAtWar(faction, true);
 
                 // reset changed flag if values similar to saved in DB
                 if (faction->Flags == dbFactionFlags)
@@ -540,7 +540,7 @@ void ReputationMgr::SaveToDB(SQLTransaction& trans)
         if (itr->second.needSave)
         {
             trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", m_player->GetGUIDLow(), itr->second.ID);
-            trans->PAppend("INSERT INTO character_reputation (guid,faction,standing,flags) VALUES ('%u', '%u', '%i', '%u')", m_player->GetGUIDLow(), itr->second.ID, itr->second.Standing, itr->second.Flags);
+            trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%i', '%u')", m_player->GetGUIDLow(), itr->second.ID, itr->second.Standing, itr->second.Flags);
             itr->second.needSave = false;
         }
     }

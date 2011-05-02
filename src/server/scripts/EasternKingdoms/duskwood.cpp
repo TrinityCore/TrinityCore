@@ -38,16 +38,16 @@ public:
     {
         if (pPlayer->HasQuestForItem(21149))
         {
-            if (Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16f,-489.57f,49.95f,0,TEMPSUMMON_MANUAL_DESPAWN,60000))
+            if (Unit* TCorrupter = pPlayer->SummonCreature(15625, -10328.16f, -489.57f, 49.95f, 0, TEMPSUMMON_MANUAL_DESPAWN, 60000))
             {
                 TCorrupter->setFaction(14);
                 TCorrupter->SetMaxHealth(832750);
             }
-            if (Unit* CorrupterSpeaker = pPlayer->SummonCreature(1,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()-1,0,TEMPSUMMON_TIMED_DESPAWN,15000))
+            if (Unit* CorrupterSpeaker = pPlayer->SummonCreature(1, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ()-1, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
             {
                 CorrupterSpeaker->SetName("Twilight Corrupter");
                 CorrupterSpeaker->SetVisible(true);
-                CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...",0,pPlayer->GetGUID());
+                CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...", 0, pPlayer->GetGUID());
             }
         }
         return false;
@@ -89,7 +89,7 @@ public:
         }
         void EnterCombat(Unit* /*who*/)
         {
-            me->MonsterYell("The Nightmare cannot be stopped!",0,me->GetGUID());
+            me->MonsterYell("The Nightmare cannot be stopped!", 0, me->GetGUID());
         }
 
         void KilledUnit(Unit* victim)
@@ -97,7 +97,7 @@ public:
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
                 ++KillCount;
-                me->MonsterTextEmote("Twilight Corrupter squeezes the last bit of life out of $N and swallows their soul.", victim->GetGUID(),true);
+                me->MonsterTextEmote("Twilight Corrupter squeezes the last bit of life out of $N and swallows their soul.", victim->GetGUID(), true);
 
                 if (KillCount == 3)
                 {

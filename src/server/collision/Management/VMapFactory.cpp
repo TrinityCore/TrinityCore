@@ -31,7 +31,7 @@ namespace VMAP
             char lc = str[str.length()-1];
             if(lc == '\r' || lc == '\n' || lc == ' ' || lc == '"' || lc == '\'')
             {
-                str = str.substr(0,str.length()-1);
+                str = str.substr(0, str.length()-1);
             }
             else
             {
@@ -43,7 +43,7 @@ namespace VMAP
             char lc = str[0];
             if(lc == ' ' || lc == '"' || lc == '\'')
             {
-                str = str.substr(1,str.length()-1);
+                str = str.substr(1, str.length()-1);
             }
             else
             {

@@ -225,6 +225,11 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 124,
 };
 
+enum AchievementCategory
+{
+    CATEGORY_CHILDRENS_WEEK     = 163,
+};
+
 enum AreaFlags
 {
     AREA_FLAG_SNOW             = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
@@ -278,7 +283,7 @@ enum Difficulty
 
 enum SpawnMask
 {
-    SPAWNMASK_CONTINENT         = (1 << REGULAR_DIFFICULTY),// any any maps without spawn modes
+    SPAWNMASK_CONTINENT         = (1 << REGULAR_DIFFICULTY), // any any maps without spawn modes
 
     SPAWNMASK_DUNGEON_NORMAL    = (1 << DUNGEON_DIFFICULTY_NORMAL),
     SPAWNMASK_DUNGEON_HEROIC    = (1 << DUNGEON_DIFFICULTY_HEROIC),

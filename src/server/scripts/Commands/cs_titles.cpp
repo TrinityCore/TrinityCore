@@ -57,7 +57,7 @@ public:
     static bool HandleTitlesCurrentCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
-        char* id_p = handler->extractKeyFromLink((char*)args,"Htitle");
+        char* id_p = handler->extractKeyFromLink((char*)args, "Htitle");
         if (!id_p)
             return false;
 
@@ -92,7 +92,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         target->SetTitle(titleInfo);                            // to be sure that title now known
-        target->SetUInt32Value(PLAYER_CHOSEN_TITLE,titleInfo->bit_index);
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
 
         handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, titleInfo->name[handler->GetSessionDbcLocale()], tNameLink.c_str());
 
@@ -102,7 +102,7 @@ public:
     static bool HandleTitlesAddCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
-        char* id_p = handler->extractKeyFromLink((char*)args,"Htitle");
+        char* id_p = handler->extractKeyFromLink((char*)args, "Htitle");
         if (!id_p)
             return false;
 
@@ -138,7 +138,7 @@ public:
 
         char const* targetName = target->GetName();
         char titleNameStr[80];
-        snprintf(titleNameStr,80,titleInfo->name[handler->GetSessionDbcLocale()],targetName);
+        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], targetName);
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
@@ -149,7 +149,7 @@ public:
     static bool HandleTitlesRemoveCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
-        char* id_p = handler->extractKeyFromLink((char*)args,"Htitle");
+        char* id_p = handler->extractKeyFromLink((char*)args, "Htitle");
         if (!id_p)
             return false;
 
@@ -181,19 +181,19 @@ public:
             return false;
         }
 
-        target->SetTitle(titleInfo,true);
+        target->SetTitle(titleInfo, true);
 
         std::string tNameLink = handler->GetNameLink(target);
 
         char const* targetName = target->GetName();
         char titleNameStr[80];
-        snprintf(titleNameStr,80,titleInfo->name[handler->GetSessionDbcLocale()],targetName);
+        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], targetName);
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
-            target->SetUInt32Value(PLAYER_CHOSEN_TITLE,0);
+            target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
             handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink.c_str());
         }
 
@@ -235,8 +235,8 @@ public:
 
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
-            target->SetUInt32Value(PLAYER_CHOSEN_TITLE,0);
-            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET,handler->GetNameLink(target).c_str());
+            target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, handler->GetNameLink(target).c_str());
         }
 
         return true;

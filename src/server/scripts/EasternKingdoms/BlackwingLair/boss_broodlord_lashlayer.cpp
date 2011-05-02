@@ -82,14 +82,14 @@ public:
             if (BlastWave_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_BLASTWAVE);
-                BlastWave_Timer = urand(8000,16000);
+                BlastWave_Timer = urand(8000, 16000);
             } else BlastWave_Timer -= diff;
 
             //MortalStrike_Timer
             if (MortalStrike_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = urand(25000,35000);
+                MortalStrike_Timer = urand(25000, 35000);
             } else MortalStrike_Timer -= diff;
 
             if (KnockBack_Timer <= diff)
@@ -97,9 +97,9 @@ public:
                 DoCast(me->getVictim(), SPELL_KNOCKBACK);
                 //Drop 50% aggro
                 if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(),-50);
+                    DoModifyThreatPercent(me->getVictim(), -50);
 
-                KnockBack_Timer = urand(15000,30000);
+                KnockBack_Timer = urand(15000, 30000);
             } else KnockBack_Timer -= diff;
 
             if (EnterEvadeIfOutOfCombatArea(diff))

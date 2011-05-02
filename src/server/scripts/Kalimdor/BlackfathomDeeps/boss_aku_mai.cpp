@@ -48,7 +48,7 @@ public:
 
         void Reset()
         {
-            uiPoisonCloudTimer = urand(5000,9000);
+            uiPoisonCloudTimer = urand(5000, 9000);
             bIsEnraged = false;
             if (pInstance)
                 pInstance->SetData(TYPE_AKU_MAI, NOT_STARTED);
@@ -74,12 +74,12 @@ public:
             if (uiPoisonCloudTimer < diff)
             {
                 DoCastVictim(SPELL_POISON_CLOUD);
-                uiPoisonCloudTimer = urand(25000,50000);
+                uiPoisonCloudTimer = urand(25000, 50000);
             } else uiPoisonCloudTimer -= diff;
 
             if (!bIsEnraged && HealthBelowPct(30))
             {
-                DoCast(me,SPELL_FRENZIED_RAGE);
+                DoCast(me, SPELL_FRENZIED_RAGE);
                 bIsEnraged = true;
             }
 

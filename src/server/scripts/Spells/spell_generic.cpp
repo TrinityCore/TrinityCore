@@ -732,7 +732,7 @@ class spell_gen_parachute_ic : public SpellScriptLoader
                     return;
 
                 if (target->ToPlayer()->m_movementInfo.fallTime > 2000)
-                    target->CastSpell(target,SPELL_PARACHUTE_IC,true);
+                    target->CastSpell(target, SPELL_PARACHUTE_IC, true);
             }
 
             void Register()

@@ -43,8 +43,8 @@ enum eAchievements
 {
     ACHIEV_BONED_10                             = 4534,
     ACHIEV_BONED_25                             = 4610,
-    ACHIEV_FROZEN_THRONE_10                    = 4530,
-    ACHIEV_FROZEN_THRONE_25                    = 4597,
+    ACHIEV_FROZEN_THRONE_10                     = 4530,
+    ACHIEV_FROZEN_THRONE_25                     = 4597,
     AVHIEV_FULL_HOUSE_10                        = 4535,
     AVHIEV_FULL_HOUSE_25                        = 4611,
     ACHIEV_MESS_10                              = 4537,

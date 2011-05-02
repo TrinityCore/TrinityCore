@@ -449,7 +449,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float att_speed = GetAPMultiplier(attType,normalized);
+    float att_speed = GetAPMultiplier(attType, normalized);
 
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
@@ -501,16 +501,16 @@ void Player::UpdateDamagePhysical(WeaponAttackType attType)
     {
         case BASE_ATTACK:
         default:
-            SetStatFloatValue(UNIT_FIELD_MINDAMAGE,mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE,maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
             break;
         case OFF_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE,mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE,maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage);
             break;
         case RANGED_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE,mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE,maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
             break;
     }
 }
@@ -901,16 +901,16 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     {
         case BASE_ATTACK:
         default:
-            SetStatFloatValue(UNIT_FIELD_MINDAMAGE,mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE,maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
             break;
         case OFF_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE,mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE,maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage);
             break;
         case RANGED_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE,mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE,maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
             break;
     }
 }

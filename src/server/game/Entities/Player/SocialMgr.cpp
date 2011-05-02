@@ -106,7 +106,7 @@ void PlayerSocial::SetFriendNote(uint32 friend_guid, std::string note)
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
 
-    utf8truncate(note,48);                                  // DB and client size limitation
+    utf8truncate(note, 48);                                  // DB and client size limitation
 
     CharacterDatabase.escape_string(note);
     CharacterDatabase.PExecute("UPDATE character_social SET note = '%s' WHERE guid = '%u' AND friend = '%u'", note.c_str(), GetPlayerGUID(), friend_guid);

@@ -170,7 +170,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -183,7 +183,7 @@ public:
 
            void AddDeath()
            {
-                DoScriptText(RAND(SAY_OGRE_DEATH1,SAY_OGRE_DEATH2,SAY_OGRE_DEATH3,SAY_OGRE_DEATH4), me);
+                DoScriptText(RAND(SAY_OGRE_DEATH1, SAY_OGRE_DEATH2, SAY_OGRE_DEATH3, SAY_OGRE_DEATH4), me);
            }
 
         void EnterCombat(Unit *who)
@@ -772,7 +772,7 @@ public:
                 {
                     pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //15 yard radius minimum
-                    if (pTarget && pTarget->IsWithinDist(me, 15,false))
+                    if (pTarget && pTarget->IsWithinDist(me, 15, false))
                         target_list.push_back(pTarget);
                     pTarget = NULL;
                 }

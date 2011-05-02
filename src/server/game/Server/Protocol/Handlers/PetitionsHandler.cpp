@@ -89,7 +89,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
 
     // prevent cheating
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC,UNIT_NPC_FLAG_PETITIONER);
+    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
     if (!pCreature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guidNPC));
@@ -179,7 +179,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
         }
     }
 
-    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(charterid);
+    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(charterid);
     if (!pProto)
     {
         _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, charterid, 0);
@@ -193,10 +193,10 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     }
 
     ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount);
+    InventoryResult msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendBuyError(msg, pCreature, charterid, 0);
+        _player->SendEquipError(msg, NULL, NULL, charterid);
         return;
     }
 
@@ -544,9 +544,9 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         return;
     }
 
-    CharacterDatabase.PExecute("INSERT INTO petition_sign (ownerguid,petitionguid, playerguid, player_account) VALUES ('%u', '%u', '%u','%u')", GUID_LOPART(ownerguid),GUID_LOPART(petitionguid), plguidlo,GetAccountId());
+    CharacterDatabase.PExecute("INSERT INTO petition_sign (ownerguid, petitionguid, playerguid, player_account) VALUES ('%u', '%u', '%u', '%u')", GUID_LOPART(ownerguid), GUID_LOPART(petitionguid), plguidlo, GetAccountId());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionguid), _player->GetName(),plguidlo,GetAccountId());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionguid), _player->GetName(), plguidlo, GetAccountId());
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
     data << uint64(petitionguid);
@@ -807,7 +807,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     // Proceed with guild/arena team creation
 
     // Delete charter item
-    _player->DestroyItem(item->GetBagSlot(),item->GetSlot(), true);
+    _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 
     if (type == GUILD_CHARTER_TYPE)
     {

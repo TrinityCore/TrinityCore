@@ -30,8 +30,8 @@
 typedef std::list<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
 typedef std::list<AchievementEntry const*>         AchievementEntryList;
 
-typedef std::map<uint32,AchievementCriteriaEntryList> AchievementCriteriaListByAchievement;
-typedef std::map<uint32,AchievementEntryList>         AchievementListByReferencedId;
+typedef std::map<uint32, AchievementCriteriaEntryList> AchievementCriteriaListByAchievement;
+typedef std::map<uint32, AchievementEntryList>         AchievementListByReferencedId;
 
 struct CriteriaProgress
 {
@@ -52,17 +52,17 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7, // spell_id       effect_idx
     ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8, // minvalue                     value provided with achievement update must be not less that limit
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL             = 9, // minlevel                     minlevel of target
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER            = 10,// gender                       0=male; 1=female
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT              = 11,// scripted requirement
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY      = 12,// difficulty                   normal/heroic difficulty for current event map
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT    = 13,// count                        "with less than %u people in the zone"
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14,// team                         HORDE(67), ALLIANCE(469)
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15,// drunken_state  0             (enum DrunkenState) of player
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16,// holiday_id     0             event in holiday time
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17,// min_score      max_score     player's team win bg and opposition team have team score in range
-    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18,// 0              0             maker instance script call for check current criteria requirements fit
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19,// item_level     item_quality  for equipped item in slot to check item level and quality
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID              = 20,// map_id         0             player must be on map with id in map_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER            = 10, // gender                       0=male; 1=female
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT              = 11, // scripted requirement
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY      = 12, // difficulty                   normal/heroic difficulty for current event map
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT    = 13, // count                        "with less than %u people in the zone"
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14, // team                         HORDE(67), ALLIANCE(469)
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15, // drunken_state  0             (enum DrunkenState) of player
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16, // holiday_id     0             event in holiday time
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17, // min_score      max_score     player's team win bg and opposition team have team score in range
+    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18, // 0              0             maker instance script call for check current criteria requirements fit
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19, // item_level     item_quality  for equipped item in slot to check item level and quality
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID              = 20, // map_id         0             player must be on map with id in map_id
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               21 // maximum value in AchievementCriteriaDataType enum
@@ -207,7 +207,7 @@ struct AchievementCriteriaDataSet
         Storage storage;
 };
 
-typedef std::map<uint32,AchievementCriteriaDataSet> AchievementCriteriaDataMap;
+typedef std::map<uint32, AchievementCriteriaDataSet> AchievementCriteriaDataMap;
 
 struct AchievementReward
 {
@@ -218,7 +218,7 @@ struct AchievementReward
     std::string text;
 };
 
-typedef std::map<uint32,AchievementReward> AchievementRewards;
+typedef std::map<uint32, AchievementReward> AchievementRewards;
 
 struct AchievementRewardLocale
 {
@@ -226,7 +226,7 @@ struct AchievementRewardLocale
     StringVector text;
 };
 
-typedef std::map<uint32,AchievementRewardLocale> AchievementRewardLocales;
+typedef std::map<uint32, AchievementRewardLocale> AchievementRewardLocales;
 
 struct CompletedAchievementData
 {

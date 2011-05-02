@@ -183,9 +183,9 @@ public:
         void EnterCombat(Unit * /*who*/)
         {
             _EnterCombat();
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
             events.ScheduleEvent(EVENT_SHIFT, 30000);
-            events.ScheduleEvent(EVENT_CHAIN, urand(10000,20000));
+            events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
             events.ScheduleEvent(EVENT_BERSERK, 360000);
         }
 
@@ -237,7 +237,7 @@ public:
                         return;
                     case EVENT_CHAIN:
                         DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
-                        events.ScheduleEvent(EVENT_CHAIN, urand(10000,20000));
+                        events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK);
@@ -282,7 +282,7 @@ public:
                 if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
-            powerSurgeTimer = urand(20000,25000);
+            powerSurgeTimer = urand(20000, 25000);
             magneticPullTimer = 20000;
         }
 
@@ -331,7 +331,7 @@ public:
             if (powerSurgeTimer <= uiDiff)
             {
                 DoCast(me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
-                powerSurgeTimer = urand(15000,20000);
+                powerSurgeTimer = urand(15000, 20000);
             } else powerSurgeTimer -= uiDiff;
 
             DoMeleeAttackIfReady();

@@ -80,7 +80,7 @@ class boss_the_maker : public CreatureScript
 
             void EnterCombat(Unit * /*who*/)
             {
-                DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
 
                 if (!pInstance)
                     return;
@@ -91,7 +91,7 @@ class boss_the_maker : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
             void JustDied(Unit* /*Killer*/)
@@ -122,7 +122,7 @@ class boss_the_maker : public CreatureScript
 
                 if (ExplodingBreaker_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_EXPLODING_BREAKER);
                     ExplodingBreaker_Timer = 4000+rand()%8000;
                 }
@@ -133,7 +133,7 @@ class boss_the_maker : public CreatureScript
                 if (domination_timer_timer <= diff)
                 {
                 Unit *pTarget;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
                 DoCast(pTarget, SPELL_DOMINATION);
 

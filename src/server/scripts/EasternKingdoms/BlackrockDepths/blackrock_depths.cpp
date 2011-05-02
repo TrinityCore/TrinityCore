@@ -113,8 +113,8 @@ public:
             if (pInstance->GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || pInstance->GetData(TYPE_RING_OF_LAW) == DONE)
                 return false;
 
-            pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
-            pPlayer->SummonCreature(NPC_GRIMSTONE,625.559f,-205.618f,-52.735f,2.609f,TEMPSUMMON_DEAD_DESPAWN,0);
+            pInstance->SetData(TYPE_RING_OF_LAW, IN_PROGRESS);
+            pPlayer->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
             return false;
         }
@@ -191,7 +191,7 @@ public:
         //TODO: move them to center
         void SummonRingMob()
         {
-            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId],608.960f,-235.322f,-53.907f,1.857f,TEMPSUMMON_DEAD_DESPAWN,0))
+            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN, 0))
                 RingMobGUID[MobCount] = tmp->GetGUID();
 
             ++MobCount;
@@ -203,7 +203,7 @@ public:
         //TODO: move them to center
         void SummonRingBoss()
         {
-            if (Creature* tmp = me->SummonCreature(RingBoss[rand()%6],644.300f,-175.989f,-53.739f,3.418f,TEMPSUMMON_DEAD_DESPAWN,0))
+            if (Creature* tmp = me->SummonCreature(RingBoss[rand()%6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN, 0))
                 RingBossGUID = tmp->GetGUID();
 
             MobDeath_Timer = 2500;
@@ -238,7 +238,7 @@ public:
                 if (pInstance)
                 {
                     pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
-                    pInstance->SetData(TYPE_RING_OF_LAW,DONE);
+                    pInstance->SetData(TYPE_RING_OF_LAW, DONE);
                     sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_grimstone: event reached end and set complete.");
                 }
                 break;
@@ -263,7 +263,7 @@ public:
 
                     if (RingBossGUID)
                     {
-                        Creature *boss = Unit::GetCreature(*me,RingBossGUID);
+                        Creature *boss = Unit::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->isAlive() && boss->isDead())
                         {
                             RingBossGUID = 0;
@@ -276,7 +276,7 @@ public:
 
                     for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                     {
-                        Creature *mob = Unit::GetCreature(*me,RingMobGUID[i]);
+                        Creature *mob = Unit::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->isAlive() && mob->isDead())
                         {
                             RingMobGUID[i] = 0;
@@ -626,9 +626,9 @@ public:
     {
         npc_dughal_stormwingAI* dughal_stormwingAI = new npc_dughal_stormwingAI(pCreature);
 
-        dughal_stormwingAI->AddWaypoint(0, 280.42f,-82.86f, -77.12f,0);
-        dughal_stormwingAI->AddWaypoint(1, 287.64f,-87.01f, -76.79f,0);
-        dughal_stormwingAI->AddWaypoint(2, 354.63f,-64.95f, -67.53f,0);
+        dughal_stormwingAI->AddWaypoint(0, 280.42f, -82.86f, -77.12f, 0);
+        dughal_stormwingAI->AddWaypoint(1, 287.64f, -87.01f, -76.79f, 0);
+        dughal_stormwingAI->AddWaypoint(2, 354.63f, -64.95f, -67.53f, 0);
 
         return dughal_stormwingAI;
     }
@@ -641,7 +641,7 @@ public:
             pPlayer->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_escort::npc_escortAI, (pCreature->AI()))->Start(false, true, pPlayer->GetGUID());
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
+            pInstance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
         }
         return true;
     }
@@ -665,12 +665,12 @@ public:
         switch(i)
             {
             case 0:me->Say(SAY_DUGHAL_FREE, LANG_UNIVERSAL, PlayerGUID); break;
-            case 1:pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
+            case 1:pInstance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
             case 2:
                 me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_ENDED);
+                pInstance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_ENDED);
                 break;
             }
         }
@@ -685,7 +685,7 @@ public:
                 me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_ENDED);
+                pInstance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_ENDED);
             }
         }
 
@@ -737,26 +737,26 @@ public:
     {
         npc_marshal_windsorAI* marshal_windsorAI = new npc_marshal_windsorAI(pCreature);
 
-        marshal_windsorAI->AddWaypoint(0, 316.336f,-225.528f, -77.7258f,7000);
-        marshal_windsorAI->AddWaypoint(1, 316.336f,-225.528f, -77.7258f,2000);
-        marshal_windsorAI->AddWaypoint(2, 322.96f,-207.13f, -77.87f,0);
-        marshal_windsorAI->AddWaypoint(3, 281.05f,-172.16f, -75.12f,0);
-        marshal_windsorAI->AddWaypoint(4, 272.19f,-139.14f, -70.61f,0);
-        marshal_windsorAI->AddWaypoint(5, 283.62f,-116.09f, -70.21f,0);
-        marshal_windsorAI->AddWaypoint(6, 296.18f,-94.30f, -74.08f,0);
-        marshal_windsorAI->AddWaypoint(7, 294.57f,-93.11f, -74.08f,0);
-        marshal_windsorAI->AddWaypoint(8, 314.31f,-74.31f, -76.09f,0);
-        marshal_windsorAI->AddWaypoint(9, 360.22f,-62.93f, -66.77f,0);
-        marshal_windsorAI->AddWaypoint(10, 383.38f,-69.40f, -63.25f,0);
-        marshal_windsorAI->AddWaypoint(11, 389.99f,-67.86f, -62.57f,0);
-        marshal_windsorAI->AddWaypoint(12, 400.98f,-72.01f, -62.31f,0);
-        marshal_windsorAI->AddWaypoint(13, 404.22f,-62.30f, -63.50f,2300);
-        marshal_windsorAI->AddWaypoint(14, 404.22f,-62.30f, -63.50f,1500);
-        marshal_windsorAI->AddWaypoint(15, 407.65f,-51.86f, -63.96f,0);
-        marshal_windsorAI->AddWaypoint(16, 403.61f,-51.71f, -63.92f,1000);
-        marshal_windsorAI->AddWaypoint(17, 403.61f,-51.71f, -63.92f,2000);
-        marshal_windsorAI->AddWaypoint(18, 403.61f,-51.71f, -63.92f,1000);
-        marshal_windsorAI->AddWaypoint(19, 403.61f,-51.71f, -63.92f,0);
+        marshal_windsorAI->AddWaypoint(0, 316.336f, -225.528f, -77.7258f, 7000);
+        marshal_windsorAI->AddWaypoint(1, 316.336f, -225.528f, -77.7258f, 2000);
+        marshal_windsorAI->AddWaypoint(2, 322.96f, -207.13f, -77.87f, 0);
+        marshal_windsorAI->AddWaypoint(3, 281.05f, -172.16f, -75.12f, 0);
+        marshal_windsorAI->AddWaypoint(4, 272.19f, -139.14f, -70.61f, 0);
+        marshal_windsorAI->AddWaypoint(5, 283.62f, -116.09f, -70.21f, 0);
+        marshal_windsorAI->AddWaypoint(6, 296.18f, -94.30f, -74.08f, 0);
+        marshal_windsorAI->AddWaypoint(7, 294.57f, -93.11f, -74.08f, 0);
+        marshal_windsorAI->AddWaypoint(8, 314.31f, -74.31f, -76.09f, 0);
+        marshal_windsorAI->AddWaypoint(9, 360.22f, -62.93f, -66.77f, 0);
+        marshal_windsorAI->AddWaypoint(10, 383.38f, -69.40f, -63.25f, 0);
+        marshal_windsorAI->AddWaypoint(11, 389.99f, -67.86f, -62.57f, 0);
+        marshal_windsorAI->AddWaypoint(12, 400.98f, -72.01f, -62.31f, 0);
+        marshal_windsorAI->AddWaypoint(13, 404.22f, -62.30f, -63.50f, 2300);
+        marshal_windsorAI->AddWaypoint(14, 404.22f, -62.30f, -63.50f, 1500);
+        marshal_windsorAI->AddWaypoint(15, 407.65f, -51.86f, -63.96f, 0);
+        marshal_windsorAI->AddWaypoint(16, 403.61f, -51.71f, -63.92f, 1000);
+        marshal_windsorAI->AddWaypoint(17, 403.61f, -51.71f, -63.92f, 2000);
+        marshal_windsorAI->AddWaypoint(18, 403.61f, -51.71f, -63.92f, 1000);
+        marshal_windsorAI->AddWaypoint(19, 403.61f, -51.71f, -63.92f, 0);
 
         return marshal_windsorAI;
     }
@@ -768,7 +768,7 @@ public:
             if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED)
             {
                     CAST_AI(npc_escort::npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
-                    pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
+                    pInstance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
                     pCreature->setFaction(11);
             }
 
@@ -806,7 +806,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_STATE_USESTANDING);//EMOTE_STATE_WORK
                 break;
             case 14:
-                pInstance->SetData(DATA_GATE_SR,0);
+                pInstance->SetData(DATA_GATE_SR, 0);
                 me->setFaction(11);
                 break;
             case 16:
@@ -816,13 +816,13 @@ public:
                 me->HandleEmoteCommand(EMOTE_STATE_USESTANDING);//EMOTE_STATE_WORK
                 break;
             case 18:
-                pInstance->SetData(DATA_GATE_SC,0);
+                pInstance->SetData(DATA_GATE_SC, 0);
                 break;
             case 19:
                 me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SummonCreature(MOB_ENTRY_REGINALD_WINDSOR,403.61f,-51.71f,-63.92f,3.600434f,TEMPSUMMON_DEAD_DESPAWN ,0);
+                me->SummonCreature(MOB_ENTRY_REGINALD_WINDSOR, 403.61f, -51.71f, -63.92f, 3.600434f, TEMPSUMMON_DEAD_DESPAWN , 0);
                 pInstance->SetData(DATA_SUPPLY_ROOM, ENCOUNTER_STATE_ENDED);
                 break;
             }
@@ -830,7 +830,7 @@ public:
 
         void EnterCombat(Unit* who)
             {
-            switch (urand(0,2))
+            switch (urand(0, 2))
             {
                 case 0: me->Say(SAY_WINDSOR_AGGRO1, LANG_UNIVERSAL, PlayerGUID); break;
                 case 1: me->Say(SAY_WINDSOR_AGGRO2, LANG_UNIVERSAL, PlayerGUID); break;
@@ -842,7 +842,7 @@ public:
 
         void JustDied(Unit *slayer)
         {
-            pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_FAILED);
+            pInstance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_FAILED);
         }
 
         void UpdateAI(const uint32 diff)
@@ -911,41 +911,41 @@ public:
     {
         npc_marshal_reginald_windsorAI* marshal_reginald_windsorAI = new npc_marshal_reginald_windsorAI(pCreature);
 
-        marshal_reginald_windsorAI->AddWaypoint(0, 403.61f,-52.71f, -63.92f,4000);
-        marshal_reginald_windsorAI->AddWaypoint(1, 403.61f,-52.71f, -63.92f,4000);
-        marshal_reginald_windsorAI->AddWaypoint(2, 406.33f,-54.87f, -63.95f,0);
-        marshal_reginald_windsorAI->AddWaypoint(3, 407.99f,-73.91f, -62.26f,0);
-        marshal_reginald_windsorAI->AddWaypoint(4, 557.03f,-119.71f, -61.83f,0);
-        marshal_reginald_windsorAI->AddWaypoint(5, 573.40f,-124.39f, -65.07f,0);
-        marshal_reginald_windsorAI->AddWaypoint(6, 593.91f,-130.29f, -69.25f,0);
-        marshal_reginald_windsorAI->AddWaypoint(7, 593.21f,-132.16f, -69.25f,0);
-        marshal_reginald_windsorAI->AddWaypoint(8, 593.21f,-132.16f, -69.25f,3000);
-        marshal_reginald_windsorAI->AddWaypoint(9, 622.81f,-135.55f, -71.92f,0);
-        marshal_reginald_windsorAI->AddWaypoint(10, 634.68f,-151.29f, -70.32f,0);
-        marshal_reginald_windsorAI->AddWaypoint(11, 635.06f,-153.25f, -70.32f,0);
-        marshal_reginald_windsorAI->AddWaypoint(12, 635.06f,-153.25f, -70.32f,3000);
-        marshal_reginald_windsorAI->AddWaypoint(13, 635.06f,-153.25f, -70.32f,1500);
-        marshal_reginald_windsorAI->AddWaypoint(14, 655.25f,-172.39f, -73.72f,0);
-        marshal_reginald_windsorAI->AddWaypoint(15, 654.79f,-226.30f, -83.06f,0);
-        marshal_reginald_windsorAI->AddWaypoint(16, 622.85f,-268.85f, -83.96f,0);
-        marshal_reginald_windsorAI->AddWaypoint(17, 579.45f,-275.56f, -80.44f,0);
-        marshal_reginald_windsorAI->AddWaypoint(18, 561.19f,-266.85f, -75.59f,0);
-        marshal_reginald_windsorAI->AddWaypoint(19, 547.91f,-253.92f, -70.34f,0);
-        marshal_reginald_windsorAI->AddWaypoint(20, 549.20f,-252.40f, -70.34f,0);
-        marshal_reginald_windsorAI->AddWaypoint(21, 549.20f,-252.40f, -70.34f,4000);
-        marshal_reginald_windsorAI->AddWaypoint(22, 555.33f,-269.16f, -74.40f,0);
-        marshal_reginald_windsorAI->AddWaypoint(23, 554.31f,-270.88f, -74.40f,0);
-        marshal_reginald_windsorAI->AddWaypoint(24, 554.31f,-270.88f, -74.40f,4000);
-        marshal_reginald_windsorAI->AddWaypoint(25, 536.10f,-249.60f, -67.47f,0);
-        marshal_reginald_windsorAI->AddWaypoint(26, 520.94f,-216.65f, -59.28f,0);
-        marshal_reginald_windsorAI->AddWaypoint(27, 505.99f,-148.74f, -62.17f,0);
-        marshal_reginald_windsorAI->AddWaypoint(28, 484.21f,-56.24f, -62.43f,0);
-        marshal_reginald_windsorAI->AddWaypoint(29, 470.39f,-6.01f, -70.10f,0);
-        marshal_reginald_windsorAI->AddWaypoint(30, 451.27f,30.85f, -70.07f,0);
-        marshal_reginald_windsorAI->AddWaypoint(31, 452.45f,29.85f, -70.37f,1500);
-        marshal_reginald_windsorAI->AddWaypoint(32, 452.45f,29.85f, -70.37f,7000);
-        marshal_reginald_windsorAI->AddWaypoint(33, 452.45f,29.85f, -70.37f,10000);
-        marshal_reginald_windsorAI->AddWaypoint(34, 451.27f,31.85f, -70.07f,0);
+        marshal_reginald_windsorAI->AddWaypoint(0, 403.61f, -52.71f, -63.92f, 4000);
+        marshal_reginald_windsorAI->AddWaypoint(1, 403.61f, -52.71f, -63.92f, 4000);
+        marshal_reginald_windsorAI->AddWaypoint(2, 406.33f, -54.87f, -63.95f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(3, 407.99f, -73.91f, -62.26f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(4, 557.03f, -119.71f, -61.83f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(5, 573.40f, -124.39f, -65.07f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(6, 593.91f, -130.29f, -69.25f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(7, 593.21f, -132.16f, -69.25f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(8, 593.21f, -132.16f, -69.25f, 3000);
+        marshal_reginald_windsorAI->AddWaypoint(9, 622.81f, -135.55f, -71.92f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(10, 634.68f, -151.29f, -70.32f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(11, 635.06f, -153.25f, -70.32f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(12, 635.06f, -153.25f, -70.32f, 3000);
+        marshal_reginald_windsorAI->AddWaypoint(13, 635.06f, -153.25f, -70.32f, 1500);
+        marshal_reginald_windsorAI->AddWaypoint(14, 655.25f, -172.39f, -73.72f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(15, 654.79f, -226.30f, -83.06f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(16, 622.85f, -268.85f, -83.96f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(17, 579.45f, -275.56f, -80.44f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(18, 561.19f, -266.85f, -75.59f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(19, 547.91f, -253.92f, -70.34f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(20, 549.20f, -252.40f, -70.34f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(21, 549.20f, -252.40f, -70.34f, 4000);
+        marshal_reginald_windsorAI->AddWaypoint(22, 555.33f, -269.16f, -74.40f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(23, 554.31f, -270.88f, -74.40f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(24, 554.31f, -270.88f, -74.40f, 4000);
+        marshal_reginald_windsorAI->AddWaypoint(25, 536.10f, -249.60f, -67.47f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(26, 520.94f, -216.65f, -59.28f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(27, 505.99f, -148.74f, -62.17f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(28, 484.21f, -56.24f, -62.43f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(29, 470.39f, -6.01f, -70.10f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(30, 451.27f, 30.85f, -70.07f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(31, 452.45f, 29.85f, -70.37f, 1500);
+        marshal_reginald_windsorAI->AddWaypoint(32, 452.45f, 29.85f, -70.37f, 7000);
+        marshal_reginald_windsorAI->AddWaypoint(33, 452.45f, 29.85f, -70.37f, 10000);
+        marshal_reginald_windsorAI->AddWaypoint(34, 451.27f, 31.85f, -70.07f, 0);
 
         return marshal_reginald_windsorAI;
     }
@@ -1035,7 +1035,7 @@ public:
 
         void EnterCombat(Unit* who)
             {
-            switch (urand(0,2))
+            switch (urand(0, 2))
             {
                 case 0: me->Say(SAY_WINDSOR_AGGRO1, LANG_UNIVERSAL, PlayerGUID); break;
                 case 1: me->Say(SAY_WINDSOR_AGGRO2, LANG_UNIVERSAL, PlayerGUID); break;
@@ -1046,7 +1046,7 @@ public:
 
         void JustDied(Unit *slayer)
         {
-            pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_FAILED);
+            pInstance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_FAILED);
         }
 
         void UpdateAI(const uint32 diff)
@@ -1056,25 +1056,25 @@ public:
                 {
                 if (!pInstance->GetData(DATA_GATE_J) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_NOT_STARTED)
                     {
-                        pInstance->SetData(DATA_CREATURE_JAZ,1);
-                        pInstance->SetData(DATA_JAZ,ENCOUNTER_STATE_IN_PROGRESS);
+                        pInstance->SetData(DATA_CREATURE_JAZ, 1);
+                        pInstance->SetData(DATA_JAZ, ENCOUNTER_STATE_IN_PROGRESS);
                     }
                 if (pInstance->GetData(DATA_CREATURE_JAZ) && pInstance->GetData(DATA_CREATURE_OGRABISI) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_IN_PROGRESS)
                     {
                         SetEscortPaused(false);
-                        pInstance->SetData(DATA_JAZ,ENCOUNTER_STATE_ENDED);
+                        pInstance->SetData(DATA_JAZ, ENCOUNTER_STATE_ENDED);
                     }
                 }
             else if (wp == 11)
                 {
                 if (!pInstance->GetData(DATA_GATE_S) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_NOT_STARTED)
                     {
-                        pInstance->SetData(DATA_CREATURE_SHILL,1);
-                        pInstance->SetData(DATA_SHILL,ENCOUNTER_STATE_IN_PROGRESS);
+                        pInstance->SetData(DATA_CREATURE_SHILL, 1);
+                        pInstance->SetData(DATA_SHILL, ENCOUNTER_STATE_IN_PROGRESS);
                     }
                 if (pInstance->GetData(DATA_CREATURE_SHILL) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_IN_PROGRESS)
                     {
-                        pInstance->SetData(DATA_SHILL,ENCOUNTER_STATE_ENDED);
+                        pInstance->SetData(DATA_SHILL, ENCOUNTER_STATE_ENDED);
                         SetEscortPaused(false);
                     }
                 }
@@ -1082,14 +1082,14 @@ public:
                 {
                 if (!pInstance->GetData(DATA_GATE_C) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_NOT_STARTED)
                     {
-                        pInstance->SetData(DATA_CREATURE_CREST,1);
+                        pInstance->SetData(DATA_CREATURE_CREST, 1);
                         me->Say(SAY_REGINALD_WINDSOR_13_2, LANG_UNIVERSAL, PlayerGUID);
-                        pInstance->SetData(DATA_CREST,ENCOUNTER_STATE_IN_PROGRESS);
+                        pInstance->SetData(DATA_CREST, ENCOUNTER_STATE_IN_PROGRESS);
                     }
                 if (pInstance->GetData(DATA_CREATURE_CREST) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_IN_PROGRESS)
                     {
                         SetEscortPaused(false);
-                        pInstance->SetData(DATA_CREST,ENCOUNTER_STATE_ENDED);
+                        pInstance->SetData(DATA_CREST, ENCOUNTER_STATE_ENDED);
                     }
                 }
             if (pInstance->GetData(DATA_TOBIAS) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED) SetEscortPaused(false);
@@ -1131,7 +1131,7 @@ public:
             pPlayer->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_escort::npc_escortAI, (pCreature->AI()))->Start(false, true, pPlayer->GetGUID());
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_IN_PROGRESS);
+            pInstance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_IN_PROGRESS);
         }
         return true;
     }
@@ -1160,7 +1160,7 @@ public:
                 me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_ENDED);
+                pInstance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_ENDED);
             }
         }
 
@@ -1170,12 +1170,12 @@ public:
             {
             case 0:me->Say(SAY_TOBIAS_FREE, LANG_UNIVERSAL, PlayerGUID); break;
             case 2:
-                pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
+                pInstance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
             case 4:
                 me->SetVisibility(VISIBILITY_OFF);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_ENDED);
+                pInstance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_ENDED);
                 break;
             }
         }
@@ -1323,7 +1323,7 @@ public:
             {
                 if (BreakKeg_Timer <= diff)
                 {
-                    DoGo(DATA_GO_BAR_KEG,0);
+                    DoGo(DATA_GO_BAR_KEG, 0);
                     BreakKeg_Timer = 0;
                     BreakDoor_Timer = 1000;
                 } else BreakKeg_Timer -= diff;
@@ -1333,16 +1333,16 @@ public:
             {
                 if (BreakDoor_Timer <= diff)
                 {
-                    DoGo(DATA_GO_BAR_DOOR,2);
-                    DoGo(DATA_GO_BAR_KEG_TRAP,0);               //doesn't work very well, leaving code here for future
+                    DoGo(DATA_GO_BAR_DOOR, 2);
+                    DoGo(DATA_GO_BAR_KEG_TRAP, 0);               //doesn't work very well, leaving code here for future
                     //spell by trap has effect61, this indicate the bar go hostile
 
-                    if (Unit *tmp = Unit::GetUnit(*me,pInstance->GetData64(DATA_PHALANX)))
+                    if (Unit *tmp = Unit::GetUnit(*me, pInstance->GetData64(DATA_PHALANX)))
                         tmp->setFaction(14);
 
                     //for later, this event(s) has alot more to it.
                     //optionally, DONE can trigger bar to go hostile.
-                    pInstance->SetData(TYPE_BAR,DONE);
+                    pInstance->SetData(TYPE_BAR, DONE);
 
                     BreakDoor_Timer = 0;
                 } else BreakDoor_Timer -= diff;

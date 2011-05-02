@@ -86,7 +86,7 @@ class boss_broggok : public CreatureScript
                 summoned->setFaction(16);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                summoned->CastSpell(summoned,SPELL_POISON,false,0,0,me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_POISON, false, 0, 0, me->GetGUID());
             }
 
             void UpdateAI(const uint32 diff)

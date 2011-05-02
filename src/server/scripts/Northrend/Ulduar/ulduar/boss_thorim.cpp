@@ -69,7 +69,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -80,7 +80,7 @@ public:
 
         void EnterCombat(Unit* /*pWho*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me);
             _EnterCombat();
         }
 

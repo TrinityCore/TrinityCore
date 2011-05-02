@@ -112,7 +112,7 @@ public:
             if (Submerged && ChangeTarget_Timer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (pTarget)
                     DoTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());

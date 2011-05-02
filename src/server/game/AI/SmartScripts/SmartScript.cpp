@@ -16,7 +16,6 @@
  */
 
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
 #include "ObjectMgr.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
@@ -234,7 +233,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
                         else
                         {
-                            if (CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
+                            if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
                                 if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
                                 {
@@ -266,7 +265,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     //set model based on entry from creature_template
                     if (e.action.morphOrMount.creature)
                     {
-                        if (CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate(e.action.morphOrMount.creature))
+                        if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
                             uint32 display_id = sObjectMgr->ChooseDisplayId(0, ci);
                             (*itr)->ToCreature()->SetDisplayId(display_id);
@@ -940,7 +939,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (e.action.morphOrMount.creature > 0)
                     {
-                        if (CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(e.action.morphOrMount.creature))
+                        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
                             uint32 display_id = sObjectMgr->ChooseDisplayId(0, cInfo);
                             (*itr)->ToUnit()->Mount(display_id);
@@ -1323,9 +1322,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             return;
                         }
                         npc->SetCurrentEquipmentId(e.action.equip.entry);
-                        slot[0] = einfo->equipentry[0];
-                        slot[1] = einfo->equipentry[1];
-                        slot[2] = einfo->equipentry[2];
+                        slot[0] = einfo->ItemEntry[0];
+                        slot[1] = einfo->ItemEntry[1];
+                        slot[2] = einfo->ItemEntry[2];
                     }
                     else
                     {

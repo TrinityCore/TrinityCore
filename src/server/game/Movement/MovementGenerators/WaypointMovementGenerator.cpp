@@ -199,7 +199,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
                 i_nextMoveTime.Reset(node->delay);
 
             //note: disable "start" for mtmap
-            if (node->event_id && urand(0,99) < node->event_chance)
+            if (node->event_id && urand(0, 99) < node->event_chance)
                 unit.GetMap()->ScriptsStart(sWaypointScripts, node->event_id, &unit, NULL/*, false*/);
 
             i_destinationHolder.ResetTravelTime();
@@ -280,13 +280,13 @@ bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
             i_destinationHolder.ResetUpdate(FLIGHT_TRAVEL_UPDATE);
             if (i_destinationHolder.HasArrived())
             {
-                DoEventIfAny(player,(*i_path)[i_currentNode], false);
+                DoEventIfAny(player, (*i_path)[i_currentNode], false);
 
                 uint32 curMap = (*i_path)[i_currentNode].mapid;
                 ++i_currentNode;
                 if (MovementInProgress())
                 {
-                    DoEventIfAny(player,(*i_path)[i_currentNode], true);
+                    DoEventIfAny(player, (*i_path)[i_currentNode], true);
 
                     sLog->outStaticDebug("loading node %u for player %s", i_currentNode, player.GetName());
                     if ((*i_path)[i_currentNode].mapid == curMap)

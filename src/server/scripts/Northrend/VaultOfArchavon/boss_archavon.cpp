@@ -22,14 +22,14 @@
 
 //Spells Archavon
 #define SPELL_ROCK_SHARDS        58678
-#define SPELL_CRUSHING_LEAP      RAID_MODE(58960,60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
-#define SPELL_STOMP              RAID_MODE(58663,60880)
-#define SPELL_IMPALE             RAID_MODE(58666,60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
+#define SPELL_CRUSHING_LEAP      RAID_MODE(58960, 60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
+#define SPELL_STOMP              RAID_MODE(58663, 60880)
+#define SPELL_IMPALE             RAID_MODE(58666, 60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
 #define SPELL_BERSERK            47008
 //Spells Archavon Warders
-#define SPELL_ROCK_SHOWER        RAID_MODE(60919,60923)
-#define SPELL_SHIELD_CRUSH       RAID_MODE(60897,60899)
-#define SPELL_WHIRL              RAID_MODE(60902,60916)
+#define SPELL_ROCK_SHOWER        RAID_MODE(60919, 60923)
+#define SPELL_SHIELD_CRUSH       RAID_MODE(60897, 60899)
+#define SPELL_WHIRL              RAID_MODE(60902, 60916)
 
 //4 Warders spawned
 #define ARCHAVON_WARDER          32353 //npc 32353
@@ -47,7 +47,7 @@ enum Events
     EVENT_BERSERK           = 5,    // 300s cd
 
     //mob
-    EVENT_ROCK_SHOWER       = 6,    // set = 20s cd,unkown cd
+    EVENT_ROCK_SHOWER       = 6,    // set = 20s cd, unkown cd
     EVENT_SHIELD_CRUSH      = 7,    // set = 30s cd
     EVENT_WHIRL             = 8,    // set= 10s cd
 };

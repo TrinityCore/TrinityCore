@@ -281,14 +281,14 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1,SAY_STEELBREAKER_DEATH_2), me);
+            DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1, SAY_STEELBREAKER_DEATH_2), me);
             if (IsEncounterComplete(pInstance, me) && pInstance)
                 pInstance->SetData(TYPE_ASSEMBLY, DONE);
         }
 
         void KilledUnit(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1,SAY_STEELBREAKER_SLAY_2), me);
+            DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1, SAY_STEELBREAKER_SLAY_2), me);
 
             if (phase == 3)
                 DoCast(me, SPELL_ELECTRICAL_CHARGE);
@@ -392,7 +392,7 @@ public:
                     if (phase >= 2)
                         events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
                     if (phase >= 3)
-                        events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000,30000));
+                        events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000, 30000));
                 break;
             }
         }
@@ -428,14 +428,14 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            DoScriptText(RAND(SAY_MOLGEIM_DEATH_1,SAY_MOLGEIM_DEATH_2), me);
+            DoScriptText(RAND(SAY_MOLGEIM_DEATH_1, SAY_MOLGEIM_DEATH_2), me);
             if (IsEncounterComplete(pInstance, me) && pInstance)
                 pInstance->SetData(TYPE_ASSEMBLY, DONE);
         }
 
         void KilledUnit(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_MOLGEIM_SLAY_1,SAY_MOLGEIM_SLAY_2), me);
+            DoScriptText(RAND(SAY_MOLGEIM_SLAY_1, SAY_MOLGEIM_SLAY_2), me);
         }
 
         void SpellHit(Unit * /*from*/, const SpellEntry *spell)
@@ -470,19 +470,19 @@ public:
                     }
                     case EVENT_SHIELD_OF_RUNES:
                         DoCast(me, RAID_MODE(SPELL_SHIELD_OF_RUNES, SPELL_SHIELD_OF_RUNES_H));
-                        events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, urand(27000,34000));
+                        events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, urand(27000, 34000));
                         break;
                     case EVENT_RUNE_OF_DEATH:
                         DoScriptText(SAY_MOLGEIM_RUNE_DEATH, me);
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(pTarget, SPELL_RUNE_OF_DEATH);
-                        events.ScheduleEvent(EVENT_RUNE_OF_DEATH, urand(30000,40000));
+                        events.ScheduleEvent(EVENT_RUNE_OF_DEATH, urand(30000, 40000));
                         break;
                     case EVENT_RUNE_OF_SUMMONING:
                         DoScriptText(SAY_MOLGEIM_SUMMON, me);
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(pTarget, SPELL_RUNE_OF_SUMMONING);
-                        events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000,30000));
+                        events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000, 30000));
                         break;
                 }
             }
@@ -628,14 +628,14 @@ public:
             {
                 case EVENT_UPDATEPHASE:
                     events.SetPhase(++phase);
-                    events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, urand(9000,17000));
-                    events.RescheduleEvent(EVENT_OVERLOAD, urand(60000,125000));
+                    events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, urand(9000, 17000));
+                    events.RescheduleEvent(EVENT_OVERLOAD, urand(60000, 125000));
                     if (phase >= 2)
-                        events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(20000,40000));
+                        events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(20000, 40000));
                     if (phase >= 3)
                     {
                         DoCast(me, SPELL_STORMSHIELD);
-                        events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(40000,80000));
+                        events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(40000, 80000));
                     }
                 break;
 
@@ -673,14 +673,14 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            DoScriptText(RAND(SAY_BRUNDIR_DEATH_1,SAY_BRUNDIR_DEATH_2), me);
+            DoScriptText(RAND(SAY_BRUNDIR_DEATH_1, SAY_BRUNDIR_DEATH_2), me);
             if (IsEncounterComplete(pInstance, me) && pInstance)
                 pInstance->SetData(TYPE_ASSEMBLY, DONE);
         }
 
         void KilledUnit(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_BRUNDIR_SLAY_1,SAY_BRUNDIR_SLAY_2), me);
+            DoScriptText(RAND(SAY_BRUNDIR_SLAY_1, SAY_BRUNDIR_SLAY_2), me);
         }
 
         void SpellHit(Unit * /*from*/, const SpellEntry *spell)
@@ -705,17 +705,17 @@ public:
                         DoCast(SPELL_BERSERK);
                         break;
                     case EVENT_CHAIN_LIGHTNING:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, RAID_MODE(SPELL_CHAIN_LIGHTNING_N , SPELL_CHAIN_LIGHTNING_H));
-                        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(9000,17000));
+                        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(9000, 17000));
                         break;
                     case EVENT_OVERLOAD:
                         DoCast(RAID_MODE(SPELL_OVERLOAD , SPELL_OVERLOAD_H));
-                        events.ScheduleEvent(EVENT_OVERLOAD, urand(60000,125000));
+                        events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 125000));
                         break;
                     case EVENT_LIGHTNING_WHIRL:
                         DoCast(RAID_MODE(SPELL_LIGHTNING_WHIRL , SPELL_LIGHTNING_WHIRL_H));
-                        events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, urand(20000,40000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, urand(20000, 40000));
                         break;
                     case EVENT_LIGHTNING_TENDRILS:
                         DoCast(RAID_MODE(SPELL_LIGHTNING_TENDRILS, SPELL_LIGHTNING_TENDRILS_H));

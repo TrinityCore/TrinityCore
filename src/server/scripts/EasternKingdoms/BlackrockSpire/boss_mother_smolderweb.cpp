@@ -90,7 +90,7 @@ public:
                         break;
                     case EVENT_MOTHERS_MILK:
                         DoCast(me, SPELL_MOTHERSMILK);
-                        events.ScheduleEvent(EVENT_MOTHERS_MILK, urand(5*IN_MILLISECONDS,12500));
+                        events.ScheduleEvent(EVENT_MOTHERS_MILK, urand(5*IN_MILLISECONDS, 12500));
                         break;
                 }
             }

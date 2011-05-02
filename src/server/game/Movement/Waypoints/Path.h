@@ -52,11 +52,11 @@ class Path
             return len;
         }
 
-        float GetTotalLength() const { return GetTotalLength(0,size()); }
+        float GetTotalLength() const { return GetTotalLength(0, size()); }
 
         float GetPassedLength(uint32 curnode, float x, float y, float z)
         {
-            float len = GetTotalLength(0,curnode);
+            float len = GetTotalLength(0, curnode);
 
             if (curnode > 0)
             {

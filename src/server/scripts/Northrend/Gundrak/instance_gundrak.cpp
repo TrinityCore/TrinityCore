@@ -159,11 +159,11 @@ public:
                 case 192518:
                     uiSladRanAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiSladRanStatueState == GO_STATE_ACTIVE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                         else
                         {
                             ++phase;
@@ -174,11 +174,11 @@ public:
                 case 192519:
                     uiMoorabiAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiMoorabiStatueState == GO_STATE_ACTIVE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                         else
                         {
                             ++phase;
@@ -189,11 +189,11 @@ public:
                 case 192520:
                     uiDrakkariColossusAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiDrakkariColossusStatueState == GO_STATE_ACTIVE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                         else
                         {
                             ++phase;
@@ -220,21 +220,21 @@ public:
                 case 192632:
                     uiEckTheFerociousDoor = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[1] == DONE)
-                        HandleGameObject(0,true,go);
+                        HandleGameObject(0, true, go);
                     break;
                 case 192569:
                     uiEckTheFerociousDoorBehind = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[4] == DONE)
-                        HandleGameObject(0,true,go);
+                        HandleGameObject(0, true, go);
                 case 193208:
                     uiGalDarahDoor1 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0,true,go);
+                        HandleGameObject(0, true, go);
                     break;
                 case 193209:
                     uiGalDarahDoor2 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0,true,go);
+                        HandleGameObject(0, true, go);
                     break;
                 case 193188:
                     uiBridge = go->GetGUID();
@@ -261,7 +261,7 @@ public:
                 {
                   GameObject* go = instance->GetGameObject(uiSladRanAltar);
                   if (go)
-                      go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 break;
             case DATA_MOORABI_EVENT:
@@ -270,9 +270,9 @@ public:
                 {
                   GameObject* go = instance->GetGameObject(uiMoorabiAltar);
                   if (go)
-                      go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                   if (bHeroicMode)
-                      HandleGameObject(uiEckTheFerociousDoor,true);
+                      HandleGameObject(uiEckTheFerociousDoor, true);
                 }
                 break;
             case DATA_DRAKKARI_COLOSSUS_EVENT:
@@ -281,21 +281,21 @@ public:
                 {
                   GameObject* go = instance->GetGameObject(uiDrakkariColossusAltar);
                   if (go)
-                      go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 break;
             case DATA_GAL_DARAH_EVENT:
                 m_auiEncounter[3] = data;
                 if (data == DONE)
                 {
-                    HandleGameObject(uiGalDarahDoor1,true);
-                    HandleGameObject(uiGalDarahDoor2,true);
+                    HandleGameObject(uiGalDarahDoor1, true);
+                    HandleGameObject(uiGalDarahDoor2, true);
                 }
                 break;
             case DATA_ECK_THE_FEROCIOUS_EVENT:
                 m_auiEncounter[4] = data;
                 if (bHeroicMode && data == DONE)
-                    HandleGameObject(uiEckTheFerociousDoorBehind,true);
+                    HandleGameObject(uiEckTheFerociousDoorBehind, true);
                 break;
             }
 

@@ -162,7 +162,7 @@ class boss_arlokk : public CreatureScript
 
                     if (m_uiMark_Timer <= uiDiff)
                     {
-                        Unit *pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+                        Unit *pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                         if (pMarkedTarget)
                         {
@@ -193,7 +193,7 @@ class boss_arlokk : public CreatureScript
                     {
                         DoCast(me->getVictim(), SPELL_GOUGE);
 
-                        DoModifyThreatPercent(me->getVictim(),-80);
+                        DoModifyThreatPercent(me->getVictim(), -80);
 
                         m_uiGouge_Timer = 17000+rand()%10000;
                     }
@@ -237,12 +237,12 @@ class boss_arlokk : public CreatureScript
                         me->SetDisplayId(MODEL_ID_PANTHER);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                        const CreatureInfo *cinfo = me->GetCreatureInfo();
+                        const CreatureTemplate *cinfo = me->GetCreatureInfo();
                         me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                         me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                         me->UpdateDamagePhysical(BASE_ATTACK);
 
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             AttackStart(pTarget);
 
                         m_bIsPhaseTwo = true;

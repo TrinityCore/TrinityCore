@@ -52,7 +52,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer,6766,false);
+            pCreature->CastSpell(pPlayer, 6766, false);
 
         }
         if (uiAction == GOSSIP_ACTION_INFO_DEF+2)

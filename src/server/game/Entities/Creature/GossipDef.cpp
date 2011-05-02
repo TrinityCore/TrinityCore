@@ -70,7 +70,7 @@ void GossipMenu::AddMenuItem(uint8 Icon, const std::string& Message, bool Coded)
 
 void GossipMenu::AddMenuItem(uint8 Icon, char const* Message, bool Coded)
 {
-    AddMenuItem(Icon, std::string(Message ? Message : ""),Coded);
+    AddMenuItem(Icon, std::string(Message ? Message : ""), Coded);
 }
 
 void GossipMenu::AddMenuItem(uint8 Icon, char const* Message, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded)
@@ -206,7 +206,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poi_id)
     PointOfInterest const* poi = sObjectMgr->GetPointOfInterest(poi_id);
     if (!poi)
     {
-        sLog->outErrorDb("Request to send non-existing POI (Id: %u), ignored.",poi_id);
+        sLog->outErrorDb("Request to send non-existing POI (Id: %u), ignored.", poi_id);
         return;
     }
 
@@ -365,7 +365,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
     }
     else
     {
-        ItemPrototype const* IProto;
+        ItemTemplate const* IProto;
 
         data << uint32(pQuest->GetRewChoiceItemsCount());
         for (uint32 i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
@@ -376,7 +376,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
             data << uint32(pQuest->RewChoiceItemId[i]);
             data << uint32(pQuest->RewChoiceItemCount[i]);
 
-            IProto = ObjectMgr::GetItemPrototype(pQuest->RewChoiceItemId[i]);
+            IProto = sObjectMgr->GetItemTemplate(pQuest->RewChoiceItemId[i]);
 
             if (IProto)
                 data << uint32(IProto->DisplayInfoID);
@@ -394,7 +394,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
             data << uint32(pQuest->RewItemId[i]);
             data << uint32(pQuest->RewItemCount[i]);
 
-            IProto = ObjectMgr::GetItemPrototype(pQuest->RewItemId[i]);
+            IProto = sObjectMgr->GetItemTemplate(pQuest->RewItemId[i]);
 
             if (IProto)
                 data << uint32(IProto->DisplayInfoID);
@@ -617,12 +617,12 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
         data << uint32(pQuest->OfferRewardEmote[i]);
     }
 
-    ItemPrototype const *pItem;
+    ItemTemplate const *pItem;
 
     data << uint32(pQuest->GetRewChoiceItemsCount());
     for (uint32 i=0; i < pQuest->GetRewChoiceItemsCount(); ++i)
     {
-        pItem = ObjectMgr::GetItemPrototype(pQuest->RewChoiceItemId[i]);
+        pItem = sObjectMgr->GetItemTemplate(pQuest->RewChoiceItemId[i]);
 
         data << uint32(pQuest->RewChoiceItemId[i]);
         data << uint32(pQuest->RewChoiceItemCount[i]);
@@ -636,7 +636,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     data << uint32(pQuest->GetRewItemsCount());
     for (uint32 i = 0; i < pQuest->GetRewItemsCount(); ++i)
     {
-        pItem = ObjectMgr::GetItemPrototype(pQuest->RewItemId[i]);
+        pItem = sObjectMgr->GetItemTemplate(pQuest->RewItemId[i]);
         data << uint32(pQuest->RewItemId[i]);
         data << uint32(pQuest->RewItemCount[i]);
 
@@ -723,13 +723,13 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const *pQuest, uint64 npcGUID,
     data << uint32(pQuest->GetRewOrReqMoney() < 0 ? -pQuest->GetRewOrReqMoney() : 0);
 
     data << uint32(pQuest->GetReqItemsCount());
-    ItemPrototype const *pItem;
+    ItemTemplate const *pItem;
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
         if (!pQuest->ReqItemId[i])
             continue;
 
-        pItem = ObjectMgr::GetItemPrototype(pQuest->ReqItemId[i]);
+        pItem = sObjectMgr->GetItemTemplate(pQuest->ReqItemId[i]);
 
         data << uint32(pQuest->ReqItemId[i]);
         data << uint32(pQuest->ReqItemCount[i]);

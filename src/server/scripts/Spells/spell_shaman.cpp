@@ -33,7 +33,7 @@ enum ShamanSpells
 
     //For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM  = 6474, //Spell casted by totem
-    SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566,//Spell witch remove snare effect
+    SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566, //Spell witch remove snare effect
 };
 
 // 51474 - Astral shift

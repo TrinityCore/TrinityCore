@@ -78,10 +78,10 @@ public:
         void EnterCombat(Unit * /*who*/)
         {
             _EnterCombat();
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3,SAY_AGGRO_4), me);
-            events.ScheduleEvent(EVENT_POISON, urand(10000,15000));
-            events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
-            events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3, SAY_AGGRO_4), me);
+            events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
+            events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
+            events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
         }
 
         void Reset()
@@ -104,7 +104,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%3))
-                DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -113,7 +113,7 @@ public:
             DoScriptText(SAY_DEATH, me);
 
             if (instance && bAchievement)
-                instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_10,ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_25));
+                instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_10, ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_25));
         }
 
         void UpdateAI(const uint32 diff)
@@ -137,23 +137,23 @@ public:
                 switch(eventId)
                 {
                     case EVENT_POISON:
-                        if (!me->HasAura(RAID_MODE(SPELL_WIDOWS_EMBRACE,H_SPELL_WIDOWS_EMBRACE)))
-                            DoCastAOE(RAID_MODE(SPELL_POISON_BOLT_VOLLEY,H_SPELL_POISON_BOLT_VOLLEY));
-                        events.ScheduleEvent(EVENT_POISON, urand(8000,15000));
+                        if (!me->HasAura(RAID_MODE(SPELL_WIDOWS_EMBRACE, H_SPELL_WIDOWS_EMBRACE)))
+                            DoCastAOE(RAID_MODE(SPELL_POISON_BOLT_VOLLEY, H_SPELL_POISON_BOLT_VOLLEY));
+                        events.ScheduleEvent(EVENT_POISON, urand(8000, 15000));
                         break;
                     case EVENT_FIRE:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, RAID_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
-                        events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
+                        events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                         break;
                     case EVENT_FRENZY:
                         // TODO : Add Text
-                        if (!me->HasAura(RAID_MODE(SPELL_WIDOWS_EMBRACE,H_SPELL_WIDOWS_EMBRACE)))
+                        if (!me->HasAura(RAID_MODE(SPELL_WIDOWS_EMBRACE, H_SPELL_WIDOWS_EMBRACE)))
                             DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
                         else
                             doDelayFrenzy = true;
 
-                        events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+                        events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
                         break;
                 }
             }

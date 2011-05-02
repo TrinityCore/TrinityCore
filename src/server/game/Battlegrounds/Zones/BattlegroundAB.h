@@ -196,7 +196,7 @@ const float BG_AB_DoorPositions[2][8] = {
     {708.0903f, 708.4479f, -17.8342f, -2.391099f, 0.050291f, 0.015127f, 0.929217f, -0.365784f}
 };
 
-// Tick intervals and given points: case 0,1,2,3,4,5 captured nodes
+// Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes
 const uint32 BG_AB_TickIntervals[6] = {0, 12000, 9000, 6000, 3000, 1000};
 const uint32 BG_AB_TickPoints[6] = {0, 10, 10, 10, 10, 30};
 
@@ -251,7 +251,7 @@ class BattlegroundAB : public Battleground
         void AddPlayer(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
-        void RemovePlayer(Player *plr,uint64 guid);
+        void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         virtual bool SetupBattleground();
         virtual void Reset();
@@ -277,7 +277,7 @@ class BattlegroundAB : public Battleground
 
         /* Creature spawning/despawning */
         // TODO: working, scripted peons spawning
-        void _NodeOccupied(uint8 node,Team team);
+        void _NodeOccupied(uint8 node, Team team);
         void _NodeDeOccupied(uint8 node);
 
         int32 _GetNodeNameId(uint8 node);

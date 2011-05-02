@@ -122,7 +122,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     else
     {
         // to at i_offset distance from target and i_angle from target facing
-        i_target->GetClosePoint(x,y,z,owner.GetObjectSize(),i_offset,i_angle);
+        i_target->GetClosePoint(x, y, z, owner.GetObjectSize(), i_offset, i_angle);
     }
 
     /*
@@ -138,7 +138,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
 
         //We don't update Mob Movement, if the difference between New destination and last destination is < BothObjectSize
         float  bothObjectSize = i_target->GetObjectSize() + owner.GetObjectSize() + CONTACT_DISTANCE;
-        if (i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize)
+        if (i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x, y, z) < bothObjectSize)
             return;
     */
     i_destinationHolder.SetDestination(traveller, x, y, z);
@@ -230,7 +230,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 
             owner.StopMoving();
             if (owner.IsWithinMeleeRange(i_target.getTarget()) && !owner.HasUnitState(UNIT_STAT_FOLLOW))
-                owner.Attack(i_target.getTarget(),true);
+                owner.Attack(i_target.getTarget(), true);
         }
     }
 

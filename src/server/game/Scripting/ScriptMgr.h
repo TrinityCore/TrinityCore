@@ -63,7 +63,7 @@ class WorldObject;
 struct AchievementCriteriaData;
 struct AuctionEntry;
 struct Condition;
-struct ItemPrototype;
+struct ItemTemplate;
 struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
@@ -389,7 +389,7 @@ class ItemScript : public ScriptObject
         virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
 
         // Called when the item expires (is destroyed).
-        virtual bool OnExpire(Player* /*player*/, ItemPrototype const* /*proto*/) { return false; }
+        virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
 };
 
 class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
@@ -840,7 +840,7 @@ class ScriptMgr
         bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target);
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
         bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
-        bool OnItemExpire(Player* player, ItemPrototype const* proto);
+        bool OnItemExpire(Player* player, ItemTemplate const* proto);
 
     public: /* CreatureScript */
 

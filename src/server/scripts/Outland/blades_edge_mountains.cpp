@@ -84,8 +84,8 @@ enum eNetherdrake
     SAY_NIHIL_1                 = -1000169, //signed for 5955
     SAY_NIHIL_2                 = -1000170, //signed for 5955
     SAY_NIHIL_3                 = -1000171, //signed for 5955
-    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021,21817,21820,21821,21823
-    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021,21817,21820,21821,21823
+    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
+    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
 
     ENTRY_WHELP                 = 20021,
     ENTRY_PROTO                 = 21821,
@@ -410,7 +410,7 @@ public:
 
             if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
             {
-                pGo->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+                pGo->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 //reset global var
                 obelisk_one = false;
                 obelisk_two = false;

@@ -30,7 +30,7 @@
 #include "World.h"
 #include "Timer.h"
 
-struct ItemPrototype;
+struct ItemTemplate;
 struct AuctionEntry;
 struct DeclinedName;
 struct MovementInfo;
@@ -197,11 +197,11 @@ class WorldSession
         void WriteMovementInfo(WorldPacket *data, MovementInfo *mi);
 
         void SendPacket(WorldPacket const* packet);
-        void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
-        void SendNotification(uint32 string_id,...);
+        void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
+        void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);
+        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(uint32 phaseShift);
         void SendQueryTimeResponse();
 
@@ -305,8 +305,8 @@ class WorldSession
         void SendAuctionOwnerNotification(AuctionEntry * auction);
 
         //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster,uint32 ItemID,uint32 SpellID);
-        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid,uint32 slot,uint32 Duration);
+        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
+        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
         void SendTaxiStatus(uint64 guid);
@@ -607,7 +607,7 @@ class WorldSession
         void HandleQueryNextMailTime(WorldPacket & recv_data);
         void HandleCancelChanneling(WorldPacket & recv_data);
 
-        void SendItemPageInfo(ItemPrototype *itemProto);
+        void SendItemPageInfo(ItemTemplate *itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);

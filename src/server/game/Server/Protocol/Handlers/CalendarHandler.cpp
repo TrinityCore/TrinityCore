@@ -31,7 +31,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
 
     time_t cur_time = time(NULL);
 
-    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR,4+4*0+4+4*0+4+4);
+    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR, 4+4*0+4+4*0+4+4);
 
     data << uint32(0);                                      // invite count
     /*
@@ -178,7 +178,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
     //    recv_data >> (uint32)count;
     //    if (count)
     //    {
-    //        uint8 unk12,unk13;
+    //        uint8 unk12, unk13;
     //        uint64 guid;
     //        for (int i=0; i<count; i++)
     //        {
