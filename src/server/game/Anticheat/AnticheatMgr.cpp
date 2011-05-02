@@ -14,6 +14,7 @@
  */
 
 #include "AnticheatMgr.h"
+#include "WardenMgr.h"
 
 AnticheatMgr::AnticheatMgr() 
 {
@@ -62,6 +63,10 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
         WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
         data << str;
         sWorld->SendGlobalGMMessage(&data);
+
+        //notify guard for forced check
+        if (sWardenMgr->IsEnabled())
+            sWardenMgr->ForceCheckForSession(player->GetSession());
     }
 }
 

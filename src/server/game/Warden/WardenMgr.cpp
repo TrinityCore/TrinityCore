@@ -149,9 +149,19 @@ void WardenMgr::Update(WorldSession* const session)
                 sLog->outError("Warden Manager: no Cheat-check reply received, kicking account %u", session->GetAccountId());
                 session->KickPlayer();
                 return;
+            case WARD_STATE_FORCE_CHEAT_CHECK_OUT:   // timeout waiting for a Force cheat check reply
+                sLog->outError("Warden Manager: no Force Cheat-check reply received, kicking account %u", session->GetAccountId());
+                session->KickPlayer();
+                return;
             case WARD_STATE_CHEAT_CHECK_IN:    // send cheat check
                 SendCheatCheck(session);
                 session->m_wardenStatus = WARD_STATE_CHEAT_CHECK_OUT;
+                session->m_WardenTimer.SetInterval( 3 * MINUTE * IN_MILLISECONDS);
+                session->m_WardenTimer.Reset();
+                return;
+            case WARD_STATE_FORCE_CHEAT_CHECK_IN:    // send only memory cheat check
+                SendForceWEHCheatCheck(session);
+                session->m_wardenStatus = WARD_STATE_FORCE_CHEAT_CHECK_OUT;
                 session->m_WardenTimer.SetInterval( 3 * MINUTE * IN_MILLISECONDS);
                 session->m_WardenTimer.Reset();
                 return;
@@ -412,6 +422,21 @@ void WardenMgr::Register(WorldSession* const session)
     session->m_WardenTimer.Reset();
 }
 
+void WardenMgr::ForceCheckForSession(WorldSession* const session)
+{
+    if (!m_Enabled)
+        return;
+
+    if (session->m_wardenStatus == WARD_STATE_UNREGISTERED ||
+        session->m_wardenStatus == WARD_STATE_FORCE_CHEAT_CHECK_OUT ||
+        session->m_wardenStatus ==WARD_STATE_USER_DISABLED)
+        return;
+
+        session->m_wardenStatus = WARD_STATE_FORCE_CHEAT_CHECK_IN;
+        session->m_WardenTimer.SetInterval(5 * IN_MILLISECONDS);
+        session->m_WardenTimer.Reset();
+}
+
 void WardenMgr::StartForSession(WorldSession* const session)
 {
     if (!m_Enabled)
@@ -660,6 +685,66 @@ WardenMgr::LuaCheckEntry *WardenMgr::GetRandLuaCheck()
 WardenMgr::DriverCheckEntry *WardenMgr::GetRandDriverCheck()
 {
     return &m_WardenDriverChecks[urand(0, m_WardenDriverChecks.size()-1)];
+}
+
+void WardenMgr::SendForceWEHCheatCheck(WorldSession* const session)
+{
+    sLog->outStaticDebug("Wardend::SendForceWEHCheatCheck(%u, *pkt)", session->GetAccountId());
+
+    std::string md5 = session->m_WardenModule;
+    if (!session->m_WardenClientChecks)
+    {
+        session->m_WardenClientChecks = new WardenClientCheckList;
+    }
+    // Type cast and get a shorter name
+    WardenClientCheckList* checkList = (WardenClientCheckList*)session->m_WardenClientChecks;
+
+    checkList->clear();
+    // Get the Seed 1st byte for the xoring
+    uint8 m_seed1 = session->m_wardenSeed[0];
+    sLog->outStaticDebug("Seed byte: 0x%02X, end byte: 0x%02X", m_seed1, m_WardenModuleMap[md5][WARD_CHECK_END]);
+
+    WorldPacket data( SMSG_WARDEN_DATA, 300 ); // Guess size
+    data << uint8(WARDS_CHEAT_CHECK);
+
+    // Rand a number of checks between 4 and 8 checks + the first time check + end packet
+    uint8 nbChecks = 6;
+    checkList->resize(nbChecks);
+
+    for (uint8 i=0; i<nbChecks; ++i)
+    {
+            (*checkList)[i].check = WARD_CHECK_MEMORY;
+            (*checkList)[i].mem = GetRandMemCheck();
+            if ((*checkList)[i].mem->String.length())   // add 1 for the uint8 str length
+            {
+                data << uint8((*checkList)[i].mem->String.length());
+                data.append((*checkList)[i].mem->String.c_str() ,(*checkList)[i].mem->String.length());
+                sLog->outStaticDebug("Mem str %s, len %u", (*checkList)[i].mem->String.c_str(), (*checkList)[i].mem->String.length());
+            }
+    }
+    // strings terminator
+    data << uint8(0);
+    // We first add a timing check
+    data << uint8(m_WardenModuleMap[md5][WARD_CHECK_TIMING] ^ m_seed1);
+    // Finaly put the other checks
+    uint8 m_strIndex = 1;
+    sLog->outStaticDebug("Preparing %u checks", nbChecks);
+    for (uint8 i=0; i<nbChecks; ++i)
+    {
+        data << uint8(m_WardenModuleMap[md5][(*checkList)[i].check] ^ m_seed1);
+        sLog->outStaticDebug("%u : WARD_CHECK_MEMORY", i);
+        if ((*checkList)[i].mem->String.length())
+            data << uint8(m_strIndex++);
+        else
+            data << uint8(0);
+        data << uint32((*checkList)[i].mem->Offset);
+        data << uint8((*checkList)[i].mem->Length);
+    }
+    data << uint8(m_WardenModuleMap[md5][WARD_CHECK_END] ^ m_seed1);
+
+    data.hexlike();
+    data.crypt(&session->m_rc4ServerKey[0], &rc4_crypt);
+    session->SendPacket(&data);
 }
 
 void WardenMgr::SendCheatCheck(WorldSession* const session)
@@ -1115,9 +1200,9 @@ void WardenMgr::ReactToCheatCheckResult(WorldSession* const session, bool result
     {
         if (m_Banning)
         {
-            std::string sText = ("Игрок: " + std::string(session->GetPlayerName()) + " использовал читерское ПО и был забанен на 1 день.");
+            std::string sText = ("Игрок: " + std::string(session->GetPlayerName()) + " использовал читерское ПО и был забанен на 10 дней.");
             sWorld->SendGMText(LANG_GM_BROADCAST, sText.c_str());
-            sWorld->BanAccount(session, 24 * HOUR, "Cheating software user", "Server guard");
+            sWorld->BanAccount(session, 10 * DAY, "Cheating software user", "Server guard");
         }
         else
             session->KickPlayer();

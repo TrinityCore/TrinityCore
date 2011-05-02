@@ -59,6 +59,8 @@ enum eWardenClientState
     WARD_STATE_USER_DISABLED,
     WARD_STATE_PENDING_WARDEND,
     WARD_STATE_NEED_WARDEND,
+    WARD_STATE_FORCE_CHEAT_CHECK_IN,
+    WARD_STATE_FORCE_CHEAT_CHECK_OUT,
 };
 
 class WardenSvcHandler: public ACE_Svc_Handler <ACE_SOCK_STREAM, ACE_NULL_SYNCH>
@@ -172,6 +174,7 @@ class WardenMgr
         void RandAModuleMd5(std::string *result);
     public:
         void Register(WorldSession* const session);
+        void ForceCheckForSession(WorldSession* const session);
     private:
         void StartForSession(WorldSession* const session);
         void SetInitialKeys(const uint8 *bSessionKey1, const uint8 *bSessionKey2, uint8* ClientKey, uint8 *ServerKey);
@@ -188,6 +191,7 @@ class WardenMgr
         void SendWardenData(WorldSession* const session);
     private:
         void SendCheatCheck(WorldSession* const session);
+        void SendForceWEHCheatCheck(WorldSession* const session);
     public:
         bool ValidateCheatCheckResult(WorldSession* const session, WorldPacket& clientPacket);
         void Unregister(WorldSession* const session);
