@@ -705,6 +705,12 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 
 void AuctionEntry::DeleteFromDB(SQLTransaction& trans) const
 {
+    // Delete the item_instance for this auction
+    PreparedStatement *stmtDelItem = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+    stmtDelItem->setUInt32(0, item_guidlow);
+    trans->Append(stmtDelItem);
+
+    // Delete the auction itself
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
     stmt->setUInt32(0, Id);
     trans->Append(stmt);
