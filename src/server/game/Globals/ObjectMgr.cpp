@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
 #include "SpellMgr.h"
 #include "UpdateMask.h"
 #include "World.h"
@@ -270,7 +271,6 @@ ObjectMgr::ObjectMgr()
     m_mailid            = 1;
     m_equipmentSetGuid  = 1;
     m_guildId           = 1;
-    m_arenaTeamId       = 1;
     m_auctionid         = 1;
     NextGroupStorageId  = 1;
 }
@@ -296,9 +296,6 @@ ObjectMgr::~ObjectMgr()
         delete *itr;
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        delete itr->second;
-
-    for (ArenaTeamMap::iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
         delete itr->second;
 
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
@@ -372,49 +369,6 @@ void ObjectMgr::AddGuild(Guild* guild)
 void ObjectMgr::RemoveGuild(uint32 guildId)
 {
     mGuildMap.erase(guildId);
-}
-
-// Arena teams collection
-ArenaTeam* ObjectMgr::GetArenaTeamById(uint32 arenateamid) const
-{
-    ArenaTeamMap::const_iterator itr = mArenaTeamMap.find(arenateamid);
-    if (itr != mArenaTeamMap.end())
-        return itr->second;
-
-    return NULL;
-}
-
-ArenaTeam* ObjectMgr::GetArenaTeamByName(const std::string& arenateamname) const
-{
-    std::string search = arenateamname;
-    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
-    {
-        std::string teamname = itr->second->GetName();
-        std::transform(teamname.begin(), teamname.end(), teamname.begin(), ::toupper);
-        if (search == teamname)
-            return itr->second;
-    }
-    return NULL;
-}
-
-ArenaTeam* ObjectMgr::GetArenaTeamByCaptain(uint64 const& guid) const
-{
-    for (ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
-        if (itr->second->GetCaptain() == guid)
-            return itr->second;
-
-    return NULL;
-}
-
-void ObjectMgr::AddArenaTeam(ArenaTeam* arenaTeam)
-{
-    mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
-}
-
-void ObjectMgr::RemoveArenaTeam(uint32 Id)
-{
-    mArenaTeamMap.erase(Id);
 }
 
 void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data)
@@ -4206,57 +4160,9 @@ void ObjectMgr::LoadGuilds()
             }
         }
 
-        sLog->outString("Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
         sLog->outString();
     }
-}
-
-void ObjectMgr::LoadArenaTeams()
-{
-    uint32 oldMSTime = getMSTime();
-
-    // Clean out the trash before loading anything
-    CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");
-
-
-    //                                                                   0        1         2         3          4              5            6            7           8
-    QueryResult result = CharacterDatabase.Query("SELECT arena_team.arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor, "
-    //                                               9        10        11         12           13       14
-                                                 "rating, weekGames, weekWins, seasonGames, seasonWins, rank FROM arena_team ORDER BY arena_team.arenaTeamId ASC");
-
-    if (!result)
-    {
-        sLog->outString(">> Loaded 0 arena team definitions. DB table `arena_team` is empty!");
-        sLog->outString();
-        return;
-    }
-
-    QueryResult result2 = CharacterDatabase.Query(
-    //              0              1           2             3              4                 5          6     7          8                  9
-        "SELECT arenaTeamId, atm.guid, atm.weekGames, atm.weekWins, atm.seasonGames, atm.seasonWins, c.name, class, personalRating, matchMakerRating FROM arena_team_member atm"
-        " INNER JOIN arena_team ate USING (arenaTeamId)"
-        " LEFT JOIN characters AS c ON atm.guid = c.guid"
-        " LEFT JOIN character_arena_stats AS cas ON c.guid = cas.guid AND (cas.slot = 0 AND ate.type = 2 OR cas.slot = 1 AND ate.type = 3 OR cas.slot = 2 AND ate.type = 5)"
-        " ORDER BY atm.arenateamid ASC");
-
-    uint32 count = 0;
-    do
-    {
-        ArenaTeam* newArenaTeam = new ArenaTeam;
-
-        if (!newArenaTeam->LoadArenaTeamFromDB(result) || !newArenaTeam->LoadMembersFromDB(result2))
-        {
-            newArenaTeam->Disband(NULL);
-            delete newArenaTeam;
-            continue;
-        }
-        AddArenaTeam(newArenaTeam);
-
-        ++count;
-    } while (result->NextRow());
-
-    sLog->outString();
-    sLog->outString(">> Loaded %u arena team definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGroups()
@@ -6934,7 +6840,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
-        m_arenaTeamId = (*result)[0].GetUInt32()+1;
+        sArenaTeamMgr->SetNextArenaTeamId((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(setguid) FROM character_equipmentsets");
     if (result)
@@ -6949,15 +6855,7 @@ void ObjectMgr::SetHighestGuids()
         mGroupStorage.resize((*result)[0].GetUInt32()+1);
 }
 
-uint32 ObjectMgr::GenerateArenaTeamId()
-{
-    if (m_arenaTeamId >= 0xFFFFFFFE)
-    {
-        sLog->outError("Arena team ids overflow!! Can't continue, shutting down server. ");
-        World::StopNow(ERROR_EXIT_CODE);
-    }
-    return m_arenaTeamId++;
-}
+
 
 uint32 ObjectMgr::GenerateAuctionID()
 {
