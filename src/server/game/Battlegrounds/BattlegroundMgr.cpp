@@ -18,6 +18,7 @@
 
 #include "Common.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -162,7 +163,7 @@ void BattlegroundMgr::Update(uint32 diff)
         {
             if (time(NULL) > m_NextAutoDistributionTime)
             {
-                DistributeArenaPoints();
+                sArenaTeamMgr->DistributeArenaPoints();
                 m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
                 sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionTime));
             }
@@ -250,7 +251,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket *data, Battleground *bg)
         for (int8 i = 1; i >= 0; --i)
         {
             uint32 at_id = bg->m_ArenaTeamIds[i];
-            ArenaTeam* at = sObjectMgr->GetArenaTeamById(at_id);
+            ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(at_id);
             if (at)
                 *data << at->GetName();
             else
@@ -813,53 +814,6 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     else
         m_NextAutoDistributionTime = wstime;
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Arena Point Distribution initialized.");
-}
-
-void BattlegroundMgr::DistributeArenaPoints()
-{
-    // used to distribute arena points based on last week's stats
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_START);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_START);
-
-    //temporary structure for storing maximum points to add values for all players
-    std::map<uint32, uint32> PlayerPoints;
-
-    //at first update all points for all team members
-    for (ObjectMgr::ArenaTeamMap::iterator team_itr = sObjectMgr->GetArenaTeamMapBegin(); team_itr != sObjectMgr->GetArenaTeamMapEnd(); ++team_itr)
-        if (ArenaTeam * at = team_itr->second)
-            at->UpdateArenaPointsHelper(PlayerPoints);
-
-    //cycle that gives points to all players
-    for (std::map<uint32, uint32>::iterator plr_itr = PlayerPoints.begin(); plr_itr != PlayerPoints.end(); ++plr_itr)
-    {
-        //update to database
-        CharacterDatabase.PExecute("UPDATE characters SET arenaPoints = arenaPoints + '%u' WHERE guid = '%u'", plr_itr->second, plr_itr->first);
-
-        //add points to player if online
-        Player* pl = sObjectMgr->GetPlayer(plr_itr->first);
-        if (pl)
-            pl->ModifyArenaPoints(plr_itr->second);
-    }
-
-    PlayerPoints.clear();
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
-    for (ObjectMgr::ArenaTeamMap::iterator titr = sObjectMgr->GetArenaTeamMapBegin(); titr != sObjectMgr->GetArenaTeamMapEnd(); ++titr)
-    {
-        if (ArenaTeam * at = titr->second)
-        {
-            at->FinishWeek();                              // set played this week etc values to 0 in memory, too
-            at->SaveToDB();                                // save changes
-            at->NotifyStatsChanged();                      // notify the players of the changes
-        }
-    }
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_END);
 }
 
 void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint64& guid, Player* plr, BattlegroundTypeId bgTypeId, uint8 fromWhere)

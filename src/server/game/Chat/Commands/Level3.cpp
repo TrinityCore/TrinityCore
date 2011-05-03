@@ -22,6 +22,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AccountMgr.h"
 #include "PlayerDump.h"
@@ -4394,7 +4395,7 @@ bool ChatHandler::HandleSendMessageCommand(const char *args)
 
 bool ChatHandler::HandleFlushArenaPointsCommand(const char * /*args*/)
 {
-    sBattlegroundMgr->DistributeArenaPoints();
+    sArenaTeamMgr->DistributeArenaPoints();
     return true;
 }
 
