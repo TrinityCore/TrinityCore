@@ -43,10 +43,8 @@
 #include "ConditionMgr.h"
 #include <functional>
 
-
 class Group;
 class Guild;
-class ArenaTeam;
 class Item;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
@@ -613,8 +611,6 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, Guild*> GuildMap;
 
-        typedef UNORDERED_MAP<uint32, ArenaTeam*> ArenaTeamMap;
-
         typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
 
         typedef UNORDERED_MAP<uint32, AreaTrigger> AreaTriggerMap;
@@ -660,14 +656,6 @@ class ObjectMgr
         std::string GetGuildNameById(uint32 guildId) const;
         void AddGuild(Guild* pGuild);
         void RemoveGuild(uint32 guildId);
-
-        ArenaTeam* GetArenaTeamById(uint32 arenateamid) const;
-        ArenaTeam* GetArenaTeamByName(const std::string& arenateamname) const;
-        ArenaTeam* GetArenaTeamByCaptain(uint64 const& guid) const;
-        void AddArenaTeam(ArenaTeam* arenaTeam);
-        void RemoveArenaTeam(uint32 Id);
-        ArenaTeamMap::iterator GetArenaTeamMapBegin() { return mArenaTeamMap.begin(); }
-        ArenaTeamMap::iterator GetArenaTeamMapEnd()   { return mArenaTeamMap.end(); }
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
@@ -850,7 +838,6 @@ class ObjectMgr
         }
 
         void LoadGuilds();
-        void LoadArenaTeams();
         void LoadGroups();
         void LoadQuests();
         void LoadQuestRelations()
@@ -998,7 +985,6 @@ class ObjectMgr
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
-        uint32 GenerateArenaTeamId();
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateGuildId();
@@ -1270,7 +1256,6 @@ class ObjectMgr
     protected:
 
         // first free id for selected id type
-        uint32 m_arenaTeamId;
         uint32 m_auctionid;
         uint64 m_equipmentSetGuid;
         uint32 m_guildId;
@@ -1304,7 +1289,6 @@ class ObjectMgr
         GroupSet            mGroupSet;
         GroupStorage        mGroupStorage;
         GuildMap            mGuildMap;
-        ArenaTeamMap        mArenaTeamMap;
 
         QuestAreaTriggerMap mQuestAreaTriggerMap;
         TavernAreaTriggerSet mTavernAreaTriggerSet;
