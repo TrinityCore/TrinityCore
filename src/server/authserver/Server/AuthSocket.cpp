@@ -50,11 +50,11 @@ enum eStatus
     STATUS_AUTHED
 };
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some paltform
+// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some paltform
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
-#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
 
 typedef struct AUTH_LOGON_CHALLENGE_C
@@ -169,7 +169,7 @@ public:
     Patches::const_iterator begin() const { return _patches.begin(); }
     Patches::const_iterator end() const { return _patches.end(); }
     void LoadPatchMD5(char*);
-    bool GetHash(char * pat,uint8 mymd5[16]);
+    bool GetHash(char * pat, uint8 mymd5[16]);
 
 private:
     void LoadPatchesInfo();
@@ -909,7 +909,7 @@ bool AuthSocket::_HandleXferResume()
     // Launch a PatcherRunnable thread starting at given patch file offset
     uint64 start;
     socket().recv_skip(1);
-    socket().recv((char*)&start,sizeof(start));
+    socket().recv((char*)&start, sizeof(start));
     fseek(pPatch, long(start), 0);
 
     ACE_Based::Thread u(new PatcherRunnable(this));

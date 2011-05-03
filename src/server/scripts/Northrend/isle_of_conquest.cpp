@@ -56,7 +56,7 @@ class npc_four_car_garage : public CreatureScript
                             return;
                     }
 
-                    me->CastSpell(who,spellId,true);
+                    me->CastSpell(who, spellId, true);
                 }
             }
         };

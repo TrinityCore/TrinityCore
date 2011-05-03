@@ -103,8 +103,8 @@ public:
              Phase = COMBAT;
              uiCarrionSwarmTimer = 6000;
              uiMindBlastTimer = 11000;
-             uiVampiricTouchTimer = urand(10000,15000);
-             uiSleepTimer = urand(15000,20000);
+             uiVampiricTouchTimer = urand(10000, 15000);
+             uiSleepTimer = urand(15000, 20000);
              uiOutroTimer = 1000;
 
              if (pInstance)
@@ -184,10 +184,10 @@ public:
 
                     if (uiSleepTimer < diff)
                     {
-                        DoScriptText(RAND(SAY_SLEEP_1,SAY_SLEEP_2), me);
+                        DoScriptText(RAND(SAY_SLEEP_1, SAY_SLEEP_2), me);
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_SLEEP);
-                        uiSleepTimer = urand(15000,20000);
+                        uiSleepTimer = urand(15000, 20000);
                     } else uiSleepTimer -= diff;
 
                     DoMeleeAttackIfReady();
@@ -248,7 +248,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
         }
     };
 

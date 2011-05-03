@@ -20,12 +20,10 @@
 
 #include <string>
 #include <ace/Singleton.h>
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "SQLStorage.h"
-#include "SQLStorageImpl.h"
-#include "Chat.h"
-#include "World.h"
+
+#include "ObjectMgr.h"
+
+class ChatHandler;
 
 // from blizzard lua
 enum GMTicketSystemStatus
@@ -211,7 +209,7 @@ public:
     uint32 GetOpenTicketCount() const { return _openTicketCount; }
     uint32 GetNextSurveyID() { return ++_lastSurveyId; }
 
-    void Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
+    void Initialize();
 
     void ShowList(ChatHandler& handler, bool onlineOnly) const;
     void ShowClosedList(ChatHandler& handler) const;

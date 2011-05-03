@@ -26,7 +26,7 @@
 struct WaypointData
 {
     uint32 id;
-    float x,y,z;
+    float x, y, z;
     bool run;
     uint32 delay;
     uint32 event_id;

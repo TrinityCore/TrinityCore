@@ -202,7 +202,7 @@ public:
                 case NPC_JAEREN:
                     uiAnnouncerGUID = creature->GetGUID();
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(NPC_ARELAS,ALLIANCE);
+                        creature->UpdateEntry(NPC_ARELAS, ALLIANCE);
                     break;
                 case NPC_JAEREN_AN:
                     if (TeamInInstance == ALLIANCE)
@@ -245,7 +245,7 @@ public:
                     if (uiMovementDone == 3)
                     {
                         if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
-                            pAnnouncer->AI()->SetData(DATA_IN_POSITION,0);
+                            pAnnouncer->AI()->SetData(DATA_IN_POSITION, 0);
                     }
                     break;
                 case BOSS_GRAND_CHAMPIONS:
@@ -263,9 +263,9 @@ public:
                             if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             {
                                 m_auiEncounter[0] = uiData;
-                                pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f,619.487f,411.171f);
+                                pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT,746.59f,618.49f,411.09f,1.42f,0, 0, 0, 0,90000000);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
                             }
                         }
                     }
@@ -276,8 +276,8 @@ public:
                     {
                         if (Creature* pBoss =  instance->GetCreature(uiArgentChampionGUID))
                         {
-                            pBoss->GetMotionMaster()->MovePoint(0,746.88f,618.74f,411.06f);
-                            pBoss->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            pBoss->GetMotionMaster()->MovePoint(0, 746.88f, 618.74f, 411.06f);
+                            pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pBoss->SetReactState(REACT_AGGRESSIVE);
                             pBoss->setFaction(16);
                         }
@@ -294,9 +294,9 @@ public:
                     {
                         if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
-                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f,619.487f,411.171f);
+                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f, 619.487f, 411.171f);
                             pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT,746.59f,618.49f,411.09f,1.42f,0, 0, 0, 0,90000000);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
                         }
                     }
                     break;
@@ -311,9 +311,9 @@ public:
                     {
                         if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
-                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f,619.487f,411.171f);
+                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f, 619.487f, 411.171f);
                             pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT,746.59f,618.49f,411.09f,1.42f,0, 0, 0, 0,90000000);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
                         }
                     }
                     break;

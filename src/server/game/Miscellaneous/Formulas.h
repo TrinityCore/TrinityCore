@@ -127,7 +127,7 @@ namespace Trinity
                     nBaseExp = 580;
                     break;
                 default:
-                    sLog->outError("BaseGain: Unsupported content level %u",content);
+                    sLog->outError("BaseGain: Unsupported content level %u", content);
                     nBaseExp = 45;
                     break;
             }

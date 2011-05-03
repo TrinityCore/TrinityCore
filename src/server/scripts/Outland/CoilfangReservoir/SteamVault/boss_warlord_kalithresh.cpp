@@ -87,14 +87,14 @@ public:
             DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
             if (pInstance)
-                pInstance->SetData(TYPE_DISTILLER,IN_PROGRESS);
+                pInstance->SetData(TYPE_DISTILLER, IN_PROGRESS);
         }
 
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
             if (me->GetHealth() <= damage)
                 if (pInstance)
-                    pInstance->SetData(TYPE_DISTILLER,DONE);
+                    pInstance->SetData(TYPE_DISTILLER, DONE);
         }
     };
 
@@ -137,7 +137,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
             if (pInstance)
                 pInstance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
@@ -145,7 +145,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
@@ -191,7 +191,7 @@ public:
             //Impale_Timer
             if (Impale_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_IMPALE);
 
                 Impale_Timer = 7500+rand()%5000;

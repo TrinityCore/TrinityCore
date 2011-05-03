@@ -59,13 +59,13 @@ public:
                 switch(fm_Type)
                 {
                 case 1:
-                    pInstance->SetData(EVENT_FORGE_1,me->isAlive() ? NOT_STARTED : DONE);
+                    pInstance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
                     break;
                 case 2:
-                    pInstance->SetData(EVENT_FORGE_2,me->isAlive() ? NOT_STARTED : DONE);
+                    pInstance->SetData(EVENT_FORGE_2, me->isAlive() ? NOT_STARTED : DONE);
                     break;
                 case 3:
-                    pInstance->SetData(EVENT_FORGE_3,me->isAlive() ? NOT_STARTED : DONE);
+                    pInstance->SetData(EVENT_FORGE_3, me->isAlive() ? NOT_STARTED : DONE);
                     break;
                 }
             }
@@ -79,13 +79,13 @@ public:
                 switch(fm_Type)
                 {
                 case 1:
-                    pInstance->SetData(EVENT_FORGE_1,DONE);
+                    pInstance->SetData(EVENT_FORGE_1, DONE);
                     break;
                 case 2:
-                    pInstance->SetData(EVENT_FORGE_2,DONE);
+                    pInstance->SetData(EVENT_FORGE_2, DONE);
                     break;
                 case 3:
-                    pInstance->SetData(EVENT_FORGE_3,DONE);
+                    pInstance->SetData(EVENT_FORGE_3, DONE);
                     break;
                 }
             }
@@ -99,17 +99,17 @@ public:
                 switch(fm_Type)
                 {
                 case 1:
-                    pInstance->SetData(EVENT_FORGE_1,IN_PROGRESS);
+                    pInstance->SetData(EVENT_FORGE_1, IN_PROGRESS);
                     break;
                 case 2:
-                    pInstance->SetData(EVENT_FORGE_2,IN_PROGRESS);
+                    pInstance->SetData(EVENT_FORGE_2, IN_PROGRESS);
                     break;
                 case 3:
-                    pInstance->SetData(EVENT_FORGE_3,IN_PROGRESS);
+                    pInstance->SetData(EVENT_FORGE_3, IN_PROGRESS);
                     break;
                 }
             }
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE ,EMOTE_ONESHOT_NONE);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE , EMOTE_ONESHOT_NONE);
         }
 
         uint8 GetForgeMasterType()
@@ -120,10 +120,10 @@ public:
             for (uint8 i = 0; i < 3 ; ++i)
             {
                 GameObject* temp;
-                temp = me->FindNearestGameObject(entry_search[i],30);
+                temp = me->FindNearestGameObject(entry_search[i], 30);
                 if (temp)
                 {
-                    if (me->IsWithinDist(temp,diff,false))
+                    if (me->IsWithinDist(temp, diff, false))
                     {
                         near_f = i + 1;
                         diff = me->GetDistance2d(temp);

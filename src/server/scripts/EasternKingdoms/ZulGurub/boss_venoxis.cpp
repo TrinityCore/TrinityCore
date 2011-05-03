@@ -125,7 +125,7 @@ class boss_venoxis : public CreatureScript
                             TargetInRange = 0;
                             for (uint8 i = 0; i < 10; ++i)
                             {
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,i))
+                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
                                     if (me->IsWithinMeleeRange(pTarget))
                                         ++TargetInRange;
                             }
@@ -144,7 +144,7 @@ class boss_venoxis : public CreatureScript
 
                         if (HolyFire_Timer < diff && TargetInRange < 3)
                         {
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, SPELL_HOLY_FIRE);
 
                             HolyFire_Timer = 8000;
@@ -158,7 +158,7 @@ class boss_venoxis : public CreatureScript
                             me->InterruptNonMeleeSpells(false);
                             DoCast(me, SPELL_SNAKE_FORM);
                             me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
-                            const CreatureInfo *cinfo = me->GetCreatureInfo();
+                            const CreatureTemplate *cinfo = me->GetCreatureInfo();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 25)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 25)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
@@ -174,7 +174,7 @@ class boss_venoxis : public CreatureScript
 
                         if (PhaseTwo && VenomSpit_Timer <= diff)
                         {
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, SPELL_VENOMSPIT);
 
                             VenomSpit_Timer = 15000 + rand()%5000;

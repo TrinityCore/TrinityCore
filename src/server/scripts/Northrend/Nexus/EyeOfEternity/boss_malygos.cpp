@@ -153,24 +153,24 @@ enum MalygosSays
 // Sniffed data
 const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 {
-   {782.9821f,1296.652f,282.1114f},
-   {779.5459f,1287.228f,282.1393f},
-   {773.0028f,1279.52f,282.4164f},
-   {764.3626f,1274.476f,282.4731f},
-   {754.3961f,1272.639f,282.4171f},
-   {744.4422f,1274.412f,282.222f},
-   {735.575f,1279.742f,281.9674f},
-   {729.2788f,1287.187f,281.9943f},
-   {726.1191f,1296.688f,282.2997f},
-   {725.9396f,1306.531f,282.2448f},
-   {729.3045f,1316.122f,281.9108f},
-   {735.8322f,1323.633f,282.1887f},
-   {744.4616f,1328.999f,281.9948f},
-   {754.4739f,1330.666f,282.049f},
-   {764.074f,1329.053f,281.9949f},
-   {772.8409f,1323.951f,282.077f},
-   {779.5085f,1316.412f,281.9145f},
-   {782.8365f,1306.778f,282.3035f},
+   {782.9821f, 1296.652f, 282.1114f},
+   {779.5459f, 1287.228f, 282.1393f},
+   {773.0028f, 1279.52f, 282.4164f},
+   {764.3626f, 1274.476f, 282.4731f},
+   {754.3961f, 1272.639f, 282.4171f},
+   {744.4422f, 1274.412f, 282.222f},
+   {735.575f, 1279.742f, 281.9674f},
+   {729.2788f, 1287.187f, 281.9943f},
+   {726.1191f, 1296.688f, 282.2997f},
+   {725.9396f, 1306.531f, 282.2448f},
+   {729.3045f, 1316.122f, 281.9108f},
+   {735.8322f, 1323.633f, 282.1887f},
+   {744.4616f, 1328.999f, 281.9948f},
+   {754.4739f, 1330.666f, 282.049f},
+   {764.074f, 1329.053f, 281.9949f},
+   {772.8409f, 1323.951f, 282.077f},
+   {779.5085f, 1316.412f, 281.9145f},
+   {782.8365f, 1306.778f, 282.3035f},
 };
 
 #define GROUND_Z 268
@@ -179,22 +179,22 @@ const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 #define MALYGOS_MAX_WAYPOINTS 16
 const Position MalygosPhaseTwoWaypoints[MALYGOS_MAX_WAYPOINTS] =
 {
-    {812.7299f,1391.672f,283.2763f},
-    {848.2912f,1358.61f,283.2763f},
-    {853.9227f,1307.911f,283.2763f},
-    {847.1437f,1265.538f,283.2763f},
-    {839.9229f,1245.245f,283.2763f},
-    {827.3463f,1221.818f,283.2763f},
-    {803.2727f,1203.851f,283.2763f},
-    {772.9372f,1197.981f,283.2763f},
-    {732.1138f,1200.647f,283.2763f},
-    {693.8761f,1217.995f,283.2763f},
-    {664.5038f,1256.539f,283.2763f},
-    {650.1497f,1303.485f,283.2763f},
-    {662.9109f,1350.291f,283.2763f},
-    {677.6391f,1377.607f,283.2763f},
-    {704.8198f,1401.162f,283.2763f},
-    {755.2642f,1417.1f,283.2763f},
+    {812.7299f, 1391.672f, 283.2763f},
+    {848.2912f, 1358.61f, 283.2763f},
+    {853.9227f, 1307.911f, 283.2763f},
+    {847.1437f, 1265.538f, 283.2763f},
+    {839.9229f, 1245.245f, 283.2763f},
+    {827.3463f, 1221.818f, 283.2763f},
+    {803.2727f, 1203.851f, 283.2763f},
+    {772.9372f, 1197.981f, 283.2763f},
+    {732.1138f, 1200.647f, 283.2763f},
+    {693.8761f, 1217.995f, 283.2763f},
+    {664.5038f, 1256.539f, 283.2763f},
+    {650.1497f, 1303.485f, 283.2763f},
+    {662.9109f, 1350.291f, 283.2763f},
+    {677.6391f, 1377.607f, 283.2763f},
+    {704.8198f, 1401.162f, 283.2763f},
+    {755.2642f, 1417.1f, 283.2763f},
 };
 
 #define MAX_SUMMONS_PHASE_TWO 4
@@ -202,7 +202,7 @@ const Position MalygosPhaseTwoWaypoints[MALYGOS_MAX_WAYPOINTS] =
 #define MAX_MALYGOS_POS 2
 const Position MalygosPositions[MAX_MALYGOS_POS] =
 {
-    {754.544f,1301.71f,320.0f},
+    {754.544f, 1301.71f, 320.0f},
     {754.39f, 1301.27f, 292.91f}
 };
 
@@ -232,14 +232,14 @@ public:
             bersekerTimer = 0;
             currentPos = 0;
 
-            SetPhase(PHASE_ONE,true);
+            SetPhase(PHASE_ONE, true);
 
             delayedMovementTimer = 8000;
             delayedMovement = false;
 
             summonDeaths = 0;
 
-            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             cannotMove = true;
         }
@@ -293,7 +293,7 @@ public:
             if (!instance)
                 return;
             
-            SetPhase(PHASE_THREE,true);
+            SetPhase(PHASE_THREE, true);
 
             // this despawns Hover Disks
             summons.DespawnAll();
@@ -308,16 +308,16 @@ public:
                         continue;
 
                     // The rest is handled in the AI of the vehicle.
-                    target->CastSpell(target,SPELL_SUMMOM_RED_DRAGON,true);
+                    target->CastSpell(target, SPELL_SUMMOM_RED_DRAGON, true);
                 }
             }
 
-            if (GameObject* go = GameObject::GetGameObject(*me,instance->GetData64(DATA_PLATFORM)))
+            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_PLATFORM)))
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED); // In sniffs it has this flag, but i don't know how is applied. 
 
             // pos sniffed
             me->GetMotionMaster()->MoveIdle();
-            me->GetMotionMaster()->MovePoint(MOVE_CENTER_PLATFORM,MalygosPositions[0].GetPositionX(),MalygosPositions[0].GetPositionY(),MalygosPositions[0].GetPositionZ());
+            me->GetMotionMaster()->MovePoint(MOVE_CENTER_PLATFORM, MalygosPositions[0].GetPositionX(), MalygosPositions[0].GetPositionY(), MalygosPositions[0].GetPositionZ());
         }
 
         void SetPhaseEvents(uint8 _phase)
@@ -325,23 +325,23 @@ public:
             switch (_phase)
             {
                 case PHASE_ONE:
-                    events.ScheduleEvent(EVENT_ARCANE_BREATH,urand(15,20)*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_ARCANE_STORM,urand(5,10)*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_VORTEX,urand(30,40)*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_POWER_SPARKS,urand(30,35)*IN_MILLISECONDS,0,_phase);
+                    events.ScheduleEvent(EVENT_ARCANE_BREATH, urand(15, 20)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_STORM, urand(5, 10)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_VORTEX, urand(30, 40)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_POWER_SPARKS, urand(30, 35)*IN_MILLISECONDS, 0, _phase);
                     break;
                 case PHASE_TWO:
-                    events.ScheduleEvent(EVENT_YELL_0,0,0,_phase);
-                    events.ScheduleEvent(EVENT_YELL_1,24*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_SURGE_POWER,urand(60,70)*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_SUMMON_ARCANE,urand(2,5)*IN_MILLISECONDS,0,_phase);
+                    events.ScheduleEvent(EVENT_YELL_0, 0, 0, _phase);
+                    events.ScheduleEvent(EVENT_YELL_1, 24*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_SURGE_POWER, urand(60, 70)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_SUMMON_ARCANE, urand(2, 5)*IN_MILLISECONDS, 0, _phase);
                     break;
                 case PHASE_THREE:
-                    events.ScheduleEvent(EVENT_YELL_2,0,0,_phase);
-                    events.ScheduleEvent(EVENT_YELL_3,8*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_YELL_4,16*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3,(7,16)*IN_MILLISECONDS,0,_phase);
-                    events.ScheduleEvent(EVENT_STATIC_FIELD,(20,30)*IN_MILLISECONDS,0,_phase);
+                    events.ScheduleEvent(EVENT_YELL_2, 0, 0, _phase);
+                    events.ScheduleEvent(EVENT_YELL_3, 8*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_YELL_4, 16*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, (7, 16)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_STATIC_FIELD, (20, 30)*IN_MILLISECONDS, 0, _phase);
                     break;
                 default:
                     break;
@@ -353,7 +353,7 @@ public:
             _EnterCombat();
 
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             Talk(SAY_AGGRO_P_ONE);
 
@@ -409,17 +409,17 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 
             me->GetMotionMaster()->MovementExpired();
-            me->GetMotionMaster()->MovePoint(MOVE_VORTEX,MalygosPositions[1].GetPositionX(), MalygosPositions[1].GetPositionY(), MalygosPositions[1].GetPositionZ());
+            me->GetMotionMaster()->MovePoint(MOVE_VORTEX, MalygosPositions[1].GetPositionX(), MalygosPositions[1].GetPositionY(), MalygosPositions[1].GetPositionZ());
             // continues in MovementInform function.
         }
 
         void ExecuteVortex()
         {
-            DoCast(me,SPELL_VORTEX_1,true);
-            DoCast(me,SPELL_VORTEX_2,true);
+            DoCast(me, SPELL_VORTEX_1, true);
+            DoCast(me, SPELL_VORTEX_2, true);
 
             // the vortex execution continues in the dummy effect of this spell (see its script)
-            DoCast(me,SPELL_VORTEX_3,true);
+            DoCast(me, SPELL_VORTEX_3, true);
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -436,7 +436,7 @@ public:
                 case MOVE_DEEP_BREATH_ROTATION:
                     currentPos = currentPos == MALYGOS_MAX_WAYPOINTS - 1 ? 0 : currentPos+1;
                     me->GetMotionMaster()->MovementExpired();
-                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION,MalygosPhaseTwoWaypoints[currentPos]);
+                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[currentPos]);
                     break;
                 case MOVE_INIT_PHASE_ONE:
                     me->SetInCombatWithZone();
@@ -451,24 +451,24 @@ public:
 
         void StartPhaseTwo()
         {
-            SetPhase(PHASE_TWO,true);
+            SetPhase(PHASE_TWO, true);
 
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 
             me->GetMotionMaster()->MoveIdle();
-            me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION,MalygosPhaseTwoWaypoints[0]);
+            me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[0]);
             
-            Creature* summon = me->SummonCreature(NPC_HOVER_DISK_CASTER,HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS-1]);
+            Creature* summon = me->SummonCreature(NPC_HOVER_DISK_CASTER, HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS-1]);
             if (summon && summon->IsAIEnabled)
                 summon->AI()->DoAction(ACTION_HOVER_DISK_START_WP_2);
-            summon = me->SummonCreature(NPC_HOVER_DISK_CASTER,HoverDiskWaypoints[0]);
+            summon = me->SummonCreature(NPC_HOVER_DISK_CASTER, HoverDiskWaypoints[0]);
             if (summon && summon->IsAIEnabled)
                 summon->AI()->DoAction(ACTION_HOVER_DISK_START_WP_1);
 
             for (uint8 i = 0; i < 2; i++)
             {
                 // not sure about its position.
-                summon = me->SummonCreature(NPC_HOVER_DISK_MELEE,HoverDiskWaypoints[0]);
+                summon = me->SummonCreature(NPC_HOVER_DISK_MELEE, HoverDiskWaypoints[0]);
                 if (summon)
                     summon->SetInCombatWithZone();
             }
@@ -496,7 +496,7 @@ public:
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
                     {
                         me->GetMotionMaster()->MovementExpired();
-                        me->GetMotionMaster()->MovePoint(MOVE_CENTER_PLATFORM,MalygosPositions[0].GetPositionX(),MalygosPositions[0].GetPositionY(),MalygosPositions[0].GetPositionZ());
+                        me->GetMotionMaster()->MovePoint(MOVE_CENTER_PLATFORM, MalygosPositions[0].GetPositionX(), MalygosPositions[0].GetPositionY(), MalygosPositions[0].GetPositionZ());
                     }
                 }
             }
@@ -506,7 +506,7 @@ public:
             {
                 if (delayedMovementTimer <= diff)
                 {
-                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION,MalygosPhaseTwoWaypoints[currentPos]);
+                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[currentPos]);
                     delayedMovementTimer = 8000;
                     delayedMovement = false;
                 } delayedMovementTimer -= diff;
@@ -544,38 +544,38 @@ public:
                         Talk(SAY_AGGRO_P_TWO);
                         break;
                     case EVENT_ARCANE_BREATH:
-                        DoCast(me->getVictim(),SPELL_ARCANE_BREATH);
-                        events.ScheduleEvent(EVENT_ARCANE_BREATH,urand(35,60)*IN_MILLISECONDS,0,PHASE_ONE);
+                        DoCast(me->getVictim(), SPELL_ARCANE_BREATH);
+                        events.ScheduleEvent(EVENT_ARCANE_BREATH, urand(35, 60)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_STORM:
-                        DoCast(me->getVictim(),SPELL_ARCANE_STORM);
-                        events.ScheduleEvent(EVENT_ARCANE_STORM,urand(5,10)*IN_MILLISECONDS,0,PHASE_ONE);
+                        DoCast(me->getVictim(), SPELL_ARCANE_STORM);
+                        events.ScheduleEvent(EVENT_ARCANE_STORM, urand(5, 10)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_VORTEX:
                         PrepareForVortex();
-                        events.ScheduleEvent(EVENT_VORTEX,urand(60,80)*IN_MILLISECONDS,0,PHASE_ONE);
+                        events.ScheduleEvent(EVENT_VORTEX, urand(60, 80)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_POWER_SPARKS:
-                        instance->SetData(DATA_POWER_SPARKS_HANDLING,0);
-                        events.ScheduleEvent(EVENT_POWER_SPARKS,urand(30,35)*IN_MILLISECONDS,0,PHASE_ONE);
+                        instance->SetData(DATA_POWER_SPARKS_HANDLING, 0);
+                        events.ScheduleEvent(EVENT_POWER_SPARKS, urand(30, 35)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_SURGE_POWER:
                         me->GetMotionMaster()->MoveIdle();
                         delayedMovement = true;
                         DoCast(SPELL_SURGE_POWER);
-                        events.ScheduleEvent(EVENT_SURGE_POWER,urand(60,70)*IN_MILLISECONDS,0,PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SURGE_POWER, urand(60, 70)*IN_MILLISECONDS, 0, PHASE_TWO);
                         break;
                     case EVENT_SUMMON_ARCANE:
                         DoCast(SPELL_SUMMON_ARCANE_BOMB);
-                        events.ScheduleEvent(EVENT_SUMMON_ARCANE,urand(12,15)*IN_MILLISECONDS,0,PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SUMMON_ARCANE, urand(12, 15)*IN_MILLISECONDS, 0, PHASE_TWO);
                         break;
                     case EVENT_SURGE_POWER_PHASE_3:
-                        DoCast(GetTargetPhaseThree(),SPELL_SURGE_POWER_PHASE_3);
-                        events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3,(7,16)*IN_MILLISECONDS,0,PHASE_THREE);
+                        DoCast(GetTargetPhaseThree(), SPELL_SURGE_POWER_PHASE_3);
+                        events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, (7, 16)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
-                        DoCast(GetTargetPhaseThree(),SPELL_STATIC_FIELD);
-                        events.ScheduleEvent(EVENT_STATIC_FIELD,(20,30)*IN_MILLISECONDS,0,PHASE_THREE);
+                        DoCast(GetTargetPhaseThree(), SPELL_STATIC_FIELD);
+                        events.ScheduleEvent(EVENT_STATIC_FIELD, (20, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     default:
                         break;
@@ -587,7 +587,7 @@ public:
 
         Unit* GetTargetPhaseThree()
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 
             // we are a drake
             if (target->GetVehicleKit())
@@ -643,7 +643,7 @@ public:
             // each player will enter to the trigger vehicle (entry 30090) already spawned (each one can hold up to 5 players, it has 5 seats)
             // the players enter to the vehicles casting SPELL_VORTEX_4 OR SPELL_VORTEX_5
             if (InstanceScript* instance = caster->GetInstanceScript())
-                instance->SetData(DATA_VORTEX_HANDLING,0);
+                instance->SetData(DATA_VORTEX_HANDLING, 0);
 
             // the rest of the vortex execution continues when SPELL_VORTEX_2 is removed.
         }
@@ -735,23 +735,23 @@ public:
 
         void Reset()
         {
-            summonTimer = urand(5,7)*IN_MILLISECONDS;
+            summonTimer = urand(5, 7)*IN_MILLISECONDS;
         }
 
         void UpdateAI(const uint32 diff)
         {
             if (!me->HasAura(SPELL_PORTAL_VISUAL_CLOSED) &&
                 !me->HasAura(SPELL_PORTAL_OPENED))
-                DoCast(me,SPELL_PORTAL_VISUAL_CLOSED,true);
+                DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
 
             if (instance)
             {
-                if (Creature* malygos = Unit::GetCreature(*me,instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
                 {
                     if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE)
                     {
                         me->RemoveAura(SPELL_PORTAL_OPENED);
-                        DoCast(me,SPELL_PORTAL_VISUAL_CLOSED,true);
+                        DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
                     }
                 }
             }
@@ -762,7 +762,7 @@ public:
             if (summonTimer <= diff)
             {
                 DoCast(SPELL_SUMMON_POWER_PARK);
-                summonTimer = urand(5,7)*IN_MILLISECONDS;
+                summonTimer = urand(5, 7)*IN_MILLISECONDS;
             } else summonTimer -= diff;
         }
 
@@ -808,8 +808,8 @@ public:
 
             if (instance)
             {
-                if (Creature* malygos = Unit::GetCreature(*me,instance->GetData64(DATA_MALYGOS)))
-                    me->GetMotionMaster()->MoveFollow(malygos,0.0f,0.0f);
+                if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+                    me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
             }
         }
         
@@ -818,7 +818,7 @@ public:
             if (!instance)
                 return;
 
-            if (Creature* malygos = Unit::GetCreature(*me,instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
             {
                 if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE)
                 {
@@ -833,7 +833,7 @@ public:
                 }
 
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
-                    me->GetMotionMaster()->MoveFollow(malygos,0.0f,0.0f);
+                    me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
             }
         }
 
@@ -842,7 +842,7 @@ public:
             if (damage > me->GetMaxHealth())
             {
                 damage = 0;
-                DoCast(me,SPELL_POWER_SPARK_DEATH,true);
+                DoCast(me, SPELL_POWER_SPARK_DEATH, true);
                 me->DespawnOrUnsummon(1000);
             }
         }
@@ -893,11 +893,11 @@ public:
                     // This will only be called if the passenger dies
                     if (instance)
                     {
-                        if (Creature* malygos = Unit::GetCreature(*me,instance->GetData64(DATA_MALYGOS)))
-                            malygos->AI()->SetData(DATA_SUMMON_DEATHS,malygos->AI()->GetData(DATA_SUMMON_DEATHS)+1);
+                        if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+                            malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS)+1);
                     }
 
-                    me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
 
                 me->GetMotionMaster()->MoveIdle();
@@ -906,8 +906,8 @@ public:
                 {
                     // Hack: Fall ground function can fail (remember the platform is a gameobject), we will teleport the disk to the ground
                     if (me->GetPositionZ() > GROUND_Z)
-                        me->NearTeleportTo(me->GetPositionX(),me->GetPositionY(),GROUND_Z,0);
-                    me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+                        me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), GROUND_Z, 0);
+                    me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     me->setFaction(FACTION_FRIENDLY);
                     me->AI()->EnterEvadeMode();
                 }
@@ -928,14 +928,14 @@ public:
             {
                 case ACTION_HOVER_DISK_START_WP_1:
                     for (uint8 i = 0; i < MAX_HOVER_DISK_WAYPOINTS; i++)
-                        AddWaypoint(i,HoverDiskWaypoints[i].GetPositionX(),HoverDiskWaypoints[i].GetPositionY(),HoverDiskWaypoints[i].GetPositionZ());
+                        AddWaypoint(i, HoverDiskWaypoints[i].GetPositionX(), HoverDiskWaypoints[i].GetPositionY(), HoverDiskWaypoints[i].GetPositionZ());
                     break;
                 case ACTION_HOVER_DISK_START_WP_2:
                     {
                         uint8 count = 0;
                         for (uint8 i = MAX_HOVER_DISK_WAYPOINTS-1; i > 0; i--)
                         {
-                            AddWaypoint(count,HoverDiskWaypoints[i].GetPositionX(),HoverDiskWaypoints[i].GetPositionY(),HoverDiskWaypoints[i].GetPositionZ());
+                            AddWaypoint(count, HoverDiskWaypoints[i].GetPositionX(), HoverDiskWaypoints[i].GetPositionY(), HoverDiskWaypoints[i].GetPositionZ());
                             count++;
                         }
                         break;
@@ -944,7 +944,7 @@ public:
                     return;
             }
 
-            Start(true,false,0,0,false,true);
+            Start(true, false, 0, 0, false, true);
         }
 
         void UpdateEscortAI(const uint32 /*diff*/)
@@ -985,7 +985,7 @@ public:
 
         void Reset()
         {
-            DoCast(me,SPELL_ARCANE_OVERLOAD,false);
+            DoCast(me, SPELL_ARCANE_OVERLOAD, false);
         }
 
         void UpdateAI(const uint32 diff)
@@ -1023,12 +1023,12 @@ public:
             if (!instance)
                 return;
 
-            if (Creature* malygos = Unit::GetCreature(*me,instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    summoner->CastSpell(me,SPELL_RIDE_RED_DRAGON,true);
-                    if (Creature* malygos = Unit::GetCreature(*me,instance->GetData64(DATA_MALYGOS)))
+                    summoner->CastSpell(me, SPELL_RIDE_RED_DRAGON, true);
+                    if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
                     {
                         float victim_threat = malygos->getThreatManager().getThreat(summoner);
                         malygos->getThreatManager().resetAllAggro();
@@ -1084,7 +1084,7 @@ public:
         {
             events.Reset();
 
-            events.ScheduleEvent(EVENT_YELL_1,0);
+            events.ScheduleEvent(EVENT_YELL_1, 0);
         }
 
         void UpdateAI(const uint32 diff)
@@ -1095,15 +1095,15 @@ public:
                 {
                     case EVENT_YELL_1:
                         Talk(SAY_ONE);
-                        events.ScheduleEvent(EVENT_YELL_2,4*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_YELL_2, 4*IN_MILLISECONDS);
                         break;
                     case EVENT_YELL_2:
                         Talk(SAY_TWO);
-                        events.ScheduleEvent(EVENT_YELL_3,4*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_YELL_3, 4*IN_MILLISECONDS);
                         break;
                     case EVENT_YELL_3:
                         Talk(SAY_THREE);
-                        events.ScheduleEvent(EVENT_YELL_4,7*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_YELL_4, 7*IN_MILLISECONDS);
                         break;
                     case EVENT_YELL_4:
                         Talk(SAY_FOUR);

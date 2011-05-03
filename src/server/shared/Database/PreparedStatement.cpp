@@ -228,7 +228,7 @@ bool MySQLPreparedStatement::CheckValidIndex(uint8 index)
     return true;
 }
 
-void MySQLPreparedStatement::setBool(const uint8 index,const bool value)
+void MySQLPreparedStatement::setBool(const uint8 index, const bool value)
 {
     setUInt32(index, value);
 }
@@ -374,7 +374,7 @@ std::string MySQLPreparedStatement::getQueryString(const char *query)
             break;
         }
         replace << "'";
-        queryString.replace(pos,1, replace.str());
+        queryString.replace(pos, 1, replace.str());
     }
 
     return queryString;

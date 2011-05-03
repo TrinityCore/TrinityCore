@@ -65,7 +65,7 @@ public:
 
         void SummonIllusions(Unit* victim)
         {
-            if (Creature *Illusion = DoSpawnCreature(11439, float(irand(-9,9)), float(irand(-9,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+            if (Creature *Illusion = DoSpawnCreature(11439, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
                 Illusion->AI()->AttackStart(victim);
         }
 
@@ -108,13 +108,13 @@ public:
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetDisplayId(11686);  // Invisible Model
-                DoModifyThreatPercent(me->getVictim(),-99);
+                DoModifyThreatPercent(me->getVictim(), -99);
 
                 //Summon 10 Illusions attacking random gamers
                 Unit *pTarget = NULL;
                 for (uint8 i = 0; i < 10; ++i)
                 {
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget)
                         SummonIllusions(pTarget);
                 }

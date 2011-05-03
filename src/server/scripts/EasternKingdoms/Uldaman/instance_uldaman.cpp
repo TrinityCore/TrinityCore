@@ -148,7 +148,7 @@ class instance_uldaman : public InstanceMapScript
             {
                 creature->setFaction(35);
                 creature->RemoveAllAuras();
-                //creature->RemoveFlag (UNIT_FIELD_FLAGS,UNIT_FLAG_ANIMATION_FROZEN);
+                //creature->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_ANIMATION_FROZEN);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
@@ -178,7 +178,7 @@ class instance_uldaman : public InstanceMapScript
                     Creature* pTarget = instance->GetCreature(*i);
                     if (!pTarget || !pTarget->isAlive() || pTarget->getFaction() == 14)
                         continue;
-                    pTarget->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+                    pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     pTarget->setFaction(14);
                     pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     return;        // only want the first one we find
@@ -200,7 +200,7 @@ class instance_uldaman : public InstanceMapScript
                     if (!pTarget || !pTarget->isAlive() || pTarget->getFaction() == 14)
                         continue;
                     archaedas->CastSpell(pTarget, SPELL_AWAKEN_VAULT_WALKER, true);
-                    pTarget->CastSpell(pTarget, SPELL_ARCHAEDAS_AWAKEN,true);
+                    pTarget->CastSpell(pTarget, SPELL_ARCHAEDAS_AWAKEN, true);
                     return;        // only want the first one we find
                 }
             }
@@ -247,7 +247,7 @@ class instance_uldaman : public InstanceMapScript
 
                 if (Unit::GetUnit(*archaedas, target))
                 {
-                    archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN,false);
+                    archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
                     uiWhoWokeuiArchaedasGUID = target;
                 }
             }
@@ -259,7 +259,7 @@ class instance_uldaman : public InstanceMapScript
                     return;
 
                 ironaya->setFaction(415);
-                ironaya->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+                ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 

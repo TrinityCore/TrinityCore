@@ -76,12 +76,12 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2), me);
         }
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -106,7 +106,7 @@ public:
 
                 DoCast(me->getVictim(), SPELL_SAND_BREATH);
 
-                DoScriptText(RAND(SAY_BREATH1,SAY_BREATH2), me);
+                DoScriptText(RAND(SAY_BREATH1, SAY_BREATH2), me);
 
                 SandBreath_Timer = 10000 + rand()%10000;
             } else SandBreath_Timer -= diff;
@@ -119,7 +119,7 @@ public:
 
             if (WingBuffet_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_WING_BUFFET);
                 WingBuffet_Timer = 25000+rand()%10000;
             } else WingBuffet_Timer -= diff;

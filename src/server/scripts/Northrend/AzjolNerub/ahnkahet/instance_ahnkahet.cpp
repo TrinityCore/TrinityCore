@@ -112,7 +112,7 @@ public:
             switch(go->GetEntry())
             {
                 case 193564:     Prince_TaldaramPlatform = go->GetGUID();
-                    if (m_auiEncounter[1] == DONE) HandleGameObject(0,true,go); break;
+                    if (m_auiEncounter[1] == DONE) HandleGameObject(0, true, go); break;
                 case 193093:     Prince_TaldaramSpheres[0] = go->GetGUID();
                     if (spheres[0] == IN_PROGRESS)
                     {
@@ -130,7 +130,7 @@ public:
                     else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case 192236:    Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram
-                    if (m_auiEncounter[1] == DONE)HandleGameObject(0,true,go);break;
+                    if (m_auiEncounter[1] == DONE)HandleGameObject(0, true, go);break;
             }
         }
 
@@ -167,7 +167,7 @@ public:
                     }
                     if (vInitiands.empty())
                         return 0;
-                    uint8 j = urand(0,vInitiands.size() -1);
+                    uint8 j = urand(0, vInitiands.size() -1);
                     return vInitiands[j];
                 }
                 case DATA_ADD_JEDOGA_OPFER: return JedogaSacrifices;
@@ -183,7 +183,7 @@ public:
                 case DATA_ELDER_NADOX_EVENT: m_auiEncounter[0] = data; break;
                 case DATA_PRINCE_TALDARAM_EVENT:
                     if (data == DONE)
-                        HandleGameObject(Prince_TaldaramGate,true);
+                        HandleGameObject(Prince_TaldaramGate, true);
                     m_auiEncounter[1] = data;
                     break;
                 case DATA_JEDOGA_SHADOWSEEKER_EVENT:
