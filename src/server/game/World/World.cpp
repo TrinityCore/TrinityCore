@@ -1505,6 +1505,10 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Completed Achievements...");
     sAchievementMgr->LoadCompletedAchievements();
 
+    // Delete expired auctions before loading
+    sLog->outString("Deleting expired auctions...");
+    sAuctionMgr->DeleteExpiredAuctionsAtStartup();
+
     ///- Load dynamic data tables from the database
     sLog->outString("Loading Item Auctions...");
     sAuctionMgr->LoadAuctionItems();
