@@ -7264,7 +7264,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
                 CheckGOConsumable(&got, got.chest.consumable, 3);
 
-                if (&got.chest.linkedTrapId)              // linked trap
+                if (got.chest.linkedTrapId)              // linked trap
                     CheckGOLinkedTrapId(&got, got.chest.linkedTrapId, 7);
                 break;
             }
