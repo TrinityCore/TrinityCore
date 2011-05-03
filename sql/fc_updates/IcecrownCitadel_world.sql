@@ -162,9 +162,55 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (13,0,71080,0,18,1,37972,0,0, '', 'Keleseth - Invocation of Blood visual'),
 (13,0,74074,0,18,1,36597,0,0, '', 'The Lich King - Plague Siphon');
 
+INSERT INTO `conditions` VALUES ('13', '0', '69508', '0', '18', '1', '37986', '0', '0', '', 'Rotface - Slime Spray');
+INSERT INTO `conditions` VALUES ('13', '0', '69783', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69797', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69799', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69802', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69782', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69796', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69798', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69801', '0', '18', '1', '37013', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '69540', '0', '18', '1', '36897', '0', '0', '', 'Rotface - Summon Big Ooze');
+INSERT INTO `conditions` VALUES ('13', '0', '69538', '0', '18', '1', '36897', '0', '0', '', 'Rotface - Small Ooze Combine');
+INSERT INTO `conditions` VALUES ('13', '0', '69553', '0', '18', '1', '36899', '0', '0', '', 'Rotface - Large Ooze Combine');
+INSERT INTO `conditions` VALUES ('13', '0', '69610', '0', '18', '1', '36897', '0', '0', '', 'Rotface - Large Ooze Buff Combine');
+INSERT INTO `conditions` VALUES ('13', '0', '70079', '0', '18', '1', '36678', '0', '0', '', 'Rotface - Ooze Flood');
+INSERT INTO `conditions` VALUES ('13', '0', '72401', '0', '18', '1', '37672', '0', '0', '', 'Putricide - Mutated Abomination');
+INSERT INTO `conditions` VALUES ('13', '0', '72401', '0', '18', '1', '38285', '0', '0', '', 'Putricide - Mutated Abomination');
+INSERT INTO `conditions` VALUES ('13', '0', '71617', '0', '18', '1', '38317', '0', '0', '', 'Putricide - Tear Gas');
+INSERT INTO `conditions` VALUES ('13', '0', '71412', '0', '18', '1', '37824', '0', '0', '', 'Putricide - Unstable Experiment');
+INSERT INTO `conditions` VALUES ('13', '0', '71415', '0', '18', '1', '37824', '0', '0', '', 'Putricide - Unstable Experiment');
+INSERT INTO `conditions` VALUES ('13', '0', '71621', '0', '18', '1', '38309', '1', '0', '', 'Putricide - Green Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72850', '0', '18', '1', '38309', '1', '0', '', 'Putricide - Green Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72851', '0', '18', '1', '38309', '1', '0', '', 'Putricide - Green Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72852', '0', '18', '1', '38309', '1', '0', '', 'Putricide - Green Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '71621', '0', '18', '1', '38308', '2', '0', '', 'Putricide - Orange Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72850', '0', '18', '1', '38308', '2', '0', '', 'Putricide - Orange Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72851', '0', '18', '1', '38308', '2', '0', '', 'Putricide - Orange Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72852', '0', '18', '1', '38308', '2', '0', '', 'Putricide - Orange Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '71704', '0', '18', '1', '38309', '1', '0', '', 'Putricide - Green Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '71704', '0', '18', '1', '38308', '2', '0', '', 'Putricide - Orange Bottle');
+INSERT INTO `conditions` VALUES ('13', '0', '72745', '0', '18', '1', '36678', '0', '0', '', 'Putricide - Mutated Plague');
+INSERT INTO `conditions` VALUES ('13', '0', '72746', '0', '18', '1', '36678', '0', '0', '', 'Putricide - Mutated Plague');
+INSERT INTO `conditions` VALUES ('13', '0', '72747', '0', '18', '1', '36678', '0', '0', '', 'Putricide - Mutated Plague');
+INSERT INTO `conditions` VALUES ('13', '0', '72748', '0', '18', '1', '36678', '0', '0', '', 'Putricide - Mutated Plague');
+INSERT INTO `conditions` VALUES ('13', '0', '68861', '0', '18', '1', '36497', '0', '0', '', 'Bronjahm - Consume Soul');
+INSERT INTO `conditions` VALUES ('21', '38285', '71516', '0', '3', '49888', '0', '0', '0', '', 'Mutated Abomination - Unholy Infusion');
+INSERT INTO `conditions` VALUES ('13', '0', '70952', '0', '18', '1', '37970', '0', '0', '', 'Valanar - Invocation of Blood');
+INSERT INTO `conditions` VALUES ('13', '0', '70982', '0', '18', '1', '37973', '0', '0', '', 'Taldaram - Invocation of Blood');
+INSERT INTO `conditions` VALUES ('13', '0', '70981', '0', '18', '1', '37972', '0', '0', '', 'Keleseth - Invocation of Blood');
+INSERT INTO `conditions` VALUES ('13', '0', '70983', '0', '18', '1', '37970', '0', '0', '', 'Valanar - Invocation of Blood beam');
+INSERT INTO `conditions` VALUES ('13', '0', '70983', '0', '18', '1', '37973', '0', '0', '', 'Taldaram - Invocation of Blood beam');
+INSERT INTO `conditions` VALUES ('13', '0', '70983', '0', '18', '1', '37972', '0', '0', '', 'Keleseth - Invocation of Blood beam');
+INSERT INTO `conditions` VALUES ('13', '0', '71070', '0', '18', '1', '37970', '0', '0', '', 'Valanar - Invocation of Blood visual');
+INSERT INTO `conditions` VALUES ('13', '0', '71081', '0', '18', '1', '37973', '0', '0', '', 'Taldaram - Invocation of Blood visual');
+INSERT INTO `conditions` VALUES ('13', '0', '71080', '0', '18', '1', '37972', '0', '0', '', 'Keleseth - Invocation of Blood visual');
+
+
 -- creature
 
-DELETE FROM `creature` WHERE `id` IN(37813, 37013, 36659,37950);
+DELETE FROM `creature` WHERE `id` IN(37813, 37013, 36659, 37950);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, 
 `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (48969,37013,631,1,1,11686,0,4291.18,3092.92,372.97,2.33874,300,0,0,25200,0,0,0,0,0,0), -- puddle stalker
@@ -178,6 +224,13 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (93955,36659,631,15,1,11686,0,4267.87,3137.33,360.469,0,300,0,0,25200,0,0,0,0,0,0),
 (136107,37813,631,15,1,30790,0,-493.905,2211.35,541.114,3.18037,604800,0,0,12299490,0,0,0,0,0,0), -- saurfang
 (1000000,37950,631,15,16,0,0,4203.65,2483.89,390.961,5.51524,604800,0,0,6000003,0,0,0,0,33540,8);
+
+DELETE FROM `creature` WHERE `id`=37824;
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(104360, 37824, 631, 15, 1, 11686, 0, 4324.28, 3215.04, 408.705, 5.58505, 86400, 0, 0, 25200, 0, 0, 0, 0, 0, 0),
+(201508, 37824, 631, 15, 1, 11686, 0, 4388.1, 3213.29, 408.74, 3.83972, 86400, 0, 0, 25200, 0, 0, 0, 0, 0, 0),
+(201165, 37824, 631, 15, 1, 0, 0, 4388.1, 3213.29, 408.74, 3.83972, 86400, 0, 0, 25200, 0, 0, 0, 0, 0, 0);
+
 
 -- Linked spell
 
