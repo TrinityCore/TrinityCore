@@ -177,10 +177,7 @@ class boss_festergut : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_SPORE1);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_SPORE2);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GASTRIC_BLOAT);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED1);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED2);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED3);
+                instance->DoRemoveAurasDueToSpellOnPlayers(INOCULATED_HELPER);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VILE_GAS);
             }
             void JustReachedHome()
@@ -205,8 +202,7 @@ class boss_festergut : public CreatureScript
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     Talk(SAY_KILL);
-                    for (uint8 i = 0; i < 3; ++i)
-                        victim->RemoveAurasDueToSpell(SPELL_INOCULATED);
+                    victim->RemoveAurasDueToSpell(INOCULATED_HELPER);
                     victim->RemoveAurasDueToSpell(SPELL_VILE_GAS);
                     victim->RemoveAurasDueToSpell(SPELL_GAS_SPORE);
                 }
@@ -220,8 +216,7 @@ class boss_festergut : public CreatureScript
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (spell->Id == PUNGENT_BLIGHT_HELPER)
-                    for (uint8 i = 0; i < 3; ++i)
-                        target->RemoveAurasDueToSpell(INOCULATED_HELPER);
+                    target->RemoveAurasDueToSpell(INOCULATED_HELPER);
             }
 
             void UpdateAI(const uint32 diff)
@@ -260,7 +255,7 @@ class boss_festergut : public CreatureScript
                                 me->RemoveAurasDueToSpell(SPELL_INHALED_BLIGHT_1);
                                 me->RemoveAurasDueToSpell(SPELL_INHALED_BLIGHT_2);
                                 DoCast(me, PUNGENT_BLIGHT_HELPER, false);
-                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED);
+                                instance->DoRemoveAurasDueToSpellOnPlayers(INOCULATED_HELPER);
                                 inhaleCounter = 0;
                                 //Refill the room with gaseous blight at maximum power
                                 if (Creature* gasDummy = ObjectAccessor::GetCreature(*me, gasDummyGUID))
