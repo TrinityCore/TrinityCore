@@ -22,11 +22,11 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
 #include "SpellMgr.h"
 #include "UpdateMask.h"
 #include "World.h"
 #include "Group.h"
-#include "Guild.h"
 #include "ArenaTeam.h"
 #include "Transport.h"
 #include "Language.h"
@@ -270,7 +270,6 @@ ObjectMgr::ObjectMgr()
     m_ItemTextId        = 1;
     m_mailid            = 1;
     m_equipmentSetGuid  = 1;
-    m_guildId           = 1;
     m_auctionid         = 1;
     NextGroupStorageId  = 1;
 }
@@ -295,9 +294,6 @@ ObjectMgr::~ObjectMgr()
     for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
         delete *itr;
 
-    for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        delete itr->second;
-
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
         itr->second.Clear();
 
@@ -319,56 +315,6 @@ Group* ObjectMgr::GetGroupByStorageId(uint32 storageId) const
         return mGroupStorage[storageId];
 
     return NULL;
-}
-
-// Guild collection
-Guild* ObjectMgr::GetGuildById(uint32 guildId) const
-{
-    GuildMap::const_iterator itr = mGuildMap.find(guildId);
-    if (itr != mGuildMap.end())
-        return itr->second;
-
-    return NULL;
-}
-
-Guild* ObjectMgr::GetGuildByName(const std::string& guildname) const
-{
-    std::string search = guildname;
-    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-    {
-        std::string gname = itr->second->GetName();
-        std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
-        if (search == gname)
-            return itr->second;
-    }
-    return NULL;
-}
-
-std::string ObjectMgr::GetGuildNameById(uint32 guildId) const
-{
-    if (Guild* pGuild = GetGuildById(guildId))
-        return pGuild->GetName();
-    return "";
-}
-
-Guild* ObjectMgr::GetGuildByLeader(const uint64 &guid) const
-{
-    for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        if (itr->second->GetLeaderGUID() == guid)
-            return itr->second;
-
-    return NULL;
-}
-
-void ObjectMgr::AddGuild(Guild* guild)
-{
-    mGuildMap[guild->GetId()] = guild;
-}
-
-void ObjectMgr::RemoveGuild(uint32 guildId)
-{
-    mGuildMap.erase(guildId);
 }
 
 void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data)
@@ -3841,330 +3787,6 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     }
 }
 
-void ObjectMgr::LoadGuilds()
-{
-    // 1. Load all guilds
-    sLog->outString("Loading guilds definitions...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILDS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild definitions. DB table `guild` is empty.");
-            sLog->outString();
-            return;
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                Guild* pNewGuild = new Guild();
-
-                if (!pNewGuild->LoadFromDB(fields))
-                {
-                    delete pNewGuild;
-                    continue;
-                }
-                AddGuild(pNewGuild);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 2. Load all guild ranks
-    sLog->outString("Loading guild ranks...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphaned guild rank entries before loading the valid ones
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_RANKS);
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_RANKS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild ranks. DB table `guild_rank` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadRankFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild ranks in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 3. Load all guild members
-    sLog->outString("Loading guild members...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphaned guild member entries before loading the valid ones
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_MEMBERS);
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_MEMBERS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild members. DB table `guild_member` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadMemberFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild members int %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 4. Load all guild bank tab rights
-    sLog->outString("Loading bank tab rights...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphaned guild bank right entries before loading the valid ones
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_RIGHTS);
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_RIGHTS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadBankRightFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u bank tab rights in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 5. Load all event logs
-    sLog->outString("Loading guild event logs...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_EVENT_LOGS);
-        stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_EVENTLOGS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadEventLogFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 6. Load all bank event logs
-    sLog->outString("Loading guild bank event logs...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Remove log entries that exceed the number of allowed entries per guild
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_BANK_EVENT_LOGS);
-        stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_EVENTLOGS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadBankEventLogFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild bank event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 7. Load all guild bank tabs
-    sLog->outString("Loading guild bank tabs...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphaned guild bank tab entries before loading the valid ones
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_TABS);
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_TABS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadBankTabFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild bank tabs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 8. Fill all guild bank tabs
-    sLog->outString("Filling bank tabs with items...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphan guild bank items
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEMS);
-        CharacterDatabase.Execute(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_ITEMS);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            sLog->outString(">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
-            sLog->outString();
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[11].GetUInt32();
-
-                if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadBankItemFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outString(">> Loaded %u guild bank tab items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
-        }
-    }
-
-    // 9. Validate loaded guild data
-    sLog->outString("Validating data of loaded guilds...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        {
-            Guild* pGuild = itr->second;
-            if (pGuild)
-            {
-                if (!pGuild->Validate())
-                {
-                    RemoveGuild(pGuild->GetId());
-                    delete pGuild;
-                }
-            }
-        }
-
-        sLog->outString(">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
-        sLog->outString();
-    }
-}
-
 void ObjectMgr::LoadGroups()
 {
     {
@@ -6848,7 +6470,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(guildId) FROM guild");
     if (result)
-        m_guildId = (*result)[0].GetUInt32()+1;
+        sGuildMgr->SetNextGuildId((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
     if (result)
@@ -6875,16 +6497,6 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return m_equipmentSetGuid++;
-}
-
-uint32 ObjectMgr::GenerateGuildId()
-{
-    if (m_guildId >= 0xFFFFFFFE)
-    {
-        sLog->outError("Guild ids overflow!! Can't continue, shutting down server. ");
-        World::StopNow(ERROR_EXIT_CODE);
-    }
-    return m_guildId++;
 }
 
 uint32 ObjectMgr::GenerateMailID()

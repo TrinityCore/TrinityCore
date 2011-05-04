@@ -38,6 +38,7 @@
 #include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
 #include "TicketMgr.h"
 #include "CreatureEventAIMgr.h"
 #include "SpellMgr.h"
@@ -1516,7 +1517,7 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
-    sObjectMgr->LoadGuilds();
+    sGuildMgr->LoadGuilds();
 
     sLog->outString("Loading ArenaTeams...");
     sArenaTeamMgr->LoadArenaTeams();
