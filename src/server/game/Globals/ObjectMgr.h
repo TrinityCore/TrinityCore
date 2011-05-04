@@ -44,7 +44,6 @@
 #include <functional>
 
 class Group;
-class Guild;
 class Item;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
@@ -609,8 +608,6 @@ class ObjectMgr
         typedef std::set<Group *> GroupSet;
         typedef std::vector<Group *> GroupStorage;
 
-        typedef UNORDERED_MAP<uint32, Guild*> GuildMap;
-
         typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
 
         typedef UNORDERED_MAP<uint32, AreaTrigger> AreaTriggerMap;
@@ -650,12 +647,6 @@ class ObjectMgr
         void SetNextGroupStorageId(uint32 storageId) { NextGroupStorageId = storageId; };
         Group* GetGroupByStorageId(uint32 storageId) const;
 
-        Guild* GetGuildByLeader(uint64 const&guid) const;
-        Guild* GetGuildById(uint32 guildId) const;
-        Guild* GetGuildByName(const std::string& guildname) const;
-        std::string GetGuildNameById(uint32 guildId) const;
-        void AddGuild(Guild* pGuild);
-        void RemoveGuild(uint32 guildId);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
@@ -837,7 +828,6 @@ class ObjectMgr
             return NULL;
         }
 
-        void LoadGuilds();
         void LoadGroups();
         void LoadQuests();
         void LoadQuestRelations()
@@ -987,7 +977,7 @@ class ObjectMgr
         uint32 GenerateLowGuid(HighGuid guidhigh);
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
-        uint32 GenerateGuildId();
+
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
 
@@ -1258,7 +1248,6 @@ class ObjectMgr
         // first free id for selected id type
         uint32 m_auctionid;
         uint64 m_equipmentSetGuid;
-        uint32 m_guildId;
         uint32 m_ItemTextId;
         uint32 m_mailid;
         uint32 m_hiPetNumber;
@@ -1288,7 +1277,6 @@ class ObjectMgr
 
         GroupSet            mGroupSet;
         GroupStorage        mGroupStorage;
-        GuildMap            mGuildMap;
 
         QuestAreaTriggerMap mQuestAreaTriggerMap;
         TavernAreaTriggerSet mTavernAreaTriggerSet;
