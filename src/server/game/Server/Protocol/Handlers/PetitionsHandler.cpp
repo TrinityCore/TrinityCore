@@ -23,6 +23,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
@@ -155,7 +156,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 
     if (type == GUILD_CHARTER_TYPE)
     {
-        if (sObjectMgr->GetGuildByName(name))
+        if (sGuildMgr->GetGuildByName(name))
         {
             Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
             return;
@@ -405,7 +406,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 
     if (type == GUILD_CHARTER_TYPE)
     {
-        if (sObjectMgr->GetGuildByName(newname))
+        if (sGuildMgr->GetGuildByName(newname))
         {
             Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, newname);
             return;
@@ -750,7 +751,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         }
 
         // Check if guild name is already taken
-        if (sObjectMgr->GetGuildByName(name))
+        if (sGuildMgr->GetGuildByName(name))
         {
             Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
             return;
@@ -822,7 +823,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         }
 
         // Register guild and add guild master
-        sObjectMgr->AddGuild(guild);
+        sGuildMgr->AddGuild(guild);
 
         // Add members from signatures
         for (uint8 i = 0; i < signatures; ++i)
