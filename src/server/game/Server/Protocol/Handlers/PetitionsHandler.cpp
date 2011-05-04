@@ -22,6 +22,8 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
@@ -154,7 +156,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 
     if (type == GUILD_CHARTER_TYPE)
     {
-        if (sObjectMgr->GetGuildByName(name))
+        if (sGuildMgr->GetGuildByName(name))
         {
             Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
             return;
@@ -167,7 +169,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     }
     else
     {
-        if (sObjectMgr->GetArenaTeamByName(name))
+        if (sArenaTeamMgr->GetArenaTeamByName(name))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_NAME_EXISTS_S);
             return;
@@ -404,7 +406,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 
     if (type == GUILD_CHARTER_TYPE)
     {
-        if (sObjectMgr->GetGuildByName(newname))
+        if (sGuildMgr->GetGuildByName(newname))
         {
             Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, newname);
             return;
@@ -417,7 +419,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     }
     else
     {
-        if (sObjectMgr->GetArenaTeamByName(newname))
+        if (sArenaTeamMgr->GetArenaTeamByName(newname))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, newname, "", ERR_ARENA_TEAM_NAME_EXISTS_S);
             return;
@@ -749,7 +751,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         }
 
         // Check if guild name is already taken
-        if (sObjectMgr->GetGuildByName(name))
+        if (sGuildMgr->GetGuildByName(name))
         {
             Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
             return;
@@ -770,7 +772,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         }
 
         // Check if arena team name is already taken
-        if (sObjectMgr->GetArenaTeamByName(name))
+        if (sArenaTeamMgr->GetArenaTeamByName(name))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_NAME_EXISTS_S);
             return;
@@ -821,7 +823,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         }
 
         // Register guild and add guild master
-        sObjectMgr->AddGuild(guild);
+        sGuildMgr->AddGuild(guild);
 
         // Add members from signatures
         for (uint8 i = 0; i < signatures; ++i)
@@ -847,7 +849,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         }
 
         // Register arena team
-        sObjectMgr->AddArenaTeam(arenaTeam);
+        sArenaTeamMgr->AddArenaTeam(arenaTeam);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "PetitonsHandler: Arena team (guid: %u) added to ObjectMgr", arenaTeam->GetId());
 
         // Add members

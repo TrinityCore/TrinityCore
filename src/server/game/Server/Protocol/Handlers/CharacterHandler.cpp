@@ -19,6 +19,8 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
 #include "SystemConfig.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -613,7 +615,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     std::string name;
 
     // is guild leader
-    if (sObjectMgr->GetGuildByLeader(guid))
+    if (sGuildMgr->GetGuildByLeader(guid))
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
         data << (uint8)CHAR_DELETE_FAILED_GUILD_LEADER;
@@ -622,7 +624,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     }
 
     // is arena team captain
-    if (sObjectMgr->GetArenaTeamByCaptain(guid))
+    if (sArenaTeamMgr->GetArenaTeamByCaptain(guid))
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
         data << (uint8)CHAR_DELETE_FAILED_ARENA_CAPTAIN;
@@ -788,7 +790,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (pCurrChar->GetGuildId() != 0)
     {
-        if (Guild* pGuild = sObjectMgr->GetGuildById(pCurrChar->GetGuildId()))
+        if (Guild* pGuild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             pGuild->SendLoginInfo(this);
         else
         {

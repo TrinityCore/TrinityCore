@@ -21,6 +21,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
@@ -32,7 +33,7 @@
 inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
 {
     if (uint32 guildId = session->GetPlayer()->GetGuildId())    // If guild id = 0, player is not in guild
-        if (Guild* pGuild = sObjectMgr->GetGuildById(guildId))   // Find guild by id
+        if (Guild* pGuild = sGuildMgr->GetGuildById(guildId))   // Find guild by id
             return pGuild;
     if (sendError)
         Guild::SendCommandResult(session, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
@@ -46,7 +47,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
     uint32 guildId;
     recvPacket >> guildId;
     // Use received guild id to access guild method (not player's guild id)
-    if (Guild* pGuild = sObjectMgr->GetGuildById(guildId))
+    if (Guild* pGuild = sGuildMgr->GetGuildById(guildId))
         pGuild->HandleQuery(this);
     else
         Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
@@ -63,7 +64,7 @@ void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
     {
         Guild* pGuild = new Guild();
         if (pGuild->Create(GetPlayer(), name))
-            sObjectMgr->AddGuild(pGuild);
+            sGuildMgr->AddGuild(pGuild);
         else
             delete pGuild;
     }
@@ -99,7 +100,7 @@ void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
     // Player cannot be in guild
     if (!GetPlayer()->GetGuildId())
         // Guild where player was invited must exist
-        if (Guild* pGuild = sObjectMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
+        if (Guild* pGuild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
             pGuild->HandleAcceptMember(this);
 }
 
