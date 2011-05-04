@@ -1651,10 +1651,13 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Id)
         {
-            case 52588: // Skeletal Gryphon Escape
             case 48598: // Ride Flamebringer Cue
                 unitTarget->RemoveAura(damage);
                 break;
+            case 52588: // Skeletal Gryphon Escape
+                unitTarget->RemoveAura(damage);
+                unitTarget->CastSpell(unitTarget, spellInfo, true);
+                return;
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
@@ -1668,7 +1671,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
 
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastSpell(unitTarget, spellInfo, true);
+    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
