@@ -20,6 +20,7 @@
 #include "QuestDef.h"
 #include "GameObjectAI.h"
 #include "ObjectMgr.h"
+#include "GroupMgr.h"
 #include "PoolMgr.h"
 #include "SpellMgr.h"
 #include "Spell.h"
@@ -500,7 +501,7 @@ void GameObject::Update(uint32 diff)
                     {
                         if (m_groupLootTimer <= diff)
                         {
-                            Group* group = sObjectMgr->GetGroupByGUID(lootingGroupLowGUID);
+                            Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
                             if (group)
                                 group->EndRoll(&loot);
                             m_groupLootTimer = 0;
