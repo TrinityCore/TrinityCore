@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "LFGMgr.h"
+#include "GroupMgr.h"
 #include "LFGScripts.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
@@ -816,7 +817,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
         if (IS_GROUP(guid))
         {
             uint32 lowGuid = GUID_LOPART(guid);
-            if (Group* grp = sObjectMgr->GetGroupByGUID(lowGuid))
+            if (Group* grp = sGroupMgr->GetGroupByGUID(lowGuid))
                 if (grp->isLFGGroup())
                 {
                     if (!numLfgGroups)
@@ -1325,7 +1326,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, const uint64& guid, bool accept)
 
         // Create a new group (if needed)
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND);
-        Group* grp = pProposal->groupLowGuid ? sObjectMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
+        Group* grp = pProposal->groupLowGuid ? sGroupMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
         {
             Player* plr = (*it);
@@ -1349,7 +1350,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, const uint64& guid, bool accept)
                 grp->ConvertToLFG();
                 uint64 gguid = grp->GetGUID();
                 SetState(gguid, LFG_STATE_PROPOSAL);
-                sObjectMgr->AddGroup(grp);
+                sGroupMgr->AddGroup(grp);
             }
             else if (group != grp)
                 grp->AddMember(plr);
