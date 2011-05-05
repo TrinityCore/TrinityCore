@@ -5950,8 +5950,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     // Lifebloom
                     if (GetSpellProto()->SpellFamilyFlags[1] & 0x10)
                     {
-                        // Final heal only on dispelled or duration end
-                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && aurApp->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                        // Final heal only on duration end
+                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                             return;
 
                         // final heal
