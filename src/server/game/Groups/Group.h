@@ -213,7 +213,7 @@ class Group
         const uint64& GetLooterGuid() const;
         ItemQualities GetLootThreshold() const;
 
-        uint32 GetStorageId() { return m_storageId; };
+        uint32 GetDbStoreId() { return m_dbStoreId; };
 
         // member manipulation methods
         bool IsMember(const uint64& guid) const;
@@ -329,6 +329,6 @@ class Group
         uint64              m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
-        uint32              m_storageId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
+        uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
 };
 #endif
