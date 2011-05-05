@@ -1052,7 +1052,7 @@ class SpellMgr
         }
 
         // Spell Difficulty data
-        SpellEntry const* GetSpellForDifficultyFromSpell(SpellEntry const* spell, Unit* Caster)
+        SpellEntry const* GetSpellForDifficultyFromSpell(SpellEntry const* spell, const Unit* Caster)
         {
             //spell never can be NULL in this case!
             if (!Caster || !Caster->GetMap() ||  !Caster->GetMap()->IsDungeon())
