@@ -485,14 +485,19 @@ AuraState GetSpellAuraState(SpellEntry const* spellInfo)
         return AURA_STATE_BLEEDING;
 
     if (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST)
-    {
         for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
-        {
             if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_STUN
                 || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_ROOT)
                 return AURA_STATE_FROZEN;
-        }
+
+    switch (spellInfo->Id)
+    {
+        case 71465: // Divine Surge
+            return AURA_STATE_UNKNOWN22;
+        default:
+            break;
     }
+
     return AURA_STATE_NONE;
 }
 
