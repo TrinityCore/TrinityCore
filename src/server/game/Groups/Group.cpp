@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "GroupMgr.h"
 #include "Group.h"
 #include "Formulas.h"
 #include "ObjectAccessor.h"
@@ -57,7 +58,7 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
 m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
-m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_storageId(0)
+m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -95,7 +96,7 @@ Group::~Group()
 bool Group::Create(Player *leader)
 {
     uint64 leaderGuid = leader->GetGUID();
-    uint32 lowguid = sObjectMgr->GenerateLowGuid(HIGHGUID_GROUP);
+    uint32 lowguid = sGroupMgr->GenerateGroupId();
 
     m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
     m_leaderGuid = leaderGuid;
@@ -118,14 +119,14 @@ bool Group::Create(Player *leader)
         m_dungeonDifficulty = leader->GetDungeonDifficulty();
         m_raidDifficulty = leader->GetRaidDifficulty();
 
-        m_storageId = sObjectMgr->GenerateNewGroupStorageId();
+        m_dbStoreId = sGroupMgr->GenerateNewGroupDbStoreId();
 
-        sObjectMgr->RegisterGroupStorageId(m_storageId, this);
+        sGroupMgr->RegisterGroupDbStoreId(m_dbStoreId, this);
 
         // store group in database
         CharacterDatabase.PExecute("INSERT INTO groups (guid, leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raiddifficulty) "
             "VALUES ('%u', '%u', '%u', '%u', '%u', '" UI64FMTD "', '" UI64FMTD "', '" UI64FMTD "', '" UI64FMTD "', '" UI64FMTD "', '" UI64FMTD "', '" UI64FMTD "', '" UI64FMTD "', '%u', '%u', '%u')",
-            m_storageId, GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
+            m_dbStoreId, GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
             GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6],
             m_targetIcons[7], uint8(m_groupType), uint32(m_dungeonDifficulty), m_raidDifficulty);
 
@@ -141,8 +142,8 @@ bool Group::Create(Player *leader)
 
 void Group::LoadGroupFromDB(Field *fields)
 {
-    m_storageId = fields[15].GetUInt32();
-    m_guid = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_GROUP), 0, HIGHGUID_GROUP);
+    m_dbStoreId = fields[15].GetUInt32();
+    m_guid = MAKE_NEW_GUID(sGroupMgr->GenerateGroupId(), 0, HIGHGUID_GROUP);
     m_leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
 
     // group leader not exist
@@ -200,7 +201,7 @@ void Group::ConvertToLFG()
     m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_UNK1);
     m_lootMethod = NEED_BEFORE_GREED;
     if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE groups SET groupType='%u' WHERE guid='%u'", uint8(m_groupType), m_storageId);
+        CharacterDatabase.PExecute("UPDATE groups SET groupType='%u' WHERE guid='%u'", uint8(m_groupType), m_dbStoreId);
     SendUpdate();
 }
 
@@ -211,7 +212,7 @@ void Group::ConvertToRaid()
     _initRaidSubGroupsCounter();
 
     if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE groups SET groupType='%u' WHERE guid='%u'", uint8(m_groupType), m_storageId);
+        CharacterDatabase.PExecute("UPDATE groups SET groupType='%u' WHERE guid='%u'", uint8(m_groupType), m_dbStoreId);
     SendUpdate();
 
     // update quest related GO states (quest activity dependent from raid membership)
@@ -344,7 +345,7 @@ bool Group::AddMember(Player *player)
     // insert into the table if we're not a battleground group
     if (!isBGGroup())
         CharacterDatabase.PExecute("INSERT INTO group_member (guid, memberGuid, memberFlags, subgroup, roles) VALUES(%u, %u, %u, %u, %u)",
-                                    m_storageId, GUID_LOPART(member.guid), member.flags, member.group, member.roles);
+                                    m_dbStoreId, GUID_LOPART(member.guid), member.flags, member.group, member.roles);
 
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
@@ -531,13 +532,13 @@ void Group::ChangeLeader(const uint64 &guid)
 
         // Same in the database
         CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid=%u AND (permanent = 1 OR instance IN (SELECT instance FROM character_instance WHERE guid = '%u'))",
-            m_storageId, player->GetGUIDLow());
+            m_dbStoreId, player->GetGUIDLow());
 
         // Copy the permanent binds from the new leader to the group
         Player::ConvertInstancesToGroup(player, this, true);
 
         // update the group leader
-        CharacterDatabase.PExecute("UPDATE groups SET leaderGuid='%u' WHERE guid='%u'", player->GetGUIDLow(), m_storageId);
+        CharacterDatabase.PExecute("UPDATE groups SET leaderGuid='%u' WHERE guid='%u'", player->GetGUIDLow(), m_dbStoreId);
     }
 
     m_leaderGuid = player->GetGUID();
@@ -610,16 +611,16 @@ void Group::Disband(bool hideDestroy /* = false */)
     if (!isBGGroup())
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        trans->PAppend("DELETE FROM groups WHERE guid = %u", m_storageId);
-        trans->PAppend("DELETE FROM group_member WHERE guid = %u", m_storageId);
+        trans->PAppend("DELETE FROM groups WHERE guid = %u", m_dbStoreId);
+        trans->PAppend("DELETE FROM group_member WHERE guid = %u", m_dbStoreId);
         CharacterDatabase.CommitTransaction(trans);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
 
-        sObjectMgr->FreeGroupStorageId(this);
+        sGroupMgr->FreeGroupDbStoreId(this);
     }
 
-    sObjectMgr->RemoveGroup(this);
+    sGroupMgr->RemoveGroup(this);
     delete this;
 }
 
@@ -1538,7 +1539,7 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
 {
     m_dungeonDifficulty = difficulty;
     if (!isBGGroup())
-       CharacterDatabase.PExecute("UPDATE groups SET difficulty = %u WHERE guid ='%u'", m_dungeonDifficulty, m_storageId);
+       CharacterDatabase.PExecute("UPDATE groups SET difficulty = %u WHERE guid ='%u'", m_dungeonDifficulty, m_dbStoreId);
 
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1555,7 +1556,7 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
 {
     m_raidDifficulty = difficulty;
     if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE groups SET raiddifficulty = %u WHERE guid ='%u'", m_raidDifficulty, m_storageId);
+        CharacterDatabase.PExecute("UPDATE groups SET raiddifficulty = %u WHERE guid ='%u'", m_raidDifficulty, m_dbStoreId);
 
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1696,7 +1697,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave *save, bool permanent, boo
 
     InstanceGroupBind& bind = m_boundInstances[save->GetDifficulty()][save->GetMapId()];
     if (!load && (!bind.save || permanent != bind.perm || save != bind.save))
-        CharacterDatabase.PExecute("REPLACE INTO group_instance (guid, instance, permanent) VALUES (%u, %u, %u)", m_storageId, save->GetInstanceId(), permanent);
+        CharacterDatabase.PExecute("REPLACE INTO group_instance (guid, instance, permanent) VALUES (%u, %u, %u)", m_dbStoreId, save->GetInstanceId(), permanent);
 
     if (bind.save != save)
     {
@@ -1709,7 +1710,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave *save, bool permanent, boo
     bind.perm = permanent;
     if (!load)
         sLog->outDebug(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
-        GUID_LOPART(GetGUID()), m_storageId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
+        GUID_LOPART(GetGUID()), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
 
     return &bind;
 }
@@ -1720,7 +1721,7 @@ void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
     if (itr != m_boundInstances[difficulty].end())
     {
         if (!unload)
-            CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid=%u AND instance=%u", m_storageId, itr->second.save->GetInstanceId());
+            CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid=%u AND instance=%u", m_dbStoreId, itr->second.save->GetInstanceId());
         itr->second.save->RemoveGroup(this);                // save can become invalid
         m_boundInstances[difficulty].erase(itr);
     }

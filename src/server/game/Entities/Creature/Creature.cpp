@@ -21,6 +21,7 @@
 #include "WorldPacket.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "GroupMgr.h"
 #include "SpellMgr.h"
 #include "Creature.h"
 #include "QuestDef.h"
@@ -480,7 +481,7 @@ void Creature::Update(uint32 diff)
 
                 if (m_groupLootTimer <= diff)
                 {
-                    Group* group = sObjectMgr->GetGroupByGUID(lootingGroupLowGUID);
+                    Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
                     if (group)
                         group->EndRoll(&loot);
                     m_groupLootTimer = 0;
@@ -977,7 +978,7 @@ Group *Creature::GetLootRecipientGroup() const
 {
     if (!m_lootRecipientGroup)
         return NULL;
-    return sObjectMgr->GetGroupByGUID(m_lootRecipientGroup);
+    return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
 }
 
 void Creature::SetLootRecipient(Unit *unit)
