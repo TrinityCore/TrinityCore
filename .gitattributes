@@ -1,0 +1,16 @@
+# Lineendings
+*.sln        eol=crlf
+*.vcproj     eol=crlf
+*.vcxproj*   eol=crlf
+
+# Whitespace rules
+# strict (no trailing, no tabs)
+*.cpp        whitespace=trailing-space,space-before-tab,tab-in-indent,cr-at-eol
+*.h          whitespace=trailing-space,space-before-tab,tab-in-indent,cr-at-eol
+
+# normal (no trailing)
+*.sql        whitespace=trailing-space,space-before-tab,cr-at-eol
+*.txt        whitespace=trailing-space,space-before-tab,cr-at-eol
+
+# special files which must ignore whitespace
+*.patch      whitespace=-trailing-space

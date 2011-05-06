@@ -148,9 +148,13 @@ public:
             return true;
         uint32 family = clsEntry->spellfamily;
 
-        for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
         {
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(i);
+            SkillLineAbilityEntry const *entry = sSkillLineAbilityStore.LookupEntry(i);
+            if (!entry)
+                continue;
+                
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(entry->spellId);
             if (!spellInfo)
                 continue;
 
@@ -175,7 +179,7 @@ public:
             if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            handler->GetSession()->GetPlayer()->learnSpell(i, false);
+            handler->GetSession()->GetPlayer()->learnSpell(spellInfo->Id, false);
         }
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_SPELLS);
