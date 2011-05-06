@@ -308,7 +308,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                         break;
                     case POINT_MINCHAR:
-                        DoCast(me, SPELL_ANNIHILATE, true);
+                        if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
+                            minchar->CastSpell(minchar, SPELL_ANNIHILATE, true);
                         // already in evade mode
                         me->GetMotionMaster()->MoveTargetedHome();
                         Reset();
