@@ -35,6 +35,8 @@ enum Texts
     SAY_KILL                    = 6,
     SAY_BERSERK                 = 7,
     SAY_DEATH                   = 8,
+
+    EMOTE_PRECIOUS_ZOMBIES      = 0,
 };
 
 enum Spells
@@ -59,20 +61,24 @@ enum Spells
     // Precious
     SPELL_MORTAL_WOUND                      = 71127,
     SPELL_DECIMATE                          = 71123,
+    SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159,
 };
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
 
 enum Events
 {
+    // Rotface
     EVENT_SLIME_SPRAY       = 1,
     EVENT_HASTEN_INFECTIONS = 2,
     EVENT_MUTATED_INFECTION = 3,
 
+    // Precious
     EVENT_DECIMATE          = 4,
     EVENT_MORTAL_WOUND      = 5,
+    EVENT_SUMMON_ZOMBIES    = 6,
 
-    EVENT_STICKY_OOZE       = 6,
+    EVENT_STICKY_OOZE       = 7,
 };
 
 class boss_rotface : public CreatureScript
@@ -363,14 +369,15 @@ class npc_precious_icc : public CreatureScript
         {
             npc_precious_iccAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
             }
 
             void UpdateAI(const uint32 diff)
@@ -378,22 +385,28 @@ class npc_precious_icc : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            break;
+                        case EVENT_SUMMON_ZOMBIES:
+                            Talk(EMOTE_PRECIOUS_ZOMBIES);
+                            for (uint32 i = 0; i < 11; ++i)
+                                DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
+                            _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
                             break;
                         default:
                             break;
@@ -405,14 +418,14 @@ class npc_precious_icc : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
                     if (rotface->isAlive())
                         rotface->AI()->Talk(SAY_PRECIOUS_DIES);
             }
 
         private:
-            EventMap events;
-            InstanceScript* instance;
+            EventMap _events;
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -435,10 +448,10 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                std::list<Creature*> list;
-                GetHitUnit()->GetCreatureListWithEntryInGrid(list, GetHitUnit()->GetEntry(), 12.5f);
-                list.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-                GetHitUnit()->CastSpell(list.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
+                std::list<Creature*> triggers;
+                GetHitUnit()->GetCreatureListWithEntryInGrid(triggers, GetHitUnit()->GetEntry(), 12.5f);
+                triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
+                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
             void FilterTargets(std::list<Unit*>& targetList)
