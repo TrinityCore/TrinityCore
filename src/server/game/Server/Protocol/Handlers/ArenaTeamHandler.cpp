@@ -204,6 +204,13 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket & recvData)
     if (!arenaTeam)
         return;
 
+    // Disallow leave team while in arena
+    if (_player->InArena())
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAM_INTERNAL);
+        return;
+    }
+
     // Team captain can't leave the team if other members are still present
     if (_player->GetGUID() == arenaTeam->GetCaptain() && arenaTeam->GetMembersSize() > 1)
     {
