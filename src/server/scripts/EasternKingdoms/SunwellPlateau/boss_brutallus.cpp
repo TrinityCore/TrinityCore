@@ -155,7 +155,6 @@ public:
         {
             if (!Intro || IsIntro)
                 return;
-            sLog->outError("Start Intro");
             Creature *Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
             if (Madrigosa)
             {
@@ -167,7 +166,8 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->Attack(Madrigosa, true);
                 Madrigosa->Attack(me, true);
-            }else
+            }
+            else
             {
                 //Madrigosa not found, end intro
                 sLog->outError("Madrigosa was not found");
@@ -180,7 +180,6 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             Intro = false;
             IsIntro = false;
-            sLog->outError("End Intro");
         }
 
         void AttackStart(Unit* pWho)
