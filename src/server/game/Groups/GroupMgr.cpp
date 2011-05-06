@@ -99,12 +99,12 @@ Group* GroupMgr::GetGroupByGUID(uint32 groupId) const
 
 void GroupMgr::AddGroup(Group* group)
 {
-    GroupStore[group->GetGUID()] = group;
+    GroupStore[group->GetLowGUID()] = group;
 }
 
 void GroupMgr::RemoveGroup(Group* group)
 {
-    GroupStore.erase(group->GetGUID());
+    GroupStore.erase(group->GetLowGUID());
 }
 
 void GroupMgr::LoadGroups()
