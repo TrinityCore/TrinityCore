@@ -3588,7 +3588,8 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 caster, uint8 reqEffMask
 {
     // check for spell-difficulty to get rid of helpers in scripts like RAID_MODE
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-    spellId = sSpellMgr->GetSpellForDifficultyFromSpell(spellInfo, this)->Id;
+    if(spellInfo)
+        spellId = sSpellMgr->GetSpellForDifficultyFromSpell(spellInfo, this)->Id;
 
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
     {
@@ -4204,7 +4205,8 @@ uint32 Unit::GetAuraCount(uint32 spellId) const
 bool Unit::HasAura(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask) const
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-    spellId = sSpellMgr->GetSpellForDifficultyFromSpell(spellInfo, this)->Id;
+    if(spellInfo)
+        spellId = sSpellMgr->GetSpellForDifficultyFromSpell(spellInfo, this)->Id;
 
     if (GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask))
         return true;
