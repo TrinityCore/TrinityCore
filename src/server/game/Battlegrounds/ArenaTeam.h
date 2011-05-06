@@ -20,6 +20,8 @@
 #define TRINITYCORE_ARENATEAM_H
 
 #include "QueryResult.h"
+#include "Player.h"
+#include "ObjectMgr.h"
 
 class WorldSession;
 

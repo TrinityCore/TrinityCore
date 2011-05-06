@@ -676,7 +676,7 @@ public:
         return true;
     }
 
-    //Edit Player Scale
+    //Edit Player or Creature Scale
     static bool HandleModifyScaleCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
@@ -690,21 +690,24 @@ public:
             return false;
         }
 
-        Player* target = handler->getSelectedPlayer();
+        Unit* target = handler->getSelectedUnit();
         if (!target)
         {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        // check online security
-        if (handler->HasLowerSecurity(target, 0))
-            return false;
-
-        handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink(target).c_str());
-        if (handler->needReportToTarget(target))
-            (ChatHandler(target)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
+        
+        if (target->GetTypeId()==TYPEID_PLAYER)
+        {
+            // check online security
+            if (handler->HasLowerSecurity((Player*)target, 0))
+                return false;
+                
+            handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink((Player*)target).c_str());
+            if (handler->needReportToTarget((Player*)target))
+                (ChatHandler((Player*)target)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
+        }
 
         target->SetFloatValue(OBJECT_FIELD_SCALE_X, Scale);
 

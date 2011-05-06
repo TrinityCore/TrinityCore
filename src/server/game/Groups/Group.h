@@ -25,6 +25,7 @@
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
+#include "Player.h"
 
 class Creature;
 class GroupReference;
