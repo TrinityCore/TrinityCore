@@ -3547,12 +3547,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     }
                     break;
                 }
-                case SPELL_EFFECT_KNOCK_BACK:
-                case SPELL_EFFECT_KNOCK_BACK_DEST:
-                    if (spellInfo->EffectMechanic[i] == MECHANIC_NONE)
-                        spellInfo->EffectMechanic[i] = MECHANIC_KNOCKOUT;
-                    ++count;
-                    break;
             }
 
             switch (SpellTargetType[spellInfo->EffectImplicitTargetA[j]])

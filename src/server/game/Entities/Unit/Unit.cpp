@@ -16200,7 +16200,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         player = (Player*)this;
     else
     {
-        player = dynamic_cast<Player*>(GetCharmer());
+        player = GetCharmer()->ToPlayer();
         if (player && player->m_mover != this)
             player = NULL;
     }
