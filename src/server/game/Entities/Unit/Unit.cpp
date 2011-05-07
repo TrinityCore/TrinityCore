@@ -3622,7 +3622,7 @@ inline void Unit::RemoveAuraFromStack(AuraMap::iterator &iter, AuraRemoveMode re
         RemoveOwnedAura(iter, removeMode);
 }
 
-void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeller, uint8 chargesRemoved/*= 1*/)
+void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved/*= 1*/)
 {
     for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
     {
@@ -3636,63 +3636,80 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
             }
             else
                 RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL, chargesRemoved);
-        
-            //Lifebloom
-            if (aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID && (aura->GetSpellProto()->SpellFamilyFlags[1] & 0x10))
-            {
-                if (Unit * caster = aura->GetCaster())
-                {
-					if (AuraEffect const * aurEff = aura->GetEffect(EFFECT_1))
-                    {
-                        // final heal
-                        int32 healAmount = aurEff->GetAmount();
-                        int32 stack = chargesRemoved;
-                        CastCustomSpell(this, 33778, &healAmount, &stack, NULL, true, NULL, NULL, aura->GetCasterGUID());
 
-                        // mana
-                        int32 mana = CalculatePctU(caster->GetCreateMana(), aura->GetSpellProto()->ManaCostPercentage) * chargesRemoved / 2;
-                        caster->CastCustomSpell(caster, 64372, &mana, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
-                    }
-                }
-            }
-            // Unstable Affliction (crash if before removeaura?)
-            if (aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (aura->GetSpellProto()->SpellFamilyFlags[1] & 0x0100))
+            switch (aura->GetSpellProto()->SpellFamilyName)
             {
-                if (AuraEffect const * aurEff = aura->GetEffect(EFFECT_0))
+                case SPELLFAMILY_WARLOCK:
                 {
-                    int32 damage = aurEff->GetAmount()*9;
-                    // backfire damage and silence
-                    dispeller->CastCustomSpell(dispeller, 31117, &damage, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
-                }
-            }
-            // Flame Shock
-            if (aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN && (aura->GetSpellProto()->SpellFamilyFlags[0] & 0x10000000))
-            {
-                Unit * caster = aura->GetCaster();
-                if (caster)
-                {
-                    uint32 triggeredSpellId = 0;
-                    // Lava Flows
-                    if (AuraEffect const * aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 3087, 0))
+                    // Unstable Affliction (crash if before removeaura?)
+                    if (aura->GetSpellProto()->SpellFamilyFlags[1] & 0x0100)
                     {
-                        switch(aurEff->GetId())
+                        if (AuraEffect const* aurEff = aura->GetEffect(EFFECT_0))
                         {
-                            case 51482: // Rank 3
-                                triggeredSpellId = 65264;
-                                break;
-                            case 51481: // Rank 2
-                                triggeredSpellId = 65263;
-                                break;
-                            case 51480: // Rank 1
-                                triggeredSpellId = 64694;
-                                break;
-                            default:
-                                sLog->outError("Aura::HandleAuraSpecificMods: Unknown rank of Lava Flows (%d) found", aurEff->GetId());
+                            int32 damage = aurEff->GetAmount() * 9;
+                            // backfire damage and silence
+                            dispeller->CastCustomSpell(dispeller, 31117, &damage, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
                         }
                     }
-                    if (triggeredSpellId)
-                        caster->CastSpell(caster, triggeredSpellId, true);
+                    break;
                 }
+                case SPELLFAMILY_DRUID:
+                {
+                    //Lifebloom
+                    if (aura->GetSpellProto()->SpellFamilyFlags[1] & 0x10)
+                    {
+                        if (AuraEffect const* aurEff = aura->GetEffect(EFFECT_1))
+                        {
+                            // final heal
+                            int32 healAmount = aurEff->GetAmount();
+                            int32 stack = chargesRemoved;
+                            CastCustomSpell(this, 33778, &healAmount, &stack, NULL, true, NULL, NULL, aura->GetCasterGUID());
+
+                            // mana
+                            if (Unit* caster = aura->GetCaster())
+                            {
+                                int32 mana = CalculatePctU(caster->GetCreateMana(), aura->GetSpellProto()->ManaCostPercentage) * chargesRemoved / 2;
+                                caster->CastCustomSpell(caster, 64372, &mana, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
+                            }
+                        }
+                    }
+                    break;
+                }
+                case SPELLFAMILY_SHAMAN:
+                {
+                    // Flame Shock
+                    if (aura->GetSpellProto()->SpellFamilyFlags[0] & 0x10000000)
+                    {
+                        if (Unit* caster = aura->GetCaster())
+                        {
+                            uint32 triggeredSpellId = 0;
+                            // Lava Flows
+                            if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 3087, 0))
+                            {
+                                switch (aurEff->GetId())
+                                {
+                                    case 51482: // Rank 3
+                                        triggeredSpellId = 65264;
+                                        break;
+                                    case 51481: // Rank 2
+                                        triggeredSpellId = 65263;
+                                        break;
+                                    case 51480: // Rank 1
+                                        triggeredSpellId = 64694;
+                                        break;
+                                    default:
+                                        sLog->outError("Unit::RemoveAurasDueToSpellByDispel: Unknown rank of Lava Flows (%d) found", aurEff->GetId());
+                                }
+                            }
+
+                            if (triggeredSpellId)
+                                caster->CastSpell(caster, triggeredSpellId, true);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
             return;
         }
