@@ -1332,7 +1332,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             {
                 CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(data2->id);
                 uint32 displayID = sObjectMgr->ChooseDisplayId(0, cinfo, data2);
-                CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+                sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                 if (data2->equipmentId == 0)
                     itr->second.equipement_id_prev = cinfo->equipmentId;

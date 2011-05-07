@@ -1122,9 +1122,9 @@ void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate *cinfo, uint32& npcfl
     }
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 &displayID)
+CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID)
 {
-    CreatureModelInfo const* minfo = GetCreatureModelInfo(displayID);
+    CreatureModelInfo const* minfo = GetCreatureModelInfo(*displayID);
     if (!minfo)
         return NULL;
 
@@ -1139,7 +1139,7 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 &display
         else
         {
             // Model ID changed
-            displayID = minfo->modelid_other_gender;
+            *displayID = minfo->modelid_other_gender;
             return minfo_tmp;
         }
     }
@@ -5788,7 +5788,7 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
     }
 
     // minfo is not actually used but the mount_id was updated
-    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(mount_id);
+    sObjectMgr->GetCreatureModelRandomGender(&mount_id);
 
     return mount_id;
 }
