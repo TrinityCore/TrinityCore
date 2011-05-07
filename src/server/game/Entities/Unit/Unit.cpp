@@ -16198,7 +16198,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     Player *player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;
-    else
+    else if (GetCharmer())
     {
         player = GetCharmer()->ToPlayer();
         if (player && player->m_mover != this)
