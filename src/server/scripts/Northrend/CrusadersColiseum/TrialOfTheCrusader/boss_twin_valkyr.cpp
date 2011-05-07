@@ -531,7 +531,7 @@ public:
 
 };
 
-#define ESSENCE_REMOVE 0 
+#define ESSENCE_REMOVE 0
 #define ESSENCE_APPLY 1
 
 class mob_essence_of_twin : public CreatureScript
@@ -545,14 +545,19 @@ class mob_essence_of_twin : public CreatureScript
 
             uint32 GetData(uint32 data)
             {
-                uint32 spellReturned;
+                uint32 spellReturned = 0;
                 switch (me->GetEntry())
                 {
                     case NPC_LIGHT_ESSENCE:
                         spellReturned = data == ESSENCE_REMOVE? SPELL_DARK_ESSENCE_HELPER : SPELL_LIGHT_ESSENCE_HELPER;
+                        break;
                     case NPC_DARK_ESSENCE:
                         spellReturned = data == ESSENCE_REMOVE? SPELL_LIGHT_ESSENCE_HELPER : SPELL_DARK_ESSENCE_HELPER;
+                        break;
+                    default:
+                        break;
                 }
+
                 return spellReturned;
             }
         };
