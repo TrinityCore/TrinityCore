@@ -11,10 +11,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY; 
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
-(@ENTRY,0,0, 'The darkness... the corruption... they came too quickly for anyone to know...',12,0,15,25,0,0, 'Restless Apparition'),
-(@ENTRY,0,1, 'It is too late for us, living one. Take yourself and your friend away from here before you both are... claimed...',12,0,15,25,0,0, 'Restless Apparition'),
-(@ENTRY,0,2, 'Go away, whoever you are! Witch Hill is mine... mine!',12,0,15,25,0,0, 'Restless Apparition'),
-(@ENTRY,0,3, 'The darkness will consume all... all the living...',12,0,15,25,0,0, 'Restless Apparition'),
-(@ENTRY,0,4, 'The manor... someone else... will soon be consumed...',12,0,15,25,0,0, 'Restless Apparition'),
-(@ENTRY,0,5, 'Why have you come here, outsider? You will only find pain! Our fate will be yours...',12,0,15,25,0,0, 'Restless Apparition'),
-(@ENTRY,0,6, 'It was... terrible... the demon...',12,0,15,25,0,0, 'Restless Apparition');
+(@ENTRY,0,0, 'The darkness... the corruption... they came too quickly for anyone to know...',0,0,15,25,0,0, 'Restless Apparition'),
+(@ENTRY,0,1, 'It is too late for us, living one. Take yourself and your friend away from here before you both are... claimed...',0,0,15,25,0,0, 'Restless Apparition'),
+(@ENTRY,0,2, 'Go away, whoever you are! Witch Hill is mine... mine!',0,0,15,25,0,0, 'Restless Apparition'),
+(@ENTRY,0,3, 'The darkness will consume all... all the living...',0,0,15,25,0,0, 'Restless Apparition'),
+(@ENTRY,0,4, 'The manor... someone else... will soon be consumed...',0,0,15,25,0,0, 'Restless Apparition'),
+(@ENTRY,0,5, 'Why have you come here, outsider? You will only find pain! Our fate will be yours...',0,0,15,25,0,0, 'Restless Apparition'),
+(@ENTRY,0,6, 'It was... terrible... the demon...',0,0,15,25,0,0, 'Restless Apparition');
