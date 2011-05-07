@@ -499,7 +499,7 @@ class boss_professor_putricide : public CreatureScript
                         return _phase;
                     case DATA_ABOMINATION:
                         summons.RemoveNotExisting();
-                        return summons.HasEntry(NPC_MUTATED_ABOMINATION_10) || summons.HasEntry(NPC_MUTATED_ABOMINATION_25);
+                        return uint32(summons.HasEntry(NPC_MUTATED_ABOMINATION_10) || summons.HasEntry(NPC_MUTATED_ABOMINATION_25));
                     default:
                         break;
                 }

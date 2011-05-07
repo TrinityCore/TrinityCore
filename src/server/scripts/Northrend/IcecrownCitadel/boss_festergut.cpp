@@ -386,7 +386,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript);
 
-            bool Validate(SpellEntry const* spell)
+            bool Validate(SpellEntry const* /*spell*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_GASTRIC_EXPLOSION))
                     return false;

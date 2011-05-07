@@ -238,7 +238,7 @@ class ServerScript : public ScriptObject
         virtual void OnUnknownPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
 };
 
-class WorldScript : public ScriptObject, public UpdatableScript<void>
+class WorldScript : public ScriptObject
 {
     protected:
 
