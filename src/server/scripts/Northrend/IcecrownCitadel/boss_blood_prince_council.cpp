@@ -19,7 +19,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "VMapFactory.h"
 #include "icecrown_citadel.h"
 
 enum Texts
@@ -458,14 +457,17 @@ class boss_prince_keleseth_icc : public CreatureScript
             {
                 summons.Summon(summon);
                 Position pos;
-                pos.Relocate(RoomCenter);
-                float maxRange = 50.0f;
-                summon->MovePosition(pos, float(rand_norm()) * maxRange, summon->GetAngle(&RoomCenter));
+                pos.Relocate(summon);
+                float maxRange = me->GetDistance2d(summon);
+                float angle = me->GetAngle(summon);
                 // prevent spawning outside of room
-                while (!VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(me->GetMapId(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+                while (!me->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
                 {
                     maxRange -= 5.0f;
-                    summon->MovePosition(pos, float(rand_norm()) * maxRange, summon->GetAngle(&RoomCenter));
+                    if (maxRange < 5.0f)
+                        break;
+
+                    summon->MovePosition(pos, float(rand_norm() * maxRange), angle);
                 }
 
                 summon->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
@@ -561,8 +563,6 @@ class boss_prince_keleseth_icc : public CreatureScript
                 // does not melee
             }
 
-            static Position const RoomCenter;
-
         private:
             uint32 _spawnHealth;
             bool _isEmpowered;
@@ -573,8 +573,6 @@ class boss_prince_keleseth_icc : public CreatureScript
             return GetIcecrownCitadelAI<boss_prince_kelesethAI>(creature);
         }
 };
-
-const Position boss_prince_keleseth_icc::boss_prince_kelesethAI::RoomCenter = {4658.0f, 2769.26f, 361.2f, 0.0f};
 
 class boss_prince_taldaram_icc : public CreatureScript
 {
