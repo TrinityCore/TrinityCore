@@ -129,7 +129,7 @@ public:
 
     bool LoadFromDB(Field* fields);
     void SaveToDB(SQLTransaction& trans) const;
-    void DeleteFromDB(SQLTransaction& trans);
+    void DeleteFromDB();
 
     void WritePacket(WorldPacket& data) const;
     void SendResponse(WorldSession* session) const;

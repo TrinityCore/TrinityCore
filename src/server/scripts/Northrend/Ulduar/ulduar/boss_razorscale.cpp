@@ -286,7 +286,7 @@ class go_razorscale_harpoon : public GameObjectScript
     public:
         go_razorscale_harpoon() : GameObjectScript("go_razorscale_harpoon") {}
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (Creature* razorscale = ObjectAccessor::GetCreature(*go, instance ? instance->GetData64(TYPE_RAZORSCALE) : 0))
@@ -360,7 +360,7 @@ class boss_razorscale : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (id == 1)
+                if (type == POINT_MOTION_TYPE && id == 1)
                 {
                     phase = PHASE_GROUND;
                     events.SetPhase(PHASE_GROUND);

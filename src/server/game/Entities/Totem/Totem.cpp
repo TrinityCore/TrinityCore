@@ -58,7 +58,7 @@ void Totem::InitStats(uint32 duration)
     if (m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
     {
         uint32 displayID = sObjectMgr->ChooseDisplayId(m_owner->ToPlayer()->GetTeam(), cinfo);
-        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+        sObjectMgr->GetCreatureModelRandomGender(&displayID);
         switch (m_owner->ToPlayer()->GetTeam())
         {
             case ALLIANCE:
