@@ -21,16 +21,18 @@
 #include "ObjectMgr.h"
 #include "DatabaseEnv.h"
 
+ScriptPointVector const SystemMgr::_empty;
+
 void SystemMgr::LoadVersion()
 {
-    //Get Version information
-    QueryResult Result = WorldDatabase.Query("SELECT script_version FROM version LIMIT 1");
+    // Get Version information
+    QueryResult result = WorldDatabase.Query("SELECT script_version FROM version LIMIT 1");
 
-    if (Result)
+    if (result)
     {
-        Field* pFields = Result->Fetch();
+        Field* fields = result->Fetch();
 
-        sLog->outString("TSCR: Database version is: %s", pFields[0].GetCString());
+        sLog->outString("TSCR: Database version is: %s", fields[0].GetCString());
         sLog->outString();
     }
     else
