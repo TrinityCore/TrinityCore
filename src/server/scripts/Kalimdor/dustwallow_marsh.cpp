@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 11180, 558, 11126, 11142, 11180. Vendor Nat Pagle
+SDComment: Quest support: 11180, 558, 11126, 11142, 11174, Vendor Nat Pagle
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
@@ -684,6 +684,145 @@ public:
     };
 };
 
+enum SpellScripts
+{
+    SPELL_OOZE_ZAP              = 42489,
+    SPELL_OOZE_ZAP_CHANNEL_END  = 42485,
+    SPELL_OOZE_CHANNEL_CREDIT   = 42486,
+    SPELL_ENERGIZED             = 42492,
+};
+
+class spell_ooze_zap : public SpellScriptLoader
+{
+    public:
+        spell_ooze_zap() : SpellScriptLoader("spell_ooze_zap") { }
+
+        class spell_ooze_zap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ooze_zap_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_OOZE_ZAP))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                if (!GetCaster()->HasAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1)))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; // This is actually correct
+
+                if (!GetTargetUnit())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (GetHitUnit())
+                    GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ooze_zap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_ooze_zap_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ooze_zap_SpellScript();
+        }
+};
+
+class spell_ooze_zap_channel_end : public SpellScriptLoader
+{
+    public:
+        spell_ooze_zap_channel_end() : SpellScriptLoader("spell_ooze_zap_channel_end") { }
+
+        class spell_ooze_zap_channel_end_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ooze_zap_channel_end_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_OOZE_ZAP_CHANNEL_END))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Player* player = GetCaster()->ToPlayer())
+                    player->CastSpell(player, SPELL_OOZE_CHANNEL_CREDIT, true);
+                GetHitUnit()->Kill(GetHitUnit());
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ooze_zap_channel_end_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ooze_zap_channel_end_SpellScript();
+        }
+};
+
+class spell_energize_aoe : public SpellScriptLoader
+{
+    public:
+        spell_energize_aoe() : SpellScriptLoader("spell_energize_aoe") { }
+
+        class spell_energize_aoe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_energize_aoe_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ENERGIZED))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1)) == QUEST_STATUS_INCOMPLETE)
+                        ++itr;
+                    else
+                        unitList.erase(itr++);
+                }
+                unitList.push_back(GetCaster());
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_energize_aoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ALLY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_energize_aoe_SpellScript();
+        }
+};
+
 void AddSC_dustwallow_marsh()
 {
     new mobs_risen_husk_spirit();
@@ -694,4 +833,7 @@ void AddSC_dustwallow_marsh()
     new npc_stinky();
     new npc_theramore_guard();
     new npc_deserter_agitator();
+    new spell_ooze_zap();
+    new spell_ooze_zap_channel_end();
+    new spell_energize_aoe();
 }
