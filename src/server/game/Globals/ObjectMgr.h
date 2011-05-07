@@ -636,7 +636,7 @@ class ObjectMgr
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
-        CreatureModelInfo const* GetCreatureModelRandomGender(uint32 &displayID);
+        CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
         uint32 ChooseDisplayId(uint32 team, const CreatureTemplate *cinfo, const CreatureData *data = NULL);
         static void ChooseCreatureFlags(const CreatureTemplate *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);

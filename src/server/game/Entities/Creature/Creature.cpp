@@ -301,7 +301,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data
     }
 
     uint32 displayID = sObjectMgr->ChooseDisplayId(0, GetCreatureInfo(), data);
-    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
     {
         sLog->outErrorDb("Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", Entry);
@@ -779,8 +779,8 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
     }
 
     LoadCreaturesAddon();
-    uint32 displayID = 0;
-    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID = GetNativeDisplayId());
+    uint32 displayID = GetNativeDisplayId();
+    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (minfo && !isTotem())                               // Cancel load if no model defined or if totem
     {
         SetDisplayId(displayID);
@@ -1618,8 +1618,8 @@ void Creature::Respawn(bool force)
         else
             setDeathState(JUST_ALIVED);
 
-        uint32 displayID = 0;
-        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID = GetNativeDisplayId());
+        uint32 displayID = GetNativeDisplayId();
+        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
         if (minfo)                                             // Cancel load if no model defined
         {
             SetDisplayId(displayID);

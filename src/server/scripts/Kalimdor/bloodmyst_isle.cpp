@@ -173,8 +173,8 @@ public:
         {
             go->SetGoState(GO_STATE_ACTIVE);
             stillpine->GetMotionMaster()->MovePoint(1, go->GetPositionX(), go->GetPositionY()-15, go->GetPositionZ());
-            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, 0, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT); 
-        }        
+            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, 0, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT);
+        }
         return true;
     }
 };
@@ -190,11 +190,10 @@ public:
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (id == 1)
+            if (type == POINT_MOTION_TYPE && id == 1)
             {
-                DoScriptText(SAY_DIRECTION, me);   
+                DoScriptText(SAY_DIRECTION, me);
                 me->ForcedDespawn();
-                return;
             }
         }
     };
