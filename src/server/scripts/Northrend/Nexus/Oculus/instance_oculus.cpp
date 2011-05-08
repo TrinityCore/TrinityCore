@@ -53,6 +53,8 @@ public:
             platformUrom = 0;
             centrifugueConstructCounter = 0;
 
+            eregosCacheGUID = 0;
+
             azureDragonsList.clear();
             gameObjectList.clear();
         }
@@ -125,18 +127,20 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_DRAGON_CAGE_DOOR:
-                    if (DATA_DRAKOS_EVENT == DONE)
+                    if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     else
-                        go->SetGoState(GO_STATE_READY);       
-                        gameObjectList.push_back(go->GetGUID());
-                        break;
-                case GO_CACHE_OF_ERAGOS:
-                case GO_CACHE_OF_ERAGOS_H:
-                    uiLootGUID = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                    gameObjectList.push_back(go->GetGUID());
+                    break;
+                case GO_EREGOS_CACHE_N:
+                case GO_EREGOS_CACHE_H:
+                    eregosCacheGUID = go->GetGUID();
+                    break;
+                default:
                     break;
             }
         }
@@ -162,8 +166,7 @@ public:
                     break;
                 case DATA_EREGOS_EVENT:
                     if (state == DONE)
-                        if (GameObject* pChest = instance->GetGameObject(uiLootGUID))
-                            pChest->SetRespawnTime(1*DAY);
+                        DoRespawnGameObject(eregosCacheGUID, 7*DAY);
                     break;
             }
 
@@ -268,6 +271,8 @@ public:
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
+
+            uint64 eregosCacheGUID;
 
             std::string str_data;
 

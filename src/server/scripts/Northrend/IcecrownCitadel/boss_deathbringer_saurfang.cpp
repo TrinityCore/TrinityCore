@@ -210,10 +210,10 @@ enum MovePoints
     POINT_EXIT              = 5,        // waypoint id
 };
 
-static const Position deathbringerPos = {-496.3542f, 2211.33f, 541.1138f, 0.0f};
-static const Position firstStepPos = {-541.3177f, 2211.365f, 539.2921f, 0.0f};
+Position const deathbringerPos = {-496.3542f, 2211.33f, 541.1138f, 0.0f};
+Position const firstStepPos = {-541.3177f, 2211.365f, 539.2921f, 0.0f};
 
-static const Position chargePos[6] =
+Position const chargePos[6] =
 {
     {-509.6505f, 2211.377f, 539.2872f, 0.0f}, // High Overlord Saurfang/Muradin Bronzebeard
     {-508.7480f, 2211.897f, 539.2870f, 0.0f}, // front left
@@ -223,7 +223,7 @@ static const Position chargePos[6] =
     {-509.0040f, 2211.743f, 539.2870f, 0.0f}  // back right
 };
 
-static const Position chokePos[6] =
+Position const chokePos[6] =
 {
     {-514.4834f, 2211.334f, 549.2887f, 0.0f}, // High Overlord Saurfang/Muradin Bronzebeard
     {-510.1081f, 2211.592f, 546.3773f, 0.0f}, // front left
@@ -233,7 +233,7 @@ static const Position chokePos[6] =
     {-510.7041f, 2211.069f, 546.5298f, 0.0f}  // back right
 };
 
-static const Position finalPos = {-563.7552f, 2211.328f, 538.7848f, 0.0f};
+Position const finalPos = {-563.7552f, 2211.328f, 538.7848f, 0.0f};
 
 class boss_deathbringer_saurfang : public CreatureScript
 {
@@ -407,7 +407,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                     return;
@@ -498,7 +498,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             }
 
             // intro setup
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -578,7 +578,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 events.Reset();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -689,7 +689,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 events.Update(diff);
                 while (uint32 eventId = events.ExecuteEvent())
@@ -1203,7 +1203,7 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
             {
                 // select one random target, with preference of ranged targets
                 uint32 targetsAtRange = 0;
-                uint32 const minTargets = GetCaster()->GetMap()->GetSpawnMode() & 1 ? 10 : 4;
+                uint32 const minTargets = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 10 : 4);
                 unitList.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
 
                 // get target count at range

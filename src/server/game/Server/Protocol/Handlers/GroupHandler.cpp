@@ -24,6 +24,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "GroupMgr.h"
 #include "Player.h"
 #include "Group.h"
 #include "SocialMgr.h"
@@ -233,7 +234,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         ASSERT(leader);
         group->RemoveInvite(leader);
         group->Create(leader);
-        sObjectMgr->AddGroup(group);
+        sGroupMgr->AddGroup(group);
     }
 
     // Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!

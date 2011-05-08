@@ -3560,8 +3560,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                         team = target->ToPlayer()->GetTeam();
 
                     uint32 displayID = sObjectMgr->ChooseDisplayId(team, ci);
-
-                    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+                    sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                     target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, displayID);
                 }
@@ -4021,7 +4020,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const * aurApp, uint8 mode, b
             team = target->ToPlayer()->GetTeam();
 
         uint32 displayID = sObjectMgr->ChooseDisplayId(team, ci);
-        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+        sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
         //some spell has one aura of mount and one of vehicle
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -6118,8 +6117,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     // Lifebloom
                     if (GetSpellProto()->SpellFamilyFlags[1] & 0x10)
                     {
-                        // Final heal only on dispelled or duration end
-                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && aurApp->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                        // Final heal only on duration end
+                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                             return;
 
                         // final heal
@@ -6322,7 +6321,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                                 team = target->ToPlayer()->GetTeam();
 
                             uint32 displayID = sObjectMgr->ChooseDisplayId(team, creatureInfo);
-                            CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+                            sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                             target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, displayID);
                         }

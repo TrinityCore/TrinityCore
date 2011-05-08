@@ -53,7 +53,7 @@ enum eSpells
     SPELL_COLDFLAME_SUMMON      = 69147
 };
 
-static const uint32 boneSpikeSummonId[3] = {69062, 72669, 72670};
+uint32 const boneSpikeSummonId[3] = {69062, 72669, 72670};
 
 enum eEvents
 {
@@ -162,7 +162,7 @@ class boss_lord_marrowgar : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;

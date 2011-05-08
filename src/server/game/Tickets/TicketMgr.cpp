@@ -100,7 +100,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void GmTicket::DeleteFromDB(SQLTransaction& trans)
+void GmTicket::DeleteFromDB()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
     stmt->setUInt32(0, _id);
@@ -286,8 +286,7 @@ void TicketMgr::RemoveTicket(uint32 ticketId)
 {
     if (GmTicket* ticket = GetTicket(ticketId))
     {
-        SQLTransaction trans = SQLTransaction(NULL);
-        ticket->DeleteFromDB(trans);
+        ticket->DeleteFromDB();
         _ticketList.erase(ticketId);
     }
 }

@@ -22,6 +22,7 @@
 #include "Group.h"
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
+#include "GroupMgr.h"
 #include "InstanceScript.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, const LfgLockMap& lock)
@@ -554,7 +555,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, const LfgProposal* p
     uint32 dungeonId = pProp->dungeonId;
     bool isSameDungeon = false;
     bool isContinue = false;
-    Group* grp = dLowGuid ? sObjectMgr->GetGroupByGUID(dLowGuid) : NULL;
+    Group* grp = dLowGuid ? sGroupMgr->GetGroupByGUID(dLowGuid) : NULL;
     uint32 completedEncounters = 0;
     if (grp)
     {

@@ -25,6 +25,7 @@
 #include "World.h"
 #include "Chat.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "MapManager.h"
 #include "BattlegroundMgr.h"
 #include "ScriptedCreature.h"
@@ -2218,7 +2219,7 @@ void OutdoorPvPWG::EndBattle()
     {
         for(GuidSet::const_iterator itr=m_Groups[team].begin();itr!=m_Groups[team].end();++itr)
         {
-            if (Group* group = sObjectMgr->GetGroupByGUID(*itr))
+            if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
             {
                group->Disband();
                group->SetBattlegroundGroup(NULL);
@@ -2643,7 +2644,7 @@ Group* OutdoorPvPWG::GetGroupPlayer(uint64 guid, uint32 TeamId)
 {
     for(GuidSet::const_iterator itr=m_Groups[TeamId].begin();itr!=m_Groups[TeamId].end();++itr)
     {
-        if (Group* group = sObjectMgr->GetGroupByGUID(*itr))
+        if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
             if (group->IsMember(guid))
 	        return group;
     }
@@ -2655,7 +2656,7 @@ Group* OutdoorPvPWG::GetFreeBfRaid(uint32 TeamId)
     //if found free group we return it
     for(GuidSet::const_iterator itr=m_Groups[TeamId].begin();itr!=m_Groups[TeamId].end();++itr)
     {
-        if (Group* group = sObjectMgr->GetGroupByGUID(*itr))
+        if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
            if (!group->IsFull())
                return group;
     }
@@ -2702,7 +2703,7 @@ bool OutdoorPvPWG::AddOrSetPlayerToCorrectBfGroup(Player *plr)
         Battleground *bg = (Battleground*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
         group->SetBattlegroundGroup(bg);
         group->Create(plr);
-        sObjectMgr->AddGroup(group);
+        sGroupMgr->AddGroup(group);
         m_Groups[plr->GetTeamId()].insert(group->GetGUID());
     }
     else if (group->IsMember(plr->GetGUID()))

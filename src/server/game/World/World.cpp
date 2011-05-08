@@ -43,6 +43,7 @@
 #include "TicketMgr.h"
 #include "CreatureEventAIMgr.h"
 #include "SpellMgr.h"
+#include "GroupMgr.h"
 #include "Chat.h"
 #include "DBCStores.h"
 #include "LootMgr.h"
@@ -1599,7 +1600,7 @@ void World::SetInitialWorldSettings()
     sArenaTeamMgr->LoadArenaTeams();
 
     sLog->outString("Loading Groups...");
-    sObjectMgr->LoadGroups();
+    sGroupMgr->LoadGroups();
 
     sLog->outString("Loading ReservedNames...");
     sObjectMgr->LoadReservedPlayersNames();

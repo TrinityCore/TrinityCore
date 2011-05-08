@@ -150,11 +150,12 @@ enum Points
     POINT_TABLE     = 366780,
 };
 
-static const Position festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
-static const Position rotfaceWatchPos   = {4390.371f, 3164.50f, 389.3890f, 5.497787f}; //emote 432 (release ooze)
-static const Position tablePos          = {4356.190f, 3262.90f, 389.4820f, 1.483530f};
+Position const festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
+Position const rotfaceWatchPos   = {4390.371f, 3164.50f, 389.3890f, 5.497787f}; //emote 432 (release ooze)
+Position const tablePos          = {4356.190f, 3262.90f, 389.4820f, 1.483530f};
 
-static const uint32 oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
+// used in Rotface encounter
+uint32 const oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
 
 enum PutricideData
 {
@@ -874,10 +875,10 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
         }
 };
 
-class BeamProtectionPred
+class BeamProtectionCheck
 {
     public:
-        explicit BeamProtectionPred(uint32 excludeAura) : _excludeAura(excludeAura) { }
+        explicit BeamProtectionCheck(uint32 excludeAura) : _excludeAura(excludeAura) { }
 
         bool operator()(Unit* unit)
         {
@@ -916,7 +917,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
             void SelectTarget(std::list<Unit*>& targetList)
             {
-                targetList.remove_if(BeamProtectionPred(GetSpellInfo()->excludeTargetAuraSpell));
+                targetList.remove_if(BeamProtectionCheck(GetSpellInfo()->excludeTargetAuraSpell));
                 if (targetList.empty())
                 {
                     FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
@@ -1043,7 +1044,7 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
                         if (pAura->GetStackAmount() > 20)
                             pAura->SetStackAmount(20);
                     uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
-                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod*100, caster, true);
+                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod * 100, caster, true);
                 }
             }
 
