@@ -3636,10 +3636,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
             ++count;
             break;
-        case 61588: // Blazing Harpoon
-            spellInfo->MaxAffectedTargets = 1;
-            ++count;
-            break;
         case 2825:  // Bloodlust
             spellInfo->excludeCasterAuraSpell = 57724; // Sated
             ++count;
@@ -3717,6 +3713,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45761: // Shoot
         case 42611: // Shoot
         case 62374: // Pursued
+        case 61588: // Blazing Harpoon
             spellInfo->MaxAffectedTargets = 1;
             ++count;
             break;
@@ -3755,6 +3752,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45641: // Fire Bloom
         case 55665: // Life Drain - Sapphiron (H)
         case 28796: // Poison Bolt Volly - Faerlina
+        case 5484:  // Howl Of Terror (Warlock)
             spellInfo->MaxAffectedTargets = 5;
             ++count;
             break;
