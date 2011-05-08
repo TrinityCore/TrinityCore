@@ -44,7 +44,9 @@ enum eSpells
 
     // Runemaster Molgeim
     SPELL_SHIELD_OF_RUNES      = 62274,
+    SPELL_SHIELD_OF_RUNES_BUFF = 62277,
     SPELL_SHIELD_OF_RUNES_H    = 63489,
+    SPELL_SHIELD_OF_RUNES_H_BUFF = 63967,
     SPELL_SUMMON_RUNE_OF_POWER = 63513,
     SPELL_RUNE_OF_POWER        = 61974,
     SPELL_RUNE_OF_DEATH        = 62269,
@@ -731,6 +733,37 @@ public:
 
 };
 
+class spell_shield_of_runes : public SpellScriptLoader
+{
+    public:
+        spell_shield_of_runes() : SpellScriptLoader("spell_shield_of_runes") { }
+
+        class spell_shield_of_runes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_shield_of_runes_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (mode != AURA_REMOVE_BY_EXPIRE)
+                    caster->CastSpell(caster, SPELL_SHIELD_OF_RUNES_BUFF, false);
+            }
+
+            void Register()
+            {
+                 OnEffectRemove += AuraEffectRemoveFn(spell_shield_of_runes_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_shield_of_runes_AuraScript();
+        }
+};
+
 void AddSC_boss_assembly_of_iron()
 {
     new boss_steelbreaker();
@@ -739,4 +772,5 @@ void AddSC_boss_assembly_of_iron()
     new mob_lightning_elemental();
     new mob_rune_of_summoning();
     new mob_rune_of_power();
+    new spell_shield_of_runes();
 }
