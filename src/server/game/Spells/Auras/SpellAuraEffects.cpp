@@ -6123,12 +6123,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                             return;
 
                         // final heal
-                        int32 stack = 0;
-                        if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
-                            stack = 1;
-                        else
-                            stack = GetBase()->GetStackAmount();
-
+                        int32 stack = GetBase()->GetStackAmount();
                         target->CastCustomSpell(target, 33778, &m_amount, &stack, NULL, true, NULL, this, GetCasterGUID());
 
                         // restore mana
