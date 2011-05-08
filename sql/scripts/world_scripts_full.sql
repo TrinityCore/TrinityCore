@@ -2130,6 +2130,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
 ( 63027, 'spell_ulduar_proximity_mines'),
 ( 63276, 'spell_mark_of_the_faceless'),
+( 63489, 'spell_shield_of_runes'),
+( 62274, 'spell_shield_of_runes'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
