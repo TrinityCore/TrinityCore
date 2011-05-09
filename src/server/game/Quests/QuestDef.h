@@ -185,6 +185,7 @@ class Quest
 
         bool HasFlag(uint32 flag) const { return (QuestFlags & flag) != 0; }
         void SetFlag(uint32 flag) { QuestFlags |= flag; }
+        bool IsQuestReturnItem(uint32 quest) const;
 
         // table data accessors:
         uint32 GetQuestId() const { return QuestId; }

@@ -397,22 +397,21 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
     if (slot < MAX_QUEST_LOG_SIZE)
     {
-        if (uint32 quest = _player->GetQuestSlotQuestId(slot))
+        if (uint32 questId = _player->GetQuestSlotQuestId(slot))
         {
-            if (!_player->TakeQuestSourceItem(quest, true))
-                return;                                     // can't un-equip some items, reject quest cancel
-
-            if (const Quest *pQuest = sObjectMgr->GetQuestTemplate(quest))
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
             {
-                if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
-                    _player->RemoveTimedQuest(quest);
+                if (quest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
+                    _player->RemoveTimedQuest(questId);
+                
+                if (!quest->IsQuestReturnItem(questId))
+                    _player->TakeQuestSourceItem(questId, true); // Remove quest src item from player
             }
 
-            _player->TakeQuestSourceItem(quest, true); // remove quest src item from player
-            _player->RemoveActiveQuest(quest);
-            _player->GetAchievementMgr().RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest);
+            _player->RemoveActiveQuest(questId);
+            _player->GetAchievementMgr().RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
 
-            sLog->outDetail("Player %u abandoned quest %u", _player->GetGUIDLow(), quest);
+            sLog->outDetail("Player %u abandoned quest %u", _player->GetGUIDLow(), questId);
         }
 
         _player->SetQuestSlot(slot, 0);
