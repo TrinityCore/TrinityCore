@@ -21,6 +21,8 @@
 
 GroupMgr::GroupMgr()
 {
+    NextGroupDbStoreId = 1;
+    NextGroupId = 1;
 }
 
 GroupMgr::~GroupMgr()
