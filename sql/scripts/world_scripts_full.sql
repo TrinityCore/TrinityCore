@@ -613,7 +613,6 @@ UPDATE `creature_template` SET `ScriptName`='mobs_risen_husk_spirit' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_deserter_agitator' WHERE `entry`=23602;
 UPDATE `creature_template` SET `ScriptName`='npc_lady_jaina_proudmoore' WHERE `entry`=4968;
 UPDATE `creature_template` SET `ScriptName`='npc_nat_pagle' WHERE `entry`=12919;
-UPDATE `creature_template` SET `ScriptName`='npc_restless_apparition' WHERE `entry`=23861;
 UPDATE `creature_template` SET `ScriptName`='npc_private_hendel' WHERE `entry`=4966;
 UPDATE `creature_template` SET `ScriptName`='npc_zelfrax' WHERE `entry`=23864;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky' WHERE `entry`=4880;
@@ -2138,6 +2137,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- Zalazane's Fall
 ( 75420, 'spell_mount_check'),
 ( 75102, 'spell_voljin_war_drums'),
+-- Dustwallow Marsh
+( 42489, 'spell_ooze_zap'),
+( 42485, 'spell_ooze_zap_channel_end'),
+( 42492, 'spell_energize_aoe'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
