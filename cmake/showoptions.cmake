@@ -77,10 +77,4 @@ if( WIN32 )
   endif()
 endif( WIN32 )
 
-if( WITH_SQL )
-  message("* Install SQL-files      : Yes")
-else()
-  message("* Install SQL-files      : No  (default)")
-endif()
-
 message("")
