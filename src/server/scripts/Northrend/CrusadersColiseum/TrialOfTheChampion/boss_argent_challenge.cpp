@@ -64,7 +64,7 @@ class OrientationCheck : public std::unary_function<Unit*, bool>
         {
             return !unit->isInFront(caster, 40.0f, 2.5f);
         }
-    
+
     private:
         Unit* caster;
 };
@@ -80,14 +80,14 @@ class spell_eadric_radiance : public SpellScriptLoader
             {
                 unitList.remove_if(OrientationCheck(GetCaster()));
             }
-            
+
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
             }
         };
-        
+
         SpellScript *GetSpellScript() const
         {
             return new spell_eadric_radiance_SpellScript();
