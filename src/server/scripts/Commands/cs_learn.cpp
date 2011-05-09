@@ -153,7 +153,7 @@ public:
             SkillLineAbilityEntry const *entry = sSkillLineAbilityStore.LookupEntry(i);
             if (!entry)
                 continue;
-                
+
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(entry->spellId);
             if (!spellInfo)
                 continue;

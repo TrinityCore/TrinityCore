@@ -697,13 +697,13 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         if (target->GetTypeId()==TYPEID_PLAYER)
         {
             // check online security
             if (handler->HasLowerSecurity((Player*)target, 0))
                 return false;
-                
+
             handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink((Player*)target).c_str());
             if (handler->needReportToTarget((Player*)target))
                 (ChatHandler((Player*)target)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
