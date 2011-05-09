@@ -246,6 +246,8 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 latency = 0;
     uint8 race;
     uint8 Class;
+    int64 muteTime = 0;
+    int64 banTime = -1;
 
     // get additional information from Player object
     if (target)
@@ -261,6 +263,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         latency = target->GetSession()->GetLatency();
         race = target->getRace();
         Class = target->getClass();
+        muteTime = target->GetSession()->m_muteTime;
     }
     // get additional information from DB
     else
@@ -289,7 +292,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 security = 0;
     std::string last_login = GetTrinityString(LANG_ERROR);
 
-    QueryResult result = LoginDatabase.PQuery("SELECT a.username, aa.gmlevel, a.email, a.last_ip, a.last_login "
+    QueryResult result = LoginDatabase.PQuery("SELECT a.username, aa.gmlevel, a.email, a.last_ip, a.last_login, a.mutetime "
                                                 "FROM account a "
                                                 "LEFT JOIN account_access aa "
                                                 "ON (a.id = aa.id) "
@@ -300,6 +303,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         username = fields[0].GetString();
         security = fields[1].GetUInt32();
         email = fields[2].GetString();
+        muteTime = fields[5].GetUInt64();
 
         if (email.empty())
             email = "-";
@@ -319,6 +323,21 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetTrinityString(LANG_OFFLINE)), nameLink.c_str(), GUID_LOPART(target_guid), username.c_str(), accId, email.c_str(), security, last_ip.c_str(), last_login.c_str(), latency);
+
+    if (QueryResult result = LoginDatabase.PQuery("SELECT unbandate, bandate = unbandate FROM account_banned WHERE id = '%u' AND active ORDER BY bandate ASC LIMIT 1", accId))
+    {
+        Field * fields = result->Fetch();
+        banTime = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
+    }
+    else if (QueryResult result = CharacterDatabase.PQuery("SELECT unbandate, bandate = unbandate FROM character_banned WHERE guid = '%u' AND active ORDER BY bandate ASC LIMIT 1", GUID_LOPART(target_guid)))
+    {
+        Field * fields = result->Fetch();
+        banTime = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
+    }
+
+    muteTime = muteTime - time(NULL);
+    if (muteTime > 0 || banTime >= 0)
+        PSendSysMessage(LANG_PINFO_MUTE_BAN, muteTime > 0 ? secsToTimeString(muteTime, true).c_str() : "---", !banTime ? "perm." : (banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "---"));
 
     std::string race_s, Class_s;
     switch(race)
