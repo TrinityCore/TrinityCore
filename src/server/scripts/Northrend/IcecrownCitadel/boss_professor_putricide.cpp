@@ -608,6 +608,9 @@ class boss_professor_putricide : public CreatureScript
                 if ((!UpdateVictim() && !(events.GetPhaseMask() & PHASE_MASK_NOT_SELF)) || !CheckInRoom())
                     return;
 
+                if (me->GetDistance2d(4357.12f, 3211.49f) > 50.0f)
+                    EnterEvadeMode();
+
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
