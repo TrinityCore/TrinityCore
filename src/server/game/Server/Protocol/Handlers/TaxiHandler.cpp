@@ -118,6 +118,9 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
 void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode)
 {
+    if (!GetPlayer())
+        return;
+
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
