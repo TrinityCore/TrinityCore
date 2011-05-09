@@ -9,3 +9,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 ('62863', 'spell_tournament_duel'),
 ('62960', 'spell_tournament_charge'),
 ('69672', 'spell_sunreaver_disguise');
+
+DELETE FROM `spell_script_names` WHERE `spell_id` = 50334;
+INSERT INTO `spell_script_names` VALUES
+(50334, 'spell_dru_berserk');
+
