@@ -439,7 +439,7 @@ bool Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /*= GROU
         CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid=%u", GUID_LOPART(guid));
 
         // Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
-        if (player && player->GetSkillValue(SKILL_ENCHANTING) || !player)
+        if ((player && player->GetSkillValue(SKILL_ENCHANTING)) || !player)
             ResetMaxEnchantingLevel();
 
         // Remove player from loot rolls
