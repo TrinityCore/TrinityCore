@@ -2784,9 +2784,14 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
                     if ((*j)->IsAffectedOnSpell(m_spellInfo))
                         maxTargets += (*j)->GetAmount();
-
-                if (m_spellInfo->Id == 5246) //Intimidating Shout
-                    unitList.remove(m_targets.getUnitTarget());
+                switch (m_spellInfo->Id)
+                {
+                    case 5246: // Intimidating Shout
+                    case 49821: // Mind Sear (Rank 1)
+                    case 53022: // Mind Sear (Rank 2)
+                        unitList.remove(m_targets.getUnitTarget());
+                        break;
+                }
                 Trinity::RandomResizeList(unitList, maxTargets);
             }
 
