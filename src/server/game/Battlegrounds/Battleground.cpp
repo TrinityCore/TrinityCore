@@ -1078,6 +1078,21 @@ void Battleground::AddPlayer(Player* plr)
     // add arena specific auras
     if (isArena())
     {
+        plr->ResummonPetTemporaryUnSummonedIfAny();
+        
+        // Removing pet's buffs and debuffs which are not permanent on Arena enter
+        if (Pet* pet = plr->GetPet())
+        {
+            pet->SetHealth(pet->GetMaxHealth());
+
+            Unit::AuraApplicationMap& appliedAuras = pet->GetAppliedAuras();
+            for (Unit::AuraApplicationMap::iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
+                if (AuraApplication* aurApp = itr->second)
+                    if (Aura* aura = aurApp->GetBase())
+                        if (!aura->IsPermanent())
+                            pet->RemoveAura(itr);
+        }
+
         plr->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
         {
