@@ -17119,7 +17119,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (980, -1, 0.1, -1, -1, 'Warlock - Curse of Agony'),
 (603, -1, 2, -1, -1, 'Warlock - Curse of Doom'),
 (18220, 0.96, -1, -1, -1, 'Warlock - Dark Pact Rank 1'),
-(6789, 0.214, -1, -1, -1, 'Warlock - Death Coil'),
+(6789, 0.2143, -1, -1, -1, 'Warlock - Death Coil'),
 (689, -1, 0.143, -1, -1, 'Warlock - Drain Life'),
 (5138, 0, 0, 0, 0, 'Warlock - Drain Mana'),
 (1120, -1, 0.429, -1, -1, 'Warlock - Drain Soul'),
