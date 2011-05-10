@@ -758,8 +758,6 @@ class npc_mole_machine_trigger : public CreatureScript
                 if (!GobSummoned && SummonGobTimer <= Diff)
                 {
                     DoCast(SPELL_SUMMON_MOLE_MACHINE);
-                    if (GameObject* molemachine = me->FindNearestGameObject(GO_MOLE_MACHINE, 1))
-                        molemachine->SetGoState(GO_STATE_ACTIVE);
                     GobSummoned = true;
                 }
                 else
