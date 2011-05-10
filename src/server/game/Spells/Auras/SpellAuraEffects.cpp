@@ -3573,8 +3573,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                         team = target->ToPlayer()->GetTeam();
 
                     uint32 displayID = sObjectMgr->ChooseDisplayId(team, ci);
-
-                    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+                    sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                     target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, displayID);
                 }
@@ -4034,7 +4033,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const * aurApp, uint8 mode, b
             team = target->ToPlayer()->GetTeam();
 
         uint32 displayID = sObjectMgr->ChooseDisplayId(team, ci);
-        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+        sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
         //some spell has one aura of mount and one of vehicle
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -6339,7 +6338,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                                 team = target->ToPlayer()->GetTeam();
 
                             uint32 displayID = sObjectMgr->ChooseDisplayId(team, creatureInfo);
-                            CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(displayID);
+                            sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                             target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, displayID);
                         }

@@ -37,6 +37,8 @@ enum eTexts
     SAY_BERSERK                 = 7,
     SAY_DEATH                   = 8,
 
+    EMOTE_PRECIOUS_ZOMBIES      = 0,
+
     SAY_PUTRI_SLIME            = -1631091,
     SAY_PUTRI_SLIME_2          = -1631092,
     SOUND_PUTRI_SLIME          = 17126,
@@ -87,7 +89,7 @@ enum eEvents
     //Precious
     EVENT_DECIMATE          = 4,
     EVENT_MORTAL_WOUND      = 5,
-    EVENT_AWAKEN_PLAGUED_ZOMBIES = 6,
+    EVENT_SUMMON_ZOMBIES    = 6,
 
     //Ooze
     EVENT_STICKY_OOZE       = 7,
@@ -588,7 +590,7 @@ class npc_precious_icc : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_DECIMATE, 35000);
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
-                events.ScheduleEvent(EVENT_AWAKEN_PLAGUED_ZOMBIES, uiZombieSummonCooldown);
+                events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, uiZombieSummonCooldown);
                 summons.DespawnAll();
             }
             void JustSummoned(Creature* summon)
@@ -623,13 +625,11 @@ class npc_precious_icc : public CreatureScript
                             DoCastVictim(SPELL_MORTAL_WOUND);
                             events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
                             break;
-                        case EVENT_AWAKEN_PLAGUED_ZOMBIES:
-                            uiZombieSummonCooldown -= 2000;
-                            if (uiZombieSummonCooldown < 8000)
-                                uiZombieSummonCooldown = 8000;
-                            for (uint8 i = 0; i < RAID_MODE(5, 10, 5, 10); ++i)
-                                DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, true); 
-                            events.ScheduleEvent(EVENT_AWAKEN_PLAGUED_ZOMBIES, uiZombieSummonCooldown);
+                        case EVENT_SUMMON_ZOMBIES:
+                            Talk(EMOTE_PRECIOUS_ZOMBIES);
+                            for (uint32 i = 0; i < 11; ++i)
+                                DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
+                            events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
                             break;
                         default:
                             break;

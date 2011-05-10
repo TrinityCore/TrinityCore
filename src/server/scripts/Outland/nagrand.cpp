@@ -893,7 +893,7 @@ public:
     };
 };
 
-enum corki
+enum CorkiData
 {
   // first quest
   QUEST_HELP                                    = 9923,
@@ -990,10 +990,10 @@ public:
           else
               Say_Timer -= diff;
       }
-      
+
       void MovementInform(uint32 type, uint32 id)
       {
-          if (id == 1)
+          if (type == POINT_MOTION_TYPE && id == 1)
           {
               Say_Timer = 5000;
               ReleasedFromCage = true;

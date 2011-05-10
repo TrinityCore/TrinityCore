@@ -74,7 +74,7 @@ enum Spells
     SPELL_ARCANE_BREATH = 56272,
     SPELL_ARCANE_STORM  = 57459,
     SPELL_BERSEKER      = 60670,
-    
+
     SPELL_VORTEX_1 = 56237, // seems that frezze object animation
     SPELL_VORTEX_2 = 55873, // visual effect
     SPELL_VORTEX_3 = 56105, // this spell must handle all the script - casted by the boss and to himself
@@ -292,7 +292,7 @@ public:
         {
             if (!instance)
                 return;
-            
+
             SetPhase(PHASE_THREE, true);
 
             // this despawns Hover Disks
@@ -313,7 +313,7 @@ public:
             }
 
             if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_PLATFORM)))
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED); // In sniffs it has this flag, but i don't know how is applied. 
+                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED); // In sniffs it has this flag, but i don't know how is applied.
 
             // pos sniffed
             me->GetMotionMaster()->MoveIdle();
@@ -340,8 +340,8 @@ public:
                     events.ScheduleEvent(EVENT_YELL_2, 0, 0, _phase);
                     events.ScheduleEvent(EVENT_YELL_3, 8*IN_MILLISECONDS, 0, _phase);
                     events.ScheduleEvent(EVENT_YELL_4, 16*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, (7, 16)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_STATIC_FIELD, (20, 30)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, urand(7, 16)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_STATIC_FIELD, urand(20, 30)*IN_MILLISECONDS, 0, _phase);
                     break;
                 default:
                     break;
@@ -400,7 +400,7 @@ public:
                 // not sure about the distance | I think it is better check this here than in the UpdateAI function...
                 if (who->GetDistance(me) <= 2.5f)
                     who->CastSpell(me, SPELL_POWER_SPARK_MALYGOS, true);
-                    
+
             }
         }
 
@@ -457,7 +457,7 @@ public:
 
             me->GetMotionMaster()->MoveIdle();
             me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[0]);
-            
+
             Creature* summon = me->SummonCreature(NPC_HOVER_DISK_CASTER, HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS-1]);
             if (summon && summon->IsAIEnabled)
                 summon->AI()->DoAction(ACTION_HOVER_DISK_START_WP_2);
@@ -474,7 +474,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
                 return;
@@ -571,11 +571,11 @@ public:
                         break;
                     case EVENT_SURGE_POWER_PHASE_3:
                         DoCast(GetTargetPhaseThree(), SPELL_SURGE_POWER_PHASE_3);
-                        events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, (7, 16)*IN_MILLISECONDS, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, urand(7, 16)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
                         DoCast(GetTargetPhaseThree(), SPELL_STATIC_FIELD);
-                        events.ScheduleEvent(EVENT_STATIC_FIELD, (20, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_STATIC_FIELD, urand(20, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     default:
                         break;
@@ -588,7 +588,7 @@ public:
         Unit* GetTargetPhaseThree()
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                
+
             // we are a drake
             if (target->GetVehicleKit())
                 return target;
@@ -599,8 +599,8 @@ public:
                 if (Unit* base = target->GetVehicleBase())
                     return base;
             }
-            
-            // is a player falling from a vehicle? 
+
+            // is a player falling from a vehicle?
             return NULL;
         }
 
@@ -632,7 +632,7 @@ public:
     class spell_malygos_vortex_dummy_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript)
-   
+
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
@@ -730,7 +730,7 @@ public:
     {
         npc_portal_eoeAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();   
+            instance = creature->GetInstanceScript();
         }
 
         void Reset()
@@ -738,7 +738,7 @@ public:
             summonTimer = urand(5, 7)*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
             if (!me->HasAura(SPELL_PORTAL_VISUAL_CLOSED) &&
                 !me->HasAura(SPELL_PORTAL_OPENED))
@@ -770,7 +770,7 @@ public:
         {
             summon->SetInCombatWithZone();
         }
-        
+
     private:
         uint32 summonTimer;
         InstanceScript* instance;
@@ -794,7 +794,7 @@ public:
         {
             instance = creature->GetInstanceScript();
 
-            MoveToMalygos();    
+            MoveToMalygos();
         }
 
         void EnterEvadeMode()
@@ -812,8 +812,8 @@ public:
                     me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
             }
         }
-        
-        void UpdateAI(const uint32 diff)
+
+        void UpdateAI(uint32 const /*diff*/)
         {
             if (!instance)
                 return;
@@ -864,8 +864,8 @@ public:
 
     struct npc_hover_diskAI : public npc_escortAI
     {
-        npc_hover_diskAI(Creature* creature) : npc_escortAI(creature) 
-        { 
+        npc_hover_diskAI(Creature* creature) : npc_escortAI(creature)
+        {
             if (me->GetEntry() == NPC_HOVER_DISK_CASTER)
                 me->SetReactState(REACT_PASSIVE);
              else
@@ -874,7 +874,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void PassengerBoarded(Unit* unit, int8 seat, bool apply)
+        void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply)
         {
             if (apply)
             {
@@ -919,7 +919,7 @@ public:
             // we dont evade
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action)
         {
             if (me->GetEntry() != NPC_HOVER_DISK_CASTER)
                 return;
@@ -952,9 +952,8 @@ public:
             // we dont do melee damage!
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 /*i*/)
         {
-
         }
 
     private:
@@ -988,7 +987,7 @@ public:
             DoCast(me, SPELL_ARCANE_OVERLOAD, false);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const /*diff*/)
         {
             // we dont do melee damage!
         }
@@ -1087,7 +1086,7 @@ public:
             events.ScheduleEvent(EVENT_YELL_1, 0);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const /*diff*/)
         {
             while (uint32 eventId = events.ExecuteEvent())
             {

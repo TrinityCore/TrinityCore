@@ -165,6 +165,7 @@ class FrostwyrmLandEvent : public BasicEvent
             return true;
         }
 
+    private:
         Creature& owner;
         Position const& dest;
 };

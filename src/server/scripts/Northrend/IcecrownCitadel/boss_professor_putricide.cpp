@@ -874,10 +874,10 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
         }
 };
 
-class BeamProtectionPred
+class BeamProtectionCheck
 {
     public:
-        explicit BeamProtectionPred(uint32 excludeAura) : _excludeAura(excludeAura) { }
+        explicit BeamProtectionCheck(uint32 excludeAura) : _excludeAura(excludeAura) { }
 
         bool operator()(Unit* unit)
         {
@@ -911,12 +911,12 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
             bool Load()
             {
                 _target = NULL;
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript();
             }
 
             void SelectTarget(std::list<Unit*>& targetList)
             {
-                targetList.remove_if(BeamProtectionPred(GetSpellInfo()->excludeTargetAuraSpell));
+                targetList.remove_if(BeamProtectionCheck(GetSpellInfo()->excludeTargetAuraSpell));
                 if (targetList.empty())
                 {
                     FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
@@ -1282,35 +1282,39 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_eat_ooze_SpellScript);
 
+            void SelectTarget(std::list<Unit*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                Unit* target = targets.front();
+                targets.clear();
+                targets.push_back(target);
+            }
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Creature* target = GetCaster()->FindNearestCreature(NPC_GROWING_OOZE_PUDDLE, 15.0f))
+                Creature* target = GetHitCreature();
+                if (!target)
+                    return;
+
+                if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
                 {
-                    if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
+                    if (grow->GetStackAmount() < 4)
                     {
-                        if (grow->GetStackAmount() > 8)
-                            grow->ModStackAmount(-4);
-                        else if (grow->GetStackAmount() > 4)
-                            grow->SetStackAmount(4);
-                        else if (grow->GetStackAmount() > 2)
-                            grow->SetStackAmount(2);
-                        else
-                        {
-                            target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
-                            target->RemoveAura(grow);
-                            target->DespawnOrUnsummon();
-                        }
+                        target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
+                        target->RemoveAura(grow);
+                        target->DespawnOrUnsummon();
                     }
-                    //Remove Abomination's Grow effect
-                    GetCaster()->RemoveAurasDueToSpell(70347);
-                    GetCaster()->RemoveAurasDueToSpell(70344);
-                    GetCaster()->RemoveAurasDueToSpell(70343);
+                    else
+                        grow->ModStackAmount(-4);
                 }
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_putricide_eat_ooze_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_eat_ooze_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_AREA_ENTRY_DST);
             }
         };
 

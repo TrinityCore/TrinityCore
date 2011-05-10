@@ -524,8 +524,10 @@ class boss_deathbringer_saurfang : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_HORDE_2, 5000, 0, PHASE_INTRO_H);
                         break;
                     case ACTION_CONTINUE_INTRO:
+                    {
                         if (introDone)
                             return;
+
                         events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6500+500, 0, PHASE_INTRO_A);
                         events.ScheduleEvent(EVENT_INTRO_FINISH, 8000, 0, PHASE_INTRO_A);
 
@@ -533,6 +535,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46700+1000+500, 0, PHASE_INTRO_H);
                         events.ScheduleEvent(EVENT_INTRO_FINISH,  46700+1000+8000, 0, PHASE_INTRO_H);
                         break;
+                    }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
@@ -569,7 +572,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         {
             npc_high_overlord_saurfangAI(Creature* creature) : ScriptedAI(creature), vehicle(creature->GetVehicleKit())
             {
-                ASSERT(vehicle);
+                ASSERT(creature->GetVehicleKit());
                 instance = me->GetInstanceScript();
             }
 
@@ -744,8 +747,8 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
 
         private:
             EventMap events;
-            InstanceScript* instance;
             Vehicle* vehicle;
+            InstanceScript* instance;
             uint64 deathbringerSaurfangGUID;
             std::list<Creature*> guardList;
         };

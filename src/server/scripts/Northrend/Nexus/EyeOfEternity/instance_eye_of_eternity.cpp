@@ -30,7 +30,7 @@ public:
 
     struct instance_eye_of_eternity_InstanceMapScript : public InstanceScript
     {
-        instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map) 
+        instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_ENCOUNTER);
 
@@ -67,7 +67,8 @@ public:
 
                     if (GameObject* platform = instance->GetGameObject(platformGUID))
                         platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                } else if (state == DONE)
+                }
+                else if (state == DONE)
                 {
                     if (Creature* malygos = instance->GetCreature(malygosGUID))
                         malygos->SummonCreature(NPC_ALEXSTRASZA, 829.0679f, 1244.77f, 279.7453f, 2.32f);
@@ -79,7 +80,7 @@ public:
                         platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
 
                     if (GameObject* chest = instance->GetGameObject(chestGUID))
-                        chest->SetRespawnTime(chest->GetRespawnDelay());
+                        chest->SetRespawnTime(7*DAY);
                 }
             }
             return true;
@@ -148,6 +149,11 @@ public:
                 if (GameObject* exitPortal = instance->GetGameObject(exitPortalGUID))
                     exitPortal->Delete();
             }
+        }
+
+        // eliminate compile warning
+        void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/)
+        {
         }
 
         void VortexHandling()

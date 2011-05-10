@@ -58,7 +58,7 @@ enum InstanceGameObjects
 
 enum InstanceEvents
 {
-    EVENT_FOCUSING_IRIS = 20711    
+    EVENT_FOCUSING_IRIS = 20711
 };
 
 enum InstanceSpells

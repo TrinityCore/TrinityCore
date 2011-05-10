@@ -539,8 +539,8 @@ inline Player* Battleground::_GetPlayer(BattlegroundPlayerMap::const_iterator it
 
 inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const
 {
-    Player* player = NULL;
-    if (player = _GetPlayer(itr, context))
+    Player* player = _GetPlayer(itr, context);
+    if (player)
     {
         uint32 team = itr->second.Team;
         if (!team)

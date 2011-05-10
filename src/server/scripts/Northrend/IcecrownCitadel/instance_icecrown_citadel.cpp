@@ -39,9 +39,9 @@ DoorData const doorData[] =
     {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT_EVENT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE_EVENT,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE_EVENT,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
-    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
-    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
+    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
     {GO_BLOOD_QUEEN_BLOOD_BARRIER,           DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_N   },
@@ -671,19 +671,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_CRIMSON_HALL_DOOR:
                     {
                         uiCrimsonHallDoor1 = go->GetGUID();
-                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] != IN_PROGRESS, go);
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] != IN_PROGRESS, go);
                         break;
                     }
                     case GO_BLOOD_ELF_COUNCIL_DOOR:
                     {
                         uiCrimsonHallDoorLeft = go->GetGUID();
-                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] == DONE, go);
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] == DONE, go);
                         break;
                     }
                     case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
                     {
                         uiCrimsonHallDoorRight = go->GetGUID();
-                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] == DONE, go);
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] == DONE, go);
                         break;
                     }
                     //Blood Queen Lana'thel
@@ -910,9 +910,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GUID_FESTERGUT:                        return uiFestergut;
                     case GUID_ROTFACE:                          return uiRotface;
                     case GUID_PROFESSOR_PUTRICIDE:              return uiProfessorPutricide;
-                    case GUID_PRINCE_VALANAR_ICC:               return uiPrinceValanar;
-                    case GUID_PRINCE_KELESETH_ICC:              return uiPrinceKeleseth;
-                    case GUID_PRINCE_TALDARAM_ICC:              return uiPrinceTaldaram;
+                    case DATA_PRINCE_VALANAR_GUID:               return uiPrinceValanar;
+                    case DATA_PRINCE_KELESETH_GUID:              return uiPrinceKeleseth;
+                    case DATA_PRINCE_TALDARAM_GUID:              return uiPrinceTaldaram;
                     case GUID_BLOOD_QUEEN_LANA_THEL:            return uiBloodQueenLanathel;
                     case GUID_VALITHRIA_DREAMWALKER:            return uiValithriaDreamwalker;
                     case GUID_VALITHRIA_ALTERNATIVE:            return uiValithriaAlternative;
@@ -927,7 +927,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiLichKing;
                     }
                     case GUID_TIRION:                           return uiTirion;
-                    case GUID_BLOOD_PRINCES_CONTROL:            return uiBloodCouncilController;
+                    case DATA_BLOOD_PRINCES_CONTROL:            return uiBloodCouncilController;
                     case GUID_PUTRICIDE_TABLE:                  return uiPutricideTable;
                     case GUID_SINDRAGOSA_ENTRANCE_DOOR:         return uiSindragosaDoor1;
 
@@ -1316,7 +1316,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] = data;
                         break;
                     }
-                    case DATA_BLOOD_PRINCE_COUNCIL_EVENT:
+                    case DATA_BLOOD_PRINCE_COUNCIL:
                     {
                         if(data == DONE)
                         {
@@ -1325,7 +1325,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             HandleGameObject(uiCrimsonHallDoorLeft, true);
                         }
                         HandleGameObject(uiCrimsonHallDoor1, data != IN_PROGRESS);
-                        uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] = data;
+                        uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] = data;
                         break;
                     }
                     case DATA_BLOOD_QUEEN_LANA_THEL_EVENT:
@@ -1631,8 +1631,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiEncounter[DATA_ROTFACE_EVENT];
                     case DATA_PROFESSOR_PUTRICIDE_EVENT:
                         return uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT];
-                    case DATA_BLOOD_PRINCE_COUNCIL_EVENT:
-                        return uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT];
+                    case DATA_BLOOD_PRINCE_COUNCIL:
+                        return uiEncounter[DATA_BLOOD_PRINCE_COUNCIL];
                     case DATA_BLOOD_QUEEN_LANA_THEL_EVENT:
                         return uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT];
                     case DATA_VALITHRIA_DREAMWALKER_EVENT:
@@ -1689,7 +1689,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
                 std::ostringstream saveStream;
                 saveStream << "I C " << uiEncounter[DATA_LORD_MARROWGAR_EVENT] << " " << uiEncounter[DATA_DEATHWHISPER_EVENT] << " " << uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] << " " << uiEncounter[DATA_SAURFANG_EVENT]
-                << " " << uiEncounter[DATA_FESTERGUT_EVENT] << " " << uiEncounter[DATA_ROTFACE_EVENT] << " " << uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] << " " << uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] << " " << uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT]
+                << " " << uiEncounter[DATA_FESTERGUT_EVENT] << " " << uiEncounter[DATA_ROTFACE_EVENT] << " " << uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] << " " << uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] << " " << uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT]
                 << " " << uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] << " " << uiEncounter[DATA_SINDRAGOSA_EVENT] << " " << uiEncounter[DATA_LICH_KING_EVENT];
                 //Saving additional data
                 saveStream << " " << uint32(gasValveActivated) << " " << uint32(oozeValveActivated) << " " << uint32(coldflameJetsState) << " " << uint32(bloodQuickeningState) << " " << uint32(bloodQuickeningMinutes);
@@ -1776,7 +1776,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     uiEncounter[DATA_FESTERGUT_EVENT] = data4;
                     uiEncounter[DATA_ROTFACE_EVENT] = data5;
                     uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] = data6;
-                    uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] = data7;
+                    uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] = data7;
                     uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] = data8;
                     uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] = data9;
                     uiEncounter[DATA_SINDRAGOSA_EVENT] = data10;

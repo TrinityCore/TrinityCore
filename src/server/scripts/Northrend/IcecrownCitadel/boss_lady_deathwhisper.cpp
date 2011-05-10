@@ -357,15 +357,15 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*damageDealer*/, uint32& uiDamage)
+            void DamageTaken(Unit* /*damageDealer*/, uint32& damage)
             {
                 // phase transition
-                if (events.GetPhaseMask() & PHASE_ONE_MASK && uiDamage > me->GetPower(POWER_MANA))
+                if (events.GetPhaseMask() & PHASE_ONE_MASK && damage > me->GetPower(POWER_MANA))
                 {
                     Talk(SAY_PHASE_2);
                     Talk(EMOTE_PHASE_2);
                     DoStartMovement(me->getVictim());
-                    uiDamage -= me->GetPower(POWER_MANA);
+                    damage -= me->GetPower(POWER_MANA);
                     me->SetPower(POWER_MANA, 0);
                     me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
                     events.SetPhase(PHASE_TWO);

@@ -775,7 +775,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
 void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
 {
     // Deletes expired auctions. Should be called at server start before loading auctions.
-    
+
     // DO NOT USE after auctions are already loaded since this deletes from the DB
     //  and assumes the auctions HAVE NOT been loaded into a list or AuctionEntryMap yet
 

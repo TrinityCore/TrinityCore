@@ -562,7 +562,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recv_data)
     unit->HandleSpellClick(_player);
 }
 
-void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)
+void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;

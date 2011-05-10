@@ -118,6 +118,7 @@ class boss_festergut : public CreatureScript
 
             void Reset()
             {
+                me->SetReactState(REACT_DEFENSIVE);
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, 35000);
@@ -206,11 +207,6 @@ class boss_festergut : public CreatureScript
                     victim->RemoveAurasDueToSpell(SPELL_VILE_GAS);
                     victim->RemoveAurasDueToSpell(SPELL_GAS_SPORE);
                 }
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/)
-            {
-                // don't enter combat
             }
 
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
@@ -439,20 +435,21 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript);
 
+            bool Validate(SpellEntry const* spell)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_GASTRIC_EXPLOSION))
+                    return false;
+                return true;
+            }
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Aura const* aura = GetHitUnit()->GetAura(GetSpellInfo()->Id);
                 if (!(aura && aura->GetStackAmount() == 10))
                     return;
 
-                SpellEntry const* spellInfo = sSpellStore.LookupEntry(SPELL_GASTRIC_EXPLOSION);
-                if (!spellInfo)
-                    return;
-
-                // Get Gastric Explosion id for our difficulty
-                spellInfo = sSpellMgr->GetSpellForDifficultyFromSpell(spellInfo, GetCaster());
                 GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Id);
-                GetHitUnit()->CastSpell(GetHitUnit(), spellInfo, true);
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GASTRIC_EXPLOSION, true);
             }
 
             void Register()
@@ -476,14 +473,22 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
         {
             PrepareAuraScript(spell_festergut_blighted_spores_AuraScript);
 
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_INOCULATED))
+                    return false;
+                return true;
+            }
+
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster()->IsAIEnabled || GetCaster()->GetTypeId() != TYPEID_UNIT)
+                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                uint32 inoculateId = CAST_AI(ScriptedAI, GetCaster()->ToCreature()->AI())->INOCULATED_HELPER;
+                SpellEntry const* inoculated = sSpellStore.LookupEntry(SPELL_INOCULATED);
+                inoculated = sSpellMgr->GetSpellForDifficultyFromSpell(inoculated, GetCaster());
                 uint32 currStack = 0;
-                if (Aura const* inoculate = GetTarget()->GetAura(inoculateId))
+                if (Aura const* inoculate = GetTarget()->GetAura(inoculated->Id))
                     currStack = inoculate->GetStackAmount();
 
                 GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);

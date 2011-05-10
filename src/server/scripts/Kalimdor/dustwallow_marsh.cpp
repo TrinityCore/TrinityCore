@@ -19,13 +19,12 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 11180, 558, 11126, 11142, 11180. Vendor Nat Pagle
+SDComment: Quest support: 11180, 558, 11126, 11142, 11174, Vendor Nat Pagle
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
 /* ContentData
 mobs_risen_husk_spirit
-npc_restless_apparition
 npc_deserter_agitator
 npc_lady_jaina_proudmoore
 npc_nat_pagle
@@ -40,114 +39,93 @@ EndContentData */
 ## mobs_risen_husk_spirit
 ######*/
 
-enum eHuskSpirit
+enum HauntingWitchHill
 {
+    // Quest
     QUEST_WHATS_HAUNTING_WITCH_HILL     = 11180,
 
+    // General spells
     SPELL_SUMMON_RESTLESS_APPARITION    = 42511,
-    SPELL_CONSUME_FLESH                 = 37933,               //Risen Husk
-    SPELL_INTANGIBLE_PRESENCE           = 43127,               //Risen Spirit
+    SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
 
+    // Risen Husk specific
+    SPELL_CONSUME_FLESH                 = 37933,
     NPC_RISEN_HUSK                      = 23555,
+
+    // Risen Spirit specific
+    SPELL_INTANGIBLE_PRESENCE           = 43127,
     NPC_RISEN_SPIRIT                    = 23554,
-    NPC_RESTLESS_APPARITION             = 23861
+
+    // Events
+    EVENT_CONSUME_FLESH                 = 0,
+    EVENT_INTANGIBLE_PRESENCE           = 1,
 };
 
 class mobs_risen_husk_spirit : public CreatureScript
 {
-public:
-    mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
+    public:
+        mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mobs_risen_husk_spiritAI (pCreature);
-    }
-
-    struct mobs_risen_husk_spiritAI : public ScriptedAI
-    {
-        mobs_risen_husk_spiritAI(Creature *c) : ScriptedAI(c) {}
-
-        uint32 m_uiConsumeFlesh_Timer;
-        uint32 m_uiIntangiblePresence_Timer;
-
-        void Reset()
+        struct mobs_risen_husk_spiritAI : public ScriptedAI
         {
-            m_uiConsumeFlesh_Timer = 10000;
-            m_uiIntangiblePresence_Timer = 5000;
-        }
+            mobs_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (m_uiConsumeFlesh_Timer <= uiDiff)
+            void Reset()
             {
+                events.Reset();
                 if (me->GetEntry() == NPC_RISEN_HUSK)
-                    DoCast(me->getVictim(), SPELL_CONSUME_FLESH);
-
-                m_uiConsumeFlesh_Timer = 15000;
+                    events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
+                else if (me->GetEntry() == NPC_RISEN_SPIRIT)
+                    events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 5000);
             }
-            else
-                m_uiConsumeFlesh_Timer -= uiDiff;
 
-            if (m_uiIntangiblePresence_Timer <= uiDiff)
+            void JustDied(Unit* killer)
             {
-                if (me->GetEntry() == NPC_RISEN_SPIRIT)
-                    DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
-
-                m_uiIntangiblePresence_Timer = 20000;
-            }
-            else
-                m_uiIntangiblePresence_Timer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* pKiller)
-        {
-            if (pKiller->GetTypeId() == TYPEID_PLAYER)
-                if (CAST_PLR(pKiller)->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
+                if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(pKiller, SPELL_SUMMON_RESTLESS_APPARITION, true);
-                    CAST_PLR(pKiller)->KilledMonsterCredit(NPC_RESTLESS_APPARITION, 0);
+                    if (killer->ToPlayer()->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        DoCast(me, SPELL_SUMMON_RESTLESS_APPARITION, true);
+                        DoCast(killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
+                    }
                 }
-        }
-    };
+            }
 
-};
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
 
-/*######
-## npc_restless_apparition
-######*/
+                events.Update(diff);
 
-enum eRestlessApparition
-{
-    SAY_RESTLESS_1      = -1000469,
-    SAY_RESTLESS_2      = -1000470,
-    SAY_RESTLESS_3      = -1000471
-};
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CONSUME_FLESH:
+                            DoCastVictim(SPELL_CONSUME_FLESH);
+                            events.ScheduleEvent(EVENT_CONSUME_FLESH, 15000);
+                            break;
+                        case EVENT_INTANGIBLE_PRESENCE:
+                            DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
+                            events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 15000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
-class npc_restless_apparition : public CreatureScript
-{
-public:
-    npc_restless_apparition() : CreatureScript("npc_restless_apparition") { }
+                DoMeleeAttackIfReady();
+            }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_restless_apparitionAI (pCreature);
-    }
+        private:
+            EventMap events;
+        };
 
-    struct npc_restless_apparitionAI : public ScriptedAI
-    {
-        npc_restless_apparitionAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-        void Reset()
+        CreatureAI* GetAI(Creature* creature) const
         {
-            DoScriptText(RAND(SAY_RESTLESS_1, SAY_RESTLESS_2, SAY_RESTLESS_3), me);
+            return new mobs_risen_husk_spiritAI (creature);
         }
-    };
-
 };
 
 /*######
@@ -580,9 +558,9 @@ public:
 
 };
 
-/////////////////////
-/// npc_stinky
-/////////////////////
+/*######
+## npc_stinky
+######*/
 
 enum eStinky
 {
@@ -706,10 +684,148 @@ public:
     };
 };
 
+enum SpellScripts
+{
+    SPELL_OOZE_ZAP              = 42489,
+    SPELL_OOZE_ZAP_CHANNEL_END  = 42485,
+    SPELL_OOZE_CHANNEL_CREDIT   = 42486,
+    SPELL_ENERGIZED             = 42492,
+};
+
+class spell_ooze_zap : public SpellScriptLoader
+{
+    public:
+        spell_ooze_zap() : SpellScriptLoader("spell_ooze_zap") { }
+
+        class spell_ooze_zap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ooze_zap_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_OOZE_ZAP))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                if (!GetCaster()->HasAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1)))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; // This is actually correct
+
+                if (!GetTargetUnit())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (GetHitUnit())
+                    GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ooze_zap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_ooze_zap_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ooze_zap_SpellScript();
+        }
+};
+
+class spell_ooze_zap_channel_end : public SpellScriptLoader
+{
+    public:
+        spell_ooze_zap_channel_end() : SpellScriptLoader("spell_ooze_zap_channel_end") { }
+
+        class spell_ooze_zap_channel_end_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ooze_zap_channel_end_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_OOZE_ZAP_CHANNEL_END))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Player* player = GetCaster()->ToPlayer())
+                    player->CastSpell(player, SPELL_OOZE_CHANNEL_CREDIT, true);
+                GetHitUnit()->Kill(GetHitUnit());
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ooze_zap_channel_end_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ooze_zap_channel_end_SpellScript();
+        }
+};
+
+class spell_energize_aoe : public SpellScriptLoader
+{
+    public:
+        spell_energize_aoe() : SpellScriptLoader("spell_energize_aoe") { }
+
+        class spell_energize_aoe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_energize_aoe_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ENERGIZED))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1)) == QUEST_STATUS_INCOMPLETE)
+                        ++itr;
+                    else
+                        unitList.erase(itr++);
+                }
+                unitList.push_back(GetCaster());
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_energize_aoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENTRY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_energize_aoe_SpellScript();
+        }
+};
+
 void AddSC_dustwallow_marsh()
 {
     new mobs_risen_husk_spirit();
-    new npc_restless_apparition();
     new npc_lady_jaina_proudmoore();
     new npc_nat_pagle();
     new npc_private_hendel();
@@ -717,4 +833,7 @@ void AddSC_dustwallow_marsh()
     new npc_stinky();
     new npc_theramore_guard();
     new npc_deserter_agitator();
+    new spell_ooze_zap();
+    new spell_ooze_zap_channel_end();
+    new spell_energize_aoe();
 }

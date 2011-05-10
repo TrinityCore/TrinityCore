@@ -1385,8 +1385,14 @@ INSERT INTO conditions VALUES
 (13, 0, 65209, 0, 18, 1, 33134, 0, 0, '', 'Shadow Nova (Yogg-Saron)');
 
 -- Spell Scripts
-DELETE FROM spell_script_names WHERE spell_id IN (64164, 64168, 64059);
+DELETE FROM spell_script_names WHERE spell_id IN (64164, 64168, 64059, 63276);
 INSERT INTO spell_script_names VALUES 
 (64164, "spell_yoggsaron_lunatic_gaze"),
 (64168, "spell_yoggsaron_lunatic_gaze"),
-(64059, "spell_yoggsaron_induce_madness");
+(64059, "spell_yoggsaron_induce_madness"),
+(63276, "spell_mark_of_the_faceless");
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (63489,62274);
+INSERT INTO `spell_script_names` VALUES
+(63489, 'spell_shield_of_runes'),
+(62274, 'spell_shield_of_runes');

@@ -95,6 +95,8 @@ class OPvPCapturePoint
 
         OPvPCapturePoint(OutdoorPvP * pvp);
 
+        virtual ~OPvPCapturePoint() {}
+
         virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
 
         // send world state update to all players present
@@ -198,7 +200,7 @@ class OutdoorPvP : public ZoneScript
         OutdoorPvP();
 
         // dtor
-        ~OutdoorPvP();
+        virtual ~OutdoorPvP();
 
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();

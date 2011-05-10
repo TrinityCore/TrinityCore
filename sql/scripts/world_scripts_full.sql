@@ -613,7 +613,6 @@ UPDATE `creature_template` SET `ScriptName`='mobs_risen_husk_spirit' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_deserter_agitator' WHERE `entry`=23602;
 UPDATE `creature_template` SET `ScriptName`='npc_lady_jaina_proudmoore' WHERE `entry`=4968;
 UPDATE `creature_template` SET `ScriptName`='npc_nat_pagle' WHERE `entry`=12919;
-UPDATE `creature_template` SET `ScriptName`='npc_restless_apparition' WHERE `entry`=23861;
 UPDATE `creature_template` SET `ScriptName`='npc_private_hendel' WHERE `entry`=4966;
 UPDATE `creature_template` SET `ScriptName`='npc_zelfrax' WHERE `entry`=23864;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky' WHERE `entry`=4880;
@@ -1892,6 +1891,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69892, 'spell_generic_clone_weapon'),
 ( 57593, 'spell_generic_clone_weapon'),
 ( 52408, 'spell_gen_seaforium_blast'),
+( 25281, 'spell_gen_turkey_marker'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2128,12 +2128,19 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 63981, 'spell_ulduar_stone_grip_cast_target'),
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
 ( 63027, 'spell_ulduar_proximity_mines'),
+( 63276, 'spell_mark_of_the_faceless'),
+( 63489, 'spell_shield_of_runes'),
+( 62274, 'spell_shield_of_runes'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
 -- Zalazane's Fall
 ( 75420, 'spell_mount_check'),
 ( 75102, 'spell_voljin_war_drums'),
+-- Dustwallow Marsh
+( 42489, 'spell_ooze_zap'),
+( 42485, 'spell_ooze_zap_channel_end'),
+( 42492, 'spell_energize_aoe'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),

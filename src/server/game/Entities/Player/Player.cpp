@@ -11232,7 +11232,6 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
         if (pItem->IsBindedNotWith(this))
             return EQUIP_ERR_DONT_OWN_THAT_ITEM;
 
-        Bag *pBag;
         ItemTemplate const *pBagProto;
 
         // item is 'one item only'
@@ -11283,11 +11282,11 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
 
             for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
             {
-                if (pBag = GetBagByPos(t))
+                if (Bag* bag = GetBagByPos(t))
                 {
-                    if (ItemCanGoIntoBag(pItem->GetTemplate(), pBag->GetTemplate()))
+                    if (ItemCanGoIntoBag(pItem->GetTemplate(), bag->GetTemplate()))
                     {
-                        for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                        for (uint32 j = 0; j < bag->GetBagSize(); j++)
                         {
                             pItem2 = GetItemByPos(t, j);
                             if( pItem2 && pItem2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && inv_bags[t-INVENTORY_SLOT_BAG_START][j] + pItem->GetCount() <= pProto->GetMaxStackSize())
@@ -11340,15 +11339,15 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
 
             for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
             {
-                if (pBag = GetBagByPos(t))
+                if (Bag* bag = GetBagByPos(t))
                 {
-                    pBagProto = pBag->GetTemplate();
+                    pBagProto = bag->GetTemplate();
 
                     // not plain container check
                     if (pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER) &&
                         ItemCanGoIntoBag(pProto, pBagProto))
                     {
-                        for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                        for (uint32 j = 0; j < bag->GetBagSize(); j++)
                         {
                             if (inv_bags[t-INVENTORY_SLOT_BAG_START][j] == 0)
                             {
@@ -11379,15 +11378,15 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
         // search free slot in bags
         for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
         {
-            if (pBag = GetBagByPos(t))
+            if (Bag* bag = GetBagByPos(t))
             {
-                pBagProto = pBag->GetTemplate();
+                pBagProto = bag->GetTemplate();
 
                 // special bag already checked
                 if (pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER))
                     continue;
 
-                for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                for (uint32 j = 0; j < bag->GetBagSize(); j++)
                 {
                     if (inv_bags[t-INVENTORY_SLOT_BAG_START][j] == 0)
                     {
@@ -18886,7 +18885,7 @@ void Player::_SaveStats(SQLTransaction& trans)
     std::ostringstream ss;
     ss << "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
-        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower) VALUES ("
+        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, resilience) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
     for (uint8 i = 0; i < MAX_POWERS; ++i)
@@ -18904,7 +18903,8 @@ void Player::_SaveStats(SQLTransaction& trans)
        << GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1) << ", "
        << GetUInt32Value(UNIT_FIELD_ATTACK_POWER) << ", "
        << GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) << ", "
-       << GetBaseSpellPowerBonus() << ")";
+       << GetBaseSpellPowerBonus() << ", "
+       << GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_TAKEN_SPELL) << ")";
     trans->Append(ss.str().c_str());
 }
 
