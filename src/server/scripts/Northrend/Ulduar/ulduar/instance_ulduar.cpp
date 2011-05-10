@@ -15,7 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "ObjectMgr.h"
 #include "ulduar.h"
 
 static const DoorData doorData[] =
@@ -252,6 +255,9 @@ public:
                 case GO_RAZOR_HARPOON_4:
                     uiRazorHarpoonGUIDs[3] = go->GetGUID();
                     break;
+                case GO_MOLE_MACHINE:
+                    if (GetBossState(TYPE_RAZORSCALE) == IN_PROGRESS)
+                        go->SetGoState(GO_STATE_ACTIVE);
             }
         }
 

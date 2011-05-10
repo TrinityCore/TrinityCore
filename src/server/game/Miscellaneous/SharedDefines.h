@@ -534,7 +534,19 @@ enum SpellAttr7
     SPELL_ATTR7_UNK16                            = 0x00010000, // 16 Druid spells (29166, 54833, 64372, 68285).
     SPELL_ATTR7_UNK17                            = 0x00020000, // 17 Only 27965 (Suicide) spell.
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // 18 Only spells that have Charge among effects.
-    SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000  // 19 Teleports to specific zones.
+    SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000, // 19 Teleports to specific zones.
+    SPELL_ATTR7_UNK20                            = 0x00100000, // 20
+    SPELL_ATTR7_UNK21                            = 0x00200000, // 21
+    SPELL_ATTR7_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR7_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR7_UNK24                            = 0x01000000, // 24
+    SPELL_ATTR7_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR7_UNK26                            = 0x04000000, // 26
+    SPELL_ATTR7_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR7_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR7_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR7_UNK30                            = 0x40000000, // 30
+    SPELL_ATTR7_UNK31                            = 0x80000000  // 31
 };
 
 #define MIN_TALENT_SPEC         0
