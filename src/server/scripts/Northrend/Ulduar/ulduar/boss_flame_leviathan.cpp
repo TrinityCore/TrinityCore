@@ -21,9 +21,15 @@ Author: PrinceCreed
 %Complete: 90
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "CombatAI.h"
+#include "PassiveAI.h"
+#include "ScriptedEscortAI.h"
+#include "ObjectMgr.h"
 #include "ulduar.h"
-#include "Vehicle.h"
+
 
 enum Spells
 {

@@ -22,9 +22,11 @@ SD%Complete: 100%
 SD%Comments: Kologarn's vehicleid is wrong.
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ulduar.h"
-#include "Vehicle.h"
 
 enum Spells
 {
