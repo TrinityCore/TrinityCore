@@ -255,6 +255,9 @@ public:
                 case GO_RAZOR_HARPOON_4:
                     uiRazorHarpoonGUIDs[3] = go->GetGUID();
                     break;
+                case GO_MOLE_MACHINE:
+                    if (GetBossState(TYPE_RAZORSCALE) == IN_PROGRESS)
+                        go->SetGoState(GO_STATE_ACTIVE);
             }
         }
 
