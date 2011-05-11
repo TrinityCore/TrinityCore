@@ -197,13 +197,10 @@ void GroupMgr::LoadGroups()
     sLog->outString("Loading Group instance saves...");
     {
         uint32 oldMSTime = getMSTime();
-
-        //                                        0     1      2         3           4          5
-        QueryResult result = CharacterDatabase.Query("SELECT guid, map, instance, permanent, difficulty, resettime, "
-            //           6
-            "(SELECT COUNT(1) FROM groups JOIN character_instance ON leaderGuid = groups.guid WHERE instance = group_instance.instance AND permanent = 1 LIMIT 1) "
-            "FROM group_instance LEFT JOIN instance ON instance = id ORDER BY guid");
-
+        //                                                   0           1        2              3             4             5            6
+        QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, COUNT(g.guid) "
+            "FROM group_instance gi INNER JOIN instance i ON gi.instance = i.id "
+            "LEFT JOIN character_instance ci LEFT JOIN groups g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
         if (!result)
         {
             sLog->outString(">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
