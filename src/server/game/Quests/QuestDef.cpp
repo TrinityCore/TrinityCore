@@ -213,6 +213,26 @@ bool Quest::IsAllowedInRaid() const
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
 }
 
+bool Quest::IsQuestReturnItem(uint32 questId) const
+{
+    if (!questId)
+        return false;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    if (!quest || !quest->SrcItemId)
+        return false;
+
+    ItemTemplate const* item = sObjectMgr->GetItemTemplate(quest->SrcItemId);
+    if (!item || item->StartQuest != questId)
+        return false;
+
+    for (uint8 n = 0; n < 6; n++)
+        if (quest->SrcItemId == quest->ReqItemId[n])
+            return true;
+
+    return false;
+}
+
 uint32 Quest::CalculateHonorGain(uint8 level) const
 {
     if (level > GT_MAX_LEVEL)

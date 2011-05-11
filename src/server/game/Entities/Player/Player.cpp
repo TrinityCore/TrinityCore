@@ -20854,8 +20854,9 @@ bool Player::CanReportAfkDueToLimit()
 ///This player has been blamed to be inactive in a battleground
 void Player::ReportedAfkBy(Player* reporter)
 {
-    Battleground *bg = GetBattleground();
-    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam())
+    Battleground* bg = GetBattleground();
+    // Battleground also must be in progress!
+    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff

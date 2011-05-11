@@ -2275,6 +2275,10 @@ void Spell::SpellDamageHeal(SpellEffIndex /*effIndex*/)
             if (!caster->HasAura(54824))
                 unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
 
+            // Druid T8 2P Restoration Set Bonus
+            if (caster->HasAura(64756))
+                addhealth = int32(addhealth * 1.1f);
+
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth, HEAL, unitTarget);
         }
