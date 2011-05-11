@@ -18097,7 +18097,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (-59907,     7, 0, 'Lightwell Charges - Suicide'),
 ( 19263, 67801, 2, 'Deterrence'),
 ( 45524, 55095, 0, 'Chains of Ice - Frost Fever'),
-( 20066,-61840, 0, 'Repentance'),
+( 20066,-61840, 1, 'Repentance'),
 ( 66235, 66233, 0, 'Ardent Defender Visuals'),
 ( 58875, 58876, 1, 'Spirit Walk'),
 (-47960,-63311, 0, 'Glyph of Shadowflame Rank 1'),
