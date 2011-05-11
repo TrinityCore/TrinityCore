@@ -1488,6 +1488,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     else
                         target->RemoveAurasDueToSpell(64364, GetCasterGUID());
                     break;
+                case 31842:
+                    if (caster->HasAura(70755))
+                    {
+                        if (apply)
+                            caster->CastSpell(caster, 71166, true);
+                        else
+                            caster->RemoveAurasDueToSpell(71166);
+                    }
+                    break;
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
