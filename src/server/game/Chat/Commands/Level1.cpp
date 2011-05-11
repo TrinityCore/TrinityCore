@@ -78,7 +78,11 @@ bool ChatHandler::HandleGMAnnounceCommand(const char* args)
     if (!*args)
         return false;
 
-    sWorld->SendGMText(LANG_GM_BROADCAST, args);
+    std::string name("Console");
+    if (Player* _player = m_session->GetPlayer())
+        name = _player->GetName();
+    
+    sWorld->SendGMText(LANG_GM_BROADCAST, name.c_str(), args);
     return true;
 }
 
