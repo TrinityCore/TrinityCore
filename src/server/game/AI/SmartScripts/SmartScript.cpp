@@ -155,7 +155,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             mUseTextTimer = true;
             sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (GuidLow: %u), textGuid: %u",
-                talker->GetName(), talker->GetGUIDLow(), mTextGUID);
+                talker->GetName(), talker->GetGUIDLow(), GUID_LOPART(mTextGUID));
             break;
         }
         case SMART_ACTION_SIMPLE_TALK:
@@ -449,7 +449,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SEND_CASTCREATUREORGO: Player guidLow %u.org Creature: %u, BaseObject GUID: "UI64FMTD" , Spell: %u",
-                        e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
+                        (*itr)->GetGUIDLow(), e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
                 }
             }
 
@@ -499,8 +499,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         tempLastInvoker->InterruptNonMeleeSpells(false);
 
                     tempLastInvoker->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
-                    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_INVOKER_CAST: Invoker %u casts spell % on target %u with castflags %u",
-                        tempLastInvoker->GetGUIDLow(), (*itr)->GetGUIDLow(), e.action.cast.spell, e.action.cast.flags);
+                    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_INVOKER_CAST: Invoker %u casts spell %u on target %u with castflags %u",
+                        tempLastInvoker->GetGUIDLow(), e.action.cast.spell, (*itr)->GetGUIDLow(), e.action.cast.flags);
                 }
             }
 
@@ -873,7 +873,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             me->UpdateEntry(e.action.updateTemplate.creature, e.action.updateTemplate.team ? HORDE : ALLIANCE);
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_UPDATE_TEMPLATE: Creature %u, Template: %u, Team: %u",
-                me->GetGUIDLow(), e.action.updateTemplate.team ? HORDE : ALLIANCE);
+                me->GetGUIDLow(), me->GetEntry(), e.action.updateTemplate.team ? HORDE : ALLIANCE);
             break;
         }
         case SMART_ACTION_DIE:

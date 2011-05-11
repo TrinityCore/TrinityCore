@@ -1133,9 +1133,7 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* display
     {
         CreatureModelInfo const *minfo_tmp = GetCreatureModelInfo(minfo->modelid_other_gender);
         if (!minfo_tmp)
-        {
-            sLog->outErrorDb("Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", displayID, minfo->modelid_other_gender);
-        }
+            sLog->outErrorDb("Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", *displayID, minfo->modelid_other_gender);
         else
         {
             // Model ID changed

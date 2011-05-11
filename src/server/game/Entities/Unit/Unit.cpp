@@ -15323,7 +15323,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
     }
 
-    if (Vehicle* veh = pVictim->GetVehicle())
+    if (pVictim->GetVehicle())
         pVictim->ExitVehicle();
 }
 
@@ -15446,7 +15446,7 @@ void Unit::SetRooted(bool apply)
 
 //        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        if (Player* thisPlr = this->ToPlayer())
+        if (GetTypeId() == TYPEID_PLAYER)
         {
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
@@ -15465,7 +15465,7 @@ void Unit::SetRooted(bool apply)
     {
         if (!HasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
-            if (Player* thisPlr = this->ToPlayer())
+            if (GetTypeId() == TYPEID_PLAYER)
             {
                 WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
                 data.append(GetPackGUID());
