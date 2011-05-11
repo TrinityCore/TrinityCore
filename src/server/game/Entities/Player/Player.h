@@ -753,7 +753,7 @@ enum RestType
 
 enum DuelCompleteType
 {
-    DUEL_INTERUPTED = 0,
+    DUEL_INTERRUPTED = 0,
     DUEL_WON        = 1,
     DUEL_FLED       = 2
 };
@@ -2862,7 +2862,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
                 continue;
 
-            AddPctN(totalmul, mod->value);
+            totalmul += CalculatePctN(1.0f, mod->value);
         }
 
         DropModCharge(mod, spell);

@@ -2829,11 +2829,13 @@ void AuraEffect::HandleModInvisibility(AuraApplication const * aurApp, uint8 mod
             bool found = false;
             Unit::AuraEffectList const& invisAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
             for (Unit::AuraEffectList::const_iterator i = invisAuras.begin(); i != invisAuras.end(); ++i)
+            {
                 if (GetMiscValue() == (*i)->GetMiscValue())
                 {
                     found = true;
                     break;
                 }
+            }
             if (!found)
                 target->m_invisibility.DelFlag(type);
         }
@@ -5034,9 +5036,9 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
         return;
     }
 
-    //save current and max HP before applying aura
-    uint32 curHPValue = target->GetHealth();
-    uint32 maxHPValue = target->GetMaxHealth();
+    // save current health state
+    float healthPct = target->GetHealthPct();
+    bool alive = target->isAlive();
 
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
     {
@@ -5044,16 +5046,13 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
         {
             target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(GetAmount()), apply);
             if (target->GetTypeId() == TYPEID_PLAYER || target->ToCreature()->isPet())
-                target->ApplyStatPercentBuffMod(Stats(i), (float)GetAmount(), apply);
+                target->ApplyStatPercentBuffMod(Stats(i), float(GetAmount()), apply);
         }
     }
 
     //recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_UNK4 0x00000010 flag)
-    if ((GetMiscValue() == STAT_STAMINA) && (maxHPValue > 0) && (m_spellProto->Attributes & SPELL_ATTR0_UNK4))
-    {
-        uint32 newHPValue = target->CountPctFromMaxHealth(int32(100.0f * curHPValue / maxHPValue));
-        target->SetHealth(newHPValue);
-    }
+    if (GetMiscValue() == STAT_STAMINA && (m_spellProto->Attributes & SPELL_ATTR0_UNK4))
+        target->SetHealth(std::max<uint32>(uint32(healthPct * target->GetMaxHealth() * 0.01f), (alive ? 1 : 0)));
 }
 
 void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
@@ -6073,6 +6072,15 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                             }
                             break;
                         }
+                        case 43681: // Inactive
+                        {
+                            if (!target || target->GetTypeId() != TYPEID_PLAYER || aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                                return;
+
+                            if (target->GetMap()->IsBattleground())
+                                target->ToPlayer()->LeaveBattleground();
+                            break;
+                        }
                         case 42783: // Wrath of the Astromancer
                             target->CastSpell(target, GetAmount(), true, NULL, this);
                             break;
@@ -6135,7 +6143,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     break;
                 case SPELLFAMILY_PRIEST:
                     // Vampiric Touch
-                    if (m_spellProto->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
+                    if (m_spellProto->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && GetEffIndex() == 0)
                     {
                         if (AuraEffect const * aurEff = GetBase()->GetEffect(1))
                         {

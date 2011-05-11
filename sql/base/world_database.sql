@@ -16913,6 +16913,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
 (5176, 0.5714, -1, -1, -1, 'Druid - Wrath'),
 (70691,0,0,0,0, 'Druid - Rejuvenation T10 4P proc'),
+(64801,0.45,0,0,0,'Druid - T8 Restoration 4P Bonus'),
 (3044, -1, -1, 0.15, -1, 'Hunter - Arcane Shot'),
 (3674, -1, -1, -1, 0.02, 'Hunter - Black Arrow($RAP*0.1 / number of ticks)'),
 (19306, -1, -1, 0.2, -1, 'Hunter - Counterattack'),
@@ -16963,7 +16964,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (66922, 0, 0, 0, 0, 'Paladin - Flash of Light'),
 (53595, 0, 0, 0, 0, 'Paladin - Hammer of the Righteous'),
 (24275, 0.15, -1, 0.15, -1, 'Paladin - Hammer of Wrath'),
-(62124, 0.085, -1, -1, -1, 'Paladin - Hand of Reckoning'),
+(67485, 0, -1, 0.5, -1, 'Paladin - Hand of Reckoning triggered'),
 (635, 1.66, -1, -1, -1, 'Paladin - Holy Light'),
 (20925, 0.09, -1, 0.056, -1, 'Paladin - Holy Shield'),
 (25914, 0.81, -1, -1, -1, 'Paladin - Holy Shock Triggered Heal Rank 1'),
@@ -17119,7 +17120,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (980, -1, 0.1, -1, -1, 'Warlock - Curse of Agony'),
 (603, -1, 2, -1, -1, 'Warlock - Curse of Doom'),
 (18220, 0.96, -1, -1, -1, 'Warlock - Dark Pact Rank 1'),
-(6789, 0.214, -1, -1, -1, 'Warlock - Death Coil'),
+(6789, 0.2143, -1, -1, -1, 'Warlock - Death Coil'),
 (689, -1, 0.143, -1, -1, 'Warlock - Drain Life'),
 (5138, 0, 0, 0, 0, 'Warlock - Drain Mana'),
 (1120, -1, 0.429, -1, -1, 'Warlock - Drain Soul'),
@@ -19297,8 +19298,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 63737, 0x00,   6, 0x00000800, 0x00000004, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Serendipity
 ( 64127, 0x00,   6, 0x00000001, 0x00000001, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Body and Soul
 ( 64129, 0x00,   6, 0x00000001, 0x00000001, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Body and Soul
-( 64568, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Blood Reserve
-( 64571, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  30), -- Blood Draining
+( 64571, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Blood Draining
 ( 64440, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000020,   0,   0,  20), -- Blade Warding
 ( 64714, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Flame of the Heavens
 ( 64738, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Show of Faith
@@ -19312,7 +19312,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 64867, 0x00,   3, 0x20000021, 0x00001000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Mage T8 2P Bonus
 ( 64882, 0x00,  10, 0x00000000, 0x00100000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T8 Protection 4P Bonus
 ( 64890, 0x00,  10, 0x00000000, 0x00010000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Item - Paladin T8 Holy 2P Bonus
-( 64908, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Shadow 4P Bonus
+( 64908, 0x00,   6, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Shadow 4P Bonus
 ( 64912, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Healer 4P Bonus
 ( 57470, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Renewed Hope
 ( 57472, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Renewed Hope
@@ -19416,7 +19416,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 70727, 0x00,   9, 0x00000000, 0x00000000, 0x00000000, 0x00000040, 0x00000000,   0,   0,   0), -- Item - Hunter T10 2P Bonus
 ( 70730, 0x00,   9, 0x00004000, 0x00001000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Hunter T10 4P Bonus
 ( 70748, 0x00,   3, 0x00000000, 0x00200000, 0x00000000, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Mage T10 4P Bonus
-( 70756, 0x00,  10, 0x00200000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Holy 4P Bonus
+( 70756, 0x00,  10, 0x00200000, 0x00010000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Holy 4P Bonus
 ( 70761, 0x00,  10, 0x00000000, 0x80004000, 0x00000001, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Protection 4P Bonus
 ( 70803, 0x00,   8, 0x003E0000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 4P Bonus
 ( 70805, 0x00,   8, 0x00000000, 0x00020000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 2P Bonus

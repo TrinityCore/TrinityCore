@@ -928,7 +928,7 @@ Player::~Player ()
 void Player::CleanupsBeforeDelete(bool finalCleanup)
 {
     TradeCancel(false);
-    DuelComplete(DUEL_INTERUPTED);
+    DuelComplete(DUEL_INTERRUPTED);
 
     Unit::CleanupsBeforeDelete(finalCleanup);
 
@@ -7691,13 +7691,13 @@ void Player::DuelComplete(DuelCompleteType type)
     sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
     WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERUPTED) ? 1 : 0);
+    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
     GetSession()->SendPacket(&data);
 
     if (duel->opponent->GetSession())
         duel->opponent->GetSession()->SendPacket(&data);
 
-    if (type != DUEL_INTERUPTED)
+    if (type != DUEL_INTERRUPTED)
     {
         data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
         data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
@@ -9982,7 +9982,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                 }
             }
 
-            if (Item* ohWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+            if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
             {
                 if (proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                 {
@@ -20102,9 +20102,10 @@ void Player::RemoveSpellMods(Spell * spell)
 
 void Player::DropModCharge(SpellModifier * mod, Spell * spell)
 {
-    // this mod shouldn't be removed
+    // this mod shouldn't be removed here
     if (mod->op == SPELLMOD_CRIT_DAMAGE_BONUS)
         return;
+
     if (spell && mod->ownerAura && mod->charges > 0)
     {
         --mod->charges;
@@ -21325,8 +21326,9 @@ bool Player::CanReportAfkDueToLimit()
 ///This player has been blamed to be inactive in a battleground
 void Player::ReportedAfkBy(Player* reporter)
 {
-    Battleground *bg = GetBattleground();
-    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam())
+    Battleground* bg = GetBattleground();
+    // Battleground also must be in progress!
+    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff

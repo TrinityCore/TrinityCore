@@ -1230,32 +1230,29 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
     {
         uint32 id = itr->second.Entry;
         uint8 localeIndex = GetSessionDbLocaleIndex();
-        if (localeIndex >= 0)
+        if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(id))
         {
-            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(id))
+            if (cl->Name.size() > localeIndex && !cl->Name[localeIndex].empty ())
             {
-                if (cl->Name.size() > localeIndex && !cl->Name[localeIndex].empty ())
+                std::string name = cl->Name[localeIndex];
+
+                if (Utf8FitTo (name, wnamepart))
                 {
-                    std::string name = cl->Name[localeIndex];
-
-                    if (Utf8FitTo (name, wnamepart))
+                    if (maxResults && count++ == maxResults)
                     {
-                        if (maxResults && count++ == maxResults)
-                        {
-                            PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                            return true;
-                        }
-
-                        if (m_session)
-                            PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CHAT, id, id, name.c_str ());
-                        else
-                            PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CONSOLE, id, name.c_str ());
-
-                        if (!found)
-                            found = true;
-
-                        continue;
+                        PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
                     }
+
+                    if (m_session)
+                        PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CHAT, id, id, name.c_str ());
+                    else
+                        PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CONSOLE, id, name.c_str ());
+
+                    if (!found)
+                        found = true;
+
+                    continue;
                 }
             }
         }
@@ -1310,32 +1307,29 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
     for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
         uint8 localeIndex = GetSessionDbLocaleIndex();
-        if (localeIndex >= 0)
+        if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(itr->second.entry))
         {
-            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(itr->second.entry))
+            if (gl->Name.size() > localeIndex && !gl->Name[localeIndex].empty())
             {
-                if (gl->Name.size() > localeIndex && !gl->Name[localeIndex].empty())
+                std::string name = gl->Name[localeIndex];
+
+                if (Utf8FitTo(name, wnamepart))
                 {
-                    std::string name = gl->Name[localeIndex];
-
-                    if (Utf8FitTo(name, wnamepart))
+                    if (maxResults && count++ == maxResults)
                     {
-                        if (maxResults && count++ == maxResults)
-                        {
-                            PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                            return true;
-                        }
-
-                        if (m_session)
-                            PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
-                        else
-                            PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
-
-                        if (!found)
-                            found = true;
-
-                        continue;
+                        PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
                     }
+
+                    if (m_session)
+                        PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
+                    else
+                        PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
+
+                    if (!found)
+                        found = true;
+
+                    continue;
                 }
             }
         }

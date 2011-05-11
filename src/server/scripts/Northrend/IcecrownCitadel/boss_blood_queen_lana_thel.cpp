@@ -160,7 +160,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     return;
 
                 if (instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL_EVENT) == IN_PROGRESS)
-                    killMinchar = true;
+                    _killMinchar = true;
                 else
                 {
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -174,8 +174,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void EnterEvadeMode()
             {
                 _EnterEvadeMode();
-                if (killMinchar)
+                if (_killMinchar)
                 {
+                    _killMinchar = false;
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                     me->SetFlying(true);
@@ -485,7 +486,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
             Player* offtank;
             std::set<uint64> vampires;
             bool creditBloodQuickening;
-            bool killMinchar;
+            bool _killMinchar;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -585,7 +586,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(GUID_BLOOD_QUEEN_LANA_THEL)))
-                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST);
+                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget()->GetGUID());
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

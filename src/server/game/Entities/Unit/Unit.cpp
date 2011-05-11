@@ -599,7 +599,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if (damagetype != NODAMAGE)
     {
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
-        pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto ? spellProto->Id : 0);
+        if (spellProto)
+        {
+            if (!(spellProto->AttributesEx4 & SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
+                pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto->Id);
+        }
+        else
+            pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, 0);
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -3739,6 +3745,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             int32 baseDamage[MAX_SPELL_EFFECTS];
             uint8 effMask = 0;
             uint8 recalculateMask = 0;
+            Unit * caster = aura->GetCaster();
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
                 if (aura->GetEffect(i))
@@ -3757,35 +3764,53 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             }
 
             bool stealCharge = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
+            bool stealStack = aura->GetSpellProto()->StackAmount > 1;
+            int32 dur = (2*MINUTE*IN_MILLISECONDS < aura->GetDuration() || aura->GetDuration() < 0) ? 2*MINUTE*IN_MILLISECONDS : aura->GetDuration();
+
+            if (Aura * newAura = (stealCharge || stealStack) ? stealer->GetAura(aura->GetId(), aura->GetCasterGUID()) : NULL)
+            {
+                if (stealCharge)
+                {
+                    uint8 newCharges = newAura->GetCharges() + 1;
+                    uint8 maxCharges = newAura->GetSpellProto()->procCharges;
+                    // We must be able to steal as much charges as original caster can have
+                    if (caster)
+                        if (Player* modOwner = caster->GetSpellModOwner())
+                            modOwner->ApplySpellMod(aura->GetId(), SPELLMOD_CHARGES, maxCharges);
+                    newAura->SetCharges(maxCharges < newCharges ? maxCharges : newCharges);
+                }
+                else
+                {
+                    uint8 newStacks = newAura->GetStackAmount() + 1;
+                    uint8 maxStacks = newAura->GetSpellProto()->StackAmount;
+                    newAura->SetStackAmount(maxStacks < newStacks ? maxStacks : newStacks);
+                }
+                newAura->SetDuration(dur);
+            }
+            else
+            {
+                bool isSingleTarget = aura->IsSingleTarget() && caster;
+                if (isSingleTarget)
+                    aura->UnregisterSingleTarget();
+                newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
+                // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
+                if (newAura && isSingleTarget)
+                {
+                    aura->SetIsSingleTarget(true);
+                    caster->GetSingleCastAuras().push_back(aura);
+                    newAura->UnregisterSingleTarget();
+                }
+                if (!newAura)
+                    return;
+                newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, &damage[0]);
+                newAura->ApplyForTargets();
+            }
 
             if (stealCharge)
                 aura->DropCharge();
             else
                 RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
 
-            if (Aura * newAura = stealCharge ? stealer->GetAura(aura->GetId(), aura->GetCasterGUID()) : NULL)
-            {
-                uint8 newCharges = newAura->GetCharges() + 1;
-                uint8 maxCharges = newAura->GetSpellProto()->procCharges;
-                // We must be able to steal as much charges as original caster can have
-                if (Unit * caster = newAura->GetCaster())
-                    if (Player* modOwner = caster->GetSpellModOwner())
-                        modOwner->ApplySpellMod(aura->GetId(), SPELLMOD_CHARGES, maxCharges);
-                newAura->SetCharges(maxCharges < newCharges ? maxCharges : newCharges);
-            }
-            else
-            {
-                int32 dur = (2*MINUTE*IN_MILLISECONDS < aura->GetDuration() || aura->GetDuration() < 0) ? 2*MINUTE*IN_MILLISECONDS : aura->GetDuration();
-
-                newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
-                if (!newAura)
-                    return;
-                // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
-                if (newAura->IsSingleTarget())
-                    newAura->UnregisterSingleTarget();
-                newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), aura->GetStackAmount(), recalculateMask, &damage[0]);
-                newAura->ApplyForTargets();
-            }
             return;
         }
         else
@@ -8084,6 +8109,15 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                         if (GetStat(STAT_SPIRIT)   > stat) { trigger_spell_id = 60235;                               }
                         break;
                     }
+                    case 64568:             // Blood Reserve
+                    {
+                        if (HealthBelowPctDamaged(35, damage))
+                        {
+                            CastCustomSpell(this, 64569, &triggerAmount, NULL, NULL, true);
+                            RemoveAura(64568);
+                        }
+                        return false;
+                    }
                     case 67702:             // Death's Choice, Item - Coliseum 25 Normal Melee Trinket
                     {
                         float stat = 0.0f;
@@ -8679,7 +8713,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Combo points add triggers (need add combopoint only for main target, and after possible combopoints reset)
         case 15250: // Rogue Setup
         {
-            if (!pVictim || pVictim != getVictim())   // applied only for main target
+            if (!pVictim || (ToPlayer() && pVictim != ToPlayer()->GetSelectedUnit())) // applied only for main target
                 return false;
             break;                                   // continue normal case
         }
@@ -10864,6 +10898,16 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             break;
                         }
                     break;
+                    case SPELLFAMILY_WARRIOR:
+                       // Victory Rush
+                       if (spellProto->SpellFamilyFlags[1] & 0x100)
+                       {
+                           // Glyph of Victory Rush
+                           if (AuraEffect const* aurEff = GetAuraEffect(58382, 0))
+                               crit_chance += aurEff->GetAmount();
+                           break;
+                       }
+                    break;
                     case SPELLFAMILY_PALADIN:
                         // Judgement of Command proc always crits on stunned target
                         if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN)
@@ -11057,6 +11101,8 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                 scripted = true;
                 break;
         }
+        if (spellProto->Effect[i] == SPELL_EFFECT_HEALTH_LEECH)
+            scripted = true;
     }
 
     // Check for table values
@@ -15237,7 +15283,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         {
             pVictim->ToPlayer()->duel->opponent->CombatStopWithPets(true);
             pVictim->ToPlayer()->CombatStopWithPets(true);
-            pVictim->ToPlayer()->DuelComplete(DUEL_INTERUPTED);
+            pVictim->ToPlayer()->DuelComplete(DUEL_INTERRUPTED);
         }
     }
     else                                                // creature died
@@ -15352,7 +15398,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
     }
 
-    if (Vehicle* veh = pVictim->GetVehicle())
+    if (pVictim->GetVehicle())
         pVictim->ExitVehicle();
 }
 
@@ -15475,7 +15521,7 @@ void Unit::SetRooted(bool apply)
 
 //        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        if (Player* thisPlr = this->ToPlayer())
+        if (GetTypeId() == TYPEID_PLAYER)
         {
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
@@ -15494,7 +15540,7 @@ void Unit::SetRooted(bool apply)
     {
         if (!HasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
-            if (Player* thisPlr = this->ToPlayer())
+            if (GetTypeId() == TYPEID_PLAYER)
             {
                 WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
                 data.append(GetPackGUID());
@@ -15657,11 +15703,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const * a
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if (type != CHARM_TYPE_VEHICLE && !GetCharmInfo())
     {
-        CharmInfo *charmInfo = InitCharmInfo();
+        InitCharmInfo();
         if (type == CHARM_TYPE_POSSESS)
-            charmInfo->InitPossessCreateSpells();
+            GetCharmInfo()->InitPossessCreateSpells();
         else
-            charmInfo->InitCharmCreateSpells();
+            GetCharmInfo()->InitCharmCreateSpells();
     }
 
     if (charmer->GetTypeId() == TYPEID_PLAYER)

@@ -955,6 +955,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         break;
                 }
                 break;
+            case SPELLFAMILY_DRUID:
+                if (!caster)
+                    break;
+                // Rejuvenation
+                if (GetSpellProto()->SpellFamilyFlags[0] & 0x10 && GetEffect(EFFECT_0))
+                {
+                    // Druid T8 Restoration 4P Bonus
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64760, EFFECT_0))
+                    {
+                        int32 heal = GetEffect(EFFECT_0)->GetAmount();
+                        caster->CastCustomSpell(target, 64801, &heal, NULL, NULL, true, NULL, GetEffect(EFFECT_0));
+                    }
+                } 
+                break;
             case SPELLFAMILY_MAGE:
                 if (!caster)
                     break;
@@ -1487,6 +1501,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     }
                     else
                         target->RemoveAurasDueToSpell(64364, GetCasterGUID());
+                    break;
+                case 31842:
+                    if (caster->HasAura(70755))
+                    {
+                        if (apply)
+                            caster->CastSpell(caster, 71166, true);
+                        else
+                            caster->RemoveAurasDueToSpell(71166);
+                    }
                     break;
             }
             break;
