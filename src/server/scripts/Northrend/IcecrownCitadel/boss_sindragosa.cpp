@@ -1328,27 +1328,23 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 class FrostBombTargetSelector
 {
     public:
-        FrostBombTargetSelector(Unit* _caster, std::list<Creature*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
+        FrostBombTargetSelector(Unit* caster, std::list<Creature*> const& collisionList) : _caster(caster), _collisionList(collisionList) { }
 
         bool operator()(Unit* unit)
         {
             if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
-            for (std::list<Creature*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
-                if ((*itr)->IsInBetween(caster, unit))
-                    return true;
-
-            //Do not apply Mystic Buffet spell vulnerability to Sindragosa
-            if (Creature *pCreature = unit->ToCreature())
-                if (pCreature->GetEntry() == NPC_SINDRAGOSA)
+            for (std::list<Creature*>::const_iterator itr = _collisionList.begin(); itr != _collisionList.end(); ++itr)
+                if ((*itr)->IsInBetween(_caster, unit))
                     return true;
 
             return false;
         }
 
-        Unit* caster;
-        std::list<Creature*> const& collisionList;
+    private:
+        Unit* _caster;
+        std::list<Creature*> const& _collisionList;
 };
 
 class spell_sindragosa_collision_filter : public SpellScriptLoader
