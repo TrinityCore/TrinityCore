@@ -17136,7 +17136,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (42223, 0.286, -1, -1, -1, 'Warlock - Rain of Fire Triggered Rank 1'),
 (5676, 0.4293, -1, -1, -1, 'Warlock - Searing Pain'),
 (27243, -1, 0.25, -1, -1, 'Warlock - Seed of Corruption'),
-(27285, 0.2129, -1, -1, -1, 'Seed of Corruption Proc'),
+(27285, 0.2129, -1, -1, -1, 'Warlock - Seed of Corruption Proc'),
 (686, 0.8569, -1, -1, -1, 'Warlock - Shadow Bolt'),
 (6229, 0.3, -1, -1, -1, 'Warlock - Shadow Ward'),
 (17877, 0.4293, -1, -1, -1, 'Warlock - Shadowburn'),
