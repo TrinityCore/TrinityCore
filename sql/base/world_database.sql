@@ -27723,7 +27723,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (6610, 'You cannot trade with characters lower than level %d.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6611, 'You cannot send mail until you become level %d.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6612, 'You cannot send mail to characters lower than level %d.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(6613, '|cfff00000[GM Announcement by [%s]]: %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6613, '|cfff00000[GM Announcement]: %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6614, 'Notification to GM''s - ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6615, '|cffffff00[|c1f40af20GM Announce by|r |cffff0000%s|cffffff00]:|r %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6616, 'Silence is ON for %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

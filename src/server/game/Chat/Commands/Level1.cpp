@@ -46,7 +46,11 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
     if (!*args)
         return false;
 
-    sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, m_session->GetPlayer()->GetName(), args);
+    std::string name("Console");
+    if (WorldSession* session = GetSession())
+        name = session->GetPlayer()->GetName();
+
+    sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
     return true;
 }
 
@@ -56,7 +60,11 @@ bool ChatHandler::HandleGMNameAnnounceCommand(const char* args)
     if (!*args)
         return false;
 
-    sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, m_session->GetPlayer()->GetName(), args);
+    std::string name("Console");
+    if (WorldSession* session = GetSession())
+        name = session->GetPlayer()->GetName();
+
+    sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
     return true;
 }
 
@@ -78,11 +86,7 @@ bool ChatHandler::HandleGMAnnounceCommand(const char* args)
     if (!*args)
         return false;
 
-    std::string name("Console");
-    if (Player* _player = m_session->GetPlayer())
-        name = _player->GetName();
-    
-    sWorld->SendGMText(LANG_GM_BROADCAST, name.c_str(), args);
+    sWorld->SendGMText(LANG_GM_BROADCAST, args);
     return true;
 }
 
