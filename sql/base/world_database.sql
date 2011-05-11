@@ -18102,6 +18102,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 58875, 58876, 1, 'Spirit Walk'),
 (-47960,-63311, 0, 'Glyph of Shadowflame Rank 1'),
 (-61291,-63311, 0, 'Glyph of Shadowflame Rank 2'),
+( 56453, 67544, 0, 'Lock and Load Marker'),
 -- Misc
 ( 55428, 55475, 0, 'Lifeblood (Rank 1)'),
 ( 55480, 55475, 0, 'Lifeblood (Rank 2)'),
