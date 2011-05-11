@@ -3216,7 +3216,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         properties->Id == 2081)     // Mechanical Dragonling, Arcanite Dragonling, Mithril Dragonling TODO: Research on meaning of basepoints
                         amount = 1;
 
-                    if (properties->Id == 2081 && !m_CastItem)
+                    if ((properties->Id == 2081 || m_spellInfo->Id == 13258 || m_spellInfo->Id == 13166) && !m_CastItem)
                         return;
 
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
