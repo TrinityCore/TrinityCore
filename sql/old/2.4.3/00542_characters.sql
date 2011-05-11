@@ -22,7 +22,7 @@ SET
 WHERE 
     `a`.`arenateamid` = `b`.`atid` AND 
     `a`.`guid` = `b`.`b_guid`;
-	
+
 UPDATE 
     `arena_team_member` AS `a`, 
     (SELECT
@@ -47,7 +47,7 @@ SET
 WHERE 
     `a`.`arenateamid` = `b`.`atid` AND 
     `a`.`guid` = `b`.`b_guid`;
-	
+
 UPDATE 
     `arena_team_member` AS `a`, 
     (SELECT
