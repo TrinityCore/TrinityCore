@@ -1022,7 +1022,7 @@ public:
             if (!instance)
                 return;
 
-            if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+            if (Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
