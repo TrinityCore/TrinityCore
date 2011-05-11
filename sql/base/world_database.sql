@@ -16913,6 +16913,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
 (5176, 0.5714, -1, -1, -1, 'Druid - Wrath'),
 (70691,0,0,0,0, 'Druid - Rejuvenation T10 4P proc'),
+(64801,0.45,0,0,0,'Druid - T8 Restoration 4P Bonus'),
 (3044, -1, -1, 0.15, -1, 'Hunter - Arcane Shot'),
 (3674, -1, -1, -1, 0.02, 'Hunter - Black Arrow($RAP*0.1 / number of ticks)'),
 (19306, -1, -1, 0.2, -1, 'Hunter - Counterattack'),
