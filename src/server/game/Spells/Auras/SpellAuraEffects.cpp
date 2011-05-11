@@ -5991,7 +5991,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     break;
                 case SPELLFAMILY_PRIEST:
                     // Vampiric Touch
-                    if (m_spellProto->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
+                    if (m_spellProto->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && GetEffIndex() == 0)
                     {
                         if (AuraEffect const * aurEff = GetBase()->GetEffect(1))
                         {
