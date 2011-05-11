@@ -196,7 +196,7 @@ void GmTicket::TeleportTo(Player* player) const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
-TicketMgr::TicketMgr() : _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(time(NULL)), _status(true) { }
+TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(time(NULL)) { }
 
 void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
 
