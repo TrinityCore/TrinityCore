@@ -489,6 +489,8 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
                     case RAID_DIFFICULTY_25MAN_NORMAL:
                         target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1));
                         break;
+                    default:
+                        break;
                 }
             }
 

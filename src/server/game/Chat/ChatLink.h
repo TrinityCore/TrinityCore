@@ -145,7 +145,7 @@ public:
 class GlyphChatLink : public SpellChatLink
 {
 public:
-    GlyphChatLink() : SpellChatLink(), _glyph(NULL), _slotId(0) { }
+    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
     virtual bool Initialize(std::istringstream& iss);
 private:
     uint32 _slotId;
