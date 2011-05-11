@@ -82,7 +82,7 @@ INSERT INTO `creature_addon` (`guid`,`path_id`) VALUES
 (@GUID+0,(@GUID+0)*10),
 (@GUID+1,(@GUID+1)*10);
 DELETE FROM `waypoint_data`  WHERE `id` IN ((@GUID+0)*10,(@GUID+1)*10);
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES	
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES
 ((@GUID+0)*10,00,5865.73,561.7454,656.3502),
 ((@GUID+0)*10,01,5864.76,561.5035,656.3502),
 ((@GUID+0)*10,02,5865.858,545.6048,657.8221),
