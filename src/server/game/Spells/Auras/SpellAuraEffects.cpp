@@ -1078,11 +1078,8 @@ void AuraEffect::Update(uint32 diff, Unit * caster)
             std::list<AuraApplication*> effectApplications;
             GetApplicationList(effectApplications);
             // tick on targets of effects
-            if (!caster || !caster->HasUnitState(UNIT_STAT_ISOLATED))
-            {
-                for (std::list<AuraApplication*>::iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-                    PeriodicTick(*apptItr, caster);
-            }
+            for (std::list<AuraApplication*>::iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
+                PeriodicTick(*apptItr, caster);
         }
     }
 }
