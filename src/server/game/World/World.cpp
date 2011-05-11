@@ -2571,7 +2571,7 @@ void World::ProcessCliCommands()
         callbackArg = command->m_callbackArg;
         CliHandler handler(callbackArg, zprint);
         handler.ParseCommands(command->m_command);
-        if(command->m_commandFinished)
+        if (command->m_commandFinished)
             command->m_commandFinished(callbackArg, !handler.HasSentErrorMessage());
         delete command;
     }

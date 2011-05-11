@@ -6085,12 +6085,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         case SPELLFAMILY_PRIEST:
         {
             // Vampiric Touch
-            if (dummySpell->SpellFamilyFlags[EFFECT_1] & 0x00000400)
+            if (dummySpell->SpellFamilyFlags[1] & 0x00000400)
             {
                 if (!pVictim || !pVictim->isAlive())
                     return false;
 
-                if (effIndex != EFFECT_0)
+                if (effIndex != 0)
                     return false;
 
                 // pVictim is caster of aura
@@ -11036,6 +11036,22 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             break;
                         }
                     break;
+                    case SPELLFAMILY_WARRIOR:
+                       // Victory Rush
+                       if (spellProto->SpellFamilyFlags[1] & 0x100)
+                       {
+                           // Glyph of Victory Rush
+                           if (AuraEffect const* aurEff = GetAuraEffect(58382, 0))
+                               crit_chance += aurEff->GetAmount();
+                           break;
+                       }
+                    break;
+                    case SPELLFAMILY_PALADIN:
+                        // Judgement of Command proc always crits on stunned target
+                        if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN)
+                            if (spellProto->SpellFamilyFlags[0] & 0x0000000000800000LL && spellProto->SpellIconID == 561)
+                                if (pVictim->HasUnitState(UNIT_STAT_STUNNED))
+                                    return true;
                 }
             }
         case SPELL_DAMAGE_CLASS_RANGED:
