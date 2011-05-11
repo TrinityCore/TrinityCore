@@ -762,7 +762,6 @@ class World
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
         BanReturn BanAccount(WorldSession *session, uint32 duration_secs, std::string reason, std::string author);
         void AntiCheatBanAccount(std::string name, std::string author);
-        void AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID,  float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
         BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);
         bool RemoveBanCharacter(std::string name);
