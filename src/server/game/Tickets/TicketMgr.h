@@ -84,7 +84,7 @@ public:
 
     bool IsClosed() const { return _closedBy; }
     bool IsCompleted() const { return _completed; }
-    bool IsFromPlayer(const uint64& guid) { return guid == _playerGuid; }
+    bool IsFromPlayer(const uint64& guid) const { return guid == _playerGuid; }
     bool IsAssigned() const { return _assignedTo != 0; }
     bool IsAssignedTo(const uint64& guid) const { return guid == _assignedTo; }
     bool IsAssignedNotTo(const uint64& guid) const { return IsAssigned() && !IsAssignedTo(guid); }
@@ -95,12 +95,12 @@ public:
     std::string GetMessage() const { return _message; }
     Player* GetAssignedPlayer() const { return sObjectMgr->GetPlayer(_assignedTo); }
     const uint64& GetAssignedToGUID() const { return _assignedTo; }
-    const char* GetAssignedToName() const
+    std::string GetAssignedToName() const
     {
         std::string name;
         if (_assignedTo)
             if (sObjectMgr->GetPlayerNameByGUID(_assignedTo, name))
-                return name.c_str();
+                return name;
         return NULL;
     }
     const uint64& GetLastModifiedTime() const { return _lastModifiedTime; }
