@@ -16862,8 +16862,7 @@ CREATE TABLE `spell_bonus_data` (
 LOCK TABLES `spell_bonus_data` WRITE;
 /*!40000 ALTER TABLE `spell_bonus_data` DISABLE KEYS */;
 INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`ap_dot_bonus`,`comments`) VALUES
-(49941, -1, -1, 0.04, -1, 'Death Knight - Blood Boil'),
-(48721, 0, -1, 0.04, -1, 'Death Knight - Blood Boil'),
+(48721, 0, -1, 0.06, -1, 'Death Knight - Blood Boil'),
 (55078, 0, 0, -1, 0.06325, 'Death Knight - Blood Plague'),
 (50444, -1, -1, 0.105, -1, 'Death Knight - Corpse Explosion Triggered'),
 (52212, 0, -1, 0.0475, -1, 'Death Knight - Death and Decay'),
