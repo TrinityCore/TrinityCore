@@ -1,0 +1,19 @@
+Use wardend only under Win32 enviroment.
+
+To fix somethink like:
+
+err:module:import_dll Library MSVCR90.dll (which is needed by L"C:\warden\MSVCP90.dll") not found
+err:module:import_dll Library MSVCP90.dll (which is needed by L"C:\warden\ACE.dll") not found
+err:module:import_dll Library MSVCR90.dll (which is needed by L"C:\warden\ACE.dll") not found
+err:module:import_dll Library ACE.dll (which is needed by L"C:\warden\wardend.exe") not found
+
+winetricks --force -q vcrun2008
+
+no use wineconsole.
+use xvfb-its dummy X
+
+Xvfb :1 &
+export DISPLAY=:1
+wine wardend.exe
+
+Thanks SignFinder for help.
