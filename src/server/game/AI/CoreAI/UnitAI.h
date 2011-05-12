@@ -62,33 +62,33 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
     DefaultTargetSelector(Unit const* pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
-    bool operator() (Unit const* pTarget)
+    bool operator()(Unit const* target) const
     {
         if (!me)
             return false;
 
-        if (!pTarget)
+        if (!target)
             return false;
 
-        if (m_playerOnly && (pTarget->GetTypeId() != TYPEID_PLAYER))
+        if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
             return false;
 
-        if (m_dist > 0.0f && !me->IsWithinCombatRange(pTarget, m_dist))
+        if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
             return false;
 
-        if (m_dist < 0.0f && me->IsWithinCombatRange(pTarget, -m_dist))
+        if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
             return false;
 
         if (m_aura)
         {
             if (m_aura > 0)
             {
-                if (!pTarget->HasAura(m_aura))
+                if (!target->HasAura(m_aura))
                     return false;
             }
             else
             {
-                if (pTarget->HasAura(-m_aura))
+                if (target->HasAura(-m_aura))
                     return false;
             }
         }
