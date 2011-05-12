@@ -221,7 +221,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     sLog->outString();
 }
 
-bool SmartAIMgr::IsTargetValid(SmartScriptHolder e)
+bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
 {
     if (e.GetActionType() == SMART_ACTION_INSTALL_AI_TEMPLATE)
         return true; //AI template has special handling
@@ -780,7 +780,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
     return true;
 }
 
-bool SmartAIMgr::IsTextValid(SmartScriptHolder e, uint32 id)
+bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id)
 {
     bool error = false;
     uint32 entry = 0;
