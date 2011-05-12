@@ -17026,6 +17026,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (34433, 0.65, -1, -1, -1, 'Priest - Shadowfiend'),
 (585, 0.714, -1, -1, -1, 'Priest - Smite'),
 (34914, -1, 0.4, -1, -1, 'Priest - Vampiric Touch'),
+(64085, 1.2, -1, -1, -1, 'Priest - Vampiric Touch (Dispelled)'),
 (7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
 (63675, 0, 0, 0, 0, 'Priest - Improved Devouring Plague'),
 (56131, 0, 0, 0, 0, 'Priest - Glyph of Dispel Magic'),
