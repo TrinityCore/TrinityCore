@@ -17685,7 +17685,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1041,48506), -- Earth and Moon
 (1042,1490), -- Curse of the Elements
 -- Increased Spell Power Buff
-(1044,54646), -- Focus Magic
 (1045,52109), -- Flametongue Totem
 (1046,57658), -- Totem of Wrath
 (1046,57660), -- Totem of Wrath
@@ -17781,7 +17780,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1043,-1041),
 (1043,-1042),
 -- Increased Spell Power Buff
-(1048,-1044),
 (1048,-1045),
 (1048,-1046),
 (1048,-1047),
