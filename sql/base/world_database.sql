@@ -17742,8 +17742,8 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1094,34123), -- tree of life aura
 (1095,20138), -- Improved Devotion Aura
 -- Armor Increase Percentage Buff
-(1097,14892), -- Inspiration
-(1098,16176), -- Ancestral Healing
+(1097,14893), -- Inspiration
+(1098,16177), -- Ancestral Healing
 -- Cast Speed Slow
 (1100,1714), -- Curse of Tongues
 (1101,31589), -- Slow
