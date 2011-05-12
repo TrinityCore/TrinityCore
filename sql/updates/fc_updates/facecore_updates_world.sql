@@ -455,15 +455,6 @@ UPDATE `spell_group` SET `spell_id` = 20912 WHERE `id` = 1092 and `spell_id` = 2
 -- Fixed mage's talent Hot Streak
 UPDATE `spell_proc_event` SET `SpellFamilyMask1`=`SpellFamilyMask1`|0x00010000 WHERE `entry` IN (44445,44446,44448);
 
--- Fixed hunter's talent Lock and Load
-DELETE FROM `conditions` WHERE `SourceEntry` = 56453;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`Comment`) VALUES
-(17,56453,11,67544,'Lock and Load - Lock and Load Marker');
-
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 56453;
-INSERT INTO `spell_linked_spell` VALUES
-(56453,67544,0,'Lock and Load Marker');
-
 -- Fixed spell bonus coefficient for spell Healing Stream Totem.
 DELETE FROM `spell_bonus_data` WHERE `entry` = 52042;
 DELETE FROM `spell_proc_event` WHERE `entry` IN (20335,20336,20337);
