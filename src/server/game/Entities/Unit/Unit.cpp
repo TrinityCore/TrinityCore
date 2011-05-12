@@ -5732,15 +5732,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    SpellCooldowns const SpellCDs = this->ToPlayer()->GetSpellCooldowns();
+                    SpellCooldowns const cooldowns = this->ToPlayer()->GetSpellCooldowns();
                     // remove cooldowns on all ranks of Frost Nova
-                    for (SpellCooldowns::const_iterator itr = SpellCDs.begin(); itr != SpellCDs.end(); itr++)
+                    for (SpellCooldowns::const_iterator itr = cooldowns.begin(); itr != cooldowns.end(); ++itr)
                     {
-                        SpellEntry const* SpellCDs_entry = sSpellStore.LookupEntry(itr->first);
+                        SpellEntry const* cdSpell = sSpellStore.LookupEntry(itr->first);
                         // Frost Nova
-                        if (SpellCDs_entry && SpellCDs_entry->SpellFamilyName == SPELLFAMILY_MAGE
-                           && SpellCDs_entry->SpellFamilyFlags[0] & 0x00000040)
-                            this->ToPlayer()->RemoveSpellCooldown(SpellCDs_entry->Id, true);
+                        if (cdSpell && cdSpell->SpellFamilyName == SPELLFAMILY_MAGE
+                           && cdSpell->SpellFamilyFlags[0] & 0x00000040)
+                            this->ToPlayer()->RemoveSpellCooldown(cdSpell->Id, true);
                     }
                     break;
                 }
