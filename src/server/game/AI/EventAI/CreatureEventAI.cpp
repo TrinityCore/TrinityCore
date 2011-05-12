@@ -350,14 +350,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             if (!action.text.TextId1)
                 return;
 
-            int32 temp = 0;
+            int32 temp = action.text.TextId1;
 
             if (action.text.TextId2 && action.text.TextId3)
                 temp = RAND(action.text.TextId1, action.text.TextId2, action.text.TextId3);
             else if (action.text.TextId2 && urand(0, 1))
                 temp = action.text.TextId2;
-            else
-                temp = action.text.TextId1;
 
             if (temp)
             {
@@ -1320,16 +1318,14 @@ bool CreatureEventAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Trigge
     if (!Triggered && me->GetPower((Powers)Spell->powerType) < CalculatePowerCost(Spell, me, GetSpellSchoolMask(Spell)))
         return false;
 
-    SpellRangeEntry const *TempRange = NULL;
-
-    TempRange = GetSpellRangeStore()->LookupEntry(Spell->rangeIndex);
+    SpellRangeEntry const* tempRange = sSpellRangeStore.LookupEntry(Spell->rangeIndex);
 
     //Spell has invalid range store so we can't use it
-    if (!TempRange)
+    if (!tempRange)
         return false;
 
     //Unit is out of range of this spell
-    if (!me->IsInRange(Target, TempRange->minRangeHostile, TempRange->maxRangeHostile))
+    if (!me->IsInRange(Target, tempRange->minRangeHostile, tempRange->maxRangeHostile))
         return false;
 
     return true;
