@@ -560,7 +560,9 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                 if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, true);
                 else
-                    charmInfo->ToggleCreatureAutocast(spell_id, true);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spell_id, true);
             }
             //sign for no/turn off autocast
             else if (act_state == ACT_DISABLED && spell_id)
@@ -568,7 +570,9 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                 if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, false);
                 else
-                    charmInfo->ToggleCreatureAutocast(spell_id, false);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spell_id, false);
 
             }
 
