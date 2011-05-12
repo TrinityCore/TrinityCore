@@ -62,33 +62,33 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
     DefaultTargetSelector(Unit const* pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
-    bool operator() (Unit const* pTarget)
+    bool operator()(Unit const* target) const
     {
         if (!me)
             return false;
 
-        if (!pTarget)
+        if (!target)
             return false;
 
-        if (m_playerOnly && (pTarget->GetTypeId() != TYPEID_PLAYER))
+        if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
             return false;
 
-        if (m_dist > 0.0f && !me->IsWithinCombatRange(pTarget, m_dist))
+        if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
             return false;
 
-        if (m_dist < 0.0f && me->IsWithinCombatRange(pTarget, -m_dist))
+        if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
             return false;
 
         if (m_aura)
         {
             if (m_aura > 0)
             {
-                if (!pTarget->HasAura(m_aura))
+                if (!target->HasAura(m_aura))
                     return false;
             }
             else
             {
-                if (pTarget->HasAura(-m_aura))
+                if (target->HasAura(-m_aura))
                     return false;
             }
         }
@@ -126,7 +126,7 @@ class UnitAI
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit* , bool>
-        template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
+        template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
             const std::list<HostileReference* > &threatlist = me->getThreatManager().getThreatList();
             if (position >= threatlist.size())
@@ -176,7 +176,7 @@ class UnitAI
 
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit* , bool>
-        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
             std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
             if (threatlist.empty())

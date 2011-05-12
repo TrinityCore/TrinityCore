@@ -901,7 +901,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 uint32 counter =0;
-                for (RewardedQuestSet::const_iterator itr = GetPlayer()->getRewardedQuests().begin(); itr != GetPlayer()->getRewardedQuests().end(); itr++)
+                for (RewardedQuestSet::const_iterator itr = GetPlayer()->getRewardedQuests().begin(); itr != GetPlayer()->getRewardedQuests().end(); ++itr)
                 {
                     Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
                     if (quest && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->complete_quests_in_zone.zoneID)
