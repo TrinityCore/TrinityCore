@@ -42,7 +42,7 @@ enum Spells
     SPELL_TWISTEDREFLECTION     = 21063
 };
 
-enum _events
+enum Events
 {
     EVENT_SHADOW_VOLLEY         = 1,
     EVENT_CLEAVE                = 2,
@@ -113,7 +113,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while(uint32 eventId = _events.ExecuteEvent())
                 {
                     switch(eventId)
                     {
