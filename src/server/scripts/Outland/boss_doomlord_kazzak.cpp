@@ -134,17 +134,6 @@ class boss_doomlord_kazzak : public CreatureScript
                             _events.ScheduleEvent(EVENT_VOIDBOLT, urand(15000, 18000));
                             break;
                         case EVENT_MARK_OF_KAZZAK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                if (target->GetPower(POWER_MANA))
-                                    DoCast(target, SPELL_MARKOFKAZZAK);
-                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
-                            break;
-                        case EVENT_ENRAGE:
-                            Talk(EMOTE_FRENZY);
-                            DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 30000);
-                            break;
-                        case EVENT_TWISTED_REFLECTION:
                             std::list<Unit*> targetList;
                             {
                                 const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
@@ -155,7 +144,17 @@ class boss_doomlord_kazzak : public CreatureScript
 
                             std::list<Unit*>::iterator itr = targetList.begin();
                             advance(itr, urand(0, targetList.size()-1));
-                            DoCast(*itr, SPELL_TWISTEDREFLECTION);
+                            DoCast(*itr, SPELL_MARKOFKAZZAK);
+                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
+                            break;
+                        case EVENT_ENRAGE:
+                            Talk(EMOTE_FRENZY);
+                            DoCast(me, SPELL_ENRAGE);
+                            _events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            break;
+                        case EVENT_TWISTED_REFLECTION:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(target, SPELL_TWISTEDREFLECTION);
                             _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 15000);
                             break;
                         default:
