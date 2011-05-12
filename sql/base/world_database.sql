@@ -17017,7 +17017,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (52999, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 3)'),
 (53000, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 4)'),
 (17, 0.8068, -1, -1, -1, 'Priest - Power Word: Shield'),
-(596, 0.8068, -1, -1, -1, 'Priest - Prayer of Healing'),
+(596, 0.526, -1, -1, -1, 'Priest - Prayer of Healing'),
 (33110, 0.8068, 0, 0, 0, 'Priest - Prayer of Mending Heal Proc'),
 (33619, 0, 0, 0, 0, 'Priest - Reflective Shield'),
 (139, -1, 0.376, -1, -1, 'Priest - Renew'),
@@ -17685,7 +17685,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1041,48506), -- Earth and Moon
 (1042,1490), -- Curse of the Elements
 -- Increased Spell Power Buff
-(1044,54646), -- Focus Magic
 (1045,52109), -- Flametongue Totem
 (1046,57658), -- Totem of Wrath
 (1046,57660), -- Totem of Wrath
@@ -17742,8 +17741,8 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1094,34123), -- tree of life aura
 (1095,20138), -- Improved Devotion Aura
 -- Armor Increase Percentage Buff
-(1097,14892), -- Inspiration
-(1098,16176), -- Ancestral Healing
+(1097,14893), -- Inspiration
+(1098,16177), -- Ancestral Healing
 -- Cast Speed Slow
 (1100,1714), -- Curse of Tongues
 (1101,31589), -- Slow
@@ -17781,7 +17780,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1043,-1041),
 (1043,-1042),
 -- Increased Spell Power Buff
-(1048,-1044),
 (1048,-1045),
 (1048,-1046),
 (1048,-1047),
@@ -18711,7 +18709,6 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 31657, 0x04,   3, 0x8000000,  0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Empowered Fire (Rank 2)
 ( 31658, 0x04,   3, 0x8000000,  0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Empowered Fire (Rank 3)
 ( 31794, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00010000,   0,   0,   0), -- Focused Mind
-( 31801, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Seal of Vengeance
 ( 31833, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 1)
 ( 31835, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 2)
 ( 31836, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 3)

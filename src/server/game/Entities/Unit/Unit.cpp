@@ -10624,7 +10624,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if (HasAura(200000))
                     DoneTotalMod *= 4;
             // Shadow Bite (15% increase from each dot)
-            if (spellProto->SpellFamilyFlags[1] & 0x00400000 && isPet() && GetOwner())
+            if (spellProto->SpellFamilyFlags[1] & 0x00400000 && isPet())
                 if (uint8 count = pVictim->GetDoTsByCaster(GetOwnerGUID()))
                     AddPctN(DoneTotalMod, 15 * count);
         break;

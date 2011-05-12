@@ -1,12 +1,3 @@
--- Desolation procs only with BS fix.
-DELETE FROM `spell_proc_event` WHERE `entry` IN ('66799','66814','66815','66816','66817');
-INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
-('66799','0','15','4194304','0','0','0','0','0','0','0'), -- Desolation (Rank 1)
-('66814','0','15','4194304','0','0','0','0','0','0','0'), -- Desolation (Rank 2)
-('66815','0','15','4194304','0','0','0','0','0','0','0'), -- Desolation (Rank 3)
-('66816','0','15','4194304','0','0','0','0','0','0','0'), -- Desolation (Rank 4)
-('66817','0','15','4194304','0','0','0','0','0','0','0'); -- Desolation (Rank 5)
-
 -- Fix Summon Infernal spell. Thanks inordon fod idea
 UPDATE `creature_template` SET flags_extra = 0 WHERE `entry` = 89; 
 
@@ -142,13 +133,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_bonus_data` WHERE `entry` IN ('32645');
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 ('32645','0','0','0','0','Rogue - Envenom');
-
--- Threat of Thassarian fix
-DELETE FROM `spell_proc_event` WHERE `entry` IN (65661,66191,66192);
-INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`procFlags`,`procEx`,`ppmRate`,`CustomChance`,`Cooldown`) VALUES
-(65661,0,15,0x00400011,0x20020004,0x00000000,16,0,0,100,0), -- Threat of Thassarian - Rank1
-(66191,0,15,0x00400011,0x20020004,0x00000000,16,0,0,100,0), -- Threat of Thassarian - Rank2
-(66192,0,15,0x00400011,0x20020004,0x00000000,16,0,0,100,0); -- Threat of Thassarian - Rank3
 
 -- fix for YTDB after "guards don't evade..." commit
 UPDATE `creature_template` SET `Unit_flags` = 36864 WHERE `entry` = 3296;
@@ -369,9 +353,6 @@ DELETE FROM `spell_linked_spell` WHERE `comment` = 'Wyvern Sting';
 
 -- Fixed talent Threat of Thassarian of Death Knights
 UPDATE `spell_proc_event` SET `SpellFamilyMask0`=`SpellFamilyMask0`|0x00000001 WHERE `entry` IN (66192,66191,65661);
-
--- Fixed spell bonus coefficient for Prayer of Healing
-UPDATE `spell_bonus_data` SET `direct_bonus` = 0.526 WHERE `entry` = 596;
 
 -- Fix a bug when pets chasing target even if it's invisible
 DELETE FROM `spell_linked_spell` WHERE `spell_effect` = 54661 AND `spell_trigger` IN (32612,5215,1784);
