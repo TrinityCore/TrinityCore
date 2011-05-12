@@ -854,6 +854,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_GM_LEVEL_IN_GM_LIST]   = sConfig->GetIntDefault("GM.InGMList.Level", SEC_ADMINISTRATOR);
     m_int_configs[CONFIG_GM_LEVEL_IN_WHO_LIST]  = sConfig->GetIntDefault("GM.InWhoList.Level", SEC_ADMINISTRATOR);
+    m_int_configs[CONFIG_GM_LEVEL_ALLOW_ACHIEVEMENTS]  = sConfig->GetIntDefault("GM.AllowAchievementGain.Level", SEC_ADMINISTRATOR);
     m_bool_configs[CONFIG_GM_LOG_TRADE]         = sConfig->GetBoolDefault("GM.LogTrade", false);
     m_int_configs[CONFIG_START_GM_LEVEL]        = sConfig->GetIntDefault("GM.StartLevel", 1);
     if (m_int_configs[CONFIG_START_GM_LEVEL] < m_int_configs[CONFIG_START_PLAYER_LEVEL])
@@ -870,7 +871,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ALLOW_GM_GROUP]       = sConfig->GetBoolDefault("GM.AllowInvite", false);
     m_bool_configs[CONFIG_ALLOW_GM_FRIEND]      = sConfig->GetBoolDefault("GM.AllowFriend", false);
     m_bool_configs[CONFIG_GM_LOWER_SECURITY] = sConfig->GetBoolDefault("GM.LowerSecurity", false);
-    m_bool_configs[CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS] = sConfig->GetBoolDefault("GM.AllowAchievementGain", true);
     m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfig->GetFloatDefault("GM.TicketSystem.ChanceOfGMSurvey", 50.0f);
 
     m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfig->GetIntDefault("Visibility.GroupMode", 1);

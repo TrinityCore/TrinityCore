@@ -1894,12 +1894,14 @@ GM.AllowFriend = 0
 GM.LowerSecurity = 0
 
 #
-#    GM.AllowAchievementGain
-#        Description: Allow GM characters to obtain achievements.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#    GM.AllowAchievementGain.Level
+#        Description: Max GM level that can obtain achievements.
+#        Default:     3 - (Anyone)
+#                     0 - (Only players)
+#                     1 - (Only moderators)
+#                     2 - (Only gamemasters)
 
-GM.AllowAchievementGain = 1
+GM.AllowAchievementGain.Level = 3
 
 #
 #    GM.TicketSystem.ChanceOfGMSurvey
