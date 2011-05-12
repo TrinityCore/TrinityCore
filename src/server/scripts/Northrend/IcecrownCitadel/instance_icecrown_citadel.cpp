@@ -554,6 +554,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
+                        SetBossState(DATA_VALITHRIA_DREAMWALKER, state);    // TEMP HACK UNTIL VALITHRIA DREAMWALKER SCRIPTED
                         HandleGameObject(BloodwingSigilGUID, state != DONE);
                         if (instance->IsHeroic())
                         {
