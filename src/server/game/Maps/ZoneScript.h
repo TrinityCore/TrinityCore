@@ -28,7 +28,8 @@ class GameObject;
 class ZoneScript
 {
     public:
-        explicit ZoneScript() {}
+        ZoneScript() {}
+        virtual ~ZoneScript() {}
 
         virtual uint32 GetCreatureEntry(uint32 /*guidlow*/, CreatureData const* data) { return data->id; }
         virtual uint32 GetGameObjectEntry(uint32 /*guidlow*/, uint32 entry) { return entry; }
