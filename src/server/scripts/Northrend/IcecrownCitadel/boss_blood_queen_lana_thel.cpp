@@ -316,13 +316,18 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             DoCast(me, SPELL_BERSERK);
                             break;
                         case EVENT_VAMPIRIC_BITE:
-                            if (Player* target = SelectRandomTarget(false))
+                        {
+                            std::list<Player*> targets;
+                            SelectRandomTarget(false, &targets);
+                            if (!targets.empty())
                             {
+                                Unit* target = targets.front();
                                 DoCast(target, SPELL_VAMPIRIC_BITE);
                                 Talk(SAY_VAMPIRIC_BITE);
                                 _vampires.insert(target->GetGUID());
                             }
                             break;
+                        }
                         case EVENT_BLOOD_MIRROR:
                         {
                             // victim can be NULL when this is processed in the same update tick as EVENT_AIR_PHASE
@@ -453,7 +458,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
 
                 std::list<Player*>::iterator itr = tempTargets.begin();
-                std::advance(itr, urand(0, tempTargets.size()-1));
+                std::advance(itr, urand(0, tempTargets.size() - 1));
                 return *itr;
             }
 
