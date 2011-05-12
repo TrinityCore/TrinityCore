@@ -721,7 +721,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
 
                 default:
-                    sLog->outErrorDb("CreatureEventAI:  Event %u Action %u have currently not checked at load action type (%u). Need check code update?", i, j+1, temp.action[j].type);
+                    sLog->outErrorDb("CreatureEventAI:  Event %u Action %u have currently not checked at load action type (%u). Need check code update?", i, j+1, action.type);
                     break;
             }
         }
