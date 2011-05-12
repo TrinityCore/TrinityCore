@@ -134,17 +134,8 @@ class boss_doomlord_kazzak : public CreatureScript
                             _events.ScheduleEvent(EVENT_VOIDBOLT, urand(15000, 18000));
                             break;
                         case EVENT_MARK_OF_KAZZAK:
-                            std::list<Unit*> targetList;
-                            {
-                                const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                                for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
-                                        targetList.push_back((*itr)->getTarget());
-                            }
-
-                            std::list<Unit*>::iterator itr = targetList.begin();
-                            advance(itr, urand(0, targetList.size()-1));
-                            DoCast(*itr, SPELL_MARKOFKAZZAK);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(target, SPELL_MARKOFKAZZAK);
                             _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
                             break;
                         case EVENT_ENRAGE:
@@ -175,43 +166,7 @@ class boss_doomlord_kazzak : public CreatureScript
         }
 };
 
-class spell_doomlord_kazzak_mark_of_kazzak : public SpellScriptLoader
-{
-    public:
-        spell_doomlord_kazzak_mark_of_kazzak() : SpellScriptLoader("spell_doomlord_kazzak_mark_of_kazzak") { }
-
-        class spell_doomlord_kazzak_mark_of_kazzak_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_doomlord_kazzak_mark_of_kazzak_AuraScript);
-
-            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                PreventDefaultAction();
-
-                int32 curmana = GetHitUnit()->GetPower(POWER_MANA);
-                int32 maxmana = GetHitUnit()->GetMaxPower(POWER_MANA);
-
-                // If mana is above 5 procent, drain. Otherwise cast 32961 (player on self with Doomlord Kazzak as casterguid)
-                if (curmana * 100 > maxmana * 5)
-                    GetHitUnit()->ModifyPower(POWER_MANA, -5);
-                else
-                    GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MARKOFKAZZAK_DAMAGE, true, NULL, NULL, GetCasterGUID());
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_doomlord_kazzak_mark_of_kazzak_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_doomlord_kazzak_mark_of_kazzak_AuraScript();
-        }
-};
-
 void AddSC_boss_doomlordkazzak()
 {
     new boss_doomlord_kazzak();
-    new spell_doomlord_kazzak_mark_of_kazzak();
 }
