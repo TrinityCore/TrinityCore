@@ -1046,7 +1046,8 @@ class spell_item_ashbringer : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                Unit* caster = GetCaster())
+                Unit* caster = GetCaster();
+
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
                 if (Player* player = caster->ToPlayer())
