@@ -1459,10 +1459,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             int32 bonus = 0;
             bonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetSpellSchoolMask(i_spellProto));
             if (Unit * caster = (*dmgShieldItr)->GetCaster())
-            {
-                bonus += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, GetSpellSchoolMask(i_spellProto));
                 bonus += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, GetCreatureTypeMask());
-            }
             if (bonus)
                 AddPctN(damage, bonus);
 
@@ -2266,7 +2263,7 @@ bool Unit::isSpellBlocked(Unit* victim, SpellEntry const * spellProto, WeaponAtt
     if (spellProto && spellProto->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return false;
 
-    if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(M_PI, this))
     {
         // Check creatures flags_extra for disable block
         if (victim->GetTypeId() == TYPEID_UNIT &&
@@ -8728,7 +8725,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Combo points add triggers (need add combopoint only for main target, and after possible combopoints reset)
         case 15250: // Rogue Setup
         {
-            if (!pVictim || (ToPlayer() && pVictim != ToPlayer()->GetSelectedUnit())) // applied only for main target
+            // applied only for main target
+            if (!pVictim || (GetTypeId() == TYPEID_PLAYER && pVictim != ToPlayer()->GetSelectedUnit()))
                 return false;
             break;                                   // continue normal case
         }
