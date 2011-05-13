@@ -597,10 +597,20 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
         case SPELL_AURA_DAMAGE_SHIELD:
             if (!caster)
                 break;
-            // Thorns
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x100)
-                // 3.3% from sp bonus
-                DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.033f;
+
+            if (caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                DoneActualBenefit += caster->SpellDamageBonus(GetBase()->GetUnitOwner(), GetSpellProto(), 0, SPELL_DIRECT_DAMAGE);
+                DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
+                amount += (int32)DoneActualBenefit;
+
+                // Thorns
+                if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x100)
+                    if (AuraEffect * aurEff = caster->GetAuraEffectOfRankedSpell(16836, 0))
+                        AddPctN(amount, aurEff->GetAmount());
+
+                return amount;
+            }
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
             if (!caster)

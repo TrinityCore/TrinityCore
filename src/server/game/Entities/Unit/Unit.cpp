@@ -1456,6 +1456,16 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
             uint32 damage = (*dmgShieldItr)->GetAmount();
 
+            int32 bonus = 0;
+            bonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetSpellSchoolMask(i_spellProto));
+            if (Unit * caster = (*dmgShieldItr)->GetCaster())
+            {
+                bonus += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, GetSpellSchoolMask(i_spellProto));
+                bonus += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, GetCreatureTypeMask());
+            }
+            if (bonus)
+                AddPctN(damage, bonus);
+
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
             pVictim->DealDamageMods(this, damage, NULL);
 
