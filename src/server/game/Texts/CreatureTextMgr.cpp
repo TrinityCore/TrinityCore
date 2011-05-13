@@ -49,7 +49,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         temp.group          = fields[1].GetUInt8();
         temp.id             = fields[2].GetUInt8();
         temp.text           = fields[3].GetString();
-        temp.type           = ChatType(fields[4].GetUInt8());
+        temp.type           = ChatMsg(fields[4].GetUInt8());
         temp.lang           = Language(fields[5].GetUInt8());
         temp.probability    = fields[6].GetFloat();
         temp.emote          = Emote(fields[7].GetUInt32());
@@ -68,10 +68,10 @@ void CreatureTextMgr::LoadCreatureTexts()
             sLog->outErrorDb("CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` using Language %u but Language does not exist.", temp.entry, temp.group, uint32(temp.lang));
             temp.lang = LANG_UNIVERSAL;
         }
-        if (temp.type >= CHAT_TYPE_ZONE_YELL)//CHAT_TYPE_ZONE_YELL and more will be used later
+        if (temp.type >= MAX_CHAT_MSG_TYPE)
         {
             sLog->outErrorDb("CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Type %u but this Chat Type does not exist.", temp.entry, temp.group, uint32(temp.type));
-            temp.type = CHAT_TYPE_SAY;
+            temp.type = CHAT_MSG_SAY;
         }
         if (temp.emote)
         {
@@ -104,7 +104,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     sLog->outString();
 }
 
-uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid, ChatType msgtype, Language language, TextRange range, uint32 sound, Team team, bool gmOnly, Player* srcPlr)
+uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid /*= 0*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, TextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= NULL*/)
 {
     if (!source)
         return 0;
@@ -174,7 +174,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
         pos = offset;
     CreatureTextGroup::const_iterator iter = tempGroup.begin() + pos;
 
-    ChatType finalType = (msgtype == CHAT_TYPE_END) ? (*iter).type : msgtype;
+    ChatMsg finalType = (msgType == CHAT_MSG_ADDON) ? (*iter).type : msgType;
     Language finalLang = (language == LANG_ADDON) ? (*iter).lang : language;
     uint32 finalSound = sound ? sound : (*iter).sound;
 
@@ -191,14 +191,15 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
     return (*iter).duration;
 }
 
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatType msgtype, uint64 whisperGuid, TextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly)
 {
     if (!sound || !source)
         return;
     WorldPacket data(SMSG_PLAY_SOUND, 4);
     data << uint32(sound);
-    SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);
+    SendChatPacket(&data, source, msgType, whisperGuid, range, team, gmOnly);
 }
+
 void CreatureTextMgr::SendEmote(Unit* source, uint32 emote)
 {
     if (!source) return;
@@ -245,7 +246,7 @@ CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 te
     return ids;
 }
 
-void CreatureTextMgr::SendChatString(WorldObject* source, char const* text, ChatType msgtype, Language language, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendChatString(WorldObject* source, char const* text, ChatMsg msgtype /*= CHAT_MSG_MONSTER_SAY*/, Language language /*= LANG_UNIVERSAL*/, uint64 whisperGuid /*= 0*/, TextRange range /*= TEXT_RANGE_NORMAL*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/) const
 {
     if (!source)
         return;
@@ -255,52 +256,37 @@ void CreatureTextMgr::SendChatString(WorldObject* source, char const* text, Chat
     SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);//send our packet
 }
 
-void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatType msgtype, char const* text, Language language, uint64 whisperGuid) const
+void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const
 {
     if (!source)
         return;
 
-    ChatMsg sendType = CHAT_MSG_MONSTER_SAY;
-    switch (msgtype)
+    switch (msgType)
     {
-        case CHAT_TYPE_YELL:
-            sendType = CHAT_MSG_MONSTER_YELL;
-            break;
-        case CHAT_TYPE_TEXT_EMOTE:
-            sendType = CHAT_MSG_MONSTER_EMOTE;
-            break;
-        case CHAT_TYPE_BOSS_EMOTE:
-            sendType = CHAT_MSG_RAID_BOSS_EMOTE;
-            break;
-        case CHAT_TYPE_WHISPER:
-            if (whisperGuid)
-                sendType = CHAT_MSG_MONSTER_WHISPER;
-            else
+        case CHAT_MSG_MONSTER_WHISPER:
+            if (!whisperGuid)
             {
                 sLog->outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent CHAT_TYPE_WHISPER with targetGuid 0. Ignoring.", source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
                 return;
             }
             break;
-        case CHAT_TYPE_BOSS_WHISPER:
-            if (whisperGuid)
-                sendType = CHAT_MSG_RAID_BOSS_WHISPER;
-            else
+        case CHAT_MSG_RAID_BOSS_WHISPER:
+            if (!whisperGuid)
             {
                 sLog->outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent CHAT_TYPE_BOSS_WHISPER with targetGuid 0. Ignoring.", source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
                 return;
             }
             break;
-        case CHAT_TYPE_SAY://default type
         default:
             break;
     }
-    *data << (uint8)sendType;
-    *data << (uint32)language;
-    *data << (uint64)source->GetGUID();
-    *data << (uint32)0;                                     // 2.1.0
-    *data << (uint32)(strlen(source->GetName())+1);
+    *data << uint8(msgType);
+    *data << uint32(language);
+    *data << uint64(source->GetGUID());
+    *data << uint32(0);                                     // 2.1.0
+    *data << uint32(strlen(source->GetName()) + 1);
     *data << source->GetName();
-    *data << (uint64)whisperGuid;                           // Unit Target
+    *data << uint64(whisperGuid);                           // Unit Target
     if (whisperGuid && !IS_PLAYER_GUID(whisperGuid))        //can only whisper players
     {
         sLog->outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent WHISPER msg to Non-Player target. Ignoring.", source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
@@ -308,41 +294,40 @@ void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, C
         // *data << (uint32)1;                                 // target name length
         // *data << (uint8)0;                                  // target name
     }
-    *data << (uint32)(strlen(text)+1);
+    *data << uint32(strlen(text) + 1);
     *data << text;
-    *data << (uint8)0;                                      // ChatTag
+    *data << uint8(0);                                      // ChatTag
 }
 
-void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, ChatType msgtype, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
 {
     if (!source)
         return;
 
     float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
 
-    switch (msgtype)
+    switch (msgType)
     {
-        case CHAT_TYPE_YELL:
+        case CHAT_MSG_YELL:
             dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL);
             break;
-        case CHAT_TYPE_BOSS_EMOTE:
-        case CHAT_TYPE_TEXT_EMOTE:
+        case CHAT_MSG_MONSTER_EMOTE:
+        case CHAT_MSG_RAID_BOSS_EMOTE:
             dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE);
             break;
-        case CHAT_TYPE_WHISPER:
-        case CHAT_TYPE_BOSS_WHISPER:
+        case CHAT_MSG_MONSTER_WHISPER:
+        case CHAT_MSG_RAID_BOSS_WHISPER:
+        {
+            if (range == TEXT_RANGE_NORMAL)//ignores team and gmOnly
             {
-                if (range == TEXT_RANGE_NORMAL)//ignores team and gmOnly
-                {
-                    Player *player = sObjectMgr->GetPlayer(whisperGuid);
-                    if (!player || !player->GetSession())
-                        return;
-                    player->GetSession()->SendPacket(data);
+                Player *player = sObjectMgr->GetPlayer(whisperGuid);
+                if (!player || !player->GetSession())
                     return;
-                }
+                player->GetSession()->SendPacket(data);
+                return;
             }
             break;
-        case CHAT_TYPE_SAY://default dist
+        }
         default:
             break;
     }
