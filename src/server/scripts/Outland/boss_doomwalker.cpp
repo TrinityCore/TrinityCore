@@ -119,7 +119,7 @@ class boss_doomwalker : public CreatureScript
                                 _inEnrage = true;
                             }
                             break;
-						case EVENT_OVERRUN:
+                        case EVENT_OVERRUN:
                             Talk(SAY_OVERRUN);
                             DoCastVictim(SPELL_OVERRUN);
                             _events.ScheduleEvent(EVENT_OVERRUN, urand(25000, 40000));
