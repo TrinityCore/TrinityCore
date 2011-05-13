@@ -211,11 +211,6 @@ UPDATE creature_template SET scriptname = 'npc_7th_legion_siege_engineer' WHERE 
 UPDATE creature_template SET scriptname = 'vehicle_alliance_steamtank' WHERE entry = 27587;
 UPDATE creature_template SET scriptname = 'mob_woodlands_walker' WHERE entry = 26421;
 
--- Bone Shield Charges Cooldown
-DELETE FROM `spell_dbc` WHERE `Id`=250000;
-INSERT INTO `spell_dbc` (`Id`, `Dispel`, `Mechanic`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `Stances`, `StancesNot`, `Targets`, `CastingTimeIndex`, `AuraInterruptFlags`, `ProcFlags`, `ProcChance`, `ProcCharges`, `MaxLevel`, `BaseLevel`, `SpellLevel`, `DurationIndex`, `RangeIndex`, `StackAmount`, `EquippedItemClass`, `EquippedItemSubClassMask`, `EquippedItemInventoryTypeMask`, `Effect1`, `Effect2`, `Effect3`, `EffectDieSides1`, `EffectDieSides2`, `EffectDieSides3`, `EffectRealPointsPerLevel1`, `EffectRealPointsPerLevel2`, `EffectRealPointsPerLevel3`, `EffectBasePoints1`, `EffectBasePoints2`, `EffectBasePoints3`, `EffectMechanic1`, `EffectMechanic2`, `EffectMechanic3`, `EffectImplicitTargetA1`, `EffectImplicitTargetA2`, `EffectImplicitTargetA3`, `EffectImplicitTargetB1`, `EffectImplicitTargetB2`, `EffectImplicitTargetB3`, `EffectRadiusIndex1`, `EffectRadiusIndex2`, `EffectRadiusIndex3`, `EffectApplyAuraName1`, `EffectApplyAuraName2`, `EffectApplyAuraName3`, `EffectAmplitude1`, `EffectAmplitude2`, `EffectAmplitude3`, `EffectMultipleValue1`, `EffectMultipleValue2`, `EffectMultipleValue3`, `EffectMiscValue1`, `EffectMiscValue2`, `EffectMiscValue3`, `EffectMiscValueB1`, `EffectMiscValueB2`, `EffectMiscValueB3`, `EffectTriggerSpell1`, `EffectTriggerSpell2`, `EffectTriggerSpell3`, `EffectSpellClassMaskA1`, `EffectSpellClassMaskA2`, `EffectSpellClassMaskA3`, `EffectSpellClassMaskB1`, `EffectSpellClassMaskB2`, `EffectSpellClassMaskB3`, `EffectSpellClassMaskC1`, `EffectSpellClassMaskC2`, `EffectSpellClassMaskC3`, `MaxTargetLevel`, `SpellFamilyName`, `SpellFamilyFlags1`, `SpellFamilyFlags2`, `SpellFamilyFlags3`, `MaxAffectedTargets`, `DmgClass`, `PreventionType`, `DmgMultiplier1`, `DmgMultiplier2`, `DmgMultiplier3`, `AreaGroupId`, `SchoolMask`, `Comment`) VALUES
-(250000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Bone Shield Charges Cooldown');
-
 -- Fix Koralon's Meteor Fists
 DELETE FROM spell_script_names WHERE spell_id = 66765;
 INSERT INTO spell_script_names VALUES 
@@ -408,12 +403,6 @@ UPDATE `creature_template` SET `modelid1` = 11686, `unit_flags` = 33554432 WHERE
 -- Fix Druid Enrage spell
 DELETE FROM `spell_ranks` WHERE `first_spell_id` = 1178;
 INSERT INTO `spell_ranks` VALUES (1178,1178,1),(1178,9635,2);
-
--- Fix druid starfall talent
-DELETE FROM `spell_bonus_data` WHERE `entry` IN (50294,53188,53189,53190,50288,53191,53194,53195);
-INSERT INTO `spell_bonus_data` VALUES
-(50288,0.3,-1,-1,-1,'Druid - Starfall (DIRECT)'),
-(50294,0.13,-1,-1,-1,'Druid - Starfall (AOE)');
 
 -- Fixed warlock's talent Empowered Imp
 UPDATE `spell_proc_event` set `procFlags` = 0x00010004 WHERE `entry` = 54278;
