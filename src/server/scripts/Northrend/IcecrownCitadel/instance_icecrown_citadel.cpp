@@ -38,6 +38,7 @@ DoorData const doorData[] =
     {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
     {GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_ROOM,    BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_SISTER_SVALNA,         DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_ROOM,    BOUNDARY_N   },
     {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
@@ -101,6 +102,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 memset(BloodCouncilGUIDs, 0, 3*sizeof(uint64));
                 BloodCouncilControllerGUID = 0;
                 BloodQueenLanaThelGUID = 0;
+                CrokScourgebaneGUID = 0;
+                memset(CrokCaptainGUIDs, 0, 4 * sizeof(uint64));
+                SisterSvalnaGUID = 0;
                 SindragosaGUID = 0;
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
@@ -221,6 +225,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_BLOOD_QUEEN_LANA_THEL:
                         BloodQueenLanaThelGUID = creature->GetGUID();
                         break;
+                    case NPC_CROK_SCOURGEBANE:
+                        CrokScourgebaneGUID = creature->GetGUID();
+                        break;
+                    // we can only do this because there are no gaps in their entries
+                    case NPC_CAPTAIN_ARNATH:
+                    case NPC_CAPTAIN_BRANDON:
+                    case NPC_CAPTAIN_GRONDEL:
+                    case NPC_CAPTAIN_RUPERT:
+                        CrokCaptainGUIDs[creature->GetEntry()-NPC_CAPTAIN_ARNATH] = creature->GetGUID();
+                        break;
+                    case NPC_SISTER_SVALNA:
+                        SisterSvalnaGUID = creature->GetGUID();
+                        break;
                     case NPC_SINDRAGOSA:
                         SindragosaGUID = creature->GetGUID();
                         break;
@@ -276,6 +293,23 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (creature->GetEntry() == NPC_FROST_FREEZE_TRAP)
                     ColdflameJetGUIDs.erase(creature->GetGUID());
+            }
+
+            void OnCreatureDeath(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_YMIRJAR_BATTLE_MAIDEN:
+                    case NPC_YMIRJAR_DEATHBRINGER:
+                    case NPC_YMIRJAR_FROSTBINDER:
+                    case NPC_YMIRJAR_HUNTRESS:
+                    case NPC_YMIRJAR_WARLORD:
+                        if (Creature* crok = instance->GetCreature(CrokScourgebaneGUID))
+                            crok->AI()->SetGUID(creature->GetGUID(), ACTION_VRYKUL_DEATH);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go)
@@ -466,6 +500,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return SpinestalkerGUID;
                     case DATA_RIMEFANG:
                         return RimefangGUID;
+                    case DATA_CROK_SCOURGEBANE:
+                        return CrokScourgebaneGUID;
+                    case DATA_CAPTAIN_ARNATH:
+                    case DATA_CAPTAIN_BRANDON:
+                    case DATA_CAPTAIN_GRONDEL:
+                    case DATA_CAPTAIN_RUPERT:
+                        return CrokCaptainGUIDs[type-DATA_CAPTAIN_ARNATH];
+                    case DATA_SISTER_SVALNA:
+                        return SisterSvalnaGUID;
                     default:
                         break;
                 }
@@ -1011,6 +1054,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 BloodCouncilGUIDs[3];
             uint64 BloodCouncilControllerGUID;
             uint64 BloodQueenLanaThelGUID;
+            uint64 CrokScourgebaneGUID;
+            uint64 CrokCaptainGUIDs[4];
+            uint64 SisterSvalnaGUID;
             uint64 SindragosaGUID;
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;

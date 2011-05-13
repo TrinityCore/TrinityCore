@@ -24,7 +24,7 @@
 
 #define ICCScriptName "instance_icecrown_citadel"
 
-uint32 const EncounterCount = 12;
+uint32 const EncounterCount = 13;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
 // Defined in boss_sindragosa.cpp
@@ -64,12 +64,13 @@ enum DataTypes
     DATA_PROFESSOR_PUTRICIDE        = 6,
     DATA_BLOOD_PRINCE_COUNCIL       = 7,
     DATA_BLOOD_QUEEN_LANA_THEL      = 8,
-    DATA_VALITHRIA_DREAMWALKER      = 9,
-    DATA_SINDRAGOSA                 = 10,
-    DATA_THE_LICH_KING              = 11,
+    DATA_SISTER_SVALNA              = 9,
+    DATA_VALITHRIA_DREAMWALKER      = 10,
+    DATA_SINDRAGOSA                 = 11,
+    DATA_THE_LICH_KING              = 12,
 
     // Additional data
-    DATA_SAURFANG_EVENT_NPC         = 12,
+    DATA_SAURFANG_EVENT_NPC         = 34,
     DATA_BONED_ACHIEVEMENT          = 13,
     DATA_OOZE_DANCE_ACHIEVEMENT     = 14,
     DATA_PUTRICIDE_TABLE            = 15,
@@ -86,6 +87,11 @@ enum DataTypes
     DATA_TEAM_IN_INSTANCE           = 26,
     DATA_BLOOD_QUICKENING_STATE     = 27,
     DATA_HEROIC_ATTEMPTS            = 28,
+    DATA_CROK_SCOURGEBANE           = 29,
+    DATA_CAPTAIN_ARNATH             = 30,
+    DATA_CAPTAIN_BRANDON            = 31,
+    DATA_CAPTAIN_GRONDEL            = 32,
+    DATA_CAPTAIN_RUPERT             = 33,
 };
 
 enum CreaturesIds
@@ -185,6 +191,34 @@ enum CreaturesIds
 
     // Blood-Queen Lana'thel
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
+
+    // Frostwing Halls gauntlet event
+    NPC_CROK_SCOURGEBANE                        = 37129,
+    NPC_CAPTAIN_ARNATH                          = 37122,
+    NPC_CAPTAIN_BRANDON                         = 37123,
+    NPC_CAPTAIN_GRONDEL                         = 37124,
+    NPC_CAPTAIN_RUPERT                          = 37125,
+    NPC_CAPTAIN_ARNATH_UNDEAD                   = 37491,
+    NPC_CAPTAIN_BRANDON_UNDEAD                  = 37493,
+    NPC_CAPTAIN_GRONDEL_UNDEAD                  = 37494,
+    NPC_CAPTAIN_RUPERT_UNDEAD                   = 37495,
+    NPC_YMIRJAR_BATTLE_MAIDEN                   = 37132,
+    NPC_YMIRJAR_DEATHBRINGER                    = 38125,
+    NPC_YMIRJAR_FROSTBINDER                     = 37127,
+    NPC_YMIRJAR_HUNTRESS                        = 37134,
+    NPC_YMIRJAR_WARLORD                         = 37133,
+    NPC_SISTER_SVALNA                           = 37126,
+    NPC_IMPALING_SPEAR                          = 38248,
+
+    // Valithria Dreamwalker
+    NPC_VALITHRIA_DREAMWALKER                   = 36789,
+    NPC_GREEN_DRAGON_COMBAT_TRIGGER             = 38752,
+    NPC_RISEN_ARCHMAGE                          = 37868,
+    NPC_BLAZING_SKELETON                        = 36791,
+    NPC_SUPPRESSER                              = 37863,
+    NPC_BLISTERING_ZOMBIE                       = 37934,
+    NPC_GLUTTONOUS_ABOMINATION                  = 37886,
+    NPC_THE_LICH_KING_VALITHRIA                 = 16980,
 
     // Sindragosa
     NPC_SINDRAGOSA                              = 36853,
@@ -304,6 +338,9 @@ enum SharedActions
 
     // Blood-Queen Lana'thel
     ACTION_KILL_MINCHAR         = -379550,
+
+    // Frostwing Halls gauntlet event
+    ACTION_VRYKUL_DEATH         = 37129,
 
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
