@@ -935,6 +935,7 @@ class WorldSession
         uint32 recruiterId;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
 
+        uint8 m_wardenAttempts;
         uint8 m_wardenStatus;
         uint8 m_rc4ServerKey[0x102];
         uint8 m_rc4ClientKey[0x102];
