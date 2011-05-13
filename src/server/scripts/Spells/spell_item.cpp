@@ -1008,6 +1008,70 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
         }
 };
 
+enum AshbringerSounds
+{
+    SOUND_ASHBRINGER_1  = 8906,                             // "I was pure once"
+    SOUND_ASHBRINGER_2  = 8907,                             // "Fought for righteousness"
+    SOUND_ASHBRINGER_3  = 8908,                             // "I was once called Ashbringer"
+    SOUND_ASHBRINGER_4  = 8920,                             // "Betrayed by my order"
+    SOUND_ASHBRINGER_5  = 8921,                             // "Destroyed by Kel'Thuzad"
+    SOUND_ASHBRINGER_6  = 8922,                             // "Made to serve"
+    SOUND_ASHBRINGER_7  = 8923,                             // "My son watched me die"
+    SOUND_ASHBRINGER_8  = 8924,                             // "Crusades fed his rage"
+    SOUND_ASHBRINGER_9  = 8925,                             // "Truth is unknown to him"
+    SOUND_ASHBRINGER_10 = 8926,                             // "Scarlet Crusade  is pure no longer"
+    SOUND_ASHBRINGER_11 = 8927,                             // "Balnazzar's crusade corrupted my son"
+    SOUND_ASHBRINGER_12 = 8928,                             // "Kill them all!"
+
+    SPELL_ASHBRINGER    = 28282,                            // Ashbringer - Inflicts the will of the Ashbringer upon the wielder
+    SPELL_ASHBRINGER_TR = 28441                             // AB Effect 000
+};
+
+class spell_item_ashbringer : public SpellScriptLoader
+{
+    public:
+        spell_item_ashbringer() : SpellScriptLoader("spell_item_ashbringer") {}
+
+        class spell_item_ashbringer_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_ashbringer_SpellScript)
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ASHBRINGER))
+                    return false;
+                return true;
+            }
+
+            void OnDummyEffect(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* caster = GetCaster())
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+                if (Player* player = caster->ToPlayer())
+                {
+                    uint32 sound_id = RAND( SOUND_ASHBRINGER_1, SOUND_ASHBRINGER_2, SOUND_ASHBRINGER_3, SOUND_ASHBRINGER_4, SOUND_ASHBRINGER_5, SOUND_ASHBRINGER_6,
+                                    SOUND_ASHBRINGER_7, SOUND_ASHBRINGER_8, SOUND_ASHBRINGER_9, SOUND_ASHBRINGER_10, SOUND_ASHBRINGER_11, SOUND_ASHBRINGER_12 );
+
+                    // Ashbringers effect (spellID 28441) retriggers every 5 seconds, with a chance of making it say one of the above 12 sounds
+                    if (urand(0, 60) < 1)
+                        player->PlayDirectSound(sound_id, player);
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_item_ashbringer_SpellScript::OnDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_ashbringer_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -1037,4 +1101,6 @@ void AddSC_item_spell_scripts()
     new spell_item_gift_of_the_harvester();
     new spell_item_map_of_the_geyser_fields();
     new spell_item_vanquished_clutches();
+
+    new spell_item_ashbringer();
 }
