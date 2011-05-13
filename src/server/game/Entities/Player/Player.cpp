@@ -19177,7 +19177,7 @@ void Player::UpdatePvPFlag(time_t currTime)
 {
     if (!IsPvP() || InBattleground() || InArena()) 
         return;
-    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300))
+    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300) || pvpInfo.inHostileArea)
         return;
 
     UpdatePvP(false);

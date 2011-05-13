@@ -599,14 +599,6 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
             if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellProto->SpellFamilyFlags[1] & 0x400)
                 amount = caster->SpellHealingBonus(GetBase()->GetUnitOwner(), GetSpellProto(), amount, SPELL_DIRECT_DAMAGE);
             break;
-        case SPELL_AURA_DAMAGE_SHIELD:
-            if (!caster)
-                break;
-            // Thorns
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x100)
-                // 3.3% from sp bonus
-                DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.033f;
-            break;
         case SPELL_AURA_PERIODIC_DAMAGE:
             if (!caster)
                 break;
