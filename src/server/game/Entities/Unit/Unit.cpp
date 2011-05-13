@@ -1456,12 +1456,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
             uint32 damage = (*dmgShieldItr)->GetAmount();
 
-            int32 bonus = 0;
-            bonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetSpellSchoolMask(i_spellProto));
-            if (Unit * caster = (*dmgShieldItr)->GetCaster())
-                bonus += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, GetCreatureTypeMask());
-            if (bonus)
-                AddPctN(damage, bonus);
+            if (Unit* caster = (*dmgShieldItr)->GetCaster())
+                damage = caster->SpellDamageBonus(this, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
 
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
             pVictim->DealDamageMods(this, damage, NULL);
@@ -10449,6 +10445,15 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 // + 10% for each application of Holy Vengeance/Blood Corruption on the target
                 if (stacks)
                     AddPctU(DoneTotalMod, 10 * stacks);
+            }
+        break;
+        case SPELLFAMILY_DRUID:
+            // Thorns
+            if (spellProto->SpellFamilyFlags[0] & 0x100)
+            {
+                // Brambles
+                if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(16836, 0))
+                    AddPctN(DoneTotalMod, aurEff->GetAmount());
             }
         break;
         case SPELLFAMILY_WARLOCK:
