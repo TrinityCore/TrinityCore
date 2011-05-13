@@ -1576,7 +1576,14 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                 // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
                 if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellIconID == 2864)
                 {
-                    damage += int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+                    int32 addition = int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+
+                    // Item - Druid T10 Restoration 2P Bonus
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(70658, 0))
+                        // divided by 50 instead of 100 because calculated as for every 2 tick
+                        addition += abs(int32((addition * aurEff->GetAmount()) / 50));
+
+                    damage += addition;
                 }
 
                 damage = caster->SpellHealingBonus(target, GetSpellProto(), damage, DOT, GetBase()->GetStackAmount());
