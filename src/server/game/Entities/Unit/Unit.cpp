@@ -5085,6 +5085,26 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         {
             switch (dummySpell->Id)
             {
+                // Shiny Shard of the Scale - Onyxia trinkets 10men
+                case 69755:
+                {
+                    if (target->IsFriendlyTo(this))
+                        triggered_spell_id = 69733;
+                    else
+                        triggered_spell_id = 69729;
+                    target = pVictim;
+                    break;
+                }
+                // Shiny Shard of the Scale - Onyxia trinkets 25men
+                case 69739:
+                {
+                    if (target->IsFriendlyTo(this))
+                        triggered_spell_id = 69734;
+                    else
+                        triggered_spell_id = 69730;
+                    target = pVictim;
+                    break;
+                }
                 // Bloodworms Health Leech
                 case 50453:
                 {
