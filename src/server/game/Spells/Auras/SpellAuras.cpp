@@ -967,7 +967,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         int32 heal = GetEffect(EFFECT_0)->GetAmount();
                         caster->CastCustomSpell(target, 64801, &heal, NULL, NULL, true, NULL, GetEffect(EFFECT_0));
                     }
-                } 
+                }
                 break;
             case SPELLFAMILY_MAGE:
                 if (!caster)
@@ -1615,14 +1615,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 if (apply)
                 {
                     if (target != caster && !target->HealthAbovePct(25))
-                        caster->CastSpell(caster, 200000, true);
+                        caster->CastSpell(caster, 100001, true);
                 }
                 else
                 {
                     if (target != caster)
                         caster->RemoveAurasDueToSpell(GetId());
                     else
-                        caster->RemoveAurasDueToSpell(200000);
+                        caster->RemoveAurasDueToSpell(100001);
                 }
             }
             break;
