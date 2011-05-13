@@ -962,7 +962,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 if (GetSpellProto()->SpellFamilyFlags[0] & 0x10 && GetEffect(EFFECT_0))
                 {
                     // Druid T8 Restoration 4P Bonus
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64760, EFFECT_0))
+                    if (caster->HasAura(64760))
                     {
                         int32 heal = GetEffect(EFFECT_0)->GetAmount();
                         caster->CastCustomSpell(target, 64801, &heal, NULL, NULL, true, NULL, GetEffect(EFFECT_0));
