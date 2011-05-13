@@ -27,7 +27,7 @@ struct CreatureTextEntry
     uint8 group;
     uint8 id;
     std::string text;
-    ChatType type;
+    ChatMsg type;
     Language lang;
     float probability;
     Emote emote;
@@ -62,18 +62,18 @@ class CreatureTextMgr
         void LoadCreatureTexts();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }
 
-        void SendSound(Creature* source, uint32 sound, ChatType msgtype, uint64 whisperGuid, TextRange range, Team team, bool gmOnly);
+        void SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly);
         void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error
-        uint32 SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid = 0, ChatType msgtype = CHAT_TYPE_END, Language language = LANG_ADDON, TextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
-        void SendChatString(WorldObject* source, char const* text, ChatType msgtype = CHAT_TYPE_SAY, Language language = LANG_UNIVERSAL, uint64 whisperGuid = 0, TextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false) const;
+        uint32 SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid = 0, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, TextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
+        void SendChatString(WorldObject* source, char const* text, ChatMsg msgtype = CHAT_MSG_MONSTER_SAY, Language language = LANG_UNIVERSAL, uint64 whisperGuid = 0, TextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false) const;
         bool TextExist(uint32 sourceEntry, uint8 textGroup);
     private:
         CreatureTextRepeatIds GetRepeatGroup(Creature* source, uint8 textGroup);
         void SetRepeatId(Creature* source, uint8 textGroup, uint8 id);
-        void BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatType msgtype, char const* text, Language language, uint64 whisperGuid) const;
-        void SendChatPacket(WorldPacket *data, WorldObject* source, ChatType msgtype, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const;
+        void BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const;
+        void SendChatPacket(WorldPacket *data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const;
 
         CreatureTextMap mTextMap;
         CreatureTextRepeatMap mTextRepeatMap;
