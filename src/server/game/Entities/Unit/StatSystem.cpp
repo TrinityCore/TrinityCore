@@ -327,38 +327,47 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             case CLASS_SHAMAN:       val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f; break;
             case CLASS_DRUID:
             {
-                ShapeshiftForm form = GetShapeshiftForm();
                 // Check if Predatory Strikes is skilled
                 float mLevelMult = 0.0f;
-                switch (form)
+                float weapon_bonus = 0.0f;
+                if (IsInFeralForm())
                 {
-                    case FORM_CAT:
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                    case FORM_MOONKIN:
+                    Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_DUMMY);
+                    for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
                     {
-                        Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                        for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+                        AuraEffect* aurEff = *itr;
+                        if (aurEff->GetSpellProto()->SpellIconID == 1563)
                         {
-                            // Predatory Strikes (effect 0)
-                            if ((*itr)->GetEffIndex() == 0 && (*itr)->GetSpellProto()->SpellIconID == 1563)
+                            switch (aurEff->GetEffIndex())
                             {
-                                mLevelMult = CalculatePctN(1.0f, (*itr)->GetAmount());
-                                break;
+                                case 0: // Predatory Strikes (effect 0)
+                                    mLevelMult = CalculatePctN(1.0f, aurEff->GetAmount());
+                                    break;
+                                case 1: // Predatory Strikes (effect 1)
+                                    if (m_items[EQUIPMENT_SLOT_MAINHAND])
+                                    {
+                                        // also gains % attack power from equipped weapon
+                                        ItemTemplate const *proto = m_items[EQUIPMENT_SLOT_MAINHAND]->GetTemplate();
+                                        if (!proto)
+                                            continue;
+
+                                        weapon_bonus = CalculatePctN(proto->getFeralBonus(), aurEff->GetAmount());
+                                    }
+                                    break;
+                                default:
+                                    break;
                             }
                         }
-                        break;
                     }
-                    default: break;
                 }
 
-                switch (form)
+                switch (GetShapeshiftForm())
                 {
                     case FORM_CAT:
-                        val2 = getLevel() * (mLevelMult + 2.0f) + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + m_baseFeralAP; break;
+                        val2 = getLevel() * (mLevelMult + 2.0f) + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + weapon_bonus + m_baseFeralAP; break;
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
-                        val2 = getLevel() * (mLevelMult + 3.0f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP; break;
+                        val2 = getLevel() * (mLevelMult + 3.0f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + weapon_bonus + m_baseFeralAP; break;
                     case FORM_MOONKIN:
                         val2 = getLevel() * (mLevelMult + 1.5f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP; break;
                     default:
