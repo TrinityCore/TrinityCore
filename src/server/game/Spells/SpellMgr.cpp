@@ -3656,12 +3656,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_SRC;
             ++count;
             break;
-        case 71880:
-        case 71892:
-            spellInfo->SpellFamilyName = SPELLFAMILY_GENERIC;
-            spellInfo->procChance = 20;
-            ++count;
-            break;
         case 3286:  // Bind
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
             spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
