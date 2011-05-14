@@ -1112,6 +1112,20 @@ public:
     };
 };
 
+class achievement_denyin_the_scion : public AchievementCriteriaScript
+{
+    public:
+        achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (Unit* disk = source->GetVehicleBase())
+                if (disk->GetEntry() == NPC_HOVER_DISK_CASTER || disk->GetEntry() == NPC_HOVER_DISK_MELEE)
+                    return true;
+            return false;
+        }
+};
+
 void AddSC_boss_malygos()
 {
     new boss_malygos();
@@ -1123,4 +1137,5 @@ void AddSC_boss_malygos()
     new spell_malygos_vortex_dummy();
     new spell_malygos_vortex_visual();
     new npc_alexstrasza_eoe();
+    new achievement_denyin_the_scion();
 }
