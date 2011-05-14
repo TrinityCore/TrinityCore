@@ -8237,13 +8237,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             {
                 switch (auraSpellInfo->Id)
                 {
-                    // Item - Druid T10 Balance 2P Bonus
-                    case 16870:
-                    {
-                        if (HasAura(70718))
-                            CastSpell(this, 70721, true);
-                        break;
-                    }
                     // Druid Forms Trinket
                     case 37336:
                     {
@@ -8747,6 +8740,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             if (!pVictim || pVictim == this)
                 return false;
             // Need add combopoint AFTER finish movie (or they dropped in finish phase)
+            break;
+        }
+        // Item - Druid T10 Balance 2P Bonus
+        case 16870:
+        {
+            if (HasAura(70718))
+                CastSpell(this, 70721, true);
             break;
         }
         // Bloodthirst (($m/100)% of max health)
