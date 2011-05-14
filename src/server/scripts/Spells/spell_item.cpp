@@ -1047,9 +1047,6 @@ class spell_item_ashbringer : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
 
                 Unit* caster = GetCaster();
-
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
                 if (Player* player = caster->ToPlayer())
                 {
                     uint32 sound_id = RAND( SOUND_ASHBRINGER_1, SOUND_ASHBRINGER_2, SOUND_ASHBRINGER_3, SOUND_ASHBRINGER_4, SOUND_ASHBRINGER_5, SOUND_ASHBRINGER_6,
