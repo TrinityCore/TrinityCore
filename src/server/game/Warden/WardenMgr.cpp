@@ -156,13 +156,13 @@ void WardenMgr::Update(WorldSession* const session)
             case WARD_STATE_CHEAT_CHECK_IN:    // send cheat check
                 SendCheatCheck(session);
                 session->m_wardenStatus = WARD_STATE_CHEAT_CHECK_OUT;
-                session->m_WardenTimer.SetInterval( 3 * MINUTE * IN_MILLISECONDS);
+                session->m_WardenTimer.SetInterval( 5 * MINUTE * IN_MILLISECONDS);
                 session->m_WardenTimer.Reset();
                 return;
             case WARD_STATE_FORCE_CHEAT_CHECK_IN:    // send only memory cheat check
                 SendForceWEHCheatCheck(session);
                 session->m_wardenStatus = WARD_STATE_FORCE_CHEAT_CHECK_OUT;
-                session->m_WardenTimer.SetInterval( 3 * MINUTE * IN_MILLISECONDS);
+                session->m_WardenTimer.SetInterval( 5 * MINUTE * IN_MILLISECONDS);
                 session->m_WardenTimer.Reset();
                 return;
             default:
@@ -172,7 +172,7 @@ void WardenMgr::Update(WorldSession* const session)
 
     if (m_Disconnected)
     {
-        session->m_WardenTimer.SetInterval( 15 * IN_MILLISECONDS); // push back warden activity in session by 15 seconds
+        session->m_WardenTimer.SetInterval( 30 * IN_MILLISECONDS); // push back warden activity in session by 15 seconds
         session->m_WardenTimer.Reset();
         if (session->m_wardenStatus == WARD_STATE_PENDING_WARDEND)
             session->m_wardenStatus = WARD_STATE_NEED_WARDEND;     // We needed data, so have to redo the request
@@ -1200,9 +1200,9 @@ void WardenMgr::ReactToCheatCheckResult(WorldSession* const session, bool result
     {
         if (m_Banning)
         {
-            std::string sText = ("Ð˜Ð³Ñ€Ð¾Ðº: " + std::string(session->GetPlayerName()) + " Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð» Ñ‡Ð¸Ñ‚ÐµÑ€ÑÐºÐ¾Ðµ ÐŸÐž Ð¸ Ð±Ñ‹Ð» Ð·Ð°Ð±Ð°Ð½ÐµÐ½ Ð½Ð° 10 Ð´Ð½ÐµÐ¹.");
+            std::string sText = ("Èãðîê: " + std::string(session->GetPlayerName()) + " èñïîëüçîâàë ÷èòåðñêîå ÏÎ è áûë çàáàíåí íà 1 äåíü.");
             sWorld->SendGMText(LANG_GM_BROADCAST, sText.c_str());
-            sWorld->BanAccount(session, 10 * DAY, "Cheating software user", "Server guard");
+            sWorld->BanAccount(session, 1 * DAY, "Cheating software user", "Server guard");
         }
         else
             session->KickPlayer();
