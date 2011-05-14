@@ -2370,7 +2370,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     break;
                 case TARGET_UNIT_DRIVER:
                     if (Unit * driver = m_targets.getUnitTarget())
-                        if (driver->IsOnVehicle(driver))
+                        if (driver->IsOnVehicle(m_caster))
                             AddUnitTarget(driver, i);
                     break;
                 default:
