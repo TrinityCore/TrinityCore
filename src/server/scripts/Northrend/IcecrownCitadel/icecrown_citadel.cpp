@@ -19,16 +19,20 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "SpellAuraEffects.h"
 #include "SmartAI.h"
 #include "icecrown_citadel.h"
 
 // Weekly quest support
-//* Deprogramming                (DONE)
-//* Securing the Ramparts        (DONE)
-//* Residue Rendezvous           (DONE)
-//* Blood Quickening             (DONE)
-//* Respite for a Tormented Soul
+// * Deprogramming                (DONE)
+// * Securing the Ramparts        (DONE)
+// * Residue Rendezvous           (DONE)
+// * Blood Quickening             (DONE)
+// * Respite for a Tormented Soul
 
 enum Texts
 {
