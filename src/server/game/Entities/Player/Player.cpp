@@ -495,6 +495,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
 {
     uint32 xp(_xp);
     if (_group)
+    {
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
@@ -505,6 +506,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
                 uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
             xp = 0;
+    }
     if (xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
@@ -1941,8 +1943,11 @@ void Player::setDeathState(DeathState s)
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP, 1);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH, 1);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON, 1);
+        GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH);
         GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH);
+        GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH);
     }
+
     Unit::setDeathState(s);
 
     // restore resurrection spell id for player after aura remove
@@ -5904,7 +5909,7 @@ float Player::GetSpellCritFromIntellect()
     return crit*100.0f;
 }
 
-float Player::GetRatingCoefficient(CombatRating cr) const
+float Player::GetRatingMultiplier(CombatRating cr) const
 {
     uint8 level = getLevel();
 
@@ -5912,15 +5917,17 @@ float Player::GetRatingCoefficient(CombatRating cr) const
         level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const *Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
-    if (Rating == NULL)
+    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
+    GtOCTClassCombatRatingScalarEntry const *classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return Rating->ratio;
+    return classRating->ratio / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) / GetRatingCoefficient(cr);
+    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
 }
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
@@ -5988,20 +5995,20 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(BASE_ATTACK, RatingChange, apply);
             ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
             break;
         }
         case CR_HASTE_RANGED:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyCastTimePercentMod(RatingChange, apply);
             break;
         }
@@ -19343,7 +19350,7 @@ void Player::UpdatePvPFlag(time_t currTime)
 {
     if (!IsPvP())
         return;
-    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300))
+    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300) || pvpInfo.inHostileArea)
         return;
 
     UpdatePvP(false);

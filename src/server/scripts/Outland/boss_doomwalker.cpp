@@ -16,164 +16,151 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Doomwalker
-SD%Complete: 100
-SDComment:
-SDCategory: Shadowmoon Valley
-EndScriptData */
-
 #include "ScriptPCH.h"
 
-#define SAY_AGGRO                   -1000159
-#define SAY_EARTHQUAKE_1            -1000160
-#define SAY_EARTHQUAKE_2            -1000161
-#define SAY_OVERRUN_1               -1000162
-#define SAY_OVERRUN_2               -1000163
-#define SAY_SLAY_1                  -1000164
-#define SAY_SLAY_2                  -1000165
-#define SAY_SLAY_3                  -1000166
-#define SAY_DEATH                   -1000167
+enum Yells
+{
+    SAY_AGGRO       = 0,
+    SAY_EARTHQUAKE  = 1,
+    SAY_OVERRUN     = 2,
+    SAY_SLAY        = 3,
+    SAY_DEATH       = 4
+};
 
-#define SPELL_EARTHQUAKE            32686
-#define SPELL_SUNDER_ARMOR          33661
-#define SPELL_CHAIN_LIGHTNING       33665
-#define SPELL_OVERRUN               32636
-#define SPELL_ENRAGE                33653
-#define SPELL_MARK_DEATH            37128
-#define SPELL_AURA_DEATH            37131
+enum Spells
+{
+    SPELL_EARTHQUAKE        = 32686,
+    SPELL_SUNDER_ARMOR      = 33661,
+    SPELL_CHAIN_LIGHTNING   = 33665,
+    SPELL_OVERRUN           = 32636,
+    SPELL_ENRAGE            = 33653,
+    SPELL_MARK_DEATH        = 37128,
+    SPELL_AURA_DEATH        = 37131
+};
+
+enum Events
+{
+    EVENT_ENRAGE    = 1,
+    EVENT_ARMOR     = 2,
+    EVENT_CHAIN     = 3,
+    EVENT_QUAKE     = 4,
+    EVENT_OVERRUN   = 5
+};
 
 class boss_doomwalker : public CreatureScript
 {
-public:
-    boss_doomwalker() : CreatureScript("boss_doomwalker") { }
+    public:
+        boss_doomwalker() : CreatureScript("boss_doomwalker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_doomwalkerAI (pCreature);
-    }
-
-    struct boss_doomwalkerAI : public ScriptedAI
-    {
-        boss_doomwalkerAI(Creature *c) : ScriptedAI(c) {}
-
-        uint32 Chain_Timer;
-        uint32 Enrage_Timer;
-        uint32 Overrun_Timer;
-        uint32 Quake_Timer;
-        uint32 Armor_Timer;
-
-        bool InEnrage;
-
-        void Reset()
+        struct boss_doomwalkerAI : public ScriptedAI
         {
-            Enrage_Timer    = 0;
-            Armor_Timer     = 5000 + rand()%8000;
-            Chain_Timer     = 10000 + rand()%20000;
-            Quake_Timer     = 25000 + rand()%10000;
-            Overrun_Timer   = 30000 + rand()%15000;
-
-            InEnrage = false;
-        }
-
-        void KilledUnit(Unit* Victim)
-        {
-            Victim->CastSpell(Victim, SPELL_MARK_DEATH, 0);
-
-            if (rand()%5)
-                return;
-
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
-        }
-
-        void JustDied(Unit* /*Killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-        }
-
-        void EnterCombat(Unit * /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-        }
-
-        void MoveInLineOfSight(Unit *who)
-        {
-            if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
+            boss_doomwalkerAI(Creature* creature) : ScriptedAI(creature) 
             {
-                if (who->HasAura(SPELL_MARK_DEATH, 0))
-                {
-                    who->CastSpell(who, SPELL_AURA_DEATH, 1);
-                }
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //Spell Enrage, when hp <= 20% gain enrage
-            if (!HealthAbovePct(20))
-            {
-                if (Enrage_Timer <= diff)
-                {
-                    DoCast(me, SPELL_ENRAGE);
-                    Enrage_Timer = 6000;
-                    InEnrage = true;
-                } else Enrage_Timer -= diff;
             }
 
-            //Spell Overrun
-            if (Overrun_Timer <= diff)
+            void Reset()
             {
-                DoScriptText(RAND(SAY_OVERRUN_1, SAY_OVERRUN_2), me);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_ENRAGE, 0);
+                _events.ScheduleEvent(EVENT_ARMOR, urand(5000, 13000));
+                _events.ScheduleEvent(EVENT_CHAIN, urand(10000, 30000));
+                _events.ScheduleEvent(EVENT_QUAKE, urand(25000, 35000));
+                _events.ScheduleEvent(EVENT_OVERRUN, urand(30000, 45000));
+                _inEnrage = false;
+            }
 
-                DoCast(me->getVictim(), SPELL_OVERRUN);
-                Overrun_Timer = 25000 + rand()%15000;
-            } else Overrun_Timer -= diff;
-
-            //Spell Earthquake
-            if (Quake_Timer <= diff)
+            void KilledUnit(Unit* victim)
             {
-                if (rand()%2)
+                victim->CastSpell(victim, SPELL_MARK_DEATH, 0);
+
+                if (urand(0, 4))
                     return;
 
-                DoScriptText(RAND(SAY_EARTHQUAKE_1, SAY_EARTHQUAKE_2), me);
+                Talk(SAY_SLAY);
+            }
 
-                //remove enrage before casting earthquake because enrage + earthquake = 16000dmg over 8sec and all dead
-                if (InEnrage)
-                    me->RemoveAura(SPELL_ENRAGE);
-
-                DoCast(me, SPELL_EARTHQUAKE);
-                Quake_Timer = 30000 + rand()%25000;
-            } else Quake_Timer -= diff;
-
-            //Spell Chain Lightning
-            if (Chain_Timer <= diff)
+            void JustDied(Unit* /*Killer*/)
             {
-                Unit *pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Talk(SAY_DEATH);
+            }
 
-                if (!pTarget)
-                    pTarget = me->getVictim();
-
-                if (pTarget)
-                    DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
-
-                Chain_Timer = 7000 + rand()%20000;
-            } else Chain_Timer -= diff;
-
-            //Spell Sunder Armor
-            if (Armor_Timer <= diff)
+            void EnterCombat(Unit* /*who*/)
             {
-                DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
-                Armor_Timer = 10000 + rand()%15000;
-            } else Armor_Timer -= diff;
+                Talk(SAY_AGGRO);
+            }
 
-            DoMeleeAttackIfReady();
+            void MoveInLineOfSight(Unit* who)
+            {
+                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
+                    if (who->HasAura(SPELL_MARK_DEATH, 0))
+                        who->CastSpell(who, SPELL_AURA_DEATH, 1);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while(uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        case EVENT_ENRAGE:
+                            if (!HealthAbovePct(20))
+                            {
+                                DoCast(me, SPELL_ENRAGE);
+                                _events.ScheduleEvent(EVENT_ENRAGE, 6000);
+                                _inEnrage = true;
+                            }
+                            break;
+                        case EVENT_OVERRUN:
+                            Talk(SAY_OVERRUN);
+                            DoCastVictim(SPELL_OVERRUN);
+                            _events.ScheduleEvent(EVENT_OVERRUN, urand(25000, 40000));
+                            break;
+                        case EVENT_QUAKE:
+                            if (urand(0, 1))
+                                return;
+
+                            Talk(SAY_EARTHQUAKE);
+
+                            //remove enrage before casting earthquake because enrage + earthquake = 16000dmg over 8sec and all dead
+                            if (_inEnrage)
+                                me->RemoveAurasDueToSpell(SPELL_ENRAGE);
+
+                            DoCast(me, SPELL_EARTHQUAKE);
+                            _events.ScheduleEvent(EVENT_QUAKE, urand(30000, 55000));
+                            break;
+                        case EVENT_CHAIN:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                                DoCast(target, SPELL_CHAIN_LIGHTNING);
+                            _events.ScheduleEvent(EVENT_CHAIN, urand(7000, 27000));
+                            break;
+                        case EVENT_ARMOR:
+                            DoCastVictim(SPELL_SUNDER_ARMOR);
+                            _events.ScheduleEvent(EVENT_ARMOR, urand(10000, 25000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap _events;
+                bool _inEnrage;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_doomwalkerAI (creature);
         }
-    };
-
 };
 
 void AddSC_boss_doomwalker()

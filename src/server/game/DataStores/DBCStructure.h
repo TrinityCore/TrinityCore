@@ -371,12 +371,18 @@ struct AchievementCriteriaEntry
         } do_emote;
         // ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE            = 13
         // ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE           = 55
-        // ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS      = 56
         struct
         {
             uint32  unused;                                 // 3
             uint32  count;                                  // 4
         } healing_done;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS      = 56
+        struct
+        {
+            uint32  unused;
+            uint32  killCount;
+        } get_killing_blow;
 
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM             = 57
         struct
@@ -976,6 +982,8 @@ struct GlyphSlotEntry
 
 // All Gt* DBC store data for 100 levels, some by 100 per class/race
 #define GT_MAX_LEVEL    100
+// gtOCTClassCombatRatingScalar.dbc stores data for 32 ratings, look at MAX_COMBAT_RATING for real used amount
+#define GT_MAX_RATING   32
 
 struct GtBarberShopCostBaseEntry
 {
@@ -1003,6 +1011,11 @@ struct GtChanceToSpellCritBaseEntry
 };
 
 struct GtChanceToSpellCritEntry
+{
+    float    ratio;
+};
+
+struct GtOCTClassCombatRatingScalarEntry
 {
     float    ratio;
 };

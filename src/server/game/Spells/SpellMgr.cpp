@@ -1350,14 +1350,12 @@ void SpellMgr::LoadSpellBonusess()
             continue;
         }
 
-        SpellBonusEntry sbe;
-
+        SpellBonusEntry& sbe = mSpellBonusMap[entry];
         sbe.direct_damage = fields[1].GetFloat();
         sbe.dot_damage    = fields[2].GetFloat();
         sbe.ap_bonus      = fields[3].GetFloat();
         sbe.ap_dot_bonus   = fields[4].GetFloat();
 
-        mSpellBonusMap[entry] = sbe;
         ++count;
     } while (result->NextRow());
 
@@ -3872,11 +3870,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->Stances = 1 << (FORM_TREE - 1);
             ++count;
             break;
-        case 8145: // Tremor Totem (instant pulse)
-        case 6474: // Earthbind Totem (instant pulse)
-            spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-            ++count;
-            break;
         case 42650: // Army of the Dead - can be interrupted
             spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
             count++;
@@ -3990,6 +3983,11 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 33206: // Pain Suppression
             spellInfo->AttributesEx5 &= ~SPELL_ATTR5_USABLE_WHILE_STUNNED;
+            ++count;
+            break;
+        case 8145: // Tremor Totem (instant pulse)
+        case 6474: // Earthbind Totem (instant pulse)
+            spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
             ++count;
             break;
         case 53241: // Marked for Death (Rank 1)

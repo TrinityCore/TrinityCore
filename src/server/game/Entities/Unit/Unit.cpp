@@ -721,7 +721,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     {
         sLog->outStaticDebug("DealDamage: victim just died");
 
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+        if (pVictim->GetTypeId() == TYPEID_PLAYER && pVictim != this)
         {
             pVictim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
 
@@ -1463,6 +1463,9 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             }
 
             uint32 damage = (*dmgShieldItr)->GetAmount();
+
+            if (Unit* caster = (*dmgShieldItr)->GetCaster())
+                damage = caster->SpellDamageBonus(this, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
 
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
             pVictim->DealDamageMods(this, damage, NULL);
@@ -2258,17 +2261,21 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     sLog->outDetail("%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), GetGUIDLow(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUIDLow());
 }
 
-bool Unit::isSpellBlocked(Unit *pVictim, SpellEntry const * /*spellProto*/, WeaponAttackType attackType)
+bool Unit::isSpellBlocked(Unit* victim, SpellEntry const * spellProto, WeaponAttackType attackType)
 {
-    if (pVictim->HasInArc(M_PI, this) || pVictim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    // These spells can't be blocked
+    if (spellProto && spellProto->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
+        return false;
+
+    if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(M_PI, this))
     {
         // Check creatures flags_extra for disable block
-        if (pVictim->GetTypeId() == TYPEID_UNIT &&
-           pVictim->ToCreature()->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
+        if (victim->GetTypeId() == TYPEID_UNIT &&
+            victim->ToCreature()->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
                 return false;
 
-        float blockChance = pVictim->GetUnitBlockChance();
-        blockChance += (int32(GetWeaponSkillValue(attackType)) - int32(pVictim->GetMaxSkillValueForLevel()))*0.04f;
+        float blockChance = victim->GetUnitBlockChance();
+        blockChance += (int32(GetWeaponSkillValue(attackType)) - int32(victim->GetMaxSkillValueForLevel())) * 0.04f;
         if (roll_chance_f(blockChance))
             return true;
     }
@@ -6825,26 +6832,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
                     break;
                 }
-                // Glyph of Divinity
-                case 54939:
-                {
-                    // Lookup base amount mana restore
-                    for (uint8 i=0; i<MAX_SPELL_EFFECTS; i++)
-                        if (procSpell->Effect[i] == SPELL_EFFECT_ENERGIZE)
-                        {
-                            int32 mana = SpellMgr::CalculateSpellEffectAmount(procSpell, i);
-                            CastCustomSpell(this, 54986, 0, &mana, 0, true, castItem, triggeredByAura);
-                            break;
-                        }
-                    return true;
-                }
-                // Glyph of Flash of Light
-                case 54936:
-                {
-                    triggered_spell_id = 54957;
-                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                    break;
-                }
                 // Glyph of Holy Light
                 case 54937:
                 {
@@ -7866,7 +7853,7 @@ bool Unit::HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 /*damage*/, Aur
 
 // Used in case when access to whole aura is needed
 // All procs should be handled like this...
-bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 procEx, uint32 /*cooldown*/, bool * handled)
+bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 procEx, uint32 cooldown, bool * handled)
 {
     SpellEntry const *dummySpell = triggeredByAura->GetSpellProto();
 
@@ -7934,6 +7921,25 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     CastSpell(pVictim, 68055, true);
                     return true;
                 }
+            }
+            // Glyph of Divinity
+            else if (dummySpell->Id == 54939)
+            {
+                *handled = true;
+                // Check if we are the target and prevent mana gain
+                if (triggeredByAura->GetCasterGUID() == pVictim->GetGUID())
+                    return false;
+                // Lookup base amount mana restore
+                for (uint8 i=0; i<MAX_SPELL_EFFECTS; i++)
+                {
+                    if (procSpell->Effect[i] == SPELL_EFFECT_ENERGIZE)
+                    {
+                        // value multiplied by 2 because you should get twice amount
+                        int32 mana = SpellMgr::CalculateSpellEffectAmount(procSpell, i) * 2;
+                        CastCustomSpell(this, 54986, 0, &mana, NULL, true);
+                    }
+                }
+                return true;
             }
             break;
         }
@@ -8032,6 +8038,18 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
 
             switch(dummySpell->Id)
             {
+                // Bone Shield cooldown
+                case 49222:
+                {
+                    *handled = true;
+                    if (cooldown && GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (ToPlayer()->HasSpellCooldown(100000))
+                            return false;
+                        ToPlayer()->AddSpellCooldown(100000, 0, time(NULL) + cooldown);
+                    }
+                    return true;
+                }
                 // Hungering Cold aura drop
                 case 51209:
                     *handled = true;
@@ -8250,32 +8268,46 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             }
             case SPELLFAMILY_DRUID:
             {
-                // Druid Forms Trinket
-                if (auraSpellInfo->Id == 37336)
+                switch (auraSpellInfo->Id)
                 {
-                    switch (GetShapeshiftForm())
+                    // Item - Druid T10 Balance 2P Bonus
+                    case 16870:
                     {
-                        case FORM_NONE:     trigger_spell_id = 37344;break;
-                        case FORM_CAT:      trigger_spell_id = 37341;break;
-                        case FORM_BEAR:
-                        case FORM_DIREBEAR: trigger_spell_id = 37340;break;
-                        case FORM_TREE:     trigger_spell_id = 37342;break;
-                        case FORM_MOONKIN:  trigger_spell_id = 37343;break;
-                        default:
-                            return false;
+                        if (HasAura(70718))
+                            CastSpell(this, 70721, true);
+                        break;
                     }
-                }
-                // Druid T9 Feral Relic (Lacerate, Swipe, Mangle, and Shred)
-                else if (auraSpellInfo->Id == 67353)
-                {
-                    switch (GetShapeshiftForm())
+                    // Druid Forms Trinket
+                    case 37336:
                     {
-                        case FORM_CAT:      trigger_spell_id = 67355; break;
-                        case FORM_BEAR:
-                        case FORM_DIREBEAR: trigger_spell_id = 67354; break;
-                        default:
-                            return false;
+                        switch (GetShapeshiftForm())
+                        {
+                            case FORM_NONE:     trigger_spell_id = 37344; break;
+                            case FORM_CAT:      trigger_spell_id = 37341; break;
+                            case FORM_BEAR:
+                            case FORM_DIREBEAR: trigger_spell_id = 37340; break;
+                            case FORM_TREE:     trigger_spell_id = 37342; break;
+                            case FORM_MOONKIN:  trigger_spell_id = 37343; break;
+                            default:
+                                return false;
+                        }
+                        break;
                     }
+                    // Druid T9 Feral Relic (Lacerate, Swipe, Mangle, and Shred)
+                    case 67353:
+                    {
+                        switch (GetShapeshiftForm())
+                        {
+                            case FORM_CAT:      trigger_spell_id = 67355; break;
+                            case FORM_BEAR:
+                            case FORM_DIREBEAR: trigger_spell_id = 67354; break;
+                            default:
+                                return false;
+                        }
+                        break;
+                    }
+                    default:
+                        break;
                 }
                 break;
             }
@@ -8736,7 +8768,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Combo points add triggers (need add combopoint only for main target, and after possible combopoints reset)
         case 15250: // Rogue Setup
         {
-            if (!pVictim || (ToPlayer() && pVictim != ToPlayer()->GetSelectedUnit())) // applied only for main target
+            // applied only for main target
+            if (!pVictim || (GetTypeId() == TYPEID_PLAYER && pVictim != ToPlayer()->GetSelectedUnit()))
                 return false;
             break;                                   // continue normal case
         }
@@ -10462,6 +10495,15 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     AddPctU(DoneTotalMod, 10 * stacks);
             }
         break;
+        case SPELLFAMILY_DRUID:
+            // Thorns
+            if (spellProto->SpellFamilyFlags[0] & 0x100)
+            {
+                // Brambles
+                if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(16836, 0))
+                    AddPctN(DoneTotalMod, aurEff->GetAmount());
+            }
+        break;
         case SPELLFAMILY_WARLOCK:
             //Fire and Brimstone
             if (spellProto->SpellFamilyFlags[1] & 0x00020040)
@@ -10477,7 +10519,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
             // Drain Soul - increased damage for targets under 25 % HP
             if (spellProto->SpellFamilyFlags[0] & 0x00004000)
-                if (HasAura(200000))
+                if (HasAura(100001))
                     DoneTotalMod *= 4;
             // Shadow Bite (15% increase from each dot)
             if (spellProto->SpellFamilyFlags[1] & 0x00400000 && isPet())
@@ -12141,6 +12183,9 @@ bool Unit::canAttack(Unit const* target, bool force) const
     if (m_vehicle)
         if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
             return false;
+
+    if (!canSeeOrDetect(target))
+        return false;
 
     return true;
 }
@@ -15133,44 +15178,44 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     return true;
 }
 
-void Unit::Kill(Unit *pVictim, bool durabilityLoss)
+void Unit::Kill(Unit* victim, bool durabilityLoss)
 {
     // Prevent killing unit twice (and giving reward from kill twice)
-    if (!pVictim->GetHealth())
+    if (!victim->GetHealth())
         return;
 
     // Inform pets (if any) when player kills target)
-    if (this->ToPlayer())
+    if (Player* plr = this->ToPlayer())
     {
-        Pet *pPet = this->ToPlayer()->GetPet();
-        if (pPet && pPet->isAlive() && pPet->isControlled())
-            pPet->AI()->KilledUnit(pVictim);
+        Pet* pet = plr->GetPet();
+        if (pet && pet->isAlive() && pet->isControlled())
+            pet->AI()->KilledUnit(victim);
     }
 
     // find player: owner of controlled `this` or `this` itself maybe
-    Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
-    Creature *creature = pVictim->ToCreature();
+    Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
+    Creature* creature = victim->ToCreature();
 
-    bool bRewardIsAllowed = true;
+    bool isRewardAllowed = true;
     if (creature)
     {
-        bRewardIsAllowed = creature->IsDamageEnoughForLootingAndReward();
-        if (!bRewardIsAllowed)
+        isRewardAllowed = creature->IsDamageEnoughForLootingAndReward();
+        if (!isRewardAllowed)
             creature->SetLootRecipient(NULL);
     }
 
-    if (bRewardIsAllowed && creature && creature->GetLootRecipient())
+    if (isRewardAllowed && creature && creature->GetLootRecipient())
         player = creature->GetLootRecipient();
 
     // Reward player, his pets, and group/raid members
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if (bRewardIsAllowed && player && player != pVictim)
+    if (isRewardAllowed && player && player != victim)
     {
         WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); //send event PARTY_KILL
         data << uint64(player->GetGUID()); //player with killing blow
-        data << uint64(pVictim->GetGUID()); //victim
+        data << uint64(victim->GetGUID()); //victim
 
-        Player* pLooter = player;
+        Player* looter = player;
 
         if (Group *group = player->GetGroup())
         {
@@ -15181,11 +15226,11 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
                 group->UpdateLooterGuid(creature, true);
                 if (group->GetLooterGuid())
                 {
-                    pLooter = sObjectMgr->GetPlayer(group->GetLooterGuid());
-                    if (pLooter)
+                    looter = sObjectMgr->GetPlayer(group->GetLooterGuid());
+                    if (looter)
                     {
-                        creature->SetLootRecipient(pLooter);   // update creature loot recipient to the allowed looter.
-                        group->SendLooter(creature, pLooter);
+                        creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.
+                        group->SendLooter(creature, looter);
                     }
                     else
                         group->SendLooter(creature, NULL);
@@ -15202,7 +15247,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
             if (creature)
             {
-                WorldPacket data2(SMSG_LOOT_LIST, (8+1+1));
+                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
                 data2 << uint64(creature->GetGUID());
                 data2 << uint8(0); // unk1
                 data2 << uint8(0); // no group looter
@@ -15218,85 +15263,90 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
             loot->clear();
             if (uint32 lootid = creature->GetCreatureInfo()->lootid)
-                loot->FillLoot(lootid, LootTemplates_Creature, pLooter, false, false, creature->GetLootMode());
+                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
 
             loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold, creature->GetCreatureInfo()->maxgold);
         }
 
-        player->RewardPlayerAndGroupAtKill(pVictim, false);
+        player->RewardPlayerAndGroupAtKill(victim, false);
     }
 
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
     if (isPet() || isTotem())
-        if (Unit *owner = GetOwner())
-            owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
+        if (Unit* owner = GetOwner())
+            owner->ProcDamageAndSpell(victim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
 
-    if (pVictim->GetCreatureType() != CREATURE_TYPE_CRITTER)
-        ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+    if (victim->GetCreatureType() != CREATURE_TYPE_CRITTER)
+        ProcDamageAndSpell(victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
 
     // Proc auras on death - must be before aura/combat remove
-    pVictim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, BASE_ATTACK, 0);
+    victim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, BASE_ATTACK, 0);
+
+    // update get killing blow achievements, must be done before setDeathState to be able to require auras on target
+    // and before Spirit of Redemption as it also removes auras
+    if (player)
+        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, victim);
 
     // if talent known but not triggered (check priest class for speedup check)
-    bool SpiritOfRedemption = false;
-    if (pVictim->GetTypeId() == TYPEID_PLAYER && pVictim->getClass() == CLASS_PRIEST)
+    bool spiritOfRedemption = false;
+    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_PRIEST)
     {
-        AuraEffectList const& vDummyAuras = pVictim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-        for (AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
+        AuraEffectList const& dummyAuras = victim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
+        for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
         {
             if ((*itr)->GetSpellProto()->SpellIconID == 1654)
             {
-                AuraEffect * aurEff = *itr;
+                AuraEffect const* aurEff = *itr;
                 // save value before aura remove
-                uint32 ressSpellId = pVictim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
+                uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
                 if (!ressSpellId)
-                    ressSpellId = pVictim->ToPlayer()->GetResurrectionSpellId();
+                    ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
                 //Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-                pVictim->RemoveAllAurasOnDeath();
+                victim->RemoveAllAurasOnDeath();
                 // restore for use at real death
-                pVictim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
+                victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
 
                 // FORM_SPIRITOFREDEMPTION and related auras
-                pVictim->CastSpell(pVictim, 27827, true, NULL, aurEff);
-                SpiritOfRedemption = true;
+                victim->CastSpell(victim, 27827, true, NULL, aurEff);
+                spiritOfRedemption = true;
                 break;
             }
         }
     }
 
-    if (!SpiritOfRedemption)
+    if (!spiritOfRedemption)
     {
         sLog->outStaticDebug("SET JUST_DIED");
-        pVictim->setDeathState(JUST_DIED);
+        victim->setDeathState(JUST_DIED);
     }
 
     // 10% durability loss on death
     // clean InHateListOf
-    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    if (Player* plrVictim = victim->ToPlayer())
     {
         // remember victim PvP death for corpse type and corpse reclaim delay
         // at original death (not at SpiritOfRedemtionTalent timeout)
-        pVictim->ToPlayer()->SetPvPDeath(player != NULL);
+        plrVictim->SetPvPDeath(player != NULL);
 
         // only if not player and not controlled by player pet. And not at BG
-        if ((durabilityLoss && !player && !pVictim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
+        if ((durabilityLoss && !player && !victim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
             sLog->outStaticDebug("We are dead, losing %f percent durability", sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
-            pVictim->ToPlayer()->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
+            plrVictim->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
             // durability lost message
             WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-            pVictim->ToPlayer()->GetSession()->SendPacket(&data);
+            plrVictim->GetSession()->SendPacket(&data);
         }
         // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && this->ToCreature()->IsAIEnabled)
-            this->ToCreature()->AI()->KilledUnit(pVictim);
+        if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+            this->ToCreature()->AI()->KilledUnit(victim);
 
         // last damage from non duel opponent or opponent controlled creature
-        if (pVictim->ToPlayer()->duel)
+        if (plrVictim->duel)
         {
-            pVictim->ToPlayer()->duel->opponent->CombatStopWithPets(true);
-            pVictim->ToPlayer()->CombatStopWithPets(true);
-            pVictim->ToPlayer()->DuelComplete(DUEL_INTERRUPTED);
+            plrVictim->duel->opponent->CombatStopWithPets(true);
+            plrVictim->CombatStopWithPets(true);
+            plrVictim->DuelComplete(DUEL_INTERRUPTED);
         }
     }
     else                                                // creature died
@@ -15312,35 +15362,31 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-        if (GetTypeId() == TYPEID_UNIT && this->ToCreature()->IsAIEnabled)
-            this->ToCreature()->AI()->KilledUnit(pVictim);
+        if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+            this->ToCreature()->AI()->KilledUnit(victim);
 
         // Call creature just died function
         if (creature->IsAIEnabled)
             creature->AI()->JustDied(this);
 
-        if (creature->ToTempSummon())
-        {
-            if (Unit* pSummoner = creature->ToTempSummon()->GetSummoner())
-            {
-                if (pSummoner->ToCreature() && pSummoner->ToCreature()->IsAIEnabled)
-                    pSummoner->ToCreature()->AI()->SummonedCreatureDies(creature, this);
-            }
-        }
+        if (TempSummon* summon = creature->ToTempSummon())
+            if (Unit* summoner = summon->GetSummoner())
+                if (summoner->ToCreature() && summoner->IsAIEnabled)
+                    summoner->ToCreature()->AI()->SummonedCreatureDies(creature, this);
 
         // Dungeon specific stuff, only applies to players killing creatures
         if (creature->GetInstanceId())
         {
-            Map *m = creature->GetMap();
-            Player *creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
+            Map* instanceMap = creature->GetMap();
+            Player* creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
             // TODO: do instance binding anyway if the charmer/owner is offline
 
-            if (m->IsDungeon() && creditedPlayer)
+            if (instanceMap->IsDungeon() && creditedPlayer)
             {
-                if (m->IsRaidOrHeroicDungeon())
+                if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                        ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
+                        ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
                 }
                 else
                 {
@@ -15356,9 +15402,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
     // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
     // handle player kill only if not suicide (spirit of redemption for example)
-    if (player && this != pVictim)
+    if (player && this != victim)
         if (OutdoorPvP * pvp = player->GetOutdoorPvP())
-            pvp->HandleKill(player, pVictim);
+            pvp->HandleKill(player, victim);
 
     //if (pVictim->GetTypeId() == TYPEID_PLAYER)
     //    if (OutdoorPvP * pvp = pVictim->ToPlayer()->GetOutdoorPvP())
@@ -15367,52 +15413,52 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
     if (player && player->InBattleground())
     {
-        if (Battleground *bg = player->GetBattleground())
+        if (Battleground* bg = player->GetBattleground())
         {
-            if (pVictim->GetTypeId() == TYPEID_PLAYER)
-                bg->HandleKillPlayer((Player*)pVictim, player);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                bg->HandleKillPlayer((Player*)victim, player);
             else
-                bg->HandleKillUnit(pVictim->ToCreature(), player);
+                bg->HandleKillUnit(victim->ToCreature(), player);
         }
     }
 
     // achievement stuff
-    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->GetTypeId() == TYPEID_PLAYER)
     {
         if (GetTypeId() == TYPEID_UNIT)
-            pVictim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
-        else if (GetTypeId() == TYPEID_PLAYER && pVictim != this)
-            pVictim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, this->ToPlayer()->GetTeam());
+            victim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
+        else if (GetTypeId() == TYPEID_PLAYER && victim != this)
+            victim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, this->ToPlayer()->GetTeam());
     }
 
     //Hook for OnPVPKill Event
-    if (this->GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER)
     {
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->GetTypeId() == TYPEID_PLAYER)
         {
-            Player *killer = this->ToPlayer();
-            Player *killed = pVictim->ToPlayer();
+            Player* killer = this->ToPlayer();
+            Player* killed = victim->ToPlayer();
             sScriptMgr->OnPVPKill(killer, killed);
         }
-        else if (pVictim->GetTypeId() == TYPEID_UNIT)
+        else if (victim->GetTypeId() == TYPEID_UNIT)
         {
             Player *killer = this->ToPlayer();
-            Creature *killed = pVictim->ToCreature();
+            Creature *killed = victim->ToCreature();
             sScriptMgr->OnCreatureKill(killer, killed);
         }
     }
-    else if (this->GetTypeId() == TYPEID_UNIT)
+    else if (GetTypeId() == TYPEID_UNIT)
     {
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             Creature *killer = this->ToCreature();
-            Player *killed = pVictim->ToPlayer();
+            Player *killed = victim->ToPlayer();
             sScriptMgr->OnPlayerKilledByCreature(killer, killed);
         }
     }
 
-    if (pVictim->GetVehicle())
-        pVictim->ExitVehicle();
+    if (victim->GetVehicle())
+        victim->ExitVehicle();
 }
 
 void Unit::SetControlled(bool apply, UnitState state)
