@@ -264,13 +264,13 @@ UPDATE `creature_template` SET `vehicleid` = 533 WHERE `entry` IN (36609, 39120,
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (36633, 39305, 39306, 39307);
 
 DELETE FROM `creature_template_addon` WHERE (`entry`=36597);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (36597, 0, 0, 1, 0, 0, '73878 0 72846 0');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (36597, 0, 0, 1, 0, 0, '73878 72846');
 DELETE FROM `creature_template_addon` WHERE (`entry`=39166);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39166, 0, 0, 1, 0, 0, '73878 0 72846 0');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39166, 0, 0, 1, 0, 0, '73878 72846');
 DELETE FROM `creature_template_addon` WHERE (`entry`=39167);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39167, 0, 0, 1, 0, 0, '73878 0 72846 0');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39167, 0, 0, 1, 0, 0, '73878 72846');
 DELETE FROM `creature_template_addon` WHERE (`entry`=39168);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39168, 0, 0, 1, 0, 0, '73878 0 72846 0');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39168, 0, 0, 1, 0, 0, '73878 72846');
 UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` IN (36597, 39166, 39167, 39168);
 
 -- Temp solution for frostmourn room

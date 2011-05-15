@@ -45,6 +45,7 @@ DoorData const doorData[] =
     {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
     {GO_BLOOD_QUEEN_BLOOD_BARRIER,           DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_SISTER_SVALNA_EVENT,         DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_N   },
     {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
@@ -108,6 +109,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiTerenasFighter        = 0;
                 uiSpiritWarden          = 0;
                 teamInInstance          = 0;
+                CrokScourgebaneGUID     = 0;
+                memset(CrokCaptainGUIDs, 0, 4 * sizeof(uint64));
+                SisterSvalnaGUID        = 0;
 
                 uiNecroticStack         = 0;
                 uiBloodCouncilController= 0;
@@ -345,6 +349,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                         uiBloodQueenLanathel = creature->GetGUID();
                         creature->SetReactState(REACT_DEFENSIVE);
                         break;
+                    case NPC_CROK_SCOURGEBANE:
+                        CrokScourgebaneGUID = creature->GetGUID();
+                        break;
+                    // we can only do this because there are no gaps in their entries
+                    case NPC_CAPTAIN_ARNATH:
+                    case NPC_CAPTAIN_BRANDON:
+                    case NPC_CAPTAIN_GRONDEL:
+                    case NPC_CAPTAIN_RUPERT:
+                        CrokCaptainGUIDs[creature->GetEntry()-NPC_CAPTAIN_ARNATH] = creature->GetGUID();
+                        break;
+                    case NPC_SISTER_SVALNA:
+                        SisterSvalnaGUID = creature->GetGUID();
+                        break;
                     case NPC_VALITHRIA_DREAMWALKER:
                         uiValithriaDreamwalker = creature->GetGUID();
                         break;
@@ -450,6 +467,23 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (creature->GetEntry() == NPC_FROST_FREEZE_TRAP)
                     coldflameJets.erase(creature->GetGUID());
+            }
+
+            void OnCreatureDeath(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_YMIRJAR_BATTLE_MAIDEN:
+                    case NPC_YMIRJAR_DEATHBRINGER:
+                    case NPC_YMIRJAR_FROSTBINDER:
+                    case NPC_YMIRJAR_HUNTRESS:
+                    case NPC_YMIRJAR_WARLORD:
+                        if (Creature* crok = instance->GetCreature(CrokScourgebaneGUID))
+                            crok->AI()->SetGUID(creature->GetGUID(), ACTION_VRYKUL_DEATH);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go)
@@ -901,9 +935,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 type)
             {
-                switch(identifier)
+                switch(type)
                 {
                     case GUID_LORD_MARROWGAR:                   return uiLordMarrowgar;
                     case GUID_SAURFANG:                         return uiDeathbringerSaurfang;
@@ -1017,6 +1051,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiSpiritWarden;
                     case GUID_DEATHBRINGER_S_DOOR:
                         return uiSaurfangDoor;
+                    case GUID_CROK_SCOURGEBANE:
+                        return CrokScourgebaneGUID;
+                    case GUID_CAPTAIN_ARNATH:
+                    case GUID_CAPTAIN_BRANDON:
+                    case GUID_CAPTAIN_GRONDEL:
+                    case GUID_CAPTAIN_RUPERT:
+                        return CrokCaptainGUIDs[type-GUID_CAPTAIN_ARNATH];
+                    case GUID_SISTER_SVALNA:
+                        return SisterSvalnaGUID;
                 }
                 return 0;
             }
@@ -1818,6 +1861,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiTirion;
             uint64 uiTerenasFighter;
             uint64 uiSpiritWarden;
+            uint64 CrokScourgebaneGUID;
+            uint64 CrokCaptainGUIDs[4];
+            uint64 SisterSvalnaGUID;
             uint64 uiIceWall1;
             uint64 uiIceWall2;
             uint64 uiMarrowgarEntrance;
