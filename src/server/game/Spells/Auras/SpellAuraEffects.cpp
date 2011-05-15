@@ -838,9 +838,12 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
         {
             // Haste modifies periodic time of channeled spells
             if (IsChanneledSpell(m_spellProto))
-                caster->ModSpellCastTime(m_spellProto, m_amplitude);
+            {
+                if (m_spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+                    caster->ModSpellCastTime(m_spellProto, m_amplitude);
+            }
             // and periodic time of auras affected by SPELL_AURA_PERIODIC_HASTE
-            if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellProto) || m_spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+            else if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellProto) || m_spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                 m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
@@ -1588,7 +1591,14 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                 // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
                 if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellIconID == 2864)
                 {
-                    damage += int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+                    int32 addition = int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+
+                    // Item - Druid T10 Restoration 2P Bonus
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(70658, 0))
+                        // divided by 50 instead of 100 because calculated as for every 2 tick
+                        addition += abs(int32((addition * aurEff->GetAmount()) / 50));
+
+                    damage += addition;
                 }
 
                 damage = caster->SpellHealingBonus(target, GetSpellProto(), damage, DOT, GetBase()->GetStackAmount());
@@ -3053,7 +3063,7 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
     }
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
-    if (!target->IsVisible())
+    if (target->IsVisible())
         target->UpdateObjectVisibility();
 }
 

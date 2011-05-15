@@ -292,100 +292,98 @@ class spell_rog_shiv : public SpellScriptLoader
 
 class spell_rog_deadly_poison : public SpellScriptLoader
 {
-public:
-    spell_rog_deadly_poison() : SpellScriptLoader("spell_rog_deadly_poison") { }
-
-    class spell_rog_deadly_poison_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_deadly_poison_SpellScript)
-
-    private:
-        uint8 m_stackAmount;
     public:
-        spell_rog_deadly_poison_SpellScript() : m_stackAmount(0) { }
+        spell_rog_deadly_poison() : SpellScriptLoader("spell_rog_deadly_poison") { }
 
-        void HandleBeforeHit()
+        class spell_rog_deadly_poison_SpellScript : public SpellScript
         {
-            Player * player = GetCaster()->ToPlayer();
-            Unit * target = GetHitUnit();
+            PrepareSpellScript(spell_rog_deadly_poison_SpellScript)
 
-            if (!player || !target)
-                return;
 
-            // Deadly Poison
-            if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0x80000, 0, player->GetGUID()))
-                m_stackAmount = aurEff->GetBase()->GetStackAmount();
-        }
-
-        void HandleAfterHit()
-        {
-            if (m_stackAmount < 5)
-                return;
-
-            Player * player = GetCaster()->ToPlayer();
-            Unit * target = GetHitUnit();
-            Item * castItem = GetCastItem();
-
-            if (!player || !target || !castItem)
-                return;
-
-            Item * item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-            if (item == castItem)
-                item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (!item)
-                return;
-
-            // item combat enchantments
-            for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
+            bool Load()
             {
-                uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
-                SpellItemEnchantmentEntry const * pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+                _stackAmount = 0;
+                // at this point CastItem must already be initialized
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+            }
 
-                if (!pEnchant)
-                    continue;
+            void HandleBeforeHit()
+            {
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
 
-                for (uint8 s = 0; s < 3; ++s)
+                // Deadly Poison
+                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0x80000, 0, GetCaster()->GetGUID()))
+                    _stackAmount = aurEff->GetBase()->GetStackAmount();
+            }
+
+            void HandleAfterHit()
+            {
+                if (_stackAmount < 5)
+                    return;
+
+                Player* player = GetCaster()->ToPlayer();
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
+                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+
+                if (item == GetCastItem())
+                    item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (!item)
+                    return;
+
+                // item combat enchantments
+                for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
                 {
-                    if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+                    SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
+                    if (!enchant)
                         continue;
 
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(pEnchant->spellid[s]);
-
-                    if (!spellInfo)
+                    for (uint8 s = 0; s < 3; ++s)
                     {
-                        sLog->outError("Player::CastItemCombatSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
-                        continue;
+                        if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+                            continue;
+
+                        SpellEntry const* spellInfo = sSpellStore.LookupEntry(enchant->spellid[s]);
+                        if (!spellInfo)
+                        {
+                            sLog->outError("Player::CastItemCombatSpell Enchant %i, cast unknown spell %i", enchant->ID, enchant->spellid[s]);
+                            continue;
+                        }
+
+                        // Proc only rogue poisons
+                        if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || spellInfo->Dispel != DISPEL_POISON)
+                            continue;
+
+                        // Do not reproc deadly
+                        if (spellInfo->SpellFamilyFlags.IsEqual(0x10000, 0x80000, 0))
+                            continue;
+
+                        if (IsPositiveSpell(enchant->spellid[s]))
+                            player->CastSpell(player, enchant->spellid[s], true, item);
+                        else
+                            player->CastSpell(target, enchant->spellid[s], true, item);
                     }
-
-                    // Proc only rogue poisons
-                    if ((spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE) || (spellInfo->Dispel != DISPEL_POISON))
-                        continue;
-
-                    // Do not reproc deadly
-                    if (spellInfo->SpellFamilyFlags.IsEqual(0x10000, 0x80000, 0))
-                        continue;
-
-                    if (IsPositiveSpell(pEnchant->spellid[s]))
-                        player->CastSpell(player, pEnchant->spellid[s], true, item);
-                    else
-                        player->CastSpell(target, pEnchant->spellid[s], true, item);
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleBeforeHit);
+                AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
+            }
+
+            uint8 _stackAmount;
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            BeforeHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleBeforeHit);
-            AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
+            return new spell_rog_deadly_poison_SpellScript();
         }
-    };
-
-    SpellScript * GetSpellScript() const
-    {
-        return new spell_rog_deadly_poison_SpellScript();
-    }
 };
 
 void AddSC_rogue_spell_scripts()

@@ -9,7 +9,7 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649,5729);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649,5729,5616,5617,5618);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (822, 'at_map_chamber'),
@@ -46,7 +46,10 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5604, 'at_sindragosa_lair'),
 (5698, 'at_icc_saurfang_portal'),
 (5649, 'at_icc_shutdown_traps'),
-(5729, 'at_icc_start_blood_quickening');
+(5729, 'at_icc_start_blood_quickening'),
+(5616,'at_icc_start_frostwing_gauntlet'),
+(5617,'at_icc_start_frostwing_gauntlet'),
+(5618,'at_icc_start_frostwing_gauntlet');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -880,6 +883,14 @@ UPDATE `creature_template` SET `ScriptName`='npc_kinetic_bomb' WHERE `entry`=384
 UPDATE `creature_template` SET `ScriptName`='npc_dark_nucleus' WHERE `entry`=38369;
 UPDATE `creature_template` SET `ScriptName`='npc_ball_of_flame' WHERE `entry` IN (38332,38451);
 UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lana_thel' WHERE `entry`=37955;
+UPDATE `creature_template` SET `ScriptName`='boss_sister_svalna' WHERE `entry`=37126;
+UPDATE `creature_template` SET `ScriptName`='npc_crok_scourgebane' WHERE `entry`=37129;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_arnath' WHERE `entry`=37122;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_brandon' WHERE `entry`=37123;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_grondel' WHERE `entry`=37124;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_rupert' WHERE `entry`=37125;
+UPDATE `creature_template` SET `ScriptName`='npc_frostwing_vrykul' WHERE `entry` IN (37132,38125,37127,37134,37133);
+UPDATE `creature_template` SET `ScriptName`='npc_impaling_spear' WHERE `entry`=38248;
 UPDATE `creature_template` SET `ScriptName`='boss_sindragosa' WHERE `entry`=36853;
 UPDATE `creature_template` SET `ScriptName`='npc_ice_tomb' WHERE `entry`=36980;
 UPDATE `creature_template` SET `ScriptName`='npc_spinestalker' WHERE `entry`=37534;
@@ -1779,7 +1790,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (3804,11,0,0, 'achievement_resilient_victory'),
@@ -1834,7 +1845,15 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (10062,11,0,0, 'achievement_quick_shave'),
 (10063,11,0,0, 'achievement_quick_shave'),
 (7625,11,0,0, 'achievement_bg_sa_artillery'),
-(7628,11,0,0, 'achievement_bg_sa_artillery');
+(7628,11,0,0, 'achievement_bg_sa_artillery'),
+(5541,11,0,0,'achievement_arena_2v2_kills'),
+(5542,11,0,0,'achievement_arena_3v3_kills'),
+(5543,11,0,0,'achievement_arena_5v5_kills'),
+(7573,11,0,0,'achievement_denyin_the_scion'),
+(7574,11,0,0,'achievement_denyin_the_scion'),
+(7265,11,0,0,'achievement_momma_said_knock_you_out'),
+(7549,11,0,0,'achievement_momma_said_knock_you_out');
+
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
@@ -2070,6 +2089,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71390, 'spell_blood_queen_pact_of_the_darkfallen'),
 ( 71340, 'spell_blood_queen_pact_of_the_darkfallen_dmg'),
 ( 71341, 'spell_blood_queen_pact_of_the_darkfallen_dmg_target'),
+( 70078, 'spell_svalna_caress_of_death'),
+( 70053, 'spell_svalna_revive_champion'),
+( 71462, 'spell_svalna_remove_spear'),
 ( 71357, 'spell_frostwarden_handler_order_whelp'),
 ( 71350, 'spell_frostwarden_handler_focus_fire'),
 ( 71376, 'spell_rimefang_icy_blast'),
@@ -2180,6 +2202,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 52481, 'spell_item_gift_of_the_harvester'),
 ( 45853, 'spell_item_map_of_the_geyser_fields'),
 ( 64981, 'spell_item_vanquished_clutches'),
+( 28441, 'spell_item_ashbringer'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),
@@ -2207,6 +2230,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (  5938, 'spell_rog_shiv'),
 ( 14185, 'spell_rog_preparation'),
 (-51685, 'spell_rog_prey_on_the_weak'),
+( -2818, 'spell_rog_deadly_poison'),
 -- priest
 (-47788, 'spell_pri_guardian_spirit'),
 ( -8129, 'spell_pri_mana_burn'),
