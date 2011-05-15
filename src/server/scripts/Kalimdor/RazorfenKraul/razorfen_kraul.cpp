@@ -45,7 +45,6 @@ EndContentData */
 
 #define QUEST_WILLIX_THE_IMPORTER 1144
 #define ENTRY_BOAR 4514
-#define SPELL_QUILLBOAR_CHANNELING 7083
 
 class npc_willix : public CreatureScript
 {
@@ -146,54 +145,7 @@ public:
 
 };
 
-class npc_deaths_head_ward_keeper : public CreatureScript
-{
-public:
-    npc_deaths_head_ward_keeper() : CreatureScript("npc_deaths_head_ward_keeper") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_deaths_head_ward_keeperAI(pCreature);
-    }
-
-    struct npc_deaths_head_ward_keeperAI : public ScriptedAI
-    {
-        npc_deaths_head_ward_keeperAI(Creature *c) : ScriptedAI(c)
-        {
-            pInstance = c->GetInstanceScript();
-        }
-
-        InstanceScript *pInstance;
-        uint32 QuillboarChanneling_Timer;
-
-        void Reset()
-        {
-            QuillboarChanneling_Timer = 1500;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!me->isAlive())
-                return;
-
-            if (pInstance)
-                pInstance->SetData(TYPE_WARD_KEEPERS, NOT_STARTED);
-
-            if (QuillboarChanneling_Timer <= diff)
-            {
-                if (me->IsNonMeleeSpellCasted(false))
-                    me->InterruptNonMeleeSpells(true);
-                DoCast(me, SPELL_QUILLBOAR_CHANNELING);
-                QuillboarChanneling_Timer = 1100;
-            } else QuillboarChanneling_Timer -= diff;
-
-        }
-    };
-
-};
-
 void AddSC_razorfen_kraul()
 {
     new npc_willix();
-    new npc_deaths_head_ward_keeper();
 }
