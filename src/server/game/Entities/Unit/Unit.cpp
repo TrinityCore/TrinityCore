@@ -15540,12 +15540,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 {
                     if (creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                     {
-                        ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
+                        ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
                         /** World of Warcraft Armory **/
                         creditedPlayer->CreateWowarmoryFeed(3, creature->GetCreatureInfo()->Entry, 0, 0);
                         /** World of Warcraft Armory **/
                     }
-                        ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
                 }
                 else
                 {
