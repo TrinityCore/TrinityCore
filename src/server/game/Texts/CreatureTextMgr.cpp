@@ -299,7 +299,7 @@ void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, C
     *data << uint8(0);                                      // ChatTag
 }
 
-void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
 {
     if (!source)
         return;
@@ -308,7 +308,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, Cha
 
     switch (msgType)
     {
-        case CHAT_MSG_YELL:
+        case CHAT_MSG_MONSTER_YELL:
             dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL);
             break;
         case CHAT_MSG_MONSTER_EMOTE:
@@ -335,58 +335,62 @@ void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, Cha
     switch (range)
     {
         case TEXT_RANGE_AREA:
+        {
+            uint32 areaId = source->GetAreaId();
+            Map::PlayerList const& pList = source->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
             {
-                uint32 areaId = source->GetAreaId();
-                Map::PlayerList const& pList = source->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-                    if (itr->getSource()->GetAreaId() == areaId && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
-                    {
-                        if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
-                            data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
-                        (itr->getSource())->GetSession()->SendPacket(data);
-                    }
-            }
-            return;
-        case TEXT_RANGE_ZONE:
-            {
-                uint32 zoneId = source->GetZoneId();
-                Map::PlayerList const& pList = source->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-                    if (itr->getSource()->GetZoneId() == zoneId && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
-                    {
-                        if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
-                            data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
-                        (itr->getSource())->GetSession()->SendPacket(data);
-                    }
-            }
-            return;
-        case TEXT_RANGE_MAP:
-            {
-                Map::PlayerList const& pList = source->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                if (itr->getSource()->GetAreaId() == areaId && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
                 {
                     if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
                         data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
-                    if ((!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
-                        (itr->getSource())->GetSession()->SendPacket(data);
+                    (itr->getSource())->GetSession()->SendPacket(data);
                 }
             }
             return;
-        case TEXT_RANGE_WORLD:
+        }
+        case TEXT_RANGE_ZONE:
+        {
+            uint32 zoneId = source->GetZoneId();
+            Map::PlayerList const& pList = source->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
             {
-                const SessionMap smap = sWorld->GetAllSessions();
-                for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
+                if (itr->getSource()->GetZoneId() == zoneId && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
                 {
-                    if (Player* plr = (*iter).second->GetPlayer())
-                    {
-                        if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
-                            data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(plr->GetGUID()));
-                        if (plr->GetSession()  && (!team || Team(plr->GetTeam()) == team) && (!gmOnly || plr->isGameMaster()))
-                            plr->GetSession()->SendPacket(data);
-                    }
+                    if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
+                        data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
+                    (itr->getSource())->GetSession()->SendPacket(data);
                 }
             }
             return;
+        }
+        case TEXT_RANGE_MAP:
+        {
+            Map::PlayerList const& pList = source->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+            {
+                if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
+                    data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
+                if ((!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
+                    (itr->getSource())->GetSession()->SendPacket(data);
+            }
+            return;
+        }
+        case TEXT_RANGE_WORLD:
+        {
+            const SessionMap smap = sWorld->GetAllSessions();
+            for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
+            {
+                if (Player* plr = (*iter).second->GetPlayer())
+                {
+                    if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
+                        data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(plr->GetGUID()));
+                    if (plr->GetSession()  && (!team || Team(plr->GetTeam()) == team) && (!gmOnly || plr->isGameMaster()))
+                        plr->GetSession()->SendPacket(data);
+                }
+            }
+            return;
+        }
         case TEXT_RANGE_NORMAL:
         default:
             break;

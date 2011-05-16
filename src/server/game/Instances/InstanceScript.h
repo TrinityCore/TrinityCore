@@ -58,8 +58,9 @@ enum EncounterState
 
 enum DoorType
 {
-    DOOR_TYPE_ROOM = 0,
-    DOOR_TYPE_PASSAGE,
+    DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress
+    DOOR_TYPE_PASSAGE       = 1,    // Door can open if encounter is done
+    DOOR_TYPE_SPAWN_HOLE    = 2,    // Door can open if encounter is in progress, typically used for spawning places
     MAX_DOOR_TYPES,
 };
 

@@ -7748,6 +7748,10 @@ void Player::DuelComplete(DuelCompleteType type)
             break;
     }
 
+    // Victory emote spell
+    if (type != DUEL_INTERRUPTED && duel->opponent)
+        duel->opponent->CastSpell(duel->opponent, 52852, true);
+
     //Remove Duel Flag object
     GameObject* obj = GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER));
     if (obj)
