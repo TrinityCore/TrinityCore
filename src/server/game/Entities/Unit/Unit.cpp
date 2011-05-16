@@ -2473,7 +2473,10 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     SpellSchoolMask schoolMask = GetSpellSchoolMask(spell);
     // PvP - PvE spell misschances per leveldif > 2
     int32 lchance = pVictim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    int32 leveldif = int32(pVictim->getLevelForTarget(this)) - int32(getLevelForTarget(pVictim));
+    int32 thisLevel = getLevelForTarget(pVictim);
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->isTrigger())
+        thisLevel = std::max<int32>(thisLevel, spell->spellLevel);
+    int32 leveldif = int32(pVictim->getLevelForTarget(this)) - thisLevel;
 
     // Base hit chance from attacker and victim levels
     int32 modHitChance;
