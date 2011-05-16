@@ -4044,6 +4044,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx5 &= ~SPELL_ATTR5_USABLE_WHILE_STUNNED;
             ++count;
             break;
+        case 56278: // Read Pronouncement, missing EffectApplyAuraName
+            spellInfo->Effect[0] = SPELL_EFFECT_DUMMY;
+            count++;
+            break;
         case 8145: // Tremor Totem (instant pulse)
         case 6474: // Earthbind Totem (instant pulse)
             spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
