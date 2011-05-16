@@ -87,7 +87,6 @@ public:
 
 };
 
-
 void AddSC_felwood()
 {
     new npcs_riverbreeze_and_silversky();

@@ -58,7 +58,7 @@ enum AchievementFaction
 enum AchievementFlags
 {
     ACHIEVEMENT_FLAG_COUNTER           = 0x00000001,        // Just count statistic (never stop and complete)
-    ACHIEVEMENT_FLAG_TRACKING          = 0x00000002,        // Not sent to client - internal use only
+    ACHIEVEMENT_FLAG_HIDDEN            = 0x00000002,        // Not sent to client - internal use only
     ACHIEVEMENT_FLAG_STORE_MAX_VALUE   = 0x00000004,        // Store only max value? used only in "Reach level xx"
     ACHIEVEMENT_FLAG_SUMM              = 0x00000008,        // Use summ criteria value from all reqirements (and calculate max value)
     ACHIEVEMENT_FLAG_MAX_USED          = 0x00000010,        // Show max criteria (and calculate max value ??)
@@ -73,19 +73,20 @@ enum AchievementFlags
 
 enum AchievementCriteriaCondition
 {
-    ACHIEVEMENT_CRITERIA_CONDITION_NONE      = 0,
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH  = 1,           // reset progress on death
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK1      = 2,           // only used in "Complete a daily quest every day for five consecutive days"
-    ACHIEVEMENT_CRITERIA_CONDITION_MAP       = 3,           // requires you to be on specific map, reset at change
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE   = 4,           // only used in "Win 10 arenas without losing"
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK2      = 9,           // unk
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3      = 13,          // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_NONE         = 0,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH     = 1,    // reset progress on death
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK1         = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP       = 3,    // requires you to be on specific map, reset at change
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE      = 4,    // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK2         = 9,    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP = 10,   // requires the player not to be in group
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK3         = 13,   // unk
 };
 
-enum AchievementCriteriaCompletionFlags
+enum AchievementCriteriaFlags
 {
     ACHIEVEMENT_CRITERIA_FLAG_SHOW_PROGRESS_BAR = 0x00000001,         // Show progress as bar
-    ACHIEVEMENT_CRITERIA_FLAG_HIDE_CRITERIA     = 0x00000002,         // Not show criteria in client
+    ACHIEVEMENT_CRITERIA_FLAG_HIDDEN            = 0x00000002,         // Not show criteria in client
     ACHIEVEMENT_CRITERIA_FLAG_UNK3              = 0x00000004,         // BG related??
     ACHIEVEMENT_CRITERIA_FLAG_UNK4              = 0x00000008,         //
     ACHIEVEMENT_CRITERIA_FLAG_UNK5              = 0x00000010,         // not used
@@ -224,6 +225,11 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 124,
 };
 
+enum AchievementCategory
+{
+    CATEGORY_CHILDRENS_WEEK     = 163,
+};
+
 enum AreaFlags
 {
     AREA_FLAG_SNOW             = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
@@ -277,7 +283,7 @@ enum Difficulty
 
 enum SpawnMask
 {
-    SPAWNMASK_CONTINENT         = (1 << REGULAR_DIFFICULTY),// any any maps without spawn modes
+    SPAWNMASK_CONTINENT         = (1 << REGULAR_DIFFICULTY), // any any maps without spawn modes
 
     SPAWNMASK_DUNGEON_NORMAL    = (1 << DUNGEON_DIFFICULTY_NORMAL),
     SPAWNMASK_DUNGEON_HEROIC    = (1 << DUNGEON_DIFFICULTY_HEROIC),

@@ -15,27 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+
 #include "BattlegroundAB.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundIC.h"
-
-class achievement_school_of_hard_knocks : public AchievementCriteriaScript
-{
-    public:
-        achievement_school_of_hard_knocks() : AchievementCriteriaScript("achievement_school_of_hard_knocks") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            static uint32 const orphanEntries[6] = {14305, 14444, 22818, 22817, 33533, 33532};
-            uint32 currentPet = GUID_ENPART(source->GetCritterGUID());
-            for (uint8 i = 0; i < 6; ++i)
-                if (currentPet == orphanEntries[i])
-                    return true;
-
-            return false;
-        }
-};
+#include "BattlegroundSA.h"
 
 class achievement_storm_glory : public AchievementCriteriaScript
 {
@@ -165,9 +150,25 @@ class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
         }
 };
 
+class achievement_bg_sa_artillery : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_sa_artillery() : AchievementCriteriaScript("achievement_bg_sa_artillery") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (Creature* vehicle = source->GetVehicleCreatureBase())
+            {
+                if (vehicle->GetEntry() == NPC_ANTI_PERSONNAL_CANNON)
+                    return true;
+            }
+
+            return false;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
-    new achievement_school_of_hard_knocks();
     new achievement_storm_glory();
     new achievement_resilient_victory();
     new achievement_bg_control_all_nodes();
@@ -175,4 +176,5 @@ void AddSC_achievement_scripts()
     new achievement_bg_ic_resource_glut();
     new achievement_bg_ic_glaive_grave();
     new achievement_bg_ic_mowed_down();
+    new achievement_bg_sa_artillery();
 }

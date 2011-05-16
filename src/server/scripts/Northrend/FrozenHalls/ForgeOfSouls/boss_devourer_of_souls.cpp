@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ enum Spells
     SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
     SPELL_WAILING_SOULS                           = 68873,  // the actual spell
     H_SPELL_WAILING_SOULS                         = 70324,
-//    68871,68873,68875,68876,68899,68912,70324,
+//    68871, 68873, 68875, 68876, 68899, 68912, 70324,
 // 68899 trigger 68871
 };
 
@@ -285,29 +285,28 @@ public:
                     case EVENT_PHANTOM_BLAST:
                         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
-                            DoCast(pTarget, SPELL_PHANTOM_BLAST);
+                        DoCastVictim(SPELL_PHANTOM_BLAST);
                         events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                         break;
                     case EVENT_MIRRORED_SOUL:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                         {
-                            uiMirroredSoulTarget = pTarget->GetGUID();
-                            DoCast(pTarget, SPELL_MIRRORED_SOUL);
+                            mirroredSoulTarget = target->GetGUID();
+                            DoCast(target, SPELL_MIRRORED_SOUL);
                             DoScriptText(EMOTE_MIRRORED_SOUL, me);
                         }
-                        events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000,30000));
+                        events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000, 30000));
                         break;
                     case EVENT_WELL_OF_SOULS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_WELL_OF_SOULS);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_WELL_OF_SOULS);
                         events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20000);
                         break;
                     case EVENT_UNLEASHED_SOULS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_UNLEASHED_SOULS);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_UNLEASHED_SOULS);
                         me->SetDisplayId(DISPLAY_SORROW);
-                        DoScriptText(RAND(SAY_FACE_ANGER_UNLEASH_SOUL,SAY_FACE_SORROW_UNLEASH_SOUL,SAY_FACE_DESIRE_UNLEASH_SOUL), me);
+                        DoScriptText(RAND(SAY_FACE_ANGER_UNLEASH_SOUL, SAY_FACE_SORROW_UNLEASH_SOUL, SAY_FACE_DESIRE_UNLEASH_SOUL), me);
                         DoScriptText(EMOTE_UNLEASH_SOUL, me);
                         events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30000);
                         events.ScheduleEvent(EVENT_FACE_ANGER, 5000);
@@ -315,23 +314,20 @@ public:
                     case EVENT_FACE_ANGER:
                         me->SetDisplayId(DISPLAY_ANGER);
                         break;
-
                     case EVENT_WAILING_SOULS:
                         me->SetDisplayId(DISPLAY_DESIRE);
-                        DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL,SAY_FACE_DESIRE_WAILING_SOUL), me);
+                        DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL, SAY_FACE_DESIRE_WAILING_SOUL), me);
                         DoScriptText(EMOTE_WAILING_SOUL, me);
                         DoCast(me, SPELL_WAILING_SOULS_STARTING);
-
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            me->SetOrientation(me->GetAngle(pTarget));
+                            me->SetOrientation(me->GetAngle(target));
                             DoCast(me, SPELL_WAILING_SOULS_BEAM);
                         }
-
                         beamAngle = me->GetOrientation();
 
                         beamAngleDiff = M_PI/30.0f; // PI/2 in 15 sec = PI/30 per tick
-                        if (RAND(true,false))
+                        if (RAND(true, false))
                             beamAngleDiff = -beamAngleDiff;
 
                         me->InterruptNonMeleeSpells(false);
@@ -363,14 +359,23 @@ public:
                             me->SetDisplayId(DISPLAY_ANGER);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->GetMotionMaster()->MoveChase(me->getVictim());
-                            events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000,70000));
+                            events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
                         }
                         break;
                 }
             }
-
             DoMeleeAttackIfReady();
         }
+
+    private:
+        bool threeFaceAchievement;
+
+        // wailing soul event
+        float beamAngle;
+        float beamAngleDiff;
+        int8 wailingSoulTick;
+
+        uint64 mirroredSoulTarget;
     };
 
     CreatureAI *GetAI(Creature *creature) const

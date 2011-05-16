@@ -52,7 +52,7 @@ enum ConditionType
     CONDITION_MAPID                 = 22,                   // map_id           0           +referenceID       true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
-    CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
+    CONDITION_SPELL                 = 25,                   // spell_id         bool        +referenceID       bool 1 for true 0 for false
     CONDITION_NOITEM                = 26,                   // item_id          bank        +referenceID       true if player does not have any of the item (if 'bank' is set it searches in bank slots too)
     CONDITION_LEVEL                 = 27,                   // level            opt         +referenceID       true if player's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0           +referenceID       true if player has quest_id with all objectives complete, but not yet rewarded
@@ -73,28 +73,28 @@ enum LevelConditionType
 
 enum ConditionSourceType
 {
-    CONDITION_SOURCE_TYPE_NONE                           = 0,//DONE
-    CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE         = 1,//DONE
-    CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE       = 2,//DONE
-    CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE          = 3,//DONE
-    CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE       = 4,//DONE
-    CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE             = 5,//DONE
-    CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE             = 6,//DONE
-    CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE          = 7,//DONE
-    CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE    = 8,//DONE
-    CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE      = 9,//DONE
-    CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10,//DONE
-    CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11,//DONE
-    CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12,//DONE
-    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13,//DONE
-    CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14,//DONE
-    CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15,//DONE
-    CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,//DONE
-    CONDITION_SOURCE_TYPE_SPELL                          = 17,//DONE
-    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,//DONE
-    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,//DONE
-    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,//DONE
-    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,//DONE
+    CONDITION_SOURCE_TYPE_NONE                           = 0, //DONE
+    CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE         = 1, //DONE
+    CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE       = 2, //DONE
+    CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE          = 3, //DONE
+    CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE       = 4, //DONE
+    CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE             = 5, //DONE
+    CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE             = 6, //DONE
+    CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE          = 7, //DONE
+    CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE    = 8, //DONE
+    CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE      = 9, //DONE
+    CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10, //DONE
+    CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11, //DONE
+    CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12, //DONE
+    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13, //DONE
+    CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14, //DONE
+    CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15, //DONE
+    CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16, //DONE
+    CONDITION_SOURCE_TYPE_SPELL                          = 17, //DONE
+    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18, //DONE
+    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19, //DONE
+    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20, //DONE
+    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21, //DONE
     CONDITION_SOURCE_TYPE_MAX                            = 22//MAX
 };
 
@@ -166,7 +166,7 @@ class ConditionMgr
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
-        bool IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* invoker = NULL);
+        bool IsPlayerMeetToConditionList(Player* player, const ConditionList& conditions, Unit* invoker = NULL);
 
         bool isGroupable(ConditionSourceType sourceType) const
         {

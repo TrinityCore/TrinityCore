@@ -83,7 +83,7 @@ struct ActiveBoatStruct
 {
     uint32 npc;
     int32 say;
-    float MoveX,MoveY,MoveZ,SpawnX,SpawnY,SpawnZ,SpawnO;
+    float MoveX, MoveY, MoveZ, SpawnX, SpawnY, SpawnZ, SpawnO;
 };
 
 static ActiveBoatStruct ActiveBot[4] =
@@ -291,7 +291,7 @@ public:
 
                 if (m_bIsActiveWithTORGYN && m_uiAbility_TORGYN_Timer <= diff)
                 {
-                    float x,y,z;
+                    float x, y, z;
                     x = me->GetPositionX()-5;
                     y = me->GetPositionY()-5;
                     z = me->GetPositionZ();
@@ -300,7 +300,7 @@ public:
                         //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
                         if (Creature* pTemp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
-                            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 pTemp->AddThreat(pTarget, 0.0f);
                                 pTemp->AI()->AttackStart(pTarget);

@@ -32,17 +32,17 @@
 
 // Structures using to access raw DBC data and required packing to portability
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
+// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
-#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
 
 struct AchievementEntry
 {
     uint32    ID;                                           // 0
-    int32    factionFlag;                                   // 1 -1=all, 0=horde, 1=alliance
+    int32    requiredFaction;                               // 1 -1=all, 0=horde, 1=alliance
     int32    mapID;                                         // 2 -1=none
     //uint32 parentAchievement;                             // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
     char *name[16];                                         // 4-19
@@ -254,13 +254,13 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
         struct
         {
-            uint32  teamtype;                               // 3 {2,3,5}
+            uint32  teamtype;                               // 3 {2, 3, 5}
         } highest_team_rating;
 
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING      = 39
         struct
         {
-            uint32  teamtype;                               // 3 {2,3,5}
+            uint32  teamtype;                               // 3 {2, 3, 5}
             uint32  teamrating;                             // 4
         } reach_team_rating;
 
@@ -497,11 +497,11 @@ struct AchievementCriteriaEntry
     {
         uint32  additionalRequirement_type;
         uint32  additionalRequirement_value;
-    } additionalRequrements[MAX_CRITERIA_REQUIREMENTS];
+    } additionalRequirements[MAX_CRITERIA_REQUIREMENTS];
 
     //char*  name[16];                                      // 9-24
     //uint32 name_flags;                                    // 25
-    uint32  completionFlag;                                 // 26
+    uint32  flags;                                          // 26
     uint32  timedType;                                      // 27
     uint32  timerStartEvent;                                // 28 Alway appears with timed events
                                                             // for timed spells it is spell id for
@@ -784,6 +784,29 @@ struct CurrencyTypesEntry
     uint32    BitIndex;                                     // 3        bit index in PLAYER_FIELD_KNOWN_CURRENCIES (1 << (index-1))
 };
 
+struct DestructibleModelDataEntry
+{
+    uint32  Id;
+    //uint32  DamagedUnk1;
+    //uint32  DamagedUnk2;
+    uint32  DamagedDisplayId;
+    //uint32  DamagedUnk3;
+    //uint32  DestroyedUnk1;
+    //uint32  DestroyedUnk2;
+    uint32  DestroyedDisplayId;
+    //uint32  DestroyedUnk3;
+    //uint32  RebuildingUnk1;
+    //uint32  RebuildingUnk2;
+    uint32  RebuildingDisplayId;
+    //uint32  RebuildingUnk3;
+    //uint32  SmokeUnk1;
+    //uint32  SmokeUnk2;
+    uint32  SmokeDisplayId;
+    //uint32  SmokeUnk3;
+    //uint32  Unk4;
+    //uint32  Unk5;
+};
+
 struct DungeonEncounterEntry
 {
     uint32 id;                                              // 0        unique id
@@ -1062,8 +1085,8 @@ struct ItemDisplayInfoEntry
 //struct ItemCondExtCostsEntry
 //{
 //    uint32      ID;
-//    uint32      condExtendedCost;                         // ItemPrototype::CondExtendedCost
-//    uint32      itemextendedcostentry;                    // ItemPrototype::ExtendedCost
+//    uint32      condExtendedCost;                         // ItemTemplate::CondExtendedCost
+//    uint32      itemextendedcostentry;                    // ItemTemplate::ExtendedCost
 //    uint32      arenaseason;                              // arena season number(1-4)
 //};
 
@@ -1191,7 +1214,7 @@ struct MapEntry
     float   entrance_x;                                     // 60 entrance x coordinate (if exist single entry)
     float   entrance_y;                                     // 61 entrance y coordinate (if exist single entry)
                                                             // 62 -1, 0 and 720
-    uint32  addon;                                          // 63 (0-original maps,1-tbc addon)
+    uint32  addon;                                          // 63 (0-original maps, 1-tbc addon)
     uint32  unk_time;                                       // 64 some kind of time?
     //uint32 maxPlayers;                                    // 65 max players
 
@@ -1233,7 +1256,6 @@ struct MapDifficultyEntry
     uint32      maxPlayers;                                 // 21
     //char*       difficultyString;                         // 22
 };
-
 
 struct MovieEntry
 {
@@ -1562,9 +1584,9 @@ struct SpellEntry
 };
 
 typedef std::set<uint32> SpellCategorySet;
-typedef std::map<uint32,SpellCategorySet > SpellCategoryStore;
+typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
 typedef std::set<uint32> PetFamilySpellsSet;
-typedef std::map<uint32,PetFamilySpellsSet > PetFamilySpellsStore;
+typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
 
 struct SpellCastTimesEntry
 {
@@ -1577,7 +1599,7 @@ struct SpellCastTimesEntry
 struct SpellDifficultyEntry
 {
     uint32     ID;                                          // 0
-    int32      SpellID[MAX_DIFFICULTY];                     // 1-4 instance modes: 10N,25N,10H,25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
+    int32      SpellID[MAX_DIFFICULTY];                     // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
 };
 
 struct SpellFocusObjectEntry
@@ -1680,7 +1702,6 @@ struct StableSlotPricesEntry
     uint32 Price;
 };
 
-
 struct SummonPropertiesEntry
 {
     uint32  Id;                                             // 0
@@ -1690,7 +1711,6 @@ struct SummonPropertiesEntry
     uint32  Slot;                                           // 4, 0-6
     uint32  Flags;                                          // 5
 };
-
 
 #define MAX_TALENT_RANK 5
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
@@ -1900,7 +1920,7 @@ struct WorldMapAreaEntry
     float   x1;                                             // 6
     float   x2;                                             // 7
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
-    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1,x2,y1,y2 coordinates)
+    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
     // uint32  someMapID;                                   // 10
 };
 
@@ -1954,18 +1974,18 @@ struct TalentSpellPos
     uint8  rank;
 };
 
-typedef std::map<uint32,TalentSpellPos> TalentSpellPosMap;
+typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
 
 struct TaxiPathBySourceAndDestination
 {
-    TaxiPathBySourceAndDestination() : ID(0),price(0) {}
-    TaxiPathBySourceAndDestination(uint32 _id,uint32 _price) : ID(_id),price(_price) {}
+    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
 
     uint32    ID;
     uint32    price;
 };
-typedef std::map<uint32,TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32,TaxiPathSetForSource> TaxiPathSetBySource;
+typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
+typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
 struct TaxiPathNodePtr
 {
@@ -1975,7 +1995,7 @@ struct TaxiPathNodePtr
     operator TaxiPathNodeEntry const& () const { return *i_ptr; }
 };
 
-typedef Path<TaxiPathNodePtr,TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 14

@@ -130,7 +130,7 @@ void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
         return;
     }
 
-    Battleground::HandleKillPlayer(player,killer);
+    Battleground::HandleKillPlayer(player, killer);
 
     UpdateArenaWorldState();
     CheckArenaWinConditions();
@@ -170,7 +170,6 @@ void BattlegroundDS::Reset()
     //call parent's class reset
     Battleground::Reset();
 }
-
 
 bool BattlegroundDS::SetupBattleground()
 {

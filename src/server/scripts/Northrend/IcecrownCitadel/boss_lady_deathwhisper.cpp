@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "PoolMgr.h"
 #include "Group.h"
 #include "icecrown_citadel.h"
@@ -168,9 +167,6 @@ enum Phases
 
 enum DeprogrammingData
 {
-    QUEST_DEPROGRAMMING_10  = 24869,
-    QUEST_DEPROGRAMMING_25  = 24875,
-
     NPC_DARNAVAN_10         = 38472,
     NPC_DARNAVAN_25         = 38485,
     NPC_DARNAVAN_CREDIT_10  = 39091,
@@ -180,9 +176,9 @@ enum DeprogrammingData
     POINT_DESPAWN           = 384721,
 };
 
-#define NPC_DARNAVAN RAID_MODE<uint32>(NPC_DARNAVAN_10,NPC_DARNAVAN_25,NPC_DARNAVAN_10,NPC_DARNAVAN_25)
-#define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10,NPC_DARNAVAN_CREDIT_25,NPC_DARNAVAN_CREDIT_10,NPC_DARNAVAN_CREDIT_25)
-#define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10,QUEST_DEPROGRAMMING_25,QUEST_DEPROGRAMMING_10,QUEST_DEPROGRAMMING_25)
+#define NPC_DARNAVAN RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
+#define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25, NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25)
+#define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25, QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25)
 
 static const uint32 addEntries[2] = {NPC_CULT_FANATIC, NPC_CULT_ADHERENT};
 
@@ -222,14 +218,6 @@ class boss_lady_deathwhisper : public CreatureScript
             {
                 introDone = false;
                 dominateMindCount = RAID_MODE<uint8>(0, 1, 1, 3);
-            }
-
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset()
@@ -300,7 +288,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, 5000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_P1_SHADOW_BOLT, urand(5500, 6000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_P1_EMPOWER_CULTIST, urand(20000, 30000), 0, PHASE_ONE);
-                if (getDifficulty() != RAID_DIFFICULTY_10MAN_NORMAL)
+                if (GetDifficulty() != RAID_DIFFICULTY_10MAN_NORMAL)
                     events.ScheduleEvent(EVENT_DOMINATE_MIND_H, 27000);
 
                 Talk(SAY_AGGRO);
@@ -498,7 +486,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             events.ScheduleEvent(EVENT_P2_TOUCH_OF_INSIGNIFICANCE, urand(9000, 13000), 0, PHASE_TWO);
                             break;
                         case EVENT_P2_SUMMON_SHADE:
-                            if (Unit* shadeTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* shadeTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             {
                                 nextVengefulShadeTarget = shadeTarget->GetGUID();
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
@@ -539,7 +527,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     _SummonAdd(addEntries[addIndexOther], addSpawnPos[addIndexOther*3]);
                     _SummonAdd(addEntries[addIndex], addSpawnPos[addIndexOther*3+1]);
                     _SummonAdd(addEntries[addIndexOther], addSpawnPos[addIndexOther*3+2]);
-                    _SummonAdd(addEntries[urand(0,1)], addSpawnPos[6]);
+                    _SummonAdd(addEntries[urand(0, 1)], addSpawnPos[6]);
                 }
                 ++addWaveCounter;
             }
@@ -555,7 +543,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     _SummonAdd(addEntries[addIndex], addSpawnPos[addIndex*3+2]);
                 }
                 else
-                    _SummonAdd(addEntries[urand(0,1)], addSpawnPos[6]);
+                    _SummonAdd(addEntries[urand(0, 1)], addSpawnPos[6]);
                 ++addWaveCounter;
             }
 
@@ -638,7 +626,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_lady_deathwhisperAI(creature);
+            return GetIcecrownCitadelAI<boss_lady_deathwhisperAI>(creature);
         }
 };
 
@@ -717,7 +705,7 @@ class npc_cult_fanatic : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_cult_fanaticAI(creature);
+            return GetIcecrownCitadelAI<npc_cult_fanaticAI>(creature);
         }
 };
 
@@ -779,7 +767,7 @@ class npc_cult_adherent : public CreatureScript
                             events.ScheduleEvent(EVENT_ADHERENT_DEATHCHILL, urand(9000, 13000));
                             break;
                         case EVENT_ADHERENT_CURSE_OF_TORPOR:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_CURSE_OF_TORPOR);
                             events.ScheduleEvent(EVENT_ADHERENT_CURSE_OF_TORPOR, urand(9000, 13000));
                             break;
@@ -803,7 +791,7 @@ class npc_cult_adherent : public CreatureScript
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
-            return new npc_cult_adherentAI(pCreature);
+            return GetIcecrownCitadelAI<npc_cult_adherentAI>(pCreature);
         }
 };
 
@@ -843,7 +831,7 @@ class npc_vengeful_shade : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_vengeful_shadeAI(creature);
+            return GetIcecrownCitadelAI<npc_vengeful_shadeAI>(creature);
         }
 };
 
@@ -963,7 +951,7 @@ class npc_darnavan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_darnavanAI(creature);
+            return GetIcecrownCitadelAI<npc_darnavanAI>(creature);
         }
 };
 

@@ -134,7 +134,7 @@ bool Weather::ReGenerate()
             if (m_grade > 0.6666667f)
             {
                                                             // Severe change, but how severe?
-                uint32 rnd = urand(0,99);
+                uint32 rnd = urand(0, 99);
                 if (rnd < 50)
                 {
                     m_grade -= 0.6666667f;

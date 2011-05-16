@@ -117,11 +117,11 @@ public:
 
         void JustSummoned(Creature *summoned)
         {
-            if (Unit *temp = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                summoned->GetMotionMaster()->MoveFollow(temp,0,0);
+            if (Unit *temp = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                summoned->GetMotionMaster()->MoveFollow(temp, 0, 0);
 
             //spells are SUMMON_TYPE_GUARDIAN, so using setOwner should be ok
-            summoned->CastSpell(summoned,SPELL_ENERGY_BOLT,false,0,0,me->GetGUID());
+            summoned->CastSpell(summoned, SPELL_ENERGY_BOLT, false, 0, 0, me->GetGUID());
         }
 
         void UpdateAI(const uint32 diff)
@@ -163,7 +163,7 @@ public:
 
                 if (ChainLightningTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
 
                     ChainLightningTimer = 8000;
@@ -171,7 +171,7 @@ public:
 
                 if (ArcaneShockTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (pTarget)
                         DoCast(pTarget, SPELL_ARCANE_SHOCK);
 
@@ -193,7 +193,6 @@ public:
     };
 
 };
-
 
 class mob_pure_energy : public CreatureScript
 {
@@ -226,7 +225,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_vexallus()
 {

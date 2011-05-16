@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "SkillDiscovery.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -827,14 +828,15 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
+                PreventHitDefaultEffect(effIndex);
                 if (!GetHitUnit() || !GetHitUnit()->ToPlayer())
                     return;
 
                 Player* target = GetHitUnit()->ToPlayer();
 
-                static const uint32 items[] = {ITEM_HEART_CANDY_1,ITEM_HEART_CANDY_2,ITEM_HEART_CANDY_3,ITEM_HEART_CANDY_4,ITEM_HEART_CANDY_5,ITEM_HEART_CANDY_6,ITEM_HEART_CANDY_7,ITEM_HEART_CANDY_8};
+                static const uint32 items[] = {ITEM_HEART_CANDY_1, ITEM_HEART_CANDY_2, ITEM_HEART_CANDY_3, ITEM_HEART_CANDY_4, ITEM_HEART_CANDY_5, ITEM_HEART_CANDY_6, ITEM_HEART_CANDY_7, ITEM_HEART_CANDY_8};
 
-                target->AddItem(items[urand(0,7)],1);
+                target->AddItem(items[urand(0, 7)], 1);
             }
 
             void Register()
@@ -846,6 +848,163 @@ class spell_item_create_heart_candy : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_item_create_heart_candy_SpellScript();
+        }
+};
+
+class spell_item_book_of_glyph_mastery : public SpellScriptLoader
+{
+    public:
+        spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
+
+        class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_book_of_glyph_mastery_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER && HasDiscoveredAllSpells(GetSpellInfo()->Id, GetCaster()->ToPlayer()))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_LEARNED_EVERYTHING);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_book_of_glyph_mastery_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_book_of_glyph_mastery_SpellScript();
+        }
+};
+
+enum GiftOfTheHarvester
+{
+    NPC_GHOUL   = 28845,
+    MAX_GHOULS  = 5,
+};
+
+class spell_item_gift_of_the_harvester : public SpellScriptLoader
+{
+    public:
+        spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") {}
+
+        class spell_item_gift_of_the_harvester_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_gift_of_the_harvester_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                std::list<Creature*> ghouls;
+                GetCaster()->GetAllMinionsByEntry(ghouls, NPC_GHOUL);
+                if (ghouls.size() >= MAX_GHOULS)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_TOO_MANY_GHOULS);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_gift_of_the_harvester_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_gift_of_the_harvester_SpellScript();
+        }
+};
+
+enum Sinkholes
+{
+    NPC_SOUTH_SINKHOLE      = 25664,
+    NPC_NORTHEAST_SINKHOLE  = 25665,
+    NPC_NORTHWEST_SINKHOLE  = 25666,
+};
+
+class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
+{
+    public:
+        spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
+
+        class spell_item_map_of_the_geyser_fields_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_map_of_the_geyser_fields_SpellScript);
+
+            SpellCastResult CheckSinkholes()
+            {
+                Unit* caster = GetCaster();
+                if (caster->FindNearestCreature(NPC_SOUTH_SINKHOLE, 30.0f, true)     ||
+                    caster->FindNearestCreature(NPC_NORTHEAST_SINKHOLE, 30.0f, true) ||
+                    caster->FindNearestCreature(NPC_NORTHWEST_SINKHOLE, 30.0f, true))
+                    return SPELL_CAST_OK;
+
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_CLOSE_TO_SINKHOLE);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_map_of_the_geyser_fields_SpellScript::CheckSinkholes);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_map_of_the_geyser_fields_SpellScript();
+        }
+};
+
+enum VanquishedClutchesSpells
+{
+    SPELL_CRUSHER       = 64982,
+    SPELL_CONSTRICTOR   = 64983,
+    SPELL_CORRUPTOR     = 64984,
+};
+
+class spell_item_vanquished_clutches : public SpellScriptLoader
+{
+    public:
+        spell_item_vanquished_clutches() : SpellScriptLoader("spell_item_vanquished_clutches") { }
+
+        class spell_item_vanquished_clutches_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_vanquished_clutches_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_CRUSHER))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_CONSTRICTOR))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_CORRUPTOR))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = RAND(SPELL_CRUSHER, SPELL_CONSTRICTOR, SPELL_CORRUPTOR);
+                GetCaster()->CastSpell(GetCaster(), spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_item_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_vanquished_clutches_SpellScript();
         }
 };
 
@@ -874,4 +1033,8 @@ void AddSC_item_spell_scripts()
     new spell_item_red_rider_air_rifle();
 
     new spell_item_create_heart_candy();
+    new spell_item_book_of_glyph_mastery();
+    new spell_item_gift_of_the_harvester();
+    new spell_item_map_of_the_geyser_fields();
+    new spell_item_vanquished_clutches();
 }

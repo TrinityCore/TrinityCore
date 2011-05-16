@@ -53,12 +53,12 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
-                    if (AuraEffect const * aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID, 0x00000002, 0, 0, caster->GetGUID()))
+                    if (AuraEffect const * aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002, 0, 0, caster->GetGUID()))
                     {
                         Aura* aura = aurEff->GetBase();
 
                         uint32 countMin = aura->GetMaxDuration();
-                        uint32 countMax = 18000;
+                        uint32 countMax = GetSpellMaxDuration(aura->GetSpellProto()) + 9000;
                         if (caster->HasAura(DRUID_INCREASED_MOONFIRE_DURATION))
                             countMax += 3000;
                         if (caster->HasAura(DRUID_NATURES_SPLENDOR))

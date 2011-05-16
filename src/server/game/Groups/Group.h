@@ -25,6 +25,7 @@
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
+#include "Player.h"
 
 class Creature;
 class GroupReference;
@@ -118,7 +119,7 @@ enum GroupUpdateFlags
 };
 
 #define GROUP_UPDATE_FLAGS_COUNT          20
-                                                                // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
+                                                                // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
 static const uint8 GroupUpdateLength[GROUP_UPDATE_FLAGS_COUNT] = { 0, 2, 2, 2, 1, 2, 2, 2, 2, 4, 8, 8, 1, 2, 2, 2, 1, 2, 2, 8};
 
 class Roll : public LootValidatorRef
@@ -183,8 +184,8 @@ class Group
 
         // group manipulation methods
         bool   Create(Player *leader);
-        bool   LoadGroupFromDB(const uint32 &guid, QueryResult result, bool loadMembers = true);
-        bool   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
+        void   LoadGroupFromDB(Field *field);
+        void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
         bool   AddInvite(Player *player);
         void   RemoveInvite(Player *player);
         void   RemoveAllInvites();
@@ -213,6 +214,8 @@ class Group
         const uint64& GetLooterGuid() const;
         ItemQualities GetLootThreshold() const;
 
+        uint32 GetDbStoreId() { return m_dbStoreId; };
+
         // member manipulation methods
         bool IsMember(const uint64& guid) const;
         bool IsLeader(const uint64& guid) const;
@@ -230,7 +233,6 @@ class Group
         MemberSlotList const& GetMemberSlots() const;
         GroupReference* GetFirstMember();
         uint32 GetMembersCount() const;
-        void GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level);
         uint8 GetMemberGroup(uint64 guid) const;
 
         void ConvertToLFG();
@@ -328,5 +330,6 @@ class Group
         uint64              m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
+        uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
 };
 #endif

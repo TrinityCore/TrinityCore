@@ -114,22 +114,22 @@ public:
                     me->DespawnOrUnsummon();
                     break;
                 case 5:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
                         Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                     SetRun(false);
                     break;
                 case 6:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
                         Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                     SetRun(true);
                     break;
                 case 8:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
                         Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                     SetRun(false);
                     break;
                 case 9:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
                         Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                     break;
                 case 10:
@@ -139,7 +139,7 @@ public:
                     SetRun(false);
                     break;
                 case 14:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
                         Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                     SetRun(true);
                     break;
@@ -400,7 +400,7 @@ public:
 
         void JustSummoned(Creature* pSummon)
         {
-            if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+            if (Player* pPlayer = me->GetPlayer(*me, uiPlayerGUID))
             {
                 if (pPlayer->isAlive())
                 {

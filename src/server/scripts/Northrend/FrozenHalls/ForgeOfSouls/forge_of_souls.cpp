@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -546,6 +546,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
+            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -559,14 +560,14 @@ public:
                 switch(eventId)
                 {
                     case EVENT_VEIL_OF_SHADOWS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_VEIL_OF_SHADOWS);
-                        events.RescheduleEvent(EVENT_VEIL_OF_SHADOWS, urand(5000,10000));
-                        break;
+                        DoCastVictim(SPELL_VEIL_OF_SHADOWS);
+                        events.RescheduleEvent(EVENT_VEIL_OF_SHADOWS, 10000);
+                        return;
                     case EVENT_WAIL_OF_SOULS:
-                        DoCastVictim(SPELL_WAIL_OF_SOULS);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_WAIL_OF_SOULS);
                         events.RescheduleEvent(EVENT_WAIL_OF_SOULS, 5000);
-                        break;
+                        return;
                 }
             }
             DoMeleeAttackIfReady();

@@ -99,7 +99,7 @@ public:
         void DespawnSphere()
         {
             std::list<Creature*> assistList;
-            GetCreatureListWithEntryInGrid(assistList,me, NPC_ETHEREAL_SPHERE ,150.0f);
+            GetCreatureListWithEntryInGrid(assistList, me, NPC_ETHEREAL_SPHERE , 150.0f);
 
             if (assistList.empty())
                 return;
@@ -114,7 +114,7 @@ public:
         void JustSummoned(Creature* pSummoned)
         {
             pSummoned->SetSpeed(MOVE_RUN, 0.5f);
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
                 pSummoned->AddThreat(pTarget, 0.00f);
                 pSummoned->AI()->AttackStart(pTarget);
@@ -218,12 +218,11 @@ public:
             if (pVictim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
 
 };
-
 
 class mob_ethereal_sphere : public CreatureScript
 {
@@ -301,7 +300,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_xevozz()
 {

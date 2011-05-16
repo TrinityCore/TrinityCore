@@ -326,7 +326,7 @@ public:
                             if (Creature* VoiceTrigger = (Unit::GetCreature(*me, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                                 VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                             pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
-                            //me->SummonCreature(AKAMAID,746.466980f,304.394989f,311.90208f,6.272870f,TEMPSUMMON_DEAD_DESPAWN,0);
+                            //me->SummonCreature(AKAMAID, 746.466980f, 304.394989f, 311.90208f, 6.272870f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         }
                         me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         return;
@@ -518,7 +518,7 @@ public:
         void CastAuraOnCouncil()
         {
             uint32 spellid = 0;
-            switch (urand(0,1))
+            switch (urand(0, 1))
             {
                 case 0: spellid = SPELL_DEVOTION_AURA;   break;
                 case 1: spellid = SPELL_CHROMATIC_AURA;  break;
@@ -540,7 +540,7 @@ public:
             {
                 if (Unit* pUnit = SelectCouncilMember())
                 {
-                    switch (urand(0,1))
+                    switch (urand(0, 1))
                     {
                         case 0: DoCast(pUnit, SPELL_BLESS_SPELLWARD);  break;
                         case 1: DoCast(pUnit, SPELL_BLESS_PROTECTION); break;
@@ -557,7 +557,7 @@ public:
 
             if (HammerOfJusticeTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     // is in ~10-40 yd range
                     if (me->IsInRange(pTarget, 10.0f, 40.0f, false))
@@ -570,7 +570,7 @@ public:
 
             if (SealTimer <= diff)
             {
-                switch (urand(0,1))
+                switch (urand(0, 1))
                 {
                     case 0: DoCast(me, SPELL_SEAL_OF_COMMAND);  break;
                     case 1: DoCast(me, SPELL_SEAL_OF_BLOOD);    break;
@@ -650,7 +650,7 @@ public:
             {
                 DoCast(me, SPELL_DAMPEN_MAGIC);
                 Cooldown = 1000;
-                DampenMagicTimer = 67200;                      // almost 1,12 minutes
+                DampenMagicTimer = 67200;                      // almost 1, 12 minutes
                 ArcaneBoltTimer += 1000;                        // Give the Mage some time to spellsteal Dampen.
             } else DampenMagicTimer -= diff;
 
@@ -670,7 +670,7 @@ public:
 
             if (BlizzardTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
@@ -681,7 +681,7 @@ public:
 
             if (FlamestrikeTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
@@ -738,7 +738,7 @@ public:
 
             if (EmpoweredSmiteTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
@@ -753,7 +753,7 @@ public:
 
             if (DivineWrathTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
@@ -838,7 +838,7 @@ public:
 
                 if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         VanishTimer = 30000;
                         AppearEnvenomTimer= 28000;

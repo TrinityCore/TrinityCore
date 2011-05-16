@@ -93,7 +93,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -106,7 +106,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
             if (pInstance)
                 pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
@@ -138,7 +138,7 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
-                        pTarget->CastSpell(pTarget,SPELL_INCITE_CHAOS_B,true);
+                        pTarget->CastSpell(pTarget, SPELL_INCITE_CHAOS_B, true);
                 }
 
                 DoResetThreat();
@@ -150,7 +150,7 @@ public:
             //Charge_Timer
             if (Charge_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_CHARGE);
                 Charge_Timer = 15000 + rand()%10000;
             } else Charge_Timer -= diff;

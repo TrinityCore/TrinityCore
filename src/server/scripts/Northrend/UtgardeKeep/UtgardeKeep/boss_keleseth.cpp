@@ -96,7 +96,7 @@ public:
 
             if (FrostTombGUID)
             {
-                Unit* FrostTomb = Unit::GetUnit((*me),FrostTombGUID);
+                Unit* FrostTomb = Unit::GetUnit((*me), FrostTombGUID);
                 if (FrostTomb)
                     FrostTomb->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
             }
@@ -104,7 +104,7 @@ public:
 
         void UpdateAI(const uint32 /*diff*/)
         {
-            Unit* temp = Unit::GetUnit((*me),FrostTombGUID);
+            Unit* temp = Unit::GetUnit((*me), FrostTombGUID);
             if ((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp)
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
@@ -205,7 +205,7 @@ public:
 
             if (ShadowboltTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
                 if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
                 ShadowboltTimer = 10000;
@@ -282,7 +282,7 @@ public:
         void Reset()
         {
             Respawn_Time = 12000;
-            Decrepify_Timer = urand(10000,20000);
+            Decrepify_Timer = urand(10000, 20000);
             isDead = false;
         }
 
@@ -361,9 +361,6 @@ public:
     };
 
 };
-
-
-
 
 void AddSC_boss_keleseth()
 {

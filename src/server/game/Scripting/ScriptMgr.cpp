@@ -32,12 +32,12 @@
 #define SCR_REG_LST(T) ScriptRegistry<T>::ScriptPointerList
 
 // Utility macros for looping over scripts.
-#define FOR_SCRIPTS(T,C,E) \
+#define FOR_SCRIPTS(T, C, E) \
     if (SCR_REG_LST(T).empty()) \
         return; \
     for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
         C != SCR_REG_LST(T).end(); ++C)
-#define FOR_SCRIPTS_RET(T,C,E,R) \
+#define FOR_SCRIPTS_RET(T, C, E, R) \
     if (SCR_REG_LST(T).empty()) \
         return R; \
     for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
@@ -47,11 +47,11 @@
     itr->second
 
 // Utility macros for finding specific scripts.
-#define GET_SCRIPT(T,I,V) \
+#define GET_SCRIPT(T, I, V) \
     T* V = ScriptRegistry<T>::GetScriptById(I); \
     if (!V) \
         return;
-#define GET_SCRIPT_RET(T,I,V,R) \
+#define GET_SCRIPT_RET(T, I, V, R) \
     T* V = ScriptRegistry<T>::GetScriptById(I); \
     if (!V) \
         return R;
@@ -135,11 +135,30 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 }
 
 ScriptMgr::ScriptMgr()
-    : _scriptCount(0)
+    : _scriptCount(0), _scheduledScripts(0)
 {
 }
 
 ScriptMgr::~ScriptMgr()
+{
+}
+
+void ScriptMgr::Initialize()
+{
+    uint32 oldMSTime = getMSTime();
+
+    LoadDatabase();
+
+    sLog->outString("Loading C++ scripts");
+
+    FillSpellSummary();
+    AddScripts();
+
+    sLog->outString(">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
+void ScriptMgr::Unload()
 {
     #define SCR_CLEAR(T) \
         FOR_SCRIPTS(T, itr, end) \
@@ -173,21 +192,6 @@ ScriptMgr::~ScriptMgr()
     SCR_CLEAR(GroupScript);
 
     #undef SCR_CLEAR
-}
-
-void ScriptMgr::Initialize()
-{
-    uint32 oldMSTime = getMSTime();
-
-    LoadDatabase();
-
-    sLog->outString("Loading C++ scripts");
-
-    FillSpellSummary();
-    AddScripts();
-
-    sLog->outString(">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
 }
 
 void ScriptMgr::LoadDatabase()
@@ -418,7 +422,7 @@ void ScriptMgr::OnShutdownCancel()
 
 void ScriptMgr::OnWorldUpdate(uint32 diff)
 {
-    FOREACH_SCRIPT(WorldScript)->OnUpdate(NULL, diff);
+    FOREACH_SCRIPT(WorldScript)->OnUpdate(diff);
 }
 
 void ScriptMgr::OnHonorCalculation(float& honor, uint8 level, float multiplier)
@@ -459,7 +463,7 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
     FOREACH_SCRIPT(FormulaScript)->OnGroupRateCalculation(rate, count, isRaid);
 }
 
-#define SCR_MAP_BGN(M,V,I,E,C,T) \
+#define SCR_MAP_BGN(M, V, I, E, C, T) \
     if (V->GetEntry()->T()) \
     { \
         FOR_SCRIPTS(M, I, E) \
@@ -639,7 +643,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     return tmpscript->OnUse(player, item, targets);
 }
 
-bool ScriptMgr::OnItemExpire(Player* player, ItemPrototype const* proto)
+bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
 {
     ASSERT(player);
     ASSERT(proto);
@@ -819,12 +823,20 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     return tmpscript->GetDialogStatus(player, go);
 }
 
-void ScriptMgr::OnGameObjectDestroyed(Player* player, GameObject* go, uint32 eventId)
+void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player, uint32 eventId)
 {
     ASSERT(go);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDestroyed(player, go, eventId);
+    tmpscript->OnDestroyed(go, player, eventId);
+}
+
+void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player, uint32 eventId)
+{
+    ASSERT(go);
+
+    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
+    tmpscript->OnDamaged(go, player, eventId);
 }
 
 void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
@@ -849,7 +861,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     ASSERT(player);
     ASSERT(trigger);
 
-    GET_SCRIPT_RET(AreaTriggerScript, GetAreaTriggerScriptId(trigger->id), tmpscript, false);
+    GET_SCRIPT_RET(AreaTriggerScript, sObjectMgr->GetAreaTriggerScriptId(trigger->id), tmpscript, false);
     return tmpscript->OnTrigger(player, trigger);
 }
 
@@ -952,15 +964,6 @@ void ScriptMgr::OnUninstall(Vehicle* veh)
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
     tmpscript->OnUninstall(veh);
-}
-
-void ScriptMgr::OnDie(Vehicle* veh)
-{
-    ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
-
-    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
-    tmpscript->OnDie(veh);
 }
 
 void ScriptMgr::OnReset(Vehicle* veh)

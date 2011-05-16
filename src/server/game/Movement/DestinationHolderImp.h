@@ -28,7 +28,7 @@ template<typename TRAVELLER>
 void
 DestinationHolder<TRAVELLER>::_findOffSetPoint(float x1, float y1, float x2, float y2, float offset, float &x, float &y)
 {
-    /* given the point (x1, y1) and (x2, y2).. need to find the point (x,y) on the same line
+    /* given the point (x1, y1) and (x2, y2).. need to find the point (x, y) on the same line
      * such that the distance from (x, y) to (x2, y2) is offset.
      * Let the distance of p1 to p2 = d.. then the ratio of offset/d = (x2-x)/(x2-x1)
      * hence x = x2 - (offset/d)*(x2-x1)
@@ -82,7 +82,7 @@ DestinationHolder<TRAVELLER>::StartTravel(TRAVELLER &traveller, bool sendMove)
     i_fromY = traveller.GetPositionY();
     i_fromZ = traveller.GetPositionZ();
 
-    i_totalTravelTime = traveller.GetTotalTrevelTimeTo(i_destX,i_destY,i_destZ);
+    i_totalTravelTime = traveller.GetTotalTrevelTimeTo(i_destX, i_destY, i_destZ);
     i_timeElapsed = 0;
     if (sendMove)
         traveller.MoveTo(i_destX, i_destY, i_destZ, i_totalTravelTime);
@@ -113,7 +113,7 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
             return true;
 
         if (traveller.GetTraveller().HasUnitState(UNIT_STAT_IN_FLIGHT))
-            GetLocationNow(traveller.GetTraveller().GetBaseMap() ,x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
+            GetLocationNow(traveller.GetTraveller().GetBaseMap() , x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
         else
             GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, false);
 
@@ -166,7 +166,7 @@ DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y
         else
         {
             //That part is good for mob Walking on the floor. But the floor is not always what we thought.
-            z = map->GetHeight(x,y,i_fromZ,false); // Disable cave check
+            z = map->GetHeight(x, y, i_fromZ, false); // Disable cave check
             const float groundDist = sqrt(distanceX*distanceX + distanceY*distanceY);
             const float zDist = fabs(i_fromZ - z) + 0.000001f;
             const float slope = groundDist / zDist;
@@ -180,8 +180,8 @@ template<typename TRAVELLER>
 float
 DestinationHolder<TRAVELLER>::GetDistance3dFromDestSq(const WorldObject &obj) const
 {
-    float x,y,z;
-    obj.GetPosition(x,y,z);
+    float x, y, z;
+    obj.GetPosition(x, y, z);
     return (i_destX-x)*(i_destX-x)+(i_destY-y)*(i_destY-y)+(i_destZ-z)*(i_destZ-z);
 }
 

@@ -167,7 +167,7 @@ public:
                         break;
                     }
                 }
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     Summoned->AI()->AttackStart(pTarget);
                 return Summoned->GetGUID();
             }
@@ -256,7 +256,7 @@ public:
                 bFireMagusDead = false;
                 bFrostMagusDead = false;
                 bArcaneMagusDead = false;
-                DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), me);
+                DoScriptText(RAND(SAY_SPLIT_1, SAY_SPLIT_2), me);
                 return;
             }
 
@@ -273,7 +273,7 @@ public:
                 bFireMagusDead = false;
                 bFrostMagusDead = false;
                 bArcaneMagusDead = false;
-                DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), me);
+                DoScriptText(RAND(SAY_SPLIT_1, SAY_SPLIT_2), me);
                 return;
             }
 
@@ -290,7 +290,7 @@ public:
 
             if (uiIceNovaTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_ICE_NOVA, false);
                     uiCooldown = 1500;
@@ -310,7 +310,7 @@ public:
 
             if (uiFireBombTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FIREBOMB, false);
                     uiCooldown = 2*IN_MILLISECONDS;
@@ -323,7 +323,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_magus_telestra()
 {

@@ -15,9 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "DatabaseEnv.h"
-#include "SQLStorage.h"
 #include "ObjectMgr.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
@@ -33,7 +31,7 @@
 #include "SmartAI.h"
 #include "ScriptPCH.h"
 
-SmartAI::SmartAI(Creature *c) : CreatureAI(c)
+SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 {
     // copy script to local (protection for table reload)
 
@@ -211,7 +209,6 @@ void SmartAI::EndPath(bool fail)
     else
         GetScript()->SetPathId(0);
 
-
     ObjectList* targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
     if (targets && mEscortQuestID)
     {
@@ -224,11 +221,11 @@ void SmartAI::EndPath(bool fail)
             if(fail && plr->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
                 plr->FailQuest(mEscortQuestID);
 
-            if (Group *pGroup = plr->GetGroup())
+            if (Group* pGroup = plr->GetGroup())
             {
-                for (GroupReference *gr = pGroup->GetFirstMember(); gr != NULL; gr = gr->next())
+                for (GroupReference* gr = pGroup->GetFirstMember(); gr != NULL; gr = gr->next())
                 {
-                    Player *pGroupGuy = gr->getSource();
+                    Player* pGroupGuy = gr->getSource();
 
                     if(!fail && pGroupGuy->IsAtGroupRewardDistance(me) && !pGroupGuy->GetCorpse())
                         pGroupGuy->AreaExploredOrEventHappens(mEscortQuestID);
@@ -347,7 +344,7 @@ void SmartAI::UpdateAI(const uint32 diff)
     {
         if (mFollowArrivedTimer < diff)
         {
-            if (me->FindNearestCreature(mFollowArrivedEntry,INTERACTION_DISTANCE, true))
+            if (me->FindNearestCreature(mFollowArrivedEntry, INTERACTION_DISTANCE, true))
             {
                 if (Player* plr = me->GetPlayer(*me, mFollowGuid))
                 {
@@ -392,11 +389,11 @@ bool SmartAI::IsEscortInvokerInRange()
             if (me->GetDistance(plr) <= SMART_ESCORT_MAX_PLAYER_DIST)
                         return true;
 
-            if (Group *pGroup = plr->GetGroup())
+            if (Group* pGroup = plr->GetGroup())
             {
-                for (GroupReference *gr = pGroup->GetFirstMember(); gr != NULL; gr = gr->next())
+                for (GroupReference* gr = pGroup->GetFirstMember(); gr != NULL; gr = gr->next())
                 {
-                    Player *pGroupGuy = gr->getSource();
+                    Player* pGroupGuy = gr->getSource();
 
                     if (me->GetDistance(pGroupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
                         return true;
@@ -747,7 +744,7 @@ void SmartAI::sQuestReward(Player* player, Quest const* quest, uint32 opt)
 
 bool SmartAI::sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DUMMY_EFFECT,caster,spellId,(uint32)effIndex);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DUMMY_EFFECT, caster, spellId, (uint32)effIndex);
     return true;
 }
 
@@ -846,7 +843,7 @@ void SmartGameObjectAI::Reset()
 bool SmartGameObjectAI::GossipHello(Player* player)
 {
     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartGameObjectAI::GossipHello");
-    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0 ,0 , false, NULL, go);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0 , 0 , false, NULL, go);
     return false;
 }
 
@@ -866,14 +863,14 @@ bool SmartGameObjectAI::GossipSelectCode(Player* /*player*/, uint32 /*sender*/, 
 // Called when a player accepts a quest from the gameobject.
 bool SmartGameObjectAI::QuestAccept(Player* player, Quest const* quest)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_ACCEPTED_QUEST, player, quest->GetQuestId() ,0 , false, NULL, go);
+    GetScript()->ProcessEventsFor(SMART_EVENT_ACCEPTED_QUEST, player, quest->GetQuestId() , 0 , false, NULL, go);
     return false;
 }
 
 // Called when a player selects a quest reward.
 bool SmartGameObjectAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId() ,opt , false, NULL, go);
+    GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId() , opt , false, NULL, go);
     return false;
 }
 
@@ -883,7 +880,7 @@ uint32 SmartGameObjectAI::GetDialogStatus(Player* /*player*/) { return 100; }
 // Called when the gameobject is destroyed (destructible buildings only).
 void SmartGameObjectAI::Destroyed(Player* player, uint32 eventId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, player, eventId ,0 , false, NULL, go);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, player, eventId , 0 , false, NULL, go);
 }
 
 void SmartGameObjectAI::SetData(uint32 id, uint32 value)

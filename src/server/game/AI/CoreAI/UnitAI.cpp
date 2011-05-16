@@ -87,35 +87,7 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
 
 void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
-    const std::list<HostileReference*> &threatlist = me->getThreatManager().getThreatList();
-
-    if (threatlist.empty())
-        return;
-
-    DefaultTargetSelector targetSelector(me, dist,playerOnly, aura);
-    for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-        if (targetSelector((*itr)->getTarget()))
-            targetList.push_back((*itr)->getTarget());
-
-    if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-        targetList.sort(Trinity::ObjectDistanceOrderPred(me));
-
-    if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
-        targetList.reverse();
-
-    if (targetList.size() < num)
-        return;
-
-    if (targetType == SELECT_TARGET_RANDOM)
-    {
-        while (num < targetList.size()) {
-            std::list<Unit*>::iterator itr = targetList.begin();
-            advance(itr, urand(0, targetList.size()-1));
-            targetList.erase(itr);
-        }
-    }
-    else
-        targetList.resize(num);
+    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
@@ -130,7 +102,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
         std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
         for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
-            if (Unit *pTemp = Unit::GetUnit(*me,(*itr)->getUnitGuid()))
+            if (Unit *pTemp = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 if (pTemp->GetTypeId() == TYPEID_PLAYER)
                     me->AddAura(spellid, pTemp);
         }
@@ -145,7 +117,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
         for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
-            if (Unit *pTemp = Unit::GetUnit(*me,(*itr)->getUnitGuid()))
+            if (Unit *pTemp = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 if (pTemp->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(pTemp, spellid, triggered);
         }

@@ -162,7 +162,7 @@ class boss_laj : public CreatureScript
             void JustSummoned(Creature *summon)
             {
                 if (summon && me->getVictim())
-                    summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+                    summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
 
             void UpdateAI(const uint32 diff)

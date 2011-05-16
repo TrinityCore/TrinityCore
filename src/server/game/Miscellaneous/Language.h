@@ -25,7 +25,6 @@ enum TrinityStrings
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
     LANG_SELECT_CREATURE                = 2,
 
-
     // level 0 chat
     LANG_SYSTEMMESSAGE                  = 3,
     LANG_EVENTMESSAGE                   = 4,
@@ -951,7 +950,6 @@ enum TrinityStrings
     LANG_MAIL_SENDER_REQ                = 6611,
     LANG_MAIL_RECEIVER_REQ              = 6612,
 
-
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
@@ -1031,20 +1029,20 @@ enum TrinityStrings
     LANG_BG_SA_START_ONE_MINUTE             = 10057,
     LANG_BG_SA_START_HALF_MINUTE            = 10058,
     LANG_BG_SA_HAS_BEGUN                    = 10059,
-    LANG_BG_SA_IS_UNDER_ATTACK              = 10060,//The %s is under attack!
-    LANG_BG_SA_WAS_DESTROYED                = 10061,//The %s was destroyed!
-    LANG_BG_SA_ROUND_ONE_END                = 10062,//Round 1 - finished!
-    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063,//The Alliance captured the titan portal!
-    LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064,//The Horde captured the titan portal!
-    LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065,//Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
-    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066,//Round 2 begins in 30 seconds. Prepare yourselves!
-    LANG_BG_SA_CHAMBER_BREACHED             = 10067,//The chamber has been breached! The titan relic is vulnerable!
-    LANG_BG_SA_A_GY_SOUTH                   = 10068,//The Alliance captured the South Graveyard!
-    LANG_BG_SA_A_GY_WEST                    = 10069,//The Alliance captured the West Graveyard!
-    LANG_BG_SA_A_GY_EAST                    = 10070,//The Alliance captured the East Graveyard!
-    LANG_BG_SA_H_GY_SOUTH                   = 10071,//The Horde captured the South Graveyard!
-    LANG_BG_SA_H_GY_WEST                    = 10072,//The Horde captured the West Graveyard!
-    LANG_BG_SA_H_GY_EAST                    = 10073,//The Horde captured the East Graveyard!
+    LANG_BG_SA_IS_UNDER_ATTACK              = 10060, //The %s is under attack!
+    LANG_BG_SA_WAS_DESTROYED                = 10061, //The %s was destroyed!
+    LANG_BG_SA_ROUND_ONE_END                = 10062, //Round 1 - finished!
+    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, //The Alliance captured the titan portal!
+    LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, //The Horde captured the titan portal!
+    LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
+    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
+    LANG_BG_SA_CHAMBER_BREACHED             = 10067, //The chamber has been breached! The titan relic is vulnerable!
+    LANG_BG_SA_A_GY_SOUTH                   = 10068, //The Alliance captured the South Graveyard!
+    LANG_BG_SA_A_GY_WEST                    = 10069, //The Alliance captured the West Graveyard!
+    LANG_BG_SA_A_GY_EAST                    = 10070, //The Alliance captured the East Graveyard!
+    LANG_BG_SA_H_GY_SOUTH                   = 10071, //The Horde captured the South Graveyard!
+    LANG_BG_SA_H_GY_WEST                    = 10072, //The Horde captured the West Graveyard!
+    LANG_BG_SA_H_GY_EAST                    = 10073, //The Horde captured the East Graveyard!
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,

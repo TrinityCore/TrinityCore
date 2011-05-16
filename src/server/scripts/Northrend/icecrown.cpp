@@ -187,7 +187,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->SummonCreature(NPC_ARGENT_VALIANT,8575.451f,952.472f,547.554f,0.38f);
+            pCreature->SummonCreature(NPC_ARGENT_VALIANT, 8575.451f, 952.472f, 547.554f, 0.38f);
         }
         return true;
     }
@@ -214,7 +214,7 @@ public:
     {
         npc_argent_valiantAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pCreature->GetMotionMaster()->MovePoint(0,8599.258f,963.951f,547.553f);
+            pCreature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
             pCreature->setFaction(35); //wrong faction in db?
         }
 
@@ -240,10 +240,10 @@ public:
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
+                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT, 0);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
-                me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 EnterEvadeMode();
             }
         }
@@ -272,48 +272,6 @@ public:
     CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_argent_valiantAI(creature);
-    }
-};
-
-/*######
-## npc_argent_tournament_post
-######*/
-
-enum eArgentTournamentPost
-{
-    SPELL_ROPE_BEAM                 = 63413,
-    NPC_GORMOK_THE_IMPALER          = 35469,
-    NPC_ICEHOWL                     = 35470
-};
-
-class npc_argent_tournament_post : public CreatureScript
-{
-public:
-    npc_argent_tournament_post() : CreatureScript("npc_argent_tournament_post") { }
-
-    struct npc_argent_tournament_postAI : public ScriptedAI
-    {
-        npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-        void UpdateAI(const uint32 /*uiDiff*/)
-        {
-            if (me->IsNonMeleeSpellCasted(false))
-                return;
-
-            if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
-                DoCast(pTarget, SPELL_ROPE_BEAM);
-
-            if (Creature* pTarget2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
-                DoCast(pTarget2, SPELL_ROPE_BEAM);
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new npc_argent_tournament_postAI(creature);
     }
 };
 
@@ -429,7 +387,6 @@ void AddSC_icecrown()
     new npc_dame_evniki_kapsalis;
     new npc_squire_david;
     new npc_argent_valiant;
-    new npc_argent_tournament_post;
     new npc_alorah_and_grimmin;
     new npc_guardian_pavilion;
 }

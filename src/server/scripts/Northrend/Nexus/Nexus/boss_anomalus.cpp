@@ -149,21 +149,20 @@ public:
                 Phase = 1;
                 DoScriptText(SAY_SHIELD, me);
                 DoCast(me, SPELL_RIFT_SHIELD);
-                Creature* Rift = me->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0,5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS);
+                Creature* Rift = me->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS);
                 if (Rift)
                 {
                     //DoCast(Rift, SPELL_CHARGE_RIFT);
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Rift->AI()->AttackStart(pTarget);
                     uiChaoticRiftGUID = Rift->GetGUID();
                     DoScriptText(SAY_RIFT , me);
                 }
             }
 
-
             if (uiSparkTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_SPARK);
                 uiSparkTimer = 5*IN_MILLISECONDS;
             } else uiSparkTimer -= diff;
@@ -173,7 +172,6 @@ public:
     };
 
 };
-
 
 enum RiftSpells
 {
@@ -217,7 +215,7 @@ public:
         void JustDied(Unit * /*killer*/)
         {
             if (Creature* pAnomalus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0))
-                CAST_AI(boss_anomalus::boss_anomalusAI,pAnomalus->AI())->bDeadChaoticRift = true;
+                CAST_AI(boss_anomalus::boss_anomalusAI, pAnomalus->AI())->bDeadChaoticRift = true;
         }
 
         void UpdateAI(const uint32 diff)
@@ -228,7 +226,7 @@ public:
             if (uiChaoticEnergyBurstTimer <= diff)
             {
                 Unit* pAnomalus = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (pAnomalus && pAnomalus->HasAura(SPELL_RIFT_SHIELD))
                         DoCast(pTarget, SPELL_CHARGED_CHAOTIC_ENERGY_BURST);
@@ -242,7 +240,7 @@ public:
             {
                 Creature* Wraith = me->SummonCreature(MOB_CRAZED_MANA_WRAITH, me->GetPositionX()+1, me->GetPositionY()+1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS);
                 if (Wraith)
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Wraith->AI()->AttackStart(pTarget);
                 Unit* Anomalus = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
                 if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
@@ -254,7 +252,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_anomalus()
 {

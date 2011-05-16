@@ -104,7 +104,8 @@ class GameEventMgr
         void LoadFromDB();
         uint32 Update();
         bool IsActiveEvent(uint16 event_id) { return (m_ActiveEvents.find(event_id) != m_ActiveEvents.end()); }
-        uint32 Initialize();
+        uint32 StartSystem();
+        void Initialize();
         void StartArenaSeason();
         void StartInternalEvent(uint16 event_id);
         bool StartEvent(uint16 event_id, bool overwrite = false);
@@ -133,7 +134,7 @@ class GameEventMgr
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasCreatureActiveEventExcept(uint32 creature_guid, uint16 event_id);
         bool hasGameObjectActiveEventExcept(uint32 go_guid, uint16 event_id);
-    protected:
+protected:
         typedef std::list<uint32> GuidList;
         typedef std::list<uint32> IdList;
         typedef std::vector<GuidList> GameEventGuidMap;

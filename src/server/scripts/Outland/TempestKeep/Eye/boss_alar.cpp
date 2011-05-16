@@ -28,7 +28,7 @@ EndScriptData */
 
 enum eSpells
 {
-    SPELL_FLAME_BUFFET           = 34121, // Flame Buffet - every 1,5 secs in phase 1 if there is no victim in melee range and after Dive Bomb in phase 2 with same conditions
+    SPELL_FLAME_BUFFET           = 34121, // Flame Buffet - every 1, 5 secs in phase 1 if there is no victim in melee range and after Dive Bomb in phase 2 with same conditions
     SPELL_FLAME_QUILLS           = 34229, // Randomly after changing position in phase after watching tons of movies, set probability 20%
     SPELL_REBIRTH                = 34342, // Rebirth - beginning of second phase(after losing all health in phase 1)
     SPELL_REBIRTH_2              = 35369, // Rebirth(another, without healing to full HP) - after Dive Bomb in phase 2
@@ -154,7 +154,7 @@ class boss_alar : public CreatureScript
             void JustSummoned(Creature *summon)
             {
                 if (summon->GetEntry() == CREATURE_EMBER_OF_ALAR)
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         summon->AI()->AttackStart(pTarget);
             }
 
@@ -283,7 +283,7 @@ class boss_alar : public CreatureScript
                                 WaitTimer = 4000;
                                 return;
                             case WE_DIVE:
-                                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
                                     me->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
                                     DoCast(pTarget, SPELL_DIVE_BOMB, true);
@@ -291,7 +291,7 @@ class boss_alar : public CreatureScript
                                     if (me->IsWithinDist3d(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 5.0f))
                                         dist = 5.0f;
                                     WaitTimer = 1000 + uint32(floor(dist / 80 * 1000.0f));
-                                    me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f);
+                                    me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f);
                                     me->StopMoving();
                                     WaitEvent = WE_LAND;
                                 }
@@ -343,7 +343,7 @@ class boss_alar : public CreatureScript
                         }
                         else
                         {
-                            if (urand(0,4)) // next platform
+                            if (urand(0, 4)) // next platform
                             {
                                 DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                                 if (cur_wp == 3)
@@ -403,7 +403,7 @@ class boss_alar : public CreatureScript
 
                     if (FlamePatch_Timer <= diff)
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
                             if (Summoned)

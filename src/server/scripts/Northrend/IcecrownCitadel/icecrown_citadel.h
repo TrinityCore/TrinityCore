@@ -16,11 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_ICECROWN_CITADEL_H
-#define DEF_ICECROWN_CITADEL_H
+#ifndef ICECROWN_CITADEL_H_
+#define ICECROWN_CITADEL_H_
+
+#include "SpellScript.h"
+#include "Map.h"
+#include "Creature.h"
 
 #define ICCScriptName "instance_icecrown_citadel"
 #define Quest_A_Feast_of_Souls  24547
+
+uint32 const EncounterCount = 12;
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
 
 // Shared spells used by more than one script
 enum SharedSpells
@@ -46,7 +56,7 @@ enum TeleporterSpells
     DEATHBRINGER_S_RISE_TELEPORT    = 70858,
     UPPER_SPIRE_TELEPORT            = 70859,
     FROZEN_THRONE_TELEPORT          = 70860,
-    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
+    SINDRAGOSA_S_LAIR_TELEPORT      = 70861,
 };
 
 enum DataTypes
@@ -80,14 +90,18 @@ enum DataTypes
     DATA_SPINESTALKER               = 23,
     DATA_RIMEFANG                   = 24,
     DATA_COLDFLAME_JETS             = 25,
-    DATA_KILL_CREDIT                = 26
+    DATA_TEAM_IN_INSTANCE           = 26,
+    DATA_BLOOD_QUICKENING_STATE     = 27,
+    DATA_HEROIC_ATTEMPTS            = 28,
+    DATA_KILL_CREDIT                = 29
 };
-
-#define MAX_ENCOUNTER 12
 
 enum CreaturesIds
 {
     // At Light's Hammer
+    NPC_HIGHLORD_TIRION_FORDRING_LH             = 37119,
+    NPC_THE_LICH_KING_LH                        = 37181,
+    NPC_HIGHLORD_BOLVAR_FORDRAGON_LH            = 37183,
     NPC_KOR_KRON_GENERAL                        = 37189,
     NPC_ALLIANCE_COMMANDER                      = 37190,
     NPC_TORTUNOK                                = 37992,    // Druid Armor H
@@ -105,12 +119,16 @@ enum CreaturesIds
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
 
-    // Weekly questgivers
+    // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
     NPC_KOR_KRON_LIEUTENANT                     = 38491,
     NPC_SKYBREAKER_LIEUTENANT                   = 38492,
+    NPC_ROTTING_FROST_GIANT_10                  = 38490,
+    NPC_ROTTING_FROST_GIANT_25                  = 38494,
     NPC_ALCHEMIST_ADRIANNA                      = 38501,
     NPC_ALRIN_THE_AGILE                         = 38551,
+    NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
+    NPC_MINCHAR_BEAM_STALKER                    = 38557,
     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
@@ -292,12 +310,86 @@ enum SharedActions
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
 
+    // Blood-Queen Lana'thel
+    ACTION_KILL_MINCHAR         = -379550,
+
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
 };
 
-// Declaration
-extern Position const SindragosaSpawnPos;
+enum WeekliesICC
+{
+    QUEST_DEPROGRAMMING_10                  = 24869,
+    QUEST_DEPROGRAMMING_25                  = 24875,
+    QUEST_SECURING_THE_RAMPARTS_10          = 24870,
+    QUEST_SECURING_THE_RAMPARTS_25          = 24877,
+    QUEST_RESIDUE_RENDEZVOUS_10             = 24873,
+    QUEST_RESIDUE_RENDEZVOUS_25             = 24878,
+    QUEST_BLOOD_QUICKENING_10               = 24874,
+    QUEST_BLOOD_QUICKENING_25               = 24879,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880,
+};
 
-#endif // DEF_ICECROWN_CITADEL_H
+enum WorldStatesICC
+{
+    WORLDSTATE_SHOW_TIMER           = 4903,
+    WORLDSTATE_EXECUTION_TIME       = 4904,
+    WORLDSTATE_SHOW_ATTEMPTS        = 4940,
+    WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
+    WORLDSTATE_ATTEMPTS_MAX         = 4942,
+};
+
+class spell_trigger_spell_from_caster : public SpellScriptLoader
+{
+    public:
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId) : SpellScriptLoader(scriptName), _triggerId(triggerId) { }
+
+        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
+
+        public:
+            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(_triggerId))
+                    return false;
+                return true;
+            }
+
+            void HandleTrigger()
+            {
+                GetCaster()->CastSpell(GetHitUnit(), _triggerId, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
+            }
+
+            uint32 _triggerId;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_trigger_spell_from_caster_SpellScript(_triggerId);
+        }
+
+    private:
+        uint32 _triggerId;
+};
+
+template<class AI>
+CreatureAI* GetIcecrownCitadelAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == GetScriptId(ICCScriptName))
+                return new AI(creature);
+    return NULL;
+}
+
+#endif // ICECROWN_CITADEL_H_

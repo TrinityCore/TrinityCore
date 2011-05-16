@@ -149,8 +149,6 @@ public:
 
 };
 
-
-
 /*######
 ## npc_rinji
 ######*/
@@ -252,7 +250,7 @@ public:
                     return;
 
                 //only if attacked and escorter is not in combat?
-                DoScriptText(RAND(SAY_RIN_HELP_1,SAY_RIN_HELP_2), me);
+                DoScriptText(RAND(SAY_RIN_HELP_1, SAY_RIN_HELP_2), me);
             }
         }
 
@@ -349,8 +347,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_hinterlands()
 {

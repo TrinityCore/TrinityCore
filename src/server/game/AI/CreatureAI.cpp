@@ -34,13 +34,12 @@ void CreatureAI::OnCharmed(bool /*apply*/)
 AISpellInfoType * UnitAI::AISpellInfo;
  AISpellInfoType * GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
 
-
 void CreatureAI::Talk(uint8 id, uint64 WhisperGuid)
 {
     sCreatureTextMgr->SendChat(me, id, WhisperGuid);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature)
+void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/)
 {
     if (!creature)
         creature = me;
@@ -156,7 +155,7 @@ void CreatureAI::EnterEvadeMode()
     Reset();
 
     if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
-        me->GetVehicleKit()->Reset();
+        me->GetVehicleKit()->Reset(true);
 }
 
 /*void CreatureAI::AttackedBy(Unit* attacker)

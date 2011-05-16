@@ -17,7 +17,6 @@
  */
 
 
-
 #include "Player.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -56,15 +55,15 @@ bool Condition::Meets(Player * player, Unit* invoker)
             condMeets = (mConditionValue2 && player->HasItemCount(mConditionValue1, mConditionValue2)) || (!mConditionValue2 && !player->HasItemCount(mConditionValue1, mConditionValue2));//HasItemCount returns false if 0 count is used
             break;
         case CONDITION_ITEM_EQUIPPED:
-            condMeets = player->HasItemOrGemWithIdEquipped(mConditionValue1,1);
+            condMeets = player->HasItemOrGemWithIdEquipped(mConditionValue1, 1);
             break;
         case CONDITION_ZONEID:
             condMeets = player->GetZoneId() == mConditionValue1;
             break;
         case CONDITION_REPUTATION_RANK:
         {
-            FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1);
-            condMeets = faction && uint32(player->GetReputationMgr().GetRank(faction)) >= mConditionValue2;
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
+                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) == mConditionValue2;
             break;
         }
         case CONDITION_ACHIEVEMENT:
@@ -86,24 +85,24 @@ bool Condition::Meets(Player * player, Unit* invoker)
             condMeets = player->HasSkill(mConditionValue1) && player->GetBaseSkillValue(mConditionValue1) >= mConditionValue2;
             break;
         case CONDITION_QUESTREWARDED:
-            condMeets = player->GetQuestRewardStatus(mConditionValue1);
+            condMeets = (player->GetQuestRewardStatus(mConditionValue1) == !mConditionValue2);
             break;
         case CONDITION_QUESTTAKEN:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_INCOMPLETE);
+            condMeets = ((status == QUEST_STATUS_INCOMPLETE) == !mConditionValue2);
             break;
         }
         case CONDITION_QUEST_COMPLETE:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(mConditionValue1));
+            condMeets = ((status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(mConditionValue1)) == !mConditionValue2);
             break;
         }
         case CONDITION_QUEST_NONE:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_NONE);
+            condMeets = ((status == QUEST_STATUS_NONE) == !mConditionValue2);
             break;
         }
         case CONDITION_NO_AURA:
@@ -159,7 +158,10 @@ bool Condition::Meets(Player * player, Unit* invoker)
             break;
         }
         case CONDITION_SPELL:
-            condMeets = player->HasSpell(mConditionValue1);
+            if (mConditionValue2 == 1)
+                condMeets = player->HasSpell(mConditionValue1);
+            else
+                condMeets = !player->HasSpell(mConditionValue1);
             break;
         case CONDITION_NOITEM:
             condMeets = !player->HasItemCount(mConditionValue1, 1, mConditionValue2 ? true : false);
@@ -250,12 +252,12 @@ ConditionList ConditionMgr::GetConditionReferences(uint32 refId)
     return conditions;
 }
 
-bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* invoker)
+bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, const ConditionList& conditions, Unit* invoker)
 {
     std::map<uint32, bool>ElseGroupMap;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
     {
-        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u",(*i)->mConditionType,(*i)->mConditionValue1);
+        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->mConditionType, (*i)->mConditionValue1);
         if ((*i)->isLoaded())
         {
             std::map<uint32, bool>::const_iterator itr = ElseGroupMap.find((*i)->mElseGroup);
@@ -375,8 +377,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         sObjectMgr->LoadGossipMenuItems();
     }
 
-
-    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference,"
+    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, "
                                              " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
@@ -650,7 +651,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Creature.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -667,7 +668,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Disenchant.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -684,7 +685,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Fishing.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -701,7 +702,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Gameobject.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -718,7 +719,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Item.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -735,7 +736,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Mail.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -752,7 +753,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Milling.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -769,7 +770,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Pickpocketing.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -786,7 +787,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Prospecting.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -803,7 +804,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Reference.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -820,7 +821,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Skinning.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -837,7 +838,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             LootTemplate* loot = LootTemplates_Spell.GetLootForConditionFill(cond->mSourceGroup);
-            ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(cond->mSourceEntry);
+            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto && !loot->isReference(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->mSourceType, cond->mSourceEntry);
@@ -887,14 +888,14 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 {
                     cond->mConditionValue3 &= ~(1 << i);
                     sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)"
-                                    ",TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
+                                    ", TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
                                     "TARGET_GAMEOBJECT_AREA_SRC(51), TARGET_GAMEOBJECT_AREA_DST(52) in effect %u", cond->mSourceEntry, uint32(i));
                 }
             }
             if (!targetfound && !cond->mConditionValue3) // cond->mConditionValue3 already errored up there
             {
                 sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)"
-                                ",TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
+                                ", TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
                                 "TARGET_GAMEOBJECT_AREA_SRC(51), TARGET_GAMEOBJECT_AREA_DST(52)", cond->mSourceEntry);
                 return false;
             }
@@ -907,7 +908,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
         }
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
         {
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mSourceEntry))
+            if (!sObjectMgr->GetCreatureTemplate(cond->mSourceEntry))
             {
                 sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->mSourceEntry);
                 return false;
@@ -932,7 +933,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
 
-            ItemPrototype const *pItemProto = ObjectMgr::GetItemPrototype(cond->mSourceEntry);
+            ItemTemplate const *pItemProto = sObjectMgr->GetItemTemplate(cond->mSourceEntry);
             if (!pItemProto)
             {
                 sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `item_tamplate`, ignoring.", cond->mSourceEntry);
@@ -999,7 +1000,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
             {
-                if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mSourceGroup))
+                if (!sObjectMgr->GetCreatureTemplate(cond->mSourceGroup))
                 {
                     sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->mSourceGroup);
                     return false;
@@ -1025,7 +1026,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
 {
     if (cond->mConditionType == CONDITION_NONE || cond->mConditionType >= CONDITION_MAX)
     {
-        sLog->outErrorDb("Invalid ConditionType %u at SourceEntry %u in `condition` table, ignoring.", uint32(cond->mConditionType),cond->mSourceEntry);
+        sLog->outErrorDb("Invalid ConditionType %u at SourceEntry %u in `condition` table, ignoring.", uint32(cond->mConditionType), cond->mSourceEntry);
         return false;
     }
 
@@ -1048,7 +1049,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM:
         {
-            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
             if (!proto)
             {
                 sLog->outErrorDb("Item condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1064,7 +1065,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM_EQUIPPED:
         {
-            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
             if (!proto)
             {
                 sLog->outErrorDb("ItemEquipped condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1144,7 +1145,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 return false;
             }
 
-            if (cond->mConditionValue2)
+            if (cond->mConditionValue2 > 1)
                 sLog->outErrorDb("Quest condition has useless data in value2 (%u)!", cond->mConditionValue2);
             break;
         }
@@ -1225,7 +1226,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             {
                 case SPELL_TARGET_TYPE_GAMEOBJECT:
                 {
-                    if (cond->mConditionValue2 && !sGOStorage.LookupEntry<GameObjectInfo>(cond->mConditionValue2))
+                    if (cond->mConditionValue2 && !sObjectMgr->GetGameObjectTemplate(cond->mConditionValue2))
                     {
                         sLog->outErrorDb("SpellTarget condition has non existing gameobject (%u) as target, skipped", cond->mConditionValue2);
                         return false;
@@ -1236,13 +1237,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 case SPELL_TARGET_TYPE_CREATURE:
                 case SPELL_TARGET_TYPE_DEAD:
                 {
-                    if (cond->mConditionValue2 && !sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue2))
+                    if (cond->mConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->mConditionValue2))
                     {
                         sLog->outErrorDb("SpellTarget condition has non existing creature template entry (%u) as target, skipped", cond->mConditionValue2);
                         return false;
                     }
 
-                    const CreatureInfo* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue2);
+                    const CreatureTemplate* cInfo = sObjectMgr->GetCreatureTemplate(cond->mConditionValue2);
                     if (cond->mSourceEntry == 30427 && !cInfo->SkinLootId)
                     {
                         sLog->outErrorDb("SpellTarget condition has creature entry %u as a target of spellid 30427, but this creature has no skinlootid. Gas extraction will not work!, skipped", cond->mConditionValue2);
@@ -1255,7 +1256,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_CREATURE_TARGET:
         {
-            if (!cond->mConditionValue1 && !sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue1))
+            if (!cond->mConditionValue1 && !sObjectMgr->GetCreatureTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("CreatureTarget condition has non existing creature template entry (%u) as target, skipped", cond->mConditionValue1);
                 return false;
@@ -1307,7 +1308,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 return false;
             }
 
-            if (!cond->mConditionValue2 && !sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue2))
+            if (!cond->mConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->mConditionValue2))
             {
                 sLog->outErrorDb("ItemTarget condition has non existing creature template entry (%u) as target, skipped", cond->mConditionValue2);
                 return false;
@@ -1331,7 +1332,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_NOITEM:
         {
-            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
             if (!proto)
             {
                 sLog->outErrorDb("NoItem condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1359,7 +1360,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
         case CONDITION_NEAR_CREATURE:
         {
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue1))
+            if (!sObjectMgr->GetCreatureTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("NearCreature condition has non existing creature template entry (%u), skipped", cond->mConditionValue1);
                 return false;
@@ -1368,7 +1369,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_NEAR_GAMEOBJECT:
         {
-            if (!sGOStorage.LookupEntry<GameObjectInfo>(cond->mConditionValue1))
+            if (!sObjectMgr->GetGameObjectTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("NearGameObject condition has non existing gameobject template entry (%u), skipped", cond->mConditionValue1);
                 return false;
@@ -1407,7 +1408,6 @@ void ConditionMgr::Clean()
     }
 
     m_ConditionMap.clear();
-
 
     for (VehicleSpellConditionMap::iterator itr = m_VehicleSpellConditions.begin(); itr != m_VehicleSpellConditions.end(); ++itr)
     {

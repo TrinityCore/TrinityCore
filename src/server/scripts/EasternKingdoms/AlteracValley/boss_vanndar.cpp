@@ -60,7 +60,7 @@ public:
             uiThunderclapTimer = 4*IN_MILLISECONDS;
             uiStormboltTimer = 6*IN_MILLISECONDS;
             uiResetTimer = 5*IN_MILLISECONDS;
-            uiYellTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+            uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         }
 
         void EnterCombat(Unit * /*who*/)
@@ -71,7 +71,7 @@ public:
         void JustRespawned()
         {
             Reset();
-            DoScriptText(RAND(YELL_RESPAWN1,YELL_RESPAWN2), me);
+            DoScriptText(RAND(YELL_RESPAWN1, YELL_RESPAWN2), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -82,25 +82,25 @@ public:
             if (uiAvatarTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_AVATAR);
-                uiAvatarTimer =  urand(15*IN_MILLISECONDS,20*IN_MILLISECONDS);
+                uiAvatarTimer =  urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             } else uiAvatarTimer -= diff;
 
             if (uiThunderclapTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                uiThunderclapTimer = urand(5*IN_MILLISECONDS,15*IN_MILLISECONDS);
+                uiThunderclapTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else uiThunderclapTimer -= diff;
 
             if (uiStormboltTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_STORMBOLT);
-                uiStormboltTimer = urand(10*IN_MILLISECONDS,25*IN_MILLISECONDS);
+                uiStormboltTimer = urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else uiStormboltTimer -= diff;
 
             if (uiYellTimer <= diff)
             {
-                DoScriptText(RAND(YELL_RANDOM1,YELL_RANDOM2,YELL_RANDOM3,YELL_RANDOM4,YELL_RANDOM5,YELL_RANDOM6,YELL_RANDOM7), me);
-                uiYellTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS); //20 to 30 seconds
+                DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5, YELL_RANDOM6, YELL_RANDOM7), me);
+                uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
             } else uiYellTimer -= diff;
 
             // check if creature is not outside of building

@@ -17,6 +17,7 @@
 #define GOSSIP_TEXT_BROWSE_GOODS        "Ich möchte Eure Waren sehen."
 #define GOSSIP_TEXT_TRAIN               "Trainiert mich bitte!"
 
+/*
 #define GOSSIP_TEXT_BANK                "Die Bank"
 #define GOSSIP_TEXT_IRONFORGE_BANK      "Die Bank von Eisenschmiede"
 #define GOSSIP_TEXT_STORMWIND_BANK      "Die Bank von Sturmwind"
@@ -75,10 +76,11 @@
 #define GOSSIP_TEXT_SKINNING            "Kürschnern"
 #define GOSSIP_TEXT_RIDING              "Reiten"
 #define GOSSIP_TEXT_ALL_PROFS           "Alle Berufe"
+*/
 
 enum eTradeskill
 {
-// Skill defines
+    // Skill defines
     TRADESKILL_ALCHEMY                  = 1,
     TRADESKILL_BLACKSMITHING            = 2,
     TRADESKILL_COOKING                  = 3,
@@ -103,7 +105,7 @@ enum eTradeskill
     TRADESKILL_LEVEL_MASTER             = 5,
     TRADESKILL_LEVEL_GRAND_MASTER       = 6,
 
-// Gossip defines
+    // Gossip defines
     GOSSIP_ACTION_TRADE                 = 1,
     GOSSIP_ACTION_TRAIN                 = 2,
     GOSSIP_ACTION_TAXI                  = 3,
@@ -130,8 +132,6 @@ enum eTradeskill
     GOSSIP_SENDER_SEC_STABLEMASTER      = 10
 };
 
-extern uint32 GetSkillLevel(Player *player,uint32 skill);
-
 // Defined fuctions to use with player.
 
 // This fuction add's a menu item,
@@ -141,50 +141,17 @@ extern uint32 GetSkillLevel(Player *player,uint32 skill);
 // d - Action (identifys this Menu Item)
 // e - Text to be displayed in pop up box
 // f - Money value in pop up box
-#define ADD_GOSSIP_ITEM(a,b,c,d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(a,b,c,d,"",0)
-#define ADD_GOSSIP_ITEM_EXTENDED(a,b,c,d,e,f,g)   PlayerTalkClass->GetGossipMenu().AddMenuItem(a,b,c,d,e,f,g)
+#define ADD_GOSSIP_ITEM(a, b, c, d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(a, b, c, d, "", 0)
+#define ADD_GOSSIP_ITEM_EXTENDED(a, b, c, d, e, f, g)   PlayerTalkClass->GetGossipMenu().AddMenuItem(a, b, c, d, e, f, g)
 
 // This fuction Sends the current menu to show to client, a - NPCTEXTID(uint32) , b - npc guid(uint64)
-#define SEND_GOSSIP_MENU(a,b)      PlayerTalkClass->SendGossipMenu(a,b)
-
-// This fuction shows POI(point of interest) to client.
-// a - position X
-// b - position Y
-// c - Icon Id
-// d - Flags
-// e - Data
-// f - Location Name
-#define SEND_POI(a,b,c,d,e,f)      PlayerTalkClass->SendPointOfInterest(a,b,c,d,e,f)
+#define SEND_GOSSIP_MENU(a, b)      PlayerTalkClass->SendGossipMenu(a, b)
 
 // Closes the Menu
 #define CLOSE_GOSSIP_MENU()        PlayerTalkClass->CloseGossip()
-
-// Fuction to tell to client the details
-// a - quest object
-// b - npc guid(uint64)
-// c - Activate accept(bool)
-#define SEND_QUEST_DETAILS(a,b,c)  PlayerTalkClass->SendQuestDetails(a,b,c)
-
-// Fuction to tell to client the requested items to complete quest
-// a - quest object
-// b - npc guid(uint64)
-// c - Iscompletable(bool)
-// d - close at cancel(bool) - in case single incomplite ques
-#define SEND_REQUESTEDITEMS(a,b,c,d) PlayerTalkClass->SendRequestedItems(a,b,c,d)
 
 // Fuctions to send NPC lists, a - is always the npc guid(uint64)
 #define SEND_VENDORLIST(a)         GetSession()->SendListInventory(a)
 #define SEND_TRAINERLIST(a)        GetSession()->SendTrainerList(a)
 
-// Ressurect's the player if is dead.
-#define SEND_SPRESURRECT()         GetSession()->SendSpiritResurrect()
-
-// Get the player's honor rank.
-#define GET_HONORRANK()            GetHonorRank()
-// -----------------------------------
-
-// defined fuctions to use with Creature
-
-#define QUEST_DIALOG_STATUS(a,b,c)   GetSession()->getDialogStatus(a,b,c)
 #endif
-

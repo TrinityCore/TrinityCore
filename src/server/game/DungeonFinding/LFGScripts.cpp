@@ -122,7 +122,6 @@ void LFGScripts::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLe
     if (plr)
         plr->GetSession()->SendLfgUpdateParty(updateData);
 
-
     plr = sObjectMgr->GetPlayer(oldLeaderGuid);
     if (plr)
     {

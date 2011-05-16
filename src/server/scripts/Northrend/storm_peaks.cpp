@@ -213,7 +213,7 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
 
-            if (GameObject* pGO = me->FindNearestGameObject(GO_RUSTY_CAGE,5.0f))
+            if (GameObject* pGO = me->FindNearestGameObject(GO_RUSTY_CAGE, 5.0f))
             {
                 if (pGO->GetGoState() == GO_STATE_ACTIVE)
                     pGO->SetGoState(GO_STATE_READY);
@@ -674,8 +674,8 @@ public:
     {
         npc_icefangAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void AttackStart(Unit* who) {}
-        void EnterCombat(Unit* who) {}
+        void AttackStart(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void EnterEvadeMode() {}
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
@@ -687,11 +687,11 @@ public:
             }
         }
 
-        void WaypointReached(uint32 wp)
+        void WaypointReached(uint32 /*wp*/)
         {
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
         }
 

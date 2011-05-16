@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -114,7 +115,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             if (msg.empty())
                 return;
 
-            sScriptMgr->OnPlayerChat(GetPlayer(), CHAT_MSG_ADDON, lang, msg);
+            sScriptMgr->OnPlayerChat(GetPlayer(), uint32(CHAT_MSG_ADDON), lang, msg);
         }
 
         // Disabled addon channel?
@@ -163,7 +164,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         if (!_player->CanSpeak())
         {
             std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-            SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
+            SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
             return;
         }
 
@@ -307,14 +308,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, type, lang, NULL, 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, NULL, 0, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false, group->GetMemberGroup(GetPlayer()->GetGUID()));
         } break;
         case CHAT_MSG_GUILD:
         {
             if (GetPlayer()->GetGuildId())
             {
-                if (Guild *guild = sObjectMgr->GetGuildById(GetPlayer()->GetGuildId()))
+                if (Guild *guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
                 {
                     sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, guild);
 
@@ -326,7 +327,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             if (GetPlayer()->GetGuildId())
             {
-                if (Guild *guild = sObjectMgr->GetGuildById(GetPlayer()->GetGuildId()))
+                if (Guild *guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
                 {
                     sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, guild);
 
@@ -519,7 +520,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
     if (!GetPlayer()->CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-        SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
+        SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
 

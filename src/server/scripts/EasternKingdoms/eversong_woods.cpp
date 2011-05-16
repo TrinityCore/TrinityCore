@@ -119,9 +119,6 @@ public:
 
 };
 
-
-
-
 /*######
 ## Quest 9686 Second Trial
 ######*/
@@ -423,16 +420,16 @@ public:
                         switch(paladinPhase)
                         {
                         case 0:
-                            DoScriptText(TEXT_SECOND_TRIAL_1,me);
+                            DoScriptText(TEXT_SECOND_TRIAL_1, me);
                             break;
                         case 1:
-                            DoScriptText(TEXT_SECOND_TRIAL_2,me);
+                            DoScriptText(TEXT_SECOND_TRIAL_2, me);
                             break;
                         case 2:
-                            DoScriptText(TEXT_SECOND_TRIAL_3,me);
+                            DoScriptText(TEXT_SECOND_TRIAL_3, me);
                             break;
                         case 3:
-                            DoScriptText(TEXT_SECOND_TRIAL_4,me);
+                            DoScriptText(TEXT_SECOND_TRIAL_4, me);
                             break;
                         }
                     }
@@ -495,11 +492,10 @@ void npc_second_trial_paladin::npc_secondTrialAI::JustDied(Unit* Killer)
         if (me->GetEntry() == CHAMPION_SUNSTRIKER)
         {
             if (Killer->GetTypeId() == TYPEID_PLAYER)
-                Killer->ToPlayer()->GroupEventHappens(QUEST_SECOND_TRIAL,Killer);
+                Killer->ToPlayer()->GroupEventHappens(QUEST_SECOND_TRIAL, Killer);
         }
     }
 }
-
 
 /*######
 ## go_second_trial
@@ -519,7 +515,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_apprentice_mirveda
@@ -604,7 +599,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_infused_crystal
@@ -696,7 +690,7 @@ public:
                     if (Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID))
                         CAST_PLR(pPlayer)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
 
-                me->DealDamage(me,me->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
             } else EndTimer -= diff;
 

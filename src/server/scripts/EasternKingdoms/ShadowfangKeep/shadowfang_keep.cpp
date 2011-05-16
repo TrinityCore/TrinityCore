@@ -141,9 +141,6 @@ public:
 
 };
 
-
-
-
 class npc_arugal_voidwalker : public CreatureScript
 {
 public:
@@ -167,7 +164,7 @@ public:
 
         void Reset()
         {
-            uiDarkOffering = urand(290,10);
+            uiDarkOffering = urand(290, 10);
         }
 
         void UpdateAI(uint32 const uiDiff)
@@ -177,14 +174,14 @@ public:
 
             if (uiDarkOffering <= uiDiff)
             {
-                if (Creature* pFriend = me->FindNearestCreature(me->GetEntry(),25.0f,true))
+                if (Creature* pFriend = me->FindNearestCreature(me->GetEntry(), 25.0f, true))
                 {
                     if (pFriend)
-                        DoCast(pFriend,SPELL_DARK_OFFERING);
+                        DoCast(pFriend, SPELL_DARK_OFFERING);
                 }
                 else
-                    DoCast(me,SPELL_DARK_OFFERING);
-                uiDarkOffering = urand(4400,12500);
+                    DoCast(me, SPELL_DARK_OFFERING);
+                uiDarkOffering = urand(4400, 12500);
             } else uiDarkOffering -= uiDiff;
 
             DoMeleeAttackIfReady();
@@ -198,7 +195,6 @@ public:
     };
 
 };
-
 
 void AddSC_shadowfang_keep()
 {

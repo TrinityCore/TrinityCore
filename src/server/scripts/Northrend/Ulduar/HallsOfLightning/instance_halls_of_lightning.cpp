@@ -45,7 +45,7 @@ public:
 
     struct instance_halls_of_lightning_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_lightning_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_halls_of_lightning_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -244,7 +244,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_halls_of_lightning()
 {

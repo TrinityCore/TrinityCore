@@ -40,7 +40,7 @@ public:
 
     struct instance_razorfen_kraul_InstanceMapScript : public InstanceScript
     {
-        instance_razorfen_kraul_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_razorfen_kraul_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 DoorWardGUID;
         uint32 WardCheck_Timer;
@@ -102,7 +102,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_razorfen_kraul()
 {

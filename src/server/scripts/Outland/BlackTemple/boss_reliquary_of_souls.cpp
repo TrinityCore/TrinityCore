@@ -88,7 +88,7 @@ EndScriptData */
 
 struct Position2d
 {
-    float x,y;
+    float x, y;
 };
 
 static Position2d Coords[]=
@@ -199,7 +199,7 @@ public:
             float y = Coords[random].y;
             Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (!Soul) return false;
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
                 CAST_AI(npc_enslaved_soul::npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = me->GetGUID();
                 Soul->AI()->AttackStart(pTarget);
@@ -274,7 +274,7 @@ public:
                     if (Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
                     {
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
-                        Summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_TOPAGGRO, 0));
+                        Summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO, 0));
                         EssenceGUID = Summon->GetGUID();
                         DoStartNoMovement(me);
                     } else EnterEvadeMode();
@@ -294,7 +294,7 @@ public:
                             MergeThreatList(Essence);
                             Essence->RemoveAllAuras();
                             Essence->DeleteThreatList();
-                            Essence->GetMotionMaster()->MoveFollow(me,0.0f,0.0f);
+                            Essence->GetMotionMaster()->MoveFollow(me, 0.0f, 0.0f);
                         } else return;
                     }
                     break;
@@ -302,7 +302,7 @@ public:
                     Timer = 1500;
                     if (Essence->IsWithinDistInMap(me, 10))
                     {
-                        Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE,374); //rotate and disappear
+                        Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, 374); //rotate and disappear
                         Timer = 2000;
                         me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                     }
@@ -325,7 +325,7 @@ public:
                         DoScriptText(DESI_SAY_AFTER, Essence);
                     }
                     Essence->DespawnOrUnsummon();
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                     EssenceGUID = 0;
                     SoulCount = 0;
                     SoulDeathCount = 0;
@@ -406,7 +406,7 @@ public:
             {
                 damage = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->Yell(SUFF_SAY_RECAP,LANG_UNIVERSAL,0);
+                me->Yell(SUFF_SAY_RECAP, LANG_UNIVERSAL, 0);
                 DoScriptText(SUFF_SAY_RECAP, me);
             }
         }
@@ -426,7 +426,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SUFF_SAY_SLAY1,SUFF_SAY_SLAY2,SUFF_SAY_SLAY3), me);
+            DoScriptText(RAND(SUFF_SAY_SLAY1, SUFF_SAY_SLAY2, SUFF_SAY_SLAY3), me);
         }
 
         void CastFixate()
@@ -450,7 +450,7 @@ public:
             if (pTarget)
                 pTarget->CastSpell(me, SPELL_FIXATE_TAUNT, true);
             DoResetThreat();
-            me->AddThreat(pTarget,1000000);
+            me->AddThreat(pTarget, 1000000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -482,7 +482,7 @@ public:
 
             if (SoulDrainTimer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SOUL_DRAIN);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SOUL_DRAIN);
                 SoulDrainTimer = 60000;
             } else SoulDrainTimer -= diff;
 
@@ -555,7 +555,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(DESI_SAY_SLAY1,DESI_SAY_SLAY2,DESI_SAY_SLAY3), me);
+            DoScriptText(RAND(DESI_SAY_SLAY1, DESI_SAY_SLAY2, DESI_SAY_SLAY3), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -634,7 +634,7 @@ public:
 
         void EnterCombat(Unit * /*who*/)
         {
-            DoScriptText(RAND(ANGER_SAY_FREED,ANGER_SAY_FREED2), me);
+            DoScriptText(RAND(ANGER_SAY_FREED, ANGER_SAY_FREED2), me);
 
             DoZoneInCombat();
             DoCast(me, AURA_OF_ANGER, true);
@@ -647,7 +647,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(ANGER_SAY_SLAY1,ANGER_SAY_SLAY2), me);
+            DoScriptText(RAND(ANGER_SAY_SLAY1, ANGER_SAY_SLAY2), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -695,13 +695,6 @@ public:
     };
 
 };
-
-
-
-
-
-
-
 
 void AddSC_boss_reliquary_of_souls()
 {

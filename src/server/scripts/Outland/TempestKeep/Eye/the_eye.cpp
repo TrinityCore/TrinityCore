@@ -73,10 +73,10 @@ class mob_crystalcore_devastator : public CreatureScript
                     DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
 
                     if (!pTarget || pTarget == me->getVictim())
-                        pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
+                        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (pTarget)
                         me->TauntApply(pTarget);

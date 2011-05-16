@@ -29,7 +29,7 @@ class LoginDatabaseConnection : public MySQLConnection
         LoginDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
 
         //- Loads database type specific prepared statements
-        bool Open();
+        void DoPrepareStatements();
 };
 
 typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
@@ -62,6 +62,8 @@ enum LoginDatabaseStatements
     LOGIN_SET_IP_NOT_BANNED,
     LOGIN_SET_ACCOUNT_BANNED,
     LOGIN_SET_ACCOUNT_NOT_BANNED,
+    LOGIN_DEL_REALMCHARACTERS,
+    LOGIN_ADD_REALMCHARACTERS,
 
     MAX_LOGINDATABASE_STATEMENTS,
 };

@@ -85,7 +85,7 @@ public:
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
             {
-                if (me->IsWithinDistInMap(who,20.0f))
+                if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     DoScriptText(SAY_BANISH, me);
                     me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -97,7 +97,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -105,7 +105,7 @@ public:
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
-                pInstance->SetData(TYPE_RIFT,SPECIAL);
+                pInstance->SetData(TYPE_RIFT, SPECIAL);
         }
 
         void UpdateAI(const uint32 diff)
@@ -124,7 +124,7 @@ public:
             //Arcane Discharge
             if (ArcaneDischarge_Timer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 DoCast(pTarget, SPELL_ARCANE_DISCHARGE);
                 ArcaneDischarge_Timer = 20000+rand()%10000;
             } else ArcaneDischarge_Timer -= diff;
@@ -151,7 +151,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_chrono_lord_deja()
 {

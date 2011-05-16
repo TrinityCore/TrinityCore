@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "LFGMgr.h"
+#include "GroupMgr.h"
 #include "LFGScripts.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
@@ -785,7 +786,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
         uint64 frontGuid = check.front();
         check.pop_front();
 
-        // Check all-but-new compatibilities (New,A,B,C,D) --> check(A,B,C,D)
+        // Check all-but-new compatibilities (New, A, B, C, D) --> check(A, B, C, D)
         if (!CheckCompatibility(check, pProposal))          // Group not compatible
         {
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) not compatibles (%s not compatibles)", strGuids.c_str(), ConcatenateGuids(check).c_str());
@@ -816,7 +817,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
         if (IS_GROUP(guid))
         {
             uint32 lowGuid = GUID_LOPART(guid);
-            if (Group* grp = sObjectMgr->GetGroupByGUID(lowGuid))
+            if (Group* grp = sGroupMgr->GetGroupByGUID(lowGuid))
                 if (grp->isLFGGroup())
                 {
                     if (!numLfgGroups)
@@ -1140,7 +1141,7 @@ LfgAnswer LFGMgr::GetCompatibles(std::string key)
 /**
    Given a list of dungeons remove the dungeons players have restrictions.
 
-   @param[in,out] dungeons Dungeons to check restrictions
+   @param[in, out] dungeons Dungeons to check restrictions
    @param[in]     players Set of players to check their dungeon restrictions
    @param[out]    lockMap Map of players Lock status info of given dungeons (Empty if dungeons is not empty)
 */
@@ -1325,7 +1326,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, const uint64& guid, bool accept)
 
         // Create a new group (if needed)
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND);
-        Group* grp = pProposal->groupLowGuid ? sObjectMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
+        Group* grp = pProposal->groupLowGuid ? sGroupMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
         {
             Player* plr = (*it);
@@ -1349,7 +1350,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, const uint64& guid, bool accept)
                 grp->ConvertToLFG();
                 uint64 gguid = grp->GetGUID();
                 SetState(gguid, LFG_STATE_PROPOSAL);
-                sObjectMgr->AddGroup(grp);
+                sGroupMgr->AddGroup(grp);
             }
             else if (group != grp)
                 grp->AddMember(plr);
@@ -1795,8 +1796,8 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
         return;
 
     // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
-    if (player->CanRewardQuest(qReward,false))
-        player->RewardQuest(qReward,0,NULL,false);
+    if (player->CanRewardQuest(qReward, false))
+        player->RewardQuest(qReward, 0, NULL, false);
     else
     {
         index = 1;
@@ -1804,11 +1805,11 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
         if (!qReward)
             return;
         // we give reward without informing client (retail does this)
-        player->RewardQuest(qReward,0,NULL,false);
+        player->RewardQuest(qReward, 0, NULL, false);
     }
 
     // Give rewards
-    sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] done dungeon %u,%s previously done.", player->GetGUID(), GetDungeon(gguid), index > 0 ? " " : " not");
+    sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] done dungeon %u, %s previously done.", player->GetGUID(), GetDungeon(gguid), index > 0 ? " " : " not");
     player->GetSession()->SendLfgPlayerReward(dungeon->Entry(), GetDungeon(gguid, false), index, reward, qReward);
 }
 
@@ -1884,7 +1885,6 @@ std::string LFGMgr::ConcatenateGuids(LfgGuidList check)
         o << "|" << (*it);
     return o.str();
 }
-
 
 LfgState LFGMgr::GetState(const uint64& guid)
 {

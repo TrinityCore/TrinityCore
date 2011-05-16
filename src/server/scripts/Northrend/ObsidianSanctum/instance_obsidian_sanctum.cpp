@@ -36,7 +36,7 @@ public:
 
     struct instance_obsidian_sanctum_InstanceMapScript : public InstanceScript
     {
-        instance_obsidian_sanctum_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_obsidian_sanctum_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint64 m_uiSartharionGUID;
@@ -139,7 +139,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_obsidian_sanctum()
 {

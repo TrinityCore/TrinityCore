@@ -75,7 +75,6 @@ public:
 
 };
 
-
 /*######
 ## npc_bartleby
 ######*/
@@ -147,8 +146,6 @@ public:
     };
 
 };
-
-
 
 /*######
 ## npc_dashel_stonefist
@@ -222,8 +219,6 @@ public:
 
 };
 
-
-
 /*######
 ## npc_lady_katrana_prestor
 ######*/
@@ -277,7 +272,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_lord_gregor_lescovar
@@ -362,9 +356,9 @@ public:
                     break;
                 case 16:
                     SetEscortPaused(true);
-                    if (Creature *pMarzon = me->SummonCreature(NPC_MARZON_BLADE,-8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+                    if (Creature *pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
                     {
-                        pMarzon->GetMotionMaster()->MovePoint(0,-8408.000977f, 468.611450f, 123.759903f);
+                        pMarzon->GetMotionMaster()->MovePoint(0, -8408.000977f, 468.611450f, 123.759903f);
                         MarzonGUID = pMarzon->GetGUID();
                     }
                     uiTimer = 2000;
@@ -376,7 +370,7 @@ public:
         void DoGuardsDisappearAndDie()
         {
             std::list<Creature*> GuardList;
-            me->GetCreatureListWithEntryInGrid(GuardList,NPC_STORMWIND_ROYAL,8.0f);
+            me->GetCreatureListWithEntryInGrid(GuardList, NPC_STORMWIND_ROYAL, 8.0f);
             if (!GuardList.empty())
             {
                 for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
@@ -451,7 +445,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_marzon_silent_blade
@@ -534,7 +527,6 @@ public:
 
 };
 
-
 /*######
 ## npc_tyrion_spybot
 ######*/
@@ -615,7 +607,7 @@ public:
                             uiPhase = 2;
                             break;
                         case 2:
-                            if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION,10.0f))
+                            if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 10.0f))
                                 DoScriptText(SAY_TYRION_1, pTyrion);
                             uiTimer = 3000;
                             uiPhase = 3;
@@ -647,7 +639,7 @@ public:
                             uiPhase = 0;
                             break;
                         case 8:
-                            if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR,10.0f))
+                            if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR, 10.0f))
                                 DoScriptText(SAY_LESCOVAR_1, pLescovar);
                             uiTimer = 3000;
                             uiPhase = 9;
@@ -658,11 +650,11 @@ public:
                             uiPhase = 10;
                             break;
                         case 10:
-                            if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR,10.0f))
+                            if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR, 10.0f))
                             {
                                 if (Player* pPlayer = GetPlayerForEscort())
                                 {
-                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI,pLescovar->AI())->Start(false, false, pPlayer->GetGUID());
+                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, pPlayer->GetGUID());
                                     CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
                                 }
                             }
@@ -684,7 +676,6 @@ public:
 
 };
 
-
 /*######
 ## npc_tyrion
 ######*/
@@ -705,8 +696,8 @@ public:
         {
             if (Creature* pSpybot = pCreature->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
             {
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI,pSpybot->AI())->Start(false, false, pPlayer->GetGUID());
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI,pSpybot->AI())->SetMaxPlayerDistance(200.0f);
+                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, pPlayer->GetGUID());
+                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->SetMaxPlayerDistance(200.0f);
             }
             return true;
         }

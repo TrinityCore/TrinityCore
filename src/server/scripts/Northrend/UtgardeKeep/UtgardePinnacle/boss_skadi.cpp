@@ -258,7 +258,7 @@ public:
                 case CREATURE_YMIRJAR_HARPOONER:
                     pSummoned->setActive(true);
                     pSummoned->SetInCombatWithZone();
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         pSummoned->AI()->AttackStart(pTarget);
                     break;
                 case CREATURE_TRIGGER:
@@ -316,7 +316,6 @@ public:
             }
         }
 
-
         void UpdateAI(const uint32 diff)
         {
             switch(Phase)
@@ -371,7 +370,7 @@ public:
                                 break;
                             case 3:
                                 me->GetMotionMaster()->MovePoint(0, Location[69].GetPositionX(), Location[69].GetPositionY(), Location[69].GetPositionZ());
-                                DoScriptText(RAND(SAY_DRAKE_BREATH_1,SAY_DRAKE_BREATH_2), me);
+                                DoScriptText(RAND(SAY_DRAKE_BREATH_1, SAY_DRAKE_BREATH_2), me);
                                 DoScriptText(EMOTE_BREATH, me);
                                 m_uiMovementTimer = 2500;
                                 break;
@@ -432,14 +431,14 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }
 
         void SpawnMobs()
         {
-            for (uint8 i = 0; i < DUNGEON_MODE(5,6); ++i)
+            for (uint8 i = 0; i < DUNGEON_MODE(5, 6); ++i)
             {
-                switch (urand(0,2))
+                switch (urand(0, 2))
                 {
                     case 0: me->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
                     case 1: me->SummonCreature(CREATURE_YMIRJAR_WITCH_DOCTOR, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
@@ -451,7 +450,7 @@ public:
         void SpawnTrigger()
         {
             uint8 iStart = 0, iEnd = 0;
-            switch (urand(0,1))
+            switch (urand(0, 1))
             {
                 case 0:
                     iStart = 8;
@@ -488,15 +487,14 @@ public:
         InstanceScript* m_pInstance = pGO->GetInstanceScript();
         if (!m_pInstance) return false;
 
-        if (Creature* pSkadi = Unit::GetCreature((*pGO),m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* pSkadi = Unit::GetCreature((*pGO), m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
         {
-            pPlayer->CastSpell(pSkadi,SPELL_RAPID_FIRE, true);
+            pPlayer->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
         }
         return false;
     }
 
 };
-
 
 void AddSC_boss_skadi()
 {

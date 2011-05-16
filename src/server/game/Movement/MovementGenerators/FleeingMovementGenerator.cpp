@@ -159,30 +159,30 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         temp_y = y + distance * sin(angle);
         Trinity::NormalizeMapCoord(temp_x);
         Trinity::NormalizeMapCoord(temp_y);
-        if (owner.IsWithinLOS(temp_x,temp_y,z))
+        if (owner.IsWithinLOS(temp_x, temp_y, z))
         {
-            bool is_water_now = _map->IsInWater(x,y,z);
+            bool is_water_now = _map->IsInWater(x, y, z);
 
-            if (is_water_now && _map->IsInWater(temp_x,temp_y,z))
+            if (is_water_now && _map->IsInWater(temp_x, temp_y, z))
             {
                 x = temp_x;
                 y = temp_y;
                 return true;
             }
-            float new_z = _map->GetHeight(temp_x,temp_y,z,true);
+            float new_z = _map->GetHeight(temp_x, temp_y, z, true);
 
             if (new_z <= INVALID_HEIGHT)
                 continue;
 
-            bool is_water_next = _map->IsInWater(temp_x,temp_y,new_z);
+            bool is_water_next = _map->IsInWater(temp_x, temp_y, new_z);
 
             if ((is_water_now && !is_water_next && !is_land_ok) || (!is_water_now && is_water_next && !is_water_ok))
                 continue;
 
             if (!(new_z - z) || distance / fabs(new_z - z) > 1.0f)
             {
-                float new_z_left = _map->GetHeight(temp_x + (float)(cos(angle+M_PI/2)),temp_y + (float)(sin(angle+M_PI/2)),z,true);
-                float new_z_right = _map->GetHeight(temp_x + (float)(cos(angle-M_PI/2)),temp_y + (float)(sin(angle-M_PI/2)),z,true);
+                float new_z_left = _map->GetHeight(temp_x + (float)(cos(angle+M_PI/2)), temp_y + (float)(sin(angle+M_PI/2)), z, true);
+                float new_z_right = _map->GetHeight(temp_x + (float)(cos(angle-M_PI/2)), temp_y + (float)(sin(angle-M_PI/2)), z, true);
                 if (fabs(new_z_left - new_z) < 1.2f && fabs(new_z_right - new_z) < 1.2f)
                 {
                     x = temp_x;
@@ -194,7 +194,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         }
     }
     i_to_distance_from_caster = 0.0f;
-    i_nextCheckTime.Reset(urand(500,1000));
+    i_nextCheckTime.Reset(urand(500, 1000));
     return false;
 }
 
@@ -218,7 +218,7 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
         {
             // we are very far or too close, stopping
             i_to_distance_from_caster = 0.0f;
-            i_nextCheckTime.Reset(urand(500,1000));
+            i_nextCheckTime.Reset(urand(500, 1000));
             return false;
         }
         else

@@ -27,7 +27,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
     PrepareSpellScript(spell_generic_quest_update_entry_SpellScript)
 private:
-    uint32 _spellEffect;
+    uint16 _spellEffect;
     uint8 _effIndex;
     uint32 _originalEntry;
     uint32 _newEntry;
@@ -35,21 +35,21 @@ private:
     uint32 _despawnTime;
 
 public:
-    spell_generic_quest_update_entry_SpellScript(uint32 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
+    spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
         SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry),
         _newEntry(newEntry), _shouldAttack(shouldAttack), _despawnTime(despawnTime) { }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* pCreatureTarget = GetHitCreature())
-            if (!pCreatureTarget->isPet() && pCreatureTarget->GetEntry() == _originalEntry)
+        if (Creature* creatureTarget = GetHitCreature())
+            if (!creatureTarget->isPet() && creatureTarget->GetEntry() == _originalEntry)
             {
-                pCreatureTarget->UpdateEntry(_newEntry);
-                if (_shouldAttack && pCreatureTarget->IsAIEnabled)
-                    pCreatureTarget->AI()->AttackStart(GetCaster());
+                creatureTarget->UpdateEntry(_newEntry);
+                if (_shouldAttack && creatureTarget->IsAIEnabled)
+                    creatureTarget->AI()->AttackStart(GetCaster());
 
                 if (_despawnTime)
-                    pCreatureTarget->DespawnOrUnsummon(_despawnTime);
+                    creatureTarget->DespawnOrUnsummon(_despawnTime);
             }
     }
 
@@ -729,6 +729,95 @@ public:
     }
 };
 
+enum eWhoarethey
+{
+    SPELL_QUESTGIVER = 48917,
+
+    SPELL_MALE_DISGUISE = 38080,
+    SPELL_FEMALE_DISGUISE = 38081,
+    SPELL_GENERIC_DISGUISE = 32756
+};
+
+class spell_q10041_q10040_who_are_they : public SpellScriptLoader
+{
+    public:
+        spell_q10041_q10040_who_are_they() : SpellScriptLoader("spell_q10041_q10040_who_are_they") { }
+
+        class spell_q10041_q10040_who_are_they_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q10041_q10040_who_are_they_SpellScript);
+
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_QUESTGIVER))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (!GetHitUnit() || !GetHitUnit()->ToPlayer())
+                    return;
+
+                GetHitUnit()->CastSpell(GetHitUnit(), GetHitUnit()->getGender() == GENDER_MALE ? SPELL_MALE_DISGUISE : SPELL_FEMALE_DISGUISE, true);
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GENERIC_DISGUISE, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_q10041_q10040_who_are_they_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q10041_q10040_who_are_they_SpellScript();
+        }
+};
+
+enum symboloflife
+{
+    SPELL_PERMANENT_FEIGN_DEATH = 29266,
+};
+
+// 8593 Symbol of life dummy
+class spell_symbol_of_life_dummy : public SpellScriptLoader
+{
+public:
+    spell_symbol_of_life_dummy() : SpellScriptLoader("spell_symbol_of_life_dummy") { }
+
+    class spell_symbol_of_life_dummy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_symbol_of_life_dummy_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* target = GetTargetUnit()->ToCreature())
+            {
+                if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+                {
+                    target->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
+                    target->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+                    target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
+                    target->SetHealth(target->GetMaxHealth() / 2);
+                    target->SetPower(POWER_MANA, uint32(target->GetMaxPower(POWER_MANA) * 0.75f));
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_symbol_of_life_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_symbol_of_life_dummy_SpellScript();
+    };
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -746,4 +835,6 @@ void AddSC_quest_spell_scripts()
     new spell_q12683_take_sputum_sample();
     new spell_q12851_going_bearback();
     new spell_q12937_relief_for_the_fallen();
+    new spell_q10041_q10040_who_are_they();
+    new spell_symbol_of_life_dummy();
 }

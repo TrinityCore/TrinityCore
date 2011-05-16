@@ -5,8 +5,7 @@
    the Free Software Foundation.
 
    There are special exceptions to the terms and conditions of the GPL as it
-   is applied to this software. View the full text of the exception in file
-   EXCEPTIONS-CLIENT in the directory of this software distribution.
+   is applied to this software.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -34,7 +33,7 @@
 #ifdef	 HAVE_PWD_H
 #include <pwd.h>
 #endif
-#if !defined(MSDOS) && !defined(__WIN__)
+#if !defined(__WIN__)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -45,14 +44,14 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-#endif /* !defined(MSDOS) && !defined(__WIN__) */
+#endif /* !defined(__WIN__) */
 #ifdef HAVE_POLL
 #include <sys/poll.h>
 #endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
-#if defined(THREAD) && !defined(__WIN__)
+#if !defined(__WIN__)
 #include <my_pthread.h>				/* because of signal()	*/
 #endif
 #ifndef INADDR_NONE
@@ -74,7 +73,7 @@ ulong		max_allowed_packet= 1024L*1024L*1024L;
 my_bool	net_flush(NET *net);
 #endif
 
-#if defined(MSDOS) || defined(__WIN__)
+#if defined(__WIN__)
 /* socket_errno is defined in my_global.h for all platforms */
 #define perror(A)
 #else
@@ -126,33 +125,33 @@ int STDCALL mysql_server_init(int argc __attribute__((unused)),
     if (my_init())				/* Will init threads */
       return 1;
     init_client_errs();
+    if (mysql_client_plugin_init())
+      return 1;
     if (!mysql_port)
     {
-      mysql_port = MYSQL_PORT;
-#ifndef MSDOS
-      {
-	struct servent *serv_ptr;
-	char	*env;
+      char *env;
+      struct servent *serv_ptr __attribute__((unused));
 
-        /*
-          if builder specifically requested a default port, use that
-          (even if it coincides with our factory default).
-          only if they didn't do we check /etc/services (and, failing
-          on that, fall back to the factory default of 3306).
-          either default can be overridden by the environment variable
-          MYSQL_TCP_PORT, which in turn can be overridden with command
-          line options.
-        */
+      mysql_port = MYSQL_PORT;
+
+      /*
+        if builder specifically requested a default port, use that
+        (even if it coincides with our factory default).
+        only if they didn't do we check /etc/services (and, failing
+        on that, fall back to the factory default of 3306).
+        either default can be overridden by the environment variable
+        MYSQL_TCP_PORT, which in turn can be overridden with command
+        line options.
+      */
 
 #if MYSQL_PORT_DEFAULT == 0
-        if ((serv_ptr = getservbyname("mysql", "tcp")))
-          mysql_port = (uint) ntohs((ushort) serv_ptr->s_port);
+      if ((serv_ptr= getservbyname("mysql", "tcp")))
+        mysql_port= (uint) ntohs((ushort) serv_ptr->s_port);
 #endif
-        if ((env = getenv("MYSQL_TCP_PORT")))
-          mysql_port =(uint) atoi(env);
-      }
-#endif
+      if ((env= getenv("MYSQL_TCP_PORT")))
+        mysql_port=(uint) atoi(env);
     }
+
     if (!mysql_unix_port)
     {
       char *env;
@@ -165,7 +164,7 @@ int STDCALL mysql_server_init(int argc __attribute__((unused)),
 	mysql_unix_port = env;
     }
     mysql_debug(NullS);
-#if defined(SIGPIPE) && !defined(__WIN__) && !defined(__NETWARE__)
+#if defined(SIGPIPE) && !defined(__WIN__)
     (void) signal(SIGPIPE, SIG_IGN);
 #endif
 #ifdef EMBEDDED_LIBRARY
@@ -173,10 +172,8 @@ int STDCALL mysql_server_init(int argc __attribute__((unused)),
        result= init_embedded_server(argc, argv, groups);
 #endif
   }
-#ifdef THREAD
   else
     result= (int)my_thread_init();         /* Init if new thread */
-#endif
   return result;
 }
 
@@ -198,6 +195,8 @@ void STDCALL mysql_server_end()
   if (!mysql_client_init)
     return;
 
+  mysql_client_plugin_deinit();
+
 #ifdef EMBEDDED_LIBRARY
   end_embedded_server();
 #endif
@@ -216,13 +215,6 @@ void STDCALL mysql_server_end()
   }
 
   mysql_client_init= org_my_init_done= 0;
-#ifdef EMBEDDED_SERVER
-  if (stderror_file)
-  {
-    fclose(stderror_file);
-    stderror_file= 0;
-  }
-#endif
 }
 
 static MYSQL_PARAMETERS mysql_internal_parameters=
@@ -235,29 +227,13 @@ MYSQL_PARAMETERS *STDCALL mysql_get_parameters(void)
 
 my_bool STDCALL mysql_thread_init()
 {
-#ifdef THREAD
   return my_thread_init();
-#else
-  return 0;
-#endif
 }
 
 void STDCALL mysql_thread_end()
 {
-#ifdef THREAD
   my_thread_end();
-#endif
 }
-
-/*
-  Let the user specify that we don't want SIGPIPE;  This doesn't however work
-  with threaded applications as we can have multiple read in progress.
-*/
-static MYSQL* spawn_init(MYSQL* parent, const char* host,
-			 unsigned int port,
-			 const char* user,
-			 const char* passwd);
-
 
 
 /*
@@ -320,7 +296,7 @@ mysql_debug(const char *debug __attribute__((unused)))
 
 
 /**************************************************************************
-  Close the server connection if we get a SIGPIPE
+  Ignore SIGPIPE handler
    ARGSUSED
 **************************************************************************/
 
@@ -331,305 +307,6 @@ my_pipe_sig_handler(int sig __attribute__((unused)))
 #ifdef SIGNAL_HANDLER_RESET_ON_DELIVERY
   (void) signal(SIGPIPE, my_pipe_sig_handler);
 #endif
-}
-
-/* perform query on master */
-my_bool STDCALL mysql_master_query(MYSQL *mysql, const char *q,
-				   unsigned long length)
-{
-  DBUG_ENTER("mysql_master_query");
-  if (mysql_master_send_query(mysql, q, length))
-    DBUG_RETURN(1);
-  DBUG_RETURN((*mysql->methods->read_query_result)(mysql));
-}
-
-my_bool STDCALL mysql_master_send_query(MYSQL *mysql, const char *q,
-					unsigned long length)
-{
-  MYSQL *master = mysql->master;
-  DBUG_ENTER("mysql_master_send_query");
-  if (!master->net.vio && !mysql_real_connect(master,0,0,0,0,0,0,0))
-    DBUG_RETURN(1);
-  master->reconnect= 1;
-  mysql->last_used_con = master;
-  DBUG_RETURN(simple_command(master, COM_QUERY, (const uchar*) q, length, 1));
-}
-
-
-/* perform query on slave */
-my_bool STDCALL mysql_slave_query(MYSQL *mysql, const char *q,
-				  unsigned long length)
-{
-  DBUG_ENTER("mysql_slave_query");
-  if (mysql_slave_send_query(mysql, q, length))
-    DBUG_RETURN(1);
-  DBUG_RETURN((*mysql->methods->read_query_result)(mysql));
-}
-
-
-my_bool STDCALL mysql_slave_send_query(MYSQL *mysql, const char *q,
-				   unsigned long length)
-{
-  MYSQL* last_used_slave, *slave_to_use = 0;
-  DBUG_ENTER("mysql_slave_send_query");
-
-  if ((last_used_slave = mysql->last_used_slave))
-    slave_to_use = last_used_slave->next_slave;
-  else
-    slave_to_use = mysql->next_slave;
-  /*
-    Next_slave is always safe to use - we have a circular list of slaves
-    if there are no slaves, mysql->next_slave == mysql
-  */
-  mysql->last_used_con = mysql->last_used_slave = slave_to_use;
-  if (!slave_to_use->net.vio && !mysql_real_connect(slave_to_use, 0,0,0,
-						    0,0,0,0))
-    DBUG_RETURN(1);
-  slave_to_use->reconnect= 1;
-  DBUG_RETURN(simple_command(slave_to_use, COM_QUERY, (const uchar*) q,
-                             length, 1));
-}
-
-
-/* enable/disable parsing of all queries to decide
-   if they go on master or slave */
-void STDCALL mysql_enable_rpl_parse(MYSQL* mysql)
-{
-  mysql->options.rpl_parse = 1;
-}
-
-void STDCALL mysql_disable_rpl_parse(MYSQL* mysql)
-{
-  mysql->options.rpl_parse = 0;
-}
-
-/* get the value of the parse flag */
-int STDCALL mysql_rpl_parse_enabled(MYSQL* mysql)
-{
-  return mysql->options.rpl_parse;
-}
-
-/*  enable/disable reads from master */
-void STDCALL mysql_enable_reads_from_master(MYSQL* mysql)
-{
-  mysql->options.no_master_reads = 0;
-}
-
-void STDCALL mysql_disable_reads_from_master(MYSQL* mysql)
-{
-  mysql->options.no_master_reads = 1;
-}
-
-/* get the value of the master read flag */
-my_bool STDCALL mysql_reads_from_master_enabled(MYSQL* mysql)
-{
-  return !(mysql->options.no_master_reads);
-}
-
-
-/*
-  We may get an error while doing replication internals.
-  In this case, we add a special explanation to the original
-  error
-*/
-
-static void expand_error(MYSQL* mysql, int error)
-{
-  char tmp[MYSQL_ERRMSG_SIZE];
-  char *p;
-  uint err_length;
-  strmake(tmp, mysql->net.last_error, MYSQL_ERRMSG_SIZE-1);
-  p = strmake(mysql->net.last_error, ER(error), MYSQL_ERRMSG_SIZE-1);
-  err_length= (uint) (p - mysql->net.last_error);
-  strmake(p, tmp, MYSQL_ERRMSG_SIZE-1 - err_length);
-  mysql->net.last_errno = error;
-}
-
-/*
-  This function assumes we have just called SHOW SLAVE STATUS and have
-  read the given result and row
-*/
-
-static my_bool get_master(MYSQL* mysql, MYSQL_RES* res, MYSQL_ROW row)
-{
-  MYSQL* master;
-  DBUG_ENTER("get_master");
-  if (mysql_num_fields(res) < 3)
-    DBUG_RETURN(1); /* safety */
-
-  /* use the same username and password as the original connection */
-  if (!(master = spawn_init(mysql, row[0], atoi(row[2]), 0, 0)))
-    DBUG_RETURN(1);
-  mysql->master = master;
-  DBUG_RETURN(0);
-}
-
-
-/*
-  Assuming we already know that mysql points to a master connection,
-  retrieve all the slaves
-*/
-
-static my_bool get_slaves_from_master(MYSQL* mysql)
-{
-  MYSQL_RES* res = 0;
-  MYSQL_ROW row;
-  my_bool error = 1;
-  int has_auth_info;
-  int port_ind;
-  DBUG_ENTER("get_slaves_from_master");
-
-  if (!mysql->net.vio && !mysql_real_connect(mysql,0,0,0,0,0,0,0))
-  {
-    expand_error(mysql, CR_PROBE_MASTER_CONNECT);
-    DBUG_RETURN(1);
-  }
-  mysql->reconnect= 1;
-
-  if (mysql_query(mysql, "SHOW SLAVE HOSTS") ||
-      !(res = mysql_store_result(mysql)))
-  {
-    expand_error(mysql, CR_PROBE_SLAVE_HOSTS);
-    DBUG_RETURN(1);
-  }
-
-  switch (mysql_num_fields(res)) {
-  case 5:
-    has_auth_info = 0;
-    port_ind=2;
-    break;
-  case 7:
-    has_auth_info = 1;
-    port_ind=4;
-    break;
-  default:
-    goto err;
-  }
-
-  while ((row = mysql_fetch_row(res)))
-  {
-    MYSQL* slave;
-    const char* tmp_user, *tmp_pass;
-
-    if (has_auth_info)
-    {
-      tmp_user = row[2];
-      tmp_pass = row[3];
-    }
-    else
-    {
-      tmp_user = mysql->user;
-      tmp_pass = mysql->passwd;
-    }
-
-    if (!(slave = spawn_init(mysql, row[1], atoi(row[port_ind]),
-			     tmp_user, tmp_pass)))
-      goto err;
-
-    /* Now add slave into the circular linked list */
-    slave->next_slave = mysql->next_slave;
-    mysql->next_slave = slave;
-  }
-  error = 0;
-err:
-  if (res)
-    mysql_free_result(res);
-  DBUG_RETURN(error);
-}
-
-
-my_bool STDCALL mysql_rpl_probe(MYSQL* mysql)
-{
-  MYSQL_RES *res= 0;
-  MYSQL_ROW row;
-  my_bool error= 1;
-  DBUG_ENTER("mysql_rpl_probe");
-
-  /*
-    First determine the replication role of the server we connected to
-    the most reliable way to do this is to run SHOW SLAVE STATUS and see
-    if we have a non-empty master host. This is still not fool-proof -
-    it is not a sin to have a master that has a dormant slave thread with
-    a non-empty master host. However, it is more reliable to check
-    for empty master than whether the slave thread is actually running
-  */
-  if (mysql_query(mysql, "SHOW SLAVE STATUS") ||
-      !(res = mysql_store_result(mysql)))
-  {
-    expand_error(mysql, CR_PROBE_SLAVE_STATUS);
-    DBUG_RETURN(1);
-  }
-
-  row= mysql_fetch_row(res);
-  /*
-    Check master host for emptiness/NULL
-    For MySQL 4.0 it's enough to check for row[0]
-  */
-  if (row && row[0] && *(row[0]))
-  {
-    /* this is a slave, ask it for the master */
-    if (get_master(mysql, res, row) || get_slaves_from_master(mysql))
-      goto err;
-  }
-  else
-  {
-    mysql->master = mysql;
-    if (get_slaves_from_master(mysql))
-      goto err;
-  }
-
-  error = 0;
-err:
-  if (res)
-    mysql_free_result(res);
-  DBUG_RETURN(error);
-}
-
-
-/*
-  Make a not so fool-proof decision on where the query should go, to
-  the master or the slave. Ideally the user should always make this
-  decision himself with mysql_master_query() or mysql_slave_query().
-  However, to be able to more easily port the old code, we support the
-  option of an educated guess - this should work for most applications,
-  however, it may make the wrong decision in some particular cases. If
-  that happens, the user would have to change the code to call
-  mysql_master_query() or mysql_slave_query() explicitly in the place
-  where we have made the wrong decision
-*/
-
-enum mysql_rpl_type
-STDCALL mysql_rpl_query_type(const char* q, int len)
-{
-  const char *q_end= q + len;
-  for (; q < q_end; ++q)
-  {
-    char c;
-    if (my_isalpha(&my_charset_latin1, (c= *q)))
-    {
-      switch (my_tolower(&my_charset_latin1,c)) {
-      case 'i':  /* insert */
-      case 'u':  /* update or unlock tables */
-      case 'l':  /* lock tables or load data infile */
-      case 'd':  /* drop or delete */
-      case 'a':  /* alter */
-	return MYSQL_RPL_MASTER;
-      case 'c':  /* create or check */
-	return my_tolower(&my_charset_latin1,q[1]) == 'h' ? MYSQL_RPL_ADMIN :
-	  MYSQL_RPL_MASTER;
-      case 's': /* select or show */
-	return my_tolower(&my_charset_latin1,q[1]) == 'h' ? MYSQL_RPL_ADMIN :
-	  MYSQL_RPL_SLAVE;
-      case 'f': /* flush */
-      case 'r': /* repair */
-      case 'g': /* grant */
-	return MYSQL_RPL_ADMIN;
-      default:
-	return MYSQL_RPL_SLAVE;
-      }
-    }
-  }
-  return MYSQL_RPL_MASTER;		/* By default, send to master */
 }
 
 
@@ -650,7 +327,7 @@ mysql_connect(MYSQL *mysql,const char *host,
     if (!(res=mysql_real_connect(mysql,host,user,passwd,NullS,0,NullS,0)))
     {
       if (mysql->free_me)
-	my_free((uchar*) mysql,MYF(0));
+	my_free(mysql);
     }
     mysql->reconnect= 1;
     DBUG_RETURN(res);
@@ -663,44 +340,14 @@ mysql_connect(MYSQL *mysql,const char *host,
   Change user and database
 **************************************************************************/
 
-int cli_read_change_user_result(MYSQL *mysql, char *buff, const char *passwd)
-{
-  NET *net= &mysql->net;
-  ulong pkt_length;
-
-  pkt_length= cli_safe_read(mysql);
-  
-  if (pkt_length == packet_error)
-    return 1;
-
-  if (pkt_length == 1 && net->read_pos[0] == 254 &&
-      mysql->server_capabilities & CLIENT_SECURE_CONNECTION)
-  {
-    /*
-      By sending this very specific reply server asks us to send scrambled
-      password in old format. The reply contains scramble_323.
-    */
-    scramble_323(buff, mysql->scramble, passwd);
-    if (my_net_write(net, (uchar*) buff, SCRAMBLE_LENGTH_323 + 1) ||
-        net_flush(net))
-    {
-      set_mysql_error(mysql, CR_SERVER_LOST, unknown_sqlstate);
-      return 1;
-    }
-    /* Read what server thinks about out new auth message report */
-    if (cli_safe_read(mysql) == packet_error)
-      return 1;
-  }
-  return 0;
-}
-
 my_bool	STDCALL mysql_change_user(MYSQL *mysql, const char *user,
 				  const char *passwd, const char *db)
 {
-  char buff[USERNAME_LENGTH+SCRAMBLED_PASSWORD_CHAR_LENGTH+NAME_LEN+2];
-  char *end= buff;
   int rc;
   CHARSET_INFO *saved_cs= mysql->charset;
+  char *saved_user= mysql->user;
+  char *saved_passwd= mysql->passwd;
+  char *saved_db= mysql->db;
 
   DBUG_ENTER("mysql_change_user");
 
@@ -714,49 +361,11 @@ my_bool	STDCALL mysql_change_user(MYSQL *mysql, const char *user,
 
   /* Use an empty string instead of NULL. */
 
-  if (!user)
-    user="";
-  if (!passwd)
-    passwd="";
+  mysql->user= (char*)(user ? user : "");
+  mysql->passwd= (char*)(passwd ? passwd : "");
+  mysql->db= 0;
 
-  /*
-    Store user into the buffer.
-    Advance position as strmake returns a pointer to the closing NUL.
-  */
-  end= strmake(end, user, USERNAME_LENGTH) + 1;
-
-  /* write scrambled password according to server capabilities */
-  if (passwd[0])
-  {
-    if (mysql->server_capabilities & CLIENT_SECURE_CONNECTION)
-    {
-      *end++= SCRAMBLE_LENGTH;
-      scramble(end, mysql->scramble, passwd);
-      end+= SCRAMBLE_LENGTH;
-    }
-    else
-    {
-      scramble_323(end, mysql->scramble, passwd);
-      end+= SCRAMBLE_LENGTH_323 + 1;
-    }
-  }
-  else
-    *end++= '\0';                               /* empty password */
-  /* Add database if needed */
-  end= strmake(end, db ? db : "", NAME_LEN) + 1;
-
-  /* Add character set number. */
-
-  if (mysql->server_capabilities & CLIENT_SECURE_CONNECTION)
-  {
-    int2store(end, (ushort) mysql->charset->number);
-    end+= 2;
-  }
-
-  /* Write authentication package */
-  simple_command(mysql,COM_CHANGE_USER, (uchar*) buff, (ulong) (end-buff), 1);
-
-  rc= (*mysql->methods->read_change_user_result)(mysql, buff, passwd);
+  rc= run_plugin_auth(mysql, 0, 0, 0, db);
 
   /*
     The server will close all statements no matter was the attempt
@@ -766,18 +375,21 @@ my_bool	STDCALL mysql_change_user(MYSQL *mysql, const char *user,
   if (rc == 0)
   {
     /* Free old connect information */
-    my_free(mysql->user,MYF(MY_ALLOW_ZERO_PTR));
-    my_free(mysql->passwd,MYF(MY_ALLOW_ZERO_PTR));
-    my_free(mysql->db,MYF(MY_ALLOW_ZERO_PTR));
+    my_free(saved_user);
+    my_free(saved_passwd);
+    my_free(saved_db);
 
     /* alloc new connect information */
-    mysql->user=  my_strdup(user,MYF(MY_WME));
-    mysql->passwd=my_strdup(passwd,MYF(MY_WME));
-    mysql->db=    db ? my_strdup(db,MYF(MY_WME)) : 0;
+    mysql->user= my_strdup(mysql->user, MYF(MY_WME));
+    mysql->passwd= my_strdup(mysql->passwd, MYF(MY_WME));
+    mysql->db= db ? my_strdup(db, MYF(MY_WME)) : 0;
   }
   else
   {
     mysql->charset= saved_cs;
+    mysql->user= saved_user;
+    mysql->passwd= saved_passwd;
+    mysql->db= saved_db;
   }
 
   DBUG_RETURN(rc);
@@ -788,15 +400,7 @@ struct passwd *getpwuid(uid_t);
 char* getlogin(void);
 #endif
 
-#if defined(__NETWARE__)
-/* Default to value of USER on NetWare, if unset use "UNKNOWN_USER" */
-void read_user_name(char *name)
-{
-  char *str=getenv("USER");
-  strmake(name, str ? str : "UNKNOWN_USER", USERNAME_LENGTH);
-}
-
-#elif !defined(MSDOS) && ! defined(VMS) && !defined(__WIN__)
+#if !defined(__WIN__)
 
 void read_user_name(char *name)
 {
@@ -826,7 +430,7 @@ void read_user_name(char *name)
   DBUG_VOID_RETURN;
 }
 
-#else /* If MSDOS || VMS */
+#else /* If Windows */
 
 void read_user_name(char *name)
 {
@@ -868,7 +472,7 @@ my_bool handle_local_infile(MYSQL *mysql, const char *net_filename)
   if ((*options->local_infile_init)(&li_ptr, net_filename,
     options->local_infile_userdata))
   {
-    VOID(my_net_write(net,(const uchar*) "",0)); /* Server needs one packet */
+    (void) my_net_write(net,(const uchar*) "",0); /* Server needs one packet */
     net_flush(net);
     strmov(net->sqlstate, unknown_sqlstate);
     net->last_errno=
@@ -913,7 +517,7 @@ my_bool handle_local_infile(MYSQL *mysql, const char *net_filename)
 err:
   /* free up memory allocated with _init, usually */
   (*options->local_infile_end)(li_ptr);
-  my_free(buf, MYF(0));
+  my_free(buf);
   DBUG_RETURN(result);
 }
 
@@ -1024,7 +628,7 @@ static void default_local_infile_end(void *ptr)
   {
     if (data->fd >= 0)
       my_close(data->fd, MYF(MY_WME));
-    my_free(ptr, MYF(MY_WME));
+    my_free(ptr);
   }
 }
 
@@ -1095,68 +699,6 @@ mysql_query(MYSQL *mysql, const char *query)
   return mysql_real_query(mysql,query, (uint) strlen(query));
 }
 
-
-static MYSQL* spawn_init(MYSQL* parent, const char* host,
-			 unsigned int port, const char* user,
-			 const char* passwd)
-{
-  MYSQL* child;
-  DBUG_ENTER("spawn_init");
-  if (!(child= mysql_init(0)))
-    DBUG_RETURN(0);
-
-  child->options.user= my_strdup((user) ? user :
-				 (parent->user ? parent->user :
-				  parent->options.user), MYF(0));
-  child->options.password= my_strdup((passwd) ? passwd :
-				     (parent->passwd ?
-				      parent->passwd :
-				      parent->options.password), MYF(0));
-  child->options.port= port;
-  child->options.host= my_strdup((host) ? host :
-				 (parent->host ?
-				  parent->host :
-				  parent->options.host), MYF(0));
-  if (parent->db)
-    child->options.db= my_strdup(parent->db, MYF(0));
-  else if (parent->options.db)
-    child->options.db= my_strdup(parent->options.db, MYF(0));
-
-  /*
-    rpl_pivot is set to 1 in mysql_init();  Reset it as we are not doing
-    replication here
-  */
-  child->rpl_pivot= 0;
-  DBUG_RETURN(child);
-}
-
-
-int
-STDCALL mysql_set_master(MYSQL* mysql, const char* host,
-			 unsigned int port, const char* user,
-			 const char* passwd)
-{
-  if (mysql->master != mysql && !mysql->master->rpl_pivot)
-    mysql_close(mysql->master);
-  if (!(mysql->master = spawn_init(mysql, host, port, user, passwd)))
-    return 1;
-  return 0;
-}
-
-
-int
-STDCALL mysql_add_slave(MYSQL* mysql, const char* host,
-			unsigned int port,
-			const char* user,
-			const char* passwd)
-{
-  MYSQL* slave;
-  if (!(slave = spawn_init(mysql, host, port, user, passwd)))
-    return 1;
-  slave->next_slave = mysql->next_slave;
-  mysql->next_slave = slave;
-  return 0;
-}
 
 /**************************************************************************
   Return next field of the query results
@@ -1486,17 +1028,17 @@ MYSQL_FIELD_OFFSET STDCALL mysql_field_tell(MYSQL_RES *res)
 
 unsigned int STDCALL mysql_field_count(MYSQL *mysql)
 {
-  return mysql->last_used_con->field_count;
+  return mysql->field_count;
 }
 
 my_ulonglong STDCALL mysql_affected_rows(MYSQL *mysql)
 {
-  return mysql->last_used_con->affected_rows;
+  return mysql->affected_rows;
 }
 
 my_ulonglong STDCALL mysql_insert_id(MYSQL *mysql)
 {
-  return mysql->last_used_con->insert_id;
+  return mysql->insert_id;
 }
 
 const char *STDCALL mysql_sqlstate(MYSQL *mysql)
@@ -1542,11 +1084,7 @@ void STDCALL mysql_get_character_set_info(MYSQL *mysql, MY_CHARSET_INFO *csinfo)
 
 uint STDCALL mysql_thread_safe(void)
 {
-#ifdef THREAD
   return 1;
-#else
-  return 0;
-#endif
 }
 
 
@@ -1861,7 +1399,6 @@ my_bool cli_read_prepare_result(MYSQL *mysql, MYSQL_STMT *stmt)
   MYSQL_DATA *fields_data;
   DBUG_ENTER("cli_read_prepare_result");
 
-  mysql= mysql->last_used_con;
   if ((packet_length= cli_safe_read(mysql)) == packet_error)
     DBUG_RETURN(1);
   mysql->warning_count= 0;
@@ -2095,7 +1632,9 @@ static void alloc_stmt_fields(MYSQL_STMT *stmt)
 {
   MYSQL_FIELD *fields, *field, *end;
   MEM_ROOT *alloc= &stmt->mem_root;
-  MYSQL *mysql= stmt->mysql->last_used_con;
+  MYSQL *mysql= stmt->mysql;
+
+  DBUG_ASSERT(mysql->field_count);
 
   stmt->field_count= mysql->field_count;
 
@@ -2118,18 +1657,21 @@ static void alloc_stmt_fields(MYSQL_STMT *stmt)
 	 field= stmt->fields;
        field && fields < end; fields++, field++)
   {
-    field->db       = strdup_root(alloc,fields->db);
-    field->table    = strdup_root(alloc,fields->table);
-    field->org_table= strdup_root(alloc,fields->org_table);
-    field->name     = strdup_root(alloc,fields->name);
-    field->org_name = strdup_root(alloc,fields->org_name);
-    field->charsetnr= fields->charsetnr;
-    field->length   = fields->length;
-    field->type     = fields->type;
-    field->flags    = fields->flags;
-    field->decimals = fields->decimals;
-    field->def      = fields->def ? strdup_root(alloc,fields->def): 0;
-    field->max_length= 0;
+    *field= *fields; /* To copy all numeric parts. */
+    field->catalog=   strmake_root(alloc, fields->catalog,
+                                   fields->catalog_length);
+    field->db=        strmake_root(alloc, fields->db, fields->db_length);
+    field->table=     strmake_root(alloc, fields->table, fields->table_length);
+    field->org_table= strmake_root(alloc, fields->org_table,
+                                   fields->org_table_length);
+    field->name=      strmake_root(alloc, fields->name, fields->name_length);
+    field->org_name=  strmake_root(alloc, fields->org_name,
+                                   fields->org_name_length);
+    field->def=       fields->def ? strmake_root(alloc, fields->def,
+                                                 fields->def_length) : 0;
+    field->def_length= field->def ? fields->def_length : 0;
+    field->extension= 0; /* Avoid dangling links. */
+    field->max_length= 0; /* max_length is set in mysql_stmt_store_result() */
   }
 }
 
@@ -2482,7 +2024,6 @@ static my_bool execute(MYSQL_STMT *stmt, char *packet, ulong length)
   DBUG_ENTER("execute");
   DBUG_DUMP("packet", (uchar *) packet, length);
 
-  mysql->last_used_con= mysql;
   int4store(buff, stmt->stmt_id);		/* Send stmt id to server */
   buff[4]= (char) stmt->flags;
   int4store(buff+5, 1);                         /* iteration count */
@@ -2503,6 +2044,8 @@ static my_bool execute(MYSQL_STMT *stmt, char *packet, ulong length)
       set_stmt_errmsg(stmt, net);
     DBUG_RETURN(1);
   }
+  else if (mysql->status == MYSQL_STATUS_GET_RESULT)
+    stmt->mysql->status= MYSQL_STATUS_STATEMENT_GET_RESULT;
   DBUG_RETURN(0);
 }
 
@@ -2579,7 +2122,7 @@ int cli_stmt_execute(MYSQL_STMT *stmt)
     }
     result= execute(stmt, param_data, length);
     stmt->send_types_to_server=0;
-    my_free(param_data, MYF(MY_WME));
+    my_free(param_data);
     DBUG_RETURN(result);
   }
   DBUG_RETURN((int) execute(stmt,0,0));
@@ -2641,7 +2184,7 @@ static int stmt_read_row_unbuffered(MYSQL_STMT *stmt, unsigned char **row)
     set_stmt_error(stmt, CR_SERVER_LOST, unknown_sqlstate, NULL);
     return 1;
   }
-  if (mysql->status != MYSQL_STATUS_GET_RESULT)
+  if (mysql->status != MYSQL_STATUS_STATEMENT_GET_RESULT)
   {
     set_stmt_error(stmt, stmt->unbuffered_fetch_cancelled ?
                    CR_FETCH_CANCELED : CR_COMMANDS_OUT_OF_SYNC,
@@ -2867,6 +2410,33 @@ static void reinit_result_set_metadata(MYSQL_STMT *stmt)
 }
 
 
+static void prepare_to_fetch_result(MYSQL_STMT *stmt)
+{
+  if (stmt->server_status & SERVER_STATUS_CURSOR_EXISTS)
+  {
+    stmt->mysql->status= MYSQL_STATUS_READY;
+    stmt->read_row_func= stmt_read_row_from_cursor;
+  }
+  else if (stmt->flags & CURSOR_TYPE_READ_ONLY)
+  {
+    /*
+      This is a single-row result set, a result set with no rows, EXPLAIN,
+      SHOW VARIABLES, or some other command which either a) bypasses the
+      cursors framework in the server and writes rows directly to the
+      network or b) is more efficient if all (few) result set rows are
+      precached on client and server's resources are freed.
+    */
+    mysql_stmt_store_result(stmt);
+  }
+  else
+  {
+    stmt->mysql->unbuffered_fetch_owner= &stmt->unbuffered_fetch_cancelled;
+    stmt->unbuffered_fetch_cancelled= FALSE;
+    stmt->read_row_func= stmt_read_row_unbuffered;
+  }
+}
+
+
 /*
   Send placeholders data to server (if there are placeholders)
   and execute prepared statement.
@@ -2934,28 +2504,7 @@ int STDCALL mysql_stmt_execute(MYSQL_STMT *stmt)
   if (mysql->field_count)
   {
     reinit_result_set_metadata(stmt);
-    if (stmt->server_status & SERVER_STATUS_CURSOR_EXISTS)
-    {
-      mysql->status= MYSQL_STATUS_READY;
-      stmt->read_row_func= stmt_read_row_from_cursor;
-    }
-    else if (stmt->flags & CURSOR_TYPE_READ_ONLY)
-    {
-      /*
-        This is a single-row result set, a result set with no rows, EXPLAIN,
-        SHOW VARIABLES, or some other command which either a) bypasses the
-        cursors framework in the server and writes rows directly to the
-        network or b) is more efficient if all (few) result set rows are
-        precached on client and server's resources are freed.
-      */
-      mysql_stmt_store_result(stmt);
-    }
-    else
-    {
-      stmt->mysql->unbuffered_fetch_owner= &stmt->unbuffered_fetch_cancelled;
-      stmt->unbuffered_fetch_cancelled= FALSE;
-      stmt->read_row_func= stmt_read_row_unbuffered;
-    }
+    prepare_to_fetch_result(stmt);
   }
   DBUG_RETURN(test(stmt->last_errno));
 }
@@ -3753,12 +3302,13 @@ static void fetch_long_with_conversion(MYSQL_BIND *param, MYSQL_FIELD *field,
     param   output buffer descriptor
     field   column metadata
     value   column data
-    width   default number of significant digits used when converting
-            float/double to string
+    type    either MY_GCVT_ARG_FLOAT or MY_GCVT_ARG_DOUBLE.
+            Affects the maximum number of significant digits
+            returned by my_gcvt().
 */
 
 static void fetch_float_with_conversion(MYSQL_BIND *param, MYSQL_FIELD *field,
-                                        double value, int width)
+                                        double value, my_gcvt_arg_type type)
 {
   char *buffer= (char *)param->buffer;
   double val64 = (value < 0 ? -floor(-value) : floor(value));
@@ -3842,42 +3392,24 @@ static void fetch_float_with_conversion(MYSQL_BIND *param, MYSQL_FIELD *field,
       floating point -> string conversion nicely, honor all typecodes
       and param->offset possibly set in mysql_stmt_fetch_column
     */
-    char buff[MAX_DOUBLE_STRING_REP_LENGTH];
-    char *end;
-    /* TODO: move this to a header shared between client and server. */
-#define NOT_FIXED_DEC  31
+    char buff[FLOATING_POINT_BUFFER];
+    size_t len;
     if (field->decimals >= NOT_FIXED_DEC)
-#undef NOT_FIXED_DEC
-    {
-      /*
-        DBL_DIG below is to ensure that the server and client has the same
-        precisions. This will ensure that on the same machine you get the
-        same value as a string independent of the protocol you use.
-      */
-      sprintf(buff, "%-*.*g", (int) min(sizeof(buff)-1,
-                                        param->buffer_length),
-              min(DBL_DIG, width), value);
-      end= strcend(buff, ' ');
-      *end= 0;
-    }
+      len= my_gcvt(value, type,
+                   (int) min(sizeof(buff)-1, param->buffer_length),
+                   buff, NULL);
     else
-    {
-      sprintf(buff, "%.*f", (int) field->decimals, value);
-      end= strend(buff);
-    }
+      len= my_fcvt(value, (int) field->decimals, buff, NULL);
 
+    if (field->flags & ZEROFILL_FLAG && len < field->length &&
+        field->length < MAX_DOUBLE_STRING_REP_LENGTH - 1)
     {
-      size_t length= end - buff;
-      if (field->flags & ZEROFILL_FLAG && length < field->length &&
-          field->length < MAX_DOUBLE_STRING_REP_LENGTH - 1)
-      {
-        bmove_upp((uchar*) buff + field->length, (uchar*) buff + length,
-                  length);
-        bfill((char*) buff, field->length - length, '0');
-        length= field->length;
-      }
-      fetch_string_with_conversion(param, buff, length);
+      bmove_upp((uchar*) buff + field->length, (uchar*) buff + len,
+                len);
+      bfill((char*) buff, field->length - len, '0');
+      len= field->length;
     }
+    fetch_string_with_conversion(param, buff, len);
 
     break;
   }
@@ -3922,7 +3454,7 @@ static void fetch_datetime_with_conversion(MYSQL_BIND *param,
   {
     ulonglong value= TIME_to_ulonglong(my_time);
     fetch_float_with_conversion(param, field,
-                                ulonglong2double(value), DBL_DIG);
+                                ulonglong2double(value), MY_GCVT_ARG_DOUBLE);
     break;
   }
   case MYSQL_TYPE_TINY:
@@ -4016,7 +3548,7 @@ static void fetch_result_with_conversion(MYSQL_BIND *param, MYSQL_FIELD *field,
   {
     float value;
     float4get(value,*row);
-    fetch_float_with_conversion(param, field, value, FLT_DIG);
+    fetch_float_with_conversion(param, field, value, MY_GCVT_ARG_FLOAT);
     *row+= 4;
     break;
   }
@@ -4024,7 +3556,7 @@ static void fetch_result_with_conversion(MYSQL_BIND *param, MYSQL_FIELD *field,
   {
     double value;
     float8get(value,*row);
-    fetch_float_with_conversion(param, field, value, DBL_DIG);
+    fetch_float_with_conversion(param, field, value, MY_GCVT_ARG_DOUBLE);
     *row+= 8;
     break;
   }
@@ -4707,7 +4239,6 @@ int cli_read_binary_rows(MYSQL_STMT *stmt)
   }
 
   net = &mysql->net;
-  mysql= mysql->last_used_con;
 
   while ((pkt_len= cli_safe_read(mysql)) != packet_error)
   {
@@ -4805,8 +4336,6 @@ int STDCALL mysql_stmt_store_result(MYSQL_STMT *stmt)
     DBUG_RETURN(1);
   }
 
-  mysql= mysql->last_used_con;
-
   if (!stmt->field_count)
     DBUG_RETURN(0);
 
@@ -4847,7 +4376,7 @@ int STDCALL mysql_stmt_store_result(MYSQL_STMT *stmt)
       DBUG_RETURN(1);
     }
   }
-  else if (mysql->status != MYSQL_STATUS_GET_RESULT)
+  else if (mysql->status != MYSQL_STATUS_STATEMENT_GET_RESULT)
   {
     set_stmt_error(stmt, CR_COMMANDS_OUT_OF_SYNC, unknown_sqlstate, NULL);
     DBUG_RETURN(1);
@@ -5013,7 +4542,7 @@ static my_bool reset_stmt_handle(MYSQL_STMT *stmt, uint flags)
         if (stmt->field_count && mysql->status != MYSQL_STATUS_READY)
         {
           /* There is a result set and it belongs to this statement */
-          (*mysql->methods->flush_use_result)(mysql);
+          (*mysql->methods->flush_use_result)(mysql, FALSE);
           if (mysql->unbuffered_fetch_owner)
             *mysql->unbuffered_fetch_owner= TRUE;
           mysql->status= MYSQL_STATUS_READY;
@@ -5097,7 +4626,7 @@ my_bool STDCALL mysql_stmt_close(MYSQL_STMT *stmt)
           Flush result set of the connection. If it does not belong
           to this statement, set a warning.
         */
-        (*mysql->methods->flush_use_result)(mysql);
+        (*mysql->methods->flush_use_result)(mysql, TRUE);
         if (mysql->unbuffered_fetch_owner)
           *mysql->unbuffered_fetch_owner= TRUE;
         mysql->status= MYSQL_STATUS_READY;
@@ -5110,7 +4639,7 @@ my_bool STDCALL mysql_stmt_close(MYSQL_STMT *stmt)
     }
   }
 
-  my_free((uchar*) stmt, MYF(MY_WME));
+  my_free(stmt);
 
   DBUG_RETURN(test(rc));
 }
@@ -5216,8 +4745,7 @@ my_bool STDCALL mysql_more_results(MYSQL *mysql)
   my_bool res;
   DBUG_ENTER("mysql_more_results");
 
-  res= ((mysql->last_used_con->server_status & SERVER_MORE_RESULTS_EXISTS) ?
-	1: 0);
+  res= ((mysql->server_status & SERVER_MORE_RESULTS_EXISTS) ? 1: 0);
   DBUG_PRINT("exit",("More results exists ? %d", res));
   DBUG_RETURN(res);
 }
@@ -5239,10 +4767,56 @@ int STDCALL mysql_next_result(MYSQL *mysql)
   net_clear_error(&mysql->net);
   mysql->affected_rows= ~(my_ulonglong) 0;
 
-  if (mysql->last_used_con->server_status & SERVER_MORE_RESULTS_EXISTS)
+  if (mysql->server_status & SERVER_MORE_RESULTS_EXISTS)
     DBUG_RETURN((*mysql->methods->next_result)(mysql));
 
   DBUG_RETURN(-1);				/* No more results */
+}
+
+
+int STDCALL mysql_stmt_next_result(MYSQL_STMT *stmt)
+{
+  MYSQL *mysql= stmt->mysql;
+  int rc;
+  DBUG_ENTER("mysql_stmt_next_result");
+
+  if (!mysql)
+    DBUG_RETURN(1);
+
+  if (stmt->last_errno)
+    DBUG_RETURN(stmt->last_errno);
+
+  if (mysql->server_status & SERVER_MORE_RESULTS_EXISTS)
+  {
+    if (reset_stmt_handle(stmt, RESET_STORE_RESULT))
+      DBUG_RETURN(1);
+  }
+
+  rc= mysql_next_result(mysql);
+
+  if (rc)
+  {
+    set_stmt_errmsg(stmt, &mysql->net);
+    DBUG_RETURN(rc);
+  }
+
+  if (mysql->status == MYSQL_STATUS_GET_RESULT)
+    mysql->status= MYSQL_STATUS_STATEMENT_GET_RESULT;
+
+  stmt->state= MYSQL_STMT_EXECUTE_DONE;
+  stmt->bind_result_done= FALSE;
+
+  if (mysql->field_count)
+  {
+    alloc_stmt_fields(stmt);
+    prepare_to_fetch_result(stmt);
+  }
+  else
+  {
+    stmt->field_count= mysql->field_count;
+  }
+
+  DBUG_RETURN(0);
 }
 
 

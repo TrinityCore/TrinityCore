@@ -64,12 +64,12 @@ struct Locations
 
 struct Locations moveLocs[]=
 {
-    {261.6f,-449.3f,109.5f},
-    {263.3f,-454.0f,109.5f},
-    {291.5f,-450.4f,109.5f},
-    {291.5f,-454.0f,109.5f},
-    {310.0f,-453.4f,109.5f},
-    {238.6f,-460.7f,109.5f}
+    {261.6f, -449.3f, 109.5f},
+    {263.3f, -454.0f, 109.5f},
+    {291.5f, -450.4f, 109.5f},
+    {291.5f, -454.0f, 109.5f},
+    {310.0f, -453.4f, 109.5f},
+    {238.6f, -460.7f, 109.5f}
 };
 
 enum Phase
@@ -190,20 +190,20 @@ public:
             if (uiArcingSmashTimer <= diff)
             {
                 DoCast(me, SPELL_ARCING_SMASH);
-                uiArcingSmashTimer = urand(13000,17000);
+                uiArcingSmashTimer = urand(13000, 17000);
             } else uiArcingSmashTimer -= diff;
 
             if (uiImpaleTimer <= diff)
             {
               if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                   DoCast(pTarget, SPELL_IMPALE);
-              uiImpaleTimer = urand(8000,12000);
+              uiImpaleTimer = urand(8000, 12000);
             } else uiImpaleTimer -= diff;
 
             if (uiWhiteringRoarTimer <= diff)
             {
                 DoCast(me, SPELL_WITHERING_ROAR);
-                uiWhiteringRoarTimer = urand(8000,12000);
+                uiWhiteringRoarTimer = urand(8000, 12000);
             } else uiWhiteringRoarTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -275,7 +275,6 @@ public:
     };
 
 };
-
 
 //ravenous furbolg's spells
 enum RavenousSpells
@@ -389,7 +388,6 @@ public:
     };
 
 };
-
 
 //frenzied worgen's spells
 enum FrenziedSpells
@@ -506,7 +504,6 @@ public:
 
 };
 
-
 //ferocious rhino's spells
 enum FerociousSpells
 {
@@ -622,7 +619,6 @@ public:
 
 };
 
-
 //massive jormungar's spells
 enum MassiveSpells
 {
@@ -730,7 +726,7 @@ public:
             {
                 Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof)
-                    CAST_AI(boss_palehoof::boss_palehoofAI,pPalehoof->AI())->NextPhase();
+                    CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
         }
 
@@ -801,7 +797,7 @@ public:
                         pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         pNext->SetStandState(UNIT_STAND_STATE_STAND);
                         pNext->SetInCombatWithZone();
-                        pNext->Attack(pNext->SelectNearestTarget(100),true);
+                        pNext->Attack(pNext->SelectNearestTarget(100), true);
 
                    }
                    currentPhase = PHASE_NONE;

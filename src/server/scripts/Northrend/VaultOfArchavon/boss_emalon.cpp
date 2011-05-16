@@ -156,7 +156,7 @@ public:
                     {
                         std::list<uint64>::const_iterator itr = summons.begin();
                         std::advance(itr, urand(0, summons.size()-1));
-                        Creature *minion = Unit::GetCreature(*me, *itr);
+                        Creature* minion = Unit::GetCreature(*me, *itr);
                         if (minion && minion->isAlive())
                         {
                             minion->CastSpell(me, SPELL_OVERCHARGED, true);

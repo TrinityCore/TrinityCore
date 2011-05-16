@@ -26,7 +26,7 @@ MersenneTwister (a very fast random number generator)
 
 MySQL (the world's most popular open source database software)
   http://www.mysql.com/
-  Version: 5.1.50 (GA)
+  Version: 5.5.9 (GA)
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/

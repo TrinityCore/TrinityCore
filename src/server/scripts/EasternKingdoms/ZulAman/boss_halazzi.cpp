@@ -128,7 +128,7 @@ class boss_halazzi : public CreatureScript
                 if (pInstance)
                     pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
-                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_AGGRO);
 
                 EnterPhase(PHASE_LYNX);
@@ -180,13 +180,13 @@ class boss_halazzi : public CreatureScript
                     TotemTimer = 12000;
                     break;
                 case PHASE_SPLIT:
-                    me->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_SPLIT);
                     DoCast(me, SPELL_TRANSFORM_SPLIT, true);
                     break;
                 case PHASE_HUMAN:
                     //DoCast(me, SPELL_SUMMON_LYNX, true);
-                    DoSpawnCreature(MOB_SPIRIT_LYNX, 5,5,0,0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(MOB_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     me->SetMaxHealth(400000);
                     me->SetHealth(400000);
                     ShockTimer = 10000;
@@ -195,7 +195,7 @@ class boss_halazzi : public CreatureScript
                 case PHASE_MERGE:
                     if (Unit *pLynx = Unit::GetUnit(*me, LynxGUID))
                     {
-                        me->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
+                        me->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_MERGE);
                         pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pLynx->GetMotionMaster()->Clear();
@@ -218,7 +218,7 @@ class boss_halazzi : public CreatureScript
 
                 if (BerserkTimer <= diff)
                 {
-                    me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_BERSERK);
                     DoCast(me, SPELL_BERSERK, true);
                     BerserkTimer = 60000;
@@ -238,7 +238,7 @@ class boss_halazzi : public CreatureScript
                     if (FrenzyTimer <= diff)
                     {
                         DoCast(me, SPELL_FRENZY);
-                        FrenzyTimer = urand(10000,15000);
+                        FrenzyTimer = urand(10000, 15000);
                     } else FrenzyTimer -= diff;
 
                     if (Phase == PHASE_LYNX)
@@ -262,7 +262,7 @@ class boss_halazzi : public CreatureScript
 
                     if (ShockTimer <= diff)
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             if (pTarget->IsNonMeleeSpellCasted(false))
                                 DoCast(pTarget, SPELL_EARTHSHOCK);
@@ -315,15 +315,15 @@ class boss_halazzi : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                switch (urand(0,1))
+                switch (urand(0, 1))
                 {
                     case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_KILL_ONE);
                         break;
 
                     case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_KILL_TWO);
                         break;
                 }
@@ -334,7 +334,7 @@ class boss_halazzi : public CreatureScript
                 if (pInstance)
                     pInstance->SetData(DATA_HALAZZIEVENT, DONE);
 
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
+                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_DEATH);
             }
         };
@@ -364,7 +364,7 @@ class mob_halazzi_lynx : public CreatureScript
 
             void Reset()
             {
-                FrenzyTimer = urand(30000,50000);  //frenzy every 30-50 seconds
+                FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
                 shredder_timer = 4000;
             }
 
@@ -390,7 +390,7 @@ class mob_halazzi_lynx : public CreatureScript
                 if (FrenzyTimer <= diff)
                 {
                     DoCast(me, SPELL_LYNX_FRENZY);
-                    FrenzyTimer = urand(30000,50000);  //frenzy every 30-50 seconds
+                    FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
                 } else FrenzyTimer -= diff;
 
                 if (shredder_timer <= diff)

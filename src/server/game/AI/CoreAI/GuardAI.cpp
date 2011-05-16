@@ -35,7 +35,6 @@ GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature), i_victimGuid(0), i_
 {
 }
 
-
 bool GuardAI::CanSeeAlways(WorldObject const* obj)
 {
     if (!obj->isType(TYPEMASK_UNIT))
@@ -63,7 +62,7 @@ void GuardAI::MoveInLineOfSight(Unit* unit)
         unit->isInAccessiblePlaceFor(me))
     {
         float attackRadius = me->GetAttackDistance(unit);
-        if (me->IsWithinDistInMap(unit,attackRadius))
+        if (me->IsWithinDistInMap(unit, attackRadius))
         {
             //Need add code to let guard support player
             AttackStart(unit);
@@ -138,7 +137,6 @@ void GuardAI::UpdateAI(const uint32 /*diff*/)
         }
     }
 }
-
 
 void GuardAI::JustDied(Unit* killer)
 {

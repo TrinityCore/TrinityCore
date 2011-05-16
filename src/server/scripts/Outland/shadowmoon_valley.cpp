@@ -182,7 +182,6 @@ public:
 
 };
 
-
 /*###
 # mob_enslaved_netherwing_drake
 ####*/
@@ -294,10 +293,10 @@ public:
                             {
                                 DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
                                 /*
-                                float x,y,z;
-                                me->GetPosition(x,y,z);
+                                float x, y, z;
+                                me->GetPosition(x, y, z);
 
-                                float dx,dy,dz;
+                                float dx, dy, dz;
                                 me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
                                 dz += 20; // so it's in the air, not ground*/
 
@@ -324,7 +323,6 @@ public:
     };
 
 };
-
 
 /*#####
 # mob_dragonmaw_peon
@@ -406,7 +404,6 @@ public:
 
 };
 
-
 /*######
 ## npc_drake_dealer_hurlunk
 ######*/
@@ -436,7 +433,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_flanis_swiftwing_and_kagrosh
@@ -478,9 +474,9 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pPlayer->GetQuestStatus(10583) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(30658,1,true))
+        if (pPlayer->GetQuestStatus(10583) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(30658, 1, true))
             pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_HSK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        if (pPlayer->GetQuestStatus(10601) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(30659,1,true))
+        if (pPlayer->GetQuestStatus(10601) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(30659, 1, true))
             pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_HSK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
         pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
@@ -489,7 +485,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_murkblood_overseer
@@ -542,7 +537,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF+6:
                                                                 //correct id not known
                 pPlayer->SEND_GOSSIP_MENU(10940, pCreature->GetGUID());
-                pCreature->CastSpell(pPlayer,41121,false);
+                pCreature->CastSpell(pPlayer, 41121, false);
                 pPlayer->AreaExploredOrEventHappens(QUEST_11082);
                 break;
         }
@@ -559,8 +554,6 @@ public:
     }
 
 };
-
-
 
 /*######
 ## npc_oronok
@@ -637,7 +630,6 @@ public:
     }
 
 };
-
 
 /*####
 # npc_karynaku
@@ -749,7 +741,7 @@ public:
         void StartEvent()
         {
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83f, 602.584f, 85.2393f, 4.92598f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (Illidan)
             {
@@ -825,7 +817,7 @@ public:
                 Illi->SetVisible(false);
                 Illi->setDeathState(JUST_DIED);
                 return 1000; break;
-            case 23: me->SetUInt32Value(UNIT_FIELD_BYTES_1,0); return 2000; break;
+            case 23: me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0); return 2000; break;
             case 24: me->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 5000; break;
             case 25: DoScriptText(OVERLORD_SAY_6, me); return 2000; break;
             case 26:
@@ -889,8 +881,6 @@ public:
     };
 
 };
-
-
 
 /*####
 # npc_earthmender_wilda
@@ -1023,7 +1013,7 @@ public:
         //this is very unclear, random say without no real relevance to script/event
         void DoRandomSay()
         {
-            DoScriptText(RAND(SAY_WIL_PROGRESS2,SAY_WIL_PROGRESS4,SAY_WIL_PROGRESS5), me);
+            DoScriptText(RAND(SAY_WIL_PROGRESS2, SAY_WIL_PROGRESS4, SAY_WIL_PROGRESS5), me);
         }
 
         void DoSpawnAssassin()
@@ -1042,7 +1032,7 @@ public:
             if (pWho->GetTypeId() != TYPEID_PLAYER)
             {
                 //appears to be random
-                if (urand(0,1))
+                if (urand(0, 1))
                     DoScriptText(RAND(SAY_WIL_AGGRO1, SAY_WIL_AGGRO2), pWho);
             }
         }
@@ -1069,8 +1059,6 @@ public:
     };
 
 };
-
-
 
 /*#####
 # Quest: Battle of the crimson watch
@@ -1102,10 +1090,10 @@ static TorlothCinematic TorlothAnim[]=
     {-1000367, 0, 2000},
     {-1000368, 1, 7000},
     {-1000369, 0, 3000},
-    {NULL, 0, 2000}, // Torloth stand
+    {0, 0, 2000}, // Torloth stand
     {-1000370, 0, 1000},
-    {NULL, 0, 3000},
-    {NULL, 0, NULL}
+    {0, 0, 3000},
+    {0, 0, 0}
 };
 
 struct Location
@@ -1117,28 +1105,28 @@ struct Location
 static Location SpawnLocation[]=
 {
     //Cords used for:
-    {-4615.8556f, 1342.2532f, 139.9f, 1.612f},//Illidari Soldier
-    {-4598.9365f, 1377.3182f, 139.9f, 3.917f},//Illidari Soldier
-    {-4598.4697f, 1360.8999f, 139.9f, 2.427f},//Illidari Soldier
-    {-4589.3599f, 1369.1061f, 139.9f, 3.165f},//Illidari Soldier
-    {-4608.3477f, 1386.0076f, 139.9f, 4.108f},//Illidari Soldier
-    {-4633.1889f, 1359.8033f, 139.9f, 0.949f},//Illidari Soldier
-    {-4623.5791f, 1351.4574f, 139.9f, 0.971f},//Illidari Soldier
-    {-4607.2988f, 1351.6099f, 139.9f, 2.416f},//Illidari Soldier
-    {-4633.7764f, 1376.0417f, 139.9f, 5.608f},//Illidari Soldier
-    {-4600.2461f, 1369.1240f, 139.9f, 3.056f},//Illidari Mind Breaker
-    {-4631.7808f, 1367.9459f, 139.9f, 0.020f},//Illidari Mind Breaker
-    {-4600.2461f, 1369.1240f, 139.9f, 3.056f},//Illidari Highlord
-    {-4631.7808f, 1367.9459f, 139.9f, 0.020f},//Illidari Highlord
-    {-4615.5586f, 1353.0031f, 139.9f, 1.540f},//Illidari Highlord
-    {-4616.4736f, 1384.2170f, 139.9f, 4.971f},//Illidari Highlord
+    {-4615.8556f, 1342.2532f, 139.9f, 1.612f}, //Illidari Soldier
+    {-4598.9365f, 1377.3182f, 139.9f, 3.917f}, //Illidari Soldier
+    {-4598.4697f, 1360.8999f, 139.9f, 2.427f}, //Illidari Soldier
+    {-4589.3599f, 1369.1061f, 139.9f, 3.165f}, //Illidari Soldier
+    {-4608.3477f, 1386.0076f, 139.9f, 4.108f}, //Illidari Soldier
+    {-4633.1889f, 1359.8033f, 139.9f, 0.949f}, //Illidari Soldier
+    {-4623.5791f, 1351.4574f, 139.9f, 0.971f}, //Illidari Soldier
+    {-4607.2988f, 1351.6099f, 139.9f, 2.416f}, //Illidari Soldier
+    {-4633.7764f, 1376.0417f, 139.9f, 5.608f}, //Illidari Soldier
+    {-4600.2461f, 1369.1240f, 139.9f, 3.056f}, //Illidari Mind Breaker
+    {-4631.7808f, 1367.9459f, 139.9f, 0.020f}, //Illidari Mind Breaker
+    {-4600.2461f, 1369.1240f, 139.9f, 3.056f}, //Illidari Highlord
+    {-4631.7808f, 1367.9459f, 139.9f, 0.020f}, //Illidari Highlord
+    {-4615.5586f, 1353.0031f, 139.9f, 1.540f}, //Illidari Highlord
+    {-4616.4736f, 1384.2170f, 139.9f, 4.971f}, //Illidari Highlord
     {-4627.1240f, 1378.8752f, 139.9f, 2.544f} //Torloth The Magnificent
 };
 
 struct WaveData
 {
     uint8 SpawnCount, UsedSpawnPoint;
-    uint32 CreatureId, SpawnTimer,YellTimer;
+    uint32 CreatureId, SpawnTimer, YellTimer;
     int32 WaveTextId;
 };
 
@@ -1230,10 +1218,10 @@ public:
             switch(AnimationCount)
             {
             case 0:
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1,8);
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
                 break;
             case 3:
-                me->RemoveFlag(UNIT_FIELD_BYTES_1,8);
+                me->RemoveFlag(UNIT_FIELD_BYTES_1, 8);
                 break;
             case 5:
                 if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
@@ -1250,8 +1238,8 @@ public:
                     me->ClearUnitState(UNIT_STAT_ROOT);
 
                     float x, y, z;
-                    AggroTarget->GetPosition(x,y,z);
-                    me->GetMotionMaster()->MovePoint(0,x,y,z);
+                    AggroTarget->GetPosition(x, y, z);
+                    me->GetMotionMaster()->MovePoint(0, x, y, z);
                 }
                 break;
             }
@@ -1553,7 +1541,7 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         if (pTarget->GetTypeId() == TYPEID_PLAYER)
                         {
@@ -1644,8 +1632,8 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
                     if (Player* pTarget = Unit::GetPlayer(*me, PlayerGUID))
                     {
                         float x, y, z;
-                        pTarget->GetPosition(x,y,z);
-                        Spawn->GetMotionMaster()->MovePoint(0,x, y, z);
+                        pTarget->GetPosition(x, y, z);
+                        Spawn->GetMotionMaster()->MovePoint(0, x, y, z);
                     }
                 }
                 CAST_AI(mob_illidari_spawn::mob_illidari_spawnAI, Spawn->AI())->LordIllidanGUID = me->GetGUID();
@@ -1690,9 +1678,6 @@ public:
     }
 
 };
-
-
-
 
 /*####
 # npc_enraged_spirits
@@ -1801,12 +1786,12 @@ public:
                  if (totemOspirits)
                  {
                      Summoned->setFaction(ENRAGED_SOUL_FRIENDLY);
-                     Summoned->GetMotionMaster()->MovePoint(0,totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
+                     Summoned->GetMotionMaster()->MovePoint(0, totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
 
                      Unit* Owner = totemOspirits->GetOwner();
                      if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
                          // DoCast(Owner, credit); -- not working!
-                         CAST_PLR(Owner)->KilledMonsterCredit(credit, Summoned->GetGUID());
+                         CAST_PLR(Owner)->KilledMonsterCredit(credit, 0);
                      DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
                  }
             }

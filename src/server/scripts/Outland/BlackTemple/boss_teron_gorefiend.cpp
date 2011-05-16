@@ -106,7 +106,7 @@ public:
 
             if (ShadowBoltTimer < diff && me->isInCombat())
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
                 ShadowBoltTimer = 10000;
             } else ShadowBoltTimer -= diff;
             return;
@@ -288,7 +288,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -302,7 +302,7 @@ public:
         float CalculateRandomLocation(float Loc, uint32 radius)
         {
             float coord = Loc;
-            switch (urand(0,1))
+            switch (urand(0, 1))
             {
                 case 0:
                     coord += rand()%radius;
@@ -345,8 +345,8 @@ public:
                 Ghost = Unit::GetUnit((*me), GhostGUID);
             if (Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
-                /*float x,y,z;
-                Ghost->GetPosition(x,y,z);
+                /*float x, y, z;
+                Ghost->GetPosition(x, y, z);
                 Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
                 if (control)
                 {
@@ -365,7 +365,7 @@ public:
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
                         SetThreatList(Construct);               // Use same function as Doom Blossom to set Threat List.
                         CAST_AI(mob_shadowy_construct::mob_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!pTarget)                             // someone's trying to solo.
                             pTarget = me->getVictim();
 
@@ -417,7 +417,7 @@ public:
                     Shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
                     if (Shadow)
                     {
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!pTarget)
                             pTarget = me->getVictim();
 
@@ -430,7 +430,7 @@ public:
 
             if (SummonDoomBlossomTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     float X = CalculateRandomLocation(pTarget->GetPositionX(), 20);
                     float Y = CalculateRandomLocation(pTarget->GetPositionY(), 20);
@@ -452,13 +452,13 @@ public:
 
             if (IncinerateTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!pTarget)
                     pTarget = me->getVictim();
 
                 if (pTarget)
                 {
-                    DoScriptText(RAND(SAY_SPECIAL1,SAY_SPECIAL2), me);
+                    DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
                     DoCast(pTarget, SPELL_INCINERATE);
                     IncinerateTimer = 20000 + rand()%31 * 1000;
                 }
@@ -466,7 +466,7 @@ public:
 
             if (CrushingShadowsTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget && pTarget->isAlive())
                     DoCast(pTarget, SPELL_CRUSHING_SHADOWS);
                 CrushingShadowsTimer = 10000 + rand()%16 * 1000;
@@ -491,7 +491,7 @@ public:
 
             if (RandomYellTimer <= diff)
             {
-                DoScriptText(RAND(SAY_SPELL1,SAY_SPELL2), me);
+                DoScriptText(RAND(SAY_SPELL1, SAY_SPELL2), me);
                 RandomYellTimer = 50000 + rand()%51 * 1000;
             } else RandomYellTimer -= diff;
 
@@ -509,9 +509,6 @@ public:
     };
 
 };
-
-
-
 
 void AddSC_boss_teron_gorefiend()
 {

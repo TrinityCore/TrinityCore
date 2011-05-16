@@ -99,7 +99,7 @@ public:
 
             if (BerserkerCharge_Timer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                     DoCast(pTarget, SPELL_BERSERKER_CHARGE);
                 BerserkerCharge_Timer = 25000;
@@ -134,8 +134,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_thunder_bluff()
 {

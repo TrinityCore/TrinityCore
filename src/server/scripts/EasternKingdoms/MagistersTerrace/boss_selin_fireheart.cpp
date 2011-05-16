@@ -203,7 +203,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -253,7 +253,7 @@ public:
                 {
                     if (DrainLifeTimer <= diff)
                     {
-                        DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_LIFE);
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_LIFE);
                         DrainLifeTimer = 10000;
                     } else DrainLifeTimer -= diff;
 
@@ -262,7 +262,7 @@ public:
                     {
                         if (DrainManaTimer <= diff)
                         {
-                            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_DRAIN_MANA);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_DRAIN_MANA);
                             DrainManaTimer = 10000;
                         } else DrainManaTimer -= diff;
                     }
@@ -321,7 +321,6 @@ public:
 
 };
 
-
 class mob_fel_crystal : public CreatureScript
 {
 public:
@@ -367,7 +366,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_selin_fireheart()
 {

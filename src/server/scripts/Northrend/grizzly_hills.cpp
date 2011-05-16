@@ -195,7 +195,7 @@ public:
                     if (Unit::GetCreature(*me, MrfloppyGUID))
                     {
                         DoScriptText(SAY_WORGHAGGRO1, me);
-                        me->SummonCreature(NPC_HUNGRY_WORG,me->GetPositionX()+5,me->GetPositionY()+2,me->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
+                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     }
                     break;
                 case 11:
@@ -206,7 +206,7 @@ public:
                     if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     DoScriptText(SAY_WORGRAGGRO3, me);
-                    if (Creature *RWORG = me->SummonCreature(NPC_RAVENOUS_WORG,me->GetPositionX()+10,me->GetPositionY()+8,me->GetPositionZ()+2,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000))
+                    if (Creature *RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                     {
                         RWORG->setFaction(35);
                         RWORGGUID = RWORG->GetGUID();
@@ -217,7 +217,7 @@ public:
                     {
                         if (Creature *RWORG = Unit::GetCreature(*me, RWORGGUID))
                             RWORG->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
-                        DoCast(Mrfloppy,SPELL_MRFLOPPY);
+                        DoCast(Mrfloppy, SPELL_MRFLOPPY);
                     }
                     break;
                 case 19:
@@ -242,7 +242,7 @@ public:
                             RWORG->Kill(Mrfloppy);
                             Mrfloppy->ExitVehicle();
                             RWORG->setFaction(14);
-                            RWORG->GetMotionMaster()->MovePoint(0, RWORG->GetPositionX()+10,RWORG->GetPositionY()+80,RWORG->GetPositionZ());
+                            RWORG->GetMotionMaster()->MovePoint(0, RWORG->GetPositionX()+10, RWORG->GetPositionY()+80, RWORG->GetPositionZ());
                             DoScriptText(SAY_VICTORY2, me);
                         }
                     }
@@ -600,7 +600,7 @@ public:
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
             {
                 caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
-                DoScriptText(RAND(RANDOM_SAY_1,RANDOM_SAY_2,RANDOM_SAY_3),caster);
+                DoScriptText(RAND(RANDOM_SAY_1, RANDOM_SAY_2, RANDOM_SAY_3), caster);
                 if(me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
                 else
@@ -656,7 +656,7 @@ public:
 
         void Reset()
         {
-            uiChargedSentryTotem = urand(10000,12000);
+            uiChargedSentryTotem = urand(10000, 12000);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -667,7 +667,7 @@ public:
             if (uiChargedSentryTotem <= uiDiff)
             {
                 DoCast(SPELL_CHARGED_SENTRY_TOTEM);
-                uiChargedSentryTotem = urand(10000,12000);
+                uiChargedSentryTotem = urand(10000, 12000);
             }
             else
                 uiChargedSentryTotem -= uiDiff;
@@ -728,7 +728,7 @@ public:
         {
             uiPlayerGUID = 0;
             uiTimer = 0;
-            uiChopTimer = urand(10000,12500);
+            uiChopTimer = urand(10000, 12500);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetReactState(REACT_AGGRESSIVE);
         }
@@ -776,7 +776,7 @@ public:
             if (uiChopTimer <= uiDiff)
             {
                 DoCast(me->getVictim(), SPELL_CHOP);
-                uiChopTimer = urand(10000,12000);
+                uiChopTimer = urand(10000, 12000);
             }
             else
                 uiChopTimer -= uiDiff;

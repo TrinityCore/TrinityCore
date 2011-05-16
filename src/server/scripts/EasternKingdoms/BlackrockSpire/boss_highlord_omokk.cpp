@@ -16,115 +16,112 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Highlord_Omokk
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Spire
-EndScriptData */
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "blackrock_spire.h"
 
-#include "ScriptPCH.h"
+enum Spells
+{
+    SPELL_WARSTOMP                  = 24375,
+    SPELL_CLEAVE                    = 15579,
+    SPELL_STRIKE                    = 18368,
+    SPELL_REND                      = 18106,
+    SPELL_SUNDERARMOR               = 24317,
+    SPELL_KNOCKAWAY                 = 20686,
+    SPELL_SLOW                      = 22356,
+};
 
-#define SPELL_WARSTOMP          24375
-#define SPELL_CLEAVE            15579
-#define SPELL_STRIKE            18368
-#define SPELL_REND              18106
-#define SPELL_SUNDERARMOR       24317
-#define SPELL_KNOCKAWAY         20686
-#define SPELL_SLOW              22356
+enum Events
+{
+    EVENT_WARSTOMP                  = 1,
+    EVENT_CLEAVE                    = 2,
+    EVENT_STRIKE                    = 3,
+    EVENT_REND                      = 4,
+    EVENT_SUNDER_ARMOR              = 5,
+    EVENT_KNOCK_AWAY                = 6,
+    EVENT_SLOW                      = 7,
+};
 
 class boss_highlord_omokk : public CreatureScript
 {
 public:
     boss_highlord_omokk() : CreatureScript("boss_highlord_omokk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_highlordomokkAI (pCreature);
+        return new boss_highlordomokkAI(creature);
     }
 
-    struct boss_highlordomokkAI : public ScriptedAI
+    struct boss_highlordomokkAI : public BossAI
     {
-        boss_highlordomokkAI(Creature *c) : ScriptedAI(c) {}
-
-        uint32 WarStomp_Timer;
-        uint32 Cleave_Timer;
-        uint32 Strike_Timer;
-        uint32 Rend_Timer;
-        uint32 SunderArmor_Timer;
-        uint32 KnockAway_Timer;
-        uint32 Slow_Timer;
+        boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_OMOKK) {}
 
         void Reset()
         {
-            WarStomp_Timer = 15000;
-            Cleave_Timer = 6000;
-            Strike_Timer = 10000;
-            Rend_Timer = 14000;
-            SunderArmor_Timer = 2000;
-            KnockAway_Timer = 18000;
-            Slow_Timer = 24000;
+            _Reset();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_WARSTOMP, 15*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE, 6*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_STRIKE, 10*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_REND, 14*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUNDER_ARMOR, 2*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 18*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SLOW, 24*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void JustDied(Unit* /*who*/)
         {
-            //Return since we have no target
+            _JustDied();
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
             if (!UpdateVictim())
                 return;
 
-            //WarStomp_Timer
-            if (WarStomp_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_WARSTOMP);
-                WarStomp_Timer = 14000;
-            } else WarStomp_Timer -= diff;
+            events.Update(diff);
 
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 8000;
-            } else Cleave_Timer -= diff;
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
 
-            //Strike_Timer
-            if (Strike_Timer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCast(me->getVictim(), SPELL_STRIKE);
-                Strike_Timer = 10000;
-            } else Strike_Timer -= diff;
-
-            //Rend_Timer
-            if (Rend_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_REND);
-                Rend_Timer = 18000;
-            } else Rend_Timer -= diff;
-
-            //SunderArmor_Timer
-            if (SunderArmor_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_SUNDERARMOR);
-                SunderArmor_Timer = 25000;
-            } else SunderArmor_Timer -= diff;
-
-            //KnockAway_Timer
-            if (KnockAway_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-                KnockAway_Timer = 12000;
-            } else KnockAway_Timer -= diff;
-
-            //Slow_Timer
-            if (Slow_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_SLOW);
-                Slow_Timer = 18000;
-            } else Slow_Timer -= diff;
-
+                switch (eventId)
+                {
+                    case EVENT_WARSTOMP:
+                        DoCast(me->getVictim(), SPELL_WARSTOMP);
+                        events.ScheduleEvent(EVENT_WARSTOMP, 14*IN_MILLISECONDS);
+                        break;
+                    case EVENT_CLEAVE:
+                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, 8*IN_MILLISECONDS);
+                        break;
+                    case EVENT_STRIKE:
+                        DoCast(me->getVictim(), SPELL_STRIKE);
+                        events.ScheduleEvent(EVENT_STRIKE, 10*IN_MILLISECONDS);
+                        break;
+                    case EVENT_REND:
+                        DoCast(me->getVictim(), SPELL_REND);
+                        events.ScheduleEvent(EVENT_REND, 18*IN_MILLISECONDS);
+                        break;
+                    case EVENT_SUNDER_ARMOR:
+                        DoCast(me->getVictim(), SPELL_SUNDERARMOR);
+                        events.ScheduleEvent(EVENT_SUNDER_ARMOR, 25*IN_MILLISECONDS);
+                        break;
+                    case EVENT_KNOCK_AWAY:
+                        DoCast(me->getVictim(), SPELL_KNOCKAWAY);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12*IN_MILLISECONDS);
+                        break;
+                    case EVENT_SLOW:
+                        DoCast(me->getVictim(), SPELL_SLOW);
+                        events.ScheduleEvent(EVENT_SLOW, 18*IN_MILLISECONDS);
+                        break;
+                }
+            }
             DoMeleeAttackIfReady();
         }
     };

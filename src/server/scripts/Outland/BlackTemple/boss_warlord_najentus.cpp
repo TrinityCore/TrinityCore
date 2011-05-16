@@ -167,7 +167,7 @@ public:
                         break;
                     case EVENT_SPINE:
                     {
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!pTarget) pTarget = me->getVictim();
                         if (pTarget)
                         {
@@ -189,13 +189,13 @@ public:
                         SelectTargetList(pTargets, 3, SELECT_TARGET_RANDOM, 80, true);
                         for (std::list<Unit*>::const_iterator i = pTargets.begin(); i != pTargets.end(); ++i)
                             DoCast(*i, 39835, true);
-                        events.ScheduleEvent(EVENT_NEEDLE, urand(15000,25000), GCD_CAST);
+                        events.ScheduleEvent(EVENT_NEEDLE, urand(15000, 25000), GCD_CAST);
                         events.DelayEvents(1500, GCD_CAST);
                         return;
                     }
                     case EVENT_YELL:
                         DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
-                        events.ScheduleEvent(EVENT_YELL, urand(25000,100000), GCD_YELL);
+                        events.ScheduleEvent(EVENT_YELL, urand(25000, 100000), GCD_YELL);
                         events.DelayEvents(15000, GCD_YELL);
                         break;
                 }
@@ -225,7 +225,6 @@ public:
     }
 
 };
-
 
 void AddSC_boss_najentus()
 {

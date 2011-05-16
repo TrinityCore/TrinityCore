@@ -75,7 +75,7 @@ public:
             //Sleep_Timer
             if (m_uiSleep_Timer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_SLEEP);
 
                 m_uiSleep_Timer = 8000 + rand()%8000;

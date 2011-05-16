@@ -29,7 +29,7 @@
 #include "DatabaseEnv.h"
 #include "World.h"
 
-struct ItemPrototype;
+struct ItemTemplate;
 struct AuctionEntry;
 struct DeclinedName;
 struct MovementInfo;
@@ -47,7 +47,6 @@ class LoginQueryHolder;
 class CharacterHandler;
 class SpellCastTargets;
 struct AreaTableEntry;
-struct GM_Ticket;
 struct LfgJoinResultData;
 struct LfgLockStatus;
 struct LfgPlayerBoot;
@@ -196,11 +195,11 @@ class WorldSession
         void WriteMovementInfo(WorldPacket *data, MovementInfo *mi);
 
         void SendPacket(WorldPacket const* packet);
-        void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
-        void SendNotification(uint32 string_id,...);
+        void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
+        void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);
+        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(uint32 phaseShift);
         void SendQueryTimeResponse();
 
@@ -304,8 +303,8 @@ class WorldSession
         void SendAuctionOwnerNotification(AuctionEntry * auction);
 
         //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster,uint32 ItemID,uint32 SpellID);
-        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid,uint32 slot,uint32 Duration);
+        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
+        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
         void SendTaxiStatus(uint64 guid);
@@ -425,8 +424,6 @@ class WorldSession
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
         void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
         void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
-        void SendGMTicketGetTicket(uint32 status, char const* text, GM_Ticket *ticket = NULL);
-        void SendGMTicketResponse(GM_Ticket *ticket);
         void HandleGMSurveySubmit(WorldPacket& recvPacket);
         void HandleReportLag(WorldPacket& recvPacket);
         void HandleGMResponseResolve(WorldPacket& recvPacket);
@@ -603,7 +600,7 @@ class WorldSession
         void HandleQueryNextMailTime(WorldPacket & recv_data);
         void HandleCancelChanneling(WorldPacket & recv_data);
 
-        void SendItemPageInfo(ItemPrototype *itemProto);
+        void SendItemPageInfo(ItemTemplate *itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
@@ -859,6 +856,7 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recv_data);
         void HandleEjectPassenger(WorldPacket &data);
         void HandleEnterPlayerVehicle(WorldPacket &data);
+        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
 
     private:
         void ProcessQueryCallbacks();
@@ -867,11 +865,11 @@ class WorldSession
         QueryResultFuture m_charEnumCallback;
         QueryResultFuture m_addIgnoreCallback;
         QueryResultFuture m_stablePetCallback;
-        QueryCallback<std::string> m_charRenameCallback;
-        QueryCallback<std::string> m_addFriendCallback;
-        QueryCallback<uint32> m_unstablePetCallback;
-        QueryCallback<uint32> m_stableSwapCallback;
-        QueryCallback<uint64> m_sendStabledPetCallback;
+        QueryCallback<QueryResult, std::string> m_charRenameCallback;
+        QueryCallback<QueryResult, std::string> m_addFriendCallback;
+        QueryCallback<QueryResult, uint32> m_unstablePetCallback;
+        QueryCallback<QueryResult, uint32> m_stableSwapCallback;
+        QueryCallback<QueryResult, uint64> m_sendStabledPetCallback;
         QueryResultHolderFuture m_charLoginCallback;
 
     private:
@@ -881,6 +879,15 @@ class WorldSession
         // logging helper
         void LogUnexpectedOpcode(WorldPacket *packet, const char* status, const char *reason);
         void LogUnprocessedTail(WorldPacket *packet);
+
+        // EnumData helpers
+        bool CharCanLogin(uint32 lowGUID)
+        {
+            return _allowedCharsToLogin.find(lowGUID) != _allowedCharsToLogin.end();
+        }
+        // this stores the GUIDs of the characters who can login
+        // characters who failed on Player::BuildEnumData shouldn't login
+        std::set<uint32> _allowedCharsToLogin;
 
         uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
         Player *_player;

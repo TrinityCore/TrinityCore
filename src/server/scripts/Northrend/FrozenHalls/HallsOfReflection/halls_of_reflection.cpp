@@ -683,7 +683,7 @@ public:
                         return;
                     case EVENT_DARK_MENDING:
                         // find an ally with missing HP
-                        if (Unit *pTarget = DoSelectLowestHpFriendly(40, DUNGEON_MODE(30000,50000)))
+                        if (Unit *pTarget = DoSelectLowestHpFriendly(40, DUNGEON_MODE(30000, 50000)))
                         {
                             DoCast(pTarget, SPELL_DARK_MENDING);
                             events.ScheduleEvent(EVENT_DARK_MENDING, 20000);

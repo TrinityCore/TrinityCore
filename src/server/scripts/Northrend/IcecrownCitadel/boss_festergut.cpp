@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
 
@@ -54,8 +53,8 @@ enum Spells
 };
 
 // Used for HasAura checks
-#define PUNGENT_BLIGHT_HELPER RAID_MODE<uint32>(69195,71219,73031,73032)
-#define INOCULATED_HELPER     RAID_MODE<uint32>(69291,72101,72102,72103)
+#define PUNGENT_BLIGHT_HELPER RAID_MODE<uint32>(69195, 71219, 73031, 73032)
+#define INOCULATED_HELPER     RAID_MODE<uint32>(69291, 72101, 72102, 72103)
 
 static const uint32 gaseousBlight[3]        = {69157, 69162, 69164};
 static const uint32 gaseousBlightVisual[3]  = {69126, 69152, 69154};
@@ -88,14 +87,6 @@ class boss_festergut : public CreatureScript
                 maxInoculatedStack = 0;
                 inhaleCounter = 0;
                 gasDummyGUID = 0;
-            }
-
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset()
@@ -282,12 +273,12 @@ class boss_festergut : public CreatureScript
         private:
             uint64 gasDummyGUID;
             uint32 maxInoculatedStack;
-            uint8 inhaleCounter;
+            uint32 inhaleCounter;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_festergutAI(creature);
+            return GetIcecrownCitadelAI<boss_festergutAI>(creature);
         }
 };
 
@@ -424,7 +415,7 @@ class npc_stinky_icc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_stinky_iccAI(creature);
+            return GetIcecrownCitadelAI<npc_stinky_iccAI>(creature);
         }
 };
 

@@ -85,7 +85,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -149,7 +149,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_captain_skarloc()
 {

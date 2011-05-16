@@ -50,7 +50,7 @@ public:
 
     struct instance_shadow_labyrinth_InstanceMapScript : public InstanceScript
     {
-        instance_shadow_labyrinth_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_shadow_labyrinth_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -108,7 +108,7 @@ public:
                     if (creature->isAlive())
                     {
                         ++m_uiFelOverseerCount;
-                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
+                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Shadow Labyrinth: counting %u Fel Overseers.", m_uiFelOverseerCount);
                     }
                     break;
             }
@@ -133,7 +133,7 @@ public:
                         --m_uiFelOverseerCount;
 
                         if (m_uiFelOverseerCount)
-                            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
+                            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.", m_uiFelOverseerCount);
                         else
                         {
                             m_auiEncounter[1] = DONE;
@@ -224,7 +224,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_shadow_labyrinth()
 {

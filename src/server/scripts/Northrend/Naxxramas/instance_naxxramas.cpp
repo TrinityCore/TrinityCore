@@ -20,8 +20,8 @@
 
 const DoorData doorData[] =
 {
-    {181126,    BOSS_ANUBREKHAN,DOOR_TYPE_ROOM,     BOUNDARY_S},
-    {181195,    BOSS_ANUBREKHAN,DOOR_TYPE_PASSAGE,  0},
+    {181126,    BOSS_ANUBREKHAN, DOOR_TYPE_ROOM,     BOUNDARY_S},
+    {181195,    BOSS_ANUBREKHAN, DOOR_TYPE_PASSAGE,  0},
     {194022,    BOSS_FAERLINA,  DOOR_TYPE_PASSAGE,  0},
     {181209,    BOSS_FAERLINA,  DOOR_TYPE_PASSAGE,  0},
     {181209,    BOSS_MAEXXNA,   DOOR_TYPE_ROOM,     BOUNDARY_SW},
@@ -56,7 +56,7 @@ const MinionData minionData[] =
     {16064,     BOSS_HORSEMEN},
     {16065,     BOSS_HORSEMEN},
     {30549,     BOSS_HORSEMEN},
-    {0,         0,}
+    {0,         0, }
 };
 
 enum eEnums
@@ -335,7 +335,7 @@ public:
                 {
                     if (GameObject* pHeiganEruption = instance->GetGameObject(*itr))
                     {
-                        pHeiganEruption->SendCustomAnim();
+                        pHeiganEruption->SendCustomAnim(pHeiganEruption->GetGoAnimProgress());
                         pHeiganEruption->CastSpell(NULL, SPELL_ERUPTION);
                     }
                 }
@@ -381,7 +381,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_naxxramas()
 {

@@ -45,7 +45,7 @@ public:
 
     struct instance_gruuls_lair_InstanceMapScript : public InstanceScript
     {
-        instance_gruuls_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_gruuls_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -100,7 +100,7 @@ public:
             {
                 case 184468:
                     MaulgarDoor = go->GetGUID();
-                    if (m_auiEncounter[0] == DONE) HandleGameObject(NULL, true, go);
+                    if (m_auiEncounter[0] == DONE) HandleGameObject(0, true, go);
                     break;
                 case 184662: GruulDoor = go->GetGUID(); break;
             }
@@ -190,7 +190,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_gruuls_lair()
 {

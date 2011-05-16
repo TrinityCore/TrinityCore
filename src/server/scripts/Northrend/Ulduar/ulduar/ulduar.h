@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellAuraEffects.h"
+
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
@@ -44,6 +46,7 @@ enum eTypes
     DATA_BRUNDIR,
 
     DATA_EXP_COMMANDER,
+    DATA_RAZORSCALE_CONTROL,
 
     // Kologarn:
     DATA_LEFT_ARM,
@@ -55,6 +58,8 @@ enum eNPCs
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
+    NPC_RAZORSCALE_CONTROLLER   = 33233,
+    NPC_STEELFORGED_DEFFENDER   = 33236,
     NPC_EXPEDITION_COMMANDER    = 33210,
     NPC_XT002                   = 33293,
     NPC_STEELBREAKER            = 32867,
@@ -75,6 +80,32 @@ enum eNPCs
     NPC_VEZAX                   = 33271,
     NPC_YOGGSARON               = 33288,
     NPC_ALGALON                 = 32871,
+    NPC_LEVIATHAN_MKII          = 33432,
+    NPC_VX_001                  = 33651,
+    NPC_AERIAL_COMMAND_UNIT     = 33670,
+};
+
+enum eGameObjects
+{
+    GO_KOLOGARN_CHEST_HERO  = 195047,
+    GO_KOLOGARN_CHEST       = 195046,
+    GO_KOLOGARN_BRIDGE      = 194232,
+    GO_KOLOGARN_DOOR        = 194553,
+    GO_THORIM_CHEST_HERO    = 194315,
+    GO_THORIM_CHEST         = 194314,
+    GO_HODIR_CHEST_HERO     = 194308,
+    GO_HODIR_CHEST          = 194307,
+    GO_FREYA_CHEST_HERO     = 194325,
+    GO_FREYA_CHEST          = 194324,
+    GO_LEVIATHAN_DOOR       = 194905,
+    GO_LEVIATHAN_GATE       = 194630,
+    GO_VEZAX_DOOR           = 194750,
+    GO_MOLE_MACHINE         = 194316,
+    GO_RAZOR_HARPOON_1      = 194542,
+    GO_RAZOR_HARPOON_2      = 194541,
+    GO_RAZOR_HARPOON_3      = 194543,
+    GO_RAZOR_HARPOON_4      = 194519,
+    GO_RAZOR_BROKEN_HARPOON = 194565,
 };
 
 enum eTowerEvents
@@ -87,7 +118,20 @@ enum eTowerEvents
 
 enum eAchievementCriteria
 {
-    ACHIEVEMENT_CRITERIA_HOT_POCKET_10                   = 10430, //ignis
+    ACHIEVEMENT_UNBROKEN_10                              = 10044, // Leviathan
+    ACHIEVEMENT_UNBROKEN_25                              = 10045,
+    ACHIEVEMENT_CRITERIA_SHUTOUT_10                      = 10054,
+    ACHIEVEMENT_CRITERIA_SHUTOUT_25                      = 10055,
+    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_10         = 10046,
+    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_10           = 10047,
+    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_10      = 10048,
+    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_25         = 10049,
+    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_25           = 10050,
+    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_25      = 10051,
+    ACHIEVEMENT_CRITERIA_HOT_POCKET_10                   = 10430, // Ignis
     ACHIEVEMENT_CRITERIA_HOT_POCKET_25                   = 10431,
+    ACHIEVEMENT_CRITERIA_QUICK_SHAVE_10                  = 10062, // Razorscale
+    ACHIEVEMENT_CRITERIA_QUICK_SHAVE_25                  = 10063,
 };
+
 #endif

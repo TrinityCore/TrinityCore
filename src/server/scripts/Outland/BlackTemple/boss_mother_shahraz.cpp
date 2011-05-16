@@ -64,7 +64,7 @@ uint32 PrismaticAuras[]=
 
 struct Locations
 {
-    float x,y,z;
+    float x, y, z;
 };
 
 static Locations TeleportPoint[]=
@@ -146,7 +146,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
         void JustDied(Unit * /*victim*/)
@@ -165,7 +165,7 @@ public:
             float Z = TeleportPoint[random].z;
             for (uint8 i = 0; i < 3; ++i)
             {
-                Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
                 {
                     TargetGUID[i] = pUnit->GetGUID();
@@ -190,7 +190,7 @@ public:
             //Randomly cast one beam.
             if (BeamTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (!pTarget || !pTarget->isAlive())
                     return;
 
@@ -235,7 +235,7 @@ public:
 
                 TeleportPlayers();
 
-                DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), me);
+                DoScriptText(RAND(SAY_SPELL2, SAY_SPELL3), me);
                 FatalAttractionExplodeTimer = 2000;
                 FatalAttractionTimer = 40000 + rand()%31 * 1000;
             } else FatalAttractionTimer -= diff;
@@ -292,7 +292,7 @@ public:
             //Random taunts
             if (RandomYellTimer <= diff)
             {
-                DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), me);
+                DoScriptText(RAND(SAY_TAUNT1, SAY_TAUNT2, SAY_TAUNT3), me);
                 RandomYellTimer = 60000 + rand()%91 * 1000;
             } else RandomYellTimer -= diff;
 
@@ -301,7 +301,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_mother_shahraz()
 {

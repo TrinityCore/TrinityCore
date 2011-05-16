@@ -427,7 +427,7 @@ class Spell
         void TakePower();
         void TakeAmmo();
 
-        void TakeRunePower();
+        void TakeRunePower(bool didHit);
         void TakeReagents();
         void TakeCastItem();
 
@@ -470,7 +470,7 @@ class Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.setSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.setDst(*m_caster); }
 
-        static void  SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
+        static void SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
         void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
@@ -492,7 +492,7 @@ class Spell
         void SendResurrectRequest(Player* target);
         void SendPlaySpellVisual(uint32 SpellID);
 
-        void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i);
+        void HandleEffects(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGOTarget, uint32 i);
         void HandleThreatSpells(uint32 spellId);
 
         const SpellEntry * const m_spellInfo;
@@ -503,6 +503,7 @@ class Spell
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
+        SpellCustomErrors m_customError;
 
         UsedSpellMods m_appliedMods;
 
@@ -687,6 +688,7 @@ class Spell
 
         // Scripting system
         void LoadScripts();
+        SpellCastResult CallScriptCheckCastHandlers();
         void PrepareScriptHitHandlers();
         bool CallScriptEffectHandlers(SpellEffIndex effIndex);
         void CallScriptBeforeHitHandlers();
@@ -745,17 +747,20 @@ namespace Trinity
         uint32 i_entry;
         const Position * const i_pos;
         bool i_requireDeadTarget;
+        SpellEntry const * i_spellProto;
 
         SpellNotifierCreatureAndPlayer(Unit *source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0, bool requireDeadTarget = false)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0, SpellEntry const * spellProto = NULL)
             : i_data(&data), i_push_type(type), i_radius(radius), i_TargetType(TargetType),
-            i_source(source), i_entry(entry), i_pos(pos), i_requireDeadTarget(requireDeadTarget)
+            i_source(source), i_entry(entry), i_pos(pos), i_spellProto(spellProto)
         {
             ASSERT(i_source);
         }
 
-        template<class T> inline void Visit(GridRefManager<T>  &m)
+        template<class T> inline void Visit(GridRefManager<T>& m)
         {
+            i_requireDeadTarget = i_spellProto ? bool(i_spellProto->AttributesEx3 & SPELL_ATTR3_REQUIRE_DEAD_TARGET) : false;
+
             for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
                 Unit *target = (Unit*)itr->getSource();
@@ -768,7 +773,7 @@ namespace Trinity
                     case SPELL_TARGETS_ENEMY:
                         if (target->isTotem())
                             continue;
-                        if (!target->isAttackableByAOE(i_requireDeadTarget))
+                        if (!target->isAttackableByAOE(i_spellProto))
                             continue;
                         if (i_source->IsControlledByPlayer())
                         {

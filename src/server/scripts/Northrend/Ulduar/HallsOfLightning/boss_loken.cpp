@@ -125,7 +125,7 @@ public:
 
         void KilledUnit(Unit* /*pVictim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -180,7 +180,7 @@ public:
 
             if (m_uiArcLightning_Timer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_ARC_LIGHTNING);
 
                 m_uiArcLightning_Timer = 15000 + rand()%1000;
@@ -190,7 +190,7 @@ public:
 
             if (m_uiLightningNova_Timer <= uiDiff)
             {
-                DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), me);
+                DoScriptText(RAND(SAY_NOVA_1, SAY_NOVA_2, SAY_NOVA_3), me);
                 DoScriptText(EMOTE_NOVA, me);
                 DoCast(me, SPELL_LIGHTNING_NOVA_N);
 
@@ -219,7 +219,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_loken()
 {

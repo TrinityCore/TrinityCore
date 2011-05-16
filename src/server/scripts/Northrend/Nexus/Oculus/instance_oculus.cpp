@@ -38,7 +38,7 @@ public:
 
     struct instance_oculus_InstanceMapScript : public InstanceScript
     {
-        instance_oculus_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_oculus_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         void Initialize()
         {
@@ -63,7 +63,7 @@ public:
             if (creature->GetEntry() != NPC_CENTRIFUGE_CONSTRUCT)
                 return;
 
-             DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,--centrifugueConstructCounter);
+             DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, --centrifugueConstructCounter);
 
              if (!centrifugueConstructCounter)
                 if (Creature* varos = instance->GetCreature(varosGUID))
@@ -74,13 +74,17 @@ public:
         {
             if (GetBossState(DATA_DRAKOS_EVENT) == DONE && GetBossState(DATA_VAROS_EVENT) != DONE)
             {
-                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,1);
-                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,centrifugueConstructCounter);
+                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
+                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, centrifugueConstructCounter);
             } else
             {
-                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,0);
-                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,0);
+                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
+                player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
             }
+        }
+
+        void ProcessEvent(GameObject* /*go*/, uint32 /*eventId*/)
+        {
         }
 
         void ProcessEvent(Unit* /*unit*/, uint32 eventId)
@@ -93,7 +97,7 @@ public:
             if (!varos)
                 return;
 
-            if (Creature* drake = varos->SummonCreature(NPC_AZURE_RING_GUARDIAN,varos->GetPositionX(),varos->GetPositionY(),varos->GetPositionZ()+40))
+            if (Creature* drake = varos->SummonCreature(NPC_AZURE_RING_GUARDIAN, varos->GetPositionX(), varos->GetPositionY(), varos->GetPositionZ()+40))
                 drake->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
         }
 
@@ -115,7 +119,7 @@ public:
                     break;
                 case NPC_CENTRIFUGE_CONSTRUCT:
                     if (creature->isAlive())
-                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,++centrifugueConstructCounter);
+                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, ++centrifugueConstructCounter);
                     break;
             }
         }
@@ -154,14 +158,14 @@ public:
                 case DATA_DRAKOS_EVENT:
                     if (state == DONE)
                     {
-                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,1);
-                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,centrifugueConstructCounter);
+                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
+                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, centrifugueConstructCounter);
                         OpenCageDoors();
                     }
                     break;
                 case DATA_VAROS_EVENT:
                     if (state == DONE)
-                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,0);
+                        DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
                     break;
                 case DATA_EREGOS_EVENT:
                     if (state == DONE)
@@ -247,7 +251,6 @@ public:
 
             char dataHead1, dataHead2;
 
-
             std::istringstream loadStream(in);
             loadStream >> dataHead1 >> dataHead2;
 
@@ -283,7 +286,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_oculus()
 {

@@ -89,7 +89,6 @@ namespace VMAP
             bool result;
     };
 
-
     //=========================================================
 
     std::string StaticMapTree::getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY)
@@ -227,7 +226,7 @@ namespace VMAP
     float StaticMapTree::getHeight(const Vector3& pPos, float maxSearchDist) const
     {
         float height = G3D::inf();
-        Vector3 dir = Vector3(0,0,-1);
+        Vector3 dir = Vector3(0, 0, -1);
         G3D::Ray ray(pPos, dir);   // direction with length of 1
         float maxDist = maxSearchDist;
         if (getIntersectionTime(ray, maxDist, false))
@@ -289,7 +288,7 @@ namespace VMAP
             char chunk[8];
             //general info
             if (!readChunk(rf, chunk, VMAP_MAGIC, 8)) success = false;
-            char tiled;
+            char tiled = '\0';
             if (success && fread(&tiled, sizeof(char), 1, rf) != 1) success = false;
             iIsTiled = bool(tiled);
             // Nodes
@@ -357,7 +356,7 @@ namespace VMAP
         }
         if (!iTreeValues)
         {
-            sLog->outError("StaticMapTree::LoadMapTile() : tree has not been initialized [%u,%u]", tileX, tileY);
+            sLog->outError("StaticMapTree::LoadMapTile() : tree has not been initialized [%u, %u]", tileX, tileY);
             return false;
         }
         bool result = true;
@@ -370,7 +369,7 @@ namespace VMAP
 
             if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
                 result = false;
-            uint32 numSpawns;
+            uint32 numSpawns = 0;
             if (result && fread(&numSpawns, sizeof(uint32), 1, tf) != 1)
                 result = false;
             for (uint32 i=0; i<numSpawns && result; ++i)
@@ -383,7 +382,7 @@ namespace VMAP
                     // acquire model instance
                     WorldModel *model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
-                        sLog->outError("StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u,%u]", tileX, tileY);
+                        sLog->outError("StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
                     // update tree
                     uint32 referencedVal;

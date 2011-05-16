@@ -56,6 +56,44 @@ enum eSpells
     SPELL_WAKING_NIGHTMARE_H    = 67677
 };
 
+class OrientationCheck : public std::unary_function<Unit*, bool>
+{
+    public:
+        explicit OrientationCheck(Unit* _caster) : caster(_caster) { }
+        bool operator() (Unit* unit)
+        {
+            return !unit->isInFront(caster, 40.0f, 2.5f);
+        }
+    
+    private:
+        Unit* caster;
+};
+
+class spell_eadric_radiance : public SpellScriptLoader
+{
+    public:
+        spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
+        class spell_eadric_radiance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_eadric_radiance_SpellScript);
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(OrientationCheck(GetCaster()));
+            }
+            
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+        
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_eadric_radiance_SpellScript();
+        }
+};
+
 class boss_eadric : public CreatureScript
 {
 public:
@@ -66,7 +104,7 @@ public:
         {
             pInstance = pCreature->GetInstanceScript();
             pCreature->SetReactState(REACT_PASSIVE);
-            pCreature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -114,7 +152,7 @@ public:
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
-                me->GetMotionMaster()->MovePoint(0,746.87f,665.87f,411.75f);
+                me->GetMotionMaster()->MovePoint(0, 746.87f, 665.87f, 411.75f);
                 bDone = false;
             } else uiResetTimer -= uiDiff;
 
@@ -138,7 +176,7 @@ public:
 
             if (uiVenganceTimer <= uiDiff)
             {
-                DoCast(me,SPELL_VENGEANCE);
+                DoCast(me, SPELL_VENGEANCE);
 
                 uiVenganceTimer = 10000;
             } else uiVenganceTimer -= uiDiff;
@@ -173,7 +211,7 @@ public:
 
             MemoryGUID = 0;
             pCreature->SetReactState(REACT_PASSIVE);
-            pCreature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             pCreature->RestoreFaction();
         }
 
@@ -194,9 +232,9 @@ public:
         {
             me->RemoveAllAuras();
 
-            uiHolyFireTimer     = urand(9000,12000);
-            uiHolySmiteTimer    = urand(5000,7000);
-            uiRenewTimer        = urand(2000,5000);
+            uiHolyFireTimer     = urand(9000, 12000);
+            uiHolySmiteTimer    = urand(5000, 7000);
+            uiRenewTimer        = urand(2000, 5000);
 
             uiResetTimer        = 7000;
 
@@ -240,7 +278,7 @@ public:
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
-                me->GetMotionMaster()->MovePoint(0,746.87f,665.87f,411.75f);
+                me->GetMotionMaster()->MovePoint(0, 746.87f, 665.87f, 411.75f);
                 bDone = false;
             } else uiResetTimer -= uiDiff;
 
@@ -252,12 +290,12 @@ public:
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
                     if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget,SPELL_HOLY_FIRE);
+                        DoCast(pTarget, SPELL_HOLY_FIRE);
                 }
                  if (me->HasAura(SPELL_SHIELD))
                     uiHolyFireTimer = 13000;
                 else
-                    uiHolyFireTimer = urand(9000,12000);
+                    uiHolyFireTimer = urand(9000, 12000);
             } else uiHolyFireTimer -= uiDiff;
 
             if (uiHolySmiteTimer <= uiDiff)
@@ -265,12 +303,12 @@ public:
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
                     if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget,SPELL_SMITE);
+                        DoCast(pTarget, SPELL_SMITE);
                 }
                 if (me->HasAura(SPELL_SHIELD))
                     uiHolySmiteTimer = 9000;
                 else
-                    uiHolySmiteTimer = urand(5000,7000);
+                    uiHolySmiteTimer = urand(5000, 7000);
             } else uiHolySmiteTimer -= uiDiff;
 
             if (me->HasAura(SPELL_SHIELD))
@@ -278,11 +316,11 @@ public:
                 if (uiRenewTimer <= uiDiff)
                 {
                     me->InterruptNonMeleeSpells(true);
-                    uint8 uiTarget = urand(0,1);
+                    uint8 uiTarget = urand(0, 1);
                     switch(uiTarget)
                     {
                         case 0:
-                            DoCast(me,SPELL_RENEW);
+                            DoCast(me, SPELL_RENEW);
                             break;
                         case 1:
                             if (Creature *pMemory = Unit::GetCreature(*me, MemoryGUID))
@@ -290,17 +328,17 @@ public:
                                     DoCast(pMemory, SPELL_RENEW);
                             break;
                     }
-                    uiRenewTimer = urand(15000,17000);
+                    uiRenewTimer = urand(15000, 17000);
                 } else uiRenewTimer -= uiDiff;
             }
 
             if (!bHealth && !HealthAbovePct(25))
             {
                 me->InterruptNonMeleeSpells(true);
-                DoCastAOE(SPELL_HOLY_NOVA,false);
+                DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);
-                DoCastAOE(SPELL_SUMMON_MEMORY,false);
-                DoCastAOE(SPELL_CONFESS,false);
+                DoCastAOE(SPELL_SUMMON_MEMORY, false);
+                DoCastAOE(SPELL_CONFESS, false);
 
                 bHealth = true;
             }
@@ -347,7 +385,7 @@ public:
 
             if (uiOldWoundsTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (pTarget && pTarget->isAlive())
                         DoCast(pTarget, SPELL_OLD_WOUNDS);
@@ -363,10 +401,10 @@ public:
 
             if (uiShadowPastTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
                     if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget,SPELL_SHADOWS_PAST);
+                        DoCast(pTarget, SPELL_SHADOWS_PAST);
                 }
                 uiShadowPastTimer = 5000;
             }else uiShadowPastTimer -= uiDiff;
@@ -381,7 +419,7 @@ public:
                 if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 {
                     if (pSummoner && pSummoner->isAlive())
-                        CAST_CRE(pSummoner)->AI()->SetData(1,0);
+                        CAST_CRE(pSummoner)->AI()->SetData(1, 0);
                 }
             }
         }
@@ -442,13 +480,13 @@ public:
                     switch(uiType)
                     {
                         case 0:
-                            AddWaypoint(0,712.14f,628.42f,411.88f);
+                            AddWaypoint(0, 712.14f, 628.42f, 411.88f);
                             break;
                         case 1:
-                            AddWaypoint(0,742.44f,650.29f,411.79f);
+                            AddWaypoint(0, 742.44f, 650.29f, 411.79f);
                             break;
                         case 2:
-                            AddWaypoint(0,783.33f,615.29f,411.84f);
+                            AddWaypoint(0, 783.33f, 615.29f, 411.84f);
                             break;
                     }
                     break;
@@ -456,13 +494,13 @@ public:
                     switch(uiType)
                     {
                         case 0:
-                            AddWaypoint(0,713.12f,632.97f,411.90f);
+                            AddWaypoint(0, 713.12f, 632.97f, 411.90f);
                             break;
                         case 1:
-                            AddWaypoint(0,746.73f,650.24f,411.56f);
+                            AddWaypoint(0, 746.73f, 650.24f, 411.56f);
                             break;
                         case 2:
-                            AddWaypoint(0,781.32f,610.54f,411.82f);
+                            AddWaypoint(0, 781.32f, 610.54f, 411.82f);
                             break;
                     }
                     break;
@@ -470,19 +508,19 @@ public:
                     switch(uiType)
                     {
                         case 0:
-                            AddWaypoint(0,715.06f,637.07f,411.91f);
+                            AddWaypoint(0, 715.06f, 637.07f, 411.91f);
                             break;
                         case 1:
-                            AddWaypoint(0,750.72f,650.20f,411.77f);
+                            AddWaypoint(0, 750.72f, 650.20f, 411.77f);
                             break;
                         case 2:
-                            AddWaypoint(0,779.77f,607.03f,411.81f);
+                            AddWaypoint(0, 779.77f, 607.03f, 411.81f);
                             break;
                     }
                     break;
             }
 
-            Start(false,true,0);
+            Start(false, true, 0);
             uiWaypoint = uiType;
         }
 
@@ -499,7 +537,7 @@ public:
         void JustDied(Unit* /*pKiller*/)
         {
             if (pInstance)
-                pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+                pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 
@@ -512,6 +550,7 @@ public:
 void AddSC_boss_argent_challenge()
 {
     new boss_eadric();
+    new spell_eadric_radiance();
     new boss_paletress();
     new npc_memory();
     new npc_argent_soldier();

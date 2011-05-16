@@ -52,7 +52,6 @@ class instance_magtheridons_lair : public InstanceMapScript
         {
             instance_magtheridons_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
-                Initialize();
             }
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -256,7 +255,6 @@ class instance_magtheridons_lair : public InstanceMapScript
             return new instance_magtheridons_lair_InstanceMapScript(pMap);
         }
 };
-
 
 void AddSC_instance_magtheridons_lair()
 {

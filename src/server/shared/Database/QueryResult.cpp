@@ -65,8 +65,8 @@ m_length(NULL)
 
     //- This is where we prepare the buffer based on metadata
     uint32 i = 0;
-    MYSQL_FIELD* field;
-    while ((field = mysql_fetch_field(m_res)))
+    MYSQL_FIELD* field = mysql_fetch_field(m_res);
+    while (field)
     {
         size_t size = Field::SizeForType(field);
 
@@ -80,6 +80,7 @@ m_length(NULL)
         m_rBind[i].is_unsigned = field->flags & UNSIGNED_FLAG;
 
         ++i;
+        field = mysql_fetch_field(m_res);
     }
 
     //- This is where we bind the bind the buffer to the statement

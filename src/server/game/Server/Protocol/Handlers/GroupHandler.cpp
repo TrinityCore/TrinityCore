@@ -24,6 +24,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "GroupMgr.h"
 #include "Player.h"
 #include "Group.h"
 #include "SocialMgr.h"
@@ -86,7 +87,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
         return;
 
     // can't group with
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && GetPlayer()->GetTeam() != player->GetTeam())
+    if (!GetPlayer()->isGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && GetPlayer()->GetTeam() != player->GetTeam())
     {
         SendPartyResult(PARTY_OP_INVITE, membername, ERR_PLAYER_WRONG_FACTION);
         return;
@@ -233,7 +234,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         ASSERT(leader);
         group->RemoveInvite(leader);
         group->Create(leader);
-        sObjectMgr->AddGroup(group);
+        sGroupMgr->AddGroup(group);
     }
 
     // Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
@@ -930,7 +931,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recv_data)
             data << (uint8)  1;
         }
     }
-    data.put<uint64>(maskPos,auramask);                     // GROUP_UPDATE_FLAG_AURAS
+    data.put<uint64>(maskPos, auramask);                     // GROUP_UPDATE_FLAG_AURAS
 
     if (pet)
     {
@@ -956,7 +957,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recv_data)
                 data << (uint8)  1;
             }
         }
-        data.put<uint64>(petMaskPos,petauramask);           // GROUP_UPDATE_FLAG_PET_AURAS
+        data.put<uint64>(petMaskPos, petauramask);           // GROUP_UPDATE_FLAG_PET_AURAS
     }
     else
     {

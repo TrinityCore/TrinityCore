@@ -84,8 +84,8 @@ enum eNetherdrake
     SAY_NIHIL_1                 = -1000169, //signed for 5955
     SAY_NIHIL_2                 = -1000170, //signed for 5955
     SAY_NIHIL_3                 = -1000171, //signed for 5955
-    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021,21817,21820,21821,21823
-    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021,21817,21820,21821,21823
+    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
+    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
 
     ENTRY_WHELP                 = 20021,
     ENTRY_PROTO                 = 21821,
@@ -255,7 +255,6 @@ public:
 
 };
 
-
 /*######
 ## npc_daranelle
 ######*/
@@ -302,7 +301,6 @@ public:
 
 };
 
-
 /*######
 ## npc_overseer_nuaar
 ######*/
@@ -336,7 +334,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_saikkal_the_elder
@@ -379,7 +376,6 @@ public:
 
 };
 
-
 /*######
 ## go_legion_obelisk
 ######*/
@@ -414,7 +410,7 @@ public:
 
             if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
             {
-                pGo->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+                pGo->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 //reset global var
                 obelisk_one = false;
                 obelisk_two = false;
@@ -429,17 +425,17 @@ public:
 
 };
 
-
 /*######
 ## npc_bloodmaul_brutebane
 ######*/
 
-
 enum eBloodmaul
 {
-    NPC_OGRE_BRUTE        = 19995,
-    NPC_QUEST_CREDIT      = 21241,
-    GO_KEG                = 184315
+    NPC_OGRE_BRUTE                              = 19995,
+    NPC_QUEST_CREDIT                            = 21241,
+    GO_KEG                                      = 184315,
+    QUEST_GETTING_THE_BLADESPIRE_TANKED         = 10512,
+    QUEST_BLADESPIRE_KEGGER                     = 10545,
 };
 
 class npc_bloodmaul_brutebane : public CreatureScript
@@ -447,14 +443,14 @@ class npc_bloodmaul_brutebane : public CreatureScript
 public:
     npc_bloodmaul_brutebane() : CreatureScript("npc_bloodmaul_brutebane") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_bloodmaul_brutebaneAI (pCreature);
+        return new npc_bloodmaul_brutebaneAI(creature);
     }
 
     struct npc_bloodmaul_brutebaneAI : public ScriptedAI
     {
-        npc_bloodmaul_brutebaneAI(Creature *c) : ScriptedAI(c)
+        npc_bloodmaul_brutebaneAI(Creature* creature) : ScriptedAI(creature)
         {
            if(Creature* Ogre = me->FindNearestCreature(NPC_OGRE_BRUTE, 50, true))
            {
@@ -475,7 +471,6 @@ public:
 
 };
 
-
 /*######
 ## npc_ogre_brute
 ######*/
@@ -485,14 +480,14 @@ class npc_ogre_brute : public CreatureScript
 public:
     npc_ogre_brute() : CreatureScript("npc_ogre_brute") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ogre_bruteAI(pCreature);
+        return new npc_ogre_bruteAI(creature);
     }
 
     struct npc_ogre_bruteAI : public ScriptedAI
     {
-        npc_ogre_bruteAI(Creature *c) : ScriptedAI(c) {}
+        npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 PlayerGUID;
 
@@ -501,13 +496,15 @@ public:
             PlayerGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || (!who->isAlive())) return;
 
-            if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && who->ToPlayer()->GetQuestStatus(10512) == QUEST_STATUS_INCOMPLETE)
+            if (me->IsWithinDistInMap(who, 50.0f))
             {
-                PlayerGUID = who->GetGUID();
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED || QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE)
+                        PlayerGUID = who->GetGUID();
             }
         }
 
@@ -537,7 +534,6 @@ public:
     };
 
 };
-
 
 /*######
 ## AddSC

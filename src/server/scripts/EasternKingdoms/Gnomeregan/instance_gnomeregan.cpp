@@ -34,8 +34,7 @@ public:
     {
         instance_gnomeregan_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
         {
-            Initialize();
-        };
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -91,12 +90,12 @@ public:
                 case GO_CAVE_IN_LEFT:
                     uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(NULL,false,go);
+                        HandleGameObject(0, false, go);
                     break;
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(NULL,false,go);
+                        HandleGameObject(0, false, go);
                     break;
             }
         }
@@ -136,7 +135,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_gnomeregan()
 {

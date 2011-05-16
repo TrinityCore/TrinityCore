@@ -140,8 +140,8 @@ public:
             m_uiStaggeringStompTimer = 15*IN_MILLISECONDS;
             m_uiSummonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);;
 
-            if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
-                getDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
+                GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
                 m_uiSummonCount = 5;
             else
                 m_uiSummonCount = 4;
@@ -223,7 +223,6 @@ public:
     };
 
 };
-
 
 class mob_snobold_vassal : public CreatureScript
 {
@@ -323,7 +322,7 @@ public:
                             m_bTargetDied = true;
                             me->GetMotionMaster()->MoveJump(gormok->GetPositionX(), gormok->GetPositionY(), gormok->GetPositionZ(), 15.0f, 15.0f);
                         }
-                        else if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             m_uiTargetGUID = target->GetGUID();
                             me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 15.0f, 15.0f);
@@ -334,7 +333,7 @@ public:
 
             if (m_uiFireBombTimer < uiDiff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_FIRE_BOMB);
                 m_uiFireBombTimer = 20000;
             }
@@ -361,7 +360,6 @@ public:
     };
 
 };
-
 
 struct boss_jormungarAI : public ScriptedAI
 {
@@ -506,7 +504,7 @@ struct boss_jormungarAI : public ScriptedAI
             case 4: // Stationary
                 if (sprayTimer <= uiDiff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, spraySpell);
                     sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else sprayTimer -= uiDiff;
@@ -575,7 +573,6 @@ struct boss_jormungarAI : public ScriptedAI
     bool   enraged;
 };
 
-
 class boss_acidmaw : public CreatureScript
 {
     public:
@@ -608,7 +605,6 @@ class boss_acidmaw : public CreatureScript
     }
 };
 
-
 class boss_dreadscale : public CreatureScript
 {
 public:
@@ -639,7 +635,6 @@ public:
         return new boss_dreadscaleAI(pCreature);
     }
 };
-
 
 class mob_slime_pool : public CreatureScript
 {
@@ -809,7 +804,7 @@ public:
 
                     if (m_uiArticBreathTimer <= uiDiff)
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_ARCTIC_BREATH);
                         m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
                     } else m_uiArticBreathTimer -= uiDiff;
@@ -912,7 +907,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_northrend_beasts()
 {

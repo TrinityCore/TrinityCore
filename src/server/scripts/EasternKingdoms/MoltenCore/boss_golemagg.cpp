@@ -99,7 +99,7 @@ class boss_golemagg : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_PYROBLAST:
-                            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, SPELL_PYROBLAST);
                             events.ScheduleEvent(EVENT_PYROBLAST, 7000);
                             break;
@@ -139,7 +139,7 @@ class mob_core_rager : public CreatureScript
                 mangleTimer = 7*IN_MILLISECONDS;                 // These times are probably wrong
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
                 if (HealthAbovePct(50) || !instance)
                     return;

@@ -75,9 +75,9 @@ public:
         {
             _Reset();
 
-            events.ScheduleEvent(EVENT_MAGIC_PULL,15000);
-            events.ScheduleEvent(EVENT_STOMP,17000);
-            events.ScheduleEvent(EVENT_BOMB_SUMMON,2000);
+            events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
+            events.ScheduleEvent(EVENT_STOMP, 17000);
+            events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
 
             postPull = false;
         }
@@ -110,21 +110,21 @@ public:
 
                             for (uint8 i = 0; i <= (postPull ? 3 : 0); i++)
                             {
-                                me->GetRandomNearPosition(pPosition, float(urand(0,10)));
+                                me->GetRandomNearPosition(pPosition, float(urand(0, 10)));
                                 me->SummonCreature(NPC_UNSTABLE_SPHERE, pPosition);
                             }
                         }
-                        events.ScheduleEvent(EVENT_BOMB_SUMMON,2000);
+                        events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
                         break;
                     case EVENT_MAGIC_PULL:
                         DoCast(SPELL_MAGIC_PULL);
                         postPull = true;
-                        events.ScheduleEvent(EVENT_MAGIC_PULL,15000);
+                        events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
                         break;
                     case EVENT_STOMP:
-                        DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2,SAY_STOMP_3), me);
+                        DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2, SAY_STOMP_3), me);
                         DoCast(SPELL_THUNDERING_STOMP);
-                        events.ScheduleEvent(EVENT_STOMP,17000);
+                        events.ScheduleEvent(EVENT_STOMP, 17000);
                         break;
                 }
             }
@@ -144,7 +144,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), me);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2, SAY_KILL_3), me);
         }
     private:
         bool postPull;

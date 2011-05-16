@@ -102,7 +102,6 @@ enum Actions
     ACTION_PACT
 };
 
-
 /*######
 ## boss_twin_base
 ######*/
@@ -126,8 +125,8 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiTouchTimer;
     uint32 m_uiBerserkTimer;
 
-    uint32 m_uiVortexSay;
-    uint32 m_uiVortexEmote;
+    int32 m_uiVortexSay;
+    int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
     uint32 m_uiColorballNpcId;
     uint32 m_uiEssenceNpcId;
@@ -490,7 +489,6 @@ public:
 
 };
 
-
 /*######
 ## boss_eydis
 ######*/
@@ -536,7 +534,6 @@ public:
 
 };
 
-
 class mob_essence_of_twin : public CreatureScript
 {
 public:
@@ -561,7 +558,6 @@ public:
         return true;
     }
 };
-
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
@@ -645,7 +641,6 @@ public:
 
 };
 
-
 class mob_unleashed_light : public CreatureScript
 {
 public:
@@ -678,7 +673,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_twin_valkyr()
 {

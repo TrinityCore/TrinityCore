@@ -22,14 +22,14 @@
 
 //Spells Archavon
 #define SPELL_ROCK_SHARDS        58678
-#define SPELL_CRUSHING_LEAP      RAID_MODE(58960,60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
-#define SPELL_STOMP              RAID_MODE(58663,60880)
-#define SPELL_IMPALE             RAID_MODE(58666,60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
+#define SPELL_CRUSHING_LEAP      RAID_MODE(58960, 60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
+#define SPELL_STOMP              RAID_MODE(58663, 60880)
+#define SPELL_IMPALE             RAID_MODE(58666, 60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
 #define SPELL_BERSERK            47008
 //Spells Archavon Warders
-#define SPELL_ROCK_SHOWER        RAID_MODE(60919,60923)
-#define SPELL_SHIELD_CRUSH       RAID_MODE(60897,60899)
-#define SPELL_WHIRL              RAID_MODE(60902,60916)
+#define SPELL_ROCK_SHOWER        RAID_MODE(60919, 60923)
+#define SPELL_SHIELD_CRUSH       RAID_MODE(60897, 60899)
+#define SPELL_WHIRL              RAID_MODE(60902, 60916)
 
 //4 Warders spawned
 #define ARCHAVON_WARDER          32353 //npc 32353
@@ -37,16 +37,22 @@
 //Yell
 #define SAY_LEAP "Archavon the Stone Watcher lunges for $N!" //$N should be the target
 
-#define EVENT_ROCK_SHARDS        1  //15s cd
-#define EVENT_CHOKING_CLOUD      2  //30s cd
-#define EVENT_STOMP              3  //45s cd
-#define EVENT_IMPALE             4
-#define EVENT_BERSERK            5  //300s cd
-#define EVENT_TW_CHECK           6
-//mob
-#define EVENT_ROCK_SHOWER        7  //set = 20s cd,unkown cd
-#define EVENT_SHIELD_CRUSH       8  //set = 30s cd
-#define EVENT_WHIRL              9  //set= 10s cd
+enum Events
+{
+    // Archavon
+    EVENT_ROCK_SHARDS       = 1,    // 15s cd
+    EVENT_CHOKING_CLOUD     = 2,    // 30s cd
+    EVENT_STOMP             = 3,    // 45s cd
+    EVENT_IMPALE            = 4,
+    EVENT_BERSERK           = 5,    // 300s cd
+
+    EVENT_TW_CHECK          = 6,
+
+    //mob
+    EVENT_ROCK_SHOWER       = 7,    // set = 20s cd, unkown cd
+    EVENT_SHIELD_CRUSH      = 8,    // set = 30s cd
+    EVENT_WHIRL             = 9,    // set= 10s cd
+};
 
 class boss_archavon : public CreatureScript
 {
@@ -127,28 +133,33 @@ public:
             {
                 switch(eventId)
                 {
-                    case EVENT_ROCK_SHARDS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_ROCK_SHARDS);
-                        events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
-                        return;
-                    case EVENT_CHOKING_CLOUD:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
-                        events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
-                        return;
-                    case EVENT_STOMP:
-                        DoCast(me->getVictim(), SPELL_STOMP);
-                        events.ScheduleEvent(EVENT_IMPALE, 3000);
-                        events.ScheduleEvent(EVENT_STOMP, 45000);
-                        return;
-                    case EVENT_IMPALE:
-                        DoCast(me->getVictim(), SPELL_IMPALE);
-                        return;
-                    case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK);
-                        DoScriptText(EMOTE_BERSERK, me);
-                        return;
+                    switch (eventId)
+                    {
+                        case EVENT_ROCK_SHARDS:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_ROCK_SHARDS);
+                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
+                            break;
+                        case EVENT_CHOKING_CLOUD:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                            events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
+                            break;
+                        case EVENT_STOMP:
+                            DoCastVictim(SPELL_STOMP);
+                            events.ScheduleEvent(EVENT_IMPALE, 3000);
+                            events.ScheduleEvent(EVENT_STOMP, 45000);
+                            break;
+                        case EVENT_IMPALE:
+                            DoCastVictim(SPELL_IMPALE);
+                            break;
+                        case EVENT_BERSERK:
+                            DoCast(me, SPELL_BERSERK);
+                            DoScriptText(EMOTE_BERSERK, me);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 
@@ -219,10 +230,21 @@ public:
                 {
                     case EVENT_ROCK_SHOWER:
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_ROCK_SHOWER);
-                        events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
-                        return;
+                        case EVENT_ROCK_SHOWER:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_ROCK_SHOWER);
+                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
+                            break;
+                        case EVENT_SHIELD_CRUSH:
+                            DoCastVictim(SPELL_SHIELD_CRUSH);
+                            events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20000);
+                            break;
+                        case EVENT_WHIRL:
+                            DoCastVictim(SPELL_WHIRL);
+                            events.ScheduleEvent(EVENT_WHIRL, 8000);
+                            break;
+                        default:
+                            break;
                     }
                     case EVENT_SHIELD_CRUSH:
                         DoCast(me->getVictim(), SPELL_SHIELD_CRUSH);

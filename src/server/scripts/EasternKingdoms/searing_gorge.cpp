@@ -80,7 +80,6 @@ public:
 
 };
 
-
 /*######
 ## npc_lothos_riftwaker
 ######*/
@@ -118,7 +117,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_zamael_lunthistle
@@ -168,7 +166,6 @@ public:
     }
 
 };
-
 
 /*######
 ##
