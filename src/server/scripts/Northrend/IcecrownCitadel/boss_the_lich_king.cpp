@@ -1766,7 +1766,7 @@ public:
                             me->DespawnOrUnsummon();
                             return;
                         }
-                        /*if (!curVictim->isAlive() || curVictim->GetTypeId() != TYPEID_PLAYER)
+                       /* if (!curVictim->isAlive() || curVictim->GetTypeId() != TYPEID_PLAYER)
                         {
                             Player *player = curVictim->ToPlayer();
                             uint8 count = 0;
@@ -1776,7 +1776,7 @@ public:
                             }
                             EnterEvadeMode();
                             AttackStart(player);
-                        }*/
+                        } */
                         events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_FROSTMOURNE_ROOM, 2000);
                         break;
                     }

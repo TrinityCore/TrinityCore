@@ -36,7 +36,7 @@ enum Texts
     SAY_KILL                            = 8, // Perish!
                                              // A flaw of mortality...
     SAY_BERSERK                         = 9, // Enough! I tire of these games!
-    SAY_DEATH                           = 10,// Free...at last...
+    SAY_DEATH                           = 10, // Free...at last...
 };
 
 enum Spells
@@ -165,7 +165,6 @@ class FrostwyrmLandEvent : public BasicEvent
             return true;
         }
 
-    private:
         Creature& owner;
         Position const& dest;
 };
@@ -206,6 +205,7 @@ class boss_sindragosa : public CreatureScript
                 for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
                     me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
             }
+
             void Reset()
             {
                 bombsLanded = 0;
@@ -1272,6 +1272,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
             {
                 if (!sObjectMgr->GetCreatureTemplate(NPC_ICE_TOMB))
                     return false;
+
                 if (!sObjectMgr->GetGameObjectTemplate(GO_SINDRAGOSA_ICE_BLOCK))
                     return false;
                 return true;
@@ -1327,27 +1328,23 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 class FrostBombTargetSelector
 {
     public:
-        FrostBombTargetSelector(Unit* _caster, std::list<Creature*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
+        FrostBombTargetSelector(Unit* caster, std::list<Creature*> const& collisionList) : _caster(caster), _collisionList(collisionList) { }
 
         bool operator()(Unit* unit)
         {
             if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
-            for (std::list<Creature*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
-                if ((*itr)->IsInBetween(caster, unit))
-                    return true;
-
-            //Do not apply Mystic Buffet spell vulnerability to Sindragosa
-            if (Creature *pCreature = unit->ToCreature())
-                if (pCreature->GetEntry() == NPC_SINDRAGOSA)
+            for (std::list<Creature*>::const_iterator itr = _collisionList.begin(); itr != _collisionList.end(); ++itr)
+                if ((*itr)->IsInBetween(_caster, unit))
                     return true;
 
             return false;
         }
 
-        Unit* caster;
-        std::list<Creature*> const& collisionList;
+    private:
+        Unit* _caster;
+        std::list<Creature*> const& _collisionList;
 };
 
 class spell_sindragosa_collision_filter : public SpellScriptLoader
@@ -1597,40 +1594,6 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
         }
 };
 
-class spell_trigger_spell_from_caster : public SpellScriptLoader
-{
-    public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 _triggerId) : SpellScriptLoader(scriptName), triggerId(_triggerId) { }
-
-        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
-
-        public:
-            spell_trigger_spell_from_caster_SpellScript(uint32 _triggerId) : SpellScript(), triggerId(_triggerId) { }
-
-            void HandleTrigger()
-            {
-                GetCaster()->CastSpell(GetHitUnit(), triggerId, true);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
-            }
-
-            uint32 triggerId;
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_trigger_spell_from_caster_SpellScript(triggerId);
-        }
-
-    private:
-        uint32 triggerId;
-};
-
 class at_sindragosa_lair : public AreaTriggerScript
 {
     public:
@@ -1655,7 +1618,10 @@ class at_sindragosa_lair : public AreaTriggerScript
 
                     player->GetMap()->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
                     if (Creature* sindragosa = player->GetMap()->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
+                    {
                         sindragosa->AI()->DoAction(ACTION_START_FROSTWYRM);
+                        sindragosa->SetRespawnTime(7*DAY);
+                    }
                 }
             }
 

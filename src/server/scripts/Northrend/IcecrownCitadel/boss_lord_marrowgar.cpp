@@ -53,7 +53,7 @@ enum eSpells
     SPELL_COLDFLAME_SUMMON      = 69147
 };
 
-static const uint32 boneSpikeSummonId[3] = {69062, 72669, 72670};
+uint32 const boneSpikeSummonId[3] = {69062, 72669, 72670};
 
 enum eEvents
 {
@@ -162,7 +162,7 @@ class boss_lord_marrowgar : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -471,7 +471,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     for (uint8 i = 0; i < boneSpikeCount; ++i)
                     {
                         // select any unit but not the tank
-                        Unit* target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 1, 150.0f, true, -SPELL_IMPALED);
+                        Unit* target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_IMPALED);
                         //Yes, NOT THE TANK!
                         //if (!target && !i)
                         //    target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_IMPALED);
@@ -509,7 +509,13 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
             void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
-                SetHitDamage(int32(GetHitDamage() / sqrtf(logf(GetHitUnit()->GetExactDist2d(GetCaster())))));
+                int32 dmg = GetHitDamage();
+                float distance = GetHitUnit()->GetExactDist2d(GetCaster());
+                if (distance < 5.0f)
+                    return;
+
+                float distVar = distance >= 20.0f ? 4 : (10.0f/3.0f);
+                SetHitDamage(int32(dmg * distVar / distance));
             }
 
             void Register()

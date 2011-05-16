@@ -65,8 +65,8 @@ enum eSpells
 #define SPELL_VILE_GAS RAID_MODE<uint32>(72272, 72273, 72273, 73020)
 //#define SPELL_GASTRIC_EXPLOSION RAID_MODE<uint32>(72227, 72227, 72229, 72230)
 // Used for HasAura checks
-#define PUNGENT_BLIGHT_HELPER RAID_MODE<uint32>(69195,71219,73031,73032)
-#define INOCULATED_HELPER     RAID_MODE<uint32>(69291,72101,72102,72103)
+#define PUNGENT_BLIGHT_HELPER RAID_MODE<uint32>(69195, 71219, 73031, 73032)
+#define INOCULATED_HELPER     RAID_MODE<uint32>(69291, 72101, 72102, 72103)
 
 static const uint32 gaseousBlight[3]        = {69157, 69162, 69164};
 static const uint32 gaseousBlightAura[3]    = {69159, 69161, 69163};
@@ -118,7 +118,6 @@ class boss_festergut : public CreatureScript
 
             void Reset()
             {
-                me->SetReactState(REACT_DEFENSIVE);
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, 35000);
@@ -207,6 +206,11 @@ class boss_festergut : public CreatureScript
                     victim->RemoveAurasDueToSpell(SPELL_VILE_GAS);
                     victim->RemoveAurasDueToSpell(SPELL_GAS_SPORE);
                 }
+            }
+
+            void MoveInLineOfSight(Unit* /*who*/)
+            {
+                // don't enter combat
             }
 
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
@@ -435,7 +439,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript);
 
-            bool Validate(SpellEntry const* spell)
+            bool Validate(SpellEntry const* /*spell*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_GASTRIC_EXPLOSION))
                     return false;

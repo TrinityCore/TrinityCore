@@ -72,16 +72,16 @@ enum Shadowmourne
     SPELL_THIRST_QUENCHED                   = 72154,
 };
 
-static const uint32 vampireAuras[3][MAX_DIFFICULTY] =
+uint32 const vampireAuras[3][MAX_DIFFICULTY] =
 {
     {70867, 71473, 71532, 71533},
     {70879, 71525, 71530, 71531},
     {70877, 71474, 70877, 71474},
 };
 
-#define ESSENCE_OF_BLOOD_QUEEN     RAID_MODE<uint32>(70867,71473,71532,71533)
-#define ESSENCE_OF_BLOOD_QUEEN_PLR RAID_MODE<uint32>(70879,71525,71530,71531)
-#define FRENZIED_BLOODTHIRST       RAID_MODE<uint32>(70877,71474,70877,71474)
+#define ESSENCE_OF_BLOOD_QUEEN     RAID_MODE<uint32>(70867, 71473, 71532, 71533)
+#define ESSENCE_OF_BLOOD_QUEEN_PLR RAID_MODE<uint32>(70879, 71525, 71530, 71531)
+#define FRENZIED_BLOODTHIRST       RAID_MODE<uint32>(70877, 71474, 70877, 71474)
 
 enum Events
 {
@@ -110,10 +110,9 @@ enum Points
     POINT_MINCHAR   = 4,
 };
 
-
-static const Position centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};    
-static const Position airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
-static const Position mincharPos = {4629.3711f, 2782.6089f, 424.6390f, 0.000000f};
+Position const centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};
+Position const airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
+Position const mincharPos = {4629.3711f, 2782.6089f, 424.6390f, 0.000000f};
 
 bool IsVampire(Unit const* unit)
 {
@@ -161,7 +160,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     return;
 
                 if (instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL_EVENT) == IN_PROGRESS)
-                    killMinchar = true;
+                    _killMinchar = true;
                 else
                 {
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -175,9 +174,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void EnterEvadeMode()
             {
                 _EnterEvadeMode();
-                if (killMinchar)
+                if (_killMinchar)
                 {
-                    killMinchar = false;
+                    _killMinchar = false;
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                     me->SetFlying(true);
@@ -269,7 +268,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(const uint64& guid, int32 type = 0)
+            void SetGUID(uint64 const& guid, int32 type = 0)
             {
                 if (type == GUID_VAMPIRE)
                     vampires.insert(guid);
@@ -319,7 +318,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -456,7 +455,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
             // offtank for this encounter is the player standing closest to main tank
             Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = NULL)
             {
-                const std::list<HostileReference*> &threatlist = me->getThreatManager().getThreatList();
+                std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
                 std::list<Player*> tempTargets;
 
                 if (threatlist.empty())
@@ -492,7 +491,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
             Player* offtank;
             std::set<uint64> vampires;
             bool creditBloodQuickening;
-            bool killMinchar;
+            bool _killMinchar;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -741,7 +740,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 SpellEntry const* damageSpell = sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = SpellMgr::CalculateSpellEffectAmount(damageSpell, EFFECT_0);
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-                damage = uint32(damage * multiplier);
+                damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }
 

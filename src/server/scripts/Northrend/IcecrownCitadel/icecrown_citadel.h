@@ -15,17 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_ICECROWN_CITADEL_H
-#define DEF_ICECROWN_CITADEL_H
-#define WEEKLY_NPCS   9
+#ifndef ICECROWN_CITADEL_H_
+#define ICECROWN_CITADEL_H_
+
+#include "SpellScript.h"
+#include "Map.h"
+#include "Creature.h"
+
+#define WEEKLY_NPCS   7
 
 #define ICCScriptName "instance_icecrown_citadel"
 
 enum eSharedSpells
 {
     SPELL_BERSERK   = 26662,
-    SPELL_BERSERK2  = 47008
+    SPELL_BERSERK2  = 47008,
+
+    // Residue Rendezvous
+    SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
+    SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
 };
+
+uint32 const EncounterCount = 13;
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
 
 enum eEnums
 {
@@ -37,8 +52,8 @@ enum eAchievements
 {
     ACHIEV_BONED_10                             = 4534,
     ACHIEV_BONED_25                             = 4610,
-    ACHIEV_FROZEN_THRONE_10                    = 4530,
-    ACHIEV_FROZEN_THRONE_25                    = 4597,
+    ACHIEV_FROZEN_THRONE_10                     = 4530,
+    ACHIEV_FROZEN_THRONE_25                     = 4597,
     AVHIEV_FULL_HOUSE_10                        = 4535,
     AVHIEV_FULL_HOUSE_25                        = 4611,
     ACHIEV_MESS_10                              = 4537,
@@ -125,9 +140,12 @@ enum eCommonActions
     // Blood-Queen Lana'thel
     ACTION_KILL_MINCHAR         = -379550,
 
+    // Frostwing Halls gauntlet event
+    ACTION_VRYKUL_DEATH         = 37129,
+
     // Sindragosa
-     ACTION_START_FROSTWYRM      = -368530,
-     ACTION_TRIGGER_ASPHYXIATION = -368531,
+    ACTION_START_FROSTWYRM      = -368530,
+    ACTION_TRIGGER_ASPHYXIATION = -368531,
     ACTION_BOMB_LANDED          = -368532
 };
 enum eAdditionalActions
@@ -144,8 +162,9 @@ enum Data
     DATA_FESTERGUT_EVENT,
     DATA_ROTFACE_EVENT,
     DATA_PROFESSOR_PUTRICIDE_EVENT,
-    DATA_BLOOD_PRINCE_COUNCIL,
+    DATA_BLOOD_PRINCE_COUNCIL_EVENT,
     DATA_BLOOD_QUEEN_LANA_THEL_EVENT,
+    DATA_SISTER_SVALNA_EVENT,
     DATA_VALITHRIA_DREAMWALKER_EVENT,
     DATA_SINDRAGOSA_EVENT,
     DATA_LICH_KING_EVENT,
@@ -167,6 +186,11 @@ enum Data
     DATA_NECROTIC_STACK,
     DATA_BLOOD_QUICKENING_STATE,
     DATA_HEROIC_ATTEMPTS,
+    DATA_CROK_SCOURGEBANE,
+    DATA_CAPTAIN_ARNATH,
+    DATA_CAPTAIN_BRANDON,
+    DATA_CAPTAIN_GRONDEL,
+    DATA_CAPTAIN_RUPERT,
     //Achievements
     DATA_NECK_DEEP_ACHIEVEMENT,
     DATA_BONED_ACHIEVEMENT,
@@ -186,9 +210,9 @@ enum Data64
     GUID_FESTERGUT,
     GUID_ROTFACE,
     GUID_PROFESSOR_PUTRICIDE,
-    DATA_PRINCE_VALANAR_GUID,
-    DATA_PRINCE_KELESETH_GUID,
-    DATA_PRINCE_TALDARAM_GUID,
+    GUID_PRINCE_VALANAR_ICC,
+    GUID_PRINCE_KELESETH_ICC,
+    GUID_PRINCE_TALDARAM_ICC,
     GUID_BLOOD_QUEEN_LANA_THEL,
     GUID_VALITHRIA_DREAMWALKER,
     GUID_VALITHRIA_ALTERNATIVE,
@@ -196,11 +220,18 @@ enum Data64
     GUID_SINDRAGOSA,
     GUID_LICH_KING,
 
+    GUID_SISTER_SVALNA,
+    GUID_CROK_SCOURGEBANE,
+    GUID_CAPTAIN_ARNATH,
+    GUID_CAPTAIN_BRANDON,
+    GUID_CAPTAIN_GRONDEL,
+    GUID_CAPTAIN_RUPERT,
+
     // Additional data
     GUID_SAURFANG_EVENT_NPC,
     GUID_DEATHBRINGER_S_DOOR,
     GUID_TIRION,
-    DATA_BLOOD_PRINCES_CONTROL,
+    GUID_BLOOD_PRINCES_CONTROL,
     GUID_PUTRICIDE_TABLE,
     GUID_SINDRAGOSA_ENTRANCE_DOOR,
     GUID_RIMEFANG,
@@ -252,16 +283,16 @@ enum eCreatures
     NPC_HIGHLORD_BOLVAR_FORDRAGON_LH            = 37183,
 
     // Weekly quests
-     NPC_INFILTRATOR_MINCHAR                     = 38471,
-     NPC_KOR_KRON_LIEUTENANT                     = 38491,
-     NPC_SKYBREAKER_LIEUTENANT                   = 38492,
-     NPC_ROTTING_FROST_GIANT_10                  = 38490,
-     NPC_ROTTING_FROST_GIANT_25                  = 38494,
-     NPC_ALCHEMIST_ADRIANNA                      = 38501,
-     NPC_ALRIN_THE_AGILE                         = 38551,
-     NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
-     NPC_MINCHAR_BEAM_STALKER                    = 38557,
-     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
+    NPC_INFILTRATOR_MINCHAR                     = 38471,
+    NPC_KOR_KRON_LIEUTENANT                     = 38491,
+    NPC_SKYBREAKER_LIEUTENANT                   = 38492,
+    NPC_ROTTING_FROST_GIANT_10                  = 38490,
+    NPC_ROTTING_FROST_GIANT_25                  = 38494,
+    NPC_ALCHEMIST_ADRIANNA                      = 38501,
+    NPC_ALRIN_THE_AGILE                         = 38551,
+    NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
+    NPC_MINCHAR_BEAM_STALKER                    = 38557,
+    NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
@@ -343,6 +374,24 @@ enum eCreatures
     NPC_KINETIC_BOMB                            = 38454,
     NPC_SHOCK_VORTEX                            = 38422,
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
+    // Frostwing Halls gauntlet event
+    NPC_CROK_SCOURGEBANE                        = 37129,
+    NPC_CAPTAIN_ARNATH                          = 37122,
+    NPC_CAPTAIN_BRANDON                         = 37123,
+    NPC_CAPTAIN_GRONDEL                         = 37124,
+    NPC_CAPTAIN_RUPERT                          = 37125,
+    NPC_CAPTAIN_ARNATH_UNDEAD                   = 37491,
+    NPC_CAPTAIN_BRANDON_UNDEAD                  = 37493,
+    NPC_CAPTAIN_GRONDEL_UNDEAD                  = 37494,
+    NPC_CAPTAIN_RUPERT_UNDEAD                   = 37495,
+    NPC_YMIRJAR_BATTLE_MAIDEN                   = 37132,
+    NPC_YMIRJAR_DEATHBRINGER                    = 38125,
+    NPC_YMIRJAR_FROSTBINDER                     = 37127,
+    NPC_YMIRJAR_HUNTRESS                        = 37134,
+    NPC_YMIRJAR_WARLORD                         = 37133,
+    NPC_SISTER_SVALNA                           = 37126,
+    NPC_IMPALING_SPEAR                          = 38248,
+    // Valithria Dreamwalker
     NPC_SWARMING_SHADOWS                        = 38163,
     NPC_VALITHRIA_DREAMWALKER                   = 36789,
     NPC_VALITHRIA_ALTERNATIVE                   = 37950,
@@ -535,6 +584,57 @@ enum WorldStatesICC
     WORLDSTATE_ATTEMPTS_MAX         = 4942,
 };
 
+class spell_trigger_spell_from_caster : public SpellScriptLoader
+{
+    public:
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId) : SpellScriptLoader(scriptName), _triggerId(triggerId) { }
+
+        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
+
+        public:
+            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(_triggerId))
+                    return false;
+                return true;
+            }
+
+            void HandleTrigger()
+            {
+                GetCaster()->CastSpell(GetHitUnit(), _triggerId, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
+            }
+
+            uint32 _triggerId;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_trigger_spell_from_caster_SpellScript(_triggerId);
+        }
+
+    private:
+        uint32 _triggerId;
+};
+
+template<class AI>
+CreatureAI* GetIcecrownCitadelAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == GetScriptId(ICCScriptName))
+                return new AI(creature);
+    return NULL;
+}
+
 void DespawnAllCreaturesAround(Creature *ref, uint32 entry);
 void UnsummonSpecificCreaturesNearby(Creature *ref, uint32 entry, float radius);
 void LeaveOnlyPlayers(std::list<Unit*> &unitList);
@@ -544,5 +644,4 @@ typedef std::list<Player*> TPlayerList;
 TPlayerList GetPlayersInTheMap(Map *pMap);
 TPlayerList GetAttackablePlayersInTheMap(Map *pMap);
 // Declaration
-extern Position const SindragosaSpawnPos;
-#endif
+#endif // ICECROWN_CITADEL_H_

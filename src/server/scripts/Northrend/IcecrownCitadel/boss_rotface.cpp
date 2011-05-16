@@ -37,8 +37,6 @@ enum eTexts
     SAY_BERSERK                 = 7,
     SAY_DEATH                   = 8,
 
-    EMOTE_PRECIOUS_ZOMBIES      = 0,
-
     SAY_PUTRI_SLIME            = -1631091,
     SAY_PUTRI_SLIME_2          = -1631092,
     SOUND_PUTRI_SLIME          = 17126,
@@ -76,7 +74,7 @@ enum eSpells
 };
 #define SPELL_OOZE_FLOOD_EFFECT  RAID_MODE<int32>(69789, 71215, 71587, 71588)
 static const uint32 oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
-#define SPELL_MUTATED_INFECTION RAID_MODE<int32>(69674,71224,73022,73023)
+#define SPELL_MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
 #define SPELL_RADIATING_OOZE RAID_MODE<int32>(69760, 73026, 71212, 73027)   // passive damage aura - large
 
 enum eEvents
@@ -89,7 +87,7 @@ enum eEvents
     //Precious
     EVENT_DECIMATE          = 4,
     EVENT_MORTAL_WOUND      = 5,
-    EVENT_SUMMON_ZOMBIES    = 6,
+    EVENT_AWAKEN_PLAGUED_ZOMBIES = 6,
 
     //Ooze
     EVENT_STICKY_OOZE       = 7,
@@ -590,7 +588,7 @@ class npc_precious_icc : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_DECIMATE, 35000);
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
-                events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, uiZombieSummonCooldown);
+                events.ScheduleEvent(EVENT_AWAKEN_PLAGUED_ZOMBIES, uiZombieSummonCooldown);
                 summons.DespawnAll();
             }
             void JustSummoned(Creature* summon)
@@ -625,11 +623,13 @@ class npc_precious_icc : public CreatureScript
                             DoCastVictim(SPELL_MORTAL_WOUND);
                             events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
                             break;
-                        case EVENT_SUMMON_ZOMBIES:
-                            Talk(EMOTE_PRECIOUS_ZOMBIES);
-                            for (uint32 i = 0; i < 11; ++i)
-                                DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
-                            events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
+                        case EVENT_AWAKEN_PLAGUED_ZOMBIES:
+                            uiZombieSummonCooldown -= 2000;
+                            if (uiZombieSummonCooldown < 8000)
+                                uiZombieSummonCooldown = 8000;
+                            for (uint8 i = 0; i < RAID_MODE(5, 10, 5, 10); ++i)
+                                DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, true); 
+                            events.ScheduleEvent(EVENT_AWAKEN_PLAGUED_ZOMBIES, uiZombieSummonCooldown);
                             break;
                         default:
                             break;
@@ -676,15 +676,30 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
             {
                 if (!GetHitUnit())
                     return;
+
                 std::list<Creature*> list;
                 GetHitUnit()->GetCreatureListWithEntryInGrid(list, GetHitUnit()->GetEntry(), 12.5f);
                 list.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
                 GetHitUnit()->CastSpell(list.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
+            void FilterTargets(std::list<Unit*>& targetList)
+            {
+                // get 2 targets except 2 nearest
+                targetList.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+
+                // .resize() runs pop_back();
+                if (targetList.size() > 4)
+                    targetList.resize(4);
+
+                while (targetList.size() > 2)
+                    targetList.pop_front();
+            }
+
             void Register()
             {
                 OnEffect += SpellEffectFn(spell_rotface_ooze_flood_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_rotface_ooze_flood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
             }
         };
 

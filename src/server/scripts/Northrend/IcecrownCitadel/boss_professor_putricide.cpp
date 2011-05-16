@@ -105,7 +105,7 @@ enum Spells
     SPELL_GROW_ABOMINATION                = 70347
 };
 
-#define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672,72455,72832,72833)
+#define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
 
 enum Events
 {
@@ -150,11 +150,12 @@ enum Points
     POINT_TABLE     = 366780,
 };
 
-static const Position festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
-static const Position rotfaceWatchPos   = {4390.371f, 3164.50f, 389.3890f, 5.497787f}; //emote 432 (release ooze)
-static const Position tablePos          = {4356.190f, 3262.90f, 389.4820f, 1.483530f};
+Position const festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
+Position const rotfaceWatchPos   = {4390.371f, 3164.50f, 389.3890f, 5.497787f}; //emote 432 (release ooze)
+Position const tablePos          = {4356.190f, 3262.90f, 389.4820f, 1.483530f};
 
-static const uint32 oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
+// used in Rotface encounter
+uint32 const oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
 
 enum PutricideData
 {
@@ -307,17 +308,17 @@ class boss_professor_putricide : public CreatureScript
                     return;
                 }
 
-                SetPhase(PHASE_COMBAT_1);
-                Talk(SAY_AGGRO);
-                DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
-                DoZoneInCombat(me);
-
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_SLIME_PUDDLE, 10000);
                 events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(25000, 30000));
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_UNBOUND_PLAGUE, 20000);
+
+                SetPhase(PHASE_COMBAT_1);
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
+                DoZoneInCombat(me);
 
                 instance->SetBossState(GUID_PROFESSOR_PUTRICIDE, IN_PROGRESS);
                 instance->SetData(DATA_PROFESSOR_PUTRICIDE_EVENT, IN_PROGRESS);
@@ -389,8 +390,8 @@ class boss_professor_putricide : public CreatureScript
                     default:
                         break;
                 }
-                if (me->isInCombat())
 
+                if (me->isInCombat())
                     DoZoneInCombat(summon);
             }
 
@@ -473,7 +474,7 @@ class boss_professor_putricide : public CreatureScript
                 switch (action)
                 {
                     case ACTION_FESTERGUT_COMBAT:
-			SetPhase(PHASE_FESTERGUT);
+                        SetPhase(PHASE_FESTERGUT);
                         me->SetSpeed(MOVE_RUN, baseSpeed*2.0f, true);
                         me->GetMotionMaster()->MovePoint(POINT_FESTERGUT, festergutWatchPos);
                         me->SetReactState(REACT_PASSIVE);
@@ -606,6 +607,9 @@ class boss_professor_putricide : public CreatureScript
             {
                 if ((!UpdateVictim() && !(events.GetPhaseMask() & PHASE_MASK_NOT_SELF)) || !CheckInRoom())
                     return;
+
+                if (me->GetDistance2d(4357.12f, 3211.49f) > 50.0f)
+                    EnterEvadeMode();
 
                 events.Update(diff);
 
@@ -911,7 +915,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
             bool Load()
             {
                 _target = NULL;
-                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript();
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
             void SelectTarget(std::list<Unit*>& targetList)
@@ -1043,7 +1047,7 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
                         if (pAura->GetStackAmount() > 20)
                             pAura->SetStackAmount(20);
                     uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
-                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod*100, caster, true);
+                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod * 100, caster, true);
                 }
             }
 
@@ -1282,39 +1286,35 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_eat_ooze_SpellScript);
 
-            void SelectTarget(std::list<Unit*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                Unit* target = targets.front();
-                targets.clear();
-                targets.push_back(target);
-            }
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Creature* target = GetHitCreature();
-                if (!target)
-                    return;
-
-                if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
+                if (Creature* target = GetCaster()->FindNearestCreature(NPC_GROWING_OOZE_PUDDLE, 15.0f))
                 {
-                    if (grow->GetStackAmount() < 4)
+                    if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
                     {
-                        target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
-                        target->RemoveAura(grow);
-                        target->DespawnOrUnsummon();
+                        if (grow->GetStackAmount() > 8)
+                            grow->ModStackAmount(-4);
+                        else if (grow->GetStackAmount() > 4)
+                            grow->SetStackAmount(4);
+                        else if (grow->GetStackAmount() > 2)
+                            grow->SetStackAmount(2);
+                        else
+                        {
+                            target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
+                            target->RemoveAura(grow);
+                            target->DespawnOrUnsummon();
+                        }
                     }
-                    else
-                        grow->ModStackAmount(-4);
+                    //Remove Abomination's Grow effect
+                    GetCaster()->RemoveAurasDueToSpell(70347);
+                    GetCaster()->RemoveAurasDueToSpell(70344);
+                    GetCaster()->RemoveAurasDueToSpell(70343);
                 }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_eat_ooze_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_AREA_ENTRY_DST);
+                OnEffect += SpellEffectFn(spell_putricide_eat_ooze_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

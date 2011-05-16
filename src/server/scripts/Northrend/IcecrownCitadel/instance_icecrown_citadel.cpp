@@ -29,6 +29,7 @@ const Position SpawnLoc[]=
 {
     {4571.521f, 2481.815f, 343.365f, 3.166f} //spawn pos
 };
+
 DoorData const doorData[] =
 {
     {GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR_EVENT,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
@@ -39,11 +40,12 @@ DoorData const doorData[] =
     {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT_EVENT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE_EVENT,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE_EVENT,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
-    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
-    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
+    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
     {GO_BLOOD_QUEEN_BLOOD_BARRIER,           DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_SISTER_SVALNA_EVENT,         DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_N   },
     {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
@@ -62,7 +64,7 @@ struct WeeklyQuest
 };
 
 // when changing the content, remember to update SetData, DATA_BLOOD_QUICKENING_STATE case for NPC_ALRIN_THE_AGILE index
-WeeklyQuest const WeeklyQuestData[WEEKLY_NPCS] =
+WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
 {
     {NPC_INFILTRATOR_MINCHAR,         {QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                }}, // Deprogramming
     {NPC_KOR_KRON_LIEUTENANT,         {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
@@ -107,6 +109,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiTerenasFighter        = 0;
                 uiSpiritWarden          = 0;
                 teamInInstance          = 0;
+                CrokScourgebaneGUID     = 0;
+                memset(CrokCaptainGUIDs, 0, 4 * sizeof(uint64));
+                SisterSvalnaGUID        = 0;
 
                 uiNecroticStack         = 0;
                 uiBloodCouncilController= 0;
@@ -224,7 +229,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(bloodQuickeningMinutes);
                 data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
                 data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(heroicAttempts);
-                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(50);
+                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
             };
 
             bool IsEncounterInProgress() const
@@ -344,6 +349,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                         uiBloodQueenLanathel = creature->GetGUID();
                         creature->SetReactState(REACT_DEFENSIVE);
                         break;
+                    case NPC_CROK_SCOURGEBANE:
+                        CrokScourgebaneGUID = creature->GetGUID();
+                        break;
+                    // we can only do this because there are no gaps in their entries
+                    case NPC_CAPTAIN_ARNATH:
+                    case NPC_CAPTAIN_BRANDON:
+                    case NPC_CAPTAIN_GRONDEL:
+                    case NPC_CAPTAIN_RUPERT:
+                        CrokCaptainGUIDs[creature->GetEntry()-NPC_CAPTAIN_ARNATH] = creature->GetGUID();
+                        break;
+                    case NPC_SISTER_SVALNA:
+                        SisterSvalnaGUID = creature->GetGUID();
+                        break;
                     case NPC_VALITHRIA_DREAMWALKER:
                         uiValithriaDreamwalker = creature->GetGUID();
                         break;
@@ -449,6 +467,23 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (creature->GetEntry() == NPC_FROST_FREEZE_TRAP)
                     coldflameJets.erase(creature->GetGUID());
+            }
+
+            void OnCreatureDeath(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_YMIRJAR_BATTLE_MAIDEN:
+                    case NPC_YMIRJAR_DEATHBRINGER:
+                    case NPC_YMIRJAR_FROSTBINDER:
+                    case NPC_YMIRJAR_HUNTRESS:
+                    case NPC_YMIRJAR_WARLORD:
+                        if (Creature* crok = instance->GetCreature(CrokScourgebaneGUID))
+                            crok->AI()->SetGUID(creature->GetGUID(), ACTION_VRYKUL_DEATH);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go)
@@ -671,19 +706,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_CRIMSON_HALL_DOOR:
                     {
                         uiCrimsonHallDoor1 = go->GetGUID();
-                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] != IN_PROGRESS, go);
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] != IN_PROGRESS, go);
                         break;
                     }
                     case GO_BLOOD_ELF_COUNCIL_DOOR:
                     {
                         uiCrimsonHallDoorLeft = go->GetGUID();
-                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] == DONE, go);
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] == DONE, go);
                         break;
                     }
                     case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
                     {
                         uiCrimsonHallDoorRight = go->GetGUID();
-                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] == DONE, go);
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] == DONE, go);
                         break;
                     }
                     //Blood Queen Lana'thel
@@ -900,9 +935,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 type)
             {
-                switch(identifier)
+                switch(type)
                 {
                     case GUID_LORD_MARROWGAR:                   return uiLordMarrowgar;
                     case GUID_SAURFANG:                         return uiDeathbringerSaurfang;
@@ -910,9 +945,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GUID_FESTERGUT:                        return uiFestergut;
                     case GUID_ROTFACE:                          return uiRotface;
                     case GUID_PROFESSOR_PUTRICIDE:              return uiProfessorPutricide;
-                    case DATA_PRINCE_VALANAR_GUID:               return uiPrinceValanar;
-                    case DATA_PRINCE_KELESETH_GUID:              return uiPrinceKeleseth;
-                    case DATA_PRINCE_TALDARAM_GUID:              return uiPrinceTaldaram;
+                    case GUID_PRINCE_VALANAR_ICC:               return uiPrinceValanar;
+                    case GUID_PRINCE_KELESETH_ICC:              return uiPrinceKeleseth;
+                    case GUID_PRINCE_TALDARAM_ICC:              return uiPrinceTaldaram;
                     case GUID_BLOOD_QUEEN_LANA_THEL:            return uiBloodQueenLanathel;
                     case GUID_VALITHRIA_DREAMWALKER:            return uiValithriaDreamwalker;
                     case GUID_VALITHRIA_ALTERNATIVE:            return uiValithriaAlternative;
@@ -927,7 +962,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiLichKing;
                     }
                     case GUID_TIRION:                           return uiTirion;
-                    case DATA_BLOOD_PRINCES_CONTROL:            return uiBloodCouncilController;
+                    case GUID_BLOOD_PRINCES_CONTROL:            return uiBloodCouncilController;
                     case GUID_PUTRICIDE_TABLE:                  return uiPutricideTable;
                     case GUID_SINDRAGOSA_ENTRANCE_DOOR:         return uiSindragosaDoor1;
 
@@ -1016,6 +1051,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiSpiritWarden;
                     case GUID_DEATHBRINGER_S_DOOR:
                         return uiSaurfangDoor;
+                    case GUID_CROK_SCOURGEBANE:
+                        return CrokScourgebaneGUID;
+                    case GUID_CAPTAIN_ARNATH:
+                    case GUID_CAPTAIN_BRANDON:
+                    case GUID_CAPTAIN_GRONDEL:
+                    case GUID_CAPTAIN_RUPERT:
+                        return CrokCaptainGUIDs[type-GUID_CAPTAIN_ARNATH];
+                    case GUID_SISTER_SVALNA:
+                        return SisterSvalnaGUID;
                 }
                 return 0;
             }
@@ -1316,7 +1360,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] = data;
                         break;
                     }
-                    case DATA_BLOOD_PRINCE_COUNCIL:
+                    case DATA_BLOOD_PRINCE_COUNCIL_EVENT:
                     {
                         if(data == DONE)
                         {
@@ -1325,7 +1369,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             HandleGameObject(uiCrimsonHallDoorLeft, true);
                         }
                         HandleGameObject(uiCrimsonHallDoor1, data != IN_PROGRESS);
-                        uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] = data;
+                        uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] = data;
                         break;
                     }
                     case DATA_BLOOD_QUEEN_LANA_THEL_EVENT:
@@ -1459,86 +1503,43 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
                     {
-                        if (frostwyrms == 255)
-                            return;
-
                         if (instance->IsHeroic() && !heroicAttempts)
                             return;
-
-                        if (GetBossState(DATA_SINDRAGOSA_EVENT) != DONE)
-                            return;
-
-                        switch (data)
+                        if (data > 1) 
+                            frostwyrms = data; 
+                        else if (data == 1) 
+                            ++frostwyrms; 
+                        else if (!data && !--frostwyrms && GetBossState(DATA_SINDRAGOSA_EVENT) != DONE) 
                         { 
-                            case 0:
-                                if (frostwyrms)
-                                {
-                                    --frostwyrms;
-                                    if (!frostwyrms)
-                                    {
-                                        instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
-                                        if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
-                                            boss->AI()->DoAction(ACTION_START_FROSTWYRM);
-                                    }
-                                }
-                                break;
-                            case 1:
-                                ++frostwyrms;
-                                break;
-                            default:
-                                frostwyrms = data;
-                                break;
+                            instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY()); 
+                            if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos)) 
+                            { 
+                                boss->setActive(true); 
+                                boss->AI()->DoAction(ACTION_START_FROSTWYRM); 
+                            } 
                         } 
                         break; 
                     }
                     case DATA_SPINESTALKER_EVENT:
                     {
-                        if (spinestalkerTrash == 255)
-                            return;
-
-                        switch (data)
-                        {
-                            case 0:
-                                if (spinestalkerTrash)
-                                {
-                                    --spinestalkerTrash;
-                                    if (!spinestalkerTrash)
-                                        if (Creature* spinestalk = instance->GetCreature(uiSpinestalker))
-                                            spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
-                                }
-                                break;
-                            case 1:
-                               ++spinestalkerTrash;
-                                break;
-                            default:
-                                spinestalkerTrash = data;
-                                break;
-                        }
+                        if (data > 1) 
+                            spinestalkerTrash = data; 
+                        else if (data == 1) 
+                            ++spinestalkerTrash; 
+                        else if (!data && !--spinestalkerTrash) 
+                            if (Creature* spinestalk = instance->GetCreature(uiSpinestalker)) 
+                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM); 
                         break;
                     }
                     case DATA_RIMEFANG_EVENT:
                     {
-                        if (rimefangTrash == 255)
-                            return;
-
-                        switch (data)
-                        {
-                            case 0:
-                                if (rimefangTrash)
-                                {
-                                    --rimefangTrash;
-                                    if (!rimefangTrash)
-                                        if (Creature* rime = instance->GetCreature(uiRimefang))
-                                            rime->AI()->DoAction(ACTION_START_FROSTWYRM);
-                                }
-                                break;
-                            case 1:
-                                ++rimefangTrash;
-                                break;
-                            default:
-                                rimefangTrash = data;
-                                break;
-                        }
+                        if (data > 1) 
+                            rimefangTrash = data; 
+                        else if (data == 1) 
+                            ++rimefangTrash; 
+                        else if (!data && !--rimefangTrash) 
+                            if (Creature* rime = instance->GetCreature(uiRimefang)) 
+                                rime->AI()->DoAction(ACTION_START_FROSTWYRM);
                         break;
                     }
                     case DATA_COLDFLAME_JETS_EVENT:
@@ -1631,8 +1632,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiEncounter[DATA_ROTFACE_EVENT];
                     case DATA_PROFESSOR_PUTRICIDE_EVENT:
                         return uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT];
-                    case DATA_BLOOD_PRINCE_COUNCIL:
-                        return uiEncounter[DATA_BLOOD_PRINCE_COUNCIL];
+                    case DATA_BLOOD_PRINCE_COUNCIL_EVENT:
+                        return uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT];
                     case DATA_BLOOD_QUEEN_LANA_THEL_EVENT:
                         return uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT];
                     case DATA_VALITHRIA_DREAMWALKER_EVENT:
@@ -1689,7 +1690,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
                 std::ostringstream saveStream;
                 saveStream << "I C " << uiEncounter[DATA_LORD_MARROWGAR_EVENT] << " " << uiEncounter[DATA_DEATHWHISPER_EVENT] << " " << uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] << " " << uiEncounter[DATA_SAURFANG_EVENT]
-                << " " << uiEncounter[DATA_FESTERGUT_EVENT] << " " << uiEncounter[DATA_ROTFACE_EVENT] << " " << uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] << " " << uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] << " " << uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT]
+                << " " << uiEncounter[DATA_FESTERGUT_EVENT] << " " << uiEncounter[DATA_ROTFACE_EVENT] << " " << uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] << " " << uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] << " " << uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT]
                 << " " << uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] << " " << uiEncounter[DATA_SINDRAGOSA_EVENT] << " " << uiEncounter[DATA_LICH_KING_EVENT];
                 //Saving additional data
                 saveStream << " " << uint32(gasValveActivated) << " " << uint32(oozeValveActivated) << " " << uint32(coldflameJetsState) << " " << uint32(bloodQuickeningState) << " " << uint32(bloodQuickeningMinutes);
@@ -1776,7 +1777,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     uiEncounter[DATA_FESTERGUT_EVENT] = data4;
                     uiEncounter[DATA_ROTFACE_EVENT] = data5;
                     uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] = data6;
-                    uiEncounter[DATA_BLOOD_PRINCE_COUNCIL] = data7;
+                    uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] = data7;
                     uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] = data8;
                     uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] = data9;
                     uiEncounter[DATA_SINDRAGOSA_EVENT] = data10;
@@ -1860,6 +1861,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiTirion;
             uint64 uiTerenasFighter;
             uint64 uiSpiritWarden;
+            uint64 CrokScourgebaneGUID;
+            uint64 CrokCaptainGUIDs[4];
+            uint64 SisterSvalnaGUID;
             uint64 uiIceWall1;
             uint64 uiIceWall2;
             uint64 uiMarrowgarEntrance;
