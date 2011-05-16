@@ -1,48 +1,48 @@
 Warden Installing to server with Debian x64.
-Установка Warden на сервере с Debian x64.
+РЈСЃС‚Р°РЅРѕРІРєР° Warden РЅР° СЃРµСЂРІРµСЂРµ СЃ Debian x64.
 
-    Install needed packets (устанавливаем нужные пакеты) (http://wiki.winehq.org/Recommended_Packages):
+    Install needed packets (СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅСѓР¶РЅС‹Рµ РїР°РєРµС‚С‹) (http://wiki.winehq.org/Recommended_Packages):
     apt-get dep-build wine
 
-    or install packets manually (или ставим нужные пакеты вручную)
+    or install packets manually (РёР»Рё СЃС‚Р°РІРёРј РЅСѓР¶РЅС‹Рµ РїР°РєРµС‚С‹ РІСЂСѓС‡РЅСѓСЋ)
 
-    Install x32 libraries (устанавливаем библиотеки x32 (http://wiki.winehq.org/WineOn64bit)
+    Install x32 libraries (СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±РёР±Р»РёРѕС‚РµРєРё x32 (http://wiki.winehq.org/WineOn64bit)
     apt-get install ia32-libs libc6-dev-i386 lib32z1-dev ia32-libs-dev lib32ncurses5-dev
 
-    If You compile wardend.exe with VS2010, need to install winbind (если вы собирали wardend.exe с помощью Visual Studio 2010,
-    нужно поставить пакет winbind-он понадобится для установки библиотек):
+    If You compile wardend.exe with VS2010, need to install winbind (РµСЃР»Рё РІС‹ СЃРѕР±РёСЂР°Р»Рё wardend.exe СЃ РїРѕРјРѕС‰СЊСЋ Visual Studio 2010,
+    РЅСѓР¶РЅРѕ РїРѕСЃС‚Р°РІРёС‚СЊ РїР°РєРµС‚ winbind-РѕРЅ РїРѕРЅР°РґРѕР±РёС‚СЃСЏ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё Р±РёР±Р»РёРѕС‚РµРє):
     apt-get install winbind
 
-    Download wine (скачиваем wine) http://sourceforge.net/projects/wine/files/Source/
-    if present-version (в настоящее время это версия) 1.3.13.
+    Download wine (СЃРєР°С‡РёРІР°РµРј wine) http://sourceforge.net/projects/wine/files/Source/
+    if present-version (РІ РЅР°СЃС‚РѕСЏС‰РµРµ РІСЂРµРјСЏ СЌС‚Рѕ РІРµСЂСЃРёСЏ) 1.3.13.
 
-    Extract and configure (разархивируем и запускаем скрипт конфигурации) wine:
-    I used the keys (я использовал такие ключи):
+    Extract and configure (СЂР°Р·Р°СЂС…РёРІРёСЂСѓРµРј Рё Р·Р°РїСѓСЃРєР°РµРј СЃРєСЂРёРїС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёРё) wine:
+    I used the keys (СЏ РёСЃРїРѕР»СЊР·РѕРІР°Р» С‚Р°РєРёРµ РєР»СЋС‡Рё):
     ./configure --without-freetype --without-opengl --without-opencl --without-ldap --without-openal --without-mpg123
     --without-gstreamer --without-gsm --without-v4l --without-alsa --without-hal --without-jack --without-oss --without-esd
     --without-gettextpo --without-capi --without-cms --without-fontconfig --without-gphoto --without-cups --without-coreaudio
     --without-xcomposite --without-xcursor --without-xinerama --without-xinput --without-xrandr --without-xrender --without-xslt
     --without-glu --without-jpeg --without-sane --without-tiff --without-xshape --without-xxf86vm
 
-    compile (компилируем устанавливаем) wine:
+    compile (РєРѕРјРїРёР»РёСЂСѓРµРј СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј) wine:
     make
 
-    and install (и устанавливаем) wine:
+    and install (Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј) wine:
     make install
 
-    Install dummy X server (устанавливаем x сервер пустышку чтобы обмануть wine, так как у нас голая консоль):
+    Install dummy X server (СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј x СЃРµСЂРІРµСЂ РїСѓСЃС‚С‹С€РєСѓ С‡С‚РѕР±С‹ РѕР±РјР°РЅСѓС‚СЊ wine, С‚Р°Рє РєР°Рє Сѓ РЅР°СЃ РіРѕР»Р°СЏ РєРѕРЅСЃРѕР»СЊ):
     apt-get install xvfb
 
-    Prepare to install MS Visual Studio libraries (подготавливаемся к установке библиотек MS Visual studio):
-    -download script (скачиваем скрипт) winetricks http://wiki.winehq.org/winetricks
+    Prepare to install MS Visual Studio libraries (РїРѕРґРіРѕС‚Р°РІР»РёРІР°РµРјСЃСЏ Рє СѓСЃС‚Р°РЅРѕРІРєРµ Р±РёР±Р»РёРѕС‚РµРє MS Visual studio):
+    -download script (СЃРєР°С‡РёРІР°РµРј СЃРєСЂРёРїС‚) winetricks http://wiki.winehq.org/winetricks
     wget http://winetricks.org/winetricks
 
-    -run dummy X server (запускаем графический сервер-пустышку):
+    -run dummy X server (Р·Р°РїСѓСЃРєР°РµРј РіСЂР°С„РёС‡РµСЃРєРёР№ СЃРµСЂРІРµСЂ-РїСѓСЃС‚С‹С€РєСѓ):
     Xvfb :1 &
 
     #export DISPLAY=:1
 
-    Install MS Visual Studio libraries (устанавливаем библиотеки MS Visual studio):
+    Install MS Visual Studio libraries (СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±РёР±Р»РёРѕС‚РµРєРё MS Visual studio):
     sh winetricks vcrun2005
 
     or
