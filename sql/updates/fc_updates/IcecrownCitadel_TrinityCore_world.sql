@@ -239,7 +239,11 @@ REPLACE INTO `spell_script_names` VALUES (70461, 'spell_coldflame_trap');
 UPDATE `gameobject_template` SET `ScriptName` = 'go_icc_plagueworks_valve' WHERE `entry` IN (201615, 201616);
 
 -- The Lich King
-DELETE FROM `areatrigger_teleport` WHERE `id` = 5718;
+-- teleport to Lich King
+DELETE FROM `areatrigger_teleport` where id=5718;
+INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+(5718, 'IceCrown Citadel The Frozen Throne (Entrance)', 631, 529.3, -2124.7, 1050, 3.14159);
+
 UPDATE `creature_template` SET `ScriptName` = 'npc_shambling_horror_icc' WHERE `entry` = 37698;
 UPDATE `creature_template` SET `ScriptName` = 'npc_raging_spirit_icc' WHERE `entry` = 36701;
 REPLACE INTO `spell_script_names` VALUES
