@@ -62,7 +62,8 @@ enum eEnums
     MOB_FIRE_BOMB               = 23920,
 
 // -- Hatcher Spells
-    SPELL_HATCH_EGG             = 43734,   // 42471
+    SPELL_HATCH_EGG             = 42471,   // 43734
+    SPELL_SUMMON_HATCHLING      = 42493,
 
 // -- Hatchling Spells
     SPELL_FLAMEBUFFET           = 43299
@@ -114,14 +115,7 @@ class boss_janalai : public CreatureScript
         {
             boss_janalaiAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance =c->GetInstanceScript();
-
-                SpellEntry *TempSpell = GET_SPELL(SPELL_HATCH_EGG);
-                if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
-                {
-                    TempSpell->EffectImplicitTargetA[0] = 1;
-                    TempSpell->EffectImplicitTargetB[0] = 0;
-                }
+                pInstance = c->GetInstanceScript();
             }
 
             InstanceScript *pInstance;
@@ -676,11 +670,7 @@ class mob_janalai_hatchling : public CreatureScript
 class mob_janalai_egg : public CreatureScript
 {
 public:
-
-    mob_janalai_egg()
-        : CreatureScript("mob_janalai_egg")
-    {
-    }
+    mob_janalai_egg(): CreatureScript("mob_janalai_egg") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -689,19 +679,17 @@ public:
 
     struct mob_janalai_eggAI : public ScriptedAI
     {
-        mob_janalai_eggAI(Creature *c) : ScriptedAI(c){}
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/) {}
+        mob_janalai_eggAI(Creature* creature) : ScriptedAI(creature){}
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void Reset() {}
+
+        void UpdateAI(uint32 const /*diff*/) {}
+
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
         {
             if (spell->Id == SPELL_HATCH_EGG)
             {
-                DoSpawnCreature(MOB_HATCHLING, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-                me->SetDisplayId(11686);
+                DoCast(SPELL_SUMMON_HATCHLING);
             }
         }
     };
