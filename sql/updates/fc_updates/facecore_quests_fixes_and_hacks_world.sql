@@ -97,3 +97,6 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (33519,42,9128.608,2089.091,141.3593,'Black Knight''s Gryphon'),
 (33519,43,9093.364,2128.384,99.38685,'Black Knight''s Gryphon'),
 (33519,44,9050.709,2123.656,60.24802,'Black Knight''s Gryphon');
+
+-- fix phase fox NPC 37158
+UPDATE `creature` SET `phaseMask` = '99' WHERE `id` = 37158;
