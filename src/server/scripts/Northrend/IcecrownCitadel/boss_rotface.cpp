@@ -420,7 +420,7 @@ class boss_rotface : public CreatureScript
 class npc_little_ooze : public CreatureScript
 {
     public:
-        npc_little_ooze() : CreatureScript("npc_ooze_little") { }
+        npc_little_ooze() : CreatureScript("npc_little_ooze") { }
 
         struct npc_little_oozeAI : public ScriptedAI
         {
@@ -485,7 +485,7 @@ class npc_little_ooze : public CreatureScript
 class npc_big_ooze : public CreatureScript
 {
     public:
-        npc_big_ooze() : CreatureScript("npc_ooze_big") { }
+        npc_big_ooze() : CreatureScript("npc_big_ooze") { }
 
         struct npc_big_oozeAI : public ScriptedAI
         {
