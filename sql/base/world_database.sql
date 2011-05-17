@@ -16922,6 +16922,10 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (40293, 0, 0, 0, 0, 'Item - Siphon Essence'),
 (67760, 0, 0, 0, 0, 'Item - Coliseum 25 Heroic Caster Trinket - Pillar of Flame'),
 (67714, 0, 0, 0, 0, 'Item - Coliseum 25 Normal Caster Trinket - Pillar of Flame'),
+(69729, -1, 0, -1, -1, 'Item - Onyxia 10 Caster Trinket - Searing Flames'),
+(69730, -1, 0, -1, -1, 'Item - Onyxia 25 Caster Trinket - Searing Flames'),
+(69733, 0, -1, -1, -1, 'Item - Onyxia 10 Caster Trinket - Cauterizing Heal'),
+(69734, 0, -1, -1, -1, 'Item - Onyxia 25 Caster Trinket - Cauterizing Heal'),
 (44425, 0.7143, -1, -1, -1, 'Mage - Arcane Barrage'),
 (30451, 0.7143, -1, -1, -1, 'Mage - Arcane Blast'),
 (1449, 0.2128, -1, -1, -1, 'Mage - Arcane Explosion'),
@@ -19411,6 +19415,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 67758, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00011000, 0x00000002,   0,   0,   2), -- Item - Coliseum 25 Heroic Caster Trinket - Pillar of Flame
 ( 67771, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 10men
 ( 67702, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 25men
+( 69739, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Onyxia 25 Caster Trinket 
+( 69755, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Onyxia 10 Caster Trinket
 ( 70652, 0x00,  15, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Tank 4P Bonus
 ( 70656, 0x00,  15, 0x00000000, 0x00000000, 0x00000000, 0x00014000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Melee 4P Bonus
 ( 70664, 0x00,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T10 Restoration 4P Bonus (Rejuvenation)
