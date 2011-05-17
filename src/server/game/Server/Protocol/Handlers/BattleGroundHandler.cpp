@@ -36,8 +36,10 @@
 #include "DisableMgr.h"
 #include "Group.h"
 
+/*
 #include "OutdoorPvPMgr.h"
 #include "../../../../scripts/OutdoorPvP/OutdoorPvPTW.h"
+*/
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recv_data)
 {
@@ -603,6 +605,8 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
 
     if (bg)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
+
+/*
     else if (unit->GetMapId() == TW_KARTE)
     {
         Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER));
@@ -613,6 +617,8 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
         }
         pTW->SendAreaSpiritHealerQueryOpcode(_player, guid);
     }
+*/
+
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
@@ -633,6 +639,8 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
 
     if (bg)
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+
+/*
     else if (unit->GetMapId() == TW_KARTE)
     {
         Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER));
@@ -643,6 +651,8 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
         }
         pTW->AddPlayerToResurrectQueue(unit->GetDBTableGUIDLow(), _player->GetGUID());
     }
+*/
+
 }
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)

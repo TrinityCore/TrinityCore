@@ -111,9 +111,11 @@ World::World()
     m_updateTimeSum = 0;
     m_updateTimeCount = 0;
 
+/*
     // Tausendwinter
     m_TWTimer = uint32((getWorldState(WS_TW_ZEIT) + time(NULL)));
     m_TWStatus = 0;
+*/
 
     m_isClosed = false;
 
@@ -1156,6 +1158,7 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_int_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
 
+/*
     // Tausendwinter
     m_bool_configs[CONFIG_TW_AKTIVIERT]         = sConfig->GetBoolDefault("Tausendwinter.Aktiviert", true);
     m_bool_configs[CONFIG_TW_TELEPORT_DALARAN]  = sConfig->GetBoolDefault("Tausendwinter.TeleportDalaran", false);
@@ -1168,6 +1171,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_TW_KAMPFDAUER]         = sConfig->GetIntDefault("Tausendwinter.Kampfdauer", 30) * IN_MILLISECONDS * MINUTE;
     m_int_configs[CONFIG_TW_INTERVALL]          = sConfig->GetIntDefault("Tausendwinter.KampfIntervall", 130) * IN_MILLISECONDS * MINUTE;
     m_int_configs[CONFIG_TW_SPEICHER_INTERVALL] = sConfig->GetIntDefault("Tausendwinter.SpeicherIntervall", 5) * IN_MILLISECONDS * MINUTE;
+*/
 
     // Gildenportal
     m_int_configs[CONFIG_GILDEN_ID] = sConfig->GetIntDefault("GuildPortal.GuildID", 0);

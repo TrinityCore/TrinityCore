@@ -2497,7 +2497,7 @@ Arena.ArenaStartMatchmakerRating = 1500
 #       Default: 1 = Aktiviert
 #                0 = Deaktiviert
 
-Tausendwinter.Aktiviert = 1
+#Tausendwinter.Aktiviert = 1
 
 #
 #   Tausendwinter.WeltStartNachricht
@@ -2505,7 +2505,7 @@ Tausendwinter.Aktiviert = 1
 #       Default: 0 = Deaktiviert
 #                1 = Aktiviert
 
-Tausendwinter.WeltStartNachricht = 0
+#Tausendwinter.WeltStartNachricht = 0
 
 #
 #   Tausendwinter.WeltStartCountdown
@@ -2513,7 +2513,7 @@ Tausendwinter.WeltStartNachricht = 0
 #       Default: 0 = Deaktiviert
 #                1 = Aktiviert
 
-Tausendwinter.WeltStartCountdown = 0
+#Tausendwinter.WeltStartCountdown = 0
 
 #
 #   Tausendwinter.WeltSiegNachricht
@@ -2521,7 +2521,7 @@ Tausendwinter.WeltStartCountdown = 0
 #       Default: 0 = Deaktiviert
 #                1 = Aktiviert
 
-Tausendwinter.WeltSiegNachricht = 0
+#Tausendwinter.WeltSiegNachricht = 0
 
 #
 #   Tausendwinter.TeleportDalaran
@@ -2529,7 +2529,7 @@ Tausendwinter.WeltSiegNachricht = 0
 #       Default: 0 = Deaktiviert
 #                1 = Aktiviert
 
-Tausendwinter.TeleportDalaran = 0
+#Tausendwinter.TeleportDalaran = 0
 
 #
 #   Tausendwinter.VerschiebeNPCs
@@ -2537,35 +2537,35 @@ Tausendwinter.TeleportDalaran = 0
 #       Default: 0 = Deaktiviert
 #                1 = Aktiviert
 
-Tausendwinter.VerschiebeNPCs = 0
+#Tausendwinter.VerschiebeNPCs = 0
 
 #
 #   Tausendwinter.Startzeit
 #       Gibt an, nach wieviel Minuten der erste Kampf (nach Realmstart) stattfindet.
 #       Default: 30
 
-Tausendwinter.Startzeit = 30
+#Tausendwinter.Startzeit = 30
 
 #
 #   Tausendwinter.Kampfdauer
 #       Gibt die Dauer eines Kampfes (in Minuten) an.
 #       Default: 30
 
-Tausendwinter.Kampfdauer = 30
+#Tausendwinter.Kampfdauer = 30
 
 #
 #   Tausendwinter.KampfIntervall
 #       Gibt die Zeit (in Minuten) zwischen den Kämpfen an.
 #       Default: 130
 
-Tausendwinter.KampfIntervall = 130
+#Tausendwinter.KampfIntervall = 130
 
 #
 #   Tausendwinter.SpeicherIntervall
 #       Min. Zeit (in Minuten), nach der die Daten gespeichert werden sollen.
 #       Default: 5
 
-Tausendwinter.SpeicherIntervall = 5
+#Tausendwinter.SpeicherIntervall = 5
 
 #
 ###################################################################################################

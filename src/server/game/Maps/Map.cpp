@@ -30,8 +30,11 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Group.h"
+
+/*
 #include "../../scripts/OutdoorPvP/OutdoorPvPTW.h"
 #include "OutdoorPvPMgr.h"
+*/
 
 #define DEFAULT_GRID_EXPIRY     300
 #define MAX_GRID_LOAD_TIME      50
@@ -2231,6 +2234,7 @@ bool InstanceMap::CanEnter(Player *player)
         return false;
     }
 
+/*
     // Archavons Kammer auf Tausendwinterbesitzer prüfen
     if (GetId() == 624)
         if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
@@ -2239,6 +2243,7 @@ bool InstanceMap::CanEnter(Player *player)
                 player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAP_NOT_ALLOWED);
                 return false;
             }
+*/
 
     // cannot enter if instance is in use by another party/soloer that have a
     // permanent save in the same instance id

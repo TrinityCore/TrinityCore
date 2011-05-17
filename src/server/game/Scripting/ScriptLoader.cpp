@@ -58,7 +58,7 @@ void AddSC_quest_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_tele_commandscript();
 void AddSC_titles_commandscript();
-void AddSC_tw_commandscript();
+//void AddSC_tw_commandscript();
 void AddSC_wp_commandscript();
 
 #ifdef SCRIPTS
@@ -491,7 +491,7 @@ void AddSC_icecrown();
 void AddSC_isle_of_conquest();
 void AddSC_sholazar_basin();
 void AddSC_storm_peaks();
-void AddSC_tausendwinter();
+//void AddSC_tausendwinter();
 void AddSC_zuldrak();
 
 //outland
@@ -584,7 +584,7 @@ void AddSC_outdoorpvp_hp();
 void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
-void AddSC_outdoorpvp_tw();
+//void AddSC_outdoorpvp_tw();
 void AddSC_outdoorpvp_zm();
 
 // player
@@ -654,7 +654,7 @@ void AddCommandScripts()
     AddSC_reload_commandscript();
     AddSC_tele_commandscript();
     AddSC_titles_commandscript();
-    AddSC_tw_commandscript();
+//    AddSC_tw_commandscript();
     AddSC_wp_commandscript();
 }
 
@@ -1188,7 +1188,7 @@ void AddNorthrendScripts()
     AddSC_isle_of_conquest();
     AddSC_sholazar_basin();
     AddSC_storm_peaks();
-    AddSC_tausendwinter();
+//    AddSC_tausendwinter();
     AddSC_zuldrak();
 #endif
 }
@@ -1201,7 +1201,7 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_na();
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
-    AddSC_outdoorpvp_tw();
+//    AddSC_outdoorpvp_tw();
     AddSC_outdoorpvp_zm();
 #endif
 }

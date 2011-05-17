@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2010-2011 by WarHead (United Worlds of MaNGOS)
  * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +41,7 @@
 #define EVENT_OVERCHARGE            3
 #define EVENT_BERSERK               4
 #define EVENT_SHOCK                 5
-#define EVENT_TW_CHECK              6
+//#define EVENT_TW_CHECK              6
 
 //Creatures
 #define MOB_TEMPEST_MINION          33998
@@ -74,14 +75,16 @@ public:
         {
         }
 
-        EventMap eventsTW;
+//        EventMap eventsTW;
 
         void Reset()
         {
             _Reset();
 
+/*
             eventsTW.Reset();
             eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
+*/
 
             for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
                 me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -115,6 +118,7 @@ public:
             _EnterCombat();
         }
 
+/*
         void CheckTW()
         {
             if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
@@ -122,13 +126,16 @@ public:
 
             eventsTW.RescheduleEvent(EVENT_TW_CHECK, 29000);
         }
+*/
 
         void UpdateAI(const uint32 diff)
         {
+/*
             eventsTW.Update(diff);
 
             if (eventsTW.ExecuteEvent() == EVENT_TW_CHECK)
                 CheckTW();
+*/
 
             if (!UpdateVictim())
                 return;
@@ -202,15 +209,18 @@ public:
         InstanceScript* pInstance;
 
         EventMap events;
-        EventMap eventsTW;
+//        EventMap eventsTW;
 
         uint32 uiOverchargedTimer;
 
         void Reset()
         {
             events.Reset();
+
+/*
             eventsTW.Reset();
             eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
+*/
 
             uiOverchargedTimer = 0;
         }
@@ -239,6 +249,7 @@ public:
             }
         }
 
+/*
         void CheckTW()
         {
             if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
@@ -246,13 +257,16 @@ public:
 
             eventsTW.RescheduleEvent(EVENT_TW_CHECK, 29000);
         }
+*/
 
         void UpdateAI(const uint32 diff)
         {
+/*
             eventsTW.Update(diff);
 
             if (eventsTW.ExecuteEvent() == EVENT_TW_CHECK)
                 CheckTW();
+*/
 
             if (!UpdateVictim())
                 return;

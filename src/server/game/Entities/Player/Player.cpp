@@ -69,7 +69,7 @@
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
 #include "WeatherMgr.h"
-#include "../../../scripts/OutdoorPvP/OutdoorPvPTW.h"
+//#include "../../../scripts/OutdoorPvP/OutdoorPvPTW.h"
 #include "LFGMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "InstanceScript.h"
@@ -22316,8 +22316,10 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 
+/*
     if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
         pTW->AktualisiereEssenzVonTausendwinter(this, newZone);
+*/
 }
 
 void Player::UpdateAreaDependentAuras(uint32 newArea)
