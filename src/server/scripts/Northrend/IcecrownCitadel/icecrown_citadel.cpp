@@ -1,11 +1,15 @@
 // Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
 
-#include "ScriptPCH.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "ScriptedEscortAI.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "SpellAuraEffects.h"
+#include "SmartAI.h"
 #include "icecrown_citadel.h"
 
 enum ICC_RAID_TRASH_NPCS_UND_SPELLS
