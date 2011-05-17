@@ -4767,9 +4767,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_CASTER_AURASTATE;
 
         // Note: spell 62473 requres casterAuraSpell = triggering spell
-        if (m_spellInfo->casterAuraSpell && !m_caster->HasAura(m_spellInfo->casterAuraSpell))
+        if (m_spellInfo->casterAuraSpell && !m_caster->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->casterAuraSpell, m_caster)))
             return SPELL_FAILED_CASTER_AURASTATE;
-        if (m_spellInfo->excludeCasterAuraSpell && m_caster->HasAura(m_spellInfo->excludeCasterAuraSpell))
+        if (m_spellInfo->excludeCasterAuraSpell && m_caster->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->excludeCasterAuraSpell, m_caster)))
             return SPELL_FAILED_CASTER_AURASTATE;
 
         if (reqCombat && m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo))
@@ -4798,10 +4798,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!m_IsTriggeredSpell && m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot), m_spellInfo, m_caster))
             return SPELL_FAILED_TARGET_AURASTATE;
 
-        if (m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
+        if (m_spellInfo->targetAuraSpell && !target->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->targetAuraSpell, m_caster)))
             return SPELL_FAILED_TARGET_AURASTATE;
 
-        if (m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
+        if (m_spellInfo->excludeTargetAuraSpell && target->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->excludeTargetAuraSpell, m_caster)))
             return SPELL_FAILED_TARGET_AURASTATE;
 
         if (!m_IsTriggeredSpell && target == m_caster && m_spellInfo->AttributesEx & SPELL_ATTR1_CANT_TARGET_SELF)
@@ -6549,9 +6549,9 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
     }
 
     // Check Aura spell req (need for AoE spells)
-    if (m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
+    if (m_spellInfo->targetAuraSpell && !target->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->targetAuraSpell, m_caster)))
         return false;
-    if (m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
+    if (m_spellInfo->excludeTargetAuraSpell && target->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->excludeTargetAuraSpell, m_caster)))
         return false;
 
     // Check targets for not_selectable unit flag and remove
