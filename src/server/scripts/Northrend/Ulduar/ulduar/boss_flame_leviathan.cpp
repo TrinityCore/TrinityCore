@@ -22,10 +22,15 @@
  *          if reached brann speaks through his radio..
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "CombatAI.h"
+#include "PassiveAI.h"
 #include "ScriptedEscortAI.h"
+#include "ObjectMgr.h"
 #include "ulduar.h"
-#include "Vehicle.h"
+
 
 enum Spells
 {
@@ -309,7 +314,7 @@ class boss_flame_leviathan : public CreatureScript
             }
 
             // TODO: effect 0 and effect 1 may be on different target
-            void SpellHitTarget(Unit* target, SpellEntry* const spell)
+            void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_PURSUED)
                     AttackStart(target);
@@ -336,7 +341,7 @@ class boss_flame_leviathan : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry* const spell)
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
                     vehicle->InstallAllAccessories(false);
@@ -671,7 +676,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
                     NapalmTimer -= diff;
             }
 
-            bool CanAIAttack(Unit* const who) const
+            bool CanAIAttack(Unit const* who) const
             {
                 if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() == NPC_SEAT)
                     return false;
@@ -700,7 +705,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
                     damage = 0;
             }
 
-            bool CanAIAttack(Unit* const who) const
+            bool CanAIAttack(Unit const* who) const
             {
                 if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != NPC_SEAT)
                     return false;

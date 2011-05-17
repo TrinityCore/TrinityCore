@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ulduar.h"
 
 enum Yells
@@ -106,7 +107,7 @@ class spell_ulduar_proximity_mines : public SpellScriptLoader
                OnEffect += SpellEffectFn(spell_ulduar_proximity_minesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
            }
        };
-       
+
        SpellScript* GetSpellScript() const
        {
            return new spell_ulduar_proximity_minesSpellScript();

@@ -84,7 +84,7 @@ inline bool ReadHex(std::istringstream& iss, uint32& res, uint32 length)
 {
     std::istringstream::pos_type pos = iss.tellg();
     iss >> std::hex >> res;
-    uint32 size = uint32(iss.gcount());
+    //uint32 size = uint32(iss.gcount());
     if (length && uint32(iss.tellg() - pos) != length)
         return false;
     return !iss.fail() && !iss.eof();
@@ -93,7 +93,7 @@ inline bool ReadHex(std::istringstream& iss, uint32& res, uint32 length)
 #define DELIMITER ':'
 #define PIPE_CHAR '|'
 
-bool ChatLink::ValidateName(char* buffer, const char* context)
+bool ChatLink::ValidateName(char* buffer, const char* /*context*/)
 {
     _name = buffer;
     return true;

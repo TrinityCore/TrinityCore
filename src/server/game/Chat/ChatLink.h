@@ -37,6 +37,7 @@ class ChatLink
 {
 public:
     ChatLink() : _color(0), _startPos(0), _endPos(0) { }
+    virtual ~ChatLink() { }
     void SetColor(uint32 color) { _color = color; }
     // This will allow to extract the whole link string from the message, if necessary.
     void SetBounds(std::istringstream::pos_type startPos, std::istringstream::pos_type endPos) { _startPos = startPos; _endPos = endPos; }
@@ -144,7 +145,7 @@ public:
 class GlyphChatLink : public SpellChatLink
 {
 public:
-    GlyphChatLink() : SpellChatLink(), _glyph(NULL), _slotId(0) { }
+    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
     virtual bool Initialize(std::istringstream& iss);
 private:
     uint32 _slotId;

@@ -115,8 +115,8 @@ ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     CheckDistanceTimer(5000),
     CheckThreatListTimer(2000),
     IsFleeing(false),
-    _isCombatMovementAllowed(true),
-    _evadeCheckCooldown(2500)
+    _evadeCheckCooldown(2500),
+    _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
     _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
@@ -629,9 +629,11 @@ void Scripted_NoMovementAI::AttackStart(Unit* target)
         DoStartNoMovement(target);
 }
 
-BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature)
-, _bossId(bossId), summons(creature), instance(creature->GetInstanceScript())
-, _boundary(instance ? instance->GetBossBoundary(bossId) : NULL)
+BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
+    instance(creature->GetInstanceScript()),
+    summons(creature),
+    _boundary(instance ? instance->GetBossBoundary(bossId) : NULL),
+    _bossId(bossId)
 {
 }
 

@@ -1229,7 +1229,8 @@ class SmartAIMgr
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
 
         bool IsEventValid(SmartScriptHolder &e);
-        bool IsTargetValid(SmartScriptHolder e);
+        bool IsTargetValid(SmartScriptHolder const& e);
+
         /*inline bool IsTargetValid(SmartScriptHolder e, int32 target)
         {
             if (target < SMART_TARGET_NONE || target >= SMART_TARGET_END)
@@ -1239,7 +1240,8 @@ class SmartAIMgr
             }
             return true;
         }*/
-        inline bool IsMinMaxValid(SmartScriptHolder e, uint32 min, uint32 max)
+
+        bool IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 max)
         {
             if (max < min)
             {
@@ -1248,6 +1250,7 @@ class SmartAIMgr
             }
             return true;
         }
+
         /*inline bool IsPercentValid(SmartScriptHolder e, int32 pct)
         {
             if (pct < -100 || pct > 100)
@@ -1257,7 +1260,8 @@ class SmartAIMgr
             }
             return true;
         }*/
-        inline bool NotNULL(SmartScriptHolder e, uint32 data)
+
+        bool NotNULL(SmartScriptHolder const& e, uint32 data)
         {
             if (!data)
             {
@@ -1266,7 +1270,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsCreatureValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsCreatureValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sObjectMgr->GetCreatureTemplate(entry))
             {
@@ -1275,7 +1280,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsQuestValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsQuestValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sObjectMgr->GetQuestTemplate(entry))
             {
@@ -1284,7 +1290,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsGameObjectValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsGameObjectValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sObjectMgr->GetGameObjectTemplate(entry))
             {
@@ -1293,7 +1300,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsSpellValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsSpellValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sSpellStore.LookupEntry(entry))
             {
@@ -1302,7 +1310,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsItemValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsItemValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sItemStore.LookupEntry(entry))
             {
@@ -1331,7 +1340,8 @@ class SmartAIMgr
             }
             return true;
         }*/
-        inline bool IsTextEmoteValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sEmotesTextStore.LookupEntry(entry))
             {
@@ -1340,7 +1350,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsEmoteValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsEmoteValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sEmotesStore.LookupEntry(entry))
             {
@@ -1349,7 +1360,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsAreaTriggerValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sAreaTriggerStore.LookupEntry(entry))
             {
@@ -1358,7 +1370,8 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsSoundValid(SmartScriptHolder e, uint32 entry)
+
+        bool IsSoundValid(SmartScriptHolder const& e, uint32 entry)
         {
             if (!sSoundEntriesStore.LookupEntry(entry))
             {
@@ -1367,7 +1380,8 @@ class SmartAIMgr
             }
             return true;
         }
-        bool IsTextValid(SmartScriptHolder e, uint32 id);
+
+        bool IsTextValid(SmartScriptHolder const& e, uint32 id);
 };
 
 #define sSmartScriptMgr ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance()

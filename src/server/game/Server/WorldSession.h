@@ -842,7 +842,7 @@ class WorldSession
         void HandleCalendarGetNumPending(WorldPacket& recv_data);
 
         void HandleSpellClick(WorldPacket& recv_data);
-        void HandleMirrrorImageDataRequest(WorldPacket & recv_data);
+        void HandleMirrorImageDataRequest(WorldPacket & recv_data);
         void HandleAlterAppearance(WorldPacket& recv_data);
         void HandleRemoveGlyph(WorldPacket& recv_data);
         void HandleCharCustomize(WorldPacket& recv_data);

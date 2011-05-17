@@ -1347,14 +1347,12 @@ void SpellMgr::LoadSpellBonusess()
             continue;
         }
 
-        SpellBonusEntry sbe;
-
+        SpellBonusEntry& sbe = mSpellBonusMap[entry];
         sbe.direct_damage = fields[1].GetFloat();
         sbe.dot_damage    = fields[2].GetFloat();
         sbe.ap_bonus      = fields[3].GetFloat();
         sbe.ap_dot_bonus   = fields[4].GetFloat();
 
-        mSpellBonusMap[entry] = sbe;
         ++count;
     } while (result->NextRow());
 
@@ -2975,6 +2973,13 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
                 return 6 * IN_MILLISECONDS;
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            // Banish - limit to 6 seconds in PvP
+            if (spellproto->SpellFamilyFlags[1] & 0x8000000)
+                return 6 * IN_MILLISECONDS;
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - limit to 40 seconds in PvP (3.1)
@@ -3523,7 +3528,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case SPELL_EFFECT_TRIGGER_SPELL:
                     if (IsPositionTarget(spellInfo->EffectImplicitTargetA[j]) ||
-                        spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+                        spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION))
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     ++count;
                     break;
@@ -3646,10 +3651,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
             ++count;
             break;
-        case 61588: // Blazing Harpoon
-            spellInfo->MaxAffectedTargets = 1;
-            ++count;
-            break;
         case 2825:  // Bloodlust
             spellInfo->excludeCasterAuraSpell = 57724; // Sated
             ++count;
@@ -3727,6 +3728,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45761: // Shoot
         case 42611: // Shoot
         case 62374: // Pursued
+        case 61588: // Blazing Harpoon
             spellInfo->MaxAffectedTargets = 1;
             ++count;
             break;
@@ -3765,6 +3767,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45641: // Fire Bloom
         case 55665: // Life Drain - Sapphiron (H)
         case 28796: // Poison Bolt Volly - Faerlina
+        case 5484:  // Howl Of Terror (Warlock)
             spellInfo->MaxAffectedTargets = 5;
             ++count;
             break;
@@ -3939,6 +3942,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 67860: // Impale
         case 69293: // Wing Buffet
         case 74439: // Machine Gun
+        case 63278: // Mark of the Faceless
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
             ++count;
             break;
@@ -3953,6 +3957,11 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 33206: // Pain Suppression
             spellInfo->AttributesEx5 &= ~SPELL_ATTR5_USABLE_WHILE_STUNNED;
+            ++count;
+            break;
+        case 8145: // Tremor Totem (instant pulse)
+        case 6474: // Earthbind Totem (instant pulse)
+            spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
             ++count;
             break;
         case 53241: // Marked for Death (Rank 1)
@@ -4021,7 +4030,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 69055: // Saber Lash (Lord Marrowgar)
         case 70814: // Saber Lash (Lord Marrowgar)
-            spellInfo->EffectRadiusIndex[0] = 8;
+            spellInfo->EffectRadiusIndex[0] = 8;    // 5yd
             ++count;
             break;
         case 69075: // Bone Storm (Lord Marrowgar)
@@ -4031,7 +4040,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 72864: // Death Plague (Rotting Frost Giant)
         case 72378: // Blood Nova (Deathbringer Saurfang)
         case 73058: // Blood Nova (Deathbringer Saurfang)
-            spellInfo->EffectRadiusIndex[0] = 12;
+        case 71160: // Plague Stench (Stinky)
+        case 71161: // Plague Stench (Stinky)
+        case 71123: // Decimate (Stinky & Precious)
+            spellInfo->EffectRadiusIndex[0] = 12;   // 100yd
             ++count;
             break;
         case 72385: // Boiling Blood (Deathbringer Saurfang)
@@ -4049,11 +4061,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 71413: // Green Ooze Summon (Professor Putricide)
         case 71414: // Orange Ooze Summon (Professor Putricide)
             spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
-            ++count;
-            break;
-            // this is here until targetAuraSpell and alike support SpellDifficulty.dbc
-        case 70459: // Ooze Eruption Search Effect (Professor Putricide)
-            spellInfo->targetAuraSpell = 0;
             ++count;
             break;
         // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED

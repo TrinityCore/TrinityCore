@@ -15,9 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ulduar.h"
-#include "Vehicle.h"
 
 /* ScriptData
 SDName: boss_kologarn
@@ -486,6 +488,8 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
                         break;
                     case RAID_DIFFICULTY_25MAN_NORMAL:
                         target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1));
+                        break;
+                    default:
                         break;
                 }
             }

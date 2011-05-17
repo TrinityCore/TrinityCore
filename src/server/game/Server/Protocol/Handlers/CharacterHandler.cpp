@@ -1150,7 +1150,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         }
     }
 
-    if (!ObjectMgr::CheckDeclinedNames(GetMainPartOfName(wname, 0), declinedname))
+    if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
     {
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);

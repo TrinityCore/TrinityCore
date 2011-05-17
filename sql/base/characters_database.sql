@@ -1055,6 +1055,7 @@ CREATE TABLE `character_stats` (
   `attackPower` int(10) unsigned NOT NULL DEFAULT '0',
   `rangedAttackPower` int(10) unsigned NOT NULL DEFAULT '0',
   `spellPower` int(10) unsigned NOT NULL DEFAULT '0',
+  `resilience` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1734,7 +1735,7 @@ DROP TABLE IF EXISTS `guild_rank`;
 CREATE TABLE `guild_rank` (
   `guildid` int(10) unsigned NOT NULL DEFAULT '0',
   `rid` tinyint(3) unsigned NOT NULL,
-  `rname` varchar(15) NOT NULL DEFAULT '',
+  `rname` varchar(20) NOT NULL DEFAULT '',
   `rights` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `BankMoneyPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`rid`),

@@ -153,16 +153,17 @@ Position const SindragosaAirPos    = {4475.990f, 2484.430f, 247.9340f, 3.141593f
 class FrostwyrmLandEvent : public BasicEvent
 {
     public:
-        FrostwyrmLandEvent(Creature& _owner, Position const& _dest) : owner(_owner), dest(_dest) { }
+        FrostwyrmLandEvent(Creature& owner, Position const& dest) : _owner(owner), _dest(dest) { }
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
         {
-            owner.GetMotionMaster()->MovePoint(POINT_FROSTWYRM_LAND, dest);
+            _owner.GetMotionMaster()->MovePoint(POINT_FROSTWYRM_LAND, _dest);
             return true;
         }
 
-        Creature& owner;
-        Position const& dest;
+    private:
+        Creature& _owner;
+        Position const& _dest;
 };
 
 class boss_sindragosa : public CreatureScript
@@ -188,8 +189,8 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
-                mysticBuffetStack = 0;
-                isThirdPhase = false;
+                _mysticBuffetStack = 0;
+                _isThirdPhase = false;
 
                 if (instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) != 255)
                 {
@@ -257,7 +258,7 @@ class boss_sindragosa : public CreatureScript
             uint32 GetData(uint32 type)
             {
                 if (type == DATA_MYSTIC_BUFFET_STACK)
-                    return mysticBuffetStack;
+                    return _mysticBuffetStack;
                 return 0xFFFFFFFF;
             }
 
@@ -300,14 +301,14 @@ class boss_sindragosa : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (!isThirdPhase && !HealthAbovePct(35))
+                if (!_isThirdPhase && !HealthAbovePct(35))
                 {
                     Talk(SAY_PHASE_2);
                     events.CancelEvent(EVENT_AIR_PHASE);
                     events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
                     events.RescheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000));
                     DoCast(me, SPELL_MYSTIC_BUFFET, true);
-                    isThirdPhase = true;
+                    _isThirdPhase = true;
                 }
             }
 
@@ -325,17 +326,17 @@ class boss_sindragosa : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
-                if (SpellEntry const* buffet = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(70127), me))
-                    if (buffet->Id == spell->Id)
+                if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
+                    if (spellId == spell->Id)
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
-                            mysticBuffetStack = std::max<uint8>(mysticBuffetStack, mysticBuffet->GetStackAmount());
+                            _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
                 // Frost Infusion
                 if (Player* player = target->ToPlayer())
                 {
-                    if (SpellEntry const* breath = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1), me))
+                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
                     {
-                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && breath->Id == spell->Id)
+                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && spellId == spell->Id)
                         {
                             if (Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true))
                             {
@@ -394,7 +395,7 @@ class boss_sindragosa : public CreatureScript
                             events.ScheduleEvent(EVENT_TAIL_SMASH, urand(27000, 32000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_FROST_BREATH:
-                            DoCastVictim(isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1);
+                            DoCastVictim(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1);
                             events.ScheduleEvent(EVENT_FROST_BREATH, urand(20000, 25000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_UNCHAINED_MAGIC:
@@ -470,8 +471,8 @@ class boss_sindragosa : public CreatureScript
             }
 
         private:
-            uint8 mysticBuffetStack;
-            bool isThirdPhase;
+            uint8 _mysticBuffetStack;
+            bool _isThirdPhase;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -489,7 +490,7 @@ class npc_ice_tomb : public CreatureScript
         {
             npc_ice_tombAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                trappedPlayer = 0;
+                _trappedPlayerGUID = 0;
             }
 
             void Reset()
@@ -501,15 +502,15 @@ class npc_ice_tomb : public CreatureScript
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
-                    trappedPlayer = guid;
-                    existenceCheckTimer = 1000;
+                    _trappedPlayerGUID = guid;
+                    _existenceCheckTimer = 1000;
                 }
             }
 
             void DoAction(int32 const action)
             {
                 if (action == ACTION_TRIGGER_ASPHYXIATION)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
                         player->CastSpell(player, SPELL_ASPHYXIATION, true);
             }
 
@@ -517,9 +518,9 @@ class npc_ice_tomb : public CreatureScript
             {
                 me->RemoveAllGameObjects();
 
-                if (Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer))
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
                 {
-                    trappedPlayer = 0;
+                    _trappedPlayerGUID = 0;
                     player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_DAMAGE);
                     player->RemoveAurasDueToSpell(SPELL_ASPHYXIATION);
                 }
@@ -527,12 +528,12 @@ class npc_ice_tomb : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!trappedPlayer)
+                if (!_trappedPlayerGUID)
                     return;
 
-                if (existenceCheckTimer <= diff)
+                if (_existenceCheckTimer <= diff)
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer);
+                    Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID);
                     if (!player || player->isDead() || !player->HasAura(SPELL_ICE_TOMB_DAMAGE))
                     {
                         // Remove object
@@ -540,20 +541,20 @@ class npc_ice_tomb : public CreatureScript
                         me->DespawnOrUnsummon();
                         return;
                     }
-                    existenceCheckTimer = 1000;
+                    _existenceCheckTimer = 1000;
                 }
                 else
-                    existenceCheckTimer -= diff;
+                    _existenceCheckTimer -= diff;
             }
 
         private:
-            uint64 trappedPlayer;
-            uint32 existenceCheckTimer;
+            uint64 _trappedPlayerGUID;
+            uint32 _existenceCheckTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_ice_tombAI(creature);
+            return GetIcecrownCitadelAI<npc_ice_tombAI>(creature);
         }
 };
 
@@ -564,19 +565,19 @@ class npc_spinestalker : public CreatureScript
 
         struct npc_spinestalkerAI : public ScriptedAI
         {
-            npc_spinestalkerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            npc_spinestalkerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
             }
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
+                _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
+                _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
                 me->SetReactState(REACT_DEFENSIVE);
 
-                if (instance->GetData(DATA_SPINESTALKER) != 255)
+                if (_instance->GetData(DATA_SPINESTALKER) != 255)
                 {
                     me->SetFlying(true);
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -586,20 +587,20 @@ class npc_spinestalker : public CreatureScript
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
-                instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                events.Reset();
-                instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
+                _events.Reset();
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
             void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
-                    instance->SetData(DATA_SPINESTALKER, 255);
+                    _instance->SetData(DATA_SPINESTALKER, 255);
                     if (me->isDead())
                         return;
 
@@ -632,26 +633,26 @@ class npc_spinestalker : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_BELLOWING_ROAR:
                             DoCast(me, SPELL_BELLOWING_ROAR);
-                            events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(25000, 30000));
+                            _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(25000, 30000));
                             break;
                         case EVENT_CLEAVE_SPINESTALKER:
                             DoCastVictim(SPELL_CLEAVE_SPINESTALKER);
-                            events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
+                            _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
                             break;
                         case EVENT_TAIL_SWEEP:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(22000, 25000));
+                            _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(22000, 25000));
                             break;
                         default:
                             break;
@@ -662,8 +663,8 @@ class npc_spinestalker : public CreatureScript
             }
 
         private:
-            EventMap events;
-            InstanceScript* instance;
+            EventMap _events;
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -679,19 +680,19 @@ class npc_rimefang : public CreatureScript
 
         struct npc_rimefangAI : public ScriptedAI
         {
-            npc_rimefangAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            npc_rimefangAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
             }
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
-                events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
+                _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
                 me->SetReactState(REACT_DEFENSIVE);
-                icyBlastCounter = 0;
+                _icyBlastCounter = 0;
 
-                if (instance->GetData(DATA_RIMEFANG) != 255)
+                if (_instance->GetData(DATA_RIMEFANG) != 255)
                 {
                     me->SetFlying(true);
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -701,20 +702,20 @@ class npc_rimefang : public CreatureScript
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
-                instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                events.Reset();
-                instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
+                _events.Reset();
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
             void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
-                    instance->SetData(DATA_RIMEFANG, 255);
+                    _instance->SetData(DATA_RIMEFANG, 255);
                     if (me->isDead())
                         return;
 
@@ -752,40 +753,40 @@ class npc_rimefang : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_FROST_BREATH_RIMEFANG:
                             DoCast(me, SPELL_FROST_BREATH);
-                            events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(35000, 40000));
+                            _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(35000, 40000));
                             break;
                         case EVENT_ICY_BLAST:
                         {
-                            icyBlastCounter = RAID_MODE<uint8>(5, 7, 6, 8);
+                            _icyBlastCounter = RAID_MODE<uint8>(5, 7, 6, 8);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             me->SetFlying(true);
                             me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
                             float moveTime = me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
-                            events.ScheduleEvent(EVENT_ICY_BLAST, uint64(moveTime) + urand(60000, 70000));
-                            events.ScheduleEvent(EVENT_ICY_BLAST_CAST, uint64(moveTime) + 250);
+                            _events.ScheduleEvent(EVENT_ICY_BLAST, uint64(moveTime) + urand(60000, 70000));
+                            _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, uint64(moveTime) + 250);
                             break;
                         }
                         case EVENT_ICY_BLAST_CAST:
-                            if (--icyBlastCounter)
+                            if (--_icyBlastCounter)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 {
                                     me->SetFacingToObject(target);
                                     DoCast(target, SPELL_ICY_BLAST);
                                 }
-                                events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
+                                _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
                             }
                             else if (Unit *victim = me->SelectVictim())
                             {
@@ -803,9 +804,9 @@ class npc_rimefang : public CreatureScript
             }
 
         private:
-            EventMap events;
-            InstanceScript* instance;
-            uint8 icyBlastCounter;
+            EventMap _events;
+            InstanceScript* _instance;
+            uint8 _icyBlastCounter;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -823,15 +824,15 @@ class npc_sindragosa_trash : public CreatureScript
         {
             npc_sindragosa_trashAI(Creature* creature) : ScriptedAI(creature)
             {
-                frostwyrmId = (creature->GetHomePosition().GetPositionY() < 2484.35f) ? DATA_RIMEFANG : DATA_SPINESTALKER;
-                instance = creature->GetInstanceScript();
+                _frostwyrmId = (creature->GetHomePosition().GetPositionY() < 2484.35f) ? DATA_RIMEFANG : DATA_SPINESTALKER;
+                _instance = creature->GetInstanceScript();
             }
 
             void InitializeAI()
             {
                 // Increase add count
-                if (!me->isDead() && instance)
-                    instance->SetData(frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                if (!me->isDead())
+                    _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
             void Reset()
@@ -839,11 +840,11 @@ class npc_sindragosa_trash : public CreatureScript
                 // This is shared AI for handler and whelps
                 if (me->GetEntry() == NPC_FROSTWARDEN_HANDLER)
                 {
-                    events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
-                    events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(8000, 10000));
+                    _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
+                    _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(8000, 10000));
                 }
 
-                isTaunted = false;
+                _isTaunted = false;
             }
 
             void JustRespawned()
@@ -851,29 +852,27 @@ class npc_sindragosa_trash : public CreatureScript
                 ScriptedAI::JustRespawned();
 
                 // Increase add count
-                if (instance)
-                    instance->SetData(frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 // Decrease add count
-                if (instance)
-                    instance->SetData(frostwyrmId, 0);
+                _instance->SetData(_frostwyrmId, 0);
             }
 
             void SetData(uint32 type, uint32 data)
             {
                 if (type == DATA_WHELP_MARKER)
-                    isTaunted = data != 0;
+                    _isTaunted = data != 0;
             }
 
             uint32 GetData(uint32 type)
             {
                 if (type == DATA_FROSTWYRM_OWNER)
-                    return frostwyrmId;
+                    return _frostwyrmId;
                 else if (type == DATA_WHELP_MARKER)
-                    return uint32(isTaunted);
+                    return uint32(_isTaunted);
                 return 0;
             }
 
@@ -882,22 +881,22 @@ class npc_sindragosa_trash : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_FROSTWARDEN_ORDER_WHELP:
                             DoCast(me, SPELL_ORDER_WHELP);
-                            events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
+                            _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
                             break;
                         case EVENT_CONCUSSIVE_SHOCK:
                             DoCast(me, SPELL_CONCUSSIVE_SHOCK);
-                            events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(10000, 13000));
+                            _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(10000, 13000));
                             break;
                         default:
                             break;
@@ -908,15 +907,15 @@ class npc_sindragosa_trash : public CreatureScript
             }
 
         private:
-            EventMap events;
-            InstanceScript* instance;
-            uint32 frostwyrmId;
-            bool isTaunted; // Frostwing Whelp only
+            EventMap _events;
+            InstanceScript* _instance;
+            uint32 _frostwyrmId;
+            bool _isTaunted; // Frostwing Whelp only
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_sindragosa_trashAI(creature);
+            return GetIcecrownCitadelAI<npc_sindragosa_trashAI>(creature);
         }
 };
 
@@ -931,13 +930,13 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
             bool Load()
             {
-                targetCount = 0;
+                _targetCount = 0;
                 return true;
             }
 
             void CountTargets(std::list<Unit*>& unitList)
             {
-                targetCount = unitList.size();
+                _targetCount = unitList.size();
             }
 
             void HandleDummy(SpellEffIndex effIndex)
@@ -951,7 +950,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                 uint32 minResistFactor = uint32((resistance / (resistance + 510.0f))* 10.0f) * 2;
                 uint32 randomResist = urand(0, (9 - minResistFactor) * 100)/100 + minResistFactor;
 
-                uint32 damage = (uint32(GetEffectValue()/targetCount) * randomResist) / 10;
+                uint32 damage = (uint32(GetEffectValue()/_targetCount) * randomResist) / 10;
 
                 SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
@@ -965,7 +964,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_s_fury_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_AREA_ENTRY_DST);
             }
 
-            uint32 targetCount;
+            uint32 _targetCount;
         };
 
         SpellScript* GetSpellScript() const
@@ -1152,22 +1151,23 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 class FrostBombTargetSelector
 {
     public:
-        FrostBombTargetSelector(Unit* _caster, std::list<Creature*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
+        FrostBombTargetSelector(Unit* caster, std::list<Creature*> const& collisionList) : _caster(caster), _collisionList(collisionList) { }
 
         bool operator()(Unit* unit)
         {
             if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
-            for (std::list<Creature*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
-                if ((*itr)->IsInBetween(caster, unit))
+            for (std::list<Creature*>::const_iterator itr = _collisionList.begin(); itr != _collisionList.end(); ++itr)
+                if ((*itr)->IsInBetween(_caster, unit))
                     return true;
 
             return false;
         }
 
-        Unit* caster;
-        std::list<Creature*> const& collisionList;
+    private:
+        Unit* _caster;
+        std::list<Creature*> const& _collisionList;
 };
 
 class spell_sindragosa_collision_filter : public SpellScriptLoader
@@ -1278,17 +1278,17 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 class OrderWhelpTargetSelector
 {
     public:
-        explicit OrderWhelpTargetSelector(Creature* _owner) : owner(_owner) { }
+        explicit OrderWhelpTargetSelector(Creature* owner) : _owner(owner) { }
 
         bool operator()(Creature* creature)
         {
-            if (!creature->AI()->GetData(DATA_WHELP_MARKER) && creature->AI()->GetData(DATA_FROSTWYRM_OWNER) == owner->AI()->GetData(DATA_FROSTWYRM_OWNER))
+            if (!creature->AI()->GetData(DATA_WHELP_MARKER) && creature->AI()->GetData(DATA_FROSTWYRM_OWNER) == _owner->AI()->GetData(DATA_FROSTWYRM_OWNER))
                 return false;
             return true;
         }
 
     private:
-        Creature* owner;
+        Creature* _owner;
 };
 
 class spell_frostwarden_handler_order_whelp : public SpellScriptLoader

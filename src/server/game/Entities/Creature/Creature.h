@@ -432,6 +432,7 @@ class Creature : public Unit, public GridObject<Creature>
         uint32 GetEquipmentId() const { return GetCreatureInfo()->equipmentId; }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
+        uint32 GetCorpseDelay() const { return m_corpseDelay; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool isCivilian() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
         bool isTrigger() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }

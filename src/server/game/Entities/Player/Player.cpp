@@ -494,6 +494,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
 {
     uint32 xp(_xp);
     if (_group)
+    {
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
@@ -504,6 +505,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
                 uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
             xp = 0;
+    }
     if (xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
@@ -890,7 +892,7 @@ Player::~Player ()
 void Player::CleanupsBeforeDelete(bool finalCleanup)
 {
     TradeCancel(false);
-    DuelComplete(DUEL_INTERUPTED);
+    DuelComplete(DUEL_INTERRUPTED);
 
     Unit::CleanupsBeforeDelete(finalCleanup);
 
@@ -1829,8 +1831,11 @@ void Player::setDeathState(DeathState s)
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP, 1);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH, 1);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON, 1);
+        GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH);
         GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH);
+        GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH);
     }
+
     Unit::setDeathState(s);
 
     // restore resurrection spell id for player after aura remove
@@ -2003,7 +2008,7 @@ bool Player::ToggleAFK()
     bool state = HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
 
     // afk player not allowed in battleground
-    if (state && InBattleground())
+    if (state && InBattleground() && !InArena())
         LeaveBattleground();
 
     return state;
@@ -4354,6 +4359,8 @@ bool Player::resetTalents(bool no_cost)
         }
     }
 
+    RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
@@ -4406,8 +4413,6 @@ bool Player::resetTalents(bool no_cost)
         m_resetTalentsTime = time(NULL);
     }
 
-    //FIXME: remove pet before or after unlearn spells? for now after unlearn to allow removing of talent related, pet affecting auras
-    RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     /* when prev line will dropped use next line
     if (Pet* pet = GetPet())
     {
@@ -5784,7 +5789,7 @@ float Player::GetSpellCritFromIntellect()
     return crit*100.0f;
 }
 
-float Player::GetRatingCoefficient(CombatRating cr) const
+float Player::GetRatingMultiplier(CombatRating cr) const
 {
     uint8 level = getLevel();
 
@@ -5792,15 +5797,17 @@ float Player::GetRatingCoefficient(CombatRating cr) const
         level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const *Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
-    if (Rating == NULL)
+    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
+    GtOCTClassCombatRatingScalarEntry const *classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return Rating->ratio;
+    return classRating->ratio / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) / GetRatingCoefficient(cr);
+    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
 }
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
@@ -5868,20 +5875,20 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(BASE_ATTACK, RatingChange, apply);
             ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
             break;
         }
         case CR_HASTE_RANGED:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyCastTimePercentMod(RatingChange, apply);
             break;
         }
@@ -7501,13 +7508,13 @@ void Player::DuelComplete(DuelCompleteType type)
     sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
     WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERUPTED) ? 1 : 0);
+    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
     GetSession()->SendPacket(&data);
 
     if (duel->opponent->GetSession())
         duel->opponent->GetSession()->SendPacket(&data);
 
-    if (type != DUEL_INTERUPTED)
+    if (type != DUEL_INTERRUPTED)
     {
         data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
         data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
@@ -7550,6 +7557,10 @@ void Player::DuelComplete(DuelCompleteType type)
         default:
             break;
     }
+
+    // Victory emote spell
+    if (type != DUEL_INTERRUPTED && duel->opponent)
+        duel->opponent->CastSpell(duel->opponent, 52852, true);
 
     //Remove Duel Flag object
     GameObject* obj = GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER));
@@ -7940,12 +7951,11 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const *proto, ScalingSt
 
     float minDamage = proto->Damage[0].DamageMin;
     float maxDamage = proto->Damage[0].DamageMax;
-    int32 extraDPS = 0;
 
     // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
     if (ssv)
     {
-        extraDPS = ssv->getDPSMod(proto->ScalingStatValue);
+        int32 extraDPS = ssv->getDPSMod(proto->ScalingStatValue);
         if (extraDPS)
         {
             float average = extraDPS * proto->Delay / 1000.0f;
@@ -9030,6 +9040,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         case 4100:  // The Culling of Stratholme
             NumberOfFields = 13;
+            break;
          default:
             NumberOfFields = 12;
             break;
@@ -9786,7 +9797,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                 }
             }
 
-            if (Item* ohWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+            if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
             {
                 if (proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                 {
@@ -11151,7 +11162,6 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
         if (pItem->IsBindedNotWith(this))
             return EQUIP_ERR_DONT_OWN_THAT_ITEM;
 
-        Bag *pBag;
         ItemTemplate const *pBagProto;
 
         // item is 'one item only'
@@ -11202,11 +11212,11 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
 
             for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
             {
-                if (pBag = GetBagByPos(t))
+                if (Bag* bag = GetBagByPos(t))
                 {
-                    if (ItemCanGoIntoBag(pItem->GetTemplate(), pBag->GetTemplate()))
+                    if (ItemCanGoIntoBag(pItem->GetTemplate(), bag->GetTemplate()))
                     {
-                        for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                        for (uint32 j = 0; j < bag->GetBagSize(); j++)
                         {
                             pItem2 = GetItemByPos(t, j);
                             if( pItem2 && pItem2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && inv_bags[t-INVENTORY_SLOT_BAG_START][j] + pItem->GetCount() <= pProto->GetMaxStackSize())
@@ -11259,15 +11269,15 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
 
             for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
             {
-                if (pBag = GetBagByPos(t))
+                if (Bag* bag = GetBagByPos(t))
                 {
-                    pBagProto = pBag->GetTemplate();
+                    pBagProto = bag->GetTemplate();
 
                     // not plain container check
                     if (pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER) &&
                         ItemCanGoIntoBag(pProto, pBagProto))
                     {
-                        for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                        for (uint32 j = 0; j < bag->GetBagSize(); j++)
                         {
                             if (inv_bags[t-INVENTORY_SLOT_BAG_START][j] == 0)
                             {
@@ -11298,15 +11308,15 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
         // search free slot in bags
         for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
         {
-            if (pBag = GetBagByPos(t))
+            if (Bag* bag = GetBagByPos(t))
             {
-                pBagProto = pBag->GetTemplate();
+                pBagProto = bag->GetTemplate();
 
                 // special bag already checked
                 if (pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER))
                     continue;
 
-                for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                for (uint32 j = 0; j < bag->GetBagSize(); j++)
                 {
                     if (inv_bags[t-INVENTORY_SLOT_BAG_START][j] == 0)
                     {
@@ -18759,7 +18769,7 @@ void Player::_SaveStats(SQLTransaction& trans)
     std::ostringstream ss;
     ss << "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
-        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower) VALUES ("
+        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, resilience) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
     for (uint8 i = 0; i < MAX_POWERS; ++i)
@@ -18777,7 +18787,8 @@ void Player::_SaveStats(SQLTransaction& trans)
        << GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1) << ", "
        << GetUInt32Value(UNIT_FIELD_ATTACK_POWER) << ", "
        << GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) << ", "
-       << GetBaseSpellPowerBonus() << ")";
+       << GetBaseSpellPowerBonus() << ", "
+       << GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_TAKEN_SPELL) << ")";
     trans->Append(ss.str().c_str());
 }
 
@@ -19048,7 +19059,7 @@ void Player::UpdatePvPFlag(time_t currTime)
 {
     if (!IsPvP())
         return;
-    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300))
+    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300) || pvpInfo.inHostileArea)
         return;
 
     UpdatePvP(false);
@@ -19631,6 +19642,10 @@ void Player::RemoveSpellMods(Spell * spell)
 
 void Player::DropModCharge(SpellModifier * mod, Spell * spell)
 {
+    // this mod shouldn't be removed here
+    if (mod->op == SPELLMOD_CRIT_DAMAGE_BONUS)
+        return;
+
     if (spell && mod->ownerAura && mod->charges > 0)
     {
         --mod->charges;
@@ -20851,8 +20866,9 @@ bool Player::CanReportAfkDueToLimit()
 ///This player has been blamed to be inactive in a battleground
 void Player::ReportedAfkBy(Player* reporter)
 {
-    Battleground *bg = GetBattleground();
-    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam())
+    Battleground* bg = GetBattleground();
+    // Battleground also must be in progress!
+    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff
@@ -22875,7 +22891,7 @@ void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell *spell)
 
     if (!(spellInfo->Attributes & (SPELL_ATTR0_UNK4|SPELL_ATTR0_PASSIVE)))
         cdTime *= GetFloatValue(UNIT_MOD_CAST_SPEED);
-    else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
+    else if (IsRangedWeaponSpell(spellInfo) && spell && !spell->IsAutoRepeat())
         cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
 
     if (cdTime > 1500.0f)

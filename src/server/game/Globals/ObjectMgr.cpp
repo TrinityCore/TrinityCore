@@ -1122,9 +1122,9 @@ void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate *cinfo, uint32& npcfl
     }
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 &displayID)
+CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID)
 {
-    CreatureModelInfo const* minfo = GetCreatureModelInfo(displayID);
+    CreatureModelInfo const* minfo = GetCreatureModelInfo(*displayID);
     if (!minfo)
         return NULL;
 
@@ -1133,13 +1133,11 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 &display
     {
         CreatureModelInfo const *minfo_tmp = GetCreatureModelInfo(minfo->modelid_other_gender);
         if (!minfo_tmp)
-        {
-            sLog->outErrorDb("Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", displayID, minfo->modelid_other_gender);
-        }
+            sLog->outErrorDb("Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", *displayID, minfo->modelid_other_gender);
         else
         {
             // Model ID changed
-            displayID = minfo->modelid_other_gender;
+            *displayID = minfo->modelid_other_gender;
             return minfo_tmp;
         }
     }
@@ -1560,8 +1558,6 @@ void ObjectMgr::LoadCreatures()
                 sLog->outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).", guid, data.id);
                 data.movementType = IDLE_MOTION_TYPE;
             }
-            else if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
-                data.movementType = IDLE_MOTION_TYPE;
         }
         else if (data.movementType == IDLE_MOTION_TYPE)
         {
@@ -5788,7 +5784,7 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
     }
 
     // minfo is not actually used but the mount_id was updated
-    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(mount_id);
+    sObjectMgr->GetCreatureModelRandomGender(&mount_id);
 
     return mount_id;
 }
@@ -8003,8 +7999,15 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     sLog->outString();
 }
 
-bool ObjectMgr::CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names)
+bool ObjectMgr::CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& names)
 {
+    // get main part of the name
+    std::wstring mainpart = GetMainPartOfName(w_ownname, 0);
+    // prepare flags
+    bool x = true;
+    bool y = true;
+
+    // check declined names
     for (uint8 i =0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
         std::wstring wname;
@@ -8012,9 +8015,12 @@ bool ObjectMgr::CheckDeclinedNames(std::wstring mainpart, DeclinedName const& na
             return false;
 
         if (mainpart != GetMainPartOfName(wname, i+1))
-            return false;
+            x = false;
+
+        if (w_ownname != wname)
+            y = false;
     }
-    return true;
+    return (x || y);
 }
 
 uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id)

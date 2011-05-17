@@ -108,7 +108,6 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_GM_GROUP,
     CONFIG_ALLOW_GM_FRIEND,
     CONFIG_GM_LOWER_SECURITY,
-    CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS,
     CONFIG_SKILL_PROSPECTING,
     CONFIG_SKILL_MILLING,
     CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY,
@@ -236,6 +235,7 @@ enum WorldIntConfigs
     CONFIG_GM_WHISPERING_TO,
     CONFIG_GM_LEVEL_IN_GM_LIST,
     CONFIG_GM_LEVEL_IN_WHO_LIST,
+    CONFIG_GM_LEVEL_ALLOW_ACHIEVEMENTS,
     CONFIG_START_GM_LEVEL,
     CONFIG_GROUP_VISIBILITY,
     CONFIG_MAIL_DELIVERY_DELAY,
@@ -742,8 +742,8 @@ class World
         void LoadWorldStates();
 
         /// Are we on a "Player versus Player" server?
-        bool IsPvPRealm() { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
-        bool IsFFAPvPRealm() { return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
+        bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
+        bool IsFFAPvPRealm() const { return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
 
         void KickAll();
         void KickAllLess(AccountTypes sec);
@@ -792,7 +792,7 @@ class World
         const uint32 GetTWTimer() { return m_TWTimer; };
         const uint32 GetTWStatus() { return m_TWStatus; };
 
-        uint32 GetCleaningFlags() { return m_CleaningFlags; }
+        uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
     protected:
         void _UpdateGameTime();

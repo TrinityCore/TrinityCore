@@ -533,7 +533,7 @@ INSERT INTO `command` VALUES
 ('modify rage',1,'Syntax: .modify rage #newrage\r\n\r\nModify the rage of the selected player. If no player is selected, modify your rage.'),
 ('modify rep',2,'Syntax: .modify rep #repId (#repvalue | $rankname [#delta])\r\nSets the selected players reputation with faction #repId to #repvalue or to $reprank.\r\nIf the reputation rank name is provided, the resulting reputation will be the lowest reputation for that rank plus the delta amount, if specified.\r\nYou can use ''.pinfo rep'' to list all known reputation ids, or use ''.lookup faction $name'' to locate a specific faction id.'),
 ('modify runicpower',1,'Syntax: .modify runicpower #newrunicpower\r\n\r\nModify the runic power of the selected player. If no player is selected, modify your runic power.'),
-('modify scale',1,'.modify scale $parameter\nModify size of the selected player to \"normal scale\"*rate. If no player is selected, modify your size.\n#rate may range from 0.1 to 10.'),
+('modify scale',1,'.modify scale #scale\nModify size of the selected player or creature to \"normal scale\"*rate. If no player or creature is selected, modify your size.\n#rate may range from 0.1 to 10.'),
 ('modify speed',1,'Syntax: .modify speed #rate\r\n.speed #rate\r\n\r\nModify the running speed of the selected player to \"normal base run speed\"*rate. If no player is selected, modify your speed.\r\n\r\n #rate may range from 0.1 to 50.'),
 ('modify spell',1,'TODO'),
 ('modify standstate',2,'Syntax: .modify standstate #emoteid\r\n\r\nChange the emote of your character while standing to #emoteid.'),
@@ -16862,8 +16862,7 @@ CREATE TABLE `spell_bonus_data` (
 LOCK TABLES `spell_bonus_data` WRITE;
 /*!40000 ALTER TABLE `spell_bonus_data` DISABLE KEYS */;
 INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`ap_dot_bonus`,`comments`) VALUES
-(49941, -1, -1, 0.04, -1, 'Death Knight - Blood Boil'),
-(48721, 0, -1, 0.04, -1, 'Death Knight - Blood Boil'),
+(48721, 0, -1, 0.06, -1, 'Death Knight - Blood Boil'),
 (55078, 0, 0, -1, 0.06325, 'Death Knight - Blood Plague'),
 (50444, -1, -1, 0.105, -1, 'Death Knight - Corpse Explosion Triggered'),
 (52212, 0, -1, 0.0475, -1, 'Death Knight - Death and Decay'),
@@ -16897,22 +16896,18 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (1822, -1, -1, 0.01, 0.06, 'Druid - Rake ($AP*0.18 / number of ticks)'),
 (8936, 0.539, 0.188, -1, -1, 'Druid - Regrowth'),
 (774, -1, 0.37604, -1, -1, 'Druid - Rejuvenation'),
-(50294, 0.0119, -1, -1, -1, 'Druid - Starfall AOE rank 1'),
-(53188, 0.0119, -1, -1, -1, 'Druid - Starfall AOE rank 2'),
-(53189, 0.0119, -1, -1, -1, 'Druid - Starfall AOE rank 3'),
-(53190, 0.0119, -1, -1, -1, 'Druid - Starfall AOE rank 4'),
-(50288, 0.0458, -1, -1, -1, 'Druid - Starfall rank 1'),
-(53191, 0.0458, -1, -1, -1, 'Druid - Starfall rank 2'),
-(53194, 0.0458, -1, -1, -1, 'Druid - Starfall rank 3'),
-(53195, 0.0458, -1, -1, -1, 'Druid - Starfall rank 4'),
+(50294, 0.13, -1, -1, -1, 'Druid - Starfall AOE'),
+(50288, 0.3, -1, -1, -1, 'Druid - Starfall'),
 (2912, 1, -1, -1, -1, 'Druid - Starfire'),
 (18562, 0, 0, 0, 0, 'Druid - Swiftmend'),
 (779, -1, -1, 0.063, -1, 'Druid - Swipe (Bear)'),
+(467, 0.033, -1, -1, -1, 'Druid - Thorns'),
 (44203, 0.538, -1, -1, -1, 'Druid - Tranquility Triggered'),
 (61391, 0.193, -1, -1, -1, 'Druid - Typhoon'),
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
 (5176, 0.5714, -1, -1, -1, 'Druid - Wrath'),
 (70691,0,0,0,0, 'Druid - Rejuvenation T10 4P proc'),
+(64801,0.45,0,0,0,'Druid - T8 Restoration 4P Bonus'),
 (3044, -1, -1, 0.15, -1, 'Hunter - Arcane Shot'),
 (3674, -1, -1, -1, 0.02, 'Hunter - Black Arrow($RAP*0.1 / number of ticks)'),
 (19306, -1, -1, 0.2, -1, 'Hunter - Counterattack'),
@@ -16925,6 +16920,12 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (53352, -1, -1, 0.14, -1, 'Hunter - Explosive Shot (triggered)'),
 (55039, 0, 0, 0, 0, 'Item - Gnomish Lightning Generator'),
 (40293, 0, 0, 0, 0, 'Item - Siphon Essence'),
+(67760, 0, 0, 0, 0, 'Item - Coliseum 25 Heroic Caster Trinket - Pillar of Flame'),
+(67714, 0, 0, 0, 0, 'Item - Coliseum 25 Normal Caster Trinket - Pillar of Flame'),
+(69729, -1, 0, -1, -1, 'Item - Onyxia 10 Caster Trinket - Searing Flames'),
+(69730, -1, 0, -1, -1, 'Item - Onyxia 25 Caster Trinket - Searing Flames'),
+(69733, 0, -1, -1, -1, 'Item - Onyxia 10 Caster Trinket - Cauterizing Heal'),
+(69734, 0, -1, -1, -1, 'Item - Onyxia 25 Caster Trinket - Cauterizing Heal'),
 (44425, 0.7143, -1, -1, -1, 'Mage - Arcane Barrage'),
 (30451, 0.7143, -1, -1, -1, 'Mage - Arcane Blast'),
 (1449, 0.2128, -1, -1, -1, 'Mage - Arcane Explosion'),
@@ -16961,7 +16962,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (66922, 0, 0, 0, 0, 'Paladin - Flash of Light'),
 (53595, 0, 0, 0, 0, 'Paladin - Hammer of the Righteous'),
 (24275, 0.15, -1, 0.15, -1, 'Paladin - Hammer of Wrath'),
-(62124, 0.085, -1, -1, -1, 'Paladin - Hand of Reckoning'),
+(67485, 0, -1, 0.5, -1, 'Paladin - Hand of Reckoning triggered'),
 (635, 1.66, -1, -1, -1, 'Paladin - Holy Light'),
 (20925, 0.09, -1, 0.056, -1, 'Paladin - Holy Shield'),
 (25914, 0.81, -1, -1, -1, 'Paladin - Holy Shock Triggered Heal Rank 1'),
@@ -16977,6 +16978,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (53725, 0.0833, -1, 0.0533, -1, 'Paladin - Judgement of the Martyr Self'),
 (31804, 0.22, 0, 0.14, 0, 'Paladin - Judgement of Vengeance'),
 (54158, 0.25, 0, 0.16, 0, 'Paladin - Judgement (Seal of Light, Seal of Wisdom, Seal of Justice)'),
+(7294, 0.033, -1, -1, -1, 'Paladin - Retribution Aura'),
 (58597, 0.75, -1, -1, -1, 'Paladin - Sacred Shield'),
 (53601, 0.75, -1, -1, -1, 'Paladin - Sacred Shield'),
 (31893, 0, 0, 0, 0, 'Paladin - Seal of Blood Proc Enemy'),
@@ -17014,7 +17016,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (52999, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 3)'),
 (53000, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 4)'),
 (17, 0.8068, -1, -1, -1, 'Priest - Power Word: Shield'),
-(596, 0.8068, -1, -1, -1, 'Priest - Prayer of Healing'),
+(596, 0.526, -1, -1, -1, 'Priest - Prayer of Healing'),
 (33110, 0.8068, 0, 0, 0, 'Priest - Prayer of Mending Heal Proc'),
 (33619, 0, 0, 0, 0, 'Priest - Reflective Shield'),
 (139, -1, 0.376, -1, -1, 'Priest - Renew'),
@@ -17023,19 +17025,12 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (34433, 0.65, -1, -1, -1, 'Priest - Shadowfiend'),
 (585, 0.714, -1, -1, -1, 'Priest - Smite'),
 (34914, -1, 0.4, -1, -1, 'Priest - Vampiric Touch'),
+(64085, 1.2, -1, -1, -1, 'Priest - Vampiric Touch (Dispelled)'),
 (7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
 (63675, 0, 0, 0, 0, 'Priest - Improved Devouring Plague'),
 (56131, 0, 0, 0, 0, 'Priest - Glyph of Dispel Magic'),
 (56160, 0, 0, 0, 0, 'Priest - Glyph of Power Word: Shield'),
-(2818, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 1($AP*0.12 / number of ticks)'),
-(2819, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 2($AP*0.12 / number of ticks)'),
-(11353, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 3($AP*0.12 / number of ticks)'),
-(11354, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 4($AP*0.12 / number of ticks)'),
-(25349, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 5($AP*0.12 / number of ticks)'),
-(26968, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 6($AP*0.12 / number of ticks)'),
-(27187, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 7($AP*0.12 / number of ticks)'),
-(57969, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 8($AP*0.12 / number of ticks)'),
-(57970, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 9($AP*0.12 / number of ticks)'),
+(2818, 0, 0, 0, 0.03, 'Rogue - Deadly Poison All Ranks($AP*0.12 / number of ticks)'),
 (703, -1, -1, -1, 0.07, 'Rogue - Garrote'),
 (1776, -1, -1, 0.21, -1, 'Rogue - Gouge'),
 (8680, -1, -1, 0.1, -1, 'Rogue - Instant Poison Rank 1'),
@@ -17117,7 +17112,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (980, -1, 0.1, -1, -1, 'Warlock - Curse of Agony'),
 (603, -1, 2, -1, -1, 'Warlock - Curse of Doom'),
 (18220, 0.96, -1, -1, -1, 'Warlock - Dark Pact Rank 1'),
-(6789, 0.214, -1, -1, -1, 'Warlock - Death Coil'),
+(6789, 0.2143, -1, -1, -1, 'Warlock - Death Coil'),
 (689, -1, 0.143, -1, -1, 'Warlock - Drain Life'),
 (5138, 0, 0, 0, 0, 'Warlock - Drain Mana'),
 (1120, -1, 0.429, -1, -1, 'Warlock - Drain Soul'),
@@ -17132,7 +17127,8 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (29722, 0.7139, -1, -1, -1, 'Warlock - Incinerate'),
 (42223, 0.286, -1, -1, -1, 'Warlock - Rain of Fire Triggered Rank 1'),
 (5676, 0.4293, -1, -1, -1, 'Warlock - Searing Pain'),
-(27243, 0.2129, 0.25, -1, -1, 'Warlock - Seed of Corruption'),
+(27243, -1, 0.25, -1, -1, 'Warlock - Seed of Corruption'),
+(27285, 0.2129, -1, -1, -1, 'Warlock - Seed of Corruption Proc'),
 (686, 0.8569, -1, -1, -1, 'Warlock - Shadow Bolt'),
 (6229, 0.3, -1, -1, -1, 'Warlock - Shadow Ward'),
 (17877, 0.4293, -1, -1, -1, 'Warlock - Shadowburn'),
@@ -17140,6 +17136,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (61291, 0.1064, 0.0667, -1, -1, 'Warlock - Shadowflame Rank 2'),
 (30283, 0.1932, -1, -1, -1, 'Warlock - Shadowfury'),
 (63106, 0, 0, 0, 0, 'Warlock - Siphon Life Triggered'),
+(38395, 0 ,0, 0, 0, 'Warlock - Siphon Essence T6 2P proc'),
 (6353, 1.15, -1, -1, -1, 'Warlock - Soul Fire'),
 (30294, 0, 0, 0, 0, 'Warlock - Soul Leech'),
 (30108, -1, 0.2, -1, -1, 'Warlock - Unstable Affliction'),
@@ -17275,7 +17272,8 @@ INSERT INTO `spell_dbc` (`Id`,`Dispel`,`Mechanic`,`Attributes`,`AttributesEx`,`A
 (34145,  0, 0, 0, 0, 0, 67108864, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 80, 80, 0, 1, 0, -1, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29886, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Ritual of Souls Rank 1 - Trigger Create Soulwell (29886)'),
 (58888,  0, 0, 0, 0, 0, 67108864, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 68, 68, 0, 1, 0, -1, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 58889, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Ritual of Souls Rank 2 - Trigger Create Soulwell (58889)'),
 (61988,  0, 0, 671089024, 268436480, 4, 269484032, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 25, 13, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Divine Shield Exclude Aura - 61988'),
-(200000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Drain Soul increased damage - serverside spell'),
+(100000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bone Shield cooldown - serverside spell'),
+(100001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Drain Soul increased damage - serverside spell'),
 (42876,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 9275 reward serverside spell'),
 (44987,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 11521 reward serverside spell'),
 (48803,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 12214 reward serverside spell'),
@@ -17680,7 +17678,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1041,48506), -- Earth and Moon
 (1042,1490), -- Curse of the Elements
 -- Increased Spell Power Buff
-(1044,54646), -- Focus Magic
 (1045,52109), -- Flametongue Totem
 (1046,57658), -- Totem of Wrath
 (1046,57660), -- Totem of Wrath
@@ -17737,8 +17734,8 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1094,34123), -- tree of life aura
 (1095,20138), -- Improved Devotion Aura
 -- Armor Increase Percentage Buff
-(1097,14892), -- Inspiration
-(1098,16176), -- Ancestral Healing
+(1097,14893), -- Inspiration
+(1098,16177), -- Ancestral Healing
 -- Cast Speed Slow
 (1100,1714), -- Curse of Tongues
 (1101,31589), -- Slow
@@ -17776,7 +17773,6 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1043,-1041),
 (1043,-1042),
 -- Increased Spell Power Buff
-(1048,-1044),
 (1048,-1045),
 (1048,-1046),
 (1048,-1047),
@@ -18092,11 +18088,12 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (-59907,     7, 0, 'Lightwell Charges - Suicide'),
 ( 19263, 67801, 2, 'Deterrence'),
 ( 45524, 55095, 0, 'Chains of Ice - Frost Fever'),
-( 20066,-61840, 0, 'Repentance'),
+( 20066,-61840, 1, 'Repentance'),
 ( 66235, 66233, 0, 'Ardent Defender Visuals'),
 ( 58875, 58876, 1, 'Spirit Walk'),
 (-47960,-63311, 0, 'Glyph of Shadowflame Rank 1'),
 (-61291,-63311, 0, 'Glyph of Shadowflame Rank 2'),
+( 56453, 67544, 0, 'Lock and Load Marker'),
 -- Misc
 ( 55428, 55475, 0, 'Lifeblood (Rank 1)'),
 ( 55480, 55475, 0, 'Lifeblood (Rank 2)'),
@@ -18315,6 +18312,9 @@ INSERT INTO `spell_pet_auras` VALUES (19028,0,0,25228),
 (19578,0,0,19579),
 (20895,0,0,24529),
 (28757,0,0,28758),
+(34455,0,0,75593),
+(34459,0,0,75446),
+(34460,0,0,75447),
 (35029,0,0,35060),
 (35030,0,0,35061),
 (35691,0,0,35696),
@@ -18415,7 +18415,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 11095, 0x00,   3, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Scorch (Rank 1)
 ( 11119, 0x04,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Ignite (Rank 1)
 ( 11120, 0x04,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Ignite (Rank 2)
-( 11129, 0x04,   3, 0x08c00017, 0x00031048, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Combustion
+( 11129, 0x04,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Combustion
 ( 11180, 0x10,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Winter's Chill (Rank 1)
 ( 11185, 0x00,   3, 0x00000080, 0x00000000, 0x00000000, 0x00050000, 0x00000000,   0,   0,   0), -- Improved Blizzard (Rank 1)
 ( 11255, 0x00,   3, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Counterspell (Rank 1)
@@ -18519,7 +18519,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 16620, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  30), -- Proc Self Invulnerability
 ( 16624, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Thorium Shield Spike
 ( 16850, 0x00,   7, 0x00000004, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Celestial Focus (Rank 1)
-( 16864, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   2,   0,   0), -- Omen of Clarity
+( 16864, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00010000,   2,   0,   0), -- Omen of Clarity
 ( 16923, 0x00,   7, 0x00000004, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Celestial Focus (Rank 2)
 ( 16924, 0x00,   7, 0x00000004, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Celestial Focus (Rank 3)
 ( 16952, 0x00,   7, 0x00039000, 0x00000400, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Blood Frenzy (Rank 1)
@@ -18568,10 +18568,14 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 20215, 0x00,  10, 0xC0000000, 0x00010000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Illumination (Rank 5)
 ( 20234, 0x00,  10, 0x00008000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Lay on Hands (Rank 1)
 ( 20235, 0x00,  10, 0x00008000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Lay on Hands (Rank 2)
+( 20335, 0x00,  10, 0x00800000, 0x00000000, 0x00000008, 0x00000100, 0x00000000,   0, 100,   0), -- Heart of the Crusader (Rank 1)
+( 20336, 0x00,  10, 0x00800000, 0x00000000, 0x00000008, 0x00000100, 0x00000000,   0, 100,   0), -- Heart of the Crusader (Rank 2)
+( 20337, 0x00,  10, 0x00800000, 0x00000000, 0x00000008, 0x00000100, 0x00000000,   0, 100,   0), -- Heart of the Crusader (Rank 3)
 ( 20375, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   1), -- Seal of Command
 ( 20500, 0x00,   4, 0x10000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Berserker Rage (Rank 1)
 ( 20501, 0x00,   4, 0x10000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Berserker Rage (Rank 2)
 ( 20705, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Power Shield 500
+( 20784, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Tamed Pet Passive 07
 ( 20911, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000070,   0,   0,   0), -- Blessing of Sanctuary
 ( 20925, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 1)
 ( 20927, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 2)
@@ -18687,8 +18691,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 30937, 0x20,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Mark of Shadow
 ( 31124, 0x00,   8, 0x01000006, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Blade Twisting (Rank 1)
 ( 31126, 0x00,   8, 0x01000006, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Blade Twisting (Rank 2)
-( 31244, 0x00,   8, 0x003E0000, 0x00000009, 0x00000000, 0x00000000, 0x00000004,   0,   0,   0), -- Quick Recovery (Rank 1)
-( 31245, 0x00,   8, 0x003E0000, 0x00000009, 0x00000000, 0x00000000, 0x00000004,   0,   0,   0), -- Quick Recovery (Rank 2)
+( 31244, 0x00,   8, 0x003E0000, 0x00000009, 0x00000000, 0x00000000, 0x00000034,   0,   0,   0), -- Quick Recovery (Rank 1)
+( 31245, 0x00,   8, 0x003E0000, 0x00000009, 0x00000000, 0x00000000, 0x00000034,   0,   0,   0), -- Quick Recovery (Rank 2)
 ( 31394, 0x20,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Mark of Shadow
 ( 31569, 0x00,   3, 0x00010000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Blink (Rank 1)
 ( 31570, 0x00,   3, 0x00010000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Blink (Rank 2)
@@ -18698,7 +18702,6 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 31657, 0x04,   3, 0x8000000,  0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Empowered Fire (Rank 2)
 ( 31658, 0x04,   3, 0x8000000,  0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Empowered Fire (Rank 3)
 ( 31794, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00010000,   0,   0,   0), -- Focused Mind
-( 31801, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Seal of Vengeance
 ( 31833, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 1)
 ( 31835, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 2)
 ( 31836, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 3)
@@ -18769,12 +18772,12 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 34586, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 1.5,   0,   0), -- Romulo's Poison
 ( 34598, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Karazhan Caster Robe
 ( 34749, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008,   0,   0,   0), -- Recurring Power
-( 34753, 0x00,   6, 0x00001800, 0x00000004, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Holy Concentration (Rank 1)
+( 34753, 0x00,   6, 0x00001800, 0x00000004, 0x00001000, 0x00000000, 0x00000002,   0,   0,   0), -- Holy Concentration (Rank 1)
 ( 34774, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 1.5,   0,  20), -- Magtheridon Melee Trinket
 ( 34783, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000800,   0,   0,   0), -- Spell Reflection
 ( 34827, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Water Shield
-( 34859, 0x00,   6, 0x00001800, 0x00000004, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Holy Concentration (Rank 2)
-( 34860, 0x00,   6, 0x00001800, 0x00000004, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Holy Concentration (Rank 3)
+( 34859, 0x00,   6, 0x00001800, 0x00000004, 0x00001000, 0x00000000, 0x00000002,   0,   0,   0), -- Holy Concentration (Rank 2)
+( 34860, 0x00,   6, 0x00001800, 0x00000004, 0x00001000, 0x00000000, 0x00000002,   0,   0,   0), -- Holy Concentration (Rank 3)
 ( 34914, 0x00,   6, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Vampiric Touch (Rank 1)
 ( 34916, 0x00,   6, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Vampiric Touch (Rank 2)
 ( 34917, 0x00,   6, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Vampiric Touch (Rank 3)
@@ -18888,9 +18891,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 44404, 0x00,   3, 0x20000021, 0x00009000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Missile Barrage (Rank 1)
 ( 44442, 0x00,   3, 0x00800000, 0x00000040, 0x00000000, 0x00000000, 0x00010000,   0,   0,   1), -- Firestarter (Rank 1)
 ( 44443, 0x00,   3, 0x00800000, 0x00000040, 0x00000000, 0x00000000, 0x00010000,   0,   0,   1), -- Firestarter (Rank 2)
-( 44445, 0x00,   3, 0x00000013, 0x00001000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Hot Streak (Rank 1)
-( 44446, 0x00,   3, 0x00000013, 0x00001000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Hot Streak (Rank 2)
-( 44448, 0x00,   3, 0x00000013, 0x00001000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Hot Streak (Rank 3)
+( 44445, 0x00,   3, 0x00000013, 0x00011000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Hot Streak (Rank 1)
+( 44446, 0x00,   3, 0x00000013, 0x00011000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Hot Streak (Rank 2)
+( 44448, 0x00,   3, 0x00000013, 0x00011000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Hot Streak (Rank 3)
 ( 44449, 0x00,   3, 0x20E21277, 0x00019048, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Burnout (Rank 1)
 ( 44469, 0x00,   3, 0x20E21277, 0x00019048, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Burnout (Rank 2)
 ( 44470, 0x00,   3, 0x20E21277, 0x00019048, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Burnout (Rank 3)
@@ -18931,7 +18934,6 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 46913, 0x00,   4, 0x00000040, 0x00000404, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Bloodsurge (Rank 1)
 ( 46914, 0x00,   4, 0x00000040, 0x00000404, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Bloodsurge (Rank 2)
 ( 46915, 0x00,   4, 0x00000040, 0x00000404, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Bloodsurge (Rank 3)
-( 46916, 0x00,   4, 0x00000000, 0x00000400, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Slam!
 ( 46951, 0x00,   4, 0x00000400, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Sword and Board (Rank 1)
 ( 46952, 0x00,   0, 0x00000400, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Sword and Board (Rank 2)
 ( 46953, 0x00,   0, 0x00000400, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Sword and Board (Rank 3)
@@ -18989,6 +18991,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 48951, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 5)
 ( 48952, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 6)
 ( 48988, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Bloody Vengeance (Rank 1)
+( 49004, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000033,   0,   0,   0), -- Scent of Blood (Rank 1)
+( 49508, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000033,   0,   0,   0), -- Scent of Blood (Rank 2)
+( 49509, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000033,   0,   0,   0), -- Scent of Blood (Rank 3)
 ( 49018, 0x00,  15, 0x01400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Sudden Doom (Rank 1)
 ( 49194, 0x00,  15, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Unholy Blight
 ( 49027, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   3,  20), -- Bloodworms (Rank 1)
@@ -18996,7 +19001,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 49543, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   9,  20), -- Bloodworms (Rank 3)
 ( 49208, 0x00,  15, 0x00400000, 0x00010000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Reaping (Rank 1)
 ( 49219, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0,   0,   0), -- Blood-Caked Blade (Rank 1)
-( 49222, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x000222A8, 0x00000000,   0,   0,   3), -- Bone Shield
+( 49222, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x000222A8, 0x00000000,   0,   0,   2), -- Bone Shield
 ( 49280, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Lightning Shield (Rank 10)
 ( 49281, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Lightning Shield (Rank 11)
 ( 49283, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x000222A8, 0x00000000,   0,   0,   3), -- Earth Shield (Rank 4)
@@ -19014,11 +19019,11 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 50885, 0x00,  15, 0x00000000, 0x04000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Icy Talons
 ( 50886, 0x00,  15, 0x00000000, 0x04000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Icy Talons
 ( 50887, 0x00,  15, 0x00000000, 0x04000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Icy Talons
-( 51123, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Killing Machine (Rank 1)
-( 51127, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Killing Machine (Rank 2)
-( 51128, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Killing Machine (Rank 3)
-( 51129, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Killing Machine (Rank 4)
-( 51130, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Killing Machine (Rank 5)
+( 51123, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   1,   0,   0), -- Killing Machine (Rank 1)
+( 51127, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   2,   0,   0), -- Killing Machine (Rank 2)
+( 51128, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   3,   0,   0), -- Killing Machine (Rank 3)
+( 51129, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   4,   0,   0), -- Killing Machine (Rank 4)
+( 51130, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   5,   0,   0), -- Killing Machine (Rank 5)
 ( 51346, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Venture Company Beatdown!
 ( 51349, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Venture Company Beatdown
 ( 51352, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Venture Company Beatdown!
@@ -19153,7 +19158,6 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 54808, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  60), -- Sonic Shield
 ( 54838, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Purified Spirit
 ( 54841, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   3), -- Thunder Capacitor
-( 54936, 0x00,  10, 0x40000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Flash of Light
 ( 54937, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Holy Light
 ( 54939, 0x00,  10, 0x00008000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Divinity
 ( 55198, 0x00,  11, 0x000001C0, 0x00000000, 0x00000000, 0x00004000, 0x00000002,   0,   0,   0), -- Tidal Force
@@ -19294,8 +19298,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 63737, 0x00,   6, 0x00000800, 0x00000004, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Serendipity
 ( 64127, 0x00,   6, 0x00000001, 0x00000001, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Body and Soul
 ( 64129, 0x00,   6, 0x00000001, 0x00000001, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Body and Soul
-( 64568, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Blood Reserve
-( 64571, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  30), -- Blood Draining
+( 64571, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Blood Draining
 ( 64440, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000020,   0,   0,  20), -- Blade Warding
 ( 64714, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Flame of the Heavens
 ( 64738, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Show of Faith
@@ -19309,7 +19312,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 64867, 0x00,   3, 0x20000021, 0x00001000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Mage T8 2P Bonus
 ( 64882, 0x00,  10, 0x00000000, 0x00100000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T8 Protection 4P Bonus
 ( 64890, 0x00,  10, 0x00000000, 0x00010000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Item - Paladin T8 Holy 2P Bonus
-( 64908, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Shadow 4P Bonus
+( 64908, 0x00,   6, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Shadow 4P Bonus
 ( 64912, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Healer 4P Bonus
 ( 57470, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Renewed Hope
 ( 57472, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Renewed Hope
@@ -19355,9 +19358,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 53234, 0x00,   9, 0x00020000, 0x00000001, 0x00000001, 0x00000000, 0x00000002,   0,   0,   0), -- Piercing Shots (Rank 1)
 ( 53237, 0x00,   9, 0x00020000, 0x00000001, 0x00000001, 0x00000000, 0x00000002,   0,   0,   0), -- Piercing Shots (Rank 2)
 ( 53238, 0x00,   9, 0x00020000, 0x00000001, 0x00000001, 0x00000000, 0x00000002,   0,   0,   0), -- Piercing Shots (Rank 3)
-( 56636, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 1)
-( 56637, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 2)
-( 56638, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 3)
+( 56636, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   6), -- Taste for Blood (Rank 1)
+( 56637, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   6), -- Taste for Blood (Rank 2)
+( 56638, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   6), -- Taste for Blood (Rank 3)
 ( 60503, 0x01,   4, 0x00000004, 0x00000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Taste for Blood (proc)
 ( 68051, 0x01,   4, 0x00000004, 0x00000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Overpower Ready! (proc)
 ( 52437, 0x01,   4, 0x20000000, 0x00000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Sudden Death (proc)
@@ -19379,15 +19382,21 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 54832, 0x00,   7, 0x00000000, 0x00001000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Glyph of Innervate
 ( 67353, 0x00,   7, 0x00008000, 0x00100500, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- uncommented
 ( 57989, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000,   0,   0,   0), -- uncommented
-( 65661, 0x00,  15, 0x00400010, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 1)
-( 66191, 0x00,  15, 0x00400010, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 2)
-( 66192, 0x00,  15, 0x00400010, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 3)
+( 65661, 0x00,  15, 0x00400011, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 1)
+( 66191, 0x00,  15, 0x00400011, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 2)
+( 66192, 0x00,  15, 0x00400011, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 3)
+( 66799, 0x00,  15, 0x00400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Desolation (Rank 1)
+( 66814, 0x00,  15, 0x00400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Desolation (Rank 2)
+( 66815, 0x00,  15, 0x00400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Desolation (Rank 3)
+( 66816, 0x00,  15, 0x00400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Desolation (Rank 4)
+( 66817, 0x00,  15, 0x00400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Desolation (Rank 5)
 ( 53601, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x000A02A8, 0x00000000,   0,   0,   6), -- Sacred Shield (Rank 1)
 ( 58375, 0x00,   4, 0x00000000, 0x00000200, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Glyph of Blocking
 ( 58387, 0x00,   4, 0x00004000, 0x00000040, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Glyph of Sunder Armor
 ( 54925, 0x02,  10, 0x00000000, 0x00000208, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Seal of Command
 ( 63320, 0x00,   5, 0x80040000, 0x00000000, 0x00008000, 0x00000400, 0x00000000,   0,   0,   0), -- Glyph of Life Tap
 ( 64955, 0x00,  10, 0x00000000, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T8 Protection Relic
+( 67115, 0x00,  15, 0x01400000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Death Knight T9 Melee 2P Bonus
 ( 67356, 0x08,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T9 Restoration Relic (Rejuvenation)
 ( 67361, 0x00,   7, 0x00000002, 0x00000000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Druid T9 Balance Relic (Moonfire)
 ( 67363, 0x00,  10, 0x00000000, 0x80000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Item - Paladin T9 Holy Relic (Judgement)
@@ -19402,22 +19411,26 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 67667, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,   0,  45), -- Item - Coliseum Healer Trinket 5men
 ( 67670, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00010000, 0x00000000,   0,   0,  45), -- Item - Coliseum Caster Trinket 5men
 ( 67672, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00800154, 0x00000000,   0,   0,  45), -- Item - Coliseum Melee Trinket 5men
-( 67758, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   2), -- Item - Coliseum 25 Heroic Caster Trinket
+( 67712, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00011000, 0x00000002,   0,   0,   2), -- Item - Coliseum 25 Normal Caster Trinket - Pillar of Flame
+( 67758, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00011000, 0x00000002,   0,   0,   2), -- Item - Coliseum 25 Heroic Caster Trinket - Pillar of Flame
 ( 67771, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 10men
 ( 67702, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 25men
+( 69739, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Onyxia 25 Caster Trinket 
+( 69755, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Onyxia 10 Caster Trinket
 ( 70652, 0x00,  15, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Tank 4P Bonus
 ( 70656, 0x00,  15, 0x00000000, 0x00000000, 0x00000000, 0x00014000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Melee 4P Bonus
 ( 70664, 0x00,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T10 Restoration 4P Bonus (Rejuvenation)
 ( 70727, 0x00,   9, 0x00000000, 0x00000000, 0x00000000, 0x00000040, 0x00000000,   0,   0,   0), -- Item - Hunter T10 2P Bonus
 ( 70730, 0x00,   9, 0x00004000, 0x00001000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Hunter T10 4P Bonus
 ( 70748, 0x00,   3, 0x00000000, 0x00200000, 0x00000000, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Mage T10 4P Bonus
-( 70756, 0x00,  10, 0x00200000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Holy 4P Bonus
+( 70756, 0x00,  10, 0x00200000, 0x00010000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Holy 4P Bonus
 ( 70761, 0x00,  10, 0x00000000, 0x80004000, 0x00000001, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Protection 4P Bonus
 ( 70803, 0x00,   8, 0x003E0000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 4P Bonus
 ( 70805, 0x00,   8, 0x00000000, 0x00020000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 2P Bonus
 ( 70807, 0x00,  11, 0x00000000, 0x00000000, 0x00000010, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Restoration 2P Bonus
 ( 70830, 0x00,  11, 0x00000000, 0x00020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Enhancement 2P Bonus
 ( 70841, 0x00,   5, 0x00000004, 0x00000100, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Warlock T10 4P Bonus
+( 70844, 0x00,   4, 0x00000100, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Warrior T10 Protection 4P Bonus
 ( 70854, 0x00,   4, 0x00000000, 0x00000010, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Warrior T10 Melee 2P Bonus
 ( 71176, 0x00,   7, 0x00200002, 0x00000000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Druid T10 Balance Relic (Moonfire and Insect Swarm)
 ( 71178, 0x00,   7, 0x00000010, 0x00000000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Druid T10 Restoration Relic (Rejuvenation)
@@ -19432,14 +19445,14 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 71519, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 105), -- Item - Deathbringer's Will Trinket Normal
 ( 71540, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Whispering Fanged Skull (Heroic)
 ( 71562, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 105), -- Item - Deathbringer's Will Trinket Heroic
-( 71602, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Dislodged Foreign Object
+( 71602, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00010000, 0x00000000,   0,   0,  45), -- Dislodged Foreign Object
 ( 71606, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 100), -- Phylactery of the Nameless Lich
 ( 71611, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Althor's Abacus
 ( 71634, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  30), -- Corpse Tongue Coin
 ( 71637, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 100), -- Phylactery of the Nameless Lich (Heroic)
 ( 71640, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  30), -- Corpse Tongue Coin (Heroic)
 ( 71642, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Althor's Abacus (Heroic)
-( 71645, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Dislodged Foreign Object (Heroic)
+( 71645, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00010000, 0x00000000,   0,   0,  45), -- Dislodged Foreign Object (Heroic)
 ( 71880, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   1,   0,   0), -- Heartpierce
 ( 71892, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   1,   0,   0), -- Heartpierce (Heroic)
 ( 72417, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  60), -- Item - Icecrown Reputation Ring Caster Trigger
@@ -27350,7 +27363,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (547, 'InstanceID: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (548, 'Player%s %s (guid: %u) Account: %s (id: %u) Email: %s GMLevel: %u Last IP: %s Last login: %s Latency: %ums', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (549, 'Race: %s Class: %s Played time: %s Level: %u Money: %ug%us%uc', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(550, 'Command .pinfo doesn''t support ''rep'' option for offline players.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(550, 'Mute time remaining: %s, Ban time remaining: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (551, '%s has explored all zones now.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (552, '%s has no more explored zones.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (553, '%s has explored all zones for you.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

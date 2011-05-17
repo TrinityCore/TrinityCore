@@ -83,7 +83,7 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
     uint64 guid = 0;
     if (Player *player = sObjectMgr->GetPlayer(name.c_str()))
         guid = player->GetGUID();
-    else 
+    else
         guid = sObjectMgr->GetPlayerGUIDByName(name);
     // Target must exist
     if (!guid)
@@ -242,7 +242,7 @@ bool ChatHandler::HandleGMTicketUnAssignCommand(const char* args)
     ticket->SaveToDB(trans);
     sTicketMgr->UpdateLastChange();
 
-    std::string msg = ticket->FormatMessageString(*this, NULL, ticket->GetAssignedToName(), player->GetName(), NULL);
+    std::string msg = ticket->FormatMessageString(*this, NULL, ticket->GetAssignedToName().c_str(), player->GetName(), NULL);
     SendGlobalGMSysMessage(msg.c_str());
     return true;
 }
@@ -278,7 +278,7 @@ bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
     ticket->SaveToDB(trans);
     sTicketMgr->UpdateLastChange();
 
-    std::string msg = ticket->FormatMessageString(*this, NULL, ticket->GetAssignedToName(), NULL, NULL);
+    std::string msg = ticket->FormatMessageString(*this, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL);
     msg += PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player->GetName(), comment);
     SendGlobalGMSysMessage(msg.c_str());
 

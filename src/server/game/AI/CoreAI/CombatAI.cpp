@@ -123,7 +123,7 @@ void CasterAI::InitializeAI()
 {
     CombatAI::InitializeAI();
 
-    float m_attackDist = 30.0f;
+    m_attackDist = 30.0f;
     for (SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr)
         if (AISpellInfo[*itr].condition == AICOND_COMBAT && m_attackDist > GetAISpellInfo(*itr)->maxRange)
             m_attackDist = GetAISpellInfo(*itr)->maxRange;

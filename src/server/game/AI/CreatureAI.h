@@ -116,9 +116,6 @@ class CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellEntry const* /*spell*/) {}
 
-        // Called to get trigger target for aura effect
-        virtual Unit* GetAuraEffectTriggerTarget(uint32 /*spellId*/, uint8 /*effIndex*/) { return NULL; }
-
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
         virtual bool IsEscorted() { return false; }

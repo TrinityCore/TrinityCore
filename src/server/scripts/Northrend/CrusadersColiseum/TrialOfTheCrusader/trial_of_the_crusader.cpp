@@ -321,12 +321,16 @@ class boss_lich_king_toc : public CreatureScript
                             if (GameObject* pGoFloor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                                 pGoFloor->TakenDamage(1000000);
                             me->CastSpell(me, 69016, false);
-                            if (m_pInstance) m_pInstance->SetData(TYPE_LICH_KING, DONE);
-                            Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK));
-                            if (!pTemp || !pTemp->isAlive())
-                                pTemp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                            if (m_pInstance)
+                            {
+                                m_pInstance->SetData(TYPE_LICH_KING, DONE);
+                                Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_ANUBARAK));
+                                if (!pTemp || !pTemp->isAlive())
+                                    pTemp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+
+                                m_pInstance->SetData(TYPE_EVENT, 0);
+                            }
                             me->DespawnOrUnsummon();
-                            m_pInstance->SetData(TYPE_EVENT, 0);
                             m_uiUpdateTimer = 20000;
                             break;
                     }

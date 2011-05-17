@@ -543,9 +543,6 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 {
                     if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet())
                     {
-                        // Get DoTs on target by owner (5% increase by dot)
-                        damage += int32(CalculatePctN(unitTarget->GetDoTsByCaster(m_caster->GetOwnerGUID()), 5));
-
                         if (Player* owner = m_caster->GetOwner()->ToPlayer())
                         {
                             if (AuraEffect* aurEff = owner->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, 214, 0))
@@ -1366,7 +1363,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
 
                 //Any effect which causes you to lose control of your character will supress the starfall effect.
-                if (m_caster->HasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED))
+                if (m_caster->HasUnitState(UNIT_STAT_CONTROLLED))
                     return;
 
                 m_caster->CastSpell(unitTarget, damage, true);
@@ -1396,11 +1393,12 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     Unit::AttackerSet attackers = unitTarget->getAttackers();
 
                     // selected from list 3
-                    for (uint32 i = 0; i < std::min(size_t(3), attackers.size()); ++i)
+                    uint32 maxTargets = std::min<uint32>(3, attackers.size());
+                    for (uint32 i = 0; i < maxTargets; ++i)
                     {
                         Unit::AttackerSet::iterator aItr = attackers.begin();
-                        std::advance(aItr, rand() % attackers.size());
-                        AddUnitTarget((*aItr), 1);
+                        std::advance(aItr, urand(0, attackers.size() - 1));
+                        AddUnitTarget(*aItr, 1);
                         attackers.erase(aItr);
                     }
 
@@ -1769,7 +1767,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     m_caster->RemoveAura(iter);
                 }
                 else
-                    iter++;
+                    ++iter;
             }
             return;
         }
@@ -1846,17 +1844,11 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (m_caster->isInFlight())
         return;
 
-    float x, y, z, o;
+    float x, y, z;
     if (m_targets.getUnitTarget())
-    {
         m_targets.getUnitTarget()->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
-        o = m_caster->GetOrientation();
-    }
     else if (m_targets.getGOTarget())
-    {
         m_targets.getGOTarget()->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
-        o = m_caster->GetOrientation();
-    }
     else
     {
         sLog->outError("Spell::EffectJump - unsupported target mode for spell ID %u", m_spellInfo->Id);
@@ -1874,7 +1866,7 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
         return;
 
     // Init dest coordinates
-    float x, y, z, o;
+    float x, y, z;
     if (m_targets.HasDst())
     {
         m_targets.m_dstPos.GetPosition(x, y, z);
@@ -1891,10 +1883,7 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
             else if (m_caster->GetTypeId() == TYPEID_PLAYER)
                 pTarget = ObjectAccessor::GetUnit(*m_caster, m_caster->ToPlayer()->GetSelection());
 
-            o = pTarget ? pTarget->GetOrientation() : m_caster->GetOrientation();
         }
-        else
-            o = m_caster->GetOrientation();
     }
     else
     {
@@ -2356,6 +2345,8 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
 {
     if (!unitTarget || !unitTarget->isAlive() || damage < 0)
         return;
+
+    damage = m_caster->SpellDamageBonus(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "HealthLeech :%i", damage);
 
@@ -3026,8 +3017,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 // Summons a vehicle, but doesn't force anyone to enter it (see SUMMON_CATEGORY_VEHICLE)
                 case SUMMON_TYPE_VEHICLE:
                 case SUMMON_TYPE_VEHICLE2:
-                    if (m_originalCaster)
-                        summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
+                    summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
                     break;
                 case SUMMON_TYPE_TOTEM:
                 {
@@ -3227,7 +3217,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
     // Ok if exist some buffs for dispel try dispel it
     uint32 failCount = 0;
-    DispelList success_list;
+    DispelChargesList success_list;
     WorldPacket dataFail(SMSG_DISPEL_FAILED, 8+8+4+4+damage*4);
     // dispel N = damage buffs (or while exist buffs for dispel)
     for (int32 count = 0; count < damage && !dispel_list.empty();)
@@ -3247,7 +3237,17 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         {
             if (success)
             {
-                success_list.push_back(std::make_pair(itr->first->GetId(), itr->first->GetCasterGUID()));
+                bool alreadyListed = false;
+                for (DispelChargesList::iterator successItr = success_list.begin(); successItr != success_list.end(); ++successItr)
+                {
+                    if (successItr->first->GetId() == itr->first->GetId())
+                    {
+                        ++successItr->second;
+                        alreadyListed = true;
+                    }
+                }
+                if (!alreadyListed)
+                    success_list.push_back(std::make_pair(itr->first, 1));
                 --itr->second;
                 if (itr->second <= 0)
                     dispel_list.erase(itr);
@@ -3274,19 +3274,19 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+damage*5);
+    WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
     dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
     dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
     dataSuccess << uint8(0);                               // not used
     dataSuccess << uint32(success_list.size());            // count
-    for (DispelList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
+    for (DispelChargesList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
     {
         // Send dispelled spell info
-        dataSuccess << uint32(itr->first);              // Spell Id
+        dataSuccess << uint32(itr->first->GetId());              // Spell Id
         dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->first, itr->second, m_caster);
+        unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), itr->first->GetCasterGUID(), m_caster, itr->second);
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
@@ -3876,14 +3876,7 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
     }
 
     if (m_spellInfo->Id == 62124)
-    {
-        int32 damageDone = int32(1 + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f);
-        bool is_crit = m_caster->isSpellCrit(unitTarget, m_spellInfo, m_spellSchoolMask, m_attackType);
-        if (is_crit)
-            damageDone *= 2;
-        m_caster->DealDamage(unitTarget, damageDone, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_HOLY, m_spellInfo, false);
-        m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damageDone, SPELL_SCHOOL_MASK_HOLY, 0, 0, false, false, is_crit);
-    }
+        m_caster->CastSpell(unitTarget, 67485, true);
 
     // Also use this effect to set the taunter's threat to the taunted creature's highest value
     if (unitTarget->getThreatManager().getCurrentVictim())
@@ -4021,14 +4014,8 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
         }
         case SPELLFAMILY_PALADIN:
         {
-            // Seal of Command - Increase damage by 36% on every swing
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
-            {
-                totalDamagePercentMod *= 1.36f;            // 136% damage
-            }
-
             // Seal of Command Unleashed
-            else if (m_spellInfo->Id == 20467)
+            if (m_spellInfo->Id == 20467)
             {
                 spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                 spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
@@ -5254,7 +5241,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                 uint32 spellId1 = 0;
                 uint32 spellId2 = 0;
-                uint32 spellId3 = 0;
 
                 // Judgement self add switch
                 switch (m_spellInfo->Id)
@@ -5271,19 +5257,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 Unit::AuraApplicationMap & sealAuras = m_caster->GetAppliedAuras();
                 for (Unit::AuraApplicationMap::iterator iter = sealAuras.begin(); iter != sealAuras.end();)
                 {
-                    switch (iter->first)
-                    {
-                        // Heart of the Crusader
-                        case 20335: // Rank 1
-                            spellId3 = 21183;
-                            break;
-                        case 20336: // Rank 2
-                            spellId3 = 54498;
-                            break;
-                        case 20337: // Rank 3
-                            spellId3 = 54499;
-                            break;
-                    }
                     Aura * aura = iter->second->GetBase();
                     if (IsSealSpell(aura->GetSpellProto()))
                     {
@@ -5314,8 +5287,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, spellId1, true);
                 if (spellId2)
                     m_caster->CastSpell(unitTarget, spellId2, true);
-                if (spellId3)
-                    m_caster->CastSpell(unitTarget, spellId3, true);
                 return;
             }
         }
@@ -6073,9 +6044,9 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    // Instantly interrupt non melee spells being casted
-    if (unitTarget->IsNonMeleeSpellCasted(true))
-        unitTarget->InterruptNonMeleeSpells(true);
+    if (Creature* creatureTarget = unitTarget->ToCreature())
+        if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
+            return;
 
     // Typhoon
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
@@ -6092,6 +6063,10 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         if (m_caster->HasAura(62132))
             return;
     }
+
+    // Instantly interrupt non melee spells being casted
+    if (unitTarget->IsNonMeleeSpellCasted(true))
+        unitTarget->InterruptNonMeleeSpells(true);
 
     float ratio = m_caster->GetCombatReach() / std::max(unitTarget->GetCombatReach(), 1.0f);
     if (ratio < 1.0f)

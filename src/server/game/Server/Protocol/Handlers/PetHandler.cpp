@@ -560,7 +560,9 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                 if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, true);
                 else
-                    charmInfo->ToggleCreatureAutocast(spell_id, true);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spell_id, true);
             }
             //sign for no/turn off autocast
             else if (act_state == ACT_DISABLED && spell_id)
@@ -568,7 +570,9 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                 if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, false);
                 else
-                    charmInfo->ToggleCreatureAutocast(spell_id, false);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spell_id, false);
 
             }
 
@@ -628,7 +632,7 @@ void WorldSession::HandlePetRename(WorldPacket & recv_data)
 
         std::wstring wname;
         Utf8toWStr(name, wname);
-        if (!ObjectMgr::CheckDeclinedNames(GetMainPartOfName(wname, 0), declinedname))
+        if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
         {
             SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, &declinedname);
             return;
