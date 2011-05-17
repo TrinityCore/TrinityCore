@@ -914,7 +914,7 @@ class npc_crok_scourgebane : public CreatureScript
                 SetDespawnAtEnd(false);
                 SetDespawnAtFar(false);
                 _isEventActive = false;
-                _isEventDone = false;
+                _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
                 _didUnderTenPercentText = false;
             }
 
@@ -939,7 +939,7 @@ class npc_crok_scourgebane : public CreatureScript
                     _isEventDone = true;
                     // Load Grid with Sister Svalna
                     me->GetMap()->LoadGrid(4356.71f, 2484.33f);
-                    if (Creature* svalna = me->FindNearestCreature(NPC_SISTER_SVALNA, 333.0f, true))
+                    if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                         svalna->AI()->DoAction(ACTION_START_GAUNTLET);
                     Talk(SAY_CROK_INTRO_1);
                     _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
@@ -953,7 +953,7 @@ class npc_crok_scourgebane : public CreatureScript
                 else if (action == ACTION_RESET_EVENT)
                 {
                     _isEventActive = false;
-                    _isEventDone = false;
+                    _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
                     me->setActive(false);
                     _aliveTrash.clear();
                     _currentWPid = 0;

@@ -351,17 +351,18 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
         {
             PrepareSpellScript(spell_festergut_pungent_blight_SpellScript);
 
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                SpellEntry const* spellInfo = sSpellStore.LookupEntry(uint32(GetEffectValue()));
-                if (!spellInfo || GetCaster()->GetTypeId() != TYPEID_UNIT)
-                    return;
-
                 // Get Inhaled Blight id for our difficulty
-                spellInfo = sSpellMgr->GetSpellForDifficultyFromSpell(spellInfo, GetCaster());
+                uint32 blightId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
 
                 // ...and remove it
-                GetCaster()->RemoveAurasDueToSpell(spellInfo->Id);
+                GetCaster()->RemoveAurasDueToSpell(blightId);
                 GetCaster()->ToCreature()->AI()->Talk(EMOTE_PUNGENT_BLIGHT);
             }
 
@@ -431,15 +432,16 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 return true;
             }
 
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
-                    return;
-
-                SpellEntry const* inoculated = sSpellStore.LookupEntry(SPELL_INOCULATED);
-                inoculated = sSpellMgr->GetSpellForDifficultyFromSpell(inoculated, GetCaster());
+                uint32 inoculatedId = sSpellMgr->GetSpellIdForDifficulty(SPELL_INOCULATED, GetCaster());
                 uint32 currStack = 0;
-                if (Aura const* inoculate = GetTarget()->GetAura(inoculated->Id))
+                if (Aura const* inoculate = GetTarget()->GetAura(inoculatedId))
                     currStack = inoculate->GetStackAmount();
 
                 GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
