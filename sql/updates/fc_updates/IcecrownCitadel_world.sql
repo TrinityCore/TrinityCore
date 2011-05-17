@@ -34,8 +34,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry` = 366
 UPDATE `creature_template` SET `ScriptName`='npc_volatile_ooze' WHERE `entry` = 37697;
 UPDATE `creature_template` SET `ScriptName`='npc_valkyr_icc' WHERE `entry` = 36609;
 UPDATE `creature_template` SET `ScriptName`='npc_vile_spirit_icc' WHERE `entry`= 37799;
-UPDATE `creature_template` SET `ScriptName`='npc_ooze_little' WHERE `entry`= 36897;
-UPDATE `creature_template` SET `ScriptName`='npc_ooze_big' WHERE `entry`= 36899;
+UPDATE `creature_template` SET `ScriptName`='npc_little_ooze' WHERE `entry`= 36897;
+UPDATE `creature_template` SET `ScriptName`='npc_big_ooze' WHERE `entry`= 36899;
 UPDATE `creature_template` SET `ScriptName`='npc_shade' WHERE `entry` = 38222;
 UPDATE `creature_template` SET `ScriptName`='npc_dreamcloud_icc' WHERE `entry` = 37985;
 UPDATE `creature_template` SET `ScriptName`='npc_dreamportal_icc' WHERE `entry` IN (38186,37945,38429,38430);
@@ -213,12 +213,6 @@ UPDATE `instance_template` SET `script`='instance_icecrown_citadel' WHERE `map` 
 DELETE FROM `creature_addon` WHERE `guid` IN (136107,104365);
 DELETE FROM `creature_template_addon` WHERE `entry` IN (37690,37672,36659,38186,37945,38429,38430,37918,37006,37186);
 
-INSERT INTO creature_addon (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(136107, 0, 0, 0, 1, 0, '18950 0 18950 1 72242 0');
-
-INSERT INTO `creature_addon` (`guid`, `bytes1`) VALUES
-(104365,0x03000000); -- Blood Queen Lana'Thel
-
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (37690, 0, 0, 0, 0, 0, '70345 70343'),
 (37672, 0, 0, 0, 0, 0, '70385 70405'),
@@ -238,7 +232,7 @@ DELETE FROM `conditions` WHERE `SourceEntry` IN (69508,70881,70360,36659,70781,7
 DELETE FROM `conditions` WHERE `ConditionValue2` IN (SELECT `id` FROM `creature` WHERE `map` = 631);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (70952,70982,70981,70983,71070,71081,71080);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=21 AND `SourceGroup` IN (37672,38285);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+REPLACE INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13,0,70360,0,18,1,37690,0,0, '', ''),
 (13,0,69157,0,18,1,36659,0,0, '', 'Festergut - Gaseous Blight'),
 (13,0,69162,0,18,1,36659,0,0, '', 'Festergut - Gaseous Blight'),
