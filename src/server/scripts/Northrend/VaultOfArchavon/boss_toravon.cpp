@@ -197,7 +197,7 @@ public:
                         events.ScheduleEvent(EVENT_WHITEOUT, 38000);
                         return;
                     case EVENT_FREEZING_GROUND:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_FREEZING_GROUND);
                         events.ScheduleEvent(EVENT_FREEZING_GROUND, 28000);
                         return;

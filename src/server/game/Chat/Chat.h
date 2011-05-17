@@ -405,4 +405,8 @@ class CliHandler : public ChatHandler
         Print* m_print;
 };
 
+#define MAX_FMT_STRING  32000
+
+char const *fmtstring(char const *format, ...);
+
 #endif

@@ -685,7 +685,7 @@ public:
                         events.RescheduleEvent(EVENT_FROST_NOVA, urand(10000,20000));
                         break;
                     case EVENT_SHADOW_LANCE:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SHADOW_LANCE);
                         events.RescheduleEvent(EVENT_SHADOW_LANCE, urand(5000,10000));
                         break;
@@ -813,17 +813,17 @@ public:
                         events.RescheduleEvent(EVENT_RAISE_DEAD, urand(25000,35000));
                         break;
                     case EVENT_SHADOW_BOLT:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, urand(5000,10000));
                         break;
                     case EVENT_SOUL_SICKNESS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SOUL_SICKNESS);
                         events.RescheduleEvent(EVENT_SOUL_SICKNESS, urand(10000,20000));
                         break;
                     case EVENT_SOUL_SIPHON:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SOUL_SIPHON);
                         events.RescheduleEvent(EVENT_SOUL_SIPHON, urand(10000,20000));
                         break;
@@ -888,12 +888,12 @@ public:
                         events.RescheduleEvent(EVENT_RAISE_DEAD, urand(25000,35000));
                         break;
                     case EVENT_SHADOW_BOLT:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, urand(5000,10000));
                         break;
                     case EVENT_DRAIN_LIFE:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_DRAIN_LIFE);
                         events.RescheduleEvent(EVENT_DRAIN_LIFE, urand(10000,20000));
                         break;

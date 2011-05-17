@@ -127,7 +127,7 @@ void ScriptedAI::addItem(Player* player, uint32 itemid, uint8 amount, bool recei
 {
     ItemPosCountVec dest;
     uint32 no_space = 0;
-    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, amount, &no_space);
+    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, amount, &no_space);
 
     if (msg != EQUIP_ERR_OK)
     {

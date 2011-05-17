@@ -461,7 +461,7 @@ class npc_precious_icc : public CreatureScript
                                 if (TempSummon *summ = me->SummonCreature(38104, pos, TEMPSUMMON_CORPSE_DESPAWN))
                                 {
                                     summ->AI()->DoZoneInCombat();
-                                    if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                    if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                         summ->Attack(target, true);
                                 }
                             }
@@ -476,7 +476,7 @@ class npc_precious_icc : public CreatureScript
                                 if (TempSummon *summ = me->SummonCreature(38104, pos, TEMPSUMMON_CORPSE_DESPAWN))
                                 {
                                     summ->AI()->DoZoneInCombat();
-                                    if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                    if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                         summ->Attack(target, true);
                                 }
                             }

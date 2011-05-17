@@ -133,7 +133,7 @@ class boss_the_maker : public CreatureScript
                 if (domination_timer_timer <= diff)
                 {
                 Unit *pTarget;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 DoCast(pTarget, SPELL_DOMINATION);
 

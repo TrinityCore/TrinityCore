@@ -17,7 +17,6 @@
 #define GOSSIP_TEXT_BROWSE_GOODS        "Ich möchte Eure Waren sehen."
 #define GOSSIP_TEXT_TRAIN               "Trainiert mich bitte!"
 
-/*
 #define GOSSIP_TEXT_BANK                "Die Bank"
 #define GOSSIP_TEXT_IRONFORGE_BANK      "Die Bank von Eisenschmiede"
 #define GOSSIP_TEXT_STORMWIND_BANK      "Die Bank von Sturmwind"
@@ -76,7 +75,6 @@
 #define GOSSIP_TEXT_SKINNING            "Kürschnern"
 #define GOSSIP_TEXT_RIDING              "Reiten"
 #define GOSSIP_TEXT_ALL_PROFS           "Alle Berufe"
-*/
 
 enum eTradeskill
 {

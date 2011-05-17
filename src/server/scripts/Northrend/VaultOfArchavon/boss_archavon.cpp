@@ -133,33 +133,30 @@ public:
             {
                 switch(eventId)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_ROCK_SHARDS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_ROCK_SHARDS);
-                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
-                            break;
-                        case EVENT_CHOKING_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
-                            events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
-                            break;
-                        case EVENT_STOMP:
-                            DoCastVictim(SPELL_STOMP);
-                            events.ScheduleEvent(EVENT_IMPALE, 3000);
-                            events.ScheduleEvent(EVENT_STOMP, 45000);
-                            break;
-                        case EVENT_IMPALE:
-                            DoCastVictim(SPELL_IMPALE);
-                            break;
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
-                            DoScriptText(EMOTE_BERSERK, me);
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_ROCK_SHARDS:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ROCK_SHARDS);
+                        events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
+                        break;
+                    case EVENT_CHOKING_CLOUD:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                        events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
+                        break;
+                    case EVENT_STOMP:
+                        DoCastVictim(SPELL_STOMP);
+                        events.ScheduleEvent(EVENT_IMPALE, 3000);
+                        events.ScheduleEvent(EVENT_STOMP, 45000);
+                        break;
+                    case EVENT_IMPALE:
+                        DoCastVictim(SPELL_IMPALE);
+                        break;
+                    case EVENT_BERSERK:
+                        DoCast(me, SPELL_BERSERK);
+                        DoScriptText(EMOTE_BERSERK, me);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -229,23 +226,10 @@ public:
                 switch(eventId)
                 {
                     case EVENT_ROCK_SHOWER:
-                    {
-                        case EVENT_ROCK_SHOWER:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_ROCK_SHOWER);
-                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
-                            break;
-                        case EVENT_SHIELD_CRUSH:
-                            DoCastVictim(SPELL_SHIELD_CRUSH);
-                            events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20000);
-                            break;
-                        case EVENT_WHIRL:
-                            DoCastVictim(SPELL_WHIRL);
-                            events.ScheduleEvent(EVENT_WHIRL, 8000);
-                            break;
-                        default:
-                            break;
-                    }
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ROCK_SHOWER);
+                        events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
+                        break;
                     case EVENT_SHIELD_CRUSH:
                         DoCast(me->getVictim(), SPELL_SHIELD_CRUSH);
                         events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20000);

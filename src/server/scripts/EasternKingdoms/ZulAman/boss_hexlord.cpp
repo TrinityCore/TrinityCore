@@ -618,7 +618,7 @@ class boss_alyson_antille : public CreatureScript
                     DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
                 }
                 else
-                    me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
+                    me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
 
                 dispelmagic_timer = 12000;
                 } else dispelmagic_timer -= diff;*/

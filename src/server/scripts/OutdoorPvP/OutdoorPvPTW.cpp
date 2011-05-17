@@ -2,6 +2,7 @@
 
 #include "OutdoorPvPTW.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "MapManager.h"
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2564,7 +2565,7 @@ void Tausendwinter::HandlePlayerLeaveZone(Player * pPl, uint32 zone)
         if (!pPl->GetSession()->PlayerLogout())
         {   // Niemand verlässt den Saal mit Fahrzeug! :-)
             if (Vehicle * Veh = pPl->GetVehicle())
-                Veh->Die();
+                Veh->Dismiss();
 
             pPl->RemoveAurasDueToSpell(SPELL_REKRUT);
             pPl->RemoveAurasDueToSpell(SPELL_FAEHNRICH);
@@ -2600,7 +2601,7 @@ void Tausendwinter::FuegeSpielerZumRaidHinzu(Player * pPlr, TeamId teamId)
         m_Raid[teamId]->Create(pPlr);
         m_Raid[teamId]->ConvertToRaid();
         m_Raid[teamId]->SetRaidDifficulty(REGULAR_DIFFICULTY);
-        sObjectMgr->AddGroup(m_Raid[teamId]);
+        sGroupMgr->AddGroup(m_Raid[teamId]);
     }
     else
         m_Raid[teamId]->AddMember(pPlr);

@@ -1543,7 +1543,7 @@ public:
 
             if (ps.Cost_Type == 3)
             {
-                item = sObjectMgr->GetItemPrototype(ps.Costs_Item);
+                item = sObjectMgr->GetItemTemplate(ps.Costs_Item);
                 if (item)
                     ps.str_Item = item->Name1;
             }
@@ -1562,7 +1562,7 @@ public:
         }
 
         UserPimper_PriceSetup ps;
-        ItemPrototype const* item;
+        ItemTemplate const* item;
 
         void Reset() {}
 

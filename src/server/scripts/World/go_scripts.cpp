@@ -51,6 +51,7 @@ go_bashir_crystalforge
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "GuildMgr.h"
 
 // Copyright 2008-2011 by maguus (United Worlds of MaNGOS) - Extended by WarHead
 // Gildenhausportal 400000
@@ -77,7 +78,7 @@ public:
         }
         else
         {
-            std::string str = sObjectMgr->GetGuildNameById(sWorld->getIntConfig(CONFIG_GILDEN_ID));
+            std::string str = sGuildMgr->GetGuildNameById(sWorld->getIntConfig(CONFIG_GILDEN_ID));
             pPlayer->GetSession()->SendNotification("Zutritt nur für Mitglieder der Gilde: '%s'!", str.c_str());
             // GM erlauben trotzdem geportet zu werden
             if (pPlayer->isGameMaster())

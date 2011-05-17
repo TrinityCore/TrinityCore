@@ -475,7 +475,7 @@ public:
             /*** NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED **/
             /*if (ShadowOfDeathTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                 if (!pTarget)
                    pTarget = me->getVictim();
