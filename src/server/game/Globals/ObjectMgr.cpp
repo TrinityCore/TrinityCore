@@ -8016,7 +8016,7 @@ bool ObjectMgr::CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& n
 
         if (mainpart != GetMainPartOfName(wname, i+1))
             x = false;
- 
+
         if (w_ownname != wname)
             y = false;
     }

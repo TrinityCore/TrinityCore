@@ -323,17 +323,17 @@ class boss_sindragosa : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
-                if (SpellEntry const* buffet = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(70127), me))
-                    if (buffet->Id == spell->Id)
+                if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
+                    if (spellId == spell->Id)
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
                 // Frost Infusion
                 if (Player* player = target->ToPlayer())
                 {
-                    if (SpellEntry const* breath = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1), me))
+                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
                     {
-                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && breath->Id == spell->Id)
+                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && spellId == spell->Id)
                         {
                             if (Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true))
                             {
