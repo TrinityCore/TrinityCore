@@ -296,12 +296,12 @@ public:
                         DoCast(DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN);
                         DieVerdammtenZerschmKnochen = true;
                     }
-
+                    /* Funktioniert immer noch nicht der Spell. :-( Stehen nur dumm rum... und möglicher Crashgrund... :-(
                     if (!DieVerdammtenKnochenwirbel && me->HealthBelowPctDamaged(urand(25,75), uiDamage))
                     {
                         DoCast(me, DIE_VERDAMMTEN_KNOCHENWIRBEL, true);
                         DieVerdammtenKnochenwirbel = true;
-                    }
+                    }*/
                     break;
                 case EITERNDER_SCHRECKEN:
                     if (!EiternderSchreckenBombe && me->HealthBelowPctDamaged(15, uiDamage))
