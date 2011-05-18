@@ -1,14 +1,14 @@
 -- Battle Shout
 DELETE FROM `spell_threat` WHERE `entry` IN (6673,5242,6192,11549,11550,11551,2048,47436);
 INSERT INTO `spell_threat`(`entry`,`Threat`) VALUES
-(6673,1), 	-- Rank 1
-(5242,12),	-- Rank 2
-(6192,22),	-- Rank 3
-(11549,32), 	-- Rank 4
-(11550,42), 	-- Rank 5
-(11551,52), 	-- Rank 6 , Rank 7 already in tdb
-(2048,69),	-- Rank 8
-(47436,78);	-- Rank 9
+(6673,1), -- Rank 1
+(5242,12), -- Rank 2
+(6192,22), -- Rank 3
+(11549,32), -- Rank 4
+(11550,42), -- Rank 5
+(11551,52), -- Rank 6 , Rank 7 already in tdb
+(2048,69), -- Rank 8
+(47436,78); -- Rank 9
 
 -- Cleave
 DELETE FROM `spell_threat` WHERE `entry` IN (47519,47520);
@@ -19,9 +19,9 @@ INSERT INTO `spell_threat`(`entry`,`Threat`) VALUES
 -- Commanding Shout
 DELETE FROM `spell_threat` WHERE `entry` IN (469,47439,47440);
 INSERT INTO `spell_threat`(`entry`,`Threat`) VALUES
-(469,68), 	-- Rank 1
-(47439,77), 	-- Rank 2
-(47440,80);	-- Rank 3
+(469,68), -- Rank 1
+(47439,77), -- Rank 2
+(47440,80); -- Rank 3
 
 -- Demoralizing Shout
 DELETE FROM `spell_threat` WHERE `entry` IN (25202,25203,47437);
