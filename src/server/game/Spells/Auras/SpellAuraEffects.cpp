@@ -3299,63 +3299,135 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                     // Orb of Deception
                     case 16739:
                     {
-                        uint32 orb_model = target->GetNativeDisplayId();
-                        switch (orb_model)
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            return;
+
+                        switch (target->getRace())
                         {
-                            // Troll Female
-                            case 1479: target->SetDisplayId(10134); break;
-                            // Troll Male
-                            case 1478: target->SetDisplayId(10135); break;
-                            // Tauren Male
-                            case 59:   target->SetDisplayId(10136); break;
-                            // Human Male
-                            case 49:   target->SetDisplayId(10137); break;
-                            // Human Female
-                            case 50:   target->SetDisplayId(10138); break;
-                            // Orc Male
-                            case 51:   target->SetDisplayId(10139); break;
-                            // Orc Female
-                            case 52:   target->SetDisplayId(10140); break;
-                            // Dwarf Male
-                            case 53:   target->SetDisplayId(10141); break;
-                            // Dwarf Female
-                            case 54:   target->SetDisplayId(10142); break;
-                            // NightElf Male
-                            case 55:   target->SetDisplayId(10143); break;
-                            // NightElf Female
-                            case 56:   target->SetDisplayId(10144); break;
-                            // Undead Female
-                            case 58:   target->SetDisplayId(10145); break;
-                            // Undead Male
-                            case 57:   target->SetDisplayId(10146); break;
-                            // Tauren Female
-                            case 60:   target->SetDisplayId(10147); break;
-                            // Gnome Male
-                            case 1563: target->SetDisplayId(10148); break;
-                            // Gnome Female
-                            case 1564: target->SetDisplayId(10149); break;
-                            // BloodElf Female
-                            case 15475: target->SetDisplayId(17830); break;
-                            // BloodElf Male
-                            case 15476: target->SetDisplayId(17829); break;
-                            // Dranei Female
-                            case 16126: target->SetDisplayId(17828); break;
-                            // Dranei Male
-                            case 16125: target->SetDisplayId(17827); break;
-                            default: break;
+                            // Blood Elf
+                            case RACE_BLOODELF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17829 : 17830);
+                                break;
+                            // Orc
+                            case RACE_ORC:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10139 : 10140);
+                                break;
+                            // Troll
+                            case RACE_TROLL:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10135 : 10134);
+                                break;
+                            // Tauren
+                            case RACE_TAUREN:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10136 : 10147);
+                                break;
+                            // Undead
+                            case RACE_UNDEAD_PLAYER:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10146 : 10145);
+                                break;
+                            // Draenei
+                            case RACE_DRAENEI:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17827 : 17828);
+                                break;
+                            // Dwarf
+                            case RACE_DWARF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10141 : 10142);
+                                break;
+                            // Gnome
+                            case RACE_GNOME:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10148 : 10149);
+                                break;
+                            // Human
+                            case RACE_HUMAN:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10137 : 10138);
+                                break;
+                            // Night Elf
+                            case RACE_NIGHTELF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10143 : 10144);
+                                break;
+                            default:
+                                break;
                         }
                         break;
                     }
                     // Murloc costume
-                    case 42365: target->SetDisplayId(21723); break;
+                    case 42365:
+                        target->SetDisplayId(21723);
+                        break;
+                    // Dread Corsair
+                    case 50517:
+                    // Corsair Costume
+                    case 51926:
+                    {
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            return;
+
+                        switch (target->getRace())
+                        {
+                            // Blood Elf
+                            case RACE_BLOODELF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25032 : 25043);
+                                break;
+                            // Orc
+                            case RACE_ORC:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25039 : 25050);
+                                break;
+                            // Troll
+                            case RACE_TROLL:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25041 : 25052);
+                                break;
+                            // Tauren
+                            case RACE_TAUREN:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25040 : 25051);
+                                break;
+                            // Undead
+                            case RACE_UNDEAD_PLAYER:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25042 : 25053);
+                                break;
+                            // Draenei
+                            case RACE_DRAENEI:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25033 : 25044);
+                                break;
+                            // Dwarf
+                            case RACE_DWARF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25034 : 25045);
+                                break;
+                            // Gnome
+                            case RACE_GNOME:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25035 : 25046);
+                                break;
+                            // Human
+                            case RACE_HUMAN:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25037 : 25048);
+                                break;
+                            // Night Elf
+                            case RACE_NIGHTELF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25038 : 25049);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    }
                     // Pygmy Oil
-                    case 53806: target->SetDisplayId(22512); break;
-                    default: break;
+                    case 53806:
+                        target->SetDisplayId(22512);
+                        break;
+                    // Honor the Dead
+                    case 65386:
+                    case 65495:
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 29203 : 29204);
+                        break;
+                    // Darkspear Pride
+                    case 75532:
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31737 : 31738);
+                        break;
+                    default:
+                        break;
                 }
             }
             else
             {
-                CreatureTemplate const * ci = sObjectMgr->GetCreatureTemplate(GetMiscValue());
+                CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(GetMiscValue());
                 if (!ci)
                 {
                     target->SetDisplayId(16358);              // pig pink ^_^
@@ -3370,7 +3442,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
 
                     // Polymorph (sheep)
                     if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978)
-                        if (Unit * caster = GetCaster())
+                        if (Unit* caster = GetCaster())
                             if (caster->HasAura(52648))         // Glyph of the Penguin
                                 model_id = 26452;
 
