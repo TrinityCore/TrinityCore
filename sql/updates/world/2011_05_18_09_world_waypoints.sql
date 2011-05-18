@@ -789,7 +789,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 DELETE FROM `creature` WHERE `guid` IN (107423);
 DELETE FROM `creature_addon` WHERE `guid` IN (107423);
 
--- Xink's Shreeder shuld not be spawned
+-- Xink's Shreeder should not be spawned
 DELETE FROM `creature` WHERE `guid` IN (113110);
 DELETE FROM `creature_addon` WHERE `guid` IN (113110);
 
