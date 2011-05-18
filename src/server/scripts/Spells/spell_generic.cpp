@@ -1084,6 +1084,10 @@ class spell_gen_parachute_wg : public SpellScriptLoader
 
                 if (target->ToPlayer()->m_movementInfo.fallTime > 2000)
                     target->CastSpell(target,SPELL_PARACHUTE_WG,true);
+            }
+
+            void Register()
+            {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_parachute_wgAuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };

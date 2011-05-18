@@ -619,7 +619,6 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
                 pvpWG->SendAreaSpiritHealerQueryOpcode(_player, guid);
         }
     }
-}
 
 /*
     else if (unit->GetMapId() == TW_KARTE)
