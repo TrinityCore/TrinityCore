@@ -5720,7 +5720,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Incanter's Regalia set (add trigger chance to Mana Shield)
             if (dummySpell->SpellFamilyFlags[0] & 0x8000)
             {
-                if (GetTypeId() != TYPEID_PLAYER)
+                if (!HasAura(37424))
                     return false;
 
                 target = this;
