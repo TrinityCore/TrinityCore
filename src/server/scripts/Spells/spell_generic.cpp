@@ -1070,16 +1070,15 @@ class spell_gen_lifeblood : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_lifeblood_AuraScript);
 
-            void HandleEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
-                Unit * caster = GetCaster();
-                
-                const_cast<AuraEffect *>(aurEff)->SetAmount(aurEff->GetAmount() + CalculatePctF(caster->GetMaxHealth(), 1.5f / aurEff->GetTotalTicks()));
+                if (Unit* owner = GetUnitOwner())
+                    amount += int32(CalculatePctF(owner->GetMaxHealth(), 1.5f / aurEff->GetTotalTicks()));
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_lifeblood_AuraScript::HandleEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_lifeblood_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
