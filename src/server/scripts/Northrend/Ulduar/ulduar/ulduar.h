@@ -18,7 +18,7 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
-enum eTypes
+enum UlduarTypes
 {
     MAX_ENCOUNTER               = 15,
 
@@ -51,7 +51,7 @@ enum eTypes
     DATA_RIGHT_ARM,
 };
 
-enum eNPCs
+enum UlduarNPCs
 {
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
@@ -81,9 +81,27 @@ enum eNPCs
     NPC_LEVIATHAN_MKII          = 33432,
     NPC_VX_001                  = 33651,
     NPC_AERIAL_COMMAND_UNIT     = 33670,
+
+    // Hodir's Helper NPCs
+    NPC_TOR_GREYCLOUD           = 32941,
+    NPC_KAR_GREYCLOUD           = 33333,
+    NPC_EIVI_NIGHTFEATHER       = 33325,
+    NPC_ELLIE_NIGHTFEATHER      = 32901,
+    NPC_SPIRITWALKER_TARA       = 33332,
+    NPC_SPIRITWALKER_YONA       = 32950,
+    NPC_ELEMENTALIST_MAHFUUN    = 33328,
+    NPC_ELEMENTALIST_AVUUN      = 32900,
+    NPC_AMIRA_BLAZEWEAVER       = 33331,
+    NPC_VEESHA_BLAZEWEAVER      = 32946,
+    NPC_MISSY_FLAMECUFFS        = 32893,
+    NPC_SISSY_FLAMECUFFS        = 33327,
+    NPC_BATTLE_PRIEST_ELIZA     = 32948,
+    NPC_BATTLE_PRIEST_GINA      = 33330,
+    NPC_FIELD_MEDIC_PENNY       = 32897,
+    NPC_FIELD_MEDIC_JESSI       = 33326,
 };
 
-enum eGameObjects
+enum UlduarGameObjects
 {
     GO_KOLOGARN_CHEST_HERO  = 195047,
     GO_KOLOGARN_CHEST       = 195046,
@@ -106,7 +124,7 @@ enum eGameObjects
     GO_RAZOR_BROKEN_HARPOON = 194565,
 };
 
-enum eTowerEvents
+enum UlduarTowerEvents
 {
     EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
@@ -114,7 +132,7 @@ enum eTowerEvents
     EVENT_TOWER_OF_LIFE_DESTROYED      = 21030
 };
 
-enum eAchievementCriteria
+enum UlduarAchievementCriteria
 {
     ACHIEVEMENT_UNBROKEN_10                              = 10044, // Leviathan
     ACHIEVEMENT_UNBROKEN_25                              = 10045,
