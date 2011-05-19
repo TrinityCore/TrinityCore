@@ -898,6 +898,7 @@ enum CorkiData
   // first quest
   QUEST_HELP                                    = 9923,
   NPC_CORKI                                     = 18445,
+  NPC_CORKI_CREDIT_1                            = 18369,
   GO_CORKIS_PRISON                              = 182349,
   CORKI_SAY_THANKS                              = -1800071,
   // 2nd quest
@@ -908,7 +909,7 @@ enum CorkiData
   // 3rd quest
   QUEST_CHOWAR_THE_PILLAGER                     = 9955,
   NPC_CORKI_3                                   = 18369,
-  NPC_CORKI_CREDIT                              = 18444,
+  NPC_CORKI_CREDIT_3                            = 18444,
   GO_CORKIS_PRISON_3                            = 182521,
   CORKI_SAY_LAST                                = -1800073
 };
@@ -927,7 +928,7 @@ public:
               go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
               if (player)
-                  player->KilledMonsterCredit(NPC_CORKI, 0);
+                  player->KilledMonsterCredit(NPC_CORKI_CREDIT_1, 0);
           }
       }
       if (go->GetEntry() == GO_CORKIS_PRISON_2)
@@ -947,7 +948,7 @@ public:
               go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+4, go->GetPositionY(), go->GetPositionZ());
               if (player)
-                  player->KilledMonsterCredit(NPC_CORKI_CREDIT, 0);
+                  player->KilledMonsterCredit(NPC_CORKI_CREDIT_3, 0);
           }
       }
       return true;
