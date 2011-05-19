@@ -24,7 +24,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 
-Totem::Totem(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)
+Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner)
 {
     m_unitTypeMask |= UNIT_MASK_TOTEM;
     m_duration = 0;
@@ -54,18 +54,14 @@ void Totem::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
 
+    // set display id depending on caster's race
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
-        // set display id depending on race
         SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
 
-    // Get spell casted by totem
-    SpellEntry const * totemSpell = sSpellStore.LookupEntry(GetSpell());
-    if (totemSpell)
-    {
-        // If spell have cast time -> so its active totem
-        if (GetSpellCastTime(totemSpell))
+    // Get spell cast by totem
+    if (SpellEntry const* totemSpell = sSpellStore.LookupEntry(GetSpell()))
+        if (GetSpellCastTime(totemSpell))   // If spell has cast time -> its an active totem
             m_type = TOTEM_ACTIVE;
-    }
 
     if (GetEntry() == SENTRY_TOTEM_ENTRY)
         SetReactState(REACT_AGGRESSIVE);
@@ -73,6 +69,19 @@ void Totem::InitStats(uint32 duration)
     m_duration = duration;
 
     SetLevel(m_owner->getLevel());
+
+    // client requires SMSG_TOTEM_CREATED to be sent before adding to world
+    if (m_owner->GetTypeId() == TYPEID_PLAYER
+        && m_Properties->Slot >= SUMMON_SLOT_TOTEM
+        && m_Properties->Slot < MAX_TOTEM_SLOT)
+    {
+        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
+        data << uint8(m_Properties->Slot - 1);
+        data << uint64(GetGUID());
+        data << uint32(duration);
+        data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        m_owner->ToPlayer()->SendDirectMessage(&data);
+    }
 }
 
 void Totem::InitSummon()
@@ -106,11 +115,11 @@ void Totem::UnSummon()
     if (Player* owner = m_owner->ToPlayer())
     {
         owner->SendAutoRepeatCancel(this);
+
         if (SpellEntry const* spell = sSpellStore.LookupEntry(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
             owner->SendCooldownEvent(spell);
-        // Not only the player can summon the totem (scripted AI)
-        Group* group = owner->GetGroup();
-        if (group)
+
+        if (Group* group = owner->GetGroup())
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
@@ -129,7 +138,8 @@ bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) co
     // TODO: possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
-    switch(spellInfo->EffectApplyAuraName[index])
+
+    switch (spellInfo->EffectApplyAuraName[index])
     {
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
@@ -139,5 +149,6 @@ bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) co
         default:
             break;
     }
+
     return Creature::IsImmunedToSpellEffect(spellInfo, index);
 }

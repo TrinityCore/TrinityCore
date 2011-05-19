@@ -2067,40 +2067,57 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, const Position &pos, SummonPropertiesEntry const *properties /*= NULL*/, uint32 duration /*= 0*/, Unit *summoner /*= NULL*/, uint32 vehId /*= 0*/, bool addToWorld /*= false*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
     {
-        switch(properties->Category)
+        switch (properties->Category)
         {
-            case SUMMON_CATEGORY_PET:       mask = UNIT_MASK_GUARDIAN;  break;
-            case SUMMON_CATEGORY_PUPPET:    mask = UNIT_MASK_PUPPET;    break;
-            case SUMMON_CATEGORY_VEHICLE:   mask = UNIT_MASK_MINION;    break;
-            default:
-                switch(properties->Type)
+            case SUMMON_CATEGORY_PET:
+                mask = UNIT_MASK_GUARDIAN;
+                break;
+            case SUMMON_CATEGORY_PUPPET:
+                mask = UNIT_MASK_PUPPET;
+                break;
+            case SUMMON_CATEGORY_VEHICLE:
+                mask = UNIT_MASK_MINION;
+                break;
+            case SUMMON_CATEGORY_WILD:
+            case SUMMON_CATEGORY_ALLY:
+            case SUMMON_CATEGORY_UNK:
+            {
+                switch (properties->Type)
                 {
-                    case SUMMON_TYPE_MINION:
-                    case SUMMON_TYPE_GUARDIAN:
-                    case SUMMON_TYPE_GUARDIAN2:
-                        mask = UNIT_MASK_GUARDIAN;  break;
-                    case SUMMON_TYPE_TOTEM:
-                        mask = UNIT_MASK_TOTEM;     break;
-                    case SUMMON_TYPE_VEHICLE:
-                    case SUMMON_TYPE_VEHICLE2:
-                        mask = UNIT_MASK_SUMMON;    break;
-                    case SUMMON_TYPE_MINIPET:
-                        mask = UNIT_MASK_MINION;    break;
-                    default:
-                        if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
-                            mask = UNIT_MASK_GUARDIAN;
-                        break;
+                case SUMMON_TYPE_MINION:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_GUARDIAN2:
+                    mask = UNIT_MASK_GUARDIAN;
+                    break;
+                case SUMMON_TYPE_TOTEM:
+                    mask = UNIT_MASK_TOTEM;
+                    break;
+                case SUMMON_TYPE_VEHICLE:
+                case SUMMON_TYPE_VEHICLE2:
+                    mask = UNIT_MASK_SUMMON;
+                    break;
+                case SUMMON_TYPE_MINIPET:
+                    mask = UNIT_MASK_MINION;
+                    break;
+                default:
+                    if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                        mask = UNIT_MASK_GUARDIAN;
+                    break;
                 }
                 break;
+            }
+            default:
+                return NULL;
         }
     }
 
-    uint32 phase = PHASEMASK_NORMAL, team = 0;
+    uint32 phase = PHASEMASK_NORMAL;
+    uint32 team = 0;
     if (summoner)
     {
         phase = summoner->GetPhaseMask();
@@ -2108,15 +2125,26 @@ TempSummon* Map::SummonCreature(uint32 entry, const Position &pos, SummonPropert
             team = summoner->ToPlayer()->GetTeam();
     }
 
-    TempSummon *summon = NULL;
-    switch(mask)
+    TempSummon* summon = NULL;
+    switch (mask)
     {
-        case UNIT_MASK_SUMMON:    summon = new TempSummon (properties, summoner);  break;
-        case UNIT_MASK_GUARDIAN:  summon = new Guardian   (properties, summoner);  break;
-        case UNIT_MASK_PUPPET:    summon = new Puppet     (properties, summoner);  break;
-        case UNIT_MASK_TOTEM:     summon = new Totem      (properties, summoner);  break;
-        case UNIT_MASK_MINION:    summon = new Minion     (properties, summoner);  break;
-        default:    return NULL;
+        case UNIT_MASK_SUMMON:
+            summon = new TempSummon(properties, summoner);
+            break;
+        case UNIT_MASK_GUARDIAN:
+            summon = new Guardian(properties, summoner);
+            break;
+        case UNIT_MASK_PUPPET:
+            summon = new Puppet(properties, summoner);
+            break;
+        case UNIT_MASK_TOTEM:
+            summon = new Totem(properties, summoner);
+            break;
+        case UNIT_MASK_MINION:
+            summon = new Minion(properties, summoner);
+            break;
+        default:
+            return NULL;
     }
 
     if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
@@ -2125,11 +2153,12 @@ TempSummon* Map::SummonCreature(uint32 entry, const Position &pos, SummonPropert
         return NULL;
     }
 
+    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+
     summon->SetHomePosition(pos);
 
     summon->InitStats(duration);
-    if (addToWorld)
-        Add(summon->ToCreature());
+    Add(summon->ToCreature());
     summon->InitSummon();
 
     //ObjectAccessor::UpdateObjectVisibility(summon);
