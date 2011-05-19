@@ -947,18 +947,18 @@ void OutdoorPvPWG::OnGameObjectRemove(GameObject *go)
 void OutdoorPvPWG::UpdateAllWorldObject()
 {
     // update cre and go factions
-    for (GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
+    for (GameObjectSet::const_iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
         UpdateGameObjectInfo(*itr);
-    for (CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
+    for (CreatureSet::const_iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
         UpdateCreatureInfo(*itr);
-    for (QuestGiverMap::iterator itr = m_questgivers.begin(); itr != m_questgivers.end(); ++itr)
+    for (QuestGiverMap::const_iterator itr = m_questgivers.begin(); itr != m_questgivers.end(); ++itr)
         UpdateQuestGiverPosition((*itr).first, (*itr).second);
 
     // rebuild and update building states
     RebuildAllBuildings();
 
     // update capture points
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    for (OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
         if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
             workshop->SetTeamByBuildingState();
 }
