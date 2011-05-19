@@ -462,66 +462,66 @@ class AuraScript : public _SpellScript
         //
         // executed when periodic aura effect is applied with specified mode to target
         // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
-        // where function is: void function (AuraEffect const * aurEff, AuraEffectHandleModes mode);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectApply;
         #define AuraEffectApplyFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
         // executed when periodic aura effect is removed with specified mode from target
         // example: OnEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
-        // where function is: void function (AuraEffect const * aurEff, AuraEffectHandleModes mode);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectRemove;
         #define AuraEffectRemoveFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
         // executed when periodic aura effect ticks on target
         // example: OnEffectPeriodic += AuraEffectPeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-        // where function is: void function (AuraEffect const * aurEff);
+        // where function is: void function (AuraEffect const* aurEff);
         HookList<EffectPeriodicHandler> OnEffectPeriodic;
         #define AuraEffectPeriodicFn(F, I, N) EffectPeriodicHandlerFunction(&F, I, N)
 
         // executed when periodic aura effect is updated
         // example: OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-        // where function is: void function (AuraEffect * aurEff);
+        // where function is: void function (AuraEffect* aurEff);
         HookList<EffectUpdatePeriodicHandler> OnEffectUpdatePeriodic;
         #define AuraEffectUpdatePeriodicFn(F, I, N) EffectUpdatePeriodicHandlerFunction(&F, I, N)
 
         // executed when aura effect calculates amount
         // example: DoEffectCalcAmount += AuraEffectCalcAmounFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-        // where function is: void function (AuraEffect * aurEff, int32 & amount, bool & canBeRecalculated);
+        // where function is: void function (AuraEffect* aurEff, int32& amount, bool& canBeRecalculated);
         HookList<EffectCalcAmountHandler> DoEffectCalcAmount;
         #define AuraEffectCalcAmountFn(F, I, N) EffectCalcAmountHandlerFunction(&F, I, N)
 
         // executed when aura effect calculates periodic data
         // example: DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-        // where function is: void function (AuraEffect const * aurEff, bool & isPeriodic, int32 & amplitude);
+        // where function is: void function (AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude);
         HookList<EffectCalcPeriodicHandler> DoEffectCalcPeriodic;
         #define AuraEffectCalcPeriodicFn(F, I, N) EffectCalcPeriodicHandlerFunction(&F, I, N)
 
         // executed when aura effect calculates spellmod
         // example: DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-        // where function is: void function (AuraEffect const * aurEff, SpellModifier *& spellMod);
+        // where function is: void function (AuraEffect const* aurEff, SpellModifier*& spellMod);
         HookList<EffectCalcSpellModHandler> DoEffectCalcSpellMod;
         #define AuraEffectCalcSpellModFn(F, I, N) EffectCalcSpellModHandlerFunction(&F, I, N)
 
         // executed when absorb aura effect is going to reduce damage
         // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        // where function is: void function (AuraEffect const* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectAbsorbHandler> OnEffectAbsorb;
         #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
 
         // executed after absorb aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
         // example: AfterEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectAbsorbHandler> AfterEffectAbsorb;
 
         // executed when mana shield aura effect is going to reduce damage
         // example: OnEffectManaShield += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectManaShieldHandler> OnEffectManaShield;
         #define AuraEffectManaShieldFn(F, I) EffectManaShieldFunction(&F, I)
 
         // executed after mana shield aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
         // example: AfterEffectManaShield += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectManaShieldHandler> AfterEffectManaShield;
 
         // AuraScript interface - hook/effect execution manipulators
@@ -596,6 +596,8 @@ class AuraScript : public _SpellScript
         // Do not call these in hooks in which AuraApplication is not avalible, otherwise result will differ from expected (the functions will return NULL)
 
         // returns currently processed target of an aura
+        // Return value does not need to be NULL-checked, the only situation this will (always)
+        // return NULL is when the call happens in an unsupported hook, in other cases, it is always valid
         Unit * GetTarget() const;
         // returns AuraApplication object of currently processed target
         AuraApplication const * GetTargetApplication() const;
