@@ -4320,25 +4320,20 @@ bool Unit::HasNegativeAuraWithAttribute(uint32 flag, uint64 guid)
     return false;
 }
 
-bool Unit::HasAurasWithMechanic(uint32 mechanic_mask)
+bool Unit::HasAuraWithMechanic(uint32 mechanicMask)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end(); ++iter)
     {
         SpellEntry const* spellInfo  = iter->second->GetBase()->GetSpellProto();
-
-        if (IsImmunedToSpell(spellInfo))
-            continue;
-
-        uint32 mask = 0;
-        if (spellInfo->Mechanic)
-            mask |= 1<<spellInfo->Mechanic;
-        for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spellInfo->Effect[i] && spellInfo->EffectMechanic[i] && !IsImmunedToSpellEffect(spellInfo, i))
-                mask |= 1<<spellInfo->EffectMechanic[i];
-
-        if (mask & mechanic_mask)
+        if (spellInfo->Mechanic && (mechanicMask & (1 << spellInfo->Mechanic)))
             return true;
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (iter->second->HasEffect(i) && spellInfo->Effect[i] && spellInfo->EffectMechanic[i])
+                if (mechanicMask & (1 << spellInfo->EffectMechanic[i]))
+                    return true;
     }
+
     return false;
 }
 
@@ -10444,7 +10439,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
             // Torment the weak
             if (spellProto->SpellFamilyFlags[0] & 0x20600021 || spellProto->SpellFamilyFlags[1] & 0x9000)
-                if (pVictim->HasAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK)))
+                if (pVictim->HasAuraWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK)))
                 {
                     AuraEffectList const& mDumyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
                     for (AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
