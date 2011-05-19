@@ -908,7 +908,7 @@ void OutdoorPvPWG::OnGameObjectCreate(GameObject *go)
             }
         }
     }
-
+/*
    switch(go->GetGOInfo()->displayId)
    {
        case 8244: // Defender's Portal - Vehicle Teleporter
@@ -927,6 +927,7 @@ void OutdoorPvPWG::OnGameObjectCreate(GameObject *go)
            m_gobjects.insert(go);
            break;
    }
+*/
 }
 
 void OutdoorPvPWG::OnGameObjectRemove(GameObject *go)
@@ -1150,7 +1151,7 @@ bool OutdoorPvPWG::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
 bool OutdoorPvPWG::UpdateGameObjectInfo(GameObject *go) const
 {
     if (!go || !go->IsInWorld())
-        return false;
+        return true;
 
     uint32 attFaction;
     uint32 defFaction;
