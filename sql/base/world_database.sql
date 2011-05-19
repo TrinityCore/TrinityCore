@@ -4,7 +4,7 @@
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.1.36
+-- Server version    5.1.36
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16922,6 +16922,10 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (40293, 0, 0, 0, 0, 'Item - Siphon Essence'),
 (67760, 0, 0, 0, 0, 'Item - Coliseum 25 Heroic Caster Trinket - Pillar of Flame'),
 (67714, 0, 0, 0, 0, 'Item - Coliseum 25 Normal Caster Trinket - Pillar of Flame'),
+(69729, -1, 0, -1, -1, 'Item - Onyxia 10 Caster Trinket - Searing Flames'),
+(69730, -1, 0, -1, -1, 'Item - Onyxia 25 Caster Trinket - Searing Flames'),
+(69733, 0, -1, -1, -1, 'Item - Onyxia 10 Caster Trinket - Cauterizing Heal'),
+(69734, 0, -1, -1, -1, 'Item - Onyxia 25 Caster Trinket - Cauterizing Heal'),
 (44425, 0.7143, -1, -1, -1, 'Mage - Arcane Barrage'),
 (30451, 0.7143, -1, -1, -1, 'Mage - Arcane Blast'),
 (1449, 0.2128, -1, -1, -1, 'Mage - Arcane Explosion'),
@@ -19017,9 +19021,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 50887, 0x00,  15, 0x00000000, 0x04000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Icy Talons
 ( 51123, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   1,   0,   0), -- Killing Machine (Rank 1)
 ( 51127, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   2,   0,   0), -- Killing Machine (Rank 2)
-( 51128, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   3,   0,   0), -- Killing Machine (Rank 3)
-( 51129, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   4,   0,   0), -- Killing Machine (Rank 4)
-( 51130, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   5,   0,   0), -- Killing Machine (Rank 5)
+( 51128, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   4,   0,   0), -- Killing Machine (Rank 3)
+( 51129, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   6,   0,   0), -- Killing Machine (Rank 4)
+( 51130, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   8,   0,   0), -- Killing Machine (Rank 5)
 ( 51346, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Venture Company Beatdown!
 ( 51349, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Venture Company Beatdown
 ( 51352, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Venture Company Beatdown!
@@ -19354,9 +19358,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 53234, 0x00,   9, 0x00020000, 0x00000001, 0x00000001, 0x00000000, 0x00000002,   0,   0,   0), -- Piercing Shots (Rank 1)
 ( 53237, 0x00,   9, 0x00020000, 0x00000001, 0x00000001, 0x00000000, 0x00000002,   0,   0,   0), -- Piercing Shots (Rank 2)
 ( 53238, 0x00,   9, 0x00020000, 0x00000001, 0x00000001, 0x00000000, 0x00000002,   0,   0,   0), -- Piercing Shots (Rank 3)
-( 56636, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 1)
-( 56637, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 2)
-( 56638, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 3)
+( 56636, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   6), -- Taste for Blood (Rank 1)
+( 56637, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   6), -- Taste for Blood (Rank 2)
+( 56638, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   6), -- Taste for Blood (Rank 3)
 ( 60503, 0x01,   4, 0x00000004, 0x00000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Taste for Blood (proc)
 ( 68051, 0x01,   4, 0x00000004, 0x00000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Overpower Ready! (proc)
 ( 52437, 0x01,   4, 0x20000000, 0x00000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Sudden Death (proc)
@@ -19411,6 +19415,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 67758, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00011000, 0x00000002,   0,   0,   2), -- Item - Coliseum 25 Heroic Caster Trinket - Pillar of Flame
 ( 67771, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 10men
 ( 67702, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 25men
+( 69739, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Onyxia 25 Caster Trinket 
+( 69755, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Onyxia 10 Caster Trinket
 ( 70652, 0x00,  15, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Tank 4P Bonus
 ( 70656, 0x00,  15, 0x00000000, 0x00000000, 0x00000000, 0x00014000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Melee 4P Bonus
 ( 70664, 0x00,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T10 Restoration 4P Bonus (Rejuvenation)

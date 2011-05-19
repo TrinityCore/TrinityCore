@@ -721,7 +721,7 @@ public:
         }
         instance->HandleGameObject(NULL, true, go);
         if (go->GetEntry() != GO_TELEPORT_LIGHT_S_HAMMER)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_LIGHTS_HAMMER), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_LIGHT_S_HAMMER);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_LIGHTS_HAMMER), GOSSIP_SENDER_MAIN, LIGHT_S_HAMMER_TELEPORT);
 
         if (go->GetEntry() != GO_TELEPORT_ORATORY_OF_THE_DAMNED && instance->GetData(DATA_LORD_MARROWGAR_EVENT) == DONE && instance->GetData(DATA_TELEPORT_ORATORY_OF_THE_DAMNED_ACTIVATED) == DONE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_ORATORY_OF_THE_DAMNED), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_ORATORY_OF_THE_DAMNED);
@@ -742,7 +742,7 @@ public:
         if (go->GetEntry() != GO_TELEPORT_SINDRAGOSA_S_LAIR &&
             instance->GetData(DATA_VALITHRIA_DREAMWALKER_EVENT) == DONE && instance->GetData(DATA_TELEPORT_SINDRAGOSA_S_LAIR_ACTIVATED) == DONE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_SINDRAGOSAS_LAIR), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_SINDRAGOSA_S_LAIR);
-        if (instance->GetData(DATA_BLOOD_QUEEN_LANA_THEL_EVENT) == DONE && instance->GetData(DATA_PROFESSOR_PUTRICIDE_EVENT) == DONE && instance->GetData(DATA_SINDRAGOSA_EVENT) == DONE)
+        if (instance->GetData(DATA_BLOOD_QUEEN_LANA_THEL_EVENT) == DONE && instance->GetData(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetData(DATA_SINDRAGOSA) == DONE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_FROZEN_THRONE), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_FROZEN_THRONE);
 
         player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
@@ -984,7 +984,7 @@ class boss_sister_svalna : public CreatureScript
 
         struct boss_sister_svalnaAI : public BossAI
         {
-            boss_sister_svalnaAI(Creature* creature) : BossAI(creature, GUID_SISTER_SVALNA),
+            boss_sister_svalnaAI(Creature* creature) : BossAI(creature, DATA_SISTER_SVALNA),
                 _isEventInProgress(false)
             {
             }
@@ -1192,7 +1192,7 @@ class npc_crok_scourgebane : public CreatureScript
                 SetDespawnAtEnd(false);
                 SetDespawnAtFar(false);
                 _isEventActive = false;
-                _isEventDone = false;
+                _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
                 _didUnderTenPercentText = false;
             }
 
@@ -1217,7 +1217,7 @@ class npc_crok_scourgebane : public CreatureScript
                     _isEventDone = true;
                     // Load Grid with Sister Svalna
                     me->GetMap()->LoadGrid(4356.71f, 2484.33f);
-                    if (Creature* svalna = me->FindNearestCreature(NPC_SISTER_SVALNA, 333.0f, true))
+                    if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                         svalna->AI()->DoAction(ACTION_START_GAUNTLET);
                     Talk(SAY_CROK_INTRO_1);
                     _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
@@ -1231,7 +1231,7 @@ class npc_crok_scourgebane : public CreatureScript
                 else if (action == ACTION_RESET_EVENT)
                 {
                     _isEventActive = false;
-                    _isEventDone = false;
+                    _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
                     me->setActive(false);
                     _aliveTrash.clear();
                     _currentWPid = 0;
@@ -1251,7 +1251,7 @@ class npc_crok_scourgebane : public CreatureScript
                             _isEventActive = false;
                             me->setActive(false);
                             Talk(SAY_CROK_FINAL_WP);
-                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(GUID_SISTER_SVALNA)))
+                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_RESURRECT_CAPTAINS);
                         }
                     }
@@ -1279,7 +1279,7 @@ class npc_crok_scourgebane : public CreatureScript
                             _isEventActive = false;
                             me->setActive(false);
                             Talk(SAY_CROK_FINAL_WP);
-                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(GUID_SISTER_SVALNA)))
+                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_RESURRECT_CAPTAINS);
                         }
                         break;
@@ -1305,7 +1305,7 @@ class npc_crok_scourgebane : public CreatureScript
                             minY -= 50.0f;
                             maxY -= 50.0f;
                             // at waypoints 1 and 2 she kills one captain
-                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(GUID_SISTER_SVALNA)))
+                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_KILL_CAPTAIN);
                         }
                         else if (waypointId == 4)
@@ -1328,7 +1328,7 @@ class npc_crok_scourgebane : public CreatureScript
                     }
                     // at waypoints 1 and 2 she kills one captain
                     case 2:
-                        if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(GUID_SISTER_SVALNA)))
+                        if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                             svalna->AI()->DoAction(ACTION_KILL_CAPTAIN);
                         break;
                     default:

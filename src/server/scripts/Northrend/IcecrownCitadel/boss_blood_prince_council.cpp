@@ -249,7 +249,7 @@ class boss_blood_council_controller : public CreatureScript
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_PRINCE_COUNCIL_EVENT, who->ToPlayer()))
                 {
                     EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(SPELL_TELEPORT_ICC_LIGHT_S_HAMMER);
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
                 DoZoneInCombat(me);

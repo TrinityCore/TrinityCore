@@ -1051,46 +1051,60 @@ class SpellMgr
             return NULL;
         }
 
-        // Spell Difficulty data
-        SpellEntry const* GetSpellForDifficultyFromSpell(SpellEntry const* spell, Unit* Caster)
+        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit* caster) const
         {
-            //spell never can be NULL in this case!
-            if (!Caster || !Caster->GetMap() ||  !Caster->GetMap()->IsDungeon())
-                return spell;
+            if (!sSpellStore.LookupEntry(spellId))
+                return spellId;
 
-            uint32 mode = uint32(Caster->GetMap()->GetSpawnMode());
+            if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
+                return spellId;
+
+            uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
             if (mode >= MAX_DIFFICULTY)
             {
-                sLog->outError("GetSpellForDifficultyFromSpell: Incorrect Difficulty for spell %u.", spell->Id);
-                return spell;//return source spell
+                sLog->outError("SpellMgr::GetSpellIdForDifficulty: Incorrect Difficulty for spell %u.", spellId);
+                return spellId; //return source spell
             }
-            uint32 SpellDiffId = GetSpellDifficultyId(spell->Id);
-            if (!SpellDiffId)
-                return spell;//return source spell, it has only REGULAR_DIFFICULTY
 
-            SpellDifficultyEntry const *SpellDiff = sSpellDifficultyStore.LookupEntry(SpellDiffId);
-            if (!SpellDiff)
+            uint32 difficultyId = GetSpellDifficultyId(spellId);
+            if (!difficultyId)
+                return spellId; //return source spell, it has only REGULAR_DIFFICULTY
+
+            SpellDifficultyEntry const *difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
+            if (!difficultyEntry)
             {
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "GetSpellForDifficultyFromSpell: SpellDifficultyEntry not found for spell %u. This Should never happen.", spell->Id);
-                return spell;//return source spell
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
+                return spellId; //return source spell
             }
-            if (SpellDiff->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
+
+            if (difficultyEntry->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
             {
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "GetSpellForDifficultyFromSpell: spell %u mode %u spell is NULL, using mode %u", spell->Id, mode, mode-2);
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
                 mode -= 2;
             }
-            if (SpellDiff->SpellID[mode] <= 0)
+
+            if (difficultyEntry->SpellID[mode] <= 0)
             {
-                sLog->outErrorDb("GetSpellForDifficultyFromSpell: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spell->Id, mode);
-                return spell;
+                sLog->outErrorDb("SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
+                return spellId;
             }
-            SpellEntry const* newSpell = sSpellStore.LookupEntry(uint32(SpellDiff->SpellID[mode]));
+
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
+            return uint32(difficultyEntry->SpellID[mode]);
+        }
+
+        // Spell Difficulty data
+        SpellEntry const* GetSpellForDifficultyFromSpell(SpellEntry const* spell, Unit* caster) const
+        {
+            uint32 newSpellId = GetSpellIdForDifficulty(spell->Id, caster);
+            SpellEntry const* newSpell = sSpellStore.LookupEntry(newSpellId);
             if (!newSpell)
             {
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "GetSpellForDifficultyFromSpell: spell %u not found in SpellStore. Check spelldifficulty_dbc!", SpellDiff->SpellID[mode]);
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellForDifficultyFromSpell: spell %u not found in sSpellStore. Check spelldifficulty_dbc!", newSpellId);
                 return spell;
             }
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "GetSpellForDifficultyFromSpell: spellid for spell %u in mode %u is %u ", spell->Id, mode, newSpell->Id);
+
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellForDifficultyFromSpell: Spell id for instance mode is %u (original %u)", newSpell->Id, spell->Id);
             return newSpell;
         }
 
@@ -1353,7 +1367,7 @@ class SpellMgr
                         return false;
             return true;
         }
-        uint32 GetSpellDifficultyId(uint32 spellId)
+        uint32 GetSpellDifficultyId(uint32 spellId) const
         {
             SpellDifficultySearcherMap::const_iterator i = mSpellDifficultySearcherMap.find(spellId);
             return i == mSpellDifficultySearcherMap.end() ? 0 : (*i).second;

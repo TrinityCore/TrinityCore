@@ -118,6 +118,6 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1533106,'Your petty magics are no challenge to the might of the Scourge! ',14481,1,0,'kelthuzad SAY_SPECIAL1_MANA_DET'),
 (-1533107,'Enough! I grow tired of these distractions! ',14483,1,0,'kelthuzad SAY_SPECIAL3_MANA_DET'),
 (-1533108,'Fools, you have spread your powers too thin. Be free, my minions!',14482,1,0,'kelthuzad SAY_SPECIAL2_DISPELL');
-	
+
 UPDATE `script_texts` SET `sound`=8902 WHERE `entry`=-1533055;
 UPDATE `script_texts` SET `sound`=8901 WHERE `entry`=-1533056;

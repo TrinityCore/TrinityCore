@@ -213,7 +213,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL_EVENT, who->ToPlayer()))
                 {
                     EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(SPELL_TELEPORT_ICC_LIGHT_S_HAMMER);
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
 
@@ -539,9 +539,8 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_FRENZIED_BLOODTHIRST);
-                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, GetCaster());
-                GetCaster()->RemoveAura(spell->Id, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_FRENZIED_BLOODTHIRST, GetCaster());
+                GetCaster()->RemoveAura(spellId, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, true);
                 // Presence of the Darkfallen buff on Blood-Queen
                 if (GetCaster()->GetMap()->IsHeroic())
