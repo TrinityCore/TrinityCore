@@ -2244,7 +2244,7 @@ void OutdoorPvPWG::EndBattle()
     // Update timer in players battlegrounds tab
     sWorld->SendWintergraspState();
     // update go factions
-    for (GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
+    for (GameObjectSet::const_iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
        UpdateGameObjectInfo(*itr);
 }
 
