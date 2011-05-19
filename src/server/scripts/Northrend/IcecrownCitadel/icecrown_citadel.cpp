@@ -14,10 +14,6 @@
 
 enum ICC_RAID_TRASH_NPCS_UND_SPELLS
 {
-        DIE_VERDAMMTEN                                                  = 37011,
-        DIE_VERDAMMTEN_KNOCHENWIRBEL                                    = 70960,
-        DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN                           = 70961,
-
         DIENER_DES_THRONS                                               = 36724,
         DIENER_DES_THRONS_GLETSCHEREXPLOSION                            = 71029,
 
@@ -132,11 +128,7 @@ enum ICC_RAID_TRASH_NPCS_UND_SPELLS
         BASTIONSFROSTWYRM_SPALTEN                                       = 70361,
 #define BASTIONSFROSTWYRM_BLIZZARD                                      RAID_MODE(70362,71118,70362,71118)
 #define BASTIONSFROSTWYRM_FROSTATEM                                     RAID_MODE(70116,72641,70116,72641)
-/* SIEHE TRINITY STUFF !
-        VERROTTENDER_FROSTRIESE                                         = 38490,
-        VERROTTENDER_FROSTRIESE_STAMPFEN                                = 64652,
-        VERROTTENDER_FROSTRIESE_TODESSEUCHE                             = 72865,
-*/
+
         TIERFUEHRER_DER_FROSTWAECHTER                                   = 37531,
         TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN                 = 71357,
 #define TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK             RAID_MODE(71337,71338,71337,71338)
@@ -197,8 +189,6 @@ enum eICC_Raid_Events
     EVENT_BASTIONSFROSTWYRM_SPALTEN,
     EVENT_BASTIONSFROSTWYRM_BLIZZARD,
     EVENT_BASTIONSFROSTWYRM_FROSTATEM,
-    EVENT_VERROTTENDER_FROSTRIESE_STAMPFEN,
-    EVENT_VERROTTENDER_FROSTRIESE_TODESSEUCHE,
     EVENT_TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN,
     EVENT_TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK
 };
@@ -244,16 +234,12 @@ public:
 
         EventMap events;
 
-        bool DieVerdammtenKnochenwirbel,
-            DieVerdammtenZerschmKnochen,
-            EiternderSchreckenBombe,
+        bool EiternderSchreckenBombe,
             RasendeMonstrositaetWut,
             BastionsdienerKannibalismus;
 
         void Reset()
         {
-            DieVerdammtenKnochenwirbel = false;
-            DieVerdammtenZerschmKnochen = false;
             EiternderSchreckenBombe = false;
             RasendeMonstrositaetWut = false;
             BastionsdienerKannibalismus = false;
@@ -262,47 +248,32 @@ public:
 
             events.ScheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM, urand(5000,10000));
 
-            // Funzt nit! Wird wild in der Gegend rumgecastet. :-(
-/*            switch(me->GetEntry())
+            switch(me->GetEntry())
             {
                 case SINISTRER_ERZMAGIER:
                 case SINISTRER_ADLIGER:
                 case SINISTRER_BLUTRITTER:
                     DoCast(SINISTRER_ERZMAGIER_ESSENZ_ENTZIEHEN);
                     break;
-            }*/
+            }
         }
 
         void JustReachedHome()
         {
-            // Funzt nit! Wird wild in der Gegend rumgecastet. :-(
-/*            switch(me->GetEntry())
+            switch(me->GetEntry())
             {
                 case SINISTRER_ERZMAGIER:
                 case SINISTRER_ADLIGER:
                 case SINISTRER_BLUTRITTER:
                     DoCast(SINISTRER_ERZMAGIER_ESSENZ_ENTZIEHEN);
                     break;
-            }*/
+            }
         }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
             switch(me->GetEntry())
             {
-                case DIE_VERDAMMTEN:
-                    if (!DieVerdammtenZerschmKnochen && uiDamage >= me->GetHealth())
-                    {
-                        DoCast(DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN);
-                        DieVerdammtenZerschmKnochen = true;
-                    }
-                    /* Funktioniert immer noch nicht der Spell. :-( Stehen nur dumm rum... und möglicher Crashgrund... :-(
-                    if (!DieVerdammtenKnochenwirbel && me->HealthBelowPctDamaged(urand(25,75), uiDamage))
-                    {
-                        DoCast(me, DIE_VERDAMMTEN_KNOCHENWIRBEL, true);
-                        DieVerdammtenKnochenwirbel = true;
-                    }*/
-                    break;
                 case EITERNDER_SCHRECKEN:
                     if (!EiternderSchreckenBombe && me->HealthBelowPctDamaged(15, uiDamage))
                     {
@@ -389,8 +360,6 @@ public:
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_SPALTEN, urand(3000,5000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_BLIZZARD, urand(8000,12000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_FROSTATEM, urand(5000,8000));
-            events.ScheduleEvent(EVENT_VERROTTENDER_FROSTRIESE_STAMPFEN, urand(3000,5000));
-            events.ScheduleEvent(EVENT_VERROTTENDER_FROSTRIESE_TODESSEUCHE, urand(8000,10000));
             events.ScheduleEvent(EVENT_TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN, urand(5000,10000));
             events.ScheduleEvent(EVENT_TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK, urand(3000,5000));
 
@@ -787,22 +756,6 @@ public:
                                 break;
                         }
                         break;
-                    /* SIEHE TRINITY STUFF !
-                    case VERROTTENDER_FROSTRIESE:
-                        switch(eventId)
-                        {
-                            case EVENT_VERROTTENDER_FROSTRIESE_STAMPFEN:
-                                DoCast(VERROTTENDER_FROSTRIESE_STAMPFEN);
-                                events.RescheduleEvent(EVENT_VERROTTENDER_FROSTRIESE_STAMPFEN, urand(8000,12000));
-                                break;
-                            case EVENT_VERROTTENDER_FROSTRIESE_TODESSEUCHE:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                    DoCast(pTarget, VERROTTENDER_FROSTRIESE_TODESSEUCHE, true);
-                                events.RescheduleEvent(EVENT_VERROTTENDER_FROSTRIESE_TODESSEUCHE, urand(10000,15000));
-                                break;
-                        }
-                        break;
-                    */
                     case TIERFUEHRER_DER_FROSTWAECHTER:
                         switch(eventId)
                         {
