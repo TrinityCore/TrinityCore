@@ -27,6 +27,8 @@
 uint32 const EncounterCount = 13;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
+
+extern Position const ValithriaSpawnPos;
 // Defined in boss_sindragosa.cpp
 extern Position const SindragosaSpawnPos;
 
@@ -70,28 +72,30 @@ enum DataTypes
     DATA_THE_LICH_KING              = 12,
 
     // Additional data
-    DATA_SAURFANG_EVENT_NPC         = 34,
-    DATA_BONED_ACHIEVEMENT          = 13,
-    DATA_OOZE_DANCE_ACHIEVEMENT     = 14,
-    DATA_PUTRICIDE_TABLE            = 15,
-    DATA_NAUSEA_ACHIEVEMENT         = 16,
-    DATA_ORB_WHISPERER_ACHIEVEMENT  = 17,
-    DATA_PRINCE_KELESETH_GUID       = 18,
-    DATA_PRINCE_TALDARAM_GUID       = 19,
-    DATA_PRINCE_VALANAR_GUID        = 20,
-    DATA_BLOOD_PRINCES_CONTROL      = 21,
-    DATA_SINDRAGOSA_FROSTWYRMS      = 22,
-    DATA_SPINESTALKER               = 23,
-    DATA_RIMEFANG                   = 24,
-    DATA_COLDFLAME_JETS             = 25,
-    DATA_TEAM_IN_INSTANCE           = 26,
-    DATA_BLOOD_QUICKENING_STATE     = 27,
-    DATA_HEROIC_ATTEMPTS            = 28,
-    DATA_CROK_SCOURGEBANE           = 29,
-    DATA_CAPTAIN_ARNATH             = 30,
-    DATA_CAPTAIN_BRANDON            = 31,
-    DATA_CAPTAIN_GRONDEL            = 32,
-    DATA_CAPTAIN_RUPERT             = 33,
+    DATA_SAURFANG_EVENT_NPC         = 13,
+    DATA_BONED_ACHIEVEMENT          = 14,
+    DATA_OOZE_DANCE_ACHIEVEMENT     = 15,
+    DATA_PUTRICIDE_TABLE            = 16,
+    DATA_NAUSEA_ACHIEVEMENT         = 17,
+    DATA_ORB_WHISPERER_ACHIEVEMENT  = 18,
+    DATA_PRINCE_KELESETH_GUID       = 19,
+    DATA_PRINCE_TALDARAM_GUID       = 20,
+    DATA_PRINCE_VALANAR_GUID        = 21,
+    DATA_BLOOD_PRINCES_CONTROL      = 22,
+    DATA_SINDRAGOSA_FROSTWYRMS      = 23,
+    DATA_SPINESTALKER               = 24,
+    DATA_RIMEFANG                   = 25,
+    DATA_COLDFLAME_JETS             = 26,
+    DATA_TEAM_IN_INSTANCE           = 27,
+    DATA_BLOOD_QUICKENING_STATE     = 28,
+    DATA_HEROIC_ATTEMPTS            = 29,
+    DATA_CROK_SCOURGEBANE           = 30,
+    DATA_CAPTAIN_ARNATH             = 31,
+    DATA_CAPTAIN_BRANDON            = 32,
+    DATA_CAPTAIN_GRONDEL            = 33,
+    DATA_CAPTAIN_RUPERT             = 34,
+    DATA_VALITHRIA_TRIGGER          = 35,
+    DATA_VALITHRIA_LICH_KING        = 36,
 };
 
 enum CreaturesIds
@@ -218,7 +222,13 @@ enum CreaturesIds
     NPC_SUPPRESSER                              = 37863,
     NPC_BLISTERING_ZOMBIE                       = 37934,
     NPC_GLUTTONOUS_ABOMINATION                  = 37886,
+    NPC_MANA_VOID                               = 38068,
+    NPC_COLUMN_OF_FROST                         = 37918,
     NPC_THE_LICH_KING_VALITHRIA                 = 16980,
+    NPC_DREAM_PORTAL_PRE_EFFECT                 = 38186,
+    NPC_NIGHTMARE_PORTAL_PRE_EFFECT             = 38429,
+    NPC_DREAM_PORTAL                            = 37945,
+    NPC_NIGHTMARE_PORTAL                        = 38430,
 
     // Sindragosa
     NPC_SINDRAGOSA                              = 36853,
@@ -275,6 +285,10 @@ enum GameObjectsIds
     // Valithria Dreamwalker
     GO_GREEN_DRAGON_BOSS_ENTRANCE           = 201375,
     GO_GREEN_DRAGON_BOSS_EXIT               = 201374,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_01   = 201380,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
