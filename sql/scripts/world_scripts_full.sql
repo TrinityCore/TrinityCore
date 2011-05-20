@@ -891,6 +891,16 @@ UPDATE `creature_template` SET `ScriptName`='npc_captain_grondel' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='npc_captain_rupert' WHERE `entry`=37125;
 UPDATE `creature_template` SET `ScriptName`='npc_frostwing_vrykul' WHERE `entry` IN (37132,38125,37127,37134,37133);
 UPDATE `creature_template` SET `ScriptName`='npc_impaling_spear' WHERE `entry`=38248;
+UPDATE `creature_template` SET `ScriptName`='boss_valithria_dreamwalker' WHERE `entry`=36789;
+UPDATE `creature_template` SET `ScriptName`='npc_green_dragon_combat_trigger' WHERE `entry`=38752;
+UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_controller' WHERE `entry`=16980;
+UPDATE `creature_template` SET `ScriptName`='npc_risen_archmage' WHERE `entry`=37868;
+UPDATE `creature_template` SET `ScriptName`='npc_blazing_skeleton' WHERE `entry`=36791;
+UPDATE `creature_template` SET `ScriptName`='npc_suppresser' WHERE `entry`=37863;
+UPDATE `creature_template` SET `ScriptName`='npc_blistering_zombie' WHERE `entry`=37934;
+UPDATE `creature_template` SET `ScriptName`='npc_gluttonous_abomination' WHERE `entry`=37886;
+UPDATE `creature_template` SET `ScriptName`='npc_dream_portal' WHERE `entry` IN (37945,38430);
+UPDATE `creature_template` SET `ScriptName`='npc_dream_cloud' WHERE `entry` IN (37985,38421);
 UPDATE `creature_template` SET `ScriptName`='boss_sindragosa' WHERE `entry`=36853;
 UPDATE `creature_template` SET `ScriptName`='npc_ice_tomb' WHERE `entry`=36980;
 UPDATE `creature_template` SET `ScriptName`='npc_spinestalker' WHERE `entry`=37534;
@@ -1800,7 +1810,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (3804,11,0,0, 'achievement_resilient_victory'),
@@ -1862,7 +1872,11 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (7573,11,0,0,'achievement_denyin_the_scion'),
 (7574,11,0,0,'achievement_denyin_the_scion'),
 (7265,11,0,0,'achievement_momma_said_knock_you_out'),
-(7549,11,0,0,'achievement_momma_said_knock_you_out');
+(7549,11,0,0,'achievement_momma_said_knock_you_out'),
+(12978,11,0,0,'achievement_portal_jockey'),
+(12979,11,0,0,'achievement_portal_jockey'),
+(12971,11,0,0,'achievement_portal_jockey'),
+(12980,11,0,0,'achievement_portal_jockey');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -2103,6 +2117,21 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 70078, 'spell_svalna_caress_of_death'),
 ( 70053, 'spell_svalna_revive_champion'),
 ( 71462, 'spell_svalna_remove_spear'),
+( 71085, 'spell_dreamwalker_mana_void'),
+( 70915, 'spell_dreamwalker_decay_periodic_timer'),
+( 70912, 'spell_dreamwalker_decay_periodic_timer'),
+( 70916, 'spell_dreamwalker_decay_periodic_timer'),
+( 70913, 'spell_dreamwalker_decay_periodic_timer'),
+( 70921, 'spell_dreamwalker_summoner'),
+( 70912, 'spell_dreamwalker_summon_suppresser'),
+( 71032, 'spell_dreamwalker_summoner'),
+( 71078, 'spell_dreamwalker_summoner'),
+( 70933, 'spell_dreamwalker_summoner'),
+( 72224, 'spell_dreamwalker_summon_dream_portal'),
+( 72480, 'spell_dreamwalker_summon_nightmare_portal'),
+( 71970, 'spell_dreamwalker_nightmare_cloud'),
+( 72868, 'spell_putricide_slime_puddle_aura'),
+( 72869, 'spell_putricide_slime_puddle_aura'),
 ( 71357, 'spell_frostwarden_handler_order_whelp'),
 ( 71350, 'spell_frostwarden_handler_focus_fire'),
 ( 71376, 'spell_rimefang_icy_blast'),
