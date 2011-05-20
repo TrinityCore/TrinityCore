@@ -245,25 +245,6 @@ class boss_rotface : public CreatureScript
                 // don't enter combat
             }
 
-            Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 /*effIndex*/)
-            {
-                if (spellId == SPELL_SLIME_SPRAY)
-                {
-                    for (std::list<uint64>::iterator itr = summons.begin(); itr != summons.end();)
-                    {
-                        Creature *summon = Unit::GetCreature(*me, *itr);
-                        if (!summon)
-                            summons.erase(itr++);
-                        else if (summon->GetEntry() == NPC_OOZE_SPRAY_STALKER)
-                            return summon;
-                        else
-                            ++itr;
-                    }
-                }
-
-                return NULL;
-            }
-
             void UpdateAI(const uint32 diff)
             {
                 if (!CheckInRoom())
@@ -362,13 +343,12 @@ class boss_rotface : public CreatureScript
                         case EVENT_SLIME_SPRAY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                Position pos;
-                                target->GetPosition(&pos);
-                                Creature *pSprayStalker = DoSummon(NPC_OOZE_SPRAY_STALKER, pos, 8000, TEMPSUMMON_TIMED_DESPAWN);
+                                Creature *pSprayStalker = DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
                                 Talk(EMOTE_SLIME_SPRAY);
-                                me->SetFacingToObject(pSprayStalker);
+                                /*me->SetFacingToObject(pSprayStalker);                     // Old version (new version can be wrong)
                                 me->CastSpell(pSprayStalker, SPELL_SLIME_SPRAY_1, true);
-                                me->CastSpell(pSprayStalker, SPELL_SLIME_SPRAY, true); 
+                                me->CastSpell(pSprayStalker, SPELL_SLIME_SPRAY, true);*/
+                                DoCast(me, SPELL_SLIME_SPRAY);
                             }
                             events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
                             break;

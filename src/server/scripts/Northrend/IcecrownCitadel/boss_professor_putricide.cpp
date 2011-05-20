@@ -447,17 +447,15 @@ class boss_professor_putricide : public CreatureScript
                             case PHASE_COMBAT_2:
                             {
                                 SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_CREATE_CONCOCTION);
-                                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, me);
                                 DoCast(me, SPELL_CREATE_CONCOCTION);
-                                events.ScheduleEvent(EVENT_PHASE_TRANSITION, GetSpellCastTime(spell)+100);
+                                events.ScheduleEvent(EVENT_PHASE_TRANSITION, GetSpellCastTime(sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)) + 100);
                                 break;
                             }
                             case PHASE_COMBAT_3:
                             {
                                 SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_GUZZLE_POTIONS);
-                                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, me);
                                 DoCast(me, SPELL_GUZZLE_POTIONS);
-                                events.ScheduleEvent(EVENT_PHASE_TRANSITION, GetSpellCastTime(spell)+100);
+                                events.ScheduleEvent(EVENT_PHASE_TRANSITION, GetSpellCastTime(sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)) + 100);
                                 break;
                             }
                             default:
@@ -991,9 +989,8 @@ class spell_putricide_expunged_gas : public SpellScriptLoader
                     return;
 
                 int32 dmg = 0;
-                SpellEntry const* bloat = sSpellStore.LookupEntry(SPELL_GASEOUS_BLOAT);
-                bloat = sSpellMgr->GetSpellForDifficultyFromSpell(bloat, GetCaster());
-                if (Aura* gasBloat = GetTargetUnit()->GetAura(bloat->Id))
+                uint32 bloatId = sSpellMgr->GetSpellIdForDifficulty(SPELL_GASEOUS_BLOAT, GetCaster());
+                if (Aura* gasBloat = GetTargetUnit()->GetAura(bloatId))
                 {
                     uint32 stack = gasBloat->GetStackAmount();
                     int32 const mod = (GetCaster()->GetMap()->GetSpawnMode() & 1) ? 1500 : 1250;
@@ -1158,12 +1155,11 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                SpellEntry const* adhesive = sSpellStore.LookupEntry(SPELL_VOLATILE_OOZE_ADHESIVE);
-                adhesive = sSpellMgr->GetSpellForDifficultyFromSpell(adhesive, GetCaster());
-                if (GetHitUnit()->HasAura(adhesive->Id))
+                uint32 adhesiveId = sSpellMgr->GetSpellIdForDifficulty(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster());
+                if (GetHitUnit()->HasAura(adhesiveId))
                 {
                     GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
-                    GetHitUnit()->RemoveAurasDueToSpell(adhesive->Id, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                    GetHitUnit()->RemoveAurasDueToSpell(adhesiveId, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 }
             }
 
@@ -1235,29 +1231,23 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                SpellEntry const* plague = sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE);
-                SpellEntry const* searcher = sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE_SEARCHER);
-                Creature* professor = NULL;
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                {
-                    professor = Unit::GetCreature(*GetCaster(), instance->GetData64(GUID_PROFESSOR_PUTRICIDE));
-                    if (professor)
-                    {
-                        plague = sSpellMgr->GetSpellForDifficultyFromSpell(plague, professor);
-                        searcher = sSpellMgr->GetSpellForDifficultyFromSpell(searcher, professor);
-                    }
-                }
+                InstanceScript* instance = GetCaster()->GetInstanceScript();
+                if (!instance)
+                    return;
 
-                if (!GetHitUnit()->HasAura(plague->Id))
+                uint32 plagueId = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster());
+                uint32 searcherId = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE_SEARCHER, GetCaster());
+
+                if (!GetHitUnit()->HasAura(plagueId))
                 {
-                    if (professor)
-                        if (Aura* oldPlague = GetCaster()->GetAura(plague->Id, professor->GetGUID()))
-                            if (Aura* newPlague = professor->AddAura(plague->Id, GetHitUnit()))
+                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GUID_PROFESSOR_PUTRICIDE)))
+                        if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
+                            if (Aura* newPlague = professor->AddAura(plagueId, GetHitUnit()))
                             {
                                 newPlague->SetMaxDuration(oldPlague->GetDuration());
                                 newPlague->SetDuration(oldPlague->GetDuration());
                                 oldPlague->Remove();
-                                GetCaster()->RemoveAurasDueToSpell(searcher->Id);
+                                GetCaster()->RemoveAurasDueToSpell(searcherId);
                                 GetCaster()->CastSpell(GetCaster(), SPELL_PLAGUE_SICKNESS, true);
                                 GetCaster()->CastSpell(GetCaster(), SPELL_UNBOUND_PLAGUE_PROTECTION, true);
                                 professor->CastSpell(GetHitUnit(), SPELL_UNBOUND_PLAGUE_SEARCHER, true);
@@ -1539,7 +1529,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
                 Position pos;
                 caster->GetPosition(&pos);
-                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster);
+                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
                 if (!summon || !summon->IsVehicle())
                     return;
                 //Disallow abomination's growth
@@ -1547,9 +1537,8 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 caster->CastSpell(summon, SPELL_MUTATED_TRANSFORMATION_NAME, true);
                 summon->CastSpell(summon, SPELL_ABOMINATION_VEHICLE_POWER_DRAIN, true);
                 summon->CastSpell(summon, SPELL_MUTATED_TRANSFORMATION_DAMAGE, true);
-                caster->EnterVehicle(summon, 0);
 
-                summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                caster->EnterVehicle(summon, 0);
                 summon->SetCreatorGUID(caster->GetGUID());
                 putricide->AI()->JustSummoned(summon);
             }

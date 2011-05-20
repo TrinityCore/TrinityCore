@@ -785,7 +785,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_vazruden_the_herald' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='boss_vazruden' WHERE `entry`=17537;
 UPDATE `creature_template` SET `ScriptName`='boss_nazan' WHERE `entry`=17536;
 UPDATE `creature_template` SET `ScriptName`='mob_hellfire_sentry' WHERE `entry`=17517;
-	
+
 /* SHATTERED HALLS */
 /* Nethekurse and his spawned shadow fissure */
 UPDATE `creature_template` SET `ScriptName`='boss_grand_warlock_nethekurse' WHERE `entry`=16807;
@@ -1580,6 +1580,16 @@ UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=1
 UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=194371;
 UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=194370;
 UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=194377;
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_priest' WHERE `entry` IN (32897,33326,32948,33330);
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_shaman' WHERE `entry` IN (33328,32901,33332,32950);
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_druid' WHERE `entry` IN (33325,32900,32941,33333);
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_mage' WHERE `entry` IN (32893,33327,33331,32946);
+UPDATE `creature_template` SET `ScriptName`='npc_toasty_fire' WHERE `entry`=33342;
+UPDATE `creature_template` SET `ScriptName`='npc_flash_freeze' WHERE `entry`=32926;
+UPDATE `creature_template` SET `ScriptName`='npc_icicle' WHERE `entry` IN (33169,33173);
+UPDATE `creature_template` SET `ScriptName`='npc_snowpacked_icicle' WHERE `entry`=33174;
+UPDATE `creature_template` SET `ScriptName`='npc_ice_block' WHERE `entry`=32938;
+UPDATE `creature_template` SET `ScriptName`='boss_hodir' WHERE `entry`=32845;
 
 
 /* UN'GORO CRATER */
@@ -1911,6 +1921,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 57593, 'spell_generic_clone_weapon'),
 ( 52408, 'spell_gen_seaforium_blast'),
 ( 25281, 'spell_gen_turkey_marker'),
+(-55428, 'spell_gen_lifeblood'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),

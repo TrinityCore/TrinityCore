@@ -426,7 +426,43 @@ class npc_stinky_icc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_stinky_iccAI(creature);
+            return GetIcecrownCitadelAI<npc_stinky_iccAI>(creature);
+        }
+};
+
+class spell_festergut_pungent_blight : public SpellScriptLoader
+{
+    public:
+        spell_festergut_pungent_blight() : SpellScriptLoader("spell_festergut_pungent_blight") { }
+
+        class spell_festergut_pungent_blight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                // Get Inhaled Blight id for our difficulty
+                uint32 blightId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
+
+                // ...and remove it
+                GetCaster()->RemoveAurasDueToSpell(blightId);
+                GetCaster()->ToCreature()->AI()->Talk(EMOTE_PUNGENT_BLIGHT);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_festergut_pungent_blight_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_festergut_pungent_blight_SpellScript();
         }
 };
 
@@ -484,15 +520,16 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 return true;
             }
 
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
-                    return;
-
-                SpellEntry const* inoculated = sSpellStore.LookupEntry(SPELL_INOCULATED);
-                inoculated = sSpellMgr->GetSpellForDifficultyFromSpell(inoculated, GetCaster());
+                uint32 inoculatedId = sSpellMgr->GetSpellIdForDifficulty(SPELL_INOCULATED, GetCaster());
                 uint32 currStack = 0;
-                if (Aura const* inoculate = GetTarget()->GetAura(inoculated->Id))
+                if (Aura const* inoculate = GetTarget()->GetAura(inoculatedId))
                     currStack = inoculate->GetStackAmount();
 
                 GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
@@ -530,7 +567,7 @@ void AddSC_boss_festergut()
 {
     new boss_festergut();
     new npc_stinky_icc();
-    //new spell_festergut_pungent_blight();
+    new spell_festergut_pungent_blight();
     new spell_festergut_gastric_bloat();
     new spell_festergut_blighted_spores();
     new achievement_flu_shot_shortage();

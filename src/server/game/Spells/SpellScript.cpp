@@ -830,7 +830,21 @@ bool AuraScript::HasEffectType(AuraType type) const
 
 Unit* AuraScript::GetTarget() const
 {
-    return m_auraApplication->GetTarget();
+    switch (m_currentScriptState)
+    {
+        case AURA_SCRIPT_HOOK_EFFECT_APPLY:
+        case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
+        case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
+        case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
+        case AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB:
+        case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:
+        case AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD:
+            return m_auraApplication->GetTarget();
+        default:
+            sLog->outError("TSCR: Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
+    }
+
+    return NULL;
 }
 
 AuraApplication const* AuraScript::GetTargetApplication() const
