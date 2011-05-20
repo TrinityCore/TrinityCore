@@ -19,6 +19,9 @@
 #include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPTW.h"
+
 #define EMOTE_BERSERK           -1590002
 
 //Spells Archavon
@@ -47,7 +50,7 @@ enum Events
     EVENT_IMPALE            = 4,
     EVENT_BERSERK           = 5,    // 300s cd
 
-//    EVENT_TW_CHECK          = 6,
+    EVENT_TW_CHECK          = 6,
 
     //mob
     EVENT_ROCK_SHOWER       = 7,    // set = 20s cd, unkown cd
@@ -74,16 +77,13 @@ public:
 
         InstanceScript* pInstance;
         EventMap events;
-//        EventMap eventsTW;
+        EventMap eventsTW;
 
         void Reset()
         {
             events.Reset();
-
-/*
             eventsTW.Reset();
             eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
-*/
 
             if (pInstance)
                 pInstance->SetData(DATA_ARCHAVON_EVENT, NOT_STARTED);
@@ -109,7 +109,6 @@ public:
                 pInstance->SetData(DATA_ARCHAVON_EVENT, IN_PROGRESS);
         }
 
-/*
         void CheckTW()
         {
             if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
@@ -117,17 +116,14 @@ public:
 
             eventsTW.RescheduleEvent(EVENT_TW_CHECK, 29000);
         }
-*/
 
         // Below UpdateAI may need review/debug.
         void UpdateAI(const uint32 diff)
         {
-/*
             eventsTW.Update(diff);
 
             if (eventsTW.ExecuteEvent() == EVENT_TW_CHECK)
                 CheckTW();
-*/
 
             if (!UpdateVictim())
                 return;
@@ -192,17 +188,13 @@ public:
         mob_archavon_warderAI(Creature *c) : ScriptedAI(c) {}
 
         EventMap events;
-//        EventMap eventsTW;
+        EventMap eventsTW;
 
         void Reset()
         {
             events.Reset();
-
-/*
             eventsTW.Reset();
             eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
-*/
-
         }
 
         void EnterCombat(Unit * /*who*/)
@@ -213,7 +205,6 @@ public:
             events.ScheduleEvent(EVENT_WHIRL, 7500);
         }
 
-/*
         void CheckTW()
         {
             if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
@@ -221,16 +212,13 @@ public:
 
             eventsTW.RescheduleEvent(EVENT_TW_CHECK, 29000);
         }
-*/
 
         void UpdateAI(const uint32 diff)
         {
-/*
             eventsTW.Update(diff);
 
             if (eventsTW.ExecuteEvent() == EVENT_TW_CHECK)
                 CheckTW();
-*/
 
             if (!UpdateVictim())
                 return;
