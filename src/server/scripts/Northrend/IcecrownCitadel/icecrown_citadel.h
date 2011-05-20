@@ -251,6 +251,16 @@ enum GameObjectsIds
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
 
+    // Kanonenschiff
+    GO_Truhe_des_Kanonenschiffs_Ally_10     = 201872,
+    GO_Truhe_des_Kanonenschiffs_Ally_10H    = 201873,
+    GO_Truhe_des_Kanonenschiffs_Ally_25     = 201874,
+    GO_Truhe_des_Kanonenschiffs_Ally_25H    = 201875,
+    GO_Truhe_des_Kanonenschiffs_Horde_10    = 202177,
+    GO_Truhe_des_Kanonenschiffs_Horde_10H   = 202178,
+    GO_Truhe_des_Kanonenschiffs_Horde_25    = 202179,
+    GO_Truhe_des_Kanonenschiffs_Horde_25H   = 202180,
+
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
     GO_DEATHBRINGER_S_CACHE_10N             = 202239,

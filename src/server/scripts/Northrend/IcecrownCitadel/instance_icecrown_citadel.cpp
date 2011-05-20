@@ -89,6 +89,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 DeathbringerSaurfangDoorGUID = 0;
                 DeathbringerSaurfangEventGUID = 0;
                 DeathbringersCacheGUID = 0;
+                KanonenschiffTruheAllyGUID = 0;
+                KanonenschiffTruheHordeGUID = 0;
                 SaurfangTeleportGUID = 0;
                 PlagueSigilGUID = 0;
                 BloodwingSigilGUID = 0;
@@ -343,6 +345,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                             go->SetGoState(GO_STATE_READY);
                         }
                         break;
+                    // Truhe des Kanonenschiffs (Ally)
+                    case GO_Truhe_des_Kanonenschiffs_Ally_10:
+                    case GO_Truhe_des_Kanonenschiffs_Ally_10H:
+                    case GO_Truhe_des_Kanonenschiffs_Ally_25:
+                    case GO_Truhe_des_Kanonenschiffs_Ally_25H:
+                        KanonenschiffTruheAllyGUID = go->GetGUID();
+                        break;
+                    // Truhe des Kanonenschiffs (Horde)
+                    case GO_Truhe_des_Kanonenschiffs_Horde_10:
+                    case GO_Truhe_des_Kanonenschiffs_Horde_10H:
+                    case GO_Truhe_des_Kanonenschiffs_Horde_25:
+                    case GO_Truhe_des_Kanonenschiffs_Horde_25H:
+                        KanonenschiffTruheHordeGUID = go->GetGUID();
+                        break;
                     case GO_SAURFANG_S_DOOR:
                         DeathbringerSaurfangDoorGUID = go->GetGUID();
                         AddDoor(go, true);
@@ -405,6 +421,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_GREEN_DRAGON_BOSS_ENTRANCE:
                         AddDoor(go, true);
+                        // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
                         TraumwandlerEingang = go->GetGUID();
                         if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
                         {
@@ -414,6 +431,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_GREEN_DRAGON_BOSS_EXIT:
                         AddDoor(go, true);
+                        // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
                         TraumwandlerAusgang = go->GetGUID();
                         if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
                         {
@@ -604,6 +622,13 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                         if (state == DONE)
                         {
+                            // So lange das Kanonenschiff nicht funktioniert, die Truhe beim Tot vom Prof. bei ihm spawnen lassen!
+                            if (TeamInInstance && TeamInInstance == ALLIANCE)
+                                DoRespawnGameObject(KanonenschiffTruheAllyGUID, 7*DAY);
+                            else
+                                DoRespawnGameObject(KanonenschiffTruheHordeGUID, 7*DAY);
+
+                            // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
                             if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE)
                             {
                                 HandleGameObject(TraumwandlerEingang, true);
@@ -632,6 +657,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                         if (state == DONE)
                         {
+                            // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
                             if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
                             {
                                 HandleGameObject(TraumwandlerEingang, true);
@@ -1113,6 +1139,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 DeathbringerSaurfangDoorGUID;
             uint64 DeathbringerSaurfangEventGUID;   // Muradin Bronzebeard or High Overlord Saurfang
             uint64 DeathbringersCacheGUID;
+            uint64 KanonenschiffTruheAllyGUID;
+            uint64 KanonenschiffTruheHordeGUID;
             uint64 SaurfangTeleportGUID;
             uint64 PlagueSigilGUID;
             uint64 BloodwingSigilGUID;
