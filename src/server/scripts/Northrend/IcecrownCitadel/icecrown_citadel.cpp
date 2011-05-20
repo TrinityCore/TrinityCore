@@ -41,35 +41,36 @@
 enum Texts
 {
     // Highlord Tirion Fordring (at Light's Hammer)
-    SAY_TIRION_INTRO_1          = 0,    
-    SAY_TIRION_INTRO_2          = 1,    
-    SAY_TIRION_INTRO_3          = 2,
-    SAY_TIRION_INTRO_4          = 3,
-    SAY_TIRION_INTRO_H_5        = 4,
-    SAY_TIRION_INTRO_A_5        = 5,
+    SAY_TIRION_INTRO_1              = 0,
+    SAY_TIRION_INTRO_2              = 1,
+    SAY_TIRION_INTRO_3              = 2,
+    SAY_TIRION_INTRO_4              = 3,
+    SAY_TIRION_INTRO_H_5            = 4,
+    SAY_TIRION_INTRO_A_5            = 5,
 
-    // The Lich King (at Light's Hammer)    
-    SAY_LK_INTRO_1              = 0,    
-    SAY_LK_INTRO_2              = 1,    
-    SAY_LK_INTRO_3              = 2,
-    SAY_LK_INTRO_4              = 3,
-    SAY_LK_INTRO_5              = 4,    
+    // The Lich King (at Light's Hammer)
+    SAY_LK_INTRO_1                  = 0,
+    SAY_LK_INTRO_2                  = 1,
+    SAY_LK_INTRO_3                  = 2,
+    SAY_LK_INTRO_4                  = 3,
+    SAY_LK_INTRO_5                  = 4,
+
     // Highlord Bolvar Fordragon (at Light's Hammer)
-    SAY_BOLVAR_INTRO_1          = 0,
+    SAY_BOLVAR_INTRO_1              = 0,
 
     // High Overlord Saurfang (at Light's Hammer)
-    SAY_SAURFANG_INTRO_1        = 15,
-    SAY_SAURFANG_INTRO_2        = 16,
-    SAY_SAURFANG_INTRO_3        = 17,
-    SAY_SAURFANG_INTRO_4        = 18,
+    SAY_SAURFANG_INTRO_1            = 15,
+    SAY_SAURFANG_INTRO_2            = 16,
+    SAY_SAURFANG_INTRO_3            = 17,
+    SAY_SAURFANG_INTRO_4            = 18,
 
     // Muradin Bronzebeard (at Light's Hammer)
-    SAY_MURADIN_INTRO_1         = 13,
-    SAY_MURADIN_INTRO_2         = 14,
-    SAY_MURADIN_INTRO_3         = 15,
+    SAY_MURADIN_INTRO_1             = 13,
+    SAY_MURADIN_INTRO_2             = 14,
+    SAY_MURADIN_INTRO_3             = 15,
 
     // Rotting Frost Giant
-    EMOTE_DEATH_PLAGUE_WARNING  = 0,
+    EMOTE_DEATH_PLAGUE_WARNING      = 0,
 
     // Sister Svalna
     SAY_SVALNA_KILL_CAPTAIN         = 1, // happens when she kills a captain
@@ -221,86 +222,86 @@ enum Spells
 
 enum Events
 {
-    // Highlord Tirion Fordring (at Light's Hammer)    
-    // The Lich King (at Light's Hammer)    
-    // Highlord Bolvar Fordragon (at Light's Hammer)    
+    // Highlord Tirion Fordring (at Light's Hammer)
+    // The Lich King (at Light's Hammer)
+    // Highlord Bolvar Fordragon (at Light's Hammer)
     // High Overlord Saurfang (at Light's Hammer)
     // Muradin Bronzebeard (at Light's Hammer)
-    EVENT_TIRION_INTRO_2    = 1,
-    EVENT_TIRION_INTRO_3    = 2,    
-    EVENT_TIRION_INTRO_4    = 3,
-    EVENT_TIRION_INTRO_5    = 4,    
-    EVENT_LK_INTRO_1        = 5,    
-    EVENT_TIRION_INTRO_6    = 6,
-    EVENT_LK_INTRO_2        = 7,    
-    EVENT_LK_INTRO_3        = 8,    
-    EVENT_LK_INTRO_4        = 9,
-    EVENT_BOLVAR_INTRO_1    = 10,
-    EVENT_LK_INTRO_5        = 11,
-    EVENT_SAURFANG_INTRO_1  = 12,
-    EVENT_TIRION_INTRO_H_7  = 13,
-    EVENT_SAURFANG_INTRO_2  = 14,
-    EVENT_SAURFANG_INTRO_3  = 15,
-    EVENT_SAURFANG_INTRO_4  = 16,
-    EVENT_SAURFANG_RUN      = 17,
-    EVENT_MURADIN_INTRO_1   = 18,
-    EVENT_MURADIN_INTRO_2   = 19,
-    EVENT_MURADIN_INTRO_3   = 20,
-    EVENT_TIRION_INTRO_A_7  = 21,
-    EVENT_MURADIN_INTRO_4   = 22,
-    EVENT_MURADIN_INTRO_5   = 23,
-    EVENT_MURADIN_RUN       = 24,
+    EVENT_TIRION_INTRO_2                = 1,
+    EVENT_TIRION_INTRO_3                = 2,
+    EVENT_TIRION_INTRO_4                = 3,
+    EVENT_TIRION_INTRO_5                = 4,
+    EVENT_LK_INTRO_1                    = 5,
+    EVENT_TIRION_INTRO_6                = 6,
+    EVENT_LK_INTRO_2                    = 7,
+    EVENT_LK_INTRO_3                    = 8,
+    EVENT_LK_INTRO_4                    = 9,
+    EVENT_BOLVAR_INTRO_1                = 10,
+    EVENT_LK_INTRO_5                    = 11,
+    EVENT_SAURFANG_INTRO_1              = 12,
+    EVENT_TIRION_INTRO_H_7              = 13,
+    EVENT_SAURFANG_INTRO_2              = 14,
+    EVENT_SAURFANG_INTRO_3              = 15,
+    EVENT_SAURFANG_INTRO_4              = 16,
+    EVENT_SAURFANG_RUN                  = 17,
+    EVENT_MURADIN_INTRO_1               = 18,
+    EVENT_MURADIN_INTRO_2               = 19,
+    EVENT_MURADIN_INTRO_3               = 20,
+    EVENT_TIRION_INTRO_A_7              = 21,
+    EVENT_MURADIN_INTRO_4               = 22,
+    EVENT_MURADIN_INTRO_5               = 23,
+    EVENT_MURADIN_RUN                   = 24,
 
     // Rotting Frost Giant
-    EVENT_DEATH_PLAGUE      = 25,
-    EVENT_STOMP             = 26,
-    EVENT_ARCTIC_BREATH     = 27,
+    EVENT_DEATH_PLAGUE                  = 25,
+    EVENT_STOMP                         = 26,
+    EVENT_ARCTIC_BREATH                 = 27,
 
     // Frost Freeze Trap
-    EVENT_ACTIVATE_TRAP     = 28,
+    EVENT_ACTIVATE_TRAP                 = 28,
     
     //Deathspeaker High Priest
-    EVENT_DARK_RECKONING    = 29,
+    EVENT_DARK_RECKONING                = 29,
     //Val'kyr Herald
-    EVENT_SEVERED_ESSENCE   = 30,
+    EVENT_SEVERED_ESSENCE               = 30,
 
     //Druid spells
-    EVENT_CAT_FORM          = 31,
-    EVENT_MANGLE            = 32,
-    EVENT_RIP               = 33,
+    EVENT_CAT_FORM                      = 31,
+    EVENT_MANGLE                        = 32,
+    EVENT_RIP                           = 33,
     //Warlock
-    EVENT_CORRUPTION        = 34,
-    EVENT_SHADOW_BOLT       = 35,
-    EVENT_RAIN_OF_CHAOS     = 36,
+    EVENT_CORRUPTION                    = 34,
+    EVENT_SHADOW_BOLT                   = 35,
+    EVENT_RAIN_OF_CHAOS                 = 36,
     //Shaman
-    EVENT_REPLENISHING_RAINS= 37,
-    EVENT_LIGHTNING_BOLT    = 38,
-    EVENT_CAN_CAST_REPLENISHING_RAINS= 39,
+    EVENT_REPLENISHING_RAINS            = 37,
+    EVENT_LIGHTNING_BOLT                = 38,
+    EVENT_CAN_CAST_REPLENISHING_RAINS   = 39,
     //Rogue
-    EVENT_FOCUSED_ATTACKS   = 40,
-    EVENT_SINISTER_STRIKE   = 41,
-    EVENT_EVISCERATE        = 42,
+    EVENT_FOCUSED_ATTACKS               = 40,
+    EVENT_SINISTER_STRIKE               = 41,
+    EVENT_EVISCERATE                    = 42,
     //Mage
-    EVENT_FIREBALL          = 43,
+    EVENT_FIREBALL                      = 43,
     //Warrior
-    EVENT_BLOODTHIRST       = 44,
-    EVENT_HEROIC_LEAP       = 45,
+    EVENT_BLOODTHIRST                   = 44,
+    EVENT_HEROIC_LEAP                   = 45,
     //Dead Knight
-    EVENT_DEATH_GRIP        = 46,
-    EVENT_NECROTIC_STRIKE   = 47,
-    EVENT_PLAGUE_STRIKE     = 48,
+    EVENT_DEATH_GRIP                    = 46,
+    EVENT_NECROTIC_STRIKE               = 47,
+    EVENT_PLAGUE_STRIKE                 = 48,
     //Priest
-    EVENT_GREATER_HEAL      = 49,
-    EVENT_RENEW             = 50,
+    EVENT_GREATER_HEAL                  = 49,
+    EVENT_RENEW                         = 50,
     //Paladin
-    EVENT_CLEANSE           = 51,
-    EVENT_FLASH_OF_LIGHT    = 52,
-    EVENT_RADIANCE_AURA     = 53,
-    EVENT_CAN_CAST_RADIANCE_AURA =54, 
+    EVENT_CLEANSE                       = 51,
+    EVENT_FLASH_OF_LIGHT                = 52,
+    EVENT_RADIANCE_AURA                 = 53,
+    EVENT_CAN_CAST_RADIANCE_AURA        = 54, 
     //Hunter
-    EVENT_SHOOT             = 55,
-    EVENT_DISENGAGE         = 56,
-    EVENT_CAN_CAST_DISENGAGE= 57,
+    EVENT_SHOOT                         = 55,
+    EVENT_DISENGAGE                     = 56,
+    EVENT_CAN_CAST_DISENGAGE            = 57,
 
     // Crok Scourgebane
     EVENT_SCOURGE_STRIKE                = 58,
@@ -467,9 +468,9 @@ class CaptainSurviveTalk : public BasicEvent
     private:
         Creature const& _owner;
 };
-    
+
 // at Light's Hammer
-class npc_highlord_tirion_fordring_lh : public CreatureScript    
+class npc_highlord_tirion_fordring_lh : public CreatureScript
 {
     public:
         npc_highlord_tirion_fordring_lh() : CreatureScript("npc_highlord_tirion_fordring_lh") { }    
