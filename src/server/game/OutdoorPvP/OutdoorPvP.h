@@ -33,10 +33,9 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_SI = 5,
     OUTDOOR_PVP_EP = 6,
 //    OUTDOOR_PVP_TW = 7
-    OUTDOOR_PVP_WG = 7
 };
 
-#define MAX_OUTDOORPVP_TYPES 8
+#define MAX_OUTDOORPVP_TYPES 7
 
 const uint8 CapturePointArtKit[3] = {2, 1, 21}; 
 

@@ -2571,28 +2571,6 @@ Arena.ArenaStartMatchmakerRating = 1500
 ###################################################################################################
 
 ###################################################################################################
-# TAUSENDWINTERSEE KONFIGURATION (fremder 0-8-15 Patch)
-#
-OutdoorPvP.Wintergrasp.Enabled = 1
-OutdoorPvP.Wintergrasp.SaveState.Period = 10000
-OutdoorPvP.Wintergrasp.StartTime = 30
-OutdoorPvP.Wintergrasp.BattleTime = 30
-OutdoorPvP.Wintergrasp.Interval = 130
-OutdoorPvP.Wintergrasp.CustomHonorRewards = 0
-OutdoorPvP.Wintergrasp.CustomHonorBattleWin = 3000
-OutdoorPvP.Wintergrasp.CustomHonorBattleLose = 1250
-OutdoorPvP.Wintergrasp.CustomHonorDamageTower = 750
-OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower = 750
-OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding = 750
-OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 1500
-OutdoorPvP.Wintergrasp.Antifarm.Enable = 0
-OutdoorPvP.Wintergrasp.Antifarm.Atk = 5
-OutdoorPvP.Wintergrasp.Antifarm.Def = 5
-
-#
-###################################################################################################
-
-###################################################################################################
 # AUCTION HOUSE BOT SETTINGS
 #
 #    AuctionHouseBot.DEBUG

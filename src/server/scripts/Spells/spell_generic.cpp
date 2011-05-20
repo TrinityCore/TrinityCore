@@ -1061,43 +1061,6 @@ class spell_gen_turkey_marker : public SpellScriptLoader
         }
 };
 
-enum parachuteWG
-{
-    SPELL_PARACHUTE_WG = 61360
-};
-
-class spell_gen_parachute_wg : public SpellScriptLoader
-{
-    public:
-        spell_gen_parachute_wg() : SpellScriptLoader("spell_gen_parachute_wg") { }
-
-        class spell_gen_parachute_wgAuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_parachute_wgAuraScript)
-
-            void HandleTriggerSpell(AuraEffect const * /*aurEff*/)
-            {
-                Unit* target = GetTarget();
-
-                if (!target->ToPlayer())
-                    return;
-
-                if (target->ToPlayer()->m_movementInfo.fallTime > 2000)
-                    target->CastSpell(target,SPELL_PARACHUTE_WG,true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_parachute_wgAuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript *GetAuraScript() const
-        {
-            return new spell_gen_parachute_wgAuraScript();
-        }
-};
-
 class spell_gen_lifeblood : public SpellScriptLoader
 {
     public:
@@ -1142,7 +1105,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_shroud_of_death();
     new spell_gen_divine_storm_cd_reset();
     new spell_gen_parachute_ic();
-	new spell_gen_parachute_wg();
     new spell_gen_gunship_portal();
     new spell_gen_dungeon_credit();
     new spell_gen_profession_research();
