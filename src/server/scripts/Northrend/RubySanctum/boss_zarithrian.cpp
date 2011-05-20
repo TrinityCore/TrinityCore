@@ -1,44 +1,40 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-// Based on /dev/rsa modified by Vlad
-// TODO:  Trash mobs, spawn and removal of fire ring/walls, spawn of halion
-// Need correct timers
+* Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
 enum BossSpells
 {
-    SPELL_CALL_FLAMECALLER           = 74398,
-    SPELL_CLEAVE_ARMOR               = 74367,
-    SPELL_IMTIMIDATING_ROAR          = 74384,
-    SPELL_LAVA_GOUT                  = 74394,
-    SPELL_BLAST_NOVA                 = 74392,
+    SPELL_CALL_FLAMECALLER = 74398,
+    SPELL_CLEAVE_ARMOR = 74367,
+    SPELL_IMTIMIDATING_ROAR = 74384,
+    SPELL_LAVA_GOUT = 74394,
+    SPELL_BLAST_NOVA = 74392,
 
-    NPC_FLAMECALLER                  = 39814,
+    NPC_FLAMECALLER = 39814,
 };
 
 enum Equipment
 {
-    EQUIP_MAIN           = 47156,
-    EQUIP_OFFHAND        = 51812,
-    EQUIP_RANGED         = EQUIP_NO_CHANGE,
-    EQUIP_DONE           = EQUIP_NO_CHANGE,
+    EQUIP_MAIN = 47156,
+    EQUIP_OFFHAND = 51812,
+    EQUIP_RANGED = EQUIP_NO_CHANGE,
+    EQUIP_DONE = EQUIP_NO_CHANGE,
 };
 
 struct Locations
@@ -48,9 +44,9 @@ struct Locations
 
 static Locations SpawnLoc[]=
 {
-    {3008.552734f, 530.471680f, 89.195290f, 6.16f},    // 0 - zarithrian start point, o = 6,16
-    {3014.313477f, 486.453735f, 89.255096f, 6.16f},    // 1 - Mob spawn 1
-    {3025.324951f, 580.588501f, 88.593185f, 6.16f},    // 2 - Mob spawn 2
+    {3008.552734f, 530.471680f, 89.195290f, 6.16f}, // 0 - zarithrian start point, o = 6,16
+    {3014.313477f, 486.453735f, 89.255096f, 6.16f}, // 1 - Mob spawn 1
+    {3025.324951f, 580.588501f, 88.593185f, 6.16f}, // 2 - Mob spawn 2
 };
 
 
@@ -94,7 +90,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* pWho) 
+        void MoveInLineOfSight(Unit* pWho)
         {
             if (pInstance->GetData(TYPE_XERESTRASZA) == DONE &&
                  pInstance->GetData(TYPE_BALTHARUS) == DONE &&
@@ -134,7 +130,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit *who) 
+        void EnterCombat(Unit *who)
         {
             if(!pInstance) return;
 
