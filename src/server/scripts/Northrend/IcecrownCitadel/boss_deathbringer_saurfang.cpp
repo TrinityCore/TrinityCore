@@ -278,7 +278,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (!instance->CheckRequiredBosses(DATA_SAURFANG_EVENT, who->ToPlayer()))
                 {
                     EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(SPELL_TELEPORT_ICC_LIGHT_S_HAMMER);
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
 
