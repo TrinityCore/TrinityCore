@@ -932,6 +932,34 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
         }
 };
 
+// this is here only because on retail you dont actually enter HEROIC mode for ICC
+class spell_putricide_slime_puddle_aura : public SpellScriptLoader
+{
+    public:
+        spell_putricide_slime_puddle_aura() : SpellScriptLoader("spell_putricide_slime_puddle_aura") { }
+
+        class spell_putricide_slime_puddle_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_putricide_slime_puddle_aura_SpellScript);
+
+            void ReplaceAura()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->AddAura((GetCaster()->GetMap()->GetSpawnMode() & 1) ? 72456 : 70346, target);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_putricide_slime_puddle_aura_SpellScript::ReplaceAura);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_putricide_slime_puddle_aura_SpellScript();
+        }
+};
+
 class spell_putricide_unstable_experiment : public SpellScriptLoader
 {
     public:
@@ -1516,6 +1544,7 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_ooze_channel();
     new spell_putricide_expunged_gas();
     new spell_putricide_slime_puddle();
+    new spell_putricide_slime_puddle_aura();
     new spell_putricide_unstable_experiment();
     new spell_putricide_ooze_summon();
     new spell_putricide_ooze_eruption_searcher();
