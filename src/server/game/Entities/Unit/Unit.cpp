@@ -4320,6 +4320,23 @@ bool Unit::HasNegativeAuraWithAttribute(uint32 flag, uint64 guid)
     return false;
 }
 
+bool Unit::HasAuraWithMechanic(uint32 mechanicMask)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end(); ++iter)
+    {
+        SpellEntry const* spellInfo  = iter->second->GetBase()->GetSpellProto();
+        if (spellInfo->Mechanic && (mechanicMask & (1 << spellInfo->Mechanic)))
+            return true;
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (iter->second->HasEffect(i) && spellInfo->Effect[i] && spellInfo->EffectMechanic[i])
+                if (mechanicMask & (1 << spellInfo->EffectMechanic[i]))
+                    return true;
+    }
+
+    return false;
+}
+
 AuraEffect * Unit::IsScriptOverriden(SpellEntry const * spell, int32 script) const
 {
     AuraEffectList const& auras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -10421,8 +10438,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             }
 
             // Torment the weak
-            if (spellProto->SpellFamilyFlags[0]&0x20200021 || spellProto->SpellFamilyFlags[1]& 0x9000)
-                if (pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+            if (spellProto->SpellFamilyFlags[0] & 0x20600021 || spellProto->SpellFamilyFlags[1] & 0x9000)
+                if (pVictim->HasAuraWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK)))
                 {
                     AuraEffectList const& mDumyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
                     for (AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
