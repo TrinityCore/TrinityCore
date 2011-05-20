@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 
 enum Spells

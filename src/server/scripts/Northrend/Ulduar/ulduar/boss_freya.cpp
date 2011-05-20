@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "SpellScript.h"
 #include "ulduar.h"
 

@@ -23,6 +23,7 @@ SDComments: P3Wx2 Laser Barrage not works in phase 4 due to core limits.
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ScriptPCH.h"
 #include "SpellScript.h"
 #include "ulduar.h"
 

@@ -19,6 +19,8 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
+#include "Unit.h"
+
 class Battleground;
 
 enum BattlegroundDSObjectTypes
