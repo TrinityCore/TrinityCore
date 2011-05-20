@@ -2935,7 +2935,7 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const * aurApp, uint8 
         target->SetHealth(1);
     }
     // die at aura end
-    else
+    else if (target->isAlive())
         target->setDeathState(JUST_DIED);
 }
 
@@ -5112,9 +5112,13 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const * aurApp, uin
 
     Unit * target = aurApp->GetTarget();
 
-    Powers powerType = target->getPowerType();
-    if (int32(powerType) != GetMiscValue())
-        return;
+    Powers powerType = Powers(GetMiscValue());
+    // do not check power type, we can always modify the maximum
+    // as the client will not see any difference
+    // also, placing conditions that may change during the aura duration
+    // inside effect handlers is not a good idea
+    //if (int32(powerType) != GetMiscValue())
+    //    return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
@@ -5141,9 +5145,13 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const * aurA
 
     Unit * target = aurApp->GetTarget();
 
-    Powers powerType = target->getPowerType();
-    if (int32(powerType) != GetMiscValue())
-        return;
+    Powers powerType = Powers(GetMiscValue());
+    // do not check power type, we can always modify the maximum
+    // as the client will not see any difference
+    // also, placing conditions that may change during the aura duration
+    // inside effect handlers is not a good idea
+    //if (int32(powerType) != GetMiscValue())
+    //    return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
