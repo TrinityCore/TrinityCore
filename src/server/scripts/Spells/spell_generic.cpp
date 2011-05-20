@@ -1204,6 +1204,33 @@ class spell_gen_turkey_marker : public SpellScriptLoader
         }
 };
 
+class spell_gen_lifeblood : public SpellScriptLoader
+{
+    public:
+        spell_gen_lifeblood() : SpellScriptLoader("spell_gen_lifeblood") { }
+
+        class spell_gen_lifeblood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_lifeblood_AuraScript);
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* owner = GetUnitOwner())
+                    amount += int32(CalculatePctF(owner->GetMaxHealth(), 1.5f / aurEff->GetTotalTicks()));
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_lifeblood_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_lifeblood_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1231,4 +1258,5 @@ void AddSC_generic_spell_scripts()
     new spell_generic_clone_weapon();
     new spell_gen_seaforium_blast();
     new spell_gen_turkey_marker();
+    new spell_gen_lifeblood();
 }
