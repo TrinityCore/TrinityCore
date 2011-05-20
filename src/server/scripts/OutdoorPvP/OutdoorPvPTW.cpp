@@ -1127,6 +1127,13 @@ void Tausendwinter::StarteKampf()
     m_Fortsetzung = false;
 
     Speichern();
+
+    // Damit er den Kampf sofort wieder beendet, und den Besitzer wechselt.
+    if (sWorld->getBoolConfig(CONFIG_TW_AUTOMATISCH))
+    {
+        m_VerteidigerWechsel = true;
+        m_Zeit = 0; // Kampf beenden
+    }
 }
 
 // Ende des Kampfes

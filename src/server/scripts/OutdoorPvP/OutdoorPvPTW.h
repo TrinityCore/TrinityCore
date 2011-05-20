@@ -606,7 +606,7 @@ static const TW_NPC_PositionsPaare VerteigerPos =
 // Definitionen diverser Konstanter
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-static const uint8 GameEventTausendwinterVerteidiger[2] = { 50, 51 };
+static const uint8 GameEventTausendwinterVerteidiger[2] = { 48, 49 };
 
 static const float TWKoords[4] = { 3995.559570f, 1659.029175f, 5540.0f, 4270.252930f };
 static const float TWFestungsKoords[4] = { 5278.0f, 5482.0f, 2640.0f, 3047.0f };

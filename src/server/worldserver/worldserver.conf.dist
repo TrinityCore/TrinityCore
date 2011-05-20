@@ -2500,6 +2500,14 @@ Arena.ArenaStartMatchmakerRating = 1500
 Tausendwinter.Aktiviert = 1
 
 #
+#   Tausendwinter.Automatisch
+#       Gibt an, ob OutdoorPvP für Tausendwinter den Kampf überspringen, und nur automatisch den Besitzer wechseln soll.
+#       Default: 1 = Aktiviert (da TW zur Zeit noch Crashes verursachen kann)
+#                0 = Deaktiviert
+
+Tausendwinter.Automatisch = 1
+
+#
 #   Tausendwinter.WeltStartNachricht
 #       Gibt an, ob der Start von Tausendwinter weltweit bekannt gemacht werden soll.
 #       Default: 0 = Deaktiviert

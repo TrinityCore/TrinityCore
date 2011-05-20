@@ -1160,6 +1160,7 @@ void World::LoadConfigSettings(bool reload)
 
     // Tausendwinter
     m_bool_configs[CONFIG_TW_AKTIVIERT]         = sConfig->GetBoolDefault("Tausendwinter.Aktiviert", true);
+    m_bool_configs[CONFIG_TW_AUTOMATISCH]       = sConfig->GetBoolDefault("Tausendwinter.Automatisch", true);
     m_bool_configs[CONFIG_TW_TELEPORT_DALARAN]  = sConfig->GetBoolDefault("Tausendwinter.TeleportDalaran", false);
     m_bool_configs[CONFIG_TW_WELTSTARTNACHRICHT]= sConfig->GetBoolDefault("Tausendwinter.WeltStartNachricht", false);
     m_bool_configs[CONFIG_TW_WELTCOUNTDOWN]     = sConfig->GetBoolDefault("Tausendwinter.WeltStartCountdown", false);
