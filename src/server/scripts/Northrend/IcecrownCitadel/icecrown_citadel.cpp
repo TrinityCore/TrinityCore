@@ -65,6 +65,9 @@ enum Texts
     SAY_MURADIN_INTRO_2             = 14,
     SAY_MURADIN_INTRO_3             = 15,
 
+    // Deathbound Ward
+    SAY_TRAP_ACTIVATE               = 0,
+
     // Rotting Frost Giant
     EMOTE_DEATH_PLAGUE_WARNING      = 0,
 
@@ -1742,6 +1745,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                 {
                     if ((*itr)->isAlive() && (*itr)->HasAura(SPELL_STONEFORM))
                     {
+                        (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
                         (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
                         if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
                             (*itr)->AI()->AttackStart(target);
