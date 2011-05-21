@@ -365,7 +365,6 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM mail WHERE id = '%u'", mailId);             // needed?
     trans->PAppend("DELETE FROM mail_items WHERE mail_id = '%u'", mailId);
-    CharacterDatabase.CommitTransaction(trans);
     pl->RemoveMail(mailId);
 
     // only return mail if the player exists (and delete if not existing)
@@ -390,8 +389,10 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
                 pl->RemoveMItem(itr2->item_guid);
             }
         }
-        draft.AddMoney(m->money).SendReturnToSender(GetAccountId(), m->receiver, m->sender);
+        draft.AddMoney(m->money).SendReturnToSender(GetAccountId(), m->receiver, m->sender, trans);
     }
+
+    CharacterDatabase.CommitTransaction(trans);
 
     delete m;                                               //we can deallocate old mail
     pl->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_OK);
