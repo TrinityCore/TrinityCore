@@ -53,7 +53,7 @@ public:
 
     struct boss_thorimAI : public BossAI
     {
-        boss_thorimAI(Creature* pCreature) : BossAI(pCreature, TYPE_THORIM)
+        boss_thorimAI(Creature* pCreature) : BossAI(pCreature, BOSS_THORIM)
         {
         }
 

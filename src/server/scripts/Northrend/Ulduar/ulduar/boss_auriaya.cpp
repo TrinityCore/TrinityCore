@@ -46,7 +46,7 @@ public:
 
     struct boss_auriaya_AI : public BossAI
     {
-        boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, TYPE_AURIAYA)
+        boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, BOSS_AURIAYA)
         {
         }
 
