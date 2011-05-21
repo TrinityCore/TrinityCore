@@ -38,6 +38,9 @@ enum SharedSpells
     SPELL_BERSERK               = 26662,
     SPELL_BERSERK2              = 47008,
 
+    // Deathbound Ward
+    SPELL_STONEFORM             = 70733,
+
     // Residue Rendezvous
     SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
     SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
@@ -120,6 +123,7 @@ enum CreaturesIds
     NPC_NIBY_THE_ALMIGHTY                       = 38182,    // Warlock Armor N
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
+    NPC_DEATHBOUND_WARD                         = 37007,
 
     // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
@@ -243,6 +247,12 @@ enum CreaturesIds
 
 enum GameObjectsIds
 {
+    // Lower Spire Trash
+    GO_SPIRIT_ALARM_1                       = 201814,
+    GO_SPIRIT_ALARM_2                       = 201815,
+    GO_SPIRIT_ALARM_3                       = 201816,
+    GO_SPIRIT_ALARM_4                       = 201817,
+
     // Lord Marrogar
     GO_DOODAD_ICECROWN_ICEWALL02            = 201910,
     GO_ICEWALL                              = 201911,
