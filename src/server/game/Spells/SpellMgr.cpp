@@ -3906,6 +3906,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 72530:
             spellInfo->EffectImplicitTargetA[1] = TARGET_SRC_CASTER;
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENEMY_SRC;
+            ++count;
+            break;
         case 30421: // Nether Portal - Perseverence
             spellInfo->EffectBasePoints[2] += 30000;
             ++count;
