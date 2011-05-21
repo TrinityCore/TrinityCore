@@ -1484,7 +1484,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
-                m_spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
+                if (m_spellValue->AuraStackAmount > 1)
+                    m_spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
