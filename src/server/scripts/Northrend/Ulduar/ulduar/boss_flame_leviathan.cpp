@@ -219,7 +219,7 @@ class boss_flame_leviathan : public CreatureScript
 
         struct boss_flame_leviathanAI : public BossAI
         {
-            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, TYPE_LEVIATHAN), vehicle(creature->GetVehicleKit())
+            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit())
             {
             }
 
@@ -1185,7 +1185,7 @@ class npc_lorekeeper : public CreatureScript
                     if (player)
                         player->CLOSE_GOSSIP_MENU();
 
-                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(TYPE_LEVIATHAN)))
+                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
                     {
                         CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (leviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
                         creature->SetVisible(false);
@@ -1208,7 +1208,7 @@ class npc_lorekeeper : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature)
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetData(TYPE_LEVIATHAN) !=DONE && player)
+            if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && player)
             {
                 player->PrepareGossipMenu(creature);
 
@@ -1261,7 +1261,7 @@ public:
     //bool OnGossipHello(Player* pPlayer, Creature* creature)
     //{
     //    InstanceScript* instance = creature->GetInstanceScript();
-    //    if (instance && instance->GetData(TYPE_LEVIATHAN) !=DONE)
+    //    if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE)
     //    {
     //        pPlayer->PrepareGossipMenu(creature);
     //
@@ -1321,7 +1321,7 @@ class at_RX_214_repair_o_matic_station : public AreaTriggerScript
                 {
                     player->MonsterTextEmote(EMOTE_REPAIR, player->GetGUID(), true);
                     player->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
-                    if (Creature* leviathan = ObjectAccessor::GetCreature(*player, instance ? instance->GetData64(TYPE_LEVIATHAN) : 0))
+                    if (Creature* leviathan = ObjectAccessor::GetCreature(*player, instance ? instance->GetData64(BOSS_LEVIATHAN) : 0))
                         leviathan->AI()->SetData(DATA_UNBROKEN, 0); // set bool to false thats checked in leviathan getdata
                 }
             }
