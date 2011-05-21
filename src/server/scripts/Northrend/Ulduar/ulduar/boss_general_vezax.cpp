@@ -95,7 +95,7 @@ public:
 
     struct boss_general_vezaxAI : public BossAI
     {
-        boss_general_vezaxAI(Creature *pCreature) : BossAI(pCreature, TYPE_VEZAX)
+        boss_general_vezaxAI(Creature *pCreature) : BossAI(pCreature, BOSS_VEZAX)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
@@ -332,7 +332,7 @@ public:
 
         void JustDied(Unit * /*pWho*/)
         {
-            if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(TYPE_VEZAX) : 0))
+            if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(BOSS_VEZAX) : 0))
                 pVezax->AI()->DoAction(ACTION_ANIMUS_DIE);
         }
 
@@ -405,7 +405,7 @@ public:
                 DoCast(me, SPELL_SARONITE_VAPORS);
                 me->DespawnOrUnsummon(30000);
 
-                if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(TYPE_VEZAX) : 0))
+                if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(BOSS_VEZAX) : 0))
                     pVezax->AI()->DoAction(ACTION_VAPORS_DIE);
             }
         }

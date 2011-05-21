@@ -1506,7 +1506,7 @@ class npc_icc_valithria_blazing_skeleton : public CreatureScript
         }
 };
 
-void AddSC_boss_valithria()
+void AddSC_boss_valithria_dreamwalker()
 {
     new boss_valithria();
     new npc_dreamportal_icc();
