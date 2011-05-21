@@ -4828,7 +4828,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
                     uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
-                    draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender);
+                    draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
                 }
                 while (resultMail->NextRow());
             }
