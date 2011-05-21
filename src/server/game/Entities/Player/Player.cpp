@@ -20574,10 +20574,11 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
     m_spellCooldowns[spellid] = sc;
 }
 
-void Player::SendCooldownEvent(SpellEntry const *spellInfo, uint32 itemId, Spell* spell)
+void Player::SendCooldownEvent(SpellEntry const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
 {
     // start cooldowns at server side, if any
-    AddSpellAndCategoryCooldowns(spellInfo, itemId, spell);
+    if (setCooldown)
+        AddSpellAndCategoryCooldowns(spellInfo, itemId, spell);
 
     // Send activate cooldown timer (possible 0) at client side
     WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
