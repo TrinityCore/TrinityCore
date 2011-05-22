@@ -836,7 +836,7 @@ class npc_darkrune_watcher : public CreatureScript
 
         struct npc_darkrune_watcherAI : public ScriptedAI
         {
-            npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature){}            
+            npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature){}
 
             uint32 ChainTimer;
             uint32 LightTimer;

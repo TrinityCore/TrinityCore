@@ -60,7 +60,7 @@ class boss_doomlord_kazzak : public CreatureScript
 
         struct boss_doomlordkazzakAI : public ScriptedAI
         {
-            boss_doomlordkazzakAI(Creature* creature) : ScriptedAI(creature) 
+            boss_doomlordkazzakAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -159,7 +159,7 @@ class boss_doomlord_kazzak : public CreatureScript
         private:
             EventMap _events;
         };
-    
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_doomlordkazzakAI (creature);
