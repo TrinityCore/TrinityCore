@@ -478,7 +478,7 @@ inline void KillRewarder::_InitXP(Player* player)
     // * on battlegrounds;
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
-    if (_isBattleGround || !_isPvP || !_killer->GetVehicle())
+    if (_isBattleGround || (!_isPvP && !_killer->GetVehicle()))
         _xp = Trinity::XP::Gain(player, _victim);
 }
 
