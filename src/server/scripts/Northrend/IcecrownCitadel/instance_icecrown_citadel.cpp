@@ -695,7 +695,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (instance->IsHeroic() && !HeroicAttempts)
                             return;
 
-                        if (GetBossState(DATA_SINDRAGOSA) != DONE)
+                        if (GetBossState(DATA_SINDRAGOSA) == DONE)
                             return;
 
                         switch (data)
