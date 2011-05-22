@@ -568,4 +568,11 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`quest
 (38186,70766,0,0,0,3,0,0,0), -- Dream Portal (Pre-effect)
 (38429,70766,0,0,0,3,0,0,0); -- Nightmare Portal (Pre-effect)
 
+-- Update creature_text to use proper text values
+UPDATE `creature_text` SET `type`=12 WHERE `type`=0;
+UPDATE `creature_text` SET `type`=14 WHERE `type`=1;
+UPDATE `creature_text` SET `type`=16 WHERE `type`=2;
+UPDATE `creature_text` SET `type`=41 WHERE `type`=3;
+UPDATE `creature_text` SET `type`=15 WHERE `type`=4;
+UPDATE `creature_text` SET `type`=42 WHERE `type`=5;
 
