@@ -261,7 +261,7 @@ public:
 
 class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
 {
-public: 
+public:
     enum Spells
     {
         SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED = 44413,
