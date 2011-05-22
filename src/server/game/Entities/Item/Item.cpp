@@ -308,6 +308,10 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
 void Item::SaveToDB(SQLTransaction& trans)
 {
+    bool isInTransaction = !(trans.null());
+    if (!isInTransaction)
+        trans = CharacterDatabase.BeginTransaction();
+
     uint32 guid = GetGUIDLow();
     switch (uState)
     {
@@ -368,13 +372,21 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt32(0, guid);
                 trans->Append(stmt);
             }
+
+            if (!isInTransaction)
+                CharacterDatabase.CommitTransaction(trans);
+
             delete this;
             return;
         }
         case ITEM_UNCHANGED:
             break;
     }
+
     SetState(ITEM_UNCHANGED);
+
+    if (!isInTransaction)
+        CharacterDatabase.CommitTransaction(trans);
 }
 
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
