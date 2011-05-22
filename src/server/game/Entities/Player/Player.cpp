@@ -17441,7 +17441,9 @@ void Player::_LoadMailedItems(Mail *mail)
             sLog->outError("Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, item_guid_low);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
             item->FSetState(ITEM_REMOVED);
-            item->SaveToDB(SQLTransaction(NULL));                               // it also deletes item object !
+
+            SQLTransaction temp = SQLTransaction(NULL);
+            item->SaveToDB(temp);                               // it also deletes item object !
             continue;
         }
 
