@@ -17413,7 +17413,6 @@ void Player::_LoadMailedItems(Mail *mail)
     if (!result)
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     do
     {
         Field* fields = result->Fetch();
@@ -17428,10 +17427,10 @@ void Player::_LoadMailedItems(Mail *mail)
         if (!proto)
         {
             sLog->outError("Player %u has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUIDLow(), item_guid_low, item_template, mail->messageID);
-            trans->PAppend("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
+            CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
             stmt->setUInt32(0, item_guid_low);
-            trans->Append(stmt);
+            CharacterDatabase.Execute(stmt);
             continue;
         }
 
@@ -17442,15 +17441,13 @@ void Player::_LoadMailedItems(Mail *mail)
             sLog->outError("Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, item_guid_low);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
             item->FSetState(ITEM_REMOVED);
-            item->SaveToDB(trans);                               // it also deletes item object !
+            item->SaveToDB(SQLTransaction(NULL));                               // it also deletes item object !
             continue;
         }
 
         AddMItem(item);
     }
     while (result->NextRow());
-
-    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery)
@@ -17504,7 +17501,8 @@ void Player::_LoadMail()
                 _LoadMailedItems(m);
 
             m_mail.push_back(m);
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
     m_mailsLoaded = true;
 }
