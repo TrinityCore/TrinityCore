@@ -6032,7 +6032,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     if (m_spellProto->SpellFamilyFlags[1] & 0x40000)
                     {
                         if (caster)
-                            caster->CastCustomSpell(caster, 48210, &m_amount, 0, 0, true, NULL, this);
+                            target->CastCustomSpell(caster, 48210, &m_amount, 0, 0, true, NULL, this, GetCasterGUID());
                     }
                     break;
                 case SPELLFAMILY_DRUID:
