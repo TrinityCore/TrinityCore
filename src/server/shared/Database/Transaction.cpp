@@ -24,7 +24,7 @@ void Transaction::Append(const char* sql)
     SQLElementData data;
     data.type = SQL_ELEMENT_RAW;
     data.element.query = strdup(sql);
-    m_queries.push(data);
+    m_queries.push_back(data);
 }
 
 void Transaction::PAppend(const char* sql, ...)
@@ -44,14 +44,18 @@ void Transaction::Append(PreparedStatement* stmt)
     SQLElementData data;
     data.type = SQL_ELEMENT_PREPARED;
     data.element.stmt = stmt;
-    m_queries.push(data);
+    m_queries.push_back(data);
 }
 
 void Transaction::Cleanup()
 {
+    // This might be called by explicit calls to Cleanup or by the auto-destructor
+    if (_cleanedUp) 
+        return;
+
     while (!m_queries.empty())
     {
-        SQLElementData data = m_queries.front();
+        SQLElementData const &data = m_queries.front();
         switch (data.type)
         {
             case SQL_ELEMENT_PREPARED:
@@ -61,8 +65,11 @@ void Transaction::Cleanup()
                 free((void*)(data.element.query));
             break;
         }
-        m_queries.pop();
+
+        m_queries.pop_front();
     }
+
+    _cleanedUp = true;
 }
 
 bool TransactionTask::Execute()
@@ -77,6 +84,9 @@ bool TransactionTask::Execute()
             if (m_conn->ExecuteTransaction(m_trans))
                 return true;
     }
+
+    // Clean up now.
+    m_trans->Cleanup();
 
     return false;
 }
