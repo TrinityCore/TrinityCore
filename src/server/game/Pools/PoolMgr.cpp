@@ -686,7 +686,8 @@ void PoolMgr::LoadFromDB()
                 GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(data->id);
                 if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
                     goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
-                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
+                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE &&
+                    goinfo->type != GAMEOBJECT_TYPE_TRAP) // Auch Fallen müssen in einem Pool gespawnt werden können! Siehe ICC-Fallen!
                 {
                     sLog->outErrorDb("`pool_gameobject` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
                     continue;
