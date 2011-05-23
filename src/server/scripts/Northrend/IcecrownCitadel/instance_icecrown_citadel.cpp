@@ -445,26 +445,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_DRINK_ME:
                         PutricideTableGUID = go->GetGUID();
                         break;
-                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
-                        AddDoor(go, true);
-                        // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
-                        TraumwandlerEingang = go->GetGUID();
-                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
-                        {
-                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                            go->SetGoState(GO_STATE_READY);
-                        }
-                        break;
-                    case GO_GREEN_DRAGON_BOSS_EXIT:
-                        AddDoor(go, true);
-                        // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
-                        TraumwandlerAusgang = go->GetGUID();
-                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
-                        {
-                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                            go->SetGoState(GO_STATE_READY);
-                        }
-                        break;
                     default:
                         break;
                 }
@@ -663,18 +643,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 DoRespawnGameObject(KanonenschiffTruheAllyGUID, 7*DAY);
                             else
                                 DoRespawnGameObject(KanonenschiffTruheHordeGUID, 7*DAY);
-
-                            // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
-                            if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE)
-                            {
-                                HandleGameObject(TraumwandlerEingang, true);
-                                HandleGameObject(TraumwandlerAusgang, true);
-                            }
-                            else
-                            {
-                                HandleGameObject(TraumwandlerEingang, false);
-                                HandleGameObject(TraumwandlerAusgang, false);
-                            }
                         }
                         if (instance->IsHeroic())
                         {
@@ -691,20 +659,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         HandleGameObject(BloodwingSigilGUID, state != DONE);
 
-                        if (state == DONE)
-                        {
-                            // So lange Traumwandler nicht funktioniert, die Türen zu Sindra öffnen, wenn der Prof. und die Queen tot sind!
-                            if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
-                            {
-                                HandleGameObject(TraumwandlerEingang, true);
-                                HandleGameObject(TraumwandlerAusgang, true);
-                            }
-                            else
-                            {
-                                HandleGameObject(TraumwandlerEingang, false);
-                                HandleGameObject(TraumwandlerAusgang, false);
-                            }
-                        }
                         if (instance->IsHeroic())
                         {
                             if (state == FAIL && HeroicAttempts)
@@ -1021,8 +975,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                             return false;
                         // no break
                     case DATA_SINDRAGOSA:
-                        //if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
-                        //    return false;
+                        if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
+                            return false;
                         break;
                     default:
                         break;
@@ -1217,9 +1171,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
-
-            uint64 TraumwandlerEingang;
-            uint64 TraumwandlerAusgang;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
