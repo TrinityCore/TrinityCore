@@ -388,12 +388,11 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
     std::list<SQLElementData>::const_iterator itr;
     for (itr = queries.begin(); itr != queries.end(); ++itr);
     {
-        SQLElementData const& data = *itr;
-        switch (data.type)
+        switch (itr->type)
         {
             case SQL_ELEMENT_PREPARED:
             {
-                PreparedStatement* stmt = data.element.stmt;
+                PreparedStatement* stmt = itr->element.stmt;
                 ASSERT(stmt);
                 if (!Execute(stmt))
                 {
@@ -405,7 +404,7 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
             break;
             case SQL_ELEMENT_RAW:
             {
-                const char* sql = data.element.query;
+                const char* sql = itr->element.query;
                 ASSERT(sql);
                 if (!Execute(sql))
                 {
