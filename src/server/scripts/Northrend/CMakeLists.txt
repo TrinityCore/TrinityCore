@@ -163,7 +163,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h
-  Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
+  Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
   Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
   Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
   Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
@@ -172,8 +172,9 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_professor_putricide.cpp
   Northrend/IcecrownCitadel/boss_blood_prince_council.cpp
   Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
+  Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
-  Northrend/IcecrownCitadel/boss_the_lich_king.cpp
+#  Northrend/IcecrownCitadel/boss_the_lich_king.cpp
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/wintergrasp.cpp

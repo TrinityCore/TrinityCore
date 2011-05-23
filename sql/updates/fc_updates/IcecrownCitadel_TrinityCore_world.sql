@@ -1,146 +1,295 @@
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (72705, 69147, 69140);
-INSERT INTO `spell_script_names` VALUES
-('72705', 'spell_marrowgar_coldflame'),
-('69147', 'spell_marrowgar_coldflame_trigger'),
-('69140', 'spell_marrowgar_coldflame');
+/* AREA TRIGGERS */
+REPLACE INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
+(5604, 'at_sindragosa_lair'),
+(5698, 'at_icc_saurfang_portal'),
+(5649, 'at_icc_shutdown_traps'),
+(5729, 'at_icc_start_blood_quickening'),
+(5616,'at_icc_start_frostwing_gauntlet'),
+(5617,'at_icc_start_frostwing_gauntlet'),
+(5618,'at_icc_start_frostwing_gauntlet');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (69075, 70834, 70835, 70836);
-INSERT INTO `spell_script_names` VALUES 
-(69075,    'spell_marrowgar_bone_storm'),
-(70834,    'spell_marrowgar_bone_storm'),
-(70835,    'spell_marrowgar_bone_storm'),
-(70836,    'spell_marrowgar_bone_storm');
-
--- UPDATEs for Lady Deathwhisper
-
+/* SCRIP NAMES */
+UPDATE `instance_template` SET `script`='instance_icecrown_citadel' WHERE `map`=631;
+UPDATE `gameobject_template` SET `ScriptName`='icecrown_citadel_teleport' WHERE `entry` IN (202223,202235,202242,202243,202244,202245,202246);
+UPDATE `creature_template` SET `ScriptName`='npc_highlord_tirion_fordring_lh' WHERE `entry`=37119;
+UPDATE `creature_template` SET `ScriptName`='boss_lord_marrowgar' WHERE `entry`=36612;
+UPDATE `creature_template` SET `ScriptName`='npc_coldflame' WHERE `entry`=36672;
+UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry` IN (36619,38711,38712);
 UPDATE `creature_template` SET `ScriptName`='boss_lady_deathwhisper' WHERE `entry`=36855;
 UPDATE `creature_template` SET `ScriptName`='npc_cult_fanatic' WHERE `entry` IN (37890,38009,38135);
 UPDATE `creature_template` SET `ScriptName`='npc_cult_adherent' WHERE `entry` IN(37949,38010,38136);
 UPDATE `creature_template` SET `ScriptName`='npc_vengeful_shade' WHERE `entry`=38222;
+UPDATE `creature_template` SET `ScriptName`='npc_darnavan' WHERE `entry` IN (38472,38485);
+UPDATE `creature_template` SET `ScriptName`='npc_rotting_frost_giant' WHERE `entry` IN (38490,38494);
+UPDATE `creature_template` SET `ScriptName`='boss_deathbringer_saurfang' WHERE `entry`=37813;
+UPDATE `creature_template` SET `ScriptName`='npc_high_overlord_saurfang_icc' WHERE `entry`=37187;
+UPDATE `creature_template` SET `ScriptName`='npc_muradin_bronzebeard_icc' WHERE `entry`=37200;
+UPDATE `creature_template` SET `ScriptName`='npc_saurfang_event' WHERE `entry` IN (37920,37830);
+UPDATE `creature_template` SET `ScriptName`='npc_frost_freeze_trap' WHERE `entry`=37744;
+UPDATE `creature_template` SET `ScriptName`='npc_alchemist_adrianna' WHERE `entry`=38501;
+UPDATE `creature_template` SET `ScriptName`='boss_festergut' WHERE `entry`=36626;
+UPDATE `creature_template` SET `ScriptName`='npc_stinky_icc' WHERE `entry`=37025;
+UPDATE `creature_template` SET `ScriptName`='boss_rotface' WHERE `entry`=36627;
+UPDATE `creature_template` SET `ScriptName`='npc_little_ooze' WHERE `entry`=36897;
+UPDATE `creature_template` SET `ScriptName`='npc_big_ooze' WHERE `entry`=36899;
+UPDATE `creature_template` SET `ScriptName`='npc_precious_icc' WHERE `entry`=37217;
+UPDATE `creature_template` SET `ScriptName`='boss_professor_putricide' WHERE `entry`=36678;
+UPDATE `creature_template` SET `ScriptName`='npc_volatile_ooze' WHERE `entry`=37697;
+UPDATE `creature_template` SET `ScriptName`='boss_blood_council_controller' WHERE `entry`=38008;
+UPDATE `creature_template` SET `ScriptName`='boss_prince_keleseth_icc' WHERE `entry`=37972;
+UPDATE `creature_template` SET `ScriptName`='boss_prince_taldaram_icc' WHERE `entry`=37973;
+UPDATE `creature_template` SET `ScriptName`='boss_prince_valanar_icc' WHERE `entry`=37970;
+UPDATE `creature_template` SET `ScriptName`='npc_blood_queen_lana_thel' WHERE `entry`=38004;
+UPDATE `creature_template` SET `ScriptName`='npc_kinetic_bomb' WHERE `entry`=38454;
+UPDATE `creature_template` SET `ScriptName`='npc_dark_nucleus' WHERE `entry`=38369;
+UPDATE `creature_template` SET `ScriptName`='npc_ball_of_flame' WHERE `entry` IN (38332,38451);
+UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lana_thel' WHERE `entry`=37955;
+UPDATE `creature_template` SET `ScriptName`='boss_sister_svalna' WHERE `entry`=37126;
+UPDATE `creature_template` SET `ScriptName`='npc_crok_scourgebane' WHERE `entry`=37129;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_arnath' WHERE `entry`=37122;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_brandon' WHERE `entry`=37123;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_grondel' WHERE `entry`=37124;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_rupert' WHERE `entry`=37125;
+UPDATE `creature_template` SET `ScriptName`='npc_frostwing_vrykul' WHERE `entry` IN (37132,38125,37127,37134,37133);
+UPDATE `creature_template` SET `ScriptName`='npc_impaling_spear' WHERE `entry`=38248;
+UPDATE `creature_template` SET `ScriptName`='boss_valithria_dreamwalker' WHERE `entry`=36789;
+UPDATE `creature_template` SET `ScriptName`='npc_green_dragon_combat_trigger' WHERE `entry`=38752;
+UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_controller' WHERE `entry`=16980;
+UPDATE `creature_template` SET `ScriptName`='npc_risen_archmage' WHERE `entry`=37868;
+UPDATE `creature_template` SET `ScriptName`='npc_blazing_skeleton' WHERE `entry`=36791;
+UPDATE `creature_template` SET `ScriptName`='npc_suppresser' WHERE `entry`=37863;
+UPDATE `creature_template` SET `ScriptName`='npc_blistering_zombie' WHERE `entry`=37934;
+UPDATE `creature_template` SET `ScriptName`='npc_gluttonous_abomination' WHERE `entry`=37886;
+UPDATE `creature_template` SET `ScriptName`='npc_dream_portal' WHERE `entry` IN (37945,38430);
+UPDATE `creature_template` SET `ScriptName`='npc_dream_cloud' WHERE `entry` IN (37985,38421);
+UPDATE `creature_template` SET `ScriptName`='boss_sindragosa' WHERE `entry`=36853;
+UPDATE `creature_template` SET `ScriptName`='npc_ice_tomb' WHERE `entry`=36980;
+UPDATE `creature_template` SET `ScriptName`='npc_spinestalker' WHERE `entry`=37534;
+UPDATE `creature_template` SET `ScriptName`='npc_rimefang_icc' WHERE `entry`=37533;
+UPDATE `creature_template` SET `ScriptName`='npc_sindragosa_trash' WHERE `entry` IN (37531,37532);
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70903,71236) AND `ScriptName`='spell_cultist_dark_martyrdom';
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(70903,'spell_cultist_dark_martyrdom'),
-(71236,'spell_cultist_dark_martyrdom');
+REPLACE INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+( 69057, 'spell_marrowgar_bone_spike_graveyard'),
+( 70826, 'spell_marrowgar_bone_spike_graveyard'),
+( 72088, 'spell_marrowgar_bone_spike_graveyard'),
+( 72089, 'spell_marrowgar_bone_spike_graveyard'),
+( 69140, 'spell_marrowgar_coldflame'),
+( 72705, 'spell_marrowgar_coldflame'),
+( 69146, 'spell_marrowgar_coldflame_damage'),
+( 70823, 'spell_marrowgar_coldflame_damage'),
+( 70824, 'spell_marrowgar_coldflame_damage'),
+( 70825, 'spell_marrowgar_coldflame_damage'),
+( 69075, 'spell_marrowgar_bone_storm'),
+( 70834, 'spell_marrowgar_bone_storm'),
+( 70835, 'spell_marrowgar_bone_storm'),
+( 70836, 'spell_marrowgar_bone_storm'),
+( 70842, 'spell_deathwhisper_mana_barrier'),
+( 70903, 'spell_cultist_dark_martyrdom'),
+( 72498, 'spell_cultist_dark_martyrdom'),
+( 72499, 'spell_cultist_dark_martyrdom'),
+( 72500, 'spell_cultist_dark_martyrdom'),
+( 71236, 'spell_cultist_dark_martyrdom'),
+( 72495, 'spell_cultist_dark_martyrdom'),
+( 72496, 'spell_cultist_dark_martyrdom'),
+( 72497, 'spell_cultist_dark_martyrdom'),
+( 72864, 'spell_frost_giant_death_plague'),
+( 72202, 'spell_deathbringer_blood_link'),
+( 72178, 'spell_deathbringer_blood_link_aura'),
+( 72371, 'spell_deathbringer_blood_power'),
+( 72409, 'spell_deathbringer_rune_of_blood'),
+( 72447, 'spell_deathbringer_rune_of_blood'),
+( 72448, 'spell_deathbringer_rune_of_blood'),
+( 72449, 'spell_deathbringer_rune_of_blood'),
+( 72380, 'spell_deathbringer_blood_nova'),
+( 72438, 'spell_deathbringer_blood_nova'),
+( 72439, 'spell_deathbringer_blood_nova'),
+( 72440, 'spell_deathbringer_blood_nova'),
+( 72378, 'spell_deathbringer_blood_nova_targeting'),
+( 73058, 'spell_deathbringer_blood_nova_targeting'),
+( 72255, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72444, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72445, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72446, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72155, 'spell_icc_harvest_blight_specimen'),
+( 72162, 'spell_icc_harvest_blight_specimen'),
+( 71123, 'spell_stinky_precious_decimate'),
+( 73032, 'spell_festergut_pungent_blight'),
+( 73031, 'spell_festergut_pungent_blight'),
+( 71219, 'spell_festergut_pungent_blight'),
+( 69195, 'spell_festergut_pungent_blight'),
+( 72219, 'spell_festergut_gastric_bloat'),
+( 72551, 'spell_festergut_gastric_bloat'),
+( 72552, 'spell_festergut_gastric_bloat'),
+( 72553, 'spell_festergut_gastric_bloat'),
+( 69290, 'spell_festergut_blighted_spores'),
+( 71222, 'spell_festergut_blighted_spores'),
+( 73033, 'spell_festergut_blighted_spores'),
+( 73034, 'spell_festergut_blighted_spores'),
+( 69159, 'spell_festergut_gaseous_blight'),
+( 70135, 'spell_festergut_gaseous_blight'),
+( 70136, 'spell_festergut_gaseous_blight'),
+( 70137, 'spell_festergut_gaseous_blight'),
+( 69161, 'spell_festergut_gaseous_blight'),
+( 70138, 'spell_festergut_gaseous_blight'),
+( 70139, 'spell_festergut_gaseous_blight'),
+( 70140, 'spell_festergut_gaseous_blight'),
+( 69163, 'spell_festergut_gaseous_blight'),
+( 70468, 'spell_festergut_gaseous_blight'),
+( 70469, 'spell_festergut_gaseous_blight'),
+( 70470, 'spell_festergut_gaseous_blight'),
+( 69782, 'spell_rotface_ooze_flood'),
+( 69796, 'spell_rotface_ooze_flood'),
+( 69798, 'spell_rotface_ooze_flood'),
+( 69801, 'spell_rotface_ooze_flood'),
+( 69538, 'spell_rotface_little_ooze_combine'),
+( 69553, 'spell_rotface_large_ooze_combine'),
+( 69610, 'spell_rotface_large_ooze_buff_combine'),
+( 69839, 'spell_rotface_unstable_ooze_explosion_init'),
+( 69832, 'spell_rotface_unstable_ooze_explosion'),
+( 71441, 'spell_rotface_unstable_ooze_explosion_suicide'),
+( 69507, 'spell_rotface_slime_spray'),
+( 71213, 'spell_rotface_slime_spray'),
+( 73189, 'spell_rotface_slime_spray'),
+( 73190, 'spell_rotface_slime_spray'),
+( 70701, 'spell_putricide_expunged_gas'),
+( 70343, 'spell_putricide_slime_puddle'),
+( 70351, 'spell_putricide_unstable_experiment'),
+( 71966, 'spell_putricide_unstable_experiment'),
+( 71967, 'spell_putricide_unstable_experiment'),
+( 71968, 'spell_putricide_unstable_experiment'),
+( 71412, 'spell_putricide_ooze_summon'),
+( 71415, 'spell_putricide_ooze_summon'),
+( 70672, 'spell_putricide_gaseous_bloat'),
+( 72455, 'spell_putricide_gaseous_bloat'),
+( 72832, 'spell_putricide_gaseous_bloat'),
+( 72833, 'spell_putricide_gaseous_bloat'),
+( 70447, 'spell_putricide_ooze_channel'),
+( 72836, 'spell_putricide_ooze_channel'),
+( 72837, 'spell_putricide_ooze_channel'),
+( 72838, 'spell_putricide_ooze_channel'),
+( 70672, 'spell_putricide_ooze_channel'),
+( 72455, 'spell_putricide_ooze_channel'),
+( 72832, 'spell_putricide_ooze_channel'),
+( 72833, 'spell_putricide_ooze_channel'),
+( 70459, 'spell_putricide_ooze_eruption_searcher'),
+( 71255, 'spell_putricide_choking_gas_bomb'),
+( 70920, 'spell_putricide_unbound_plague'),
+( 70360, 'spell_putricide_eat_ooze'),
+( 72527, 'spell_putricide_eat_ooze'),
+( 72451, 'spell_putricide_mutated_plague'),
+( 72463, 'spell_putricide_mutated_plague'),
+( 72671, 'spell_putricide_mutated_plague'),
+( 72672, 'spell_putricide_mutated_plague'),
+( 70308, 'spell_putricide_mutation_init'),
+( 70311, 'spell_putricide_mutated_transformation'),
+( 71503, 'spell_putricide_mutated_transformation'),
+( 70405, 'spell_putricide_mutated_transformation_dismiss'),
+( 72508, 'spell_putricide_mutated_transformation_dismiss'),
+( 72509, 'spell_putricide_mutated_transformation_dismiss'),
+( 72510, 'spell_putricide_mutated_transformation_dismiss'),
+( 70402, 'spell_putricide_mutated_transformation_dmg'),
+( 72511, 'spell_putricide_mutated_transformation_dmg'),
+( 72512, 'spell_putricide_mutated_transformation_dmg'),
+( 72513, 'spell_putricide_mutated_transformation_dmg'),
+( 70539, 'spell_putricide_regurgitated_ooze'),
+( 72457, 'spell_putricide_regurgitated_ooze'),
+( 72875, 'spell_putricide_regurgitated_ooze'),
+( 72876, 'spell_putricide_regurgitated_ooze'),
+( 71598, 'spell_creature_permanent_feign_death'),
+( 71806, 'spell_taldaram_glittering_sparks'),
+( 71718, 'spell_taldaram_summon_flame_ball'),
+( 72040, 'spell_taldaram_summon_flame_ball'),
+( 55891, 'spell_taldaram_flame_ball_visual'),
+( 55947, 'spell_taldaram_flame_ball_visual'),
+( 71756, 'spell_taldaram_ball_of_inferno_flame'),
+( 72782, 'spell_taldaram_ball_of_inferno_flame'),
+( 72783, 'spell_taldaram_ball_of_inferno_flame'),
+( 72784, 'spell_taldaram_ball_of_inferno_flame'),
+( 72080, 'spell_valanar_kinetic_bomb'),
+( 72087, 'spell_valanar_kinetic_bomb_knockback'),
+( 72054, 'spell_valanar_kinetic_bomb_absorb'),
+( 73001, 'spell_blood_council_shadow_prison'),
+( 72999, 'spell_blood_council_shadow_prison_damage'),
+( 70877, 'spell_blood_queen_frenzied_bloodthirst'),
+( 71474, 'spell_blood_queen_frenzied_bloodthirst'),
+( 70946, 'spell_blood_queen_vampiric_bite'),
+( 71475, 'spell_blood_queen_vampiric_bite'),
+( 71476, 'spell_blood_queen_vampiric_bite'),
+( 71477, 'spell_blood_queen_vampiric_bite'),
+( 71899, 'spell_blood_queen_bloodbolt'),
+( 71900, 'spell_blood_queen_bloodbolt'),
+( 71901, 'spell_blood_queen_bloodbolt'),
+( 71902, 'spell_blood_queen_bloodbolt'),
+( 71390, 'spell_blood_queen_pact_of_the_darkfallen'),
+( 71340, 'spell_blood_queen_pact_of_the_darkfallen_dmg'),
+( 71341, 'spell_blood_queen_pact_of_the_darkfallen_dmg_target'),
+( 70078, 'spell_svalna_caress_of_death'),
+( 70053, 'spell_svalna_revive_champion'),
+( 71462, 'spell_svalna_remove_spear'),
+( 71085, 'spell_dreamwalker_mana_void'),
+( 70915, 'spell_dreamwalker_decay_periodic_timer'),
+( 70912, 'spell_dreamwalker_decay_periodic_timer'),
+( 70916, 'spell_dreamwalker_decay_periodic_timer'),
+( 70913, 'spell_dreamwalker_decay_periodic_timer'),
+( 70921, 'spell_dreamwalker_summoner'),
+( 70912, 'spell_dreamwalker_summon_suppresser'),
+( 71032, 'spell_dreamwalker_summoner'),
+( 71078, 'spell_dreamwalker_summoner'),
+( 70933, 'spell_dreamwalker_summoner'),
+( 72224, 'spell_dreamwalker_summon_dream_portal'),
+( 72480, 'spell_dreamwalker_summon_nightmare_portal'),
+( 71970, 'spell_dreamwalker_nightmare_cloud'),
+( 72868, 'spell_putricide_slime_puddle_aura'),
+( 72869, 'spell_putricide_slime_puddle_aura'),
+( 71357, 'spell_frostwarden_handler_order_whelp'),
+( 71350, 'spell_frostwarden_handler_focus_fire'),
+( 71376, 'spell_rimefang_icy_blast'),
+( 70598, 'spell_sindragosa_s_fury'),
+( 69762, 'spell_sindragosa_unchained_magic'),
+( 69766, 'spell_sindragosa_instability'),
+( 70126, 'spell_sindragosa_frost_beacon'),
+( 69712, 'spell_sindragosa_ice_tomb'),
+( 69675, 'spell_sindragosa_ice_tomb_dummy'),
+( 70157, 'spell_sindragosa_ice_tomb_trap'),
+( 69845, 'spell_sindragosa_collision_filter'),
+( 71053, 'spell_sindragosa_collision_filter'),
+( 71054, 'spell_sindragosa_collision_filter'),
+( 71055, 'spell_sindragosa_collision_filter'),
+( 70127, 'spell_sindragosa_collision_filter'),
+( 72528, 'spell_sindragosa_collision_filter'),
+( 72529, 'spell_sindragosa_collision_filter'),
+( 72530, 'spell_sindragosa_collision_filter'),
+( 70117, 'spell_sindragosa_collision_filter'),
+( 70117, 'spell_sindragosa_icy_grip'),
+( 70733, 'spell_icc_stoneform'),
+( 70546, 'spell_icc_sprit_alarm'),
+( 70536, 'spell_icc_sprit_alarm'),
+( 70545, 'spell_icc_sprit_alarm'),
+( 70547, 'spell_icc_sprit_alarm');
 
--- Correct script names for Blood prince council event IN Icecrown Citadel
-UPDATE `creature_template` SET `ScriptName` = 'boss_prince_keleseth_icc' WHERE `entry` = 37972;
-UPDATE `creature_template` SET `ScriptName` = 'boss_prince_valanar_icc' WHERE `entry` = 37970;
-UPDATE `creature_template` SET `ScriptName` = 'boss_prince_taldaram_icc' WHERE `entry` = 37973;
-
-
-
--- Blood Prince Council update
-UPDATE `creature_template` SET `ScriptName` = 'npc_shock_vortex' WHERE `entry` = 38422;
-UPDATE `creature_template` SET `dynamicflags`='9' WHERE `entry` IN (37973, 37972, 38400, 38399, 38771, 38769, 38772, 38770);
-
--- Blood Queen Lana'thel 
-UPDATE `creature_template` SET `ScriptName` = 'boss_blood_queen_lana_thel' WHERE `entry` = 37955;
-
--- Valithria Dreamwalker
-UPDATE `creature_template` SET `unit_flags` = 33554432 WHERE `entry` IN (38186, 38429);
-UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` = 38429;
-UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 37985;
-UPDATE `creature_template` SET `ScriptName` = 'npc_dreamcloud_icc' WHERE `entry` = 38421;
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (71301, 71977);
-INSERT INTO `spell_script_names` VALUES (71301, 'spell_valithria_summon_portal'), (71977, 'spell_valithria_summon_portal');
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70873, 71941);
-INSERT INTO `spell_script_names` VALUES (70873, 'spell_valithria_vigor'), (71941, 'spell_valithria_vigor');
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (71157, 29306);
-INSERT INTO `spell_script_names` VALUES (71157,  'spell_rotface_plagued_zombie_infected_wound'), (29306, 'spell_rotface_plagued_zombie_infected_wound');
-
-REPLACE INTO `spell_script_names` VALUES (70766, 'spell_dream_state');
-
--- Valithria Dreamwalker UPDATEs
-UPDATE `creature_template` SET `ScriptName` = 'npc_column_of_frost_icc' WHERE `entry` = 37918;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_gluttonous_abomination' WHERE `entry` = 37886;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_rot_worm' WHERE `entry` = 37907;
-UPDATE `creature_template` SET `type_flags` = 0 WHERE `entry` IN (37907, 38168, 38726, 38736);
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70912, 70913, 70914, 70915, 70916);
-INSERT INTO `spell_script_names` VALUES
-(70912,'spell_valithria_summon_adds'),
-(70913,'spell_valithria_summon_adds'),
-(70914,'spell_valithria_summon_adds'),
-(70915,'spell_valithria_summon_adds'),
-(70916,'spell_valithria_summon_adds');
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_blistering_zombie' WHERE `entry` = 37934;
-UPDATE `creature_template` SET `Scriptname` = 'npc_icc_valithria_supressor' WHERE `entry` = 37863;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_risen_archmage' WHERE `entry` = 37868;
-UPDATE `creature_template` SET `spell1` = 0, `spell2` = 0, `Ainame` = '' WHERE `entry` IN (37868, 37863, 37934);
-UPDATE `creature_template` SET `Ainame` = '' WHERE `entry` IN (37868, 37934, 37886, 37863);
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_blazing_skeleton' WHERE `entry` = 36791;
-
--- Valithria Dreamwalker UPDATEs
-UPDATE `creature_template` SET `ScriptName` = 'npc_column_of_frost_icc' WHERE `entry` = 37918;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_gluttonous_abomination' WHERE `entry` = 37886;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_mana_void' WHERE `entry` = 38068;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_rot_worm' WHERE `entry` = 37907;
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70912, 70913, 70914, 70915, 70916);
-INSERT INTO `spell_script_names` VALUES
-(70912,'spell_valithria_summon_adds'),
-(70913,'spell_valithria_summon_adds'),
-(70914,'spell_valithria_summon_adds'),
-(70915,'spell_valithria_summon_adds'),
-(70916,'spell_valithria_summon_adds');
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_blistering_zombie' WHERE `entry` = 37934;
-UPDATE `creature_template` SET `Scriptname` = 'npc_icc_valithria_supressor' WHERE `entry` = 37863;
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_risen_archmage' WHERE `entry` = 37868;
-UPDATE `creature_template` SET `spell1` = 0, `spell2` = 0, `Ainame` = '' WHERE `entry` IN (37868, 37863, 37934);
-UPDATE `creature_template` SET `Ainame` = '' WHERE `entry` IN (37868, 37934, 37886, 37863);
-UPDATE `creature_template` SET `ScriptName` = 'npc_icc_valithria_blazing_skeleton' WHERE `entry` = 36791;
-
--- Sindragosa UPDATEs
--- Rimefang and Spinestalker positions are corrected according to http://www.youtube.com/watch?v=OtprVV-3q1w
--- Creature templates
-UPDATE `creature_template` SET `minlevel`=82,`maxlevel`=82,`unit_class`=1,`faction_A`=14,`faction_H`=14,`unit_flags`=`unit_flags`|33554432,`baseattacktime`=2000,`flags_extra`=`flags_extra`|128 WHERE `entry`=38223; -- Icy Blast
-UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`unit_class`=1,`faction_A`=2209,`faction_H`=2209,`dynamicflags`=8,`baseattacktime`=2000,`equipment_id`=523,`speed_walk`=1,`speed_run`=1.42857 WHERE `entry` IN (37531,38139); -- Frostwarden Handler
-UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`unit_class`=2,`faction_A`=16,`faction_H`=16,`dynamicflags`=8,`baseattacktime`=2000,`speed_run`=1 WHERE `entry` IN (37532,38151); -- Frostwing Whelp
-UPDATE `creature_template` SET `minlevel`=82,`maxlevel`=82,`unit_class`=2,`faction_A`=21,`faction_H`=21,`unit_flags`=`unit_flags`|64,`baseattacktime`=2000,`speed_walk`=2,`speed_run`=1.5873,`MovementType`=2,`InhabitType`=5 WHERE `entry` IN (37533,38220); -- Rimefang
-UPDATE `creature_template` SET `minlevel`=82,`maxlevel`=82,`unit_class`=2,`faction_A`=21,`faction_H`=21,`unit_flags`=`unit_flags`|64,`baseattacktime`=2000,`speed_walk`=2,`speed_run`=1.5873,`MovementType`=2,`InhabitType`=5 WHERE `entry` IN (37534,38219); -- Spinestalker
-UPDATE `creature_template` SET `minlevel`=83,`maxlevel`=83,`unit_class`=1,`faction_A`=2068,`faction_H`=2068,`unit_flags`=0,`baseattacktime`=1500,`speed_walk`=4.8,`speed_run`=4.28571 WHERE `entry` IN (36853,38265,38266,38267); -- Sindragosa
-UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`unit_class`=2,`faction_A`=14,`faction_H`=14,`unit_flags`=`unit_flags`|33554944,`baseattacktime`=2000,`flags_extra`=`flags_extra`|128 WHERE `entry`=37186; -- Frost Bomb
-UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`unit_class`=1,`faction_A`=14,`faction_H`=14,`baseattacktime`=2000,`speed_run`=1 WHERE `entry` IN (36980,38320,38321,38322); -- Ice Tomb
-UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (36980,38320,38321,38322); -- Ice Tomb health regen
-
-
--- Gameobject templates
-UPDATE `gameobject_template` SET `flags`=33,`faction`=114 WHERE `entry`=202396; -- Ice Wall
-UPDATE `gameobject_template` SET `flags`=32,`faction`=114 WHERE `entry`=201722; -- Ice Block
-
--- Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=70598;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`Comment`) VALUES
-(13,70598,18,1, 'Sindragosa''s Fury - player targets');
--- Fragment of the Nightmare's Corruption drops 100% as of patch 3.0.2
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance`=-100 WHERE `item` IN (21146,21147,21148,21149);
--- Insert loot for Gently Shaken Gift
-DELETE FROM `item_loot_template` WHERE `entry`=21271;
-INSERT INTO `item_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
-(21271,21241,100,1,0,5,5);
-
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (12822,12996,12972,12989,12758,12955,13049,13060,13102,13133,13134,13135);
-INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
-(12822,11,0,0, 'achievement_all_you_can_eat'), -- All You Can Eat (10 player)
-(12822,12,0,0, ''), -- All You Can Eat (10 player)
-(12996,11,0,0, 'achievement_all_you_can_eat'), -- All You Can Eat (10 player) Heroic
-(12996,12,2,0, ''), -- All You Can Eat (10 player) Heroic
-(12972,11,0,0, 'achievement_all_you_can_eat'), -- All You Can Eat (25 player)
-(12972,12,1,0, ''), -- All You Can Eat (25 player)
-(12989,11,0,0, 'achievement_all_you_can_eat'), -- All You Can Eat (25 player) Heroic
-(12989,12,3,0, ''), -- All You Can Eat (25 player) Heroic
-(12758,12,0,0, ''), -- The Frostwing Halls (10 player) Sindragosa
-(12955,12,1,0, ''), -- The Frostwing Halls (25 player) Sindragosa
-(13049,12,2,0, ''), -- Heroic: The Frostwing Halls (10 player) Sindragosa
-(13060,12,3,0, ''), -- Heroic: The Frostwing Halls (25 player) Sindragosa
-(13102,12,0,0, ''), -- Sindragosa kills (Icecrown 10 player)
-(13133,12,1,0, ''), -- Sindragosa kills (Icecrown 25 player)
-(13134,12,2,0, ''), -- Sindragosa kills (Heroic Icecrown 10 player)
-(13135,12,3,0, ''); -- Sindragosa kills (Heroic Icecrown 25 player)
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5604,5698,5649);
-INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
-(5604, 'at_sindragosa_lair'),
-(5698, 'at_icc_saurfang_portal'),
-(5649, 'at_icc_shutdown_traps');
+DELETE FROM `creature_text` WHERE `entry` IN (16980,36789,37491,37493,37494,37495);
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(16980,0,0,'Intruders have breached the inner sanctum. Hasten the destruction of the green dragon! Leave only bones and sinew for the reanimation!',14,0,0,0,0,17251,'The Lich King - SAY_LICH_KING_INTRO'),
+(36789,0,0,'Heroes, lend me your aid. I... I cannot hold them off much longer. You must heal my wounds!',14,0,0,0,0,17064,'Valithria Dreamwalker - SAY_VALITHRIA_ENTER_COMBAT'),
+(36789,1,0,'I have opened a portal into the Dream. Your salvation lies within, heroes...',14,0,0,0,0,17068,'Valithria Dreamwalker - SAY_VALITHRIA_DREAM_PORTAL'),
+(36789,2,0,'My strength is returning! Press on, heroes!',14,0,0,0,0,17070,'Valithria Dreamwalker - SAY_VALITHRIA_75_PERCENT'),
+(36789,3,0,'I will not last much longer!',14,0,0,0,0,17069,'Valithria Dreamwalker - SAY_VALITHRIA_25_PERCENT'),
+(36789,4,0,'Forgive me for what I do! I... cannot... stop... ONLY NIGHTMARES REMAIN!',14,0,0,0,0,17072,'Valithria Dreamwalker - SAY_VALITHRIA_DEATH'),
+(36789,5,0,'A tragic loss...',14,0,0,0,0,17066,'Valithria Dreamwalker - SAY_VALITHRIA_PLAYER_DEATH'),
+(36789,6,0,'FAILURES!',14,0,0,0,0,17067,'Valithria Dreamwalker - SAY_VALITHRIA_BERSERK'),
+(36789,7,0,'I am renewed! Ysera grants me the favor to lay these foul creatures to rest!',14,0,0,0,0,17071,'Valithria Dreamwalker - SAY_VALITHRIA_SUCCESS'),
+(37491,1,0, 'You miserable fools never did manage to select a decent bat wing.',1,0,0,0,0,16587, 'Captain Arnath - SAY_ARNATH_RESURRECTED'),
+(37491,2,0, 'THAT was for bringing me spoiled spider ichor!',1,0,0,0,0,16588, 'Captain Arnath - SAY_ARNATH_KILL'),
+(37491,3,0, 'Don''t... let Finklestein use me... for his potions...',1,0,0,0,0,16589, 'Captain Arnath - SAY_ARNATH_SECOND_DEATH'),
+(37493,1,0, 'What? This strength...? All of the pain is gone! You... must join me in the eternal embrace of death!',1,0,0,0,0,16811, 'Captain Brandon - SAY_BRANDON_RESURRECTED'),
+(37493,2,0, 'It doesn''t hurt anymore, does it?',1,0,0,0,0,16812, 'Captain Brandon - SAY_BRANDON_KILL'),
+(37493,3,0, 'I''m sorry...',1,0,0,0,0,16813, 'Captain Brandon - SAY_BRANDON_SECOND_DEATH'),
+(37494,1,0, 'No! Why was I denied a death by flame? You must all BURN!',1,0,0,0,0,16845, 'Captain Grondel - SAY_GRONDEL_RESURRECTED'),
+(37494,2,0, 'Can you feel the burn?',1,0,0,0,0,16846, 'Captain Grondel - SAY_GRONDEL_KILL'),
+(37494,3,0, 'What... have I done? No!',1,0,0,0,0,16847, 'Captain Grondel - SAY_GRONDEL_SECOND_DEATH'),
+(37495,1,0, 'There is no escaping the Lich King''s will. Prepare for an explosive encounter!',1,0,0,0,0,16999, 'Captain Rupert - SAY_RUPERT_RESURRECTED'),
+(37495,2,0, 'So that''s what happens when you stand too close to a bomb!',1,0,0,0,0,17000, 'Captain Rupert - SAY_RUPERT_KILL'),
+(37495,3,0, 'What an... explosive ending!',1,0,0,0,0,17001, 'Captain Rupert - SAY_RUPERT_SECOND_DEATH');
 
 DELETE FROM `creature_text` WHERE `entry`=36853;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
@@ -156,46 +305,6 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (36853,8,1, 'A flaw of mortality...',1,0,0,0,0,17009, 'Sindragosa - SAY_KILL 2'),
 (36853,9,0, 'Enough! I tire of these games!',1,0,0,0,0,17011, 'Sindragosa - SAY_BERSERK'),
 (36853,10,0, 'Free...at last...',1,0,0,0,0,17010, 'Sindragosa - SAY_DEATH');
-UPDATE `creature_template` SET `ScriptName`='boss_sindragosa' WHERE `entry`=36853;
-UPDATE `creature_template` SET `ScriptName`='npc_ice_tomb' WHERE `entry`=36980;
-UPDATE `creature_template` SET `ScriptName`='npc_spinestalker' WHERE `entry`=37534;
-UPDATE `creature_template` SET `ScriptName`='npc_rimefang_icc' WHERE `entry`=37533;
-UPDATE `creature_template` SET `ScriptName`='npc_sindragosa_trash' WHERE `entry` IN (37531,37532);
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (70117,70157);
-INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
-(70117,70122,1, 'Sindragosa - Icy Grip'),
-(70157,69700,2, 'Sindragosa - Ice Tomb resistance');
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_frostwarden_handler_order_whelp';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_frostwarden_handler_focus_fire';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rimefang_icy_blast';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_s_fury';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_unchained_magic';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_instability';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_frost_beacon';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_ice_tomb';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_ice_tomb_dummy';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_ice_tomb_trap';
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sindragosa_collision_filter';
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(71357,'spell_frostwarden_handler_order_whelp'),
-(71350,'spell_frostwarden_handler_focus_fire'),
-(71376,'spell_rimefang_icy_blast'),
-(70598,'spell_sindragosa_s_fury'),
-(69762,'spell_sindragosa_unchained_magic'),
-(69766,'spell_sindragosa_instability'),
-(70126,'spell_sindragosa_frost_beacon'),
-(69712,'spell_sindragosa_ice_tomb'),
-(69675,'spell_sindragosa_ice_tomb_dummy'),
-(70157,'spell_sindragosa_ice_tomb_trap'),
-(69845,'spell_sindragosa_collision_filter'),
-(71053,'spell_sindragosa_collision_filter'),
-(71054,'spell_sindragosa_collision_filter'),
-(71055,'spell_sindragosa_collision_filter'),
-(70127,'spell_sindragosa_collision_filter'),
-(72528,'spell_sindragosa_collision_filter'),
-(72529,'spell_sindragosa_collision_filter'),
-(72530,'spell_sindragosa_collision_filter'),
-(70117,'spell_sindragosa_collision_filter');
 
 -- Teleports
 DELETE FROM `npc_text` WHERE `id` BETWEEN 800000 AND 800006;
@@ -217,65 +326,6 @@ INSERT INTO `locales_npc_text` (`entry`, `Text0_0_loc8`) VALUES
 (800005, 'Логово Королевы Льда'),
 (800006, 'Ледяной трон');
 
--- Traps
-UPDATE `gameobject_template` SET `ScriptName` = 'go_icc_spirit_alarm' WHERE `entry` IN (201814, 201815, 201816, 201817);
-
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70536, 70545, 70546, 70547);
-INSERT INTO `spell_script_names` VALUES
-(70546, 'spell_icc_spirit_alarm'),
-(70536, 'spell_icc_spirit_alarm'),
-(70545, 'spell_icc_spirit_alarm'),
-(70547, 'spell_icc_spirit_alarm');
-REPLACE INTO `spell_script_names` VALUES (70461, 'spell_coldflame_trap');
-UPDATE `gameobject_template` SET `ScriptName` = 'go_icc_plagueworks_valve' WHERE `entry` IN (201615, 201616);
-
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70536, 70545, 70546, 70547);
-INSERT INTO `spell_script_names` VALUES
-(70546, 'spell_icc_spirit_alarm'),
-(70536, 'spell_icc_spirit_alarm'),
-(70545, 'spell_icc_spirit_alarm'),
-(70547, 'spell_icc_spirit_alarm');
-REPLACE INTO `spell_script_names` VALUES (70461, 'spell_coldflame_trap');
-UPDATE `gameobject_template` SET `ScriptName` = 'go_icc_plagueworks_valve' WHERE `entry` IN (201615, 201616);
-
--- The Lich King
--- teleport to Lich King
-DELETE FROM `areatrigger_teleport` where id=5718;
-INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
-(5718, 'IceCrown Citadel The Frozen Throne (Entrance)', 631, 529.3, -2124.7, 1050, 3.14159);
-
-UPDATE `creature_template` SET `ScriptName` = 'npc_shambling_horror_icc' WHERE `entry` = 37698;
-UPDATE `creature_template` SET `ScriptName` = 'npc_raging_spirit_icc' WHERE `entry` = 36701;
-REPLACE INTO `spell_script_names` VALUES
-(72743, 'spell_lich_king_defile'),
-(72429, 'spell_lich_king_tirion_mass_resurrection'),
-(74115, 'spell_lich_king_pain_and_suffering'),
-(70501, 'spell_vile_spirit_target_search'),
-(68576, 'spell_valkyr_eject_passenger'),
-(69030, 'spell_valkyr_target_search'),
-(72133, 'spell_lich_king_pain_and_suffering_effect'),
-(73789, 'spell_lich_king_pain_and_suffering_effect'),
-(73788, 'spell_lich_king_pain_and_suffering_effect'),
-(73790, 'spell_lich_king_pain_and_suffering_effect'),
-(70498, 'spell_lich_king_vile_spirit_summon'),
-(70500, 'spell_lich_king_vile_spirit_summon_visual'),
-(68980, 'spell_lich_king_harvest_soul'),
-(74325, 'spell_lich_king_harvest_soul');
-UPDATE `creature_template` SET `ScriptName` = 'npc_ice_sphere_icc' WHERE `entry` = 36633;
-UPDATE `creature_template` SET `ScriptName` = 'npc_defile_icc' WHERE `entry` = 38757;
-UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` IN (36609, 39120, 39121, 39122);
-UPDATE `creature_template` SET `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
-UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (36633, 39305, 39306, 39307);
-
-DELETE FROM `creature_template_addon` WHERE (`entry`=36597);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (36597, 0, 0, 1, 0, 0, '73878 72846');
-DELETE FROM `creature_template_addon` WHERE (`entry`=39166);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39166, 0, 0, 1, 0, 0, '73878 72846');
-DELETE FROM `creature_template_addon` WHERE (`entry`=39167);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39167, 0, 0, 1, 0, 0, '73878 72846');
-DELETE FROM `creature_template_addon` WHERE (`entry`=39168);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39168, 0, 0, 1, 0, 0, '73878 72846');
-UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` IN (36597, 39166, 39167, 39168);
 
 -- Temp solution for frostmourn room
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -285,70 +335,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 ('250251', '36824', '631', '15', '1', '0', '0', '495', '-2546', '1050.23', '1.72709', '300', '0', '0', '252000', '0', '0', '0', '0', '0', '0');
 
 
--- Make Invisible Stalker really invisible
-UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` = 15214;
-UPDATE `creature_template` SET `ScriptName` = 'npc_terenas_fighter_icc' WHERE `entry` = 36823;
-UPDATE `creature_template` SET `ScriptName` = 'npc_spirit_warden_icc' WHERE `entry` = 36824;
-UPDATE `creature_template` SET `dmg_multiplier` = 52 WHERE `entry` = 36824; -- Spirit Warden
-UPDATE `creature_template` SET `dmg_multiplier` = 35 WHERE `entry` = 36823; -- Terenas Menethil
--- Achievement criteria for The Lich King
--- Bane of the Fallen King (10 player heroic) 
--- Realm First! Fall of the Lich King (25 player heroic) 
--- The Frozen Throne (10 player) 
--- The Frozen Throne (25 player) 
--- The Light of Dawn (25 player heroic)
-DELETE FROM `achievement_criteria_data` where `criteria_id` IN (12825,12818,12764,12909,12826);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(12825, 12, 2, 0, ''),
-(12818, 12, 3, 0, ''),
-(12764, 12, 0, 0, ''),
-(12909, 12, 1, 0, ''),
-(12826, 12, 3, 0, '');
-
-
--- Icecrown Citadel trash
-UPDATE `creature_template` SET `ScriptName` = 'npc_deathspeaker_high_priest' WHERE `entry` = 36829;
-UPDATE `creature_template` SET `ScriptName` = 'npc_val_kyr_herald' WHERE `entry` = 37098;
-UPDATE `creature_template` SET `ScriptName` = 'npc_severed_essence' WHERE `entry` = 38410;
-REPLACE INTO `spell_script_names` VALUES (69483, 'spell_icc_dark_reckoning');
-UPDATE `creature_template` SET `ScriptName` = 'npc_the_damned' WHERE `entry` = 37011;
-UPDATE `creature_template` SET `ScriptName` = 'npc_servant_of_the_throne' WHERE `entry` = 36724;
-UPDATE `creature_template` SET `ScriptName` = 'npc_blighted_abomination' WHERE `entry` = 37022;
-UPDATE `creature_template` SET `ScriptName` = 'npc_plague_scientist' WHERE `entry` = 37023;
-UPDATE `creature_template` SET `ScriptName` = 'npc_decaying_colossus' WHERE `entry` = 36880;
-UPDATE `creature_template` SET `ScriptName` = 'npc_pustulating_horror' WHERE `entry` = 10404;
-UPDATE `creature_template` SET `ScriptName` = 'npc_ancient_skeletal_soldier' WHERE `entry` = 37012;
-REPLACE INTO `spell_script_names` VALUES (70964, 'spell_valithria_vigor'); -- Just to ensure that auras stack
--- Set immunes on Spinestalker, Rimefang, Stinky, Precious, Decaying Colossus, Sister Svalna, Deathbound Ward
-UPDATE `creature_template` SET `mechanic_immune_mask` = 667631615 WHERE `entry` IN (37533, 37534, 38219, 38220, 37217, 38103, 37025, 38064, 36880, 37655, 37126, 38258, 37007, 38031);
--- Setting current health of Princes
-UPDATE `creature` SET `curhealth` = 1 WHERE `id` IN (37970, 38401, 38784, 38785, 37972, 38399, 38769, 37973, 38400, 38771);
-
--- Deathbringer Saurfang from TrinityCore
-REPLACE INTO `spell_script_names` VALUES
-( 72202, 'spell_deathbringer_blood_link'),
-( 72178, 'spell_deathbringer_blood_link_aura'),
-( 72371, 'spell_deathbringer_blood_power'),
-( 72409, 'spell_deathbringer_rune_of_blood'),
-( 72447, 'spell_deathbringer_rune_of_blood'),
-( 72448, 'spell_deathbringer_rune_of_blood'),
-( 72449, 'spell_deathbringer_rune_of_blood'),
-( 72380, 'spell_deathbringer_blood_nova'),
-( 72438, 'spell_deathbringer_blood_nova'),
-( 72439, 'spell_deathbringer_blood_nova'),
-( 72440, 'spell_deathbringer_blood_nova');
-
-UPDATE `creature_template` SET `ScriptName`='boss_deathbringer_saurfang' WHERE `entry`=37813;
-UPDATE `creature_template` SET `ScriptName`='npc_high_overlord_saurfang_icc' WHERE `entry`=37187;
-UPDATE `creature_template` SET `ScriptName`='npc_muradin_bronzebeard_icc' WHERE `entry`=37200;
-UPDATE `creature_template` SET `ScriptName`='npc_saurfang_event' WHERE `entry` IN (37920,37830);
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (12778,13036,13035,13037) AND `type` IN (0,11);
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (12778,13036,13035,13037) AND `type` IN (0,11);
-INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
-(12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
-(13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
-(13035,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
-(13037,11,0,0, 'achievement_ive_gone_and_made_a_mess');
 -- [10468] ICC texts (Shauren)
 DELETE FROM `creature_text` WHERE `entry` IN (36612,36626,36627,36678,36855,37187,37188,37200,37813,37879,37970,37972,37973,38004);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`sound`,`language`,`probability`,`emote`,`duration`,`comment`) VALUES
@@ -493,36 +479,100 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`sound`,`langu
 (38004,0,0,'Foolish mortals. You thought us defeated so easily? The San''layn are the Lich King''s immortal soldiers! Now you shall face their might combined!',1,16795,0,0,1,0,'Blood-Queen Lana''thel - SAY_INTRO_1'),
 (38004,1,0,'Rise up, brothers, and destroy our enemies.',1,16796,0,0,0,0,'Blood-Queen Lana''thel - SAY_INTRO_2');
 
--- Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (70572,72202);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
-(13,0,70572,0,18,1,37920,0,0, '', 'Deathbringer Saurfang - Grip of Agony'),
-(13,0,70572,0,18,1,37200,0,0, '', 'Deathbringer Saurfang - Grip of Agony'),
-(13,0,70572,0,18,1,37187,0,0, '', 'Deathbringer Saurfang - Grip of Agony'),
-(13,0,70572,0,18,1,37830,0,0, '', 'Deathbringer Saurfang - Grip of Agony'),
-(13,0,72202,0,18,1,37813,0,0, '', 'Deathbringer Saurfang - Blood Link');  
--- [9607] Deathbringer Saurfang Additional Data (By Shauren)
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=72260;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(13,0,72260,0,18,1,37920,0,0, '', 'Deathbringer Saurfang - Mark of the Fallen Champion heal');
+DELETE FROM `creature_template_addon` WHERE (`entry`=37122);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (37122, 0, 0, 0, 1, 0, '');
+DELETE FROM `creature_template_addon` WHERE (`entry`=37123);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (37123, 0, 0, 0, 0, 0, '');
+DELETE FROM `creature_template_addon` WHERE (`entry`=37124);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (37124, 0, 0, 0, 0, 0, '');
+DELETE FROM `creature_template_addon` WHERE (`entry`=37125);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (37125, 0, 0, 0, 0, 0, '');
+DELETE FROM `creature_template_addon` WHERE (`entry`=37133);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (37133, 0, 0, 0, 0, 0, 71244);
+DELETE FROM `creature_template_addon` WHERE (`entry`=37134);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (37134, 0, 0, 0, 0, 0, '');
+DELETE FROM `creature_addon` WHERE (`guid`=83235);
 
--- [9607] Deathbringer Saurfang (By Shauren)
--- Deathbringer Saurfang
-SET @NPCSaurfang10N := 37813;
-SET @NPCSaurfang25N := 3781301;
-SET @NPCSaurfang10H := 3781302;
-SET @NPCSaurfang25H := 3781302;
+DELETE FROM `creature_template_addon` WHERE `entry` IN (36789,38174,37934,37950,38068,37918,37907,38168,38726,38736,37945,38430,38186,38429,37985,38421);
+INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(36789,0,0x0000000,1,0,'72724 70904'),
+(38174,0,0x0000000,1,0,'72724 70904'),
+(37934,0,0x0000000,1,0,'70749'),
+(37950,0,0x3000000,1,0,''),
+(38068,0,0x0000000,1,0,'71085'),
+(37918,0,0x0000000,1,0,'70715'),
+(37907,0,0x0000000,1,0,'72962'),
+(38168,0,0x0000000,1,0,'72962'),
+(38726,0,0x0000000,1,0,'72962'),
+(38736,0,0x0000000,1,0,'72962'),
+(37945,0,0x0000000,1,0,'70763'), -- Dream Portal
+(38430,0,0x0000000,1,0,'71994'), -- Nightmare Portal
+(38186,0,0x0000000,1,0,'71304'), -- Dream Portal (Pre-effect)
+(38429,0,0x0000000,1,0,'71986'), -- Nightmare Portal (Pre-effect)
+(37985,0,0x3000000,1,0,'70876'), -- Dream Cloud
+(38421,0,0x3000000,1,0,'71939 71970'); -- Nightmre Cloud
 
--- High Overlord Saurfang
-SET @NPCOverlord10N := 37187;
-SET @NPCOverlord25N := 38156;
-SET @NPCOverlord10H := 38637;
-SET @NPCOverlord25H := 38638; 
+UPDATE `creature_template` SET `minlevel`=83,`maxlevel`=83,`exp`=2,`unit_class`=1,`faction_A`=1665,`faction_H`=1665,`unit_flags`=`unit_flags`|33554432,`baseattacktime`=2000,`scale`=1,`InhabitType`=7 WHERE `entry`=37950; -- Valithria Dreamwalker
+UPDATE `creature_template` SET `minlevel`=60,`maxlevel`=60,`unit_class`=1,`faction_A`=14,`faction_H`=14,`unit_flags`=`unit_flags`|33554432,`baseattacktime`=2000,`flags_extra`=`flags_extra`|128 WHERE `entry`=38068; -- Mana Void
+UPDATE `creature_template` SET `minlevel`=60,`maxlevel`=60,`unit_class`=1,`faction_A`=14,`faction_H`=14,`unit_flags`=`unit_flags`|33554432,`baseattacktime`=2000,`flags_extra`=`flags_extra`|128 WHERE `entry`=37918; -- Column of Frost
+UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`exp`=2,`unit_class`=1,`faction_A`=35,`faction_H`=35,`npcflag`=`npcflag`|16777216 WHERE `entry` IN (37945,38430); -- Dream Portal and Nightmare Portal
+UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`faction_A`=35,`faction_H`=35,`unit_flags`=`unit_flags`|33554432,`npcflag`=`npcflag`|16777216,`baseattacktime`=2000 WHERE `entry`=38186; -- Dream Portal (Pre-effect)
+UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`faction_A`=35,`faction_H`=35,`unit_flags`=`unit_flags`|33554432,`npcflag`=`npcflag`|16777216,`baseattacktime`=2000 WHERE `entry`=38429; -- Nightmare Portal (Pre-effect)
+UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`exp`=2,`unit_class`=1,`faction_A`=2022,`faction_H`=2022,`unit_flags`=`unit_flags`|33554432,`baseattacktime`=2000,`InhabitType`=7,`flags_extra`=`flags_extra`|128 WHERE `entry`=37985; -- Dream Cloud
+UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`exp`=2,`unit_class`=1,`faction_A`=2022,`faction_H`=2022,`unit_flags`=`unit_flags`|33554432,`baseattacktime`=2000,`InhabitType`=7,`flags_extra`=`flags_extra`|128 WHERE `entry`=38421; -- Nightmare Cloud
+UPDATE `creature_template` SET `minlevel`=83,`maxlevel`=83,`exp`=2,`unit_class`=1,`faction_A`=35,`faction_H`=35,`npcflag`=`npcflag`|3,`baseattacktime`=2000,`scale`=1 WHERE `entry`=38589; -- Valithria Dreamwalker (questgiver)
 
--- Fix factions
-UPDATE `creature_template` SET `faction_A`=974, `faction_H`=974 WHERE `entry` IN (@NPCSaurfang10N,@NPCSaurfang25N,@NPCSaurfang10H,@NPCSaurfang25H); -- Deathbringer Saurfang
-UPDATE `creature_template` SET `faction_A`=1735, `faction_H`=1735 WHERE `entry` IN (@NPCOverlord10N,@NPCOverlord25N,@NPCOverlord10H,@NPCOverlord25H); -- High Overlord Saurfang
-UPDATE `creature_template` SET `faction_A`=1735, `faction_H`=1735 WHERE `entry`=37920; -- Kor'kron Reaver
-UPDATE `creature_template` SET `faction_A`=894, `faction_H`=894 WHERE `entry`=37188; -- Jaina Proudmoore
-UPDATE `creature_template` SET `faction_A`=1732, `faction_H`=1732 WHERE `entry`=37830; -- Skybreaker Marine
-UPDATE `creature_template` SET `faction_A`=1732, `faction_H`=1732 WHERE `entry`=37200; -- Muradin Bronzebeard 
+SET @GUID := 200200;
+UPDATE `creature` SET `phaseMask`=`phaseMask`|4 WHERE `id`=36789;
+-- Add The Lich King and Green Dragon Combat Trigger to all encounter phases, fixes evading when all players enter portals
+UPDATE `creature` SET `phaseMask`=`phaseMask`|16 WHERE `guid` IN (111453,10718);
+DELETE FROM `creature` WHERE `id` IN (37950,37985,38421) OR `guid` BETWEEN @GUID+00 AND @GUID+27;
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+(200230,37950,631,15,20,0,0,4202.847,2484.917,383.8368,0.00000,604800,0,0,0,0,0,0,0,0,0), -- Valithria Dreamwalker (dream phase)
+(200231,22515,631,10,1,0,0,4166.170,2411.520,364.9520,1.57080,120,0,0,0,0,0,0,0,0,0), -- World Trigger
+-- Dream Cloud
+(@GUID+00,37985,631,3,16,0,0,4155.51,2478.76,382.494,4.97053,30,10,0,0,0,0,1,0,0,0),
+(@GUID+01,37985,631,3,16,0,0,4158.75,2494.08,384.334,2.31129,30,10,0,0,0,0,1,0,0,0),
+(@GUID+02,37985,631,3,16,0,0,4172.57,2464.47,385.368,3.72021,30,10,0,0,0,0,1,0,0,0),
+(@GUID+03,37985,631,3,16,0,0,4173.67,2504.13,386.174,2.67313,30,10,0,0,0,0,1,0,0,0),
+(@GUID+04,37985,631,3,16,0,0,4181.62,2514.91,386.374,2.65209,30,10,0,0,0,0,1,0,0,0),
+(@GUID+05,37985,631,3,16,0,0,4186.72,2450.97,388.373,4.95968,30,10,0,0,0,0,1,0,0,0),
+(@GUID+06,37985,631,3,16,0,0,4200.96,2456.00,387.128,3.58291,30,10,0,0,0,0,1,0,0,0),
+(@GUID+07,37985,631,3,16,0,0,4202.23,2508.00,383.985,2.09137,30,10,0,0,0,0,1,0,0,0),
+(@GUID+08,37985,631,3,16,0,0,4220.35,2515.16,388.649,2.34469,30,10,0,0,0,0,1,0,0,0),
+(@GUID+09,37985,631,3,16,0,0,4222.26,2455.20,385.568,0.00000,30,10,0,0,0,0,1,0,0,0),
+(@GUID+10,37985,631,3,16,0,0,4231.61,2464.44,389.011,0.00000,30,10,0,0,0,0,1,0,0,0),
+(@GUID+11,37985,631,3,16,0,0,4236.75,2500.62,383.373,5.97527,30,10,0,0,0,0,1,0,0,0),
+(@GUID+12,37985,631,3,16,0,0,4243.29,2476.89,386.076,0.00000,30,10,0,0,0,0,1,0,0,0),
+(@GUID+13,37985,631,3,16,0,0,4244.83,2493.18,387.677,4.29139,30,10,0,0,0,0,1,0,0,0),
+-- Nightmare Cloud
+(@GUID+14,38421,631,12,20,0,0,4155.51,2478.76,382.494,4.97053,30,10,0,0,0,0,1,0,0,0),
+(@GUID+15,38421,631,12,20,0,0,4158.75,2494.08,384.334,2.31129,30,10,0,0,0,0,1,0,0,0),
+(@GUID+16,38421,631,12,20,0,0,4172.57,2464.47,385.368,3.72021,30,10,0,0,0,0,1,0,0,0),
+(@GUID+17,38421,631,12,20,0,0,4181.62,2514.91,386.374,2.65209,30,10,0,0,0,0,1,0,0,0),
+(@GUID+18,38421,631,12,20,0,0,4200.96,2456.00,387.128,3.58291,30,10,0,0,0,0,1,0,0,0),
+(@GUID+19,38421,631,12,20,0,0,4202.23,2508.00,383.985,2.09137,30,10,0,0,0,0,1,0,0,0),
+(@GUID+20,38421,631,12,20,0,0,4220.35,2515.16,388.649,2.34469,30,10,0,0,0,0,1,0,0,0),
+(@GUID+21,38421,631,12,20,0,0,4222.26,2455.20,385.568,0.00000,30,10,0,0,0,0,1,0,0,0),
+(@GUID+22,38421,631,12,20,0,0,4236.75,2500.62,383.373,5.97527,30,10,0,0,0,0,1,0,0,0),
+(@GUID+23,38421,631,12,20,0,0,4243.29,2476.89,386.076,0.00000,30,10,0,0,0,0,1,0,0,0);
+
+DELETE FROM `linked_respawn` WHERE `guid`=111453 AND `linkType`=0;
+INSERT INTO `linked_respawn` (`guid`,`linkedGuid`,`linkType`) VALUES
+(111453,10718,0); -- The Lich King link to Green Dragon Combat Trigger
+
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (37945,38430,38186,38429);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`quest_start_active`,`quest_end`,`cast_flags`,`aura_required`,`aura_forbidden`,`user_type`) VALUES
+(37945,70766,0,0,0,3,0,0,0), -- Dream Portal
+(38430,70766,0,0,0,3,0,0,0), -- Nightmare Portal
+(38186,70766,0,0,0,3,0,0,0), -- Dream Portal (Pre-effect)
+(38429,70766,0,0,0,3,0,0,0); -- Nightmare Portal (Pre-effect)
+
+-- Update creature_text to use proper text values
+UPDATE `creature_text` SET `type`=12 WHERE `type`=0;
+UPDATE `creature_text` SET `type`=14 WHERE `type`=1;
+UPDATE `creature_text` SET `type`=16 WHERE `type`=2;
+UPDATE `creature_text` SET `type`=41 WHERE `type`=3;
+UPDATE `creature_text` SET `type`=15 WHERE `type`=4;
+UPDATE `creature_text` SET `type`=42 WHERE `type`=5;
+

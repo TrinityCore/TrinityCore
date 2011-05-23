@@ -257,7 +257,7 @@ class boss_professor_putricide : public CreatureScript
                         // no possible aura seen in sniff adding the aurastate
                         summon->SetFlag(UNIT_FIELD_AURASTATE, 1 << (AURA_STATE_UNKNOWN22 - 1));
                         summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
-                        summon->CastSpell(summon, SPELL_GASEOUS_BLOAT, false);
+                        summon->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, summon, false);
                         summon->SetReactState(REACT_PASSIVE);
                         return;
                     case NPC_VOLATILE_OOZE:
@@ -710,22 +710,6 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
     public:
         spell_putricide_gaseous_bloat() : SpellScriptLoader("spell_putricide_gaseous_bloat") { }
 
-        class spell_putricide_gaseous_bloat_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_putricide_gaseous_bloat_SpellScript);
-
-            void ModAuraStack()
-            {
-                if (Aura* aur = GetHitAura())
-                    aur->SetStackAmount(10);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_putricide_gaseous_bloat_SpellScript::ModAuraStack);
-            }
-        };
-
         class spell_putricide_gaseous_bloat_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript);
@@ -744,11 +728,6 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_putricide_gaseous_bloat_AuraScript::HandleExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_putricide_gaseous_bloat_SpellScript();
-        }
 
         AuraScript* GetAuraScript() const
         {
@@ -929,6 +908,34 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_putricide_slime_puddle_AuraScript();
+        }
+};
+
+// this is here only because on retail you dont actually enter HEROIC mode for ICC
+class spell_putricide_slime_puddle_aura : public SpellScriptLoader
+{
+    public:
+        spell_putricide_slime_puddle_aura() : SpellScriptLoader("spell_putricide_slime_puddle_aura") { }
+
+        class spell_putricide_slime_puddle_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_putricide_slime_puddle_aura_SpellScript);
+
+            void ReplaceAura()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->AddAura((GetCaster()->GetMap()->GetSpawnMode() & 1) ? 72456 : 70346, target);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_putricide_slime_puddle_aura_SpellScript::ReplaceAura);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_putricide_slime_puddle_aura_SpellScript();
         }
 };
 
@@ -1516,6 +1523,7 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_ooze_channel();
     new spell_putricide_expunged_gas();
     new spell_putricide_slime_puddle();
+    new spell_putricide_slime_puddle_aura();
     new spell_putricide_unstable_experiment();
     new spell_putricide_ooze_summon();
     new spell_putricide_ooze_eruption_searcher();
