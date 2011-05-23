@@ -3999,10 +3999,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
             ++count;
             break;
-        case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
-            spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
-            ++count;
-            break;
         case 42650: // Army of the Dead - now we can interrupt this
             spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
             ++count;
@@ -4039,11 +4035,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 20331: // Seals of the Pure (Rank 4)
         case 20332: // Seals of the Pure (Rank 5)
             spellInfo->EffectSpellClassMask[EFFECT_0][1] = 0x20400800;
-            ++count;
-            break;
-        // Strength of the Pack
-        case 64381:
-            spellInfo->StackAmount = 4;
             ++count;
             break;
         case 63675: // Improved Devouring Plague
@@ -4137,6 +4128,15 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
             ++count;
             break;
+        case 62716: // Growth of Nature
+        case 65584: // Growth of Nature
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+            ++count;
+            break;
+        case 64381: // Strength of the Pack
+            spellInfo->StackAmount = 4;
+            ++count;
+            break;
         // ENDOF ULDUAR SPELLS
         //
         // ICECROWN CITADEL SPELLS
@@ -4224,6 +4224,24 @@ void SpellMgr::LoadSpellCustomAttr()
         case 71266: // Swarming Shadows
         case 72890: // Swarming Shadows 25-man
             spellInfo->AreaGroupId = 0;
+            ++count;
+            break;
+        case 70588: // Suppression
+        case 70602: // Corruption
+            spellInfo->AttributesEx |= SPELL_ATTR1_STACK_FOR_DIFF_CASTERS;
+            ++count;
+            break;
+        case 70715: // Column of Frost (visual marker)
+            spellInfo->DurationIndex = 32; // 6 seconds (missing)
+            ++count;
+            break;
+        case 71085: // Mana Void (periodic aura)
+            spellInfo->DurationIndex = 9; // 30 seconds (missing)
+            ++count;
+            break;
+        case 70936: // Summon Suppressor
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
+            spellInfo->EffectImplicitTargetB[0] = 0;
             ++count;
             break;
         case 71357: // Order Whelp
