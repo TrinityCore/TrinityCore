@@ -63,13 +63,12 @@ void Totem::InitStats(uint32 duration)
         data << uint32(duration);
         data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
         m_owner->ToPlayer()->SendDirectMessage(&data);
+
+        // set display id depending on caster's race
+        SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
     }
 
     Minion::InitStats(duration);
-
-    // set display id depending on caster's race
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
-        SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
 
     // Get spell cast by totem
     if (SpellEntry const* totemSpell = sSpellStore.LookupEntry(GetSpell()))
