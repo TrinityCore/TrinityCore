@@ -8959,21 +8959,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 }
             break;
         }
-        case 46916:  // Slam!
-        case 52437:  // Sudden Death
-        {
-            // Item - Warrior T10 Melee 4P Bonus
-            if (uint32 amount = GetAuraEffect(70847, EFFECT_0)->GetAmount())
-            {
-                if (roll_chance_i(amount))
-                    CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
-                if (roll_chance_i(amount))
-                    CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
-                if (roll_chance_i(amount))
-                    CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
-            }
-            break;
-        }
         // Sword and Board
         case 50227:
         {
