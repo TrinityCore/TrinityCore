@@ -832,6 +832,9 @@ enum Texts
     SAY_MURADIN_INTRO_2             = 14,
     SAY_MURADIN_INTRO_3             = 15,
 
+    // Deathbound Ward
+    SAY_TRAP_ACTIVATE               = 0,
+
     // Rotting Frost Giant
     EMOTE_DEATH_PLAGUE_WARNING      = 0,
 
@@ -1027,6 +1030,14 @@ enum Actions
     ACTION_RESURRECT_CAPTAINS   = 3,
     ACTION_CAPTAIN_DIES         = 4,
     ACTION_RESET_EVENT          = 5,
+};
+
+enum EventIds
+{
+    EVENT_AWAKEN_WARD_1 = 22900,
+    EVENT_AWAKEN_WARD_2 = 22907,
+    EVENT_AWAKEN_WARD_3 = 22908,
+    EVENT_AWAKEN_WARD_4 = 22909,
 };
 
 class FrostwingVrykulSearcher
@@ -2418,6 +2429,110 @@ class npc_impaling_spear : public CreatureScript
         }
 };
 
+class spell_icc_stoneform : public SpellScriptLoader
+{
+    public:
+        spell_icc_stoneform() : SpellScriptLoader("spell_icc_stoneform") { }
+
+        class spell_icc_stoneform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_icc_stoneform_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Creature* target = GetTarget()->ToCreature())
+                {
+                    target->SetReactState(REACT_PASSIVE);
+                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
+                }
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Creature* target = GetTarget()->ToCreature())
+                {
+                    target->SetReactState(REACT_AGGRESSIVE);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_icc_stoneform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_icc_stoneform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_icc_stoneform_AuraScript();
+        }
+};
+
+class spell_icc_sprit_alarm : public SpellScriptLoader
+{
+    public:
+        spell_icc_sprit_alarm() : SpellScriptLoader("spell_icc_sprit_alarm") { }
+
+        class spell_icc_sprit_alarm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_icc_sprit_alarm_SpellScript);
+
+            void HandleEvent(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                uint32 trapId = 0;
+                switch (GetSpellInfo()->EffectMiscValue[effIndex])
+                {
+                    case EVENT_AWAKEN_WARD_1:
+                        trapId = GO_SPIRIT_ALARM_1;
+                        break;
+                    case EVENT_AWAKEN_WARD_2:
+                        trapId = GO_SPIRIT_ALARM_2;
+                        break;
+                    case EVENT_AWAKEN_WARD_3:
+                        trapId = GO_SPIRIT_ALARM_3;
+                        break;
+                    case EVENT_AWAKEN_WARD_4:
+                        trapId = GO_SPIRIT_ALARM_4;
+                        break;
+                    default:
+                        return;
+                }
+
+                if (GameObject* trap = GetCaster()->FindNearestGameObject(trapId, 5.0f))
+                    trap->SetRespawnTime(trap->GetGOInfo()->trap.autoCloseTime);
+
+                std::list<Creature*> wards;
+                GetCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
+                wards.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
+                {
+                    if ((*itr)->isAlive() && (*itr)->HasAura(SPELL_STONEFORM))
+                    {
+                        (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
+                        (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
+                        if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
+                            (*itr)->AI()->AttackStart(target);
+                        break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_icc_sprit_alarm_SpellScript();
+        }
+};
+
 class DeathPlagueTargetSelector
 {
     public:
@@ -2692,6 +2807,8 @@ void AddSC_icecrown_citadel()
     new npc_captain_rupert();
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
+    new spell_icc_stoneform();
+    new spell_icc_sprit_alarm();
     new spell_frost_giant_death_plague();
     new spell_icc_harvest_blight_specimen();
     new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
