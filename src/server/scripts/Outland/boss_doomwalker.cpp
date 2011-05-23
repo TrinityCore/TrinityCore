@@ -54,7 +54,7 @@ class boss_doomwalker : public CreatureScript
 
         struct boss_doomwalkerAI : public ScriptedAI
         {
-            boss_doomwalkerAI(Creature* creature) : ScriptedAI(creature) 
+            boss_doomwalkerAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 

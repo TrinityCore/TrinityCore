@@ -18,6 +18,10 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "ulduar.h"
 
 /*
@@ -78,7 +82,7 @@ enum FreyaSpells
     SPELL_GROUND_TREMOR                          = 62325,
     SPELL_PETRIFIED_BARK                         = 62337,
     SPELL_PETRIFIED_BARK_DMG                     = 62379,
-    
+
     // Ironbranch
     SPELL_IMPALE                                 = 62310,
     SPELL_ROOTS_IRONBRANCH                       = 62438,
@@ -238,7 +242,7 @@ class npc_iron_roots : public CreatureScript
                 me->SetInCombatWith(summoner);
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*who*/)
             {
                 if (Unit* target = ObjectAccessor::GetPlayer(*me, summonerGUID))
                 {
@@ -280,7 +284,7 @@ class boss_freya : public CreatureScript
             uint8 waveCount;
             uint8 elderCount;
             uint8 attunedToNature;
-        
+
             bool checkElementalAlive[2];
             bool trioDefeated[2];
             bool waveInProgress;
@@ -314,12 +318,12 @@ class boss_freya : public CreatureScript
                     random[n] = false;
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*who*/)
             {
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void DamageTaken(Unit* who, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage)
             {
                 if (damage >= me->GetHealth() && instance)
                 {
@@ -530,7 +534,7 @@ class boss_freya : public CreatureScript
                         }
                     }
                 }
-            
+
                 DoMeleeAttackIfReady();
             }
 
@@ -1118,7 +1122,7 @@ class npc_ancient_water_spirit : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*who*/)
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_FREYA) : 0))
                 {
@@ -1185,7 +1189,7 @@ class npc_storm_lasher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*who*/)
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_FREYA) : 0))
                 {
@@ -1219,7 +1223,7 @@ class npc_snaplasher : public CreatureScript
 
             uint8 waveCount;
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1230,7 +1234,7 @@ class npc_snaplasher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*who*/)
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_FREYA) : 0))
                 {
@@ -1310,7 +1314,7 @@ class npc_ancient_conservator : public CreatureScript
                     natureFuryTimer -= diff;
 
                 DoMeleeAttackIfReady();
-            }     
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1393,14 +1397,14 @@ class npc_eonars_gift : public CreatureScript
 
         struct npc_eonars_giftAI : public Scripted_NoMovementAI
         {
-            npc_eonars_giftAI(Creature* creature) : Scripted_NoMovementAI(creature) 
+            npc_eonars_giftAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 lifeBindersGiftTimer = 12000;
                 DoCast(me, SPELL_GROW);
                 DoCast(me, SPELL_PHEROMONES, true);
                 DoCast(me, SPELL_EONAR_VISUAL, true);
             }
-    
+
             uint32 lifeBindersGiftTimer;
 
             void UpdateAI(uint32 const diff)

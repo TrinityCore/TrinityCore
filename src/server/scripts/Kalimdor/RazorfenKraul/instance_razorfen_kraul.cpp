@@ -89,7 +89,7 @@ public:
         {
             switch(type)
             {
-                case EVENT_WARD_KEEPER: WardKeeperDeath++; break; 
+                case EVENT_WARD_KEEPER: WardKeeperDeath++; break;
             }
         }
 
