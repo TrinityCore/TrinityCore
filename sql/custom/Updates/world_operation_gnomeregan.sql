@@ -1,12 +1,42 @@
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_mekkatorque' WHERE `entry` = 39271; -- Do not apply until script will be finished.
-UPDATE `creature` SET `position_x` = '-5428.214844', `position_y` = '537.875244', `position_z` = '386.729370', `orientation` = '5.301703' WHERE `id` = '39271';
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, `quest_end`, `autocast`) VALUES ('74310', '135', '25287', '1', '25393', '1');
+-- UPDATE `creature_template` SET `mechanic_immune_mask` = 12658704, `ScriptName` = 'npc_og_mekkatorque' WHERE `entry` = 39271; -- Do not apply until script will be finished.
+-- UPDATE `creature_template` SET `unit_flags` = 393220, `ScriptName` = 'npc_og_rl' WHERE `entry` = 39820;
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_tank' WHERE `entry` = 39860;
+-- UPDATE `creature_template` SET `faction_A` = 1771, `faction_H` = 1771, `unit_flags` = 4, `ScriptName` = 'npc_og_cannon' WHERE `entry` = 39759;
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_bomber' WHERE `entry` = 39735;
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_infantry' WHERE `entry` = 39252;
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_suit' WHERE `entry` = 39902;
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_trogg' WHERE `entry` IN ('39826', '39799');
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_boltcog' WHERE `entry` = 39837;
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_assistants' WHERE `entry` IN ('39273', '39910');
+-- UPDATE `creature_template` SET `ScriptName` = 'npc_og_i_tank' WHERE `entry` = 39819;
+-- UPDATE `creature_template` SET `AIName` = 'AggresorAI' WHERE `entry` IN ('39755', '39836');
 
-DELETE FROM `creature_template_addon` WHERE (`entry` = '39820');
+DELETE FROM `creature` WHERE `id` IN ('39273', '39910');
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+('250249', '39273', '0', '1', '256', '0', '0', '-5423.01', '535.254', '386.516', '5.23555', '300', '0', '0', '630000', '0', '0', '0', '0', '134217728', '0'),
+('250248', '39910', '0', '1', '256', '0', '0', '-5427.93', '532.323', '386.85', '5.27046', '300', '0', '0', '630000', '0', '0', '0', '0', '0', '0');
+UPDATE `creature` SET `position_x` = '-5424.462891', `position_y` = '531.410095', `position_z` = '386.743347', `orientation` = '5.2' WHERE `id` = '39271';
+UPDATE `creature` SET `phaseMask`= '257' WHERE `id` = '7937';
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN ('39820', '39273', '39910');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39820', '0', '0', '0', '0', '0', '74311 0');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39273', '0', '9473', '0', '0', '0', '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39910', '0', '6569', '0', '0', '0', '');
 
--- High Tinker Mekkatorque waypoints for the last battle --
+UPDATE `creature_template` SET `modelid2` = '0' WHERE `entry` = '39903';
+UPDATE `creature_template` SET `equipment_id` = '39368' WHERE `entry` = '39271';
+UPDATE `creature_template` SET `speed_run` = '1.25', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39273';
+UPDATE `creature_template` SET `speed_run` = '1.29', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39910';
 
+DELETE FROM `spell_area` WHERE (`spell`='74310') AND (`area` IN ('1', '135'));
+INSERT INTO `spell_area` VALUES ('74310', '1', '25393', '1', '25393', '0', '0', '2', '1');
+INSERT INTO `spell_area` VALUES ('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
+
+UPDATE `gameobject` SET `phaseMask` = '256' WHERE `id` = '202922';
+
+-- waypoints for the last battle --
+
+DELETE FROM `script_waypoint` WHERE `entry` IN ('39271', '39273', '39910');
 INSERT INTO `script_waypoint` VALUES ('39271', '0', '-5420.67', '528.775', '386.713', '0', '');
 INSERT INTO `script_waypoint` VALUES ('39271', '1', '-5409.16', '533.555', '386.748', '0', '');
 INSERT INTO `script_waypoint` VALUES ('39271', '2', '-5387.22', '542.998', '386.062', '0', '');
@@ -58,10 +88,102 @@ INSERT INTO `script_waypoint` VALUES ('39271', '47', '-5159.94', '714.156', '369
 INSERT INTO `script_waypoint` VALUES ('39271', '48', '-5159.84', '705.217', '369.766', '0', '');
 INSERT INTO `script_waypoint` VALUES ('39271', '49', '-5162.77', '665.875', '348.932', '0', '');
 INSERT INTO `script_waypoint` VALUES ('39271', '50', '-5163.54', '655.233', '348.281', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '51', '-5163.7', '656.42', '247.875', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '52', '-5160.58', '691.629', '247.369', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '53', '-5150.96', '724.722', '247.369', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '54', '-5143.21', '723.851', '247.369', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '55', '-5119.14', '721.632', '254.27', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '56', '-5115.13', '721.586', '254.307', '0', '');
-INSERT INTO `script_waypoint` VALUES ('39271', '57', '-5095.03', '720.342', '260.506', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '51', '-5164.36', '649.379', '348.531', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '52', '-5164.36', '649.379', '247.268', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '53', '-5160.58', '691.629', '247.369', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '54', '-5150.96', '724.722', '247.369', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '55', '-5143.21', '723.851', '247.369', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '56', '-5119.14', '721.632', '254.27', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '57', '-5115.13', '721.586', '254.307', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '58', '-5095.03', '720.342', '260.506', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '59', '-5078.62', '722.355', '260.543', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '60', '-5055.71', '729.623', '260.559', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '61', '-5053.57', '730.578', '261.236', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '62', '-5046.74', '733.553', '256.475', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '63', '-5032.67', '734.978', '256.475', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '64', '-4974.75', '730.193', '256.261', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '65', '-4948.22', '728.136', '260.438', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '66', '-4946.75', '728.089', '261.646', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '67', '-4937.45', '728.895', '261.646', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '68', '-4944.71', '728.062', '261.645', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '69', '-4946.95', '727.975', '261.646', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '70', '-4948.56', '728.227', '260.382', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '71', '-4981.64', '730.998', '256.327', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '72', '-4974.27', '730.200', '256.257', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '73', '-4948.23', '727.982', '260.438', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '74', '-4947.24', '727.969', '261.506', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39271', '75', '-4938.09', '728.934', '261.646', '0', '');
+
+INSERT INTO `script_waypoint` VALUES ('39273', '0', '-5420.402832', '532.782776', '386.462921', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '1', '-5413.188477', '535.881653', '386.570923', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '2', '-5391.552246', '544.664673', '386.394592', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '3', '-5366.873535', '557.704712', '386.987396', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '4', '-5357.714355', '569.594055', '386.843536', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '5', '-5347.485840', '559.449036', '384.522247', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '6', '-5337.935547', '551.479126', '384.372162', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '7', '-5321.748047', '584.958923', '388.036346', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '8', '-5305.991211', '583.735352', '389.782196', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '9', '-5297.886719', '578.137695', '388.633179', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '10', '-5283.689941', '587.856506', '387.076050', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '11', '-5272.595703', '566.956177', '386.519623', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '12', '-5236.533203', '530.369751', '387.070984', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '13', '-5189.522461', '524.215027', '388.070892', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '14', '-5181.116211', '499.922943', '387.990204', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '15', '-5163.294434', '482.087555', '389.972443', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '16', '-5134.145020', '452.650818', '394.293671', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '17', '-5106.144043', '460.529114', '402.411102', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '18', '-5083.545410', '452.273163', '409.631439', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '19', '-5082.151855', '450.770660', '410.434784', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '20', '-5083.367188', '452.029633', '409.771332', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '21', '-5090.745605', '462.081818', '405.188080', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '22', '-5094.800781', '464.407684', '404.231567', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '23', '-5098.551270', '464.187897', '403.823486', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '24', '-5109.258789', '459.713531', '401.694031', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '25', '-5125.863770', '452.030670', '395.953247', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '26', '-5138.246582', '456.800995', '393.498688', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '27', '-5151.615723', '470.463165', '390.977905', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '28', '-5159.138184', '477.868378', '390.390503', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '29', '-5166.544434', '482.103271', '389.501068', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '30', '-5179.772949', '493.101166', '388.037781', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '31', '-5185.578613', '509.315033', '387.862335', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '32', '-5186.571289', '515.156555', '387.784119', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '33', '-5186.854980', '528.101440', '388.403992', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '34', '-5186.819336', '543.251831', '391.710083', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39273', '35', '-5182.299805', '576.332642', '401.499268', '0', '');
+
+INSERT INTO `script_waypoint` VALUES ('39910', '0', '-5424.904785', '529.018250', '386.907135', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '1', '-5409.412598', '529.308472', '386.815735', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '2', '-5389.864258', '537.651489', '386.400970', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '3', '-5362.293945', '552.092041', '387.345825', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '4', '-5351.015625', '568.830688', '385.658569', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '5', '-5352.846680', '556.917725', '385.812195', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '6', '-5331.118652', '550.053711', '384.222687', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '7', '-5317.275879', '586.008179', '388.921997', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '8', '-5305.580078', '576.558838', '389.430603', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '9', '-5299.335449', '572.321472', '387.363373', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '10', '-5287.414063', '579.508423', '386.900696', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '11', '-5279.070801', '564.824463', '386.324402', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '12', '-5237.998047', '523.175537', '386.834412', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '13', '-5195.938477', '518.082886', '387.628754', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '14', '-5187.843750', '496.516663', '387.960724', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '15', '-5169.045898', '477.416107', '389.567505', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '16', '-5140.520020', '448.746094', '394.346405', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '17', '-5103.534668', '454.931732', '402.526276', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '18', '-5087.425293', '447.815735', '409.280487', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '19', '-5085.774414', '446.122864', '410.010529', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '20', '-5087.396973', '447.636505', '409.314209', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '21', '-5092.096191', '455.544373', '406.078674', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '22', '-5096.645508', '459.132782', '404.369598', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '23', '-5099.127441', '459.274902', '403.712097', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '24', '-5106.294922', '455.985779', '402.018951', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '25', '-5128.013672', '445.234467', '395.625244', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '26', '-5139.292969', '451.904663', '393.962158', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '27', '-5155.541992', '468.300476', '390.728790', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '28', '-5160.116699', '472.721527', '390.356110', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '29', '-5168.042480', '477.739838', '389.631897', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '30', '-5183.694336', '489.820190', '388.044525', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '31', '-5190.432129', '508.433350', '387.769104', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '32', '-5191.108398', '514.904297', '387.729156', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '33', '-5191.555176', '527.512756', '388.405853', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '34', '-5190.826172', '545.530029', '392.304321', '0', '');
+INSERT INTO `script_waypoint` VALUES ('39910', '35', '-5187.698730', '575.555298', '401.323792', '0', '');

@@ -22,10 +22,26 @@ enum eSpells
     SPELL_MUSIC                 = 75765,
     SPELL_MUSIC_END             = 75767,
 
+    SPELL_TRIGGER               = 67918, // 100% wrong. Used for some special cases
+
     SPELL_HEALTH_REGEN          = 74503,
-    // SPELL_BRILLIANT_TACTICS  = 74719 or 74501 ? I'll check it later.
+    SPELL_BRILLIANT_TACTICS     = 74501,
 
     SPELL_CANNON_SHIELD         = 74458,
+
+    SPELL_ATTACK                = 74413,
+    SPELL_SHOOT                 = 74414,
+    SPELL_GRENADE               = 74707,
+
+    SPELL_MACHINE_GUN           = 74438,
+    SPELL_FLAME_SPRAY           = 74440,
+
+    SPELL_EXPLOSION             = 74550,
+    SPELL_RAD_EXPLOSION         = 75545,
+    SPELL_CANNON_SHOT           = 51421, // May be wrong
+    SPELL_ROCKET                = 64979, // May be wrong too
+    SPELL_PARACHUTE             = 79397,
+    SPELL_PARACHUTE_AURA        = 79404,
 };
 
 enum eCreatures
@@ -33,7 +49,9 @@ enum eCreatures
 ///----------------Allies---------------
     NPC_MEKKATORQUE             = 39271,
     NPC_BATTLE_SUIT             = 39902,
+    NPC_FASTBLAST               = 39910,
     NPC_INFANTRY                = 39252,
+    NPC_COGSPIN                 = 39273,
     NPC_BOMBER                  = 39735,
     NPC_ELGIN                   = 40478,
     NPC_TANK                    = 39860,
@@ -42,8 +60,8 @@ enum eCreatures
     NPC_I_INFANTRY              = 39755,
     NPC_IRRADIATOR              = 39903,
     NPC_I_CAVALRY               = 39836,
+    NPC_GASHERIKK               = 39799,
     NPC_BRAG_BOT                = 39901,
-    NPC_GASERIKK                = 39799,
     NPC_BOLTCOG                 = 39837,
     NPC_I_TROGG                 = 39826,
     NPC_I_TANK                  = 39819,
@@ -51,10 +69,22 @@ enum eCreatures
     NPC_RL                      = 39820, // Rocket Launcher
 };
 
+enum eObjects
+{
+    OBJ_RAD_CONTROL             = 202767,
+    OBJ_IRRADIATOR              = 202922,
+};
+
 enum eMisc
 {
     QUEST_OPERATION_GNOMEREGAN  = 25393,
     DATA_MOUNT                  = 31692,
+    FACTION_GNOMEREGAN          = 1770,
+};
+
+enum eEvents
+{
+    EVENT_SUMMON_TROGG          = 0,
 };
 
 enum eWorldstates
@@ -84,17 +114,96 @@ const Position RLSpawn[4] =
     {-5294.58f, 571.73f, 386.93f, 5.3f}
 };
 
-//#define SOUND_NAME            soundID (I don't have 3.3.5a client now. This info will be added later.) // Duration
+const Position CannonSpawn[6] =
+{
+    {-5140.57f, 428.39f, 395.89f, 2.1f},
+    {-5109.37f, 426.51f, 399.66f, 2.4f},
+    {-5109.00f, 481.10f, 398.45f, 3.9f},
+    {-5071.21f, 457.83f, 410.94f, 3.0f},
+    {-5087.23f, 434.92f, 411.78f, 1.9f},
+    {-5092.15f, 450.84f, 406.63f, 1.4f}
+};
+
+const Position BattleSuitDriverSpawn[3] =
+{
+    {-5158.31f, 470.63f, 390.47f, 5.0f},
+    {-5156.70f, 473.46f, 390.56f, 5.0f},
+    {-5154.23f, 475.71f, 390.82f, 5.0f}
+};
+
+const Position BattleSuitSpawn[5] =
+{
+    {-5073.81f, 481.83f, 401.48f, 5.0f},
+    {-5069.55f, 485.22f, 401.49f, 4.8f},
+    {-5064.04f, 486.30f, 401.48f, 4.8f},
+    {-5086.02f, 713.15f, 260.56f, 6.3f},
+    {-5085.04f, 725.92f, 260.56f, 6.3f}
+};
+
+const Position iSoldierSpawn[5] =
+{
+    {-5040.80f, 739.75f, 256.47f, 6.2f},
+    {-5043.66f, 731.75f, 256.47f, 6.2f},
+    {-5039.70f, 734.17f, 256.47f, 6.2f},
+    {-5044.24f, 737.27f, 256.47f, 6.2f},
+    {-5046.30f, 733.86f, 256.47f, 6.2f},
+};
+
+
+const Position TankSpawn[2] =
+{
+    {-5280.954102f, 559.265808f, 385.679932f, 5.0f},
+    {-5263.007813f, 572.262085f, 388.673157f, 5.0f}
+};
+
+const Position iTankSpawn[3] =
+{
+    {-5338.99f, 535.53f, 384.99f, 2.88f},
+    {-5349.29f, 556.11f, 385.13f, 3.47f},
+    {-5303.43f, 584.31f, 389.94f, 3.79f}
+};
+
+const Position BragBotSpawn[2] =
+{
+    {-5183.73f, 599.90f, 408.96f, 4.6f},
+    {-4933.62f, 717.18f, 261.65f, 1.6f}
+};
+
+const uint32 Worldsates[15] =
+{
+    {4981},
+    {5027},
+    {5040},
+    {5018},
+    {5039},
+    {5044},
+    {5006},
+    {5018},
+    {5043},
+    {5019},
+    {5045},
+    {5021},
+    {5011},
+    {5037},
+    {5038}
+};
+
+const Position BomberSpawn     = {-5314.53f, 564.82f, 391.43f, 5.7f};
+const Position RadControlSpawn = {-5072.80f, 441.48f, 410.97f, 2.6f};
+
+const Position TroggSpawn      = {-5181.74f, 631.21f, 398.54f, 4.7f};
+
+//#define SOUND_NAME            soundID // Duration
 #define MEK_1_1                 "Граждане и друзья Гномрегана!"
 #define MEK_1_2                 "Сегодня мы отвоюем у подлого предателя Термоштепселя наш славный город!"
 #define MEK_1_3                 "Встанем плечом к плечу в битве за родину!"
 #define SOUND_MEK_1             17535 // 17150
-#define MEK_2_1                 "Наш народ познал достаточно мук и унижений. Мы были изгоями, рабами, тянущими ярмо боевой машины бузмца!"
+#define MEK_2_1                 "Наш народ познал достаточно мук и унижений. Мы были изгоями, рабами, тянущими ярмо боевой машины безумца!"
 #define SOUND_MEK_2             17536 // 12200
 #define MEK_3_1                 "Правлению Термоштепселя приходит конец!"
 #define MEK_3_2                 "Объявляю общий сбор!"
 #define SOUND_MEK_3             17537 // 7050
-#define MEK_4_1                 "Военная тактика и научный прогресс, вкупе с нашей решимостью приведут нас к победе!"
+#define MEK_4_1                 "Военная тактика и научный прогресс, вкупе с нашей решимостью, приведут нас к победе!"
 #define MEK_4_2                 "Начинаем наступление!"
 #define SOUND_MEK_4             17538 // 10180
 #define MEK_5_1                 "Операция 'Гномреган' НАЧИНАЕТСЯ!"
@@ -136,28 +245,28 @@ const Position RLSpawn[4] =
 #define SOUND_MEK_16            17552 // 5520
 #define MEK_17_1                "Что это? Похоже на ядерную бомбу, которая погубила Гномреган... Стоять! Враг идёт!"
 #define SOUND_MEK_17            17553 // 9690
-#define BOLTCOG_1               "Нашу защиту вам не преодолеть. МЫ истинные сыновья Гномрегана!"
+#define BOLTCOG_1               "Нашу защиту вам не преодолеть. МЫ истинные сыны Гномрегана!"
 #define SOUND_BOLTCOG_1         17665 // 6100
-#define THERM_2_1               "Нет! Нет, нет, НЕТ! Я не позволю тебе войти в моё королевство, узурпатор!"
+#define THERM_2_1               "Нет! Нет, нет, НЕТ! Я не позволю тебе войти в своё королевство, узурпатор!"
 #define THERM_2_2               "Активировать систему атомной защиты!"
 #define THERM_2_3               "ДЕЗИНТЕГРИРОВАТЬ ИХ ВСЕХ!"
 #define SOUND_THERM_2           17570 // 14640
 #define MEK_18_1                "ЭТО ЛОВУШКА! Здесь работает облучатель!"
 #define SOUND_MEK_18            17554 // 3830
-#define THERM_3_1               "Так и есть. И он в ДВАДЦАТЬ ШУТЬ РАЗ мощнее первого!"
-#define THERM_3_2               "Так и есть. И он в ДВАДЦАТЬ ШУТЬ РАЗ мощнее первого! Меггакрут, ты ПРОИГРАЛ! Я победил тебя раньше чем ты успел вступить в мой прекрасный город."
+#define THERM_3_1               "Так и есть. И он в ДВАДЦАТЬ ШЕСТЬ РАЗ мощнее первого!"
+#define THERM_3_2               "Меггакрут, ты ПРОИГРАЛ! Я победил тебя раньше чем ты успел вступить в мой прекрасный город."
 #define THERM_3_3               "А теперь УМРИ!"
 #define THERM_3_4               "О, хотел бы я увидеть лицо этого жулика. Клянусь он... Что? Всё ещё включено? ВЫКЛЮЧИ!!!"
 #define SOUND_THERM_3           17571 // 22980
 #define IRRADIATOR_1_1          "Облучатель 3000 активирован. Внимание. Чрезвычайная ситуация. У вас осталось 10 минут для того, чтобы оказаться на минимальном безопасном расстоянии."
 #define SOUND_IRRADIATOR_1      17635 // 10830
 #define MEK_19_1                "Десять минут? Мы сто раз обезвредим устройство."
-#define MEK_19_2                "Хинклс, протяни-ка трещащий бронзовый механизм и добавь свежей воды! Шестерёнок, швырни мне грязное одеяние трогга и дай горсть медных винтов..."
+#define MEK_19_2                "Хинклс, протяни-ка трещащий бронзовый механизм и дай свежей воды! Шестерёнок, швырни мне грязное одеяние трогга и дай горсть медных винтов..."
 #define SOUND_MEK_19            17556 // 14930
 #define THERM_4_1               "ДЕСЯТЬ МИНУТ?! Ты оставил заводские настройки? Идиот, быстро отдай регулятор!"
 #define SOUND_THERM_4           17572 // 9970
 #define IRRADIATOR_2_1          "'ПИ-ИП' Внимание. Чрезвычайная ситуация. У вас осталось 10 секунд для того, чтобы оказаться на минимальном безопасном расстоянии."
-#define SOUND_IRRADIATOR_2      17635 // 7670
+#define SOUND_IRRADIATOR_2      17636 // 7670
 #define MEK_20_1                "Надо убираться отсюда! Ла Форж, скорее телепортируй нас!"
 #define SOUND_MEK_20            17557 // 4790
 #define MEK_21_1                "Проклятье! Пришлось отступить. Но Термоштепсель проиграл, и он это знает... Он лишь получил небольшую отсрочку."
