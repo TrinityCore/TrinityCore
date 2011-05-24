@@ -1,8 +1,8 @@
 // Copyright 2009-2011 by WarHead (United Worlds of MaNGOS)
 
 #include "ScriptPCH.h"
-#include "../OutdoorPvP/OutdoorPvPTW.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPTW.h"
 #include "GameObjectAI.h"
 
 enum NPC_TW_MISC_SPELLS
@@ -50,7 +50,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER));
+        Tausendwinter * pTW = (Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER);
         if (!pTW)
         {
             sLog->outError("TAUSENDWINTER: 'pTW' in der Klasse 'npc_verwuesteringenieur' nicht initialisiert!");
@@ -116,18 +116,11 @@ public:
     {
         npc_tausendwinter_diverseAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pTW = NULL;
+            pTW = (Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER);
         }
-
-        EventMap events;
-        EventMap eventsOOC;
-        Tausendwinter * pTW;
 
         void Reset()
         {
-            if (!pTW)
-                pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER));
-
             events.Reset();
             eventsOOC.Reset();
 
@@ -311,6 +304,11 @@ public:
             }
             DoMeleeAttackIfReady();
         }
+
+private:
+        EventMap events;
+        EventMap eventsOOC;
+        Tausendwinter * pTW;
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
@@ -328,7 +326,7 @@ public:
     {
         npc_tausendwinter_vehicleAI(Creature* pCr) : ScriptedAI(pCr)
         {
-            if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
+            if (pTW = (Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER))
             {
                 if (Creature * Ingi = GetClosestCreatureWithEntry(me, TW_NPC_VERWUESTERINGENIEUR_A, 20))
                     pTW->ErhoeheFahrzeuganzahlDerWerkstatt(Ingi->GetDBTableGUIDLow());
