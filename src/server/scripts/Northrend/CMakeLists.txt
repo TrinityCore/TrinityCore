@@ -174,7 +174,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
   Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
-#  Northrend/IcecrownCitadel/boss_the_lich_king.cpp
+  Northrend/IcecrownCitadel/boss_the_lich_king.cpp
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/wintergrasp.cpp
