@@ -233,9 +233,6 @@ class boss_lady_deathwhisper : public CreatureScript
                 DoCast(me, SPELL_SHADOW_CHANNELING);
                 DoCast(me, SPELL_MANA_BARRIER, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
-//                me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
-//                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-//                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
 
             void MoveInLineOfSight(Unit* who)
