@@ -194,7 +194,7 @@ public:
             return false;
 
         handler->PSendSysMessage("%s%s|r|cff00ffff%u|r", "|cff00ff00", "Loading Path: ", id);
-        sWaypointMgr->UpdatePath(id);
+        sWaypointMgr->ReloadPath(id);
         return true;
     }
     static bool HandleWpUnLoadCommand(ChatHandler* handler, const char* /*args*/)
