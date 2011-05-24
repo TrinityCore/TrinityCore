@@ -30,7 +30,7 @@ class Transaction
     friend class MySQLConnection;
 
     public:
-        Transaction() : _cleanedUp(false) {}
+        Transaction() {}
         ~Transaction() { Cleanup(); }
 
         void Append(PreparedStatement* statement);
@@ -41,10 +41,7 @@ class Transaction
 
     protected:
         void Cleanup();
-        std::list<SQLElementData> m_queries;
-
-    private:
-        bool _cleanedUp;
+        std::queue<SQLElementData> m_queries;
 
 };
 typedef ACE_Refcounted_Auto_Ptr<Transaction, ACE_Null_Mutex> SQLTransaction;

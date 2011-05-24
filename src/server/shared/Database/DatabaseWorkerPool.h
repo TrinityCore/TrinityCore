@@ -370,9 +370,6 @@ class DatabaseWorkerPool
                 }
             }
 
-            // Clean up now.
-            transaction->Cleanup();
-
             con->Unlock();
         }
 
