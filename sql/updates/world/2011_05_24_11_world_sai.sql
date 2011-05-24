@@ -19,7 +19,7 @@ INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`) VALUES
 (@ENTRY,50331648,1); -- Plagued Proto-Dragon
 -- Pathing for Plagued Proto-Dragon Entry: 23680
 SET @NPC := 107626;
-SET @PATH := @GUID * 10;
+SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=847.8322,`position_y`=-4441.198,`position_z`=159.749 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes2`,`mount`,`auras`) VALUES (@NPC,@PATH,1,0, '');
