@@ -450,7 +450,8 @@ public:
 
 enum etallhornstage
 {
-    OBJECT_HAUNCH                   = 188665
+    OBJECT_HAUNCH     = 188665,
+    SPELL_AUFSPIESSEN = 32019
 };
 
 class npc_tallhorn_stag : public CreatureScript
@@ -463,13 +464,15 @@ public:
         npc_tallhorn_stagAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
         uint8 m_uiPhase;
+        uint32 m_uiTimer;
 
         void Reset()
         {
             m_uiPhase = 1;
+            m_uiTimer = 3000;
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiPhase == 1)
             {
@@ -481,6 +484,19 @@ public:
                 }
                 m_uiPhase = 0;
             }
+
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_AUFSPIESSEN);
+                m_uiTimer = 15000;
+            }
+            else
+                m_uiTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
         }
     };
 
