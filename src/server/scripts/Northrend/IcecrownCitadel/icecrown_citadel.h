@@ -99,6 +99,23 @@ enum DataTypes
     DATA_CAPTAIN_RUPERT             = 34,
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
+
+    //For Lich King script only
+    GUID_TIRION                     = 37,
+    GUID_TERENAS_FIGHTER            = 38,
+    GUID_SPIRIT_WARDEN              = 39,
+    GUID_ICE_SHARD_1                = 40,    
+    GUID_ICE_SHARD_2                = 41,         
+    GUID_ICE_SHARD_3                = 42,
+    GUID_ICE_SHARD_4                = 43,
+    GUID_LAVAMAN                    = 44,
+    GUID_HANGINGMAN                 = 45,
+    GUID_FROSTY_EDGE_OUTER          = 46,
+    GUID_FROSTY_EDGE_INNER          = 47,
+    GUID_EDGE_DESTROY_WARNING       = 48,
+    DATA_BEEN_WAITING_ACHIEVEMENT   = 49,
+    DATA_NECK_DEEP_ACHIEVEMENT      = 50,
+
 };
 
 enum CreaturesIds
@@ -246,6 +263,20 @@ enum CreaturesIds
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
+    NPC_TIRION_ICC                              = 38995,
+    NPC_PLATFORM_DESTRUCTIBLE_EDGE_STALKER      = 22515,
+    NPC_TERENAS_MENETHIL                        = 38579,
+    NPC_FROSTMOURNE_TRIGGER                     = 38584,
+    NPC_TERENAS_FIGHTER                         = 36823, //for frostmourne
+    NPC_SPIRIT_WARDEN                           = 36824,
+    NPC_ICE_SPHERE                              = 36633,
+    NPC_DRUDGE_GHOUL                            = 37695,
+    NPC_SHAMBLING_HORROR                        = 37698,
+    NPC_VALKYR                                  = 36609,
+    NPC_DEFILE                                  = 38757,
+    NPC_RAGING_SPIRIT                           = 36701,
+    NPC_TRIGGER                                 = 38667,
+    NPC_VILE_SPIRIT                             = 37799,
 };
 
 enum GameObjectsIds
@@ -310,6 +341,18 @@ enum GameObjectsIds
     GO_ICE_WALL                             = 202396,
     GO_ICE_BLOCK                            = 201722,
     GO_SIGIL_OF_THE_FROSTWING               = 202181,
+
+    // Lich King
+    GO_ARTHAS_PLATFORM                      = 202161,
+    GO_ICE_SHARD_1                          = 202141,
+    GO_ICE_SHARD_2                          = 202142,
+    GO_ICE_SHARD_3                          = 202143,
+    GO_ICE_SHARD_4                          = 202144,
+    GO_FROSTY_EDGE_OUTER                    = 202188,
+    GO_FROSTY_EDGE_INNER                    = 202189,
+    GO_EDGE_DESTROY_WARNING                 = 202190,
+    GO_LAVAMAN                              = 202436,
+    GO_HANGINGMAN                           = 202437,
 };
 
 enum AchievementCriteriaIds
