@@ -1,4 +1,27 @@
-// Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
+/*
+ * Copyright (C) 2010-2011 by WarHead (United Worlds of MaNGOS)
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// Weekly quest support
+// * Deprogramming                (DONE)
+// * Securing the Ramparts        (DONE)
+// * Residue Rendezvous           (DONE)
+// * Blood Quickening             (DONE)
+// * Respite for a Tormented Soul
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -12,14 +35,27 @@
 #include "SmartAI.h"
 #include "icecrown_citadel.h"
 
+enum TODESGEWEIHTER_WAECHTER_GUIDS
+{
+    TODESGEWEIHTER_WAECHTER_Y_FALLE_1 = 2137, // guid 200987 - x,y -194.007f,2137.95f 
+    TODESGEWEIHTER_WAECHTER_Y_FALLE_2 = 2290, // guid 201043 - x,y -193.786f,2290.22f
+    TODESGEWEIHTER_WAECHTER_Y_FALLE_3 = 2242, // guid 201130 - x,y -300.354f,2242.18f
+    TODESGEWEIHTER_WAECHTER_Y_FALLE_4 = 2182  // guid 201108 - x,y -300.566,2182.6f
+};
+
 enum ICC_RAID_TRASH_NPCS_UND_SPELLS
 {
+        DIE_VERDAMMTEN                                                  = 37011,
+        DIE_VERDAMMTEN_KNOCHENWIRBEL                                    = 70960,
+        DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN                           = 70961,
+
         DIENER_DES_THRONS                                               = 36724,
         DIENER_DES_THRONS_GLETSCHEREXPLOSION                            = 71029,
 
         TODESGEWEIHTER_WAECHTER                                         = 37007,
         TODESGEWEIHTER_WAECHTER_SAEBELHIEB                              = 71021,
         TODESGEWEIHTER_WAECHTER_UNTERBRECHENDER_SCHREI                  = 71022,
+        TODESGEWEIHTER_WAECHTER_STEINGESTALT                            = 70733,
 
         URALTER_SKELETT_SOLDAT                                          = 37012,
         URALTER_SKELETT_SOLDAT_SCHILDHIEB                               = 70964,
@@ -207,39 +243,48 @@ public:
     {
         mob_icc_raid_trashAI(Creature *c) : ScriptedAI(c)
         {
-            // Bestimmen welcher NPC ein Caster ist (wegen korrektem Movement!)
-            switch(c->GetEntry())
+            switch(me->GetEntry())
             {
+                // Bestimmen welcher NPC ein Caster ist (wegen korrektem Movement!)
                 case AUFERSTANDENER_DIENER_DER_TODESSPRECHER:
                 case DIENER_DER_TODESSPRECHER:
                 case SINISTRER_ERZMAGIER:
                 case SINISTRER_ADLIGER:
                     // Default Castranges
-                    c->m_isCaster = true;
+                    me->m_isCaster = true;
                     break;
                 case DIENER_DES_THRONS:
                 case BRUTHUETER_DER_NERUBAR:
                 case JUENGER_DER_TODESSPRECHER:
                 case KNECHT_DER_TODESSPRECHER:
                 case SEUCHENWISSENSCHAFTLER:
-                    c->m_isCaster = true;
-                    c->m_CasterDefaultMaxCombatRange = 39;
+                    me->m_isCaster = true;
+                    me->m_CasterDefaultMaxCombatRange = 39;
                     break;
                 case BASTIONSGARGOYLE:
-                    c->m_isCaster = true;
-                    c->m_CasterDefaultMaxCombatRange = 44;
+                    me->m_isCaster = true;
+                    me->m_CasterDefaultMaxCombatRange = 44;
+                    break;
+                case TODESGEWEIHTER_WAECHTER:
+                    me->StopMoving();
+                    me->GetMotionMaster()->MoveIdle();
+                    me->AddAura(TODESGEWEIHTER_WAECHTER_STEINGESTALT, me);
                     break;
             }
         }
 
         EventMap events;
 
-        bool EiternderSchreckenBombe,
+        bool DieVerdammtenKnochenwirbel,
+            DieVerdammtenZerschmKnochen,
+            EiternderSchreckenBombe,
             RasendeMonstrositaetWut,
             BastionsdienerKannibalismus;
 
         void Reset()
         {
+            DieVerdammtenKnochenwirbel = false;
+            DieVerdammtenZerschmKnochen = false;
             EiternderSchreckenBombe = false;
             RasendeMonstrositaetWut = false;
             BastionsdienerKannibalismus = false;
@@ -256,6 +301,7 @@ public:
                     DoCast(SINISTRER_ERZMAGIER_ESSENZ_ENTZIEHEN);
                     break;
             }
+            FirstTime = false;
         }
 
         void JustReachedHome()
@@ -274,6 +320,18 @@ public:
         {
             switch(me->GetEntry())
             {
+                case DIE_VERDAMMTEN:
+                    if (!DieVerdammtenZerschmKnochen && uiDamage >= me->GetHealth())
+                    {
+                        DoCast(DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN);
+                        DieVerdammtenZerschmKnochen = true;
+                    }
+                    if (!DieVerdammtenKnochenwirbel && me->HealthBelowPctDamaged(urand(25,75), uiDamage))
+                    {
+                        me->AddAura(DIE_VERDAMMTEN_KNOCHENWIRBEL, me);
+                        DieVerdammtenKnochenwirbel = true;
+                    }
+                    break;
                 case EITERNDER_SCHRECKEN:
                     if (!EiternderSchreckenBombe && me->HealthBelowPctDamaged(15, uiDamage))
                     {
@@ -368,6 +426,7 @@ public:
                 case HOHEPRIESTER_DER_TODESSPRECHER: DoCast(HOHEPRIESTER_DER_TODESSPRECHER_AURA_DER_DUNKELHEIT); break;
                 case SINISTRER_BLUTRITTER: DoCast(SINISTRER_BLUTRITTER_VAMPIRAURA); break;
                 case SINISTRER_KOMMANDANT: DoCast(SINISTRER_KOMMANDANT_SCHLACHTRUF); break;
+                case TODESGEWEIHTER_WAECHTER: me->RemoveAurasDueToSpell(TODESGEWEIHTER_WAECHTER_STEINGESTALT); break;
             }
         }
 
@@ -388,10 +447,10 @@ public:
                             if (eventId == EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM)
                             {
                                 // Wird nur auf die Eiternden Schrecken gecastet dieser Spell, und auch nur außerhalb des Kampfes!
-                                if (Unit *Schrecken = (Unit*)GetClosestCreatureWithEntry(me, EITERNDER_SCHRECKEN, 80.0f, true))
+                                if (Creature * Schrecken = GetClosestCreatureWithEntry(me, EITERNDER_SCHRECKEN, 80.0f, true))
                                 {
                                     me->SetFacing(0, Schrecken);
-                                    DoCast(Schrecken, SEUCHENWISSENSCHAFTLER_SEUCHENSTROM);
+                                    DoCast(Schrecken->ToUnit(), SEUCHENWISSENSCHAFTLER_SEUCHENSTROM);
                                 }
                                 events.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM, urand(35000,45000));
                             }
@@ -399,6 +458,21 @@ public:
                         break;
                 }
                 return;
+            }
+
+            switch(me->GetEntry())
+            {
+                // Diese NPC dürfen niemals weiter als bis zur Treppe des Vorraumes folgen!
+                case DIE_VERDAMMTEN:
+                case DIENER_DES_THRONS:
+                case URALTER_SKELETT_SOLDAT:
+                case BRUTHUETER_DER_NERUBAR:
+                case TODESGEWEIHTER_WAECHTER:
+                    if (me->GetPositionX() > -117.0f)
+                        me->AI()->EnterEvadeMode();
+                    break;
+                default:
+                    break;
             }
 
             events.Update(diff);
@@ -448,12 +522,12 @@ public:
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(10000,20000));
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_FANGNETZ, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ, 10000);
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, urand(10000,15000));
                                 break;
@@ -539,7 +613,7 @@ public:
                     case HOHEPRIESTER_DER_TODESSPRECHER:
                         if (eventId == EVENT_HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
                                 DoCast(pTarget, HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG, true);
                             events.RescheduleEvent(EVENT_HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG, 15000);
                         }
@@ -581,14 +655,12 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY:
-                                /* Crasht den Server!!!
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
                                     DoCast(pTarget, SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY);
                                 events.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY, urand(8000,10000));
-                                */
                                 break;
                             case EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSCHLAG:
-                                DoCast(SEUCHENWISSENSCHAFTLER_SEUCHENSCHLAG);
+                                DoCastVictim(SEUCHENWISSENSCHAFTLER_SEUCHENSCHLAG);
                                 events.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSCHLAG, urand(5000,10000));
                                 break;
                         }
@@ -612,7 +684,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->m_CasterDefaultMaxCombatRange, true))
                                     DoCast(pTarget, SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE, urand(10000,15000));
                                 break;
@@ -635,7 +707,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->m_CasterDefaultMaxCombatRange, true))
                                     DoCast(pTarget, SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS, urand(10000,20000));
                                 break;
@@ -776,30 +848,6 @@ public:
     };
 
 };
-
-/*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-// Weekly quest support
-// * Deprogramming                (DONE)
-// * Securing the Ramparts        (DONE)
-// * Residue Rendezvous           (DONE)
-// * Blood Quickening             (DONE)
-// * Respite for a Tormented Soul
 
 enum Texts
 {
@@ -2482,41 +2530,68 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
             void HandleEvent(SpellEffIndex effIndex)
             {
-                PreventHitDefaultEffect(effIndex);
                 uint32 trapId = 0;
+
                 switch (GetSpellInfo()->EffectMiscValue[effIndex])
                 {
-                    case EVENT_AWAKEN_WARD_1:
-                        trapId = GO_SPIRIT_ALARM_1;
-                        break;
-                    case EVENT_AWAKEN_WARD_2:
-                        trapId = GO_SPIRIT_ALARM_2;
-                        break;
-                    case EVENT_AWAKEN_WARD_3:
-                        trapId = GO_SPIRIT_ALARM_3;
-                        break;
-                    case EVENT_AWAKEN_WARD_4:
-                        trapId = GO_SPIRIT_ALARM_4;
-                        break;
+                    case EVENT_AWAKEN_WARD_1: trapId = GO_SPIRIT_ALARM_1; break;
+                    case EVENT_AWAKEN_WARD_2: trapId = GO_SPIRIT_ALARM_2; break;
+                    case EVENT_AWAKEN_WARD_3: trapId = GO_SPIRIT_ALARM_3; break;
+                    case EVENT_AWAKEN_WARD_4: trapId = GO_SPIRIT_ALARM_4; break;
                     default:
                         return;
                 }
 
-                if (GameObject* trap = GetCaster()->FindNearestGameObject(trapId, 5.0f))
+                if (GameObject * trap = GetCaster()->FindNearestGameObject(trapId, 10.0f))
                     trap->SetRespawnTime(trap->GetGOInfo()->trap.autoCloseTime);
 
+                bool gefunden = false;
                 std::list<Creature*> wards;
                 GetCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
                 wards.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+
                 for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
                 {
                     if ((*itr)->isAlive() && (*itr)->HasAura(SPELL_STONEFORM))
                     {
-                        (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
-                        (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
-                        if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
-                            (*itr)->AI()->AttackStart(target);
-                        break;
+                        switch(trapId)
+                        {
+                            // Die Wachen den korrekten Fallen zuordnen!
+                            case GO_SPIRIT_ALARM_1:
+                                if (uint32((*itr)->GetPositionY()) == TODESGEWEIHTER_WAECHTER_Y_FALLE_1)
+                                    gefunden = true;
+                                break;
+                            case GO_SPIRIT_ALARM_2:
+                                if (uint32((*itr)->GetPositionY()) == TODESGEWEIHTER_WAECHTER_Y_FALLE_2)
+                                    gefunden = true;
+                                break;
+                            case GO_SPIRIT_ALARM_3:
+                                if (uint32((*itr)->GetPositionY()) == TODESGEWEIHTER_WAECHTER_Y_FALLE_3)
+                                    gefunden = true;
+                                break;
+                            case GO_SPIRIT_ALARM_4:
+                                if (uint32((*itr)->GetPositionY()) == TODESGEWEIHTER_WAECHTER_Y_FALLE_4)
+                                    gefunden = true;
+                                break;
+                            default:
+                                gefunden = false;
+                                break;
+                        }
+
+                        if (gefunden)
+                        {
+                            (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
+                            (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
+                            if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
+                                (*itr)->AI()->AttackStart(target);
+                            else
+                            {
+                                (*itr)->GetMotionMaster()->Clear();
+                                (*itr)->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
+                                (*itr)->GetMotionMaster()->InitDefault();
+                            }
+                            return;
+                        }
                     }
                 }
             }
