@@ -973,10 +973,16 @@ void AuraEffect::HandleEffect(AuraApplication const * aurApp, uint8 mode, bool a
         || mode == AURA_EFFECT_HANDLE_CHANGE_AMOUNT
         || mode == AURA_EFFECT_HANDLE_STAT);
 
+    // register/unregister effect in lists in case of real AuraEffect apply/remove
+    // registration/unregistration is done always before real effect handling (some effect handlers code is depending on this)
+    if (mode & AURA_EFFECT_HANDLE_REAL)
+        aurApp->GetTarget()->_RegisterAuraEffect(this, apply);
+
     // real aura apply/remove, handle modifier
     if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
         ApplySpellMod(aurApp->GetTarget(), apply);
 
+    // call scripts helping/replacing effect handlers
     bool prevented = false;
     if (apply)
         prevented = GetBase()->CallScriptEffectApplyHandlers(const_cast<AuraEffect const *>(this), aurApp, (AuraEffectHandleModes)mode);
@@ -988,6 +994,16 @@ void AuraEffect::HandleEffect(AuraApplication const * aurApp, uint8 mode, bool a
         return;
 
     (*this.*AuraEffectHandler [GetAuraType()])(aurApp, mode, apply);
+
+    // check if script events have removed the aura or if default effect prevention was requested
+    if (apply && aurApp->GetRemoveMode())
+        return;
+
+    // call scripts triggering additional events after apply/remove
+    if (apply)
+        GetBase()->CallScriptAfterEffectApplyHandlers(const_cast<AuraEffect const *>(this), aurApp, (AuraEffectHandleModes)mode);
+    else
+        GetBase()->CallScriptAfterEffectRemoveHandlers(const_cast<AuraEffect const *>(this), aurApp, (AuraEffectHandleModes)mode);
 }
 
 void AuraEffect::HandleEffect(Unit * target, uint8 mode, bool apply)
