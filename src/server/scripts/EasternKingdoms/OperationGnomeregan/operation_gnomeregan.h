@@ -22,7 +22,7 @@ enum eSpells
     SPELL_MUSIC                 = 75765,
     SPELL_MUSIC_END             = 75767,
 
-    SPELL_TRIGGER               = 67918, // 100% wrong. Used for some special cases
+    SPELL_TRIGGER               = 72400, // 100% wrong. Used for some special cases
 
     SPELL_HEALTH_REGEN          = 74503,
     SPELL_BRILLIANT_TACTICS     = 74501,
@@ -78,7 +78,9 @@ enum eObjects
 enum eMisc
 {
     QUEST_OPERATION_GNOMEREGAN  = 25393,
-    DATA_MOUNT                  = 31692,
+    DATA_MOUNT_MEK              = 31692,
+    DATA_MOUNT_FAST             = 6569,
+    DATA_MOUNT_COG              = 9473,
     FACTION_GNOMEREGAN          = 1770,
 };
 

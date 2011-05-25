@@ -535,14 +535,26 @@ class npc_og_assistants : public CreatureScript
                     case 17:
                     case 20:
                     case 35:
-                    case 50:
-                    case 53:
-                    case 58:
+                    case 52:
+                    case 57:
+                    case 65:
                     case 67:
-                    case 68:
                     case 71:
                     case 75:
                         SetHoldState(true);
+                        break;
+                    case 49:
+                        SetHoldState(true);
+                        me->Unmount();
+                        if (Creature* pMekkatorque = me->FindNearestCreature(NPC_MEKKATORQUE, 100, true))
+                            me->CastSpell(pMekkatorque, SPELL_TRIGGER, true);
+                        break;
+                    case 50:
+                        me->CastSpell(me, SPELL_PARACHUTE_AURA, true);
+                        break;
+                    case 51:
+                        me->RemoveAurasDueToSpell(SPELL_PARACHUTE_AURA);
+                        me->Mount(me->GetEntry() == NPC_FASTBLAST ? DATA_MOUNT_FAST : DATA_MOUNT_COG);
                         break;
                 }
                 if (i > 21)
@@ -583,10 +595,11 @@ class npc_og_boltcog : public CreatureScript
             {
             }
 
-            void JustDied(Unit* /*who*/)
+            void DamageTaken(Unit* /*pDone_by*/, uint32& uiDamage)
             {
-                if (Creature* pMekkatorque = me->FindNearestCreature(NPC_MEKKATORQUE, 100, true))
-                    pMekkatorque->CastSpell(pMekkatorque, SPELL_TRIGGER, true);
+                if (uiDamage > me->GetHealth())
+                    if (Creature* pMekkatorque = me->FindNearestCreature(NPC_MEKKATORQUE, 100, true))
+                        me->CastSpell(pMekkatorque, SPELL_TRIGGER, true);
             }
 
             void SetupMovement()
@@ -644,6 +657,8 @@ class npc_og_mekkatorque : public CreatureScript
             bool   bCanSummonBomber;
             bool   bCannonIntro;
             bool   bBuffs;
+            bool   bPreJumpWP_1;
+            bool   bPreJumpWP_2;
             Creature* RL[4];
             Creature* Cannon[6];
             Creature* BattleSuit[3];
@@ -659,6 +674,8 @@ class npc_og_mekkatorque : public CreatureScript
                 bCanSummonBomber     = true;
                 bCannonIntro         = false;
                 bBuffs               = false;
+                bPreJumpWP_1         = false;
+                bPreJumpWP_2         = false;
             }
 
             void WaypointReached(uint32 i)
@@ -731,7 +748,7 @@ class npc_og_mekkatorque : public CreatureScript
                         break;
                     case 21:
                         SetHoldState(true);
-                        me->Mount(DATA_MOUNT);
+                        me->Mount(DATA_MOUNT_MEK);
                         JumpToNextStep(7000);
                         break;
                     case 27:
@@ -752,7 +769,7 @@ class npc_og_mekkatorque : public CreatureScript
                         break;
                     case 52:
                         me->RemoveAurasDueToSpell(SPELL_PARACHUTE_AURA);
-                        me->Mount(DATA_MOUNT);
+                        me->Mount(DATA_MOUNT_MEK);
                         break;
                     case 53:
                         SetHoldState(true);
@@ -1001,8 +1018,14 @@ class npc_og_mekkatorque : public CreatureScript
                             SetHoldState(false);
                             break;
                         case 40:
-                            PartyCast(SPELL_PARACHUTE);
-                            SetHoldState(false);
+                            if (!bPreJumpWP_1 || !bPreJumpWP_2)
+                                uiStep_timer = 2000;
+                            else
+                            {
+                                me->MonsterSay("1", LANG_UNIVERSAL, NULL);
+                                PartyCast(SPELL_PARACHUTE);
+                                SetHoldState(false);
+                            }
                             break;
                         case 42:
                             SetHoldState(false);
@@ -1031,7 +1054,7 @@ class npc_og_mekkatorque : public CreatureScript
                             SetHoldState(false);
                             JumpToNextStep(5000);
                             break;
-                        case 53:
+                        case 52:
                             if (uiSoldiers <= 1/*30*/)
                             {
                                 if (Creature* pSoldier = me->SummonCreature(urand(0, 1) ? NPC_I_INFANTRY : NPC_I_CAVALRY, iSoldierSpawn[urand(0,5)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 50000))
@@ -1050,7 +1073,7 @@ class npc_og_mekkatorque : public CreatureScript
                                 }
                             }
                             break;
-                        case 54:
+                        case 53:
                             if (Creature* pBoltcog = me->FindNearestCreature(NPC_BOLTCOG, 1000, true))
                                 DoTalk(pBoltcog, BOLTCOG_1, SOUND_BOLTCOG_1, true);
                             JumpToNextStep(1);
@@ -1340,9 +1363,20 @@ class npc_og_mekkatorque : public CreatureScript
             {
                 if (pSpell->Id == SPELL_TRIGGER)
                 {
-                    DoUpdateWorldState(WORLDSTATE_BATLLE_IN_TUNNELS, 0);
-                    DoUpdateWorldState(WORLDSTATE_TUNNELS_CAPTURED, 1);
-                    JumpToNextStep(100);
+                    switch (pHitter->GetEntry())
+                    {
+                        case NPC_BOLTCOG:
+                            DoUpdateWorldState(WORLDSTATE_BATLLE_IN_TUNNELS, 0);
+                            DoUpdateWorldState(WORLDSTATE_TUNNELS_CAPTURED, 1);
+                            JumpToNextStep(100);
+                            break;
+                        case NPC_FASTBLAST:
+                            bPreJumpWP_1 = true;
+                            break;
+                        case NPC_COGSPIN:
+                            bPreJumpWP_2 = true;
+                            break;
+                    }
                 }
             }
 
