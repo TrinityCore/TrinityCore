@@ -460,13 +460,13 @@ class AuraScript : public _SpellScript
         // AuraScript interface
         // hooks to which you can attach your functions
         //
-        // executed when periodic aura effect is applied with specified mode to target
+        // executed when aura effect is applied with specified mode to target
         // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectApply;
         #define AuraEffectApplyFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
-        // executed when periodic aura effect is removed with specified mode from target
+        // executed when aura effect is removed with specified mode from target
         // example: OnEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectRemove;
