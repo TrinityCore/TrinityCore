@@ -24,13 +24,9 @@
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 
-#define SCRIPT_CAST_TYPE dynamic_cast
-
-#define CAST_PLR(a)     (SCRIPT_CAST_TYPE<Player*>(a))
-#define CAST_CRE(a)     (SCRIPT_CAST_TYPE<Creature*>(a))
-#define CAST_PET(a)     (SCRIPT_CAST_TYPE<Pet*>(a))
-#define CAST_AI(a, b)    (SCRIPT_CAST_TYPE<a*>(b))
-#define CAST_INST(a, b)  (SCRIPT_CAST_TYPE<a*>(b))
+#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
+#define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
+#define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
 #define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
 
