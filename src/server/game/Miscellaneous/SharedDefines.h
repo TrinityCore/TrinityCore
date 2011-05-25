@@ -389,7 +389,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_UNK16                            = 0x00010000, // 16 no triggers effects that trigger on casting a spell?? (15290 - 2.2ptr change)
     SPELL_ATTR3_NO_INITIAL_AGGRO                 = 0x00020000, // 17 Soothe Animal, 39758, Mind Soothe
-    SPELL_ATTR3_UNK18                            = 0x00040000, // 18 added to Explosive Trap Effect 3.3.0, removed from Mutilate 3.3.0
+    SPELL_ATTR3_IGNORE_HIT_RESULT                = 0x00040000, // 18 Spell should always hit its target
     SPELL_ATTR3_DISABLE_PROC                     = 0x00080000, // 19 during aura proc no spells can trigger (20178, 20375)
     SPELL_ATTR3_DEATH_PERSISTENT                 = 0x00100000, // 20 Death persistent spells
     SPELL_ATTR3_UNK21                            = 0x00200000, // 21
