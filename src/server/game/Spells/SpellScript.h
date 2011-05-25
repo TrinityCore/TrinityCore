@@ -461,15 +461,25 @@ class AuraScript : public _SpellScript
         // hooks to which you can attach your functions
         //
         // executed when aura effect is applied with specified mode to target
+        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectApply;
+        // executed after aura effect is applied with specified mode to target
+        // example: AfterEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> AfterEffectApply;
         #define AuraEffectApplyFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
-        // executed when aura effect is removed with specified mode from target
+        // executed after aura effect is removed with specified mode from target
+        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectRemove;
+        // executed when aura effect is removed with specified mode from target
+        // example: AfterEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> AfterEffectRemove;
         #define AuraEffectRemoveFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
         // executed when periodic aura effect ticks on target

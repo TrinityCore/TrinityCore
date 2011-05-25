@@ -3578,7 +3578,7 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
     // this kind of call is needed only when aura effect removal handler
     // or event triggered by it expects to remove 
     // not yet removed effects of an aura
-    if(aurApp->GetRemoveMode())
+    if (aurApp->GetRemoveMode())
     {
         // remove remaining effects of an aura
         for (uint8 itr = 0 ; itr < MAX_SPELL_EFFECTS; ++itr)

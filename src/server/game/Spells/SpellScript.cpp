@@ -476,6 +476,14 @@ bool AuraScript::_Validate(SpellEntry const * entry)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
+    for (std::list<EffectApplyHandler>::iterator itr = AfterEffectApply.begin(); itr != AfterEffectApply.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<EffectApplyHandler>::iterator itr = AfterEffectRemove.begin(); itr != AfterEffectRemove.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
     for (std::list<EffectPeriodicHandler>::iterator itr = OnEffectPeriodic.begin(); itr != OnEffectPeriodic.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
