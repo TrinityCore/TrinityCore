@@ -1524,7 +1524,7 @@ public:
                 {
                     case 1:
                         if (me->isSummon())
-                            if (Unit* pThassarian = me->ToTempSummon()(me)->GetSummoner())
+                            if (Unit* pThassarian = me->ToTempSummon()->GetSummoner())
                                 DoScriptText(SAY_THASSARIAN_4, pThassarian);
                         uiPhaseTimer = 5000;
                         ++Phase;
