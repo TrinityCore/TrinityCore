@@ -309,6 +309,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 _under25PercentTalkDone = false;
                 _over75PercentTalkDone = false;
                 _justDied = false;
+                _done = false;
             }
 
             void AttackStart(Unit* /*target*/)
@@ -331,9 +332,11 @@ class boss_valithria_dreamwalker : public CreatureScript
             void HealReceived(Unit* /*healer*/, uint32& heal)
             {
                 // encounter complete
-                if (me->HealthAbovePctHealed(100, heal))
+                if (me->HealthAbovePctHealed(100, heal) && !_done)
                 {
+                    _done = true;
                     Talk(SAY_VALITHRIA_SUCCESS);
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
                     DoCast(me, SPELL_DREAMWALKERS_RAGE);
@@ -462,6 +465,7 @@ class boss_valithria_dreamwalker : public CreatureScript
             bool _under25PercentTalkDone;
             bool _over75PercentTalkDone;
             bool _justDied;
+            bool _done;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -498,8 +502,13 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void AttackStart(Unit* target)
             {
-                if (target->GetEntry() != NPC_VALITHRIA_DREAMWALKER)
+                if (target->GetTypeId() == TYPEID_PLAYER)
                     BossAI::AttackStart(target);
+            }
+
+            bool CanAIAttack(Unit const* target) const
+            {
+                return target->GetTypeId() == TYPEID_PLAYER;
             }
 
             void JustReachedHome()

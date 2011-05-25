@@ -85,7 +85,7 @@ class WaypointMovementGenerator
         WaypointData *node;
         uint32 path_id;
         TimeTrackerSmall i_nextMoveTime;
-        WaypointPath *waypoints;
+        WaypointPath const* waypoints;
         bool repeating, StopedByPlayer;
 };
 

@@ -2774,6 +2774,7 @@ void AuraEffect::HandleModInvisibilityDetect(AuraApplication const * aurApp, uin
         target->m_invisibilityDetect.AddValue(type, -GetAmount());
     }
 
+    // call functions which may have additional effects after chainging state of unit
     target->UpdateObjectVisibility();
 }
 
@@ -2787,12 +2788,6 @@ void AuraEffect::HandleModInvisibility(AuraApplication const * aurApp, uint8 mod
 
     if (apply)
     {
-        if (mode & AURA_EFFECT_HANDLE_REAL)
-        {
-            // drop flag at invisibiliy in bg
-            target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-        }
-
         // apply glow vision
         if (target->GetTypeId() == TYPEID_PLAYER)
             target->SetByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
@@ -2830,6 +2825,12 @@ void AuraEffect::HandleModInvisibility(AuraApplication const * aurApp, uint8 mod
         target->m_invisibility.AddValue(type, -GetAmount());
     }
 
+    // call functions which may have additional effects after chainging state of unit
+    if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
+    {
+        // drop flag at invisibiliy in bg
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+    }
     target->UpdateObjectVisibility();
 }
 
@@ -2854,6 +2855,7 @@ void AuraEffect::HandleModStealthDetect(AuraApplication const * aurApp, uint8 mo
         target->m_stealthDetect.AddValue(type, -GetAmount());
     }
 
+    // call functions which may have additional effects after chainging state of unit
     target->UpdateObjectVisibility();
 }
 
@@ -2867,16 +2869,6 @@ void AuraEffect::HandleModStealth(AuraApplication const * aurApp, uint8 mode, bo
 
     if (apply)
     {
-        if (mode & AURA_EFFECT_HANDLE_REAL)
-        {
-            // drop flag at stealth in bg
-            target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-        }
-
-        // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
-            return;
-
         target->m_stealth.AddFlag( type);
         target->m_stealth.AddValue(type, GetAmount());
 
@@ -2898,6 +2890,12 @@ void AuraEffect::HandleModStealth(AuraApplication const * aurApp, uint8 mode, bo
         }
     }
 
+    // call functions which may have additional effects after chainging state of unit
+    if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
+    {
+        // drop flag at stealth in bg
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+    }
     target->UpdateObjectVisibility();
 }
 
@@ -2914,6 +2912,7 @@ void AuraEffect::HandleModStealthLevel(AuraApplication const * aurApp, uint8 mod
     else
         target->m_stealth.AddValue(type, -GetAmount());
 
+    // call functions which may have additional effects after chainging state of unit
     target->UpdateObjectVisibility();
 }
 
@@ -2944,6 +2943,7 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const * aurApp, uint8 
     }
     // die at aura end
     else if (target->isAlive())
+        // call functions which may have additional effects after chainging state of unit
         target->setDeathState(JUST_DIED);
 }
 
@@ -2988,20 +2988,10 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
         for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
             newPhase |= (*itr)->GetMiscValue();
 
-    // phase auras normally not expected at BG but anyway better check
     if (Player* player = target->ToPlayer())
     {
         if (!newPhase)
             newPhase = PHASEMASK_NORMAL;
-
-        // drop flag at invisible in bg
-        if (player->InBattleground())
-            if (Battleground *bg = player->GetBattleground())
-                bg->EventPlayerDroppedFlag(player);
-
-        // stop handling the effect if it was removed by linked event
-        if (apply && aurApp->GetRemoveMode())
-            return;
 
         // GM-mode have mask 0xFFFFFFFF
         if (player->isGameMaster())
@@ -3021,6 +3011,14 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
         }
 
         target->SetPhaseMask(newPhase, false);
+    }
+
+    // call functions which may have additional effects after chainging state of unit
+    // phase auras normally not expected at BG but anyway better check
+    if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
+    {
+        // drop flag at invisibiliy in bg
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
     }
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
@@ -3263,7 +3261,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
         {
             if (Item *pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
-                    target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), NULL, apply);
+                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), NULL, apply);
             }
         }
     }
@@ -3692,22 +3690,18 @@ void AuraEffect::HandleModUnattackable(AuraApplication const * aurApp, uint8 mod
 
     Unit * target = aurApp->GetTarget();
 
-    if (apply)
-    {
-        if (mode & AURA_EFFECT_HANDLE_REAL)
-        {
-            target->CombatStop();
-            target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-        }
-        // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
-            return;
-    }
     // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-    else if (target->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+    if (!apply && target->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         return;
 
     target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, apply);
+
+    // call functions which may have additional effects after chainging state of unit
+    if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
+    {
+        target->CombatStop();
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+    }
 }
 
 void AuraEffect::HandleAuraModDisarm(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -3781,6 +3775,8 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const * aurApp, uint8 mode
     if (apply)
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
+
+        // call functions which may have additional effects after chainging state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
@@ -3928,6 +3924,7 @@ void AuraEffect::HandleAuraModStalked(AuraApplication const * aurApp, uint8 mode
             target->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TRACK_UNIT);
     }
 
+    // call functions which may have additional effects after chainging state of unit
     target->UpdateObjectVisibility();
 }
 
@@ -4059,7 +4056,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const * aurApp, uint8 mod
 
     if (Player *plr = target->m_movedPlayer)
     {
-        // allow fly
+        // allow flying
         WorldPacket data;
         if (apply)
             data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -4078,7 +4075,7 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const * aurApp, uint8 mode,
 
     Unit * target = aurApp->GetTarget();
 
-    if (!(apply))
+    if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
@@ -4102,7 +4099,7 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const * aurApp, uint8 mod
 
     Unit * target = aurApp->GetTarget();
 
-    if (!(apply))
+    if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
@@ -4130,7 +4127,7 @@ void AuraEffect::HandleAuraHover(AuraApplication const * aurApp, uint8 mode, boo
 
     Unit * target = aurApp->GetTarget();
 
-    if (!(apply))
+    if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
@@ -4283,8 +4280,7 @@ void AuraEffect::HandlePreventFleeing(AuraApplication const * aurApp, uint8 mode
 
     Unit * target = aurApp->GetTarget();
 
-    Unit::AuraEffectList const& fearAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_FEAR);
-    if (!fearAuras.empty())
+    if (target->HasAuraType(SPELL_AURA_MOD_FEAR))
         target->SetControlled(!(apply), UNIT_STAT_FLEEING);
 }
 
@@ -4300,6 +4296,8 @@ void AuraEffect::HandleModPossess(AuraApplication const * aurApp, uint8 mode, bo
     Unit * target = aurApp->GetTarget();
 
     Unit * caster = GetCaster();
+
+    // no support for posession AI yet
     if (caster && caster->GetTypeId() == TYPEID_UNIT)
     {
         HandleModCharm(aurApp, mode, apply);
@@ -4420,10 +4418,9 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const * aurApp, uint8 
             if (caster->GetTypeId() == TYPEID_UNIT)
                 caster->ToCreature()->RemoveCorpse();
         }
-
+        caster->_ExitVehicle();
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
         caster->RemoveAurasDueToSpell(GetId());
-        caster->_ExitVehicle();
     }
 }
 
@@ -4551,16 +4548,17 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const * aurApp, uint
     if (GetMiscValue() & (1<<9))
         immunity_list.push_back(SPELL_AURA_MOD_FEAR);
 
-    // must be last due to Bladestorm
-    if (GetMiscValue() & (1<<7))
+    // an exception for Bladestorm
+    if ((GetMiscValue() & (1<<7)) && (GetId() != 46924))
         immunity_list.push_back(SPELL_AURA_MOD_DISARM);
 
-    // TODO: figure out a better place to put this...
+    // apply immunities
+    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
+        target->ApplySpellImmune(GetId(), IMMUNITY_STATE, *iter, apply);
+
     // Patch 3.0.3 Bladestorm now breaks all snares and roots on the warrior when activated.
-    // however not all mechanic specified in immunity
     if (apply && GetId() == 46924)
     {
-        immunity_list.pop_back(); // delete Disarm
         target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
     }
@@ -4568,13 +4566,6 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const * aurApp, uint
     if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
         for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
             target->RemoveAurasByType(*iter);
-
-    // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
-        return;
-
-    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
-        target->ApplySpellImmune(GetId(), IMMUNITY_STATE, *iter, apply);
 }
 
 void AuraEffect::HandleModMechanicImmunity(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -4633,8 +4624,10 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const * aurApp, uin
 
     Unit * target = aurApp->GetTarget();
 
+   target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, GetMiscValue(), apply);
+
     // when removing flag aura, handle flag drop
-    if (!(apply) && target->GetTypeId() == TYPEID_PLAYER
+    if (!apply && target->GetTypeId() == TYPEID_PLAYER
         && (GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION))
     {
         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -4648,11 +4641,6 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const * aurApp, uin
                 sOutdoorPvPMgr->HandleDropFlag((Player*)target, GetSpellProto()->Id);
         }
     }
-    // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
-        return;
-
-    target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, GetMiscValue(), apply);
 }
 
 void AuraEffect::HandleAuraModStateImmunity(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -4662,14 +4650,10 @@ void AuraEffect::HandleAuraModStateImmunity(AuraApplication const * aurApp, uint
 
     Unit * target = aurApp->GetTarget();
 
-    if ((apply) && GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        target->RemoveAurasByType(AuraType(GetMiscValue()), 0 , GetBase());
-
-    // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
-        return;
-
     target->ApplySpellImmune(GetId(), IMMUNITY_STATE, GetMiscValue(), apply);
+
+    if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
+        target->RemoveAurasByType(AuraType(GetMiscValue()), 0 , GetBase());
 }
 
 void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -4679,14 +4663,29 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uin
 
     Unit * target = aurApp->GetTarget();
 
-    if ((apply) && GetMiscValue() == SPELL_SCHOOL_MASK_NORMAL)
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-
-    // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
-        return;
-
     target->ApplySpellImmune(GetId(), IMMUNITY_SCHOOL, GetMiscValue(), (apply));
+
+    if (GetSpellProto()->Mechanic == MECHANIC_BANISH)
+    {
+        if (apply)
+            target->AddUnitState(UNIT_STAT_ISOLATED);
+        else
+        {
+            bool banishFound = false;
+            Unit::AuraEffectList const& banishAuras = target->GetAuraEffectsByType(GetAuraType());
+            for (Unit::AuraEffectList::const_iterator i = banishAuras.begin(); i !=  banishAuras.end(); ++i)
+                if ((*i)->GetSpellProto()->Mechanic == MECHANIC_BANISH)
+                {
+                    banishFound = true;
+                    break;
+                }
+            if (!banishFound)
+                target->ClearUnitState(UNIT_STAT_ISOLATED);
+        }
+    }
+
+    if (apply && GetMiscValue() == SPELL_SCHOOL_MASK_NORMAL)
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 
     // remove all flag auras (they are positive, but they must be removed when you are immune)
     if (GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY
@@ -4712,29 +4711,6 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uin
             }
             else
                 ++iter;
-        }
-    }
-
-    // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
-        return;
-
-    if (GetSpellProto()->Mechanic == MECHANIC_BANISH)
-    {
-        if (apply)
-            target->AddUnitState(UNIT_STAT_ISOLATED);
-        else
-        {
-            bool banishFound = false;
-            Unit::AuraEffectList const& banishAuras = target->GetAuraEffectsByType(GetAuraType());
-            for (Unit::AuraEffectList::const_iterator i = banishAuras.begin(); i !=  banishAuras.end(); ++i)
-                if ((*i)->GetSpellProto()->Mechanic == MECHANIC_BANISH)
-                {
-                    banishFound = true;
-                    break;
-                }
-            if (!banishFound)
-                target->ClearUnitState(UNIT_STAT_ISOLATED);
         }
     }
 }
@@ -5831,6 +5807,18 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
 
     if (mode & AURA_EFFECT_HANDLE_REAL)
     {
+        // pet auras
+        if (PetAura const* petSpell = sSpellMgr->GetPetAura(GetId(), m_effIndex))
+        {
+            if (apply)
+                target->AddPetAura(petSpell);
+            else
+                target->RemovePetAura(petSpell);
+        }
+    }
+
+    if (mode & AURA_EFFECT_HANDLE_REAL)
+    {
         // AT APPLY
         if (apply)
         {
@@ -6429,22 +6417,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
             //    break;
             break;
     }
-
-    // stop handling the effect if it was removed by linked event
-    if (apply && aurApp->GetRemoveMode())
-        return;
-
-    if (mode & AURA_EFFECT_HANDLE_REAL)
-    {
-        // pet auras
-        if (PetAura const* petSpell = sSpellMgr->GetPetAura(GetId(), m_effIndex))
-        {
-            if (apply)
-                target->AddPetAura(petSpell);
-            else
-                target->RemovePetAura(petSpell);
-        }
-    }
 }
 
 void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -6452,7 +6424,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (!(apply))
+    if (!apply)
     {
         Unit * caster = GetCaster();
 
@@ -6526,7 +6498,7 @@ void AuraEffect::HandleBindSight(AuraApplication const * aurApp, uint8 mode, boo
     if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    caster->ToPlayer()->SetViewpoint(target, (apply));
+    caster->ToPlayer()->SetViewpoint(target, apply);
 }
 
 void AuraEffect::HandleForceReaction(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -6562,7 +6534,7 @@ void AuraEffect::HandleAuraEmpathy(AuraApplication const * aurApp, uint8 mode, b
     if (target->GetTypeId() != TYPEID_UNIT)
         return;
 
-    if (!(apply))
+    if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
@@ -6723,6 +6695,7 @@ void AuraEffect::HandleAuraModFakeInebriation(AuraApplication const * aurApp, ui
             target->m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
     }
 
+    // call functions which may have additional effects after chainging state of unit
     target->UpdateObjectVisibility();
 }
 
