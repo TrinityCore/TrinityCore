@@ -70,10 +70,10 @@ void SummonList::DespawnAll()
         else
         {
             erase(begin());
-            if (summon->isSummon())
+            if (TempSummon* summ = summon->ToTempSummon())
             {
                 summon->DestroyForNearbyPlayers();
-                CAST_SUM(summon)->UnSummon();
+                summ->UnSummon();
             }
             else
                 summon->DisappearAndDie();

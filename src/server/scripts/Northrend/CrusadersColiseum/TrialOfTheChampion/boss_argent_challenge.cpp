@@ -415,13 +415,9 @@ public:
         void JustDied(Unit* /*pKiller*/)
         {
             if (me->isSummon())
-            {
-                if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
-                {
-                    if (pSummoner && pSummoner->isAlive())
-                        CAST_CRE(pSummoner)->AI()->SetData(1, 0);
-                }
-            }
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (summoner->isAlive())
+                        summoner->GetAI()->SetData(1, 0);
         }
     };
 
