@@ -326,15 +326,6 @@ INSERT INTO `locales_npc_text` (`entry`, `Text0_0_loc8`) VALUES
 (800005, 'Логово Королевы Льда'),
 (800006, 'Ледяной трон');
 
-
--- Temp solution for frostmourn room
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-('2710388', '193070', '631', '15', '1', '520', '-2524', '1038.42', '4.47344', '0', '0', '0.786348', '-0.617784', '300', '255', '1');
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('250250', '36823', '631', '15', '1', '0', '0', '495', '-2502', '1050', '5.49385', '300', '0', '0', '315000', '59910', '0', '0', '0', '0', '0'),
-('250251', '36824', '631', '15', '1', '0', '0', '495', '-2546', '1050.23', '1.72709', '300', '0', '0', '252000', '0', '0', '0', '0', '0', '0');
-
-
 -- [10468] ICC texts (Shauren)
 DELETE FROM `creature_text` WHERE `entry` IN (36612,36626,36627,36678,36855,37187,37188,37200,37813,37879,37970,37972,37973,38004);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`sound`,`language`,`probability`,`emote`,`duration`,`comment`) VALUES
@@ -526,7 +517,7 @@ SET @GUID := 200200;
 UPDATE `creature` SET `phaseMask`=`phaseMask`|4 WHERE `id`=36789;
 -- Add The Lich King and Green Dragon Combat Trigger to all encounter phases, fixes evading when all players enter portals
 UPDATE `creature` SET `phaseMask`=`phaseMask`|16 WHERE `guid` IN (111453,10718);
-DELETE FROM `creature` WHERE `id` IN (37950,37985,38421) OR `guid` BETWEEN @GUID+00 AND @GUID+27;
+DELETE FROM `creature` WHERE `id` IN (37950,37985,38421) OR `guid` BETWEEN @GUID+00 AND @GUID+27 OR `guid` IN (200230, 200231);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (200230,37950,631,15,20,0,0,4202.847,2484.917,383.8368,0.00000,604800,0,0,0,0,0,0,0,0,0), -- Valithria Dreamwalker (dream phase)
 (200231,22515,631,10,1,0,0,4166.170,2411.520,364.9520,1.57080,120,0,0,0,0,0,0,0,0,0), -- World Trigger
@@ -557,6 +548,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 (@GUID+22,38421,631,12,20,0,0,4236.75,2500.62,383.373,5.97527,30,10,0,0,0,0,1,0,0,0),
 (@GUID+23,38421,631,12,20,0,0,4243.29,2476.89,386.076,0.00000,30,10,0,0,0,0,1,0,0,0);
 
+-- GUIDs for YTDB!!!
 DELETE FROM `linked_respawn` WHERE `guid`=111453 AND `linkType`=0;
 INSERT INTO `linked_respawn` (`guid`,`linkedGuid`,`linkType`) VALUES
 (111453,10718,0); -- The Lich King link to Green Dragon Combat Trigger
