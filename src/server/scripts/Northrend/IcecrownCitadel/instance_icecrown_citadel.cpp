@@ -118,6 +118,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SindragosaGUID = 0;
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
+                TheLichKingGUID = 0;
                 FrostwyrmCount = 0;
                 SpinestalkerTrashCount = 0;
                 RimefangTrashCount = 0;
@@ -269,6 +270,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         RimefangGUID = creature->GetGUID();
                         if (!creature->isDead())
                             ++FrostwyrmCount;
+                        break;
+                    case NPC_THE_LICH_KING:
+                        TheLichKingGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -560,6 +564,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return SpinestalkerGUID;
                     case DATA_RIMEFANG:
                         return RimefangGUID;
+                    case DATA_THE_LICH_KING:
+                        return TheLichKingGUID;
                     default:
                         break;
                 }
@@ -690,6 +696,17 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_THE_LICH_KING:
+                        if (instance->IsHeroic())
+                        {
+                            if (state == FAIL && HeroicAttempts)
+                            {
+                                --HeroicAttempts;
+                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                                if (!HeroicAttempts)
+                                    if (Creature* theLichKing = instance->GetCreature(TheLichKingGUID))
+                                        theLichKing->DespawnOrUnsummon();
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -725,7 +742,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (instance->IsHeroic() && !HeroicAttempts)
                             return;
 
-                        if (GetBossState(DATA_SINDRAGOSA) != DONE)
+                        if (GetBossState(DATA_SINDRAGOSA) == DONE)
                             return;
 
                         switch (data)
@@ -1158,6 +1175,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 SindragosaGUID;
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;
+            uint64 TheLichKingGUID;
             uint32 TeamInInstance;
             uint32 BloodQuickeningTimer;
             uint32 ColdflameJetsState;
