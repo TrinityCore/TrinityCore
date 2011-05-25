@@ -2327,7 +2327,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, const Position &pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime) const
 {
     if (!IsInWorld())
         return NULL;
@@ -2340,7 +2340,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
     Map *map = GetMap();
     GameObject *go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;

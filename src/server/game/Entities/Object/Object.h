@@ -799,7 +799,17 @@ class WorldObject : public Object, public WorldLocation
             Position pos = {x, y, z, ang};
             return SummonCreature(id, pos, spwtype, despwtime, 0);
         }
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
+        GameObject* SummonGameObject(uint32 entry, const Position &pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime) const;
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
+        {
+            if (!x && !y && !z)
+            {
+                GetClosePoint(x, y, z, GetObjectSize());
+                ang = GetOrientation();
+            }
+            Position pos = {x, y, z, ang};
+            return SummonGameObject(entry, pos, rotation0, rotation1, rotation2, rotation3, respawnTime);
+        }
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true);
