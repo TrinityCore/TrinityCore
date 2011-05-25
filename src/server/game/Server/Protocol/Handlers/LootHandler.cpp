@@ -387,7 +387,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         loot = &pCreature->loot;
         if (loot->isLooted())
         {
-            // skip pickpocketing loot for speed, skinning timer redunction is no-op in fact
+            // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
             if (!pCreature->isAlive())
                 pCreature->AllLootRemovedFromCorpse();
 
