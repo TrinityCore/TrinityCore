@@ -862,11 +862,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_KILL_LANA_THEL_10M:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_10N:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_10V:
-                        return CAST_INST(InstanceMap, instance)->GetMaxPlayers() == 10;
+                        return instance->ToInstanceMap()->GetMaxPlayers() == 10;
                     case CRITERIA_KILL_LANA_THEL_25M:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25N:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25V:
-                        return CAST_INST(InstanceMap, instance)->GetMaxPlayers() == 25;
+                        return instance->ToInstanceMap()->GetMaxPlayers() == 25;
                     default:
                         break;
                 }
