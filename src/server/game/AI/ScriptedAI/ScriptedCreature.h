@@ -266,7 +266,13 @@ class BossAI : public ScriptedAI
         void JustSummoned(Creature* summon);
         void SummonedCreatureDespawn(Creature* summon);
 
-        void UpdateAI(uint32 const diff) = 0;
+        virtual void UpdateAI(uint32 const diff);
+
+        // Hook used to execute events scheduled into EventMap without the need
+        // to override UpdateAI
+        // note: You must re-schedule the event within this method if the event
+        // is supposed to run more than once
+        virtual void ExecuteEvent(uint32 const eventId) { }
 
         void Reset() { _Reset(); }
         void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
@@ -296,7 +302,7 @@ class BossAI : public ScriptedAI
 
     private:
         BossBoundaryMap const* const _boundary;
-        const uint32 _bossId;
+        uint32 const _bossId;
 };
 
 // SD2 grid searchers.
