@@ -304,6 +304,11 @@ enum GameObjectsIds
     GO_DRINK_ME                             = 201584,
     GO_PLAGUE_SIGIL                         = 202182,
 
+    GO_Truhe_des_Traumwandlers_10           = 201959,
+    GO_Truhe_des_Traumwandlers_10H          = 202338,
+    GO_Truhe_des_Traumwandlers_25           = 202339,
+    GO_Truhe_des_Traumwandlers_25H          = 202340,
+
     // Blood Prince Council
     GO_CRIMSON_HALL_DOOR                    = 201376,
     GO_BLOOD_ELF_COUNCIL_DOOR               = 201378,
