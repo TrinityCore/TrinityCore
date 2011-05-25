@@ -25,7 +25,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_ice_sphere_icc' WHERE `entry` =
 UPDATE `creature_template` SET `ScriptName`='npc_defile_icc' WHERE `entry` = 38757;
 UPDATE `creature_template` SET `ScriptName`='npc_terenas_fighter_icc' WHERE `entry` = 36823;
 UPDATE `creature_template` SET `ScriptName`='npc_spirit_warden_icc' WHERE `entry` = 36824;
+UPDATE `creature_template` SET `ScriptName`='npc_shadow_trap' WHERE `entry` = 39137;
 
+UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 39137;
 UPDATE `creature_template` SET `unit_flags` = 0, `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (15214,36633, 39305, 39306, 39307);
 
@@ -44,6 +46,8 @@ REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (74115,'spell_lich_king_pain_and_suffering'),
 (68980,'spell_lich_king_harvest_soul'),
 (74325,'spell_lich_king_harvest_soul'),
+(74326,'spell_lich_king_harvest_soul'),
+(74327,'spell_lich_king_harvest_soul'),
 (70541,'spell_lich_king_infection'),
 (73779,'spell_lich_king_infection'),
 (73780,'spell_lich_king_infection'),
