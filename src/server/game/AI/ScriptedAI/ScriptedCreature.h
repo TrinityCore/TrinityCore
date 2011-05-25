@@ -1,12 +1,23 @@
-/* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+/*
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#ifndef SC_CREATURE_H
-#define SC_CREATURE_H
+#ifndef SCRIPTEDCREATURE_H_
+#define SCRIPTEDCREATURE_H_
 
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -17,7 +28,6 @@
 
 #define CAST_PLR(a)     (SCRIPT_CAST_TYPE<Player*>(a))
 #define CAST_CRE(a)     (SCRIPT_CAST_TYPE<Creature*>(a))
-#define CAST_SUM(a)     (SCRIPT_CAST_TYPE<TempSummon*>(a))
 #define CAST_PET(a)     (SCRIPT_CAST_TYPE<Pet*>(a))
 #define CAST_AI(a, b)    (SCRIPT_CAST_TYPE<a*>(b))
 #define CAST_INST(a, b)  (SCRIPT_CAST_TYPE<a*>(b))
@@ -299,4 +309,4 @@ GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, flo
 void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
 void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
 
-#endif
+#endif // SCRIPTEDCREATURE_H_

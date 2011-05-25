@@ -1689,7 +1689,7 @@ public:
 
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
             if (!me->getVictim() && me->isSummon())
-                if (Unit * Owner = CAST_SUM(me)->GetSummoner())
+                if (Unit * Owner = me->ToTempSummon()->GetSummoner())
                     if (Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
         }
@@ -2103,7 +2103,7 @@ public:
         void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
         {
             if (me->isSummon())
-                if (Unit* pOwner = CAST_SUM(me)->GetSummoner())
+                if (Unit* pOwner = me->ToTempSummon()->GetSummoner())
                 {
                     if (pOwner->HasAura(GLYPH_OF_SHADOWFIEND))
                         if (damage >= me->GetHealth())
@@ -2152,7 +2152,7 @@ public:
     {
         if (pCreature->isSummon())
         {
-            if (pPlayer == CAST_SUM(pCreature)->GetSummoner())
+            if (pPlayer == pCreature->ToTempSummon()->GetSummoner())
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
