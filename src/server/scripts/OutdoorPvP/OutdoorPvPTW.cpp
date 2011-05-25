@@ -305,6 +305,7 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
         return;
 
     std::string ZonenNachricht;
+    std::string strGODmgTeam = obj->GetGOInfo()->faction == Fraktionen[TEAM_ALLIANCE] ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AB_HORDE) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AB_ALLY);
 
     switch(eventId)
     {   // Das Relikt
@@ -461,40 +462,40 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
 
         // Die Werkstätten
         case TW_EVENT_WERKSTATT_FESTUNG_W_BESCHAEDIGT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_W)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_W)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_FESTUNG_W_ZERSTOERT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_W)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_W)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_FESTUNG_O_BESCHAEDIGT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_O)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_O)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_FESTUNG_O_ZERSTOERT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_O)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_FESTUNG_O)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_TEMPEL_BESCHAEDIGT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_TEMPEL)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_TEMPEL)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_TEMPEL_ZERSTOERT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_TEMPEL)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_TEMPEL)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_RING_BESCHAEDIGT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_RING)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_RING)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_RING_ZERSTOERT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_RING)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_RING)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_WESTFUNK_BESCHAEDIGT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_WESTFUNK)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_WESTFUNK)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_WESTFUNK_ZERSTOERT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_WESTFUNK)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_WESTFUNK)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_OSTFUNK_BESCHAEDIGT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_OSTFUNK)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_SCHADEN), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_OSTFUNK)).c_str(), strGODmgTeam.c_str());
             break;
         case TW_EVENT_WERKSTATT_OSTFUNK_ZERSTOERT:
-            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_OSTFUNK)).c_str());
+            ZonenNachricht = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATT_ZERSTOERT), ZonenNachricht.append(sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_WERKSTATTNAME_OSTFUNK)).c_str(), strGODmgTeam.c_str());
             break;
 
         // Das Event wurde nicht behandelt -> Fehler ausgeben!
