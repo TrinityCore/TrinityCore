@@ -261,8 +261,8 @@ struct AchievementCriteriaEntry
         struct
         {
             uint32  teamtype;                               // 3 {2, 3, 5}
-            uint32  teamrating;                             // 4
-        } reach_team_rating;
+            uint32  PersonalRating;                             // 4
+        } highest_personal_rating;
 
         // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL      = 40
         struct
