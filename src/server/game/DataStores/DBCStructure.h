@@ -1045,19 +1045,18 @@ struct HolidayNamesEntry
 
 struct HolidaysEntry
 {
-    uint32 ID;                                              // 0, holiday id
-    //uint32 unk1;                                          // 1
-    //uint32 unk2;                                          // 2
-    //uint32 unk3[8]                                        // 3-10, empty fields
-    //uint32 unk11[13]                                      // 11-23, some unknown data (bit strings?)
-    //uint32 unk11[13]                                      // 24-36, some empty fields (continue prev?)
-    //uint32 unk11[12]                                      // 37-48, counters?
-    //uint32 holidayNameId;                                 // 49, id for HolidayNames.dbc
-    //uint32 holidayDescriptionId;                          // 50, id for HolidayDescriptions.dbc
-    //uint32 unk51;                                         // 51
-    //uint32 unk52;                                         // 52
-    //uint32 unk53;                                         // 53
-    //uint32 unk54;                                         // 54
+    uint32 ID;                                              // 0        m_ID
+    //uint32 duration[10];                                  // 1-10     m_duration
+    //uint32 date[26];                                      // 11-36    m_date (dates in unix time starting at January, 1, 2000)
+    //uint32 region;                                        // 37       m_region (wow region)
+    //uint32 looping;                                       // 38       m_looping
+    //uint32 calendarFlags[10];                             // 39-48    m_calendarFlags
+    //uint32 holidayNameId;                                 // 49       m_holidayNameID (HolidayNames.dbc)
+    //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
+    //char *textureFilename;                                // 51       m_textureFilename
+    //uint32 priority;                                      // 52       m_priority
+    //uint32 calendarFilterType;                            // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk,1 = Darkmoon Festival, 2 = Yearly holiday)
+    //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
 struct ItemEntry
