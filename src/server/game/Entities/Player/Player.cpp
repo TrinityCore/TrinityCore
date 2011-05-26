@@ -14141,7 +14141,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     }
 
     GossipMenuItemData const* menuItemData = gossipmenu.GetItemData(gossipListId);
-    if (menuItemData)
+    if (!menuItemData)
         return;
 
     switch (gossipOptionId)
