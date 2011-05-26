@@ -270,8 +270,8 @@ enum SpellAttr0
     SPELL_ATTR0_UNK4                             = 0x00000010, //  4
     SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells, will be added by client to a sublist of profession spell
     SPELL_ATTR0_PASSIVE                          = 0x00000040, //  6 Passive spell
-    SPELL_ATTR0_UNK7                             = 0x00000080, //  7 visible?
-    SPELL_ATTR0_UNK8                             = 0x00000100, //  8
+    SPELL_ATTR0_HIDDEN_CLIENTSIDE                = 0x00000080, //  7 Spells with this attribute are not visible in spellbook or aura bar
+    SPELL_ATTR0_HIDE_IN_COMBAT_LOG               = 0x00000100, //  8 This attribite controls whether spell appears in combat logs
     SPELL_ATTR0_UNK9                             = 0x00000200, //  9
     SPELL_ATTR0_UNK10                            = 0x00000400, // 10 on next swing 2
     SPELL_ATTR0_UNK11                            = 0x00000800, // 11
