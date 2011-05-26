@@ -19381,32 +19381,29 @@ void Player::VehicleSpellInitialize()
     if (!veh)
         return;
 
-    // GetPosition_ is not a member of 'Vehicle', SetPosition is a member of 'Player': SetPosition(GetVehicle()->GetPositionX(), GetVehicle()->GetPositionY(), GetVehicle()->GetPositionZ(), GetVehicle()->GetOrientation());
-
-    // GetPosition_ is not a member of 'Vehicle', SetPosition is a member of 'Player': SetPosition(GetVehicle()->GetPositionX(), GetVehicle()->GetPositionY(), GetVehicle()->GetPositionZ(), GetVehicle()->GetOrientation());
-
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*10+1+1);
+    WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + 4 + 10); // last 10 is just 10 bytes with unknown meaning
     data << uint64(veh->GetGUID());
-    data << uint16(0);
+    data << uint16(veh->GetCreatureInfo()->family);
     data << uint32(0);
     data << uint32(0x00000101);
 
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        uint32 spellId = veh->ToCreature()->m_spells[i];
-        if (!spellId)
+        uint32 spellId = veh->m_spells[i];
+        if (!sSpellStore.LookupEntry(spellId))
+        {
+            data << uint16(0) << uint8(0) << uint8(i+8);
             continue;
+        }
 
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-        if (!spellInfo)
-            continue;
-
-        ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(veh->ToCreature()->GetEntry(), spellId);
+        ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(veh->GetEntry(), spellId);
         if (!sConditionMgr->IsPlayerMeetToConditions(this, conditions))
         {
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", veh->ToCreature()->GetEntry(), spellId);
+            data << uint16(0) << uint8(0) << uint8(i+8);
             continue;
         }
+
         if (IsPassiveSpell(spellId))
         {
             veh->CastSpell(veh, spellId, true);
@@ -19421,6 +19418,13 @@ void Player::VehicleSpellInitialize()
 
     data << uint8(0);
     data << uint8(0);
+    data << uint32(0);  // some spell id (unk meaning)
+
+    // there are 10 more bytes here so just append them here
+    // their meaning or true layout is unknown
+    for (uint32 i = 0; i < 10; ++i)
+        data << uint8(0);
+
     GetSession()->SendPacket(&data);
 }
 
