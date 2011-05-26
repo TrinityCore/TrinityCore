@@ -1729,7 +1729,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recv_data*/)
         return;
 
     AreaTableEntry const *atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
-    if (!atEntry || !(atEntry->flags & AREA_FLAG_OUTDOOR_PVP2))
+    if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))
         return;
 
     _player->BuildPlayerRepop();
