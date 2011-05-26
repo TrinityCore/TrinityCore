@@ -80,14 +80,14 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
     return true;
 }
 
-Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
+Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura, bool alive)
 {
-    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura));
+    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura, alive));
 }
 
-void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
+void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura, bool alive)
 {
-    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
+    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura, alive), num, targetType);
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
@@ -110,7 +110,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
         return;
 }
 
-void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
+void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered, bool alive)
 {
     if (me->isInCombat())
     {
@@ -118,14 +118,14 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit *pTemp = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (pTemp->GetTypeId() == TYPEID_PLAYER)
+                if (pTemp->GetTypeId() == TYPEID_PLAYER && pTemp->isAlive() == alive)
                     me->CastSpell(pTemp, spellid, triggered);
         }
     }else
         return;
 }
 
-void UnitAI::DoCast(uint32 spellId)
+void UnitAI::DoCast(uint32 spellId, bool alive)
 {
     Unit *target = NULL;
     //sLog->outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
@@ -150,7 +150,7 @@ void UnitAI::DoCast(uint32 spellId)
             bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY;
             float range = GetSpellMaxRange(spellInfo, false);
 
-            DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
+            DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId, alive);
             if (!(spellInfo->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE)
                 && !(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
                 && targetSelector(me->getVictim()))
