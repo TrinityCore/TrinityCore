@@ -2629,7 +2629,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                 if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
                 if (itr->first == spellId || itr->first == spellId2) continue;
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR0_PASSIVE | SPELL_ATTR0_UNK7))) continue;
+                if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR0_PASSIVE | SPELL_ATTR0_HIDDEN_CLIENTSIDE))) continue;
                 if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
             }
