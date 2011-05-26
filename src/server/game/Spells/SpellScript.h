@@ -21,6 +21,7 @@
 #include "Util.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
+#include <stack>
 
 class Unit;
 struct SpellEntry;
@@ -58,6 +59,7 @@ class _SpellScript
         virtual bool _Validate(SpellEntry const* entry);
 
     public:
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE) {}
         virtual ~_SpellScript() {}
         virtual void _Register();
         virtual void _Unload();
@@ -326,7 +328,9 @@ class SpellScript : public _SpellScript
 enum AuraScriptHookType
 {
     AURA_SCRIPT_HOOK_EFFECT_APPLY = SPELL_SCRIPT_STATE_END,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY,
     AURA_SCRIPT_HOOK_EFFECT_REMOVE,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE,
     AURA_SCRIPT_HOOK_EFFECT_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT,
@@ -446,6 +450,8 @@ class AuraScript : public _SpellScript
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
     public:
+        AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
+        {}
         bool _Validate(SpellEntry const * entry);
         bool _Load(Aura * aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const * aurApp = NULL);
@@ -455,6 +461,20 @@ class AuraScript : public _SpellScript
         Aura * m_aura;
         AuraApplication const * m_auraApplication;
         bool m_defaultActionPrevented;
+
+        class ScriptStateStore
+        {
+        public:
+            uint8 _currentScriptState;
+            AuraApplication const * _auraApplication;
+            bool _defaultActionPrevented;
+            ScriptStateStore(uint8 currentScriptState, AuraApplication const * auraApplication, bool defaultActionPrevented)
+                : _currentScriptState(currentScriptState), _auraApplication(auraApplication), _defaultActionPrevented(defaultActionPrevented)
+            {}
+        };
+        typedef std::stack<ScriptStateStore> ScriptStateStack;
+        ScriptStateStack m_scriptStates;
+        
     public:
         //
         // AuraScript interface
