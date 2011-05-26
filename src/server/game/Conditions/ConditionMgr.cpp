@@ -252,9 +252,9 @@ ConditionList ConditionMgr::GetConditionReferences(uint32 refId)
     return conditions;
 }
 
-bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, const ConditionList& conditions, Unit* invoker)
+bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, ConditionList const& conditions, Unit* invoker /*= NULL*/)
 {
-    std::map<uint32, bool>ElseGroupMap;
+    std::map<uint32, bool> ElseGroupMap;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
     {
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->mConditionType, (*i)->mConditionValue1);
@@ -295,19 +295,19 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, const ConditionLi
     return false;
 }
 
-bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* invoker)
+bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList const& conditions, Unit* invoker /*= NULL*/)
 {
     if (conditions.empty())
         return true;
 
-    if(player)
+    if (player)
         player->m_ConditionErrorMsgId = 0;
 
     sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditions");
     bool result = IsPlayerMeetToConditionList(player, conditions, invoker);
 
     if (player && player->m_ConditionErrorMsgId && player->GetSession() && !result)
-            player->GetSession()->SendNotification(player->m_ConditionErrorMsgId);//m_ConditionErrorMsgId is set only if a condition was not met
+        player->GetSession()->SendNotification(player->m_ConditionErrorMsgId);  //m_ConditionErrorMsgId is set only if a condition was not met
 
     return result;
 }
