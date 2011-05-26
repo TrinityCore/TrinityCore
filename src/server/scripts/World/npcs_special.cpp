@@ -1250,7 +1250,7 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -1303,7 +1303,7 @@ public:
                 pPlayer->CastSpell(pPlayer, 21100, false);
                 break;
             case GOSSIP_ACTION_TRAIN:
-                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendTrainerList(pCreature->GetGUID());
                 break;
             case GOSSIP_OPTION_UNLEARNTALENTS:
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -2494,7 +2494,7 @@ public:
             pPlayer->SEND_GOSSIP_MENU(13583, pCreature->GetGUID());
         }
         else
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -2505,7 +2505,7 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_TRADE:
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->CLOSE_GOSSIP_MENU();

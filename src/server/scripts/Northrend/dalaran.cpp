@@ -149,10 +149,10 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRAIN)
-            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendTrainerList(pCreature->GetGUID());
 
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
