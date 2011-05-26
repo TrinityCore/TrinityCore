@@ -1297,7 +1297,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             break;
         case SPELLFAMILY_WARLOCK:
             // Life Tap
-            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARLOCK_LIFETAP)
+            if ((m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARLOCK_LIFETAP) && m_caster->ToPlayer())
             {
                 float spFactor = 0.0f;
                 switch (m_spellInfo->Id)
