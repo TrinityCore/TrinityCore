@@ -8539,55 +8539,53 @@ void ObjectMgr::LoadGossipMenuItems()
 
         GossipMenuItems gMenuItem;
 
-        gMenuItem.menu_id               = fields[0].GetUInt32();
-        gMenuItem.id                    = fields[1].GetUInt32();
-        gMenuItem.option_icon           = fields[2].GetUInt8();
-        gMenuItem.option_text           = fields[3].GetString();
-        gMenuItem.option_id             = fields[4].GetUInt32();
-        gMenuItem.npc_option_npcflag    = fields[5].GetUInt32();
-        gMenuItem.action_menu_id        = fields[6].GetUInt32();
-        gMenuItem.action_poi_id         = fields[7].GetUInt32();
-        gMenuItem.action_script_id      = fields[8].GetUInt32();
-        gMenuItem.box_coded             = fields[9].GetUInt8() != 0;
-        gMenuItem.box_money             = fields[10].GetUInt32();
-        gMenuItem.box_text              = fields[11].GetString();
+        gMenuItem.MenuId                = fields[0].GetUInt32();
+        gMenuItem.OptionIndex           = fields[1].GetUInt32();
+        gMenuItem.OptionIcon            = fields[2].GetUInt8();
+        gMenuItem.OptionText            = fields[3].GetString();
+        gMenuItem.OptionType            = fields[4].GetUInt32();
+        gMenuItem.OptionNpcflag         = fields[5].GetUInt32();
+        gMenuItem.ActionMenuId          = fields[6].GetUInt32();
+        gMenuItem.ActionPoiId           = fields[7].GetUInt32();
+        gMenuItem.ActionScriptId        = fields[8].GetUInt32();
+        gMenuItem.BoxCoded              = fields[9].GetBool();
+        gMenuItem.BoxMoney              = fields[10].GetUInt32();
+        gMenuItem.BoxText               = fields[11].GetString();
 
-        if (gMenuItem.option_icon >= GOSSIP_ICON_MAX)
+        if (gMenuItem.OptionIcon >= GOSSIP_ICON_MAX)
         {
-            sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u has unknown icon id %u. Replacing with GOSSIP_ICON_CHAT", gMenuItem.menu_id, gMenuItem.id, gMenuItem.option_icon);
-            gMenuItem.option_icon = GOSSIP_ICON_CHAT;
+            sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u has unknown icon id %u. Replacing with GOSSIP_ICON_CHAT", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionIcon);
+            gMenuItem.OptionIcon = GOSSIP_ICON_CHAT;
         }
 
-        if (gMenuItem.option_id >= GOSSIP_OPTION_MAX)
-            sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u has unknown option id %u. Option will not be used", gMenuItem.menu_id, gMenuItem.id, gMenuItem.option_id);
+        if (gMenuItem.OptionType >= GOSSIP_OPTION_MAX)
+            sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u has unknown option id %u. Option will not be used", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionType);
 
-        if (gMenuItem.action_poi_id && !GetPointOfInterest(gMenuItem.action_poi_id))
+        if (gMenuItem.ActionPoiId && !GetPointOfInterest(gMenuItem.ActionPoiId))
         {
-            sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u use non-existing action_poi_id %u, ignoring", gMenuItem.menu_id, gMenuItem.id, gMenuItem.action_poi_id);
-            gMenuItem.action_poi_id = 0;
+            sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u use non-existing action_poi_id %u, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionPoiId);
+            gMenuItem.ActionPoiId = 0;
         }
 
-        if (gMenuItem.action_script_id)
+        if (gMenuItem.ActionScriptId)
         {
-            if (gMenuItem.option_id != GOSSIP_OPTION_GOSSIP)
+            if (gMenuItem.OptionType != GOSSIP_OPTION_GOSSIP)
             {
-                sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u but option_id is not GOSSIP_OPTION_GOSSIP, ignoring", gMenuItem.menu_id, gMenuItem.id, gMenuItem.action_script_id);
+                sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u but option_id is not GOSSIP_OPTION_GOSSIP, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionScriptId);
                 continue;
             }
 
-            if (sGossipScripts.find(gMenuItem.action_script_id) == sGossipScripts.end())
+            if (sGossipScripts.find(gMenuItem.ActionScriptId) == sGossipScripts.end())
             {
-                sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u that does not exist in `gossip_scripts`, ignoring", gMenuItem.menu_id, gMenuItem.id, gMenuItem.action_script_id);
+                sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u that does not exist in `gossip_scripts`, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionScriptId);
                 continue;
             }
 
-            gossipScriptSet.erase(gMenuItem.action_script_id);
+            gossipScriptSet.erase(gMenuItem.ActionScriptId);
         }
 
-        m_mGossipMenuItemsMap.insert(GossipMenuItemsMap::value_type(gMenuItem.menu_id, gMenuItem));
-
+        m_mGossipMenuItemsMap.insert(GossipMenuItemsMap::value_type(gMenuItem.MenuId, gMenuItem));
         ++count;
-
     }
     while (result->NextRow());
 

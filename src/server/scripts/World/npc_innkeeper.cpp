@@ -118,7 +118,7 @@ public:
 
         switch (uiAction)
         {
-            case GOSSIP_ACTION_TRADE: pPlayer->SEND_VENDORLIST(pCreature->GetGUID()); break;
+            case GOSSIP_ACTION_TRADE: pPlayer->GetSession()->SendListInventory(pCreature->GetGUID()); break;
             case GOSSIP_ACTION_INN: pPlayer->SetBindPoint(pCreature->GetGUID()); break;
         }
         return true;

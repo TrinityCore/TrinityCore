@@ -171,6 +171,8 @@ class Aura
         void LoadScripts();
         bool CallScriptEffectApplyHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectRemoveHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
+        void CallScriptAfterEffectApplyHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
+        void CallScriptAfterEffectRemoveHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect * aurEff);
         void CallScriptEffectCalcAmountHandlers(AuraEffect const * aurEff, int32 & amount, bool & canBeRecalculated);

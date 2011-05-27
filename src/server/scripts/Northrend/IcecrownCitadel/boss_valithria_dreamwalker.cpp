@@ -297,6 +297,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                 if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
+
+                if (!me->isDead())
+                    Reset();
             }
 
             void Reset()

@@ -79,7 +79,7 @@ public:
 
                     DoCast(me, SPELL_CONVERT_CREDIT);
                     if (me->isPet())
-                        CAST_PET(me)->SetDuration(7500);
+                        me->ToPet()->SetDuration(7500);
                     Credit = true;
                 } else Timer -= diff;
             }

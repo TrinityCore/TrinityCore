@@ -59,7 +59,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_FROZEN_THRONE), GOSSIP_SENDER_ICC_PORT, FROZEN_THRONE_TELEPORT);
             }
 
-            player->SEND_GOSSIP_MENU(go->GetGOInfo()->GetGossipMenuId(), go->GetGUID());
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go->GetGOInfo()->GetGossipMenuId()), go->GetGUID());
             return true;
         }
 

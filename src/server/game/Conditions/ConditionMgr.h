@@ -150,7 +150,7 @@ class ConditionMgr
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
 
-        bool IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* invoker = NULL);
+        bool IsPlayerMeetToConditions(Player* player, ConditionList const& conditions, Unit* invoker = NULL);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
 
@@ -166,7 +166,7 @@ class ConditionMgr
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
-        bool IsPlayerMeetToConditionList(Player* player, const ConditionList& conditions, Unit* invoker = NULL);
+        bool IsPlayerMeetToConditionList(Player* player, ConditionList const& conditions, Unit* invoker = NULL);
 
         bool isGroupable(ConditionSourceType sourceType) const
         {

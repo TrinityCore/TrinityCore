@@ -173,41 +173,26 @@ public:
 
         void Reset()
         {
-            InitScriptData();
-        }
-
-        void InitScriptData()
-        {
-            Player* pPlayer = NULL;
+            uint64 summonerGUID = 0;
+            Player* player = NULL;
             if (me->isSummon())
-                if (Unit* summoner = CAST_SUM(me)->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                     if (summoner->GetTypeId() == TYPEID_PLAYER)
-                        pPlayer = CAST_PLR(summoner);
+                        summonerGUID = summoner->GetGUID();
 
-            if (!pPlayer)
+            if (!summonerGUID)
                 return;
 
             me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
-            Start(false, false, pPlayer->GetGUID());
+            Start(false, false, summonerGUID);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            Player* pPlayer = NULL;
-            if (me->isSummon())
-                if (Unit* summoner = CAST_SUM(me)->GetSummoner())
-                    if (summoner->GetTypeId() == TYPEID_PLAYER)
-                        pPlayer = CAST_PLR(summoner);
-
-            if (!pPlayer)
+            if (waypointId != 26)
                 return;
 
-            switch(i)
-            {
-            case 26:
-                me->DespawnOrUnsummon();
-                break;
-            }
+            me->DespawnOrUnsummon();
         }
     };
 

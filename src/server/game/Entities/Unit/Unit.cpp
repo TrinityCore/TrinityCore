@@ -2312,6 +2312,11 @@ int32 Unit::GetMechanicResistChance(const SpellEntry *spell)
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 {
+    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
+    // resist and deflect chances
+    if (spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
+        return SPELL_MISS_NONE;
+
     WeaponAttackType attType = BASE_ATTACK;
 
     // Check damage class instead of attack type to correctly handle judgements
@@ -2496,23 +2501,27 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player *modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spell->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
+
     // Increase from attacker SPELL_AURA_MOD_INCREASES_SPELL_PCT_TO_HIT auras
     modHitChance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_INCREASES_SPELL_PCT_TO_HIT, schoolMask);
-    // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
-    // don't reduce the hit chance of chaos bolt
-    if (spell->SpellIconID != 3178) 
-    modHitChance += pVictim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
-    // Reduce spell hit chance for Area of effect spells from victim SPELL_AURA_MOD_AOE_AVOIDANCE aura
-    if (IsAreaOfEffectSpell(spell))
-        modHitChance -= pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_AOE_AVOIDANCE);
+
+    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
+    if (!(spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
+    {
+        // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
+        modHitChance += pVictim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
+        // Reduce spell hit chance for Area of effect spells from victim SPELL_AURA_MOD_AOE_AVOIDANCE aura
+        if (IsAreaOfEffectSpell(spell))
+            modHitChance -= pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_AOE_AVOIDANCE);
+
+        // Decrease hit chance from victim rating bonus
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            modHitChance -= int32(pVictim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL));
+    }
 
     int32 HitChance = modHitChance * 100;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     HitChance += int32(m_modSpellHitChance * 100.0f);
-
-    // Decrease hit chance from victim rating bonus
-    if (pVictim->GetTypeId() == TYPEID_PLAYER)
-        HitChance -= int32(pVictim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL) * 100.0f);
 
     if (HitChance < 100)
         HitChance = 100;
@@ -2525,6 +2534,11 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 
     if (rand < tmp)
         return SPELL_MISS_MISS;
+
+    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
+    // resist and deflect chances
+    if (spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
+        return SPELL_MISS_NONE;
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
     int32 resist_chance = pVictim->GetMechanicResistChance(spell) * 100;
@@ -2555,7 +2569,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         return SPELL_MISS_RESIST;
 
     // cast by caster in front of victim
-    if ((pVictim->HasInArc(M_PI, this) || pVictim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)) && spell->SpellIconID != 3178)   // don't increase the reflect chance of chaos bolt
+    if (pVictim->HasInArc(M_PI, this) || pVictim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
     {
         int32 deflect_chance = pVictim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         tmp += deflect_chance;
@@ -3287,7 +3301,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     ASSERT(aurApp);
     ASSERT(!aurApp->GetRemoveMode());
     ASSERT(aurApp->GetTarget() == this);
-  
+
     aurApp->SetRemoveMode(removeMode);
     Aura * aura = aurApp->GetBase();
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura %u now is remove mode %d", aura->GetId(), removeMode);
@@ -3586,9 +3600,9 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
 {
     // we've special situation here, RemoveAura called while during aura removal
     // this kind of call is needed only when aura effect removal handler
-    // or event triggered by it expects to remove 
+    // or event triggered by it expects to remove
     // not yet removed effects of an aura
-    if(aurApp->GetRemoveMode())
+    if (aurApp->GetRemoveMode())
     {
         // remove remaining effects of an aura
         for (uint8 itr = 0 ; itr < MAX_SPELL_EFFECTS; ++itr)
@@ -4053,7 +4067,7 @@ void Unit::RemoveArenaAuras(bool onleave)
         Aura const * aura = aurApp->GetBase();
         if (!(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                               // don't remove passive auras
-            && (!(aura->GetSpellProto()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY) || !(aura->GetSpellProto()->Attributes & SPELL_ATTR0_UNK8))   // not unaffected by invulnerability auras or not having that unknown flag (that seemed the most probable)
+            && (!(aura->GetSpellProto()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))   // not unaffected by invulnerability auras or not having that unknown flag (that seemed the most probable)
             && (aurApp->IsPositive() ^ onleave))                   // remove positive buffs on enter, negative buffs on leave
             RemoveAura(iter);
         else
@@ -5753,14 +5767,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 // Glyph of Polymorph
                 case 56375:
+                {
                     target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
                     target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                     target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                     return true;
+                }
                 // Glyph of Icy Veins
                 case 56374:
                 {
-                    RemoveAurasByType(SPELL_AURA_MOD_MELEE_HASTE, 0, 0, true, false);
+                    RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, 0, true, false);
                     RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
                     return true;
                 }

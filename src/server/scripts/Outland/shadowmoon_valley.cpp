@@ -391,7 +391,7 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -552,7 +552,7 @@ public:
         switch (uiAction)
         {
             case GOSSIP_ACTION_TRADE:
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF:
                 pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
