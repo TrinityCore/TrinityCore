@@ -692,6 +692,10 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                 (m_respawnTime > 0 && !m_spawnedByDefault) ||
                 (m_respawnTime == 0 && m_spawnedByDefault);
         }
+
+        // GO nach gegebener Zeit resetten
+        void SetResetTime(uint32 time) { m_resetTimer = time; }
+
         bool isSpawnedByDefault() const { return m_spawnedByDefault; }
         void SetSpawnedByDefault(bool b) { m_spawnedByDefault = b; }
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
@@ -785,6 +789,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         LootState   m_lootState;
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
+
+        uint32 m_resetTimer;                                // GO nach dieser Zeit resetten
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         std::list<uint32> m_SkillupList;
 

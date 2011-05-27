@@ -42,7 +42,7 @@
 #include "CreatureAISelector.h"
 #include "Group.h"
 
-GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue), m_AI(NULL)
+GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue), m_AI(NULL), m_resetTimer(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -586,6 +586,16 @@ void GameObject::Update(uint32 diff)
             break;
         }
     }
+
+    // GO nach gegebener Zeit resetten
+    if (m_resetTimer && m_resetTimer <= diff)
+    {
+        ResetDoorOrButton();
+        m_resetTimer = 0;
+    }
+    else
+        m_resetTimer -= diff;
+
     sScriptMgr->OnGameObjectUpdate(this, diff);
 }
 
