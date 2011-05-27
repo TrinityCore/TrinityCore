@@ -98,10 +98,11 @@ public:
     std::string GetAssignedToName() const
     {
         std::string name;
+        // save queries if ticket is not assigned
         if (_assignedTo)
-            if (sObjectMgr->GetPlayerNameByGUID(_assignedTo, name))
-                return name;
-        return NULL;
+            sObjectMgr->GetPlayerNameByGUID(_assignedTo, name);
+
+        return name;
     }
     const uint64& GetLastModifiedTime() const { return _lastModifiedTime; }
     GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }
