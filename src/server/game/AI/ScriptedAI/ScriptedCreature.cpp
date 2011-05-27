@@ -505,6 +505,8 @@ void Scripted_NoMovementAI::AttackStart(Unit* target)
         DoStartNoMovement(target);
 }
 
+// BossAI - for instanced bosses
+
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
     summons(creature),
@@ -625,6 +627,63 @@ void BossAI::SummonedCreatureDespawn(Creature* summon)
 }
 
 void BossAI::UpdateAI(uint32 const diff)
+{
+    if (!UpdateVictim())
+        return;
+
+    events.Update(diff);
+
+    if (me->HasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    while (uint32 eventId = events.ExecuteEvent())
+        ExecuteEvent(eventId);
+
+    DoMeleeAttackIfReady();
+}
+
+// WorldBossAI - for non-instanced bosses
+
+WorldBossAI::WorldBossAI(Creature* creature) :
+    ScriptedAI(creature),
+    summons(creature)
+{
+}
+
+void WorldBossAI::_Reset()
+{
+    if (!me->isAlive())
+        return;
+
+    events.Reset();
+    summons.DespawnAll();
+}
+
+void WorldBossAI::_JustDied()
+{
+    events.Reset();
+    summons.DespawnAll();
+}
+
+void WorldBossAI::_EnterCombat()
+{
+    me->setActive(true);
+    DoZoneInCombat();
+}
+
+void WorldBossAI::JustSummoned(Creature* summon)
+{
+    summons.Summon(summon);
+    if (me->isInCombat())
+        DoZoneInCombat(summon);
+}
+
+void WorldBossAI::SummonedCreatureDespawn(Creature* summon)
+{
+    summons.Despawn(summon);
+}
+
+void WorldBossAI::UpdateAI(uint32 const diff)
 {
     if (!UpdateVictim())
         return;
