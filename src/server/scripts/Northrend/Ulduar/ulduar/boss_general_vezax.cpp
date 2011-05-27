@@ -231,15 +231,15 @@ class boss_general_vezax : public CreatureScript
             {
                 if (instance)
                 {
-                    std::list<Player*> targets;
-                    SelectRandomTarget(false, &targets);
-                    if (!targets.empty())
-                    {// If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
-                        for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                        {
-                            if (*itr->HasSpell(SPELL_SHAMANTIC_RAGE))
-                                *itr->CastSpell(*itr, SPELL_CORRUPTED_RAGE, false);
-                        }
+                    Map* map = me->GetMap();
+                    if (map && map->IsDungeon())
+                    {
+                        // If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
+                        Map::PlayerList const& Players = map->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                            if (Player* player = itr->getSource())
+                                if (player->HasSpell(SPELL_SHAMANTIC_RAGE))
+                                    player->CastSpell(player, SPELL_CORRUPTED_RAGE, false);
                     }
                 }
             }
