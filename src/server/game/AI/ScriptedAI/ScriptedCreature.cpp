@@ -667,15 +667,15 @@ void WorldBossAI::_JustDied()
 
 void WorldBossAI::_EnterCombat()
 {
-    me->setActive(true);
-    DoZoneInCombat();
+    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+        AttackStart(target);
 }
 
 void WorldBossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    if (me->isInCombat())
-        DoZoneInCombat(summon);
+    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true));
+        summon->AI()->AttackStart(target);
 }
 
 void WorldBossAI::SummonedCreatureDespawn(Creature* summon)
