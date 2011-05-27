@@ -100,7 +100,8 @@ Unit::Unit(): WorldObject(),
 m_movedPlayer(NULL), m_lastSanctuaryTime(0), IsAIEnabled(false), NeedChangeAI(false),
 m_ControlledByPlayer(false), i_AI(NULL), i_disabledAI(NULL), m_procDeep(0),
 m_removedAurasCount(0), i_motionMaster(this), m_ThreatManager(this), m_vehicle(NULL),
-m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
+m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this),
+m_disappearTimer(0)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -293,6 +294,21 @@ void Unit::Update(uint32 p_time)
     ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, HealthAbovePct(75));
 
     i_motionMaster.UpdateMotion(p_time);
+
+    // Unit nach gegebener Zeit verschwinden lassen
+    if (m_disappearTimer && GetTypeId() != TYPEID_PLAYER && m_disappearTimer <= p_time)
+    {
+        DestroyForNearbyPlayers();
+        
+        if (isAlive())
+            setDeathState(JUST_DIED);
+
+        ToCreature()->RemoveCorpse(false);
+
+        m_disappearTimer = 0;
+    }
+    else
+        m_disappearTimer -= p_time;
 }
 
 bool Unit::haveOffhandWeapon() const

@@ -1534,6 +1534,9 @@ class Unit : public WorldObject
         DeathState getDeathState() { return m_deathState; };
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
+        // Unit nach gegebener Zeit verschwinden lassen
+        void SetTimeUntilDisappear(uint32 time) { m_disappearTimer = time; };
+
         uint64 GetOwnerGUID() const { return  GetUInt64Value(UNIT_FIELD_SUMMONEDBY); }
         uint64 GetCreatorGUID() const { return GetUInt64Value(UNIT_FIELD_CREATEDBY); }
         void SetCreatorGUID(uint64 creator) { SetUInt64Value(UNIT_FIELD_CREATEDBY, creator); }
@@ -2144,6 +2147,8 @@ class Unit : public WorldObject
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
+
+        uint32 m_disappearTimer;
 
         ThreatManager m_ThreatManager;
 
