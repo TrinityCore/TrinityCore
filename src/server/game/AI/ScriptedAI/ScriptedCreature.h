@@ -305,6 +305,36 @@ class BossAI : public ScriptedAI
         uint32 const _bossId;
 };
 
+class WorldBossAI : public ScriptedAI
+{
+    public:
+        WorldBossAI(Creature* creature);
+        virtual ~WorldBossAI() {}
+
+        void JustSummoned(Creature* summon);
+        void SummonedCreatureDespawn(Creature* summon);
+
+        virtual void UpdateAI(uint32 const diff);
+
+        // Hook used to execute events scheduled into EventMap without the need
+        // to override UpdateAI
+        // note: You must re-schedule the event within this method if the event
+        // is supposed to run more than once
+        virtual void ExecuteEvent(uint32 const /*eventId*/) { }
+
+        void Reset() { _Reset(); }
+        void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
+        void JustDied(Unit* /*killer*/) { _JustDied(); }
+
+    protected:
+        void _Reset();
+        void _EnterCombat();
+        void _JustDied();
+
+        EventMap events;
+        SummonList summons;
+};
+
 // SD2 grid searchers.
 Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true);
 GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange);
