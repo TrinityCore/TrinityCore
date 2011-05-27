@@ -180,7 +180,7 @@ class GossipMenu
             return _menuItems.empty();
         }
 
-        GossipMenuItem const* GetItem(unsigned int id) const
+        GossipMenuItem const* GetItem(uint32 id) const
         {
             GossipMenuItemContainer::const_iterator itr = _menuItems.find(id);
             if (itr != _menuItems.end())
@@ -189,7 +189,7 @@ class GossipMenu
             return NULL;
         }
 
-        GossipMenuItemData const* GetItemData(unsigned int indexId) const
+        GossipMenuItemData const* GetItemData(uint32 indexId) const
         {
             GossipMenuItemDataContainer::const_iterator itr = _menuItemData.find(indexId);
             if (itr != _menuItemData.end())
