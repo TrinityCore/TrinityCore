@@ -175,7 +175,7 @@ struct ManaVoidSelector : public std::unary_function<Unit*, bool>
 class DelayedCastEvent : public BasicEvent
 {
     public:
-        DelayedCastEvent(Creature* trigger, uint32 spellId, uint64 originalCaster, uint32 despawnTime) : _trigger(trigger), _spellId(spellId), _originalCaster(originalCaster), _despawnTime(despawnTime)
+        DelayedCastEvent(Creature* trigger, uint32 spellId, uint64 originalCaster, uint32 despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
         {
         }
 
@@ -879,12 +879,12 @@ class npc_blistering_zombie : public CreatureScript
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_ACID_BURST, true);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1173,7 +1173,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_summon_suppresser_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
