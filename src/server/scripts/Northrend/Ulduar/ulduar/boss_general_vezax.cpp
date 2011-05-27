@@ -21,7 +21,7 @@
 #include "SpellAuraEffects.h"
 #include "ulduar.h"
 
-enum eYells
+enum VezaxYells
 {
     SAY_AGGRO                                    = -1603290,
     SAY_SLAY_1                                   = -1603291,
@@ -32,7 +32,7 @@ enum eYells
     SAY_HARDMODE                                 = -1603296,
 };
 
-enum eEmotes
+enum VezaxEmotes
 {
     EMOTE_VAPORS                                 = -1603289,
     EMOTE_ANIMUS                                 = -1603297,
@@ -40,7 +40,7 @@ enum eEmotes
     EMOTE_SURGE_OF_DARKNESS                      = -1603299,
 };
 
-enum eSpells
+enum VezaxSpells
 {
     SPELL_AURA_OF_DESPAIR                        = 62692,
     SPELL_MARK_OF_THE_FACELESS                   = 63276,
@@ -52,32 +52,38 @@ enum eSpells
     SPELL_SURGE_OF_DARKNESS                      = 62662,
     SPELL_SARONITE_VAPORS                        = 63323,
     SPELL_SUMMON_SARONITE_VAPORS                 = 63081,
-    SPELL_PROFOUND_OF_DARKNESS                   = 63420,
     SPELL_BERSERK                                = 26662,
 
     SPELL_SUMMON_SARONITE_ANIMUS                 = 63145,
     SPELL_VISUAL_SARONITE_ANIMUS                 = 63319,
-    SPELL_PROFOUND_DARKNESS                      = 63420,
+    SPELL_PROFOUND_OF_DARKNESS                   = 63420,
 
     SPELL_CORRUPTED_RAGE                         = 68415,
     SPELL_SHAMANTIC_RAGE                         = 30823,
 };
 
-enum eActions
+enum VezaxActions
 {
     ACTION_VAPORS_SPAWN,
     ACTION_VAPORS_DIE,
     ACTION_ANIMUS_DIE,
 };
 
-enum eEvents
+enum VezaxEvents
 {
+    // Vezax
     EVENT_SHADOW_CRASH                           = 1,
     EVENT_SEARING_FLAMES                         = 2,
     EVENT_SURGE_OF_DARKNESS                      = 3,
     EVENT_MARK_OF_THE_FACELESS                   = 4,
     EVENT_SARONITE_VAPORS                        = 5,
     EVENT_BERSERK                                = 6,
+
+    // Saronite Animus
+    EVENT_PROFOUND_OF_DARKNESS                   = 7,
+
+    // Saronite Vapor
+    EVENT_RANDOM_MOVE                            = 8,
 };
 
 #define ACHIEVEMENT_SMELL_SARONITE               RAID_MODE<uint32>(3181, 3188)
@@ -85,331 +91,350 @@ enum eEvents
 
 class boss_general_vezax : public CreatureScript
 {
-public:
-    boss_general_vezax() : CreatureScript("boss_general_vezax") { }
+    public:
+        boss_general_vezax() : CreatureScript("boss_general_vezax") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_general_vezaxAI(pCreature);
-    }
-
-    struct boss_general_vezaxAI : public BossAI
-    {
-        boss_general_vezaxAI(Creature *pCreature) : BossAI(pCreature, BOSS_VEZAX)
+        struct boss_general_vezaxAI : public BossAI
         {
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
-        }
-
-        bool bShadowDodger;
-        bool bSmellSaronite; /*HardMode*/
-        bool bAnimusDead; /*Check against getting a HardMode achievement before killing Saronite Animus*/
-        uint8 uiVaporCount;
-
-        void Reset()
-        {
-            _Reset();
-
-            bShadowDodger = true;
-            bSmellSaronite = true;
-            bAnimusDead = false;
-            uiVaporCount = 0;
-        }
-
-        void EnterCombat(Unit * /*pWho*/)
-        {
-            _EnterCombat();
-
-            DoScriptText(SAY_AGGRO, me);
-            DoCast(me, SPELL_AURA_OF_DESPAIR);
-            CheckShamanisticRage();
-
-            events.Reset();
-            events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
-            events.ScheduleEvent(EVENT_SEARING_FLAMES, 12000);
-            events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 40000));
-            events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30000);
-            events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 60000);
-            events.ScheduleEvent(EVENT_BERSERK, 600000);
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(uiDiff);
-
-            if (me->HasUnitState(UNIT_STAT_CASTING))
-                return;
-
-            while (uint32 uiEventId = events.ExecuteEvent())
+            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
             {
-                switch (uiEventId)
-                {
-                    case EVENT_SHADOW_CRASH:
-                        if (Unit * pTarget = GetPlayerAtMinimumRange(15.0f))
-                            DoCast(pTarget, SPELL_SHADOW_CRASH);
-                        events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 12000));
-                        break;
-                    case EVENT_SEARING_FLAMES:
-                        DoCastAOE(SPELL_SEARING_FLAMES);
-                        events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
-                        break;
-                    case EVENT_MARK_OF_THE_FACELESS:
-                    {
-                        /*  He will not cast this on players within 15 yards of him.
-                            However, if there are not at least 9 people outside of 15 yards
-                            he will start casting it on players inside 15 yards melee and tank included.
-                        */
-                        Unit* target = CheckPlayersInRange(RAID_MODE<uint32>(4, 9), 15.0f, 50.f);
-                        if (!target)
-                            target = SelectTarget(SELECT_TARGET_RANDOM);
-                        DoCast(target, SPELL_MARK_OF_THE_FACELESS);
-                        events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
-                        break;
-                    }
-                    case EVENT_SURGE_OF_DARKNESS:
-                        DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
-                        DoScriptText(SAY_SURGE_OF_DARKNESS, me);
-                        DoCast(me, SPELL_SURGE_OF_DARKNESS);
-                        events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
-                        break;
-                    case EVENT_SARONITE_VAPORS:
-                        DoCast(SPELL_SUMMON_SARONITE_VAPORS);
-                        events.ScheduleEvent(EVENT_SARONITE_VAPORS, urand(30000, 35000));
+            }
 
-                        if (++uiVaporCount == 6 && bSmellSaronite)
+            bool shadowDodger;
+            bool smellSaronite; // HardMode
+            bool animusDead; // Check against getting a HardMode achievement before killing Saronite Animus
+            uint8 vaporCount;
+
+            void Reset()
+            {
+                _Reset();
+
+                shadowDodger = true;
+                smellSaronite = true;
+                animusDead = false;
+                vaporCount = 0;
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+
+                DoScriptText(SAY_AGGRO, me);
+                DoCast(me, SPELL_AURA_OF_DESPAIR);
+                CheckShamanisticRage();
+
+                events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
+                events.ScheduleEvent(EVENT_SEARING_FLAMES, 12000);
+                events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 40000));
+                events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30000);
+                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 60000);
+                events.ScheduleEvent(EVENT_BERSERK, 600000);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SHADOW_CRASH:
                         {
-                            DoScriptText(SAY_HARDMODE, me);
-                            DoScriptText(EMOTE_BARRIER, me);
-                            summons.DespawnAll();
-                            DoCast(me, SPELL_SARONITE_BARRIER);
-                            DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
-                            me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                            events.CancelEvent(EVENT_SARONITE_VAPORS);
-                            events.CancelEvent(EVENT_SEARING_FLAMES);
+                            Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(4, 9), 15.0f, 50.0f);
+                            if (!target)
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
+                            if (target)
+                                DoCast(target, SPELL_SHADOW_CRASH);
+                            events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 12000));
+                            break;
                         }
-                        break;
-                    case EVENT_BERSERK:
-                        DoScriptText(SAY_BERSERK, me);
-                        DoCast(me, SPELL_BERSERK);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        void SpellHitTarget(Unit * pWho, const SpellEntry * pSpell)
-        {
-            if (pWho && pWho->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SHADOW_CRASH_HIT)
-                bShadowDodger = false;
-        }
-
-        void KilledUnit(Unit * /*pWho*/)
-        {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
-        }
-
-        void JustDied(Unit * /*pWho*/)
-        {
-            _JustDied();
-
-            DoScriptText(SAY_DEATH, me);
-
-            if (instance)
-            {
-                if (bShadowDodger)
-                    instance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
-
-                if (bSmellSaronite && bAnimusDead)
-                    instance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
-            }
-        }
-
-        void CheckShamanisticRage()
-        {
-            if (instance)
-            {
-                Map * pMap = me->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    /* If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him */
-                    Map::PlayerList const &Players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                        if (Player * pPlayer = itr->getSource())
-                            if (pPlayer->HasSpell(SPELL_SHAMANTIC_RAGE))
-                                pPlayer->CastSpell(pPlayer, SPELL_CORRUPTED_RAGE, false);
-                }
-            }
-        }
-
-        void DoAction(const int32 uiAction)
-        {
-            switch (uiAction)
-            {
-                case ACTION_VAPORS_DIE:
-                    bSmellSaronite = false;
-                    break;
-                case ACTION_ANIMUS_DIE:
-                    me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
-                    events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(7000, 12000));
-                    bAnimusDead = true;
-                    break;
-            }
-        }
-
-        /*  Player Range Check
-            Purpose: If there are uiPlayersMin people within uiRangeMin, uiRangeMax: return a random players in that range.
-            If not, return NULL and allow other target selection
-        */
-        Unit* CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
-        {
-            Map* pMap = me->GetMap();
-            if (pMap && pMap->IsDungeon())
-            {
-                std::list<Player*> PlayerList;
-                Map::PlayerList const &Players = pMap->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                {
-                    if (Player * pPlayer = itr->getSource())
-                    {
-                        float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                        if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
-                            continue;
-
-                        PlayerList.push_back(pPlayer);
+                        case EVENT_SEARING_FLAMES:
+                            DoCastAOE(SPELL_SEARING_FLAMES);
+                            events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
+                            break;
+                        case EVENT_MARK_OF_THE_FACELESS:
+                        {
+                            Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(4, 9), 15.0f, 50.0f);
+                            if (!target)
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
+                            if (target)
+                                DoCast(target, SPELL_MARK_OF_THE_FACELESS);
+                            events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
+                            break;
+                        }
+                        case EVENT_SURGE_OF_DARKNESS:
+                            DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
+                            DoScriptText(SAY_SURGE_OF_DARKNESS, me);
+                            DoCast(me, SPELL_SURGE_OF_DARKNESS);
+                            events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
+                            break;
+                        case EVENT_SARONITE_VAPORS:
+                            DoCast(SPELL_SUMMON_SARONITE_VAPORS);
+                            events.ScheduleEvent(EVENT_SARONITE_VAPORS, urand(30000, 35000));
+                            if (++vaporCount == 6 && smellSaronite)
+                            {
+                                DoScriptText(SAY_HARDMODE, me);
+                                DoScriptText(EMOTE_BARRIER, me);
+                                summons.DespawnAll();
+                                DoCast(me, SPELL_SARONITE_BARRIER);
+                                DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
+                                me->AddLootMode(LOOT_MODE_HARD_MODE_1);
+                                events.CancelEvent(EVENT_SARONITE_VAPORS);
+                                events.CancelEvent(EVENT_SEARING_FLAMES);
+                            }
+                            break;
+                        case EVENT_BERSERK:
+                            DoScriptText(SAY_BERSERK, me);
+                            DoCast(me, SPELL_BERSERK);
+                            break;
                     }
                 }
 
-                if (PlayerList.empty())
-                    return NULL;
-
-                size_t size = PlayerList.size();
-                if (size < uiPlayersMin)
-                    return NULL;
-
-                std::list<Player*>::const_iterator itr = PlayerList.begin();
-                std::advance(itr, urand(0, size - 1));
-                return *itr;
+                DoMeleeAttackIfReady();
             }
-            else
+
+            void SpellHitTarget(Unit* who, const SpellEntry* spell)
+            {
+                if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
+                    shadowDodger = false;
+            }
+
+            void KilledUnit(Unit* /*who*/)
+            {
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                _JustDied();
+
+                DoScriptText(SAY_DEATH, me);
+
+                if (instance)
+                {
+                    if (shadowDodger)
+                        instance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
+
+                    if (smellSaronite && animusDead)
+                        instance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
+                }
+            }
+
+            void CheckShamanisticRage()
+            {
+                if (instance)
+                {
+                    std::list<Player*> targets;
+                    SelectRandomTarget(false, &targets);
+                    if (!targets.empty())
+                    {// If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
+                        for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                        {
+                            if (*itr->HasSpell(SPELL_SHAMANTIC_RAGE))
+                                *itr->CastSpell(*itr, SPELL_CORRUPTED_RAGE, false);
+                        }
+                    }
+                }
+            }
+
+            void DoAction(int32 const action)
+            {
+                switch (action)
+                {
+                    case ACTION_VAPORS_DIE:
+                        smellSaronite = false;
+                        break;
+                    case ACTION_ANIMUS_DIE:
+                        me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
+                        events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(7000, 12000));
+                        animusDead = true;
+                        break;
+                }
+            }
+
+            /*  Player Range Check
+                Purpose: If there are playersMin people within rangeMin, rangeMax: return a random players in that range.
+                If not, return NULL and allow other target selection
+            */
+            Unit* CheckPlayersInRange(uint8 playersMin, float rangeMin, float rangeMax)
+            {
+                Map* map = me->GetMap();
+                if (map && map->IsDungeon())
+                {
+                    std::list<Player*> PlayerList;
+                    Map::PlayerList const& Players = map->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                    {
+                        if (Player* player = itr->getSource())
+                        {
+                            float distance = player->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                            if (rangeMin > distance || distance > rangeMax)
+                                continue;
+
+                            PlayerList.push_back(player);
+                        }
+                    }
+
+                    if (PlayerList.empty())
+                        return NULL;
+
+                    size_t size = PlayerList.size();
+                    if (size < playersMin)
+                        return NULL;
+
+                    std::list<Player*>::const_iterator itr = PlayerList.begin();
+                    std::advance(itr, urand(0, size - 1));
+                    return *itr;
+                }
+                
                 return NULL;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_general_vezaxAI(creature);
         }
-    };
 };
 
 class boss_saronite_animus : public CreatureScript
 {
-public:
-    boss_saronite_animus() : CreatureScript("npc_saronite_animus") { }
+    public:
+        boss_saronite_animus() : CreatureScript("npc_saronite_animus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_saronite_animusAI(pCreature);
-    }
-
-    struct boss_saronite_animusAI : public ScriptedAI
-    {
-        boss_saronite_animusAI(Creature *pCreature) : ScriptedAI(pCreature)
+        struct boss_saronite_animusAI : public ScriptedAI
         {
-            pInstance = pCreature->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
-            DoScriptText(EMOTE_BARRIER, me);
-        }
-
-        InstanceScript * pInstance;
-
-        uint32 uiProfoundOfDarknessTimer;
-
-        void Reset()
-        {
-            DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
-            uiProfoundOfDarknessTimer = 3000;
-        }
-
-        void JustDied(Unit * /*pWho*/)
-        {
-            if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(BOSS_VEZAX) : 0))
-                pVezax->AI()->DoAction(ACTION_ANIMUS_DIE);
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiProfoundOfDarknessTimer <= uiDiff)
+            boss_saronite_animusAI(Creature* creature) : ScriptedAI(creature)
             {
-                DoCastAOE(SPELL_PROFOUND_DARKNESS);
-                uiProfoundOfDarknessTimer = 3000;
+                instance = me->GetInstanceScript();
+                DoScriptText(EMOTE_BARRIER, me);
             }
-            else
-                uiProfoundOfDarknessTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
+            void Reset()
+            {
+                DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
+                events.Reset();
+                events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                if (Creature* Vezax = me->GetCreature(*me, instance ? instance->GetData64(BOSS_VEZAX) : 0))
+                    Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PROFOUND_OF_DARKNESS:
+                            DoCastAOE(SPELL_PROFOUND_OF_DARKNESS, true);
+                            events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            InstanceScript* instance;
+            EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* pCreature) const
+        {
+            return new boss_saronite_animusAI(pCreature);
         }
-    };
 };
 
 class npc_saronite_vapors : public CreatureScript
 {
-public:
-    npc_saronite_vapors() : CreatureScript("npc_saronite_vapors") { }
+    public:
+        npc_saronite_vapors() : CreatureScript("npc_saronite_vapors") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_saronite_vaporsAI(pCreature);
-    }
-
-    struct npc_saronite_vaporsAI : public ScriptedAI
-    {
-        npc_saronite_vaporsAI(Creature *pCreature) : ScriptedAI(pCreature)
+        struct npc_saronite_vaporsAI : public ScriptedAI
         {
-            DoScriptText(EMOTE_VAPORS, me);
-            pInstance = pCreature->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
-            me->SetReactState(REACT_PASSIVE);
-            uiRandomMoveTimer = 1000;
-        }
-
-        InstanceScript * pInstance;
-
-        uint32 uiRandomMoveTimer;
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (uiRandomMoveTimer <= uiDiff)
+            npc_saronite_vaporsAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->GetMotionMaster()->MoveRandom(30.0f);
-                uiRandomMoveTimer = urand(5000, 7500);
+                DoScriptText(EMOTE_VAPORS, me);
+                instance = me->GetInstanceScript();
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
+                me->SetReactState(REACT_PASSIVE);
             }
-            else
-                uiRandomMoveTimer -= uiDiff;
-        }
 
-        void DamageTaken(Unit * /*pWho*/, uint32 &uiDamage)
-        {
-            // This can't be on JustDied. In 63322 dummy handler caster needs to be this NPC
-            // if caster == target then damage mods will increase the damage taken
-            if (uiDamage >= me->GetHealth())
+            void Reset()
             {
-                uiDamage = 0;
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
-                me->SetStandState(UNIT_STAND_STATE_DEAD);
-                me->SetHealth(me->GetMaxHealth());
-                me->RemoveAllAuras();
-                DoCast(me, SPELL_SARONITE_VAPORS);
-                me->DespawnOrUnsummon(30000);
-
-                if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(BOSS_VEZAX) : 0))
-                    pVezax->AI()->DoAction(ACTION_VAPORS_DIE);
+                events.Reset();
+                events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(5000, 7500));
             }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_RANDOM_MOVE:
+                            me->GetMotionMaster()->MoveRandom(30.0f);
+                            events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(5000, 7500));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void DamageTaken(Unit* /*who*/, uint32& damage)
+            {
+                // This can't be on JustDied. In 63322 dummy handler caster needs to be this NPC
+                // if caster == target then damage mods will increase the damage taken
+                if (damage >= me->GetHealth())
+                {
+                    damage = 0;
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetStandState(UNIT_STAND_STATE_DEAD);
+                    me->SetHealth(me->GetMaxHealth());
+                    me->RemoveAllAuras();
+                    DoCast(me, SPELL_SARONITE_VAPORS);
+                    me->DespawnOrUnsummon(30000);
+
+                    if (Creature* Vezax = me->GetCreature(*me, instance ? instance->GetData64(BOSS_VEZAX) : 0))
+                        Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
+                }
+            }
+
+        private:
+            InstanceScript* instance;
+            EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_saronite_vaporsAI(creature);
         }
-    };
 };
 
 class spell_mark_of_the_faceless : public SpellScriptLoader
@@ -423,15 +448,7 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                Unit* target = GetTarget();
-                Unit* caster = GetCaster();
-
-                if (!caster || !target)
-                    return;
-
-                // Casted by CastCustomSpell() because when it's cast by CastSpell(), damage is 1
-                int32 damage = int32(aurEff->GetBase()->GetEffect(EFFECT_0)->GetAmount());
-                caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, damage, target, true);
+                GetCaster()->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
             }
 
             void Register()
