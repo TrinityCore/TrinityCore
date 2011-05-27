@@ -535,8 +535,29 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/)
             {
-                UpdateVictim();
+                std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
+                if (threatList.empty())
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
+                // check evade every second tick
+                _evadeCheck ^= true;
+                if (!_evadeCheck)
+                    return;
+
+                // check if there is any player on threatlist, if not - evade
+                for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                    if (Unit* target = (*itr)->getTarget())
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            return; // found any player, return
+
+                EnterEvadeMode();
             }
+
+        private:
+            bool _evadeCheck;
         };
 
         CreatureAI* GetAI(Creature* creature) const
