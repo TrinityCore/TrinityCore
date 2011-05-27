@@ -19384,11 +19384,17 @@ void Player::VehicleSpellInitialize()
     if (!veh)
         return;
 
-    WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + 4 + 10); // last 10 is just 10 bytes with unknown meaning
+
+    uint8 cooldownCount = veh->m_CreatureSpellCooldowns.size() + veh->m_CreatureCategoryCooldowns.size();
+
+    WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
     data << uint64(veh->GetGUID());
     data << uint16(veh->GetCreatureInfo()->family);
     data << uint32(0);
-    data << uint32(0x00000101);
+    // The following three segments are read as one uint32
+    data << uint8(veh->GetReactState());
+    data << uint8(0);   // CommandState?
+    data << uint16(0);  // unk
 
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
@@ -19420,13 +19426,34 @@ void Player::VehicleSpellInitialize()
         data << uint16(0) << uint8(0) << uint8(i+8);
 
     data << uint8(0);
-    data << uint8(0);
-    data << uint32(0);  // some spell id (unk meaning)
+    /*if (v23 > 0)
+    {
+        for (uint32 i = 0; i < v23; ++i)
+            data << uint32(v16);    // Some spellid?     
+    }*/
 
-    // there are 10 more bytes here so just append them here
-    // their meaning or true layout is unknown
-    for (uint32 i = 0; i < 10; ++i)
-        data << uint8(0);
+    // Cooldowns
+    data << cooldownCount;
+
+    time_t now = sWorld->GetGameTime();
+    CreatureSpellCooldowns::const_iterator itr;
+    for (itr = veh->m_CreatureSpellCooldowns.begin(); itr != veh->m_CreatureSpellCooldowns.end(); ++itr)
+    {
+        time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
+        data << uint32(itr->first); // SpellId
+        data << uint16(0);          // unk
+        data << uint32(cooldown);   // spell cooldown
+        data << uint32(0);          // category cooldown
+    }
+
+    for (itr = veh->m_CreatureCategoryCooldowns.begin(); itr != veh->m_CreatureCategoryCooldowns.end(); ++itr)
+    {
+        time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
+        data << uint32(itr->first); // SpellId
+        data << uint16(0);          // unk
+        data << uint32(0);          // spell cooldown
+        data << uint32(cooldown);   // category cooldown
+    }
 
     GetSession()->SendPacket(&data);
 }
