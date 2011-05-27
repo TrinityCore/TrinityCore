@@ -1959,6 +1959,42 @@ struct WorldSafeLocsEntry
                                                             // 21 name flags, unused
 };
 
+/*
+struct WorldStateSounds
+{
+    uint32    ID;                                           // 0        Worldstate
+    uint32    unk;                                          // 1
+    uint32    areaTable;                                    // 2
+    uint32    WMOAreaTable;                                 // 3
+    uint32    zoneIntroMusicTable;                          // 4
+    uint32    zoneIntroMusic;                               // 5
+    uint32    zoneMusic;                                    // 6
+    uint32    soundAmbience;                                // 7
+    uint32    soundProviderPreferences;                     // 8
+};
+*/
+
+/*
+struct WorldStateUI
+{
+    uint32    ID;                                           // 0
+    uint32    map_id;                                       // 1        Can be -1 to show up everywhere. 
+    uint32    zone;                                         // 2        Can be zero for "everywhere". 
+    uint32    phaseMask;                                    // 3        Phase this WorldState is avaliable in
+    uint32    icon;                                         // 4        The icon that is used in the interface. 
+    char*     textureFilename;                              // 5
+    char*     text;                                         // 6-21     The worldstate text
+    char*     description;                                  // 22-38    Text shown when hovering mouse on icon
+    uint32    worldstateID;                                 // 39       This is the actual ID used
+    uint32    type;                                         // 40       0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
+    uint32    unk1;                                         // 41
+    uint32    unk2;                                         // 43
+    uint32    unk3;                                         // 44-58
+    uint32    unk4;                                         // 59-61    Used for some progress bars.
+    uint32    unk7;                                         // 62       Unused in 3.3.5a
+};
+*/
+
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
