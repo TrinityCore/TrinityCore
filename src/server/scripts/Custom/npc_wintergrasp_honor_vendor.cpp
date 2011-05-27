@@ -20,7 +20,7 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         Map::PlayerList const &playerList = pCreature->GetMap()->GetPlayers();
         if (!playerList.isEmpty())
