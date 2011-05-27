@@ -3228,6 +3228,25 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleBanInfoPlayerCommand(const char *args)
+{
+    Player* target;
+    uint64 target_guid;
+    if (!extractPlayerTarget((char*)args, &target, &target_guid))
+        return false;
+
+    uint32 accountid = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(target_guid);
+
+    std::string accountname;
+    if (!sAccountMgr->GetName(accountid,accountname))
+    {
+        PSendSysMessage(LANG_BANINFO_NOCHARACTER);
+        return true;
+    }
+
+    return HandleBanInfoHelper(accountid, accountname.c_str());
+}
+
 bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountid);

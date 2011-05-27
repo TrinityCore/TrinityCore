@@ -143,6 +143,7 @@ class ChatHandler
         bool HandleBanIPCommand(const char* args);
         bool HandleBanInfoAccountCommand(const char* args);
         bool HandleBanInfoCharacterCommand(const char* args);
+        bool HandleBanInfoPlayerCommand(const char* args);
         bool HandleBanInfoIPCommand(const char* args);
         bool HandleBanListAccountCommand(const char* args);
         bool HandleBanListCharacterCommand(const char* args);
