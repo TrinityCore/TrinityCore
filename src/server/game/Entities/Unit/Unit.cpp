@@ -16943,17 +16943,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     AddUnitState(UNIT_STAT_MOVE);
 
     if (GetTypeId() == TYPEID_PLAYER)
-    {
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
-
-        if (Pet *pPet = this->ToPlayer()->GetPet())
-        {
-            if (pPet && pPet->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && !pPet->HasUnitState(UNIT_STAT_STUNNED))
-                pPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-        }
-        else
-            this->ToPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-    }
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
