@@ -272,7 +272,7 @@ class BossAI : public ScriptedAI
         // to override UpdateAI
         // note: You must re-schedule the event within this method if the event
         // is supposed to run more than once
-        virtual void ExecuteEvent(uint32 const eventId) { }
+        virtual void ExecuteEvent(uint32 const /*eventId*/) { }
 
         void Reset() { _Reset(); }
         void EnterCombat(Unit* /*who*/) { _EnterCombat(); }

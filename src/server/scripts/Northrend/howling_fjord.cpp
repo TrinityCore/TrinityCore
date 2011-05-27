@@ -174,7 +174,7 @@ public:
         void Reset()
         {
             uint64 summonerGUID = 0;
-            Player* player = NULL;
+
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                     if (summoner->GetTypeId() == TYPEID_PLAYER)

@@ -85,7 +85,7 @@ public:
                 }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 /*data*/)
         {
             switch(type)
             {
