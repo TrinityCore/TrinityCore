@@ -108,36 +108,36 @@ enum Events
 {
     // Valithria Dreamwalker
     EVENT_INTRO_TALK                        = 1,
-    EVENT_BERSERK,
-    EVENT_DREAM_PORTAL,
-    EVENT_DREAM_SLIP,
+    EVENT_BERSERK                           = 2,
+    EVENT_DREAM_PORTAL                      = 3,
+    EVENT_DREAM_SLIP                        = 4,
 
     // The Lich King
-    EVENT_GLUTTONOUS_ABOMINATION_SUMMONER,
-    EVENT_SUPPRESSER_SUMMONER,
-    EVENT_BLISTERING_ZOMBIE_SUMMONER,
-    EVENT_RISEN_ARCHMAGE_SUMMONER,
-    EVENT_BLAZING_SKELETON_SUMMONER,
+    EVENT_GLUTTONOUS_ABOMINATION_SUMMONER   = 5,
+    EVENT_SUPPRESSER_SUMMONER               = 6,
+    EVENT_BLISTERING_ZOMBIE_SUMMONER        = 7,
+    EVENT_RISEN_ARCHMAGE_SUMMONER           = 8,
+    EVENT_BLAZING_SKELETON_SUMMONER         = 9,
 
     // Risen Archmage
-    EVENT_FROSTBOLT_VOLLEY,
-    EVENT_MANA_VOID,
-    EVENT_COLUMN_OF_FROST,
+    EVENT_FROSTBOLT_VOLLEY                  = 10,
+    EVENT_MANA_VOID                         = 11,
+    EVENT_COLUMN_OF_FROST                   = 12,
 
     // Blazing Skeleton
-    EVENT_FIREBALL,
-    EVENT_LEY_WASTE,
+    EVENT_FIREBALL                          = 13,
+    EVENT_LEY_WASTE                         = 14,
 
     // Suppresser
-    EVENT_SUPPRESSION,
+    EVENT_SUPPRESSION                       = 15,
 
     // Gluttonous Abomination
-    EVENT_GUT_SPRAY,
+    EVENT_GUT_SPRAY                         = 16,
 
     // Dream Cloud
     // Nightmare Cloud
-    EVENT_CHECK_PLAYER,
-    EVENT_EXPLODE,
+    EVENT_CHECK_PLAYER                      = 17,
+    EVENT_EXPLODE                           = 18,
 };
 
 enum Actions
@@ -364,13 +364,17 @@ class boss_valithria_dreamwalker : public CreatureScript
                         Talk(SAY_VALITHRIA_25_PERCENT);
                     }
 
-                    if (damage > me->GetHealth() && !_justDied)
+                    if (damage > me->GetHealth())
                     {
-                        _justDied = true;
-                        Talk(SAY_VALITHRIA_DEATH);
-                        _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
-                        if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_TRIGGER)))
-                            trigger->AI()->DoAction(ACTION_DEATH);
+                        damage = 0;
+                        if (!_justDied)
+                        {
+                            _justDied = true;
+                            Talk(SAY_VALITHRIA_DEATH);
+                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                            if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_TRIGGER)))
+                                trigger->AI()->DoAction(ACTION_DEATH);
+                        }
                     }
                 }
             }
