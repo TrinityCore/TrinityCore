@@ -1125,19 +1125,22 @@ class go_black_cage : public GameObjectScript
 public:
     go_black_cage() : GameObjectScript("go_black_cage") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    bool OnGossipHello(Player * pPlayer, GameObject * pGO)
     {
         if ((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
             (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
         {
-            Creature *pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT, 1.0f);
+            Creature * pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT, 5.0f);
+
             if (!pPrisoner)
-                pPrisoner = pGO->FindNearestCreature(NPC_KUL, 1.0f);
+                pPrisoner = pGO->FindNearestCreature(NPC_KUL, 5.0f);
+
             if (pPrisoner)
             {
                 pGO->UseDoorOrButton();
                 pPrisoner->DisappearAndDie();
                 pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(), 0);
+                pGO->ResetDoorOrButton();
             }
         }
         return true;
