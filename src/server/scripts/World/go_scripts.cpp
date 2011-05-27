@@ -1114,10 +1114,11 @@ public:
 
 enum eReallyDoneItThisTime
 {
-    QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL      = 14096,
-    QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL         = 14142,
-    NPC_CAPTIVE_ASPIRANT                                    = 34716,
-    NPC_KUL                                                 = 34956
+    QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL  = 14096,
+    QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL     = 14142,
+    NPC_CAPTIVE_ASPIRANT                                = 34716,
+    NPC_KUL                                             = 34956,
+    TEXT_ID                                             = -1560045
 };
 
 class go_black_cage : public GameObjectScript
@@ -1138,9 +1139,14 @@ public:
             if (pPrisoner)
             {
                 pGO->UseDoorOrButton();
-                pPrisoner->DisappearAndDie();
+                pGO->SetResetTime(65000);
+
+                pPrisoner->HandleEmoteCommand(EMOTE_ONESHOT_YES);
+                pPrisoner->Whisper(TEXT_ID, pPlayer->GetGUID());
+                pPrisoner->SetTimeUntilDisappear(5000);
+                pPrisoner->GetMotionMaster()->MoveFleeing(pPlayer, 5000);
+
                 pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(), 0);
-                pGO->ResetDoorOrButton();
             }
         }
         return true;
