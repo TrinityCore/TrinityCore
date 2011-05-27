@@ -511,7 +511,7 @@ bool OutdoorPvP::HandleGossipOption(Player * plr, uint64 guid, uint32 id)
     return false;
 }
 
-bool OutdoorPvP::CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso)
+bool OutdoorPvP::CanTalkTo(Player* plr, Creature* c, GossipMenuItems const& gso)
 {
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
         if (itr->second->CanTalkTo(plr, c, gso))
@@ -534,7 +534,7 @@ bool OPvPCapturePoint::HandleGossipOption(Player * /*plr*/, uint64 /*guid*/, uin
     return false;
 }
 
-bool OPvPCapturePoint::CanTalkTo(Player * /*plr*/, Creature * /*c*/, GossipMenuItems /*gso*/)
+bool OPvPCapturePoint::CanTalkTo(Player* /*plr*/, Creature* /*c*/, GossipMenuItems const& /*gso*/)
 {
     return false;
 }

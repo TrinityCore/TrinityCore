@@ -565,7 +565,7 @@ public:
             if (!me->isSummon())
                 return;
 
-            if (Unit* pSummon = CAST_SUM(me)->GetSummoner())
+            if (Unit* pSummon = me->ToTempSummon()->GetSummoner())
                 CAST_CRE(pSummon)->AI()->SetData(2, 1);
         }
 
@@ -582,8 +582,9 @@ public:
             if (!me->isSummon())
                 return;
 
-            if (Unit* pSummon = CAST_SUM(me)->GetSummoner())
-                CAST_CRE(pSummon)->AI()->SetData(2, 2);
+            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Creature* summonerCre = summoner->ToCreature())
+                    summonerCre->AI()->SetData(2, 2);
         }
     };
 

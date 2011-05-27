@@ -46,7 +46,7 @@ public:
             pPlayer->SEND_GOSSIP_MENU(2434, pCreature->GetGUID());
         }
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
         return true;
     }
 

@@ -1312,10 +1312,10 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (CAST_SUM(me))
-                if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
-                    if (pSummoner->AI())
-                        pSummoner->AI()->DoAction(ACTION_FLESH_TENTACLE_KILLED);
+            if (TempSummon* summon = me->ToTempSummon())
+                if (Unit* summoner = summon->GetSummoner())
+                    if (summoner->IsAIEnabled)
+                        summoner->GetAI()->DoAction(ACTION_FLESH_TENTACLE_KILLED);
         }
     };
 

@@ -269,8 +269,6 @@ class boss_freya : public CreatureScript
         {
             boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
             {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
             }
 
             uint64 ElementalGUID[3][2];
@@ -339,12 +337,9 @@ class boss_freya : public CreatureScript
                     me->ForcedDespawn(7500);
 
                     Creature* Elder[3];
-                    Elder[0] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_BRIGHTLEAF) : 0); // Brightleaf
-                    Elder[1] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_STONEBARK) : 0);  // Stonebark
-                    Elder[2] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_IRONBRANCH) : 0); // Ironbranch
-
                     for (uint8 n = 0; n < 3; ++n)
                     {
+                        Elder[n] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_BRIGHTLEAF + n) : 0);
                         if (Elder[n] && Elder[n]->isAlive())
                         {
                             Elder[n]->setFaction(35);
@@ -362,12 +357,9 @@ class boss_freya : public CreatureScript
                 _EnterCombat();
                 DoZoneInCombat();
                 Creature* Elder[3];
-                Elder[0] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_BRIGHTLEAF) : 0); // Brightleaf
-                Elder[1] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_STONEBARK) : 0);  // Stonebark
-                Elder[2] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_IRONBRANCH) : 0); // Ironbranch
-
                 for (uint8 n = 0; n < 3; ++n)
                 {
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_BRIGHTLEAF + n) : 0);
                     if (Elder[n] && Elder[n]->isAlive())
                     {
                         me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
@@ -401,7 +393,7 @@ class boss_freya : public CreatureScript
                 else
                     DoScriptText(SAY_AGGRO_WITH_ELDER, me);
 
-                DoCast(me, SPELL_ATTUNED_TO_NATURE);
+                me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
 
                 events.ScheduleEvent(EVENT_WAVE, 10000);
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
@@ -1365,14 +1357,6 @@ class npc_healthy_spore : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                std::list<Player*> PlayerList;
-                Trinity::AnyPlayerInObjectRangeCheck checker(me, 6.0f);
-                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, PlayerList, checker);
-                me->VisitNearbyWorldObject(6.0f, searcher);
-                if (!PlayerList.empty())
-                    for (std::list<Player*>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                        (*itr)->RemoveAurasDueToSpell(SPELL_CONSERVATOR_GRIP);
-
                 if (lifeTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
@@ -1409,14 +1393,6 @@ class npc_eonars_gift : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                std::list<Player*> PlayerList;
-                Trinity::AnyPlayerInObjectRangeCheck checker(me, 6.0f);
-                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, PlayerList, checker);
-                me->VisitNearbyWorldObject(6.0f, searcher);
-                if (!PlayerList.empty())
-                    for (std::list<Player *>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                        (*itr)->RemoveAurasDueToSpell(SPELL_CONSERVATOR_GRIP);
-
                 if (lifeBindersGiftTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
@@ -1605,35 +1581,6 @@ class spell_freya_iron_roots : public SpellScriptLoader
         }
 };
 
-class spell_freya_attuned_to_nature : public SpellScriptLoader
-{
-    public:
-        spell_freya_attuned_to_nature() : SpellScriptLoader("spell_freya_attuned_to_nature")
-        {
-        }
-
-        class spell_freya_attuned_to_nature_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_freya_attuned_to_nature_SpellScript);
-
-            void ModAuraStack()
-            {
-                if (Aura* aura = GetHitAura())
-                    aura->SetStackAmount(uint8(GetSpellInfo()->StackAmount));
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_freya_attuned_to_nature_SpellScript::ModAuraStack);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_freya_attuned_to_nature_SpellScript();
-        }
-};
-
 void AddSC_boss_freya()
 {
     new boss_freya();
@@ -1653,5 +1600,4 @@ void AddSC_boss_freya()
     new npc_iron_roots();
     new spell_attuned_to_nature_dose_reduction();
     new spell_freya_iron_roots();
-    new spell_freya_attuned_to_nature();
 }

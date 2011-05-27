@@ -56,7 +56,6 @@ public:
             { "equiperror",     SEC_ADMINISTRATOR,  false, &HandleDebugSendEquipErrorCommand,     "", NULL },
             { "largepacket",    SEC_ADMINISTRATOR,  false, &HandleDebugSendLargePacketCommand,    "", NULL },
             { "opcode",         SEC_ADMINISTRATOR,  false, &HandleDebugSendOpcodeCommand,         "", NULL },
-            { "poi",            SEC_ADMINISTRATOR,  false, &HandleDebugSendPoiCommand,            "", NULL },
             { "qpartymsg",      SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestPartyMsgCommand,  "", NULL },
             { "qinvalidmsg",    SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestInvalidMsgCommand, "", NULL },
             { "sellerror",      SEC_ADMINISTRATOR,  false, &HandleDebugSendSellErrorCommand,      "", NULL },
@@ -215,32 +214,6 @@ public:
 
         handler->GetSession()->SendPacket(&data);
 
-        return true;
-    }
-
-    static bool HandleDebugSendPoiCommand(ChatHandler* handler, const char* args)
-    {
-        if (!*args)
-            return false;
-
-        Player *pPlayer = handler->GetSession()->GetPlayer();
-        Unit* target = handler->getSelectedUnit();
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
-            return true;
-        }
-
-        char* icon_text = strtok((char*)args, " ");
-        char* flags_text = strtok(NULL, " ");
-        if (!icon_text || !flags_text)
-            return false;
-
-        uint32 icon = atol(icon_text);
-        uint32 flags = atol(flags_text);
-
-        sLog->outDetail("Command : POI, NPC = %u, icon = %u flags = %u", target->GetGUIDLow(), icon, flags);
-        pPlayer->PlayerTalkClass->SendPointOfInterest(target->GetPositionX(), target->GetPositionY(), Poi_Icon(icon), flags, 30, "Test POI");
         return true;
     }
 

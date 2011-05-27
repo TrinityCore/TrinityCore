@@ -21,6 +21,7 @@
 #include "Util.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
+#include <stack>
 
 class Unit;
 struct SpellEntry;
@@ -58,6 +59,7 @@ class _SpellScript
         virtual bool _Validate(SpellEntry const* entry);
 
     public:
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE) {}
         virtual ~_SpellScript() {}
         virtual void _Register();
         virtual void _Unload();
@@ -326,7 +328,9 @@ class SpellScript : public _SpellScript
 enum AuraScriptHookType
 {
     AURA_SCRIPT_HOOK_EFFECT_APPLY = SPELL_SCRIPT_STATE_END,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY,
     AURA_SCRIPT_HOOK_EFFECT_REMOVE,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE,
     AURA_SCRIPT_HOOK_EFFECT_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT,
@@ -446,6 +450,8 @@ class AuraScript : public _SpellScript
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
     public:
+        AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
+        {}
         bool _Validate(SpellEntry const * entry);
         bool _Load(Aura * aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const * aurApp = NULL);
@@ -455,21 +461,45 @@ class AuraScript : public _SpellScript
         Aura * m_aura;
         AuraApplication const * m_auraApplication;
         bool m_defaultActionPrevented;
+
+        class ScriptStateStore
+        {
+        public:
+            uint8 _currentScriptState;
+            AuraApplication const * _auraApplication;
+            bool _defaultActionPrevented;
+            ScriptStateStore(uint8 currentScriptState, AuraApplication const * auraApplication, bool defaultActionPrevented)
+                : _currentScriptState(currentScriptState), _auraApplication(auraApplication), _defaultActionPrevented(defaultActionPrevented)
+            {}
+        };
+        typedef std::stack<ScriptStateStore> ScriptStateStack;
+        ScriptStateStack m_scriptStates;
+        
     public:
         //
         // AuraScript interface
         // hooks to which you can attach your functions
         //
-        // executed when periodic aura effect is applied with specified mode to target
+        // executed when aura effect is applied with specified mode to target
+        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectApply;
+        // executed after aura effect is applied with specified mode to target
+        // example: AfterEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> AfterEffectApply;
         #define AuraEffectApplyFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
-        // executed when periodic aura effect is removed with specified mode from target
+        // executed after aura effect is removed with specified mode from target
+        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectRemove;
+        // executed when aura effect is removed with specified mode from target
+        // example: AfterEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> AfterEffectRemove;
         #define AuraEffectRemoveFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
         // executed when periodic aura effect ticks on target
