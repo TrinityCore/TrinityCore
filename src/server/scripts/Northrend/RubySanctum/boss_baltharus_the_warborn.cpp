@@ -111,7 +111,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* /*victim*/)
             {
                 me->InterruptNonMeleeSpells(false);
                 _EnterCombat();
@@ -122,7 +122,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
