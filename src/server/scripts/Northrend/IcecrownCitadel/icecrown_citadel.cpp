@@ -301,7 +301,6 @@ public:
                     DoCast(SINISTRER_ERZMAGIER_ESSENZ_ENTZIEHEN);
                     break;
             }
-            FirstTime = false;
         }
 
         void JustReachedHome()
@@ -323,8 +322,9 @@ public:
                 case DIE_VERDAMMTEN:
                     if (!DieVerdammtenZerschmKnochen && uiDamage >= me->GetHealth())
                     {
-                        DoCast(DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN);
+                        DoCast(me, DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN, true);
                         DieVerdammtenZerschmKnochen = true;
+                        uiDamage = 0;
                     }
                     if (!DieVerdammtenKnochenwirbel && me->HealthBelowPctDamaged(urand(25,75), uiDamage))
                     {
