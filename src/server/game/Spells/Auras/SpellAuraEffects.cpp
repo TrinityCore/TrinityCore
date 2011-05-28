@@ -1900,7 +1900,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
         case SPELL_AURA_DUMMY:
             // Haunting Spirits
             if (GetId() == 7057)
-                target->CastSpell((Unit*)NULL , GetAmount() , true);
+                target->CastSpell((Unit*)NULL , GetAmount(), true);
             break;
         case SPELL_AURA_PERIODIC_DUMMY:
             PeriodicDummyTick(target, caster);
@@ -6077,9 +6077,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         target->SetReducedThreatPercent(0, 0);
                     break;
                 case SPELLFAMILY_DEATHKNIGHT:
-                    // Summon Gargoyle (will start feeding gargoyle)
+                    // Summon Gargoyle (Dismiss Gargoyle at remove)
                     if (GetId() == 61777)
-                        target->CastSpell(target, m_spellProto->EffectTriggerSpell[m_effIndex], true);
+                        target->CastSpell(target, GetAmount(), true);
                     break;
                 default:
                     break;
