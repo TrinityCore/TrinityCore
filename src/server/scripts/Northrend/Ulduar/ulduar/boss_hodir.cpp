@@ -396,7 +396,6 @@ class boss_hodir : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
                             DoCast(SPELL_FLASH_FREEZE);
-                            events.DelayEvents(9000);
                             events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500);
                             break;
                         case EVENT_FLASH_FREEZE_EFFECT:
