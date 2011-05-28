@@ -62,7 +62,7 @@ void CreateSema(const char* cnt, const char* character, const char* item)
     std::string tmp = "Charakter: ";
     tmp.append(character).append(" - Item: ").append(item);
 
-    FILE* semafile = fopen(tmpfile.c_str(), "w");
+    FILE * semafile = fopen(tmpfile.c_str(), "w");
     if (semafile)
     {
         sLog->outString("FEUERUFER: ADDITEM INFO: %s", tmp.c_str());
@@ -81,7 +81,7 @@ bool CheckSema(const char* cnt)
     std::string tmpfile = "./firecaller_present_";
     tmpfile.append(cnt);
 
-    FILE* semafile = fopen(tmpfile.c_str(), "r");
+    FILE * semafile = fopen(tmpfile.c_str(), "r");
     if (semafile)
     {
         fclose(semafile);
@@ -90,7 +90,7 @@ bool CheckSema(const char* cnt)
     return false;
 }
 
-void LearnAllSkillRecipes(Player* player, uint32 skill_id)
+void LearnAllSkillRecipes(Player * player, uint32 skill_id)
 {
     uint32 classmask = player->getClassMask();
 
@@ -231,7 +231,7 @@ public:
 
     struct npc_uwom_firecallerAI : public ScriptedAI
     {
-        npc_uwom_firecallerAI(Creature* c) : ScriptedAI(c)
+        npc_uwom_firecallerAI(Creature * c) : ScriptedAI(c)
         {
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
@@ -244,7 +244,7 @@ public:
             WaitTimer = 2400;                       // Pause zwischen den Spells
             TargetTimer = urand(70000,90000);       // Timer für Targetspells
             ClusterTimer = urand(30000,60000);      // Timer für ClusterSpells
-            PresentTimer = urand(600000,1200000);   // Ab hier gibbet Geschenke (min. 10 Min.)! ;)
+            PresentTimer = urand(600000,1800000);   // Ab hier gibbet Geschenke (min. 10 Min.)! ;)
 
             Gestartet = false;
             Ende = false;
@@ -265,48 +265,68 @@ public:
             Done,
             CanGive;
 
-        void Reset() { me->CastSpell(me, SPELL_RAKETENBUENDEL_ZUENDER, true); }
+        void Reset()
+        {
+            me->CastSpell(me, SPELL_RAKETENBUENDEL_ZUENDER, true);
+        }
 
-        void EnterCombat(Unit* who) { return; }
-        void AttackStart(Unit* who) { return; }
+        void EnterCombat(Unit* who)
+        {
+            return;
+        }
+
+        void AttackStart(Unit* who)
+        {
+            return;
+        }
 
         uint8 PresentsDone()
         {
-            if (Done) return 3;
+            if (Done)
+                return 3;
 
             if (CheckSema("01") && CheckSema("02") && CheckSema("03"))
             {
                 Done = true;
                 return 3;
             }
-            if (CheckSema("01") && CheckSema("02")) return 2;
-            if (CheckSema("01") && CheckSema("03")) return 2;
-            if (CheckSema("02") && CheckSema("03")) return 2;
 
-            if (CheckSema("01") || CheckSema("02") || CheckSema("03")) return 1;
+            if (CheckSema("01") && CheckSema("02"))
+                return 2;
+            if (CheckSema("01") && CheckSema("03"))
+                return 2;
+            if (CheckSema("02") && CheckSema("03"))
+                return 2;
+
+            if (CheckSema("01") || CheckSema("02") || CheckSema("03"))
+                return 1;
 
             return 0;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit * who)
         {
             if (Gestartet && who && who->GetTypeId() == TYPEID_PLAYER && who->isAlive())
             {
-                if (((Player*)who)->GetSession()->GetSecurity() == SEC_PLAYER && !Done && CanGive && urand(0,299) == 150 && PresentsDone() < 3)
+                Player * pPl = who->ToPlayer();
+                if (!pPl)
+                    return;
+
+                if (pPl->GetSession()->GetSecurity() == SEC_PLAYER && !Done && CanGive && urand(0,400) == 200 && PresentsDone() < 3)
                 {
                     for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
                     {
-                        if (!((Player*)who)->HasItemCount(FirecallerPresents[i][0], 1, true) && !((Player*)who)->HasSpell(FirecallerPresents[i][1]))
+                        if (!pPl->HasItemCount(FirecallerPresents[i][0], 1, true) && !pPl->HasSpell(FirecallerPresents[i][1]))
                         {
                             char buffer[6];
                             sprintf(buffer, "%u", FirecallerPresents[i][0]);
-                            addItem((Player*)who, FirecallerPresents[i][0]);
+                            addItem(pPl, FirecallerPresents[i][0]);
 
                             switch(PresentsDone())
                             {
-                                case 0: CreateSema("01", ((Player*)who)->GetName(), buffer); break;
-                                case 1: CreateSema("02", ((Player*)who)->GetName(), buffer); break;
-                                case 2: CreateSema("03", ((Player*)who)->GetName(), buffer); break;
+                                case 0: CreateSema("01", pPl->GetName(), buffer); break;
+                                case 1: CreateSema("02", pPl->GetName(), buffer); break;
+                                case 2: CreateSema("03", pPl->GetName(), buffer); break;
                             }
                             return;
                         }
@@ -314,28 +334,49 @@ public:
                 }
 
                 for (uint8 i=0; i<FirecallerJokesCnt; ++i)
-                    if (who->HasAura(FirecallerJokes[i])) return;
+                    if (pPl->HasAura(FirecallerJokes[i]))
+                        return;
 
-                if (((Player*)who)->GetDisplayId() != me->GetDisplayId()) ((Player*)who)->SetDisplayId(me->GetDisplayId());
+                if (pPl->GetDisplayId() != me->GetDisplayId())
+                    pPl->SetDisplayId(me->GetDisplayId());
 
-                if (urand(1,199) == 100)
+                if (urand(0,400) == 200)
                 {
                     uint8 i = urand(0,FirecallerJokesCnt-1);
 
                     switch(i)
                     {
-                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-                            if (((Player*)who)->GetDisplayId() == me->GetDisplayId()) ((Player*)who)->DeMorph();
-                            if (me->GetDistance(who) <= 100.0f) me->CastSpell(who, FirecallerJokes[i], true);
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                            if (pPl->GetDisplayId() == me->GetDisplayId())
+                                pPl->DeMorph();
+                            if (me->GetDistance(who) <= 100.0f)
+                                me->CastSpell(who, FirecallerJokes[i], true);
                             break;
-                        case 10: case 11: case 12: case 13: case 15:
-                            if (((Player*)who)->GetDisplayId() == me->GetDisplayId()) ((Player*)who)->DeMorph();
-                            ((Player*)who)->InterruptNonMeleeSpells(false);
-                            ((Player*)who)->CastSpell(who, FirecallerJokes[i], false);
+                        case 10:
+                        case 11:
+                        case 12:
+                        case 13:
+                        case 15:
+                            if (pPl->GetDisplayId() == me->GetDisplayId())
+                                pPl->DeMorph();
+                            pPl->InterruptNonMeleeSpells(false);
+                            pPl->CastSpell(who, FirecallerJokes[i], false);
                             break;
-                        case 14: case 16:
-                            if (((Player*)who)->GetDisplayId() == me->GetDisplayId()) ((Player*)who)->DeMorph();
-                            if (me->GetDistance(who) <= 40.0f) me->CastSpell(who, FirecallerJokes[i], true);
+                        case 14:
+                        case 16:
+                            if (pPl->GetDisplayId() == me->GetDisplayId())
+                                pPl->DeMorph();
+                            if (me->GetDistance(who) <= 40.0f)
+                                me->CastSpell(who, FirecallerJokes[i], true);
                             break;
                     }
                 }
@@ -361,11 +402,15 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (StartTimer < diff && !Gestartet && !Ende) StartEvent();
-            else if (!Gestartet) StartTimer -= diff;
+            if (StartTimer < diff && !Gestartet && !Ende)
+                StartEvent();
+            else if (!Gestartet)
+                StartTimer -= diff;
 
-            if (!Done && !CanGive && PresentTimer < diff) CanGive = true;
-            else if (!CanGive) PresentTimer -= diff;
+            if (!Done && !CanGive && PresentTimer < diff)
+                CanGive = true;
+            else if (!CanGive)
+                PresentTimer -= diff;
 
             if (Gestartet && !Ende)
             {
@@ -373,18 +418,22 @@ public:
                 {
                     DoPlaySoundToSet(me, FirecallerSounds[2][urand(0,4)]);
                     SoundTimer = urand(60000,120000);
-                } else SoundTimer -= diff;
+                }
+                else
+                    SoundTimer -= diff;
 
                 if (WaitTimer < diff && !me->IsNonMeleeSpellCasted(false))
                 {
                     DoCast(me, FirecallerSpells[urand(0,FirecallerSpellsCnt-1)]);
                     WaitTimer = 2400;
-                } else WaitTimer -= diff;
+                }
+                else
+                    WaitTimer -= diff;
 
                 if (TargetTimer < diff)
                 {
-                    Player* tmp = GetPlayerAtMinimumRange(10.0f);
-                    if (tmp && tmp->GetSession()->GetSecurity() > SEC_PLAYER)
+                    Player * tmp = GetPlayerAtMinimumRange(20.0f);
+                    if (tmp && tmp->GetSession()->GetSecurity() > SEC_VETERAN)
                     {   // GM
                         me->setFaction(14);
                         me->InterruptNonMeleeSpells(false);
@@ -399,17 +448,23 @@ public:
                         me->setFaction(35);
                     }
                     TargetTimer = urand(30000,60000);
-                } else TargetTimer -= diff;
+                }
+                else
+                    TargetTimer -= diff;
 
                 if (ClusterTimer < diff)
                 {
                     me->InterruptNonMeleeSpells(false);
                     me->CastSpell(me, FirecallerCluster[urand(0,FirecallerClusterCnt-1)], false);
                     ClusterTimer = urand(15000,15000);
-                } else ClusterTimer -= diff;
+                }
+                else
+                    ClusterTimer -= diff;
 
-                if (StopTimer < diff && !Ende) StopEvent();
-                else StopTimer -= diff;
+                if (StopTimer < diff && !Ende)
+                    StopEvent();
+                else
+                    StopTimer -= diff;
             }
         }
     };
