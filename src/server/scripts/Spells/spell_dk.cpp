@@ -28,7 +28,6 @@ enum DeathKnightSpells
 {
     DK_SPELL_RUNIC_POWER_ENERGIZE               = 49088,
     DK_SPELL_ANTI_MAGIC_SHELL_TALENT            = 51052,
-    DK_SPELL_SUMMON_GARGOYLE                    = 50514,
     DK_SPELL_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     DK_SPELL_GHOUL_EXPLODE                      = 47496,
     DISPLAY_GHOUL_CORPSE                        = 25537,
@@ -361,47 +360,6 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
-// 50524 Runic Power Feed (keeping Gargoyle alive)
-class spell_dk_runic_power_feed : public SpellScriptLoader
-{
-    public:
-        spell_dk_runic_power_feed() : SpellScriptLoader("spell_dk_runic_power_feed") { }
-
-        class spell_dk_runic_power_feed_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_runic_power_feed_SpellScript);
-
-            bool Validate(SpellEntry const * /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(DK_SPELL_SUMMON_GARGOYLE))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    // No power, dismiss Gargoyle
-                    if (caster->GetPower(POWER_RUNIC_POWER) < 30)
-                        caster->RemoveAurasDueToSpell(DK_SPELL_SUMMON_GARGOYLE, caster->GetGUID());
-                    else
-                        caster->ModifyPower(POWER_RUNIC_POWER, -30);
-                }
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_dk_runic_power_feed_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_runic_power_feed_SpellScript();
-        }
-};
-
 // 55090 Scourge Strike (55265, 55270, 55271)
 class spell_dk_scourge_strike : public SpellScriptLoader
 {
@@ -604,7 +562,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_gnoul_explode();
     new spell_dk_death_gate();
     new spell_dk_death_pact();
-    new spell_dk_runic_power_feed();
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
     new spell_dk_blood_boil();
