@@ -3228,7 +3228,7 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleBanInfoPlayerCommand(const char *args)
+bool ChatHandler::HandleBanInfoAccountByCharCommand(const char *args)
 {
     Player* target;
     uint64 target_guid;
@@ -3416,6 +3416,26 @@ bool ChatHandler::HandleBanListAccountCommand(const char *args)
     if (!result)
     {
         PSendSysMessage(LANG_BANLIST_NOACCOUNT);
+        return true;
+    }
+
+    return HandleBanListHelper(result);
+}
+
+bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
+{
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
+
+    char* cFilter = strtok((char*)args, " ");
+    if(!cFilter)
+        return false;
+
+    std::string filter = cFilter;
+    LoginDatabase.escape_string(filter);
+    QueryResult result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
+    if (!result)
+    {
+        PSendSysMessage(LANG_BANLIST_NOCHARACTER);
         return true;
     }
 
