@@ -140,7 +140,7 @@ void LFGScripts::OnInviteMember(Group* group, uint64 guid)
     sLFGMgr->Leave(NULL, group);
 }
 
-void LFGScripts::OnLevelChanged(Player* player, uint8 /*newLevel*/)
+void LFGScripts::OnLevelChanged(Player* player, uint8 /*oldLevel*/)
 {
     sLFGMgr->InitializeLockedDungeons(player);
 }
