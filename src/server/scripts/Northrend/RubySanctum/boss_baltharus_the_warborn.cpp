@@ -81,8 +81,8 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 _Reset();
                 _introDone = false;
-                _events.SetPhase(PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_OOC_CHANNEL, 0, 0, PHASE_INTRO);
+                events.SetPhase(PHASE_INTRO);
+                events.ScheduleEvent(EVENT_OOC_CHANNEL, 0, 0, PHASE_INTRO);
                 _cloneCount = RAID_MODE<uint8>(1, 2, 2, 3);
             }
 
@@ -95,7 +95,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                             return;
                         _introDone = true;
                         me->setActive(true);
-                        _events.ScheduleEvent(EVENT_INTRO_TALK, 7000, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_INTRO_TALK, 7000, 0, PHASE_INTRO);
                         break;
                     case ACTION_CLONE:
                     {
@@ -111,14 +111,14 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*victim*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->InterruptNonMeleeSpells(false);
                 _EnterCombat();
-                _events.SetPhase(PHASE_COMBAT);
-                _events.ScheduleEvent(EVENT_CLEAVE, 110000, 0, PHASE_COMBAT);
-                _events.ScheduleEvent(EVENT_ENERVATING_BRAND, 130000, 0, PHASE_COMBAT);
-                _events.ScheduleEvent(EVENT_BLADE_TEMPEST, 150000, 0, PHASE_COMBAT);
+                events.SetPhase(PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_CLEAVE, 110000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_ENERVATING_BRAND, 130000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BLADE_TEMPEST, 150000, 0, PHASE_COMBAT);
                 Talk(SAY_AGGRO);
             }
 
@@ -170,15 +170,15 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() && !(_events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                     return;
 
-                _events.Update(diff);
+                events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING) && !(_events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (me->HasUnitState(UNIT_STAT_CASTING) && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                     return;
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -188,21 +188,21 @@ class boss_baltharus_the_warborn : public CreatureScript
                         case EVENT_OOC_CHANNEL:
                             if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CRYSTAL_CHANNEL_TARGET)))
                                 DoCast(channelTarget, SPELL_BARRIER_CHANNEL);
-                            _events.ScheduleEvent(EVENT_OOC_CHANNEL, 7000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_OOC_CHANNEL, 7000, 0, PHASE_INTRO);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, 24000, 0, PHASE_COMBAT); 
+                            events.ScheduleEvent(EVENT_CLEAVE, 24000, 0, PHASE_COMBAT); 
                             break;
                         case EVENT_BLADE_TEMPEST:
                             DoCast(me, SPELL_BLADE_TEMPEST);
-                            _events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000, 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ENERVATING_BRAND:
                             for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
-                            _events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000, 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000, 0, PHASE_COMBAT);
                             break;
                         default:
                             break;
@@ -213,7 +213,6 @@ class boss_baltharus_the_warborn : public CreatureScript
             }
 
         private:
-            EventMap _events;
             uint8 _cloneCount;
             bool _introDone;
         };
