@@ -1218,7 +1218,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if (m_healing > 0)
     {
         uint32 addhealth = m_healing;
-        if (crit)
+        if (target->crit)
         {
             procEx |= PROC_EX_CRITICAL_HIT;
             addhealth = caster->SpellCriticalHealingBonus(m_spellInfo, addhealth, NULL);
