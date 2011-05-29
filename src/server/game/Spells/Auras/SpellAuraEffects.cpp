@@ -5775,7 +5775,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
         }
     }
 
-    if (mode & AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY)
+    if (mode & (AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY))
     {
         // AT APPLY
         if (apply)
