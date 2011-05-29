@@ -33,7 +33,6 @@ enum Texts
 
 enum Events
 {
-    EVENT_XERESTRASZA_EVENT     = 0,
     EVENT_XERESTRASZA_EVENT_1   = 1,
     EVENT_XERESTRASZA_EVENT_2   = 2,
     EVENT_XERESTRASZA_EVENT_3   = 3,
@@ -54,12 +53,13 @@ class npc_xerestrasza : public CreatureScript
         {
             npc_xerestraszaAI(Creature* creature) : ScriptedAI(creature)
             {
+                _isIntro = true;
+                _introDone = false;
             }
 
             void Reset()
             {
                 _events.Reset();
-                _isIntro = false;
                 me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
             }
 
@@ -68,22 +68,30 @@ class npc_xerestrasza : public CreatureScript
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
                     me->setActive(true);
-                    _isIntro = true;
+                    _isIntro = false;
 
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT, 4000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 20000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 29000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 36000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 46000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 55000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 65000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 73000);
+                    Talk(SAY_XERESTRASZA_EVENT);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
+
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69000);
+                }
+                else if (action == ACTION_INTRO_TRIGGER && !_introDone)
+                {
+                    _introDone = true;
+                    Talk(SAY_XERESTRASZA_INTRO);
                 }
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (!_isIntro)
+                if (_isIntro)
                     return;
 
                 _events.Update(diff);
@@ -92,11 +100,6 @@ class npc_xerestrasza : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_XERESTRASZA_EVENT:
-                            Talk(SAY_XERESTRASZA_EVENT);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
-                            break;
                         case EVENT_XERESTRASZA_EVENT_1:
                             Talk(SAY_XERESTRASZA_EVENT_1);
                             break;
@@ -129,6 +132,7 @@ class npc_xerestrasza : public CreatureScript
         private:
             EventMap _events;
             bool _isIntro;
+            bool _introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -148,12 +152,10 @@ class at_baltharus_plateau : public AreaTriggerScript
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_XERESTRASZA)))
-                    if (instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) != DONE)
-                        xerestrasza->AI()->Talk(SAY_XERESTRASZA_INTRO);
+                    xerestrasza->AI()->DoAction(ACTION_INTRO_TRIGGER);
 
                 if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
-                    if (instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) != DONE)
-                        baltharus->AI()->DoAction(ACTION_INTRO_TRIGGER);
+                    baltharus->AI()->DoAction(ACTION_INTRO_TRIGGER);
             }
 
             return true;
@@ -162,6 +164,6 @@ class at_baltharus_plateau : public AreaTriggerScript
 
 void AddSC_ruby_sanctum()
 {
-    new at_baltharus_plateau();
     new npc_xerestrasza();
+    new at_baltharus_plateau();
 }
