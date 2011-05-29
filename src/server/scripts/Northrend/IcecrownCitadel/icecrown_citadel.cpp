@@ -333,7 +333,7 @@ public:
                     }
                     break;
                 case EITERNDER_SCHRECKEN:
-                    if (!EiternderSchreckenBombe && me->HealthBelowPctDamaged(15, uiDamage))
+                    if (!EiternderSchreckenBombe && me->HealthBelowPctDamaged(20, uiDamage))
                     {
                         DoCast(EITERNDER_SCHRECKEN_SEUCHENBOMBE);
                         EiternderSchreckenBombe = true;
