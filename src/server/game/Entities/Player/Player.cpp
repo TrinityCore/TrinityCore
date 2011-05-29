@@ -2648,6 +2648,24 @@ void Player::ResetAllPowers()
     }
 }
 
+bool Player::CanInteractWithQuestGiver(Object* questGiver)
+{
+    switch (questGiver->GetTypeId())
+    {
+        case TYPEID_UNIT:
+            return GetNPCIfCanInteractWith(questGiver->GetGUID(), UNIT_NPC_FLAG_QUESTGIVER) != NULL;
+        case TYPEID_GAMEOBJECT:
+            return GetGameObjectIfCanInteractWith(questGiver->GetGUID(), GAMEOBJECT_TYPE_QUESTGIVER) != NULL;
+        case TYPEID_PLAYER:
+            return isAlive() && questGiver->ToPlayer()->isAlive();
+        case TYPEID_ITEM:
+            return isAlive();
+        default:
+            break;
+    }
+    return false;
+}
+
 Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
 {
     // unit checks
