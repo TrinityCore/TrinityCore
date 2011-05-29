@@ -98,33 +98,33 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
 
-    Player *player = GetPlayer();
+    Player* player = GetPlayer();
     uint64 guid = player->GetLootGUID();
     if (!guid)
         return;
 
-    Loot *pLoot = NULL;
+    Loot* loot = NULL;
     bool shareMoney = true;
 
     switch(GUID_HIPART(guid))
     {
         case HIGHGUID_GAMEOBJECT:
         {
-            GameObject *pGameObject = GetPlayer()->GetMap()->GetGameObject(guid);
+            GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
 
-            // not check distance for GO in case owned GO (fishing bobber case, for example)
-            if (pGameObject && ((pGameObject->GetOwnerGUID() == _player->GetGUID() || pGameObject->IsWithinDistInMap(_player, INTERACTION_DISTANCE))))
-                pLoot = &pGameObject->loot;
+            // do not check distance for GO if player is the owner of it (ex. fishing bobber)
+            if (go && ((go->GetOwnerGUID() == player->GetGUID() || go->IsWithinDistInMap(player, INTERACTION_DISTANCE))))
+                loot = &go->loot;
 
             break;
         }
         case HIGHGUID_CORPSE:                               // remove insignia ONLY in BG
         {
-            Corpse *bones = ObjectAccessor::GetCorpse(*GetPlayer(), guid);
+            Corpse* bones = ObjectAccessor::GetCorpse(*player, guid);
 
-            if (bones && bones->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            if (bones && bones->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
-                pLoot = &bones->loot;
+                loot = &bones->loot;
                 shareMoney = false;
             }
 
@@ -132,67 +132,72 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
         }
         case HIGHGUID_ITEM:
         {
-            if (Item *item = GetPlayer()->GetItemByGuid(guid))
+            if (Item* item = player->GetItemByGuid(guid))
             {
-                pLoot = &item->loot;
+                loot = &item->loot;
                 shareMoney = false;
             }
             break;
         }
         case HIGHGUID_UNIT:
         {
-            Creature* pCreature = GetPlayer()->GetMap()->GetCreature(guid);
-
-            bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass() == CLASS_ROGUE && pCreature->lootForPickPocketed);
-
-            if (ok_loot && pCreature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            Creature* creature = player->GetMap()->GetCreature(guid);
+            bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+            if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
-                pLoot = &pCreature->loot ;
-                if (pCreature->isAlive())
+                loot = &creature->loot;
+                if (creature->isAlive())
                     shareMoney = false;
             }
-
             break;
         }
         default:
             return;                                         // unlootable type
     }
 
-    if (pLoot)
+    if (loot)
     {
         if (shareMoney && player->GetGroup())      //item, pickpocket and players can be looted only single player
         {
-            Group *group = player->GetGroup();
+            Group* group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* playerGroup = itr->getSource();
-                if (!playerGroup)
+                Player* member = itr->getSource();
+                if (!member)
                     continue;
-                if (player->IsWithinDistInMap(playerGroup, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
-                    playersNear.push_back(playerGroup);
+
+                if (player->IsWithinDistInMap(member, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+                    playersNear.push_back(member);
             }
 
-            uint32 money_per_player = uint32((pLoot->gold)/(playersNear.size()));
+            uint32 goldPerPlayer = uint32((loot->gold) / (playersNear.size()));
 
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                (*i)->ModifyMoney(money_per_player);
-                (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, money_per_player);
-                //Offset surely incorrect, but works
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4);
-                data << uint32(money_per_player);
+                data << uint32(goldPerPlayer);
+                data << uint8(0);                       // Controls the text displayed 0 is "Your share is...", 1 "You loot..."
                 (*i)->GetSession()->SendPacket(&data);
+
+                (*i)->ModifyMoney(goldPerPlayer);
+                (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
             }
         }
         else
         {
-            player->ModifyMoney(pLoot->gold);
-            player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, pLoot->gold);
+            WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4);
+            data << uint32(loot->gold);
+            data << uint8(1);
+            SendPacket(&data);
+
+            player->ModifyMoney(loot->gold);
+            player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
         }
-        pLoot->gold = 0;
-        pLoot->NotifyMoneyRemoved();
+
+        loot->gold = 0;
+        loot->NotifyMoneyRemoved();
     }
 }
 

@@ -79,6 +79,7 @@ class AuraApplication
 
 class Aura
 {
+    friend Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const * newAura, uint8 effMask, int32 *baseAmount, Item * castItem, uint64 casterGUID);
     public:
         typedef std::map<uint64, AuraApplication *> ApplicationMap;
 
@@ -130,8 +131,8 @@ class Aura
         bool DropCharge();
 
         uint8 GetStackAmount() const { return m_stackAmount; }
-        void SetStackAmount(uint8 num, bool applied = true);
-        bool ModStackAmount(int32 num); // return true if last charge dropped
+        void SetStackAmount(uint8 num);
+        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
