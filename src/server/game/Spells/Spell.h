@@ -416,7 +416,8 @@ class Spell
         void EffectCastButtons(SpellEffIndex effIndex);
         void EffectRechargeManaGem(SpellEffIndex effIndex);
 
-        typedef std::set<Aura *> UsedSpellMods;
+        typedef std::set<SpellModifier *> UsedSpellMods;
+        typedef std::set<Aura *> UsedSpellAuras;
 
         Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false);
         ~Spell();
@@ -508,6 +509,7 @@ class Spell
         SpellCustomErrors m_customError;
 
         UsedSpellMods m_appliedMods;
+        UsedSpellAuras m_appliedAuras;
 
         int32 GetCastTime() const { return m_casttime; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
