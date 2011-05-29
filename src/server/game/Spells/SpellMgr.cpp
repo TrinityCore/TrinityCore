@@ -3118,8 +3118,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     return true;
 }
 
-//-----------TRINITY-------------
-
 bool SpellMgr::CanAurasStack(Aura const *aura1, Aura const *aura2, bool sameCaster) const
 {
     SpellEntry const *spellInfo_1 = aura1->GetSpellProto();

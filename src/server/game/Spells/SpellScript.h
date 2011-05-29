@@ -606,8 +606,8 @@ class AuraScript : public _SpellScript
 
         // stack amount manipulation
         uint8 GetStackAmount() const;
-        void SetStackAmount(uint8 num, bool applied = true);
-        bool ModStackAmount(int32 num);
+        void SetStackAmount(uint8 num);
+        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // passive - "working in background", not saved, not removed by immonities, not seen by player
         bool IsPassive() const;
