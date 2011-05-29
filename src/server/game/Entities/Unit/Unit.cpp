@@ -3143,7 +3143,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const * newAura, uint8 effMask, int32 *baseAmount, Item * castItem, uint64 casterGUID)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
     ASSERT(casterGUID);
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
@@ -3155,13 +3155,13 @@ Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const * newAura, ui
             castItemGUID = castItem->GetGUID();
 
         // find current aura from spell and change it's stackamount, or refresh it's duration
-        if (Aura * foundAura = GetOwnedAura(newAura->Id, casterGUID, (sSpellMgr->GetSpellCustomAttr(newAura->Id) & SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : 0, 0))
+        if (Aura* foundAura = GetOwnedAura(newAura->Id, casterGUID, (sSpellMgr->GetSpellCustomAttr(newAura->Id) & SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : 0, 0))
         {
             // effect masks do not match
             // extremely rare case
             // let's just recreate aura
             if (effMask != foundAura->GetEffectMask())
-                return false;
+                return NULL;
 
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -3174,23 +3174,23 @@ Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const * newAura, ui
                 else
                     bp = foundAura->GetSpellProto()->EffectBasePoints[i];
 
-                int32 *oldBP = const_cast<int32 *>(&(foundAura->m_effects[i]->m_baseAmount));
+                int32* oldBP = const_cast<int32*>(&(foundAura->m_effects[i]->m_baseAmount));
                 *oldBP = bp;
             }
 
             // correct cast item guid if needed
             if (castItemGUID != foundAura->GetCastItemGUID())
             {
-                uint64 *oldGUID = const_cast<uint64 *>(&foundAura->m_castItemGuid);
+                uint64* oldGUID = const_cast<uint64 *>(&foundAura->m_castItemGuid);
                 *oldGUID = castItemGUID;
             }
 
             // try to increase stack amount
             foundAura->ModStackAmount(1);
-
             return foundAura;
         }
     }
+
     return NULL;
 }
 

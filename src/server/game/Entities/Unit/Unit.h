@@ -1616,7 +1616,7 @@ class Unit : public WorldObject
         bool InitTamedPet(Pet * pet, uint8 level, uint32 spell_id);
 
         // aura apply/remove helpers - you should better not use these
-        Aura * _TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, int32 *baseAmount = NULL, Item * castItem = NULL, uint64 casterGUID = 0);
+        Aura* _TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, int32* baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0);
         void _AddAura(UnitAura * aura, Unit * caster);
         AuraApplication * _CreateAuraApplication(Aura * aura, uint8 effMask);
         void _ApplyAuraEffect(Aura * aura, uint8 effIndex);
