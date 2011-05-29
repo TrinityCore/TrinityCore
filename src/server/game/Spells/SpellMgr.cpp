@@ -4128,7 +4128,8 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
         case 71266: // Swarming Shadows
-            spellInfo->AreaGroupId = 0;
+        case 72890: // Swarming Shadows
+            spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
             ++count;
             break;
         case 70588: // Suppression
