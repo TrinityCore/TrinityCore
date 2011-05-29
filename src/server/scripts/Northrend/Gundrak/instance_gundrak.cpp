@@ -443,6 +443,8 @@ public:
                      GameObject* pDrakkariColossusStatue = instance->GetGameObject(uiDrakkariColossusStatue);
                      GameObject* pGalDarahStatue = instance->GetGameObject(uiGalDarahStatue);
 
+                     toActivate = 0;
+
                      if (pBridge && pCollision && pSladRanStatue && pMoorabiStatue && pDrakkariColossusStatue && pGalDarahStatue)
                      {
                          pBridge->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
@@ -490,12 +492,13 @@ public:
                      if (GameObject* statueGO = instance->GetGameObject(toActivate))
                          statueGO->SetGoState(GO_STATE_READY);
 
+                     toActivate = 0;
+
                      if (phase == 3)
                          SetData64(DATA_STATUE_ACTIVATE, uiBridge);
                      else
                          SaveToDB(); // Don't save in between last statue and bridge turning in case of crash leading to stuck instance
                 }
-                toActivate = 0;
             }
             else
                 timer -= diff;
