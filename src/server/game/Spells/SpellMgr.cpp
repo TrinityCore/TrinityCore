@@ -439,7 +439,7 @@ bool IsSpellRequiringFocusedTarget(SpellEntry const * spellInfo)
             || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_DEST_TARGET)
             return true;
     }
-
+    return false;
 }
 
 Unit* GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit * target)
