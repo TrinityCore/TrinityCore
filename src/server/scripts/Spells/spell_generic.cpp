@@ -1010,30 +1010,6 @@ class spell_gen_turkey_marker : public SpellScriptLoader
                     GetTarget()->CastSpell(GetTarget(), SPELL_TURKEY_VENGEANCE, true, NULL, aurEff, GetCasterGUID());
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_STACK)
-                    return;
-
-                // find our new aura which replaces this one aura is inserted to m_ownedAuras before old removal takes place
-                Aura* newAura = GetTarget()->GetOwnedAura(GetId(), 0, 0, 0, GetAura());
-                // this should never happen
-                if (!newAura)
-                    return;
-
-                std::list<AuraScript*> const& loadedScripts = newAura->m_loadedScripts;
-
-                // find the new aura's script and give it our stored stack apply times
-                for (std::list<AuraScript*>::const_iterator itr = loadedScripts.begin(); itr != loadedScripts.end(); ++itr)
-                {
-                    if (spell_gen_turkey_marker_AuraScript* scr = dynamic_cast<spell_gen_turkey_marker_AuraScript*>(*itr))
-                    {
-                        scr->_applyTimes.splice(scr->_applyTimes.begin(), _applyTimes);
-                        break;
-                    }
-                }
-            }
-
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (_applyTimes.empty())
@@ -1041,14 +1017,12 @@ class spell_gen_turkey_marker : public SpellScriptLoader
 
                 // pop stack if it expired for us
                 if (_applyTimes.front() + GetMaxDuration() < getMSTime())
-                    if (ModStackAmount(-1))
-                        GetTarget()->RemoveOwnedAura(GetAura(), AURA_REMOVE_BY_EXPIRE);
+                    ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);
             }
 
             void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_gen_turkey_marker_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_turkey_marker_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_turkey_marker_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
 
