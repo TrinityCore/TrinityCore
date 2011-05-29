@@ -535,6 +535,9 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/)
             {
+                if (!me->isInCombat())
+                    return;
+
                 std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
                 if (threatList.empty())
                 {
