@@ -259,7 +259,8 @@ class spell_ex_66244 : public SpellScriptLoader
             {
                 OnEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_ex_66244AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                // AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK - makes handler to be called when aura is reapplied on target
+                AfterEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_ex_66244AuraScript::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_DUMMY);
