@@ -136,9 +136,9 @@ struct emerald_dragonAI : public WorldBossAI
         switch (eventId)
         {
             case EVENT_SEEPING_FOG:
-                DoCast(me, SPELL_SEEPING_FOG_LEFT);
-                DoCast(me, SPELL_SEEPING_FOG_RIGHT);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(7500,17500));
+                DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
+                DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(8000,16000));
                 break;
             case EVENT_NOXIOUS_BREATH:
                 DoCast(me, SPELL_NOXIOUS_BREATH);
@@ -172,8 +172,9 @@ struct emerald_dragonAI : public WorldBossAI
  * --- Dream Fog NPC
  *
  * TODO:
- * - Change to random targets on random intervals (?)
+ * - Change to random targets on random intervals(?)
  * - Check if targets are selected based on threatlevel(?)
+ * - Spell: Check for some disrupancies with the dreamfog triggering
  *
  */
 
@@ -236,7 +237,9 @@ class npc_dream_fog : public CreatureScript
  * ---
  *
  * TODO:
- * - Bugtesting... (?)
+ * - NPC summoning needs to be sorted properly
+ * - Get proper timers for spellcasts
+ *
  */
 
 enum YsondreTexts
@@ -282,8 +285,9 @@ class boss_ysondre : public CreatureScript
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
                     Talk(SAY_YSONDRE_SUMMON_DRUIDS);
-                    for (int count = 0 ; count < 10 ; ++count)
-                        DoCast(me, SPELL_SUMMON_DRUID_SPIRITS);
+
+                    for (int i = 0 ; i < 10 ; ++i)
+                        DoCast(me, SPELL_SUMMON_DRUID_SPIRITS, true);
                     ++_stage;
                 }
             }
@@ -294,7 +298,7 @@ class boss_ysondre : public CreatureScript
                 {
                     case EVENT_LIGHTNING_WAVE:
                         DoCastVictim(SPELL_LIGHTNING_WAVE);
-                        events.ScheduleEvent(EVENT_LIGHTNING_WAVE, urand(7000, 12000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_WAVE, urand(10000, 20000));
                         break;
                     default:
                         emerald_dragonAI::ExecuteEvent(eventId);
@@ -332,7 +336,9 @@ class boss_ysondre : public CreatureScript
  * Ysondres' demented druids
  *
  * TODO:
- * - Fix summoned druid lifetime (unsummon after 10 minutes)
+ * - Fix summoned druid appearance
+ * - Verify that all spells work as they should
+ * - Get proper timers for spellcasts
  *
  */
 
@@ -415,10 +421,9 @@ class npc_demented_druid : public CreatureScript
  * ---
  *
  * TODO:
- * - Fix EVENT_DRAW_SPIRIT:
- *     Spirit Shade NPC helper needs to appear and walk toward Lethon and heal if they reach him
- *     Each shade heals for 15000 HP
- * -Fix up EVENT_SHADOW_BOLT_WHIRL properly
+ * - NPC helper for spirit shades(?)
+ *   - Spirit shade NPC moves towards Lethon and heals him if close enough (each shade heals for 15000 HP)
+ * - Spell: Shadow bolt whirl needs custom handling
  *
  */
 
@@ -450,7 +455,7 @@ class boss_lethon : public CreatureScript
                 _stage = 1;
                 _Reset();
                 emerald_dragonAI::Reset();
-                events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 5000);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 10000);
             }
 
             void EnterCombat(Unit* who)
@@ -473,9 +478,9 @@ class boss_lethon : public CreatureScript
             {
                 switch (eventId)
                 {
-                    case EVENT_LIGHTNING_WAVE:
-                        DoCast(SPELL_LIGHTNING_WAVE);
-                        events.ScheduleEvent(EVENT_LIGHTNING_WAVE, 5000);
+                    case EVENT_SHADOW_BOLT_WHIRL:
+                        DoCast(me, SPELL_SHADOW_BOLT_WHIRL, true);
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, urand(15000, 30000));
                         break;
                     default:
                         emerald_dragonAI::ExecuteEvent(eventId);
@@ -509,16 +514,23 @@ class boss_lethon : public CreatureScript
         }
 };
 
-// ---
-// --- Dragonspecific scripts and handling: EMERISS
-// ---
+/*
+ * ---
+ * --- Dragonspecific scripts and handling: EMERISS
+ * ---
+ *
+ * TODO:
+ * - Get proper timers for all spellcasts
+ * - Spell: Volatile Infection: Random target selection, areaa damage to close units
+ * - Spell: Putrid Mushroom needs further scripting/testing
+ *
+ */
 
 enum EmerissTexts
 {
     SAY_EMERISS_AGGRO               = 0,
     SAY_EMERISS_CAST_CORRUPTION     = 1,
 };
-
 
 enum EmerissSpells
 {
@@ -564,7 +576,7 @@ class boss_emeriss : public CreatureScript
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
                     Talk(SAY_EMERISS_CAST_CORRUPTION);
-                    DoCast(me, SPELL_CORRUPTION_OF_EARTH);
+                    DoCast(me, SPELL_CORRUPTION_OF_EARTH, true);
                     ++_stage;
                 }
             }
@@ -609,9 +621,15 @@ class boss_emeriss : public CreatureScript
         }
 };
 
-// ---
-// --- Dragonspecific scripts and handling: TAERAR
-// ---
+/*
+ * ---
+ * --- Dragonspecific scripts and handling: TAERAR
+ * ---
+ *
+ * TODO:
+ * - Fix shademode and reset-issues on evade
+ * - Main functionality for this dragon is complete, need dreamfog/modelfixing
+ */
 
 enum TaerarTexts
 {
