@@ -76,7 +76,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_algalonAI(pCreature);
+        return GetUlduarAI<boss_algalonAI>(pCreature);
     }
 
     struct boss_algalonAI : public ScriptedAI

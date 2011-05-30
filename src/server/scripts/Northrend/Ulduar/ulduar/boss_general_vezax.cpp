@@ -300,7 +300,7 @@ class boss_general_vezax : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_general_vezaxAI(creature);
+            return GetUlduarAI<boss_general_vezaxAI>(creature);
         }
 };
 
