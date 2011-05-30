@@ -315,8 +315,6 @@ class boss_razorscale : public CreatureScript
             {
                 // Do not let Razorscale be affected by Battle Shout buff
                 me->ApplySpellImmune(0, IMMUNITY_ID, (SPELL_BATTLE_SHOUT), true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true);  // Death Grip
             }
 
             Phases phase;
@@ -569,7 +567,7 @@ class boss_razorscale : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_razorscaleAI(creature);
+            return GetUlduarAI<boss_razorscaleAI>(creature);
         }
 };
 
