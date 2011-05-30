@@ -102,7 +102,7 @@ bool ArenaTeam::AddMember(const uint64& playerGuid)
     uint8 playerClass;
 
     // Check if arena team is full (Can't have more than type * 2 players)
-    if (GetMembersSize() >= GetType() * 2)
+    if (GetMembersSize() >= GetMaxMembersSize())
         return false;
 
     // Get player name and class either from db or ObjectMgr
@@ -265,7 +265,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         }
 
         // check max. number members
-        if (Members.size() >= Type * 2)
+        if (GetMembersSize() >= GetMaxMembersSize())
             return false;
         
         // Check if team team has a valid captain

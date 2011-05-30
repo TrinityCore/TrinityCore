@@ -133,6 +133,7 @@ class ArenaTeam
         void DelMember(uint64 guid, bool cleanDb);
 
         size_t GetMembersSize() const         { return Members.size(); }
+		size_t GetMaxMembersSize() const      { return size_t(GetType() * 2); }
         bool   Empty() const                  { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
         MemberList::iterator m_membersEnd()   { return Members.end(); }
