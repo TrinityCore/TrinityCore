@@ -38,10 +38,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                 LoadDoorData(doorData);
                 BaltharusTheWarbornGUID = 0;
                 GeneralZarithrianGUID   = 0;
-                SavinaRagefireGUID      = 0;
+                SavianaRagefireGUID     = 0;
                 HalionGUID              = 0;
                 CrystalChannelTargetGUID = 0;
                 XerestraszaGUID         = 0;
+                BaltharusSharedHealth   = 0;
+                FlameWallsGUID          = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -54,8 +56,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case NPC_GENERAL_ZARITHRIAN:
                         GeneralZarithrianGUID = creature->GetGUID();
                         break;
-                    case NPC_SAVINA_RAGEFIRE:
-                        SavinaRagefireGUID = creature->GetGUID();
+                    case NPC_SAVIANA_RAGEFIRE:
+                        SavianaRagefireGUID = creature->GetGUID();
                         break;
                     case NPC_HALION:
                         HalionGUID = creature->GetGUID();
@@ -77,6 +79,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                 {
                     case GO_FIRE_FIELD:
                         AddDoor(go, true);
+                        break;
+                    case GO_FLAME_WALLS:
+                        FlameWallsGUID = go->GetGUID();
                         break;
                     default:
                         break;
@@ -103,14 +108,80 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return BaltharusTheWarbornGUID;
                     case DATA_GENERAL_ZARITHRIAN:
                         return GeneralZarithrianGUID;
-                    case DATA_SAVINA_RAGEFIRE:
-                        return SavinaRagefireGUID;
+                    case DATA_SAVIANA_RAGEFIRE:
+                        return SavianaRagefireGUID;
                     case DATA_HALION:
                         return HalionGUID;
                     case DATA_CRYSTAL_CHANNEL_TARGET:
                         return CrystalChannelTargetGUID;
                     case DATA_XERESTRASZA:
                         return XerestraszaGUID;
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
+            bool SetBossState(uint32 type, EncounterState state)
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_BALTHARUS_THE_WARBORN:
+                    {
+                        if (state == DONE && GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE)
+                        {
+                            // GO_FLAME_WALLS
+                            if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
+                            {
+                                flameWalls->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                flameWalls->SetGoState(GO_STATE_READY);
+                            }
+                            if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
+                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE)
+                        }
+                        break;
+                    }
+                    case DATA_SAVIANA_RAGEFIRE:
+                    {
+                        if (state == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
+                        {
+                            if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
+                            {
+                                flameWalls->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                flameWalls->SetGoState(GO_STATE_READY);
+                            }
+                            if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
+                                zarithrian->RemoveFlag(UNIT_FLAG, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE)
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch (type)
+                {
+                    case DATA_BALTHARUS_SHARED_HEALTH:
+                        BaltharusSharedHealth = data;
+                        break;
+                }
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_BALTHARUS_SHARED_HEALTH:
+                        return BaltharusSharedHealth;
                     default:
                         break;
                 }
@@ -165,10 +236,12 @@ class instance_ruby_sanctum : public InstanceMapScript
         protected:
             uint64 BaltharusTheWarbornGUID;
             uint64 GeneralZarithrianGUID;
-            uint64 SavinaRagefireGUID;
+            uint64 SavianaRagefireGUID;
             uint64 HalionGUID;
             uint64 CrystalChannelTargetGUID;
             uint64 XerestraszaGUID;
+            uint64 FlameWallsGUID;
+            uint32 BaltharusSharedHealth;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
