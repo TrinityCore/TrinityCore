@@ -466,6 +466,16 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
     m_spell->m_customError = result;
 }
 
+int32 SpellScript::GetFinalDamage()
+{
+    if (!IsInAfterHitPhase())
+    {
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetFinalDamage was called while spell not in after-hit phase!", m_scriptName, m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->m_final_damage;
+}
+
 bool AuraScript::_Validate(SpellEntry const * entry)
 {
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
