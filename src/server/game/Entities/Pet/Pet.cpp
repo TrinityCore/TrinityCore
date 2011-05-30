@@ -42,9 +42,9 @@ char const* petTypeSuffix[MAX_PET_TYPE] =
 #define PET_XP_FACTOR 0.05f
 
 Pet::Pet(Player *owner, PetType type) : Guardian(NULL, owner),
-m_resetTalentsCost(0), m_resetTalentsTime(0), m_usedTalentCount(0),
-m_removed(false), m_owner(owner), m_happinessTimer(7500), m_petType(type),
-m_duration(0), m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
+m_usedTalentCount(0), m_removed(false), m_owner(owner),
+m_happinessTimer(7500), m_petType(type), m_duration(0),
+m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
 {
     m_unitTypeMask |= UNIT_MASK_PET;
     if (type == HUNTER_PET)
@@ -110,25 +110,25 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     QueryResult result;
 
     if (petnumber)
-        // known petnumber entry                  0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15                 16                 17              18
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        // known petnumber entry                  0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15              16
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType "
             "FROM character_pet WHERE owner = '%u' AND id = '%u'",
             ownerid, petnumber);
     else if (current)
-        // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15                 16                 17              18
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15              16
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType "
             "FROM character_pet WHERE owner = '%u' AND slot = '%u'",
             ownerid, PET_SAVE_AS_CURRENT);
     else if (petentry)
         // known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        //                                        0   1      2(?)   3        4      5    6           7     8     9        10         11       12           13       14        15                 16                 17              18
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        //                                        0   1      2(?)   3        4      5    6           7     8     9        10         11       12           13       14        15              16
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType "
             "FROM character_pet WHERE owner = '%u' AND entry = '%u' AND (slot = '%u' OR slot > '%u') ",
             ownerid, petentry, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
     else
         // any current or other non-stabled pet (for hunter "call pet")
-        //                                        0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15                 16                 17              18
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        //                                        0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15              16
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType "
             "FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot > '%u') ",
             ownerid, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
 
@@ -145,7 +145,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (!petentry)
         return false;
 
-    uint32 summon_spell_id = fields[17].GetUInt32();
+    uint32 summon_spell_id = fields[15].GetUInt32();
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(summon_spell_id);
 
     bool is_temporary_summoned = spellInfo && GetSpellDuration(spellInfo) > 0;
@@ -154,7 +154,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (current && is_temporary_summoned)
         return false;
 
-    PetType pet_type = PetType(fields[18].GetUInt8());
+    PetType pet_type = PetType(fields[16].GetUInt8());
     if (pet_type == HUNTER_PET)
     {
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petentry);
@@ -208,14 +208,14 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     switch (getPetType())
     {
         case SUMMON_PET:
-            petlevel=owner->getLevel();
+            petlevel = owner->getLevel();
 
-            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); //class=mage
+            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); // class = mage
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                                                             // this enables popup window (pet dismiss, cancel)
             break;
         case HUNTER_PET:
-            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100); //class=warrior, gender=none, power=focus
+            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100); // class = warrior, gender = none, power = focus
             SetSheath(SHEATH_STATE_MELEE);
             SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
 
@@ -261,7 +261,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     // 0=current
     // 1..MAX_PET_STABLES in stable slot
     // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
-    if (fields[7].GetUInt8() != 0)
+    if (fields[7].GetUInt8())
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("UPDATE character_pet SET slot = '%u' WHERE owner = '%u' AND slot = '%u' AND id <> '%u'",
@@ -289,8 +289,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     owner->SetMinion(this, true);
     map->Add(this->ToCreature());
 
-    m_resetTalentsCost = fields[15].GetUInt32();
-    m_resetTalentsTime = time_t(fields[16].GetUInt32());
     InitTalentForLevel();                                   // set original talents points before spell loading
 
     uint32 timediff = uint32(time(NULL) - fields[14].GetUInt32());
@@ -410,7 +408,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
                 owner, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
         // save pet
         std::ostringstream ss;
-        ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType) "
+        ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType) "
             << "VALUES ("
             << m_charmInfo->GetPetNumber() << ", "
             << GetEntry() << ", "
@@ -434,8 +432,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         ss  << "', "
             << time(NULL) << ", "
-            << uint32(m_resetTalentsCost) << ", "
-            << uint64(m_resetTalentsTime) << ", "
             << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ", "
             << uint32(getPetType()) << ")";
 
@@ -1566,7 +1562,7 @@ void Pet::InitPetCreateSpells()
     CastPetAuras(false);
 }
 
-bool Pet::resetTalents(bool no_cost)
+bool Pet::resetTalents()
 {
     Unit *owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
@@ -1593,19 +1589,6 @@ bool Pet::resetTalents(bool no_cost)
     {
         SetFreeTalentPoints(talentPointsForLevel);
         return false;
-    }
-
-    uint32 cost = 0;
-
-    if (!no_cost)
-    {
-        cost = resetTalentsCost();
-
-        if (!player->HasEnoughMoney(cost))
-        {
-            player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-            return false;
-        }
     }
 
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
@@ -1651,13 +1634,6 @@ bool Pet::resetTalents(bool no_cost)
 
     SetFreeTalentPoints(talentPointsForLevel);
 
-    if (!no_cost)
-    {
-        player->ModifyMoney(-(int32)cost);
-
-        m_resetTalentsCost = cost;
-        m_resetTalentsTime = time(NULL);
-    }
     if (!m_loading)
         player->PetSpellInitialize();
     return true;
@@ -1671,7 +1647,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
     // reset for online
     if (online_pet)
-        online_pet->resetTalents(true);
+        online_pet->resetTalents();
 
     // now need only reset for offline pets (all pets except online case)
     uint32 except_petnumber = online_pet ? online_pet->GetCharmInfo()->GetPetNumber() : 0;
@@ -1746,7 +1722,7 @@ void Pet::InitTalentForLevel()
     uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
     // Reset talents in case low level (on level down) or wrong points for level (hunter can unlearn TP increase talent)
     if (talentPointsForLevel == 0 || m_usedTalentCount > talentPointsForLevel)
-        resetTalents(true); // Remove all talent points
+        resetTalents(); // Remove all talent points
 
     SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
 
@@ -1756,24 +1732,6 @@ void Pet::InitTalentForLevel()
 
     if (!m_loading)
         owner->ToPlayer()->SendTalentsInfoData(true);
-}
-
-uint32 Pet::resetTalentsCost() const
-{
-    int64 days = int64(sWorld->GetGameTime() - m_resetTalentsTime)/DAY;
-
-    // The first time reset costs 10 silver; after 1 day cost is reset to 10 silver
-    if (m_resetTalentsCost < 10*SILVER || days > 0)
-        return 10*SILVER;
-    // then 50 silver
-    else if (m_resetTalentsCost < 50*SILVER)
-        return 50*SILVER;
-    // then 1 gold
-    else if (m_resetTalentsCost < 1*GOLD)
-        return 1*GOLD;
-    // then increasing at a rate of 1 gold; cap 10 gold
-    else
-        return (m_resetTalentsCost + 1*GOLD > 10*GOLD ? 10*GOLD : m_resetTalentsCost + 1*GOLD);
 }
 
 uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)
