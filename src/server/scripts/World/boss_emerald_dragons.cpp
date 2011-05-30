@@ -190,6 +190,8 @@ class npc_dream_fog : public CreatureScript
 
             void Reset()
             {
+                _activeFog = false;
+                _roamTimer = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             }
 
@@ -204,16 +206,22 @@ class npc_dream_fog : public CreatureScript
                     _activeFog = true;
                 }
 
-                // Chase target, but don't attack - otherwise just roam around
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM);
-                if (target)
-                    me->GetMotionMaster()->MoveChase(target);
-                else
-                    me->GetMotionMaster()->MoveIdle();
+                if (!_roamTimer)
+                {
+                    // Chase target, but don't attack - otherwise just roam around
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM);
+                    if (target)
+                        me->GetMotionMaster()->MoveChase(target);
+                    else
+                        me->GetMotionMaster()->MoveIdle();
+                    _roamTimer = 15000;
+                }
+                --_roamTimer;
             }
 
         private:
             bool _activeFog;
+            uint32 _roamTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
