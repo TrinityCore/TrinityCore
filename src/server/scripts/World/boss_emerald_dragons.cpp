@@ -102,8 +102,6 @@ struct emerald_dragonAI : public WorldBossAI
 {
     emerald_dragonAI(Creature* creature) : WorldBossAI(creature)
     {
-        // Emerald Dragons are immune to nature
-        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
     }
 
     void Reset()
@@ -174,7 +172,7 @@ struct emerald_dragonAI : public WorldBossAI
  * TODO:
  * - Change to random targets on random intervals(?)
  * - Check if targets are selected based on threatlevel(?)
- * - Spell: Check for some disrupancies with the dreamfog triggering
+ * - Spell: Dream Fog needs a spellscript
  *
  */
 
@@ -191,37 +189,31 @@ class npc_dream_fog : public CreatureScript
 
             void Reset()
             {
-                _activeFog = false;
                 _roamTimer = 0;
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (!_activeFog)
-                {
-                    DoCast(SPELL_DREAM_FOG);
-                    _activeFog = true;
-                }
-
                 if (!_roamTimer)
                 {
                     // Chase target, but don't attack - otherwise just roam around
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
                     if (target)
+                    {
                         me->GetMotionMaster()->MoveChase(target);
+                    }
                     else
                         me->GetMotionMaster()->MoveIdle();
-                    _roamTimer = 15000;
+                    _roamTimer = urand(10000, 20000);
                 }
-                --_roamTimer;
+                else
+                    _roamTimer -= diff;
             }
 
         private:
-            bool _activeFog;
             uint32 _roamTimer;
         };
 
@@ -423,7 +415,7 @@ class npc_demented_druid : public CreatureScript
  * TODO:
  * - NPC helper for spirit shades(?)
  *   - Spirit shade NPC moves towards Lethon and heals him if close enough (each shade heals for 15000 HP)
- * - Spell: Shadow bolt whirl needs custom handling
+ * - Spell: Shadow bolt whirl needs custom handling (spellscript)
  *
  */
 
@@ -628,7 +620,7 @@ class boss_emeriss : public CreatureScript
  *
  * TODO:
  * - Fix shademode and reset-issues on evade
- * - Main functionality for this dragon is complete, need dreamfog/modelfixing
+ *
  */
 
 enum TaerarTexts
@@ -809,7 +801,6 @@ class boss_shadeoftaerar : public CreatureScript
         {
             boss_shadeoftaerarAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
             void Reset()
