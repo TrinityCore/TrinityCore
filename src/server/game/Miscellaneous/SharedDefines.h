@@ -1087,18 +1087,38 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_GM_ONLY                          = 65, // Only GMs may use that. Your account has been reported for investigation.
     SPELL_CUSTOM_ERROR_REQUIRES_LEVEL_58                = 66, // You must reach level 58 to use this portal.
     SPELL_CUSTOM_ERROR_AT_HONOR_CAP                     = 67, // You already have the maximum amount of honor.
+    SPELL_CUSTOM_ERROR_68                               = 68, // ""
+    SPELL_CUSTOM_ERROR_69                               = 69, // ""
+    SPELL_CUSTOM_ERROR_70                               = 70, // ""
+    SPELL_CUSTOM_ERROR_71                               = 71, // ""
+    SPELL_CUSTOM_ERROR_72                               = 72, // ""
+    SPELL_CUSTOM_ERROR_73                               = 73, // ""
+    SPELL_CUSTOM_ERROR_74                               = 74, // ""
     SPELL_CUSTOM_ERROR_MUST_HAVE_DEMONIC_CIRCLE         = 75, // You must have a demonic circle active.
     SPELL_CUSTOM_ERROR_AT_MAX_RAGE                      = 76, // You already have maximum rage
     SPELL_CUSTOM_ERROR_REQUIRES_350_ENGINEERING         = 77, // Requires Engineering (350)
     SPELL_CUSTOM_ERROR_SOUL_BELONGS_TO_LICH_KING        = 78, // Your soul belongs to the Lich King
     SPELL_CUSTOM_ERROR_ATTENDANT_HAS_PONY               = 79, // Your attendant already has an Argent Pony
+    SPELL_CUSTOM_ERROR_80                               = 80, // ""
+    SPELL_CUSTOM_ERROR_81                               = 81, // ""
+    SPELL_CUSTOM_ERROR_82                               = 82, // ""
     SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM             = 83, // You must have a Fire Totem active.
     SPELL_CUSTOM_ERROR_CANT_TARGET_VAMPIRES             = 84, // You may not bite other vampires.
     SPELL_CUSTOM_ERROR_PET_ALREADY_AT_YOUR_LEVEL        = 85, // Your pet is already at your level.
     SPELL_CUSTOM_ERROR_MISSING_ITEM_REQUIREMENS         = 86, // You do not meet the level requirements for this item.
     SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS            = 87, // There are too many Mutated Abominations.
     SPELL_CUSTOM_ERROR_ALL_POTIONS_USED                 = 88, // The potions have all been depleted by Professor Putricide.
+    SPELL_CUSTOM_ERROR_89                               = 89, // ""
     SPELL_CUSTOM_ERROR_REQUIRES_LEVEL_65                = 90, // Requires level 65
+    SPELL_CUSTOM_ERROR_91                               = 91, // ""
+    SPELL_CUSTOM_ERROR_92                               = 92, // ""
+    SPELL_CUSTOM_ERROR_93                               = 93, // ""
+    SPELL_CUSTOM_ERROR_94                               = 94, // ""
+    SPELL_CUSTOM_ERROR_95                               = 95, // ""
+    SPELL_CUSTOM_ERROR_MAX_NUMBER_OF_RECRUITS           = 96, // You already have the max number of recruits.
+    SPELL_CUSTOM_ERROR_MAX_NUMBER_OF_VOLUNTEERS         = 97, // You already have the max number of volunteers.
+    SPELL_CUSTOM_ERROR_FROSTMOURNE_RENDERED_RESSURECT   = 98, // Frostmourne has rendered you unable to ressurect.
+    SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT       = 99, // You can't mount while affected by that shapeshift.
 };
 
 enum StealthType
