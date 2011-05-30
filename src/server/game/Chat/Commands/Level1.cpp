@@ -400,8 +400,16 @@ bool ChatHandler::HandleAppearCommand(const char* args)
                 // if no bind exists, create a solo bind
                 InstanceGroupBind *gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
                 if (!gBind)
+                {
                     if (InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
-                        _player->BindToInstance(save, !save->CanReset());
+                    {
+                        // if player is group leader then we need add group bind
+                        if (group && group->IsLeader(_player->GetGUID()))
+                            group->BindToInstance(save, !save->CanReset());
+                        else
+                            _player->BindToInstance(save, !save->CanReset());
+                    }
+                }
             }
 
             if (cMap->IsRaid())

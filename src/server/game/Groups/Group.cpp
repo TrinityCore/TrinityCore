@@ -1582,7 +1582,7 @@ bool Group::InCombatToInstance(uint32 instanceId)
     return false;
 }
 
-void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
+void Group::ResetInstances(InstanceResetMethod method, bool isRaid, Player* SendMsgTo)
 {
     if (isBGGroup())
         return;

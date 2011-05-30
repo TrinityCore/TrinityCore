@@ -566,16 +566,6 @@ class Map : public GridRefManager<NGridType>
         }
 };
 
-enum InstanceResetMethod
-{
-    INSTANCE_RESET_ALL,
-    INSTANCE_RESET_CHANGE_DIFFICULTY,
-    INSTANCE_RESET_GLOBAL,
-    INSTANCE_RESET_GROUP_DISBAND,
-    INSTANCE_RESET_GROUP_JOIN,
-    INSTANCE_RESET_RESPAWN_DELAY
-};
-
 class InstanceMap : public Map
 {
     public:
@@ -585,7 +575,7 @@ class InstanceMap : public Map
         void Remove(Player *, bool);
         void Update(const uint32&);
         void CreateInstanceData(bool load);
-        bool Reset(uint8 method);
+        bool Reset(InstanceResetMethod method);
         uint32 GetScriptId() { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
         void PermBindAllPlayers(Player *player);
