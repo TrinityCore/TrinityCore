@@ -22,6 +22,7 @@
 #include "QueryResult.h"
 #include "Player.h"
 #include "ObjectMgr.h"
+#include "SharedDefines.h"
 
 class WorldSession;
 
@@ -74,13 +75,6 @@ ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S
 ERR_ARENA_TEAM_LEVEL_TOO_LOW_I
 */
 
-enum ArenaTeamTypes
-{
-    ARENA_TEAM_2v2      = 2,
-    ARENA_TEAM_3v3      = 3,
-    ARENA_TEAM_5v5      = 5
-};
-
 struct ArenaTeamMember
 {
     uint64 Guid;
@@ -115,15 +109,15 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool Create(uint32 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
+        bool Create(uint32 captainGuid, ArenaType type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
 
         typedef std::list<ArenaTeamMember> MemberList;
 
         uint32 GetId() const              { return TeamId; }
-        uint32 GetType() const            { return Type; }
+        ArenaType GetType() const         { return Type; }
         uint8  GetSlot() const            { return GetSlotByType(GetType()); }
-        static uint8 GetSlotByType(uint32 type);
+        static uint8 GetSlotByType(ArenaType type);
         const uint64& GetCaptain() const  { return CaptainGuid; }
         std::string GetName() const       { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
@@ -181,7 +175,7 @@ class ArenaTeam
     protected:
 
         uint32      TeamId;
-        uint8       Type;
+        ArenaType   Type;
         std::string TeamName;
         uint64      CaptainGuid;
 
