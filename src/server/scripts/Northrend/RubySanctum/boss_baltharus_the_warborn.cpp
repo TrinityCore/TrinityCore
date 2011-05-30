@@ -84,6 +84,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_OOC_CHANNEL, 0, 0, PHASE_INTRO);
                 _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
+                instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
             }
 
             void DoAction(int32 const action)
@@ -157,12 +158,18 @@ class boss_baltharus_the_warborn : public CreatureScript
                     else if (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1)
                         DoAction(ACTION_CLONE);
                 }
+
+                if (me->GetHealth() - damage > 0)
+                    instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                     return;
+
+                if (!(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                    me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
                 events.Update(diff);
 
@@ -211,6 +218,84 @@ class boss_baltharus_the_warborn : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return GetRubySanctumAI<boss_baltharus_the_warbornAI>(creature);
+        }
+};
+
+class npc_baltarhus_the_warborn_clone : public CreatureScript
+{
+    public:
+        npc_baltarhus_the_warborn_clone() : CreatureScript("npc_baltarhus_the_warborn_clone") { }
+
+        struct npc_baltarhus_the_warborn_cloneAI : public ScriptedAI
+        {
+            npc_baltarhus_the_warborn_cloneAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = (InstanceScript*)creature->GetInstanceScript();
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                DoZoneInCombat();
+                _events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
+                _events.ScheduleEvent(EVENT_BLADE_TEMPEST, urand(18000, 25000));
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
+                if (_instance && me->GetHealth() - damage > 0)
+                    _instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                // This is here because DamageTaken wont trigger if the damage is deadly.
+                if (_instance)
+                    if (Creature* baltarhus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
+                        killer->Kill(baltarhus);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (_instance)
+                    me->SetHealth(_instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
+
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_CLEAVE);
+                            _events.ScheduleEvent(EVENT_CLEAVE, 24000);
+                            break;
+                        case EVENT_BLADE_TEMPEST:
+                            DoCastVictim(SPELL_BLADE_TEMPEST);
+                            _events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000);
+                           break;
+                        default:
+                            break;
+                    }
+               }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetRubySanctumAI<npc_baltarhus_the_warborn_cloneAI>(creature);
         }
 };
 
@@ -299,6 +384,7 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
 void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
+    new npc_baltarhus_the_warborn_clone();
     new spell_baltharus_enervating_brand();
     new spell_baltharus_enervating_brand_trigger();
 }

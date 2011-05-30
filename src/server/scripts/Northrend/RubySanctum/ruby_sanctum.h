@@ -30,12 +30,13 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_BALTHARUS_THE_WARBORN              = 0,
     DATA_GENERAL_ZARITHRIAN                 = 1,
-    DATA_SAVINA_RAGEFIRE                    = 2,
+    DATA_SAVIANA_RAGEFIRE                   = 2,
     DATA_HALION                             = 3,
 
     // Etc
     DATA_XERESTRASZA                        = 4,
     DATA_CRYSTAL_CHANNEL_TARGET             = 5,
+    DATA_BALTHARUS_SHARED_HEALTH            = 6,
 };
 
 enum SharedActions
@@ -57,7 +58,7 @@ enum CreaturesIds
     NPC_ZARITHIAN_SPAWN_STALKER             = 39794,
 
     // Saviana Ragefire
-    NPC_SAVINA_RAGEFIRE                     = 39747,
+    NPC_SAVIANA_RAGEFIRE                    = 39747,
 
     // Halion
     NPC_HALION                              = 39863,
@@ -86,9 +87,9 @@ enum GameObjectsIds
 
 enum WorldStatesRS
 {
-    WORLDSTATE_UNK_1                = 5049,
-    WORLDSTATE_UNK_2                = 5050,
-    WORLDSTATE_UNK_3                = 5051,
+    WORLDSTATE_UNK_1                = 5049, // Halion corporeality amount - normal phase
+    WORLDSTATE_UNK_2                = 5050, // Halion corporeality amount - twilight phase
+    WORLDSTATE_UNK_3                = 5051, // Halion corporeality toggle show
 };
 
 template<class AI>
