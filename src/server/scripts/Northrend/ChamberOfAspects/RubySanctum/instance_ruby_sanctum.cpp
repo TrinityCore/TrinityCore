@@ -141,7 +141,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                                 flameWalls->SetGoState(GO_STATE_READY);
                             }
                             if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE)
+                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         }
                         break;
                     }
@@ -155,7 +155,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                                 flameWalls->SetGoState(GO_STATE_READY);
                             }
                             if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FLAG, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE)
+                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         }
                         break;
                     }
