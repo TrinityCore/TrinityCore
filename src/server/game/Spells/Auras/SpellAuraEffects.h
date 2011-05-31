@@ -24,7 +24,7 @@ class AuraEffect
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura * GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
-        void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+        void GetApplicationList(std::list<AuraApplication* const> & applicationList) const;
 
         SpellEntry const * GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const { return m_spellProto->Id; }
