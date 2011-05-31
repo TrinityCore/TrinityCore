@@ -19,6 +19,9 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
 
 //
 //  Emerald Dragon NPCs and IDs (kept here for reference)
@@ -43,7 +46,8 @@ enum EmeraldDragonSpells
 {
     SPELL_TAIL_SWEEP                = 15847,    // tail sweep - slap everything behind dragon (2 seconds interval)
     SPELL_SUMMON_PLAYER             = 24776,    // teleport highest threat player in front of dragon if wandering off
-    SPELL_DREAM_FOG                 = 24777,    // used by summoned NPC (Dream Fog/15224)
+    SPELL_DREAM_FOG                 = 24777,    // auraspell for Dream Fog NPC (15224)
+    SPELL_SLEEP                     = 24778,    // sleep triggerspell (used for Dream Fog)
     SPELL_SEEPING_FOG_LEFT          = 24813,    // dream fog - summon left
     SPELL_SEEPING_FOG_RIGHT         = 24814,    // dream fog - summon right
     SPELL_NOXIOUS_BREATH            = 24818,
@@ -136,7 +140,7 @@ struct emerald_dragonAI : public WorldBossAI
             case EVENT_SEEPING_FOG:
                 DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
                 DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(8000,16000));
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(60000,120000));
                 break;
             case EVENT_NOXIOUS_BREATH:
                 DoCast(me, SPELL_NOXIOUS_BREATH);
@@ -172,7 +176,6 @@ struct emerald_dragonAI : public WorldBossAI
  * TODO:
  * - Change to random targets on random intervals(?)
  * - Check if targets are selected based on threatlevel(?)
- * - Spell: Dream Fog needs a spellscript
  *
  */
 
@@ -201,13 +204,18 @@ class npc_dream_fog : public CreatureScript
                 {
                     // Chase target, but don't attack - otherwise just roam around
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+
                     if (target)
                     {
-                        me->GetMotionMaster()->MoveChase(target);
+                        _roamTimer = urand(15000, 30000);
+                        me->GetMotionMaster()->MoveChase(target, 0.1f);
                     }
                     else
-                        me->GetMotionMaster()->MoveIdle();
-                    _roamTimer = urand(10000, 20000);
+                    {
+                        _roamTimer = 5000;
+                        me->GetMotionMaster()->MoveRandom(25.0f);
+                    }
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 }
                 else
                     _roamTimer -= diff;
@@ -220,6 +228,47 @@ class npc_dream_fog : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_dream_fogAI(creature);
+        }
+};
+
+/*
+ * --- Spell: Dream Fog
+ */
+
+class DreamFogTargetSelector
+{
+    public:
+        DreamFogTargetSelector() { }
+
+        bool operator()(Unit* unit)
+        {
+            return unit->HasAura(SPELL_SLEEP);
+        }
+};
+
+class spell_dream_fog_sleep : public SpellScriptLoader
+{
+    public:
+        spell_dream_fog_sleep() : SpellScriptLoader("spell_dream_fog_sleep") { }
+
+        class spell_dream_fog_sleep_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dream_fog_sleep_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(DreamFogTargetSelector());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dream_fog_sleep_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dream_fog_sleep_SpellScript();
         }
 };
 
@@ -849,6 +898,7 @@ void AddSC_emerald_dragons()
 {
     // helper NPC scripts
     new npc_dream_fog();
+    new spell_dream_fog_sleep();
 
     // ysondre and summons
     new boss_ysondre();
