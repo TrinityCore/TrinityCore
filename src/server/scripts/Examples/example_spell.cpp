@@ -345,7 +345,7 @@ class spell_ex_463 : public SpellScriptLoader
             {
                 sLog->outString("Area aura checks if unit is a valid target for it!");
                 // in our script we allow only players to be affected
-                return target->GetTypeId == TYPEID_PLAYER;
+                return target->GetTypeId() == TYPEID_PLAYER;
             }
             void Register()
             {
