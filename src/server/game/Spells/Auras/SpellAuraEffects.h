@@ -24,7 +24,7 @@ class AuraEffect
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura * GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
-        void GetApplicationList(std::list<AuraApplication* const> & applicationList) const;
+        void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
 
         SpellEntry const * GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const { return m_spellProto->Id; }
@@ -49,7 +49,7 @@ class AuraEffect
         void RecalculateAmount(Unit * caster) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
         void SetCanBeRecalculated(bool val) { m_canBeRecalculated = val; }
-        void HandleEffect(AuraApplication const * aurApp, uint8 mode, bool apply);
+        void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply);
         void HandleEffect(Unit * target, uint8 mode, bool apply);
         void ApplySpellMod(Unit * target, bool apply);
 
