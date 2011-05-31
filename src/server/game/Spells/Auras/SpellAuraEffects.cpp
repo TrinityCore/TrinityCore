@@ -400,7 +400,7 @@ void AuraEffect::GetTargetList(std::list<Unit *> & targetList) const
     }
 }
 
-void AuraEffect::GetApplicationList(std::list<AuraApplication *> & applicationList) const
+void AuraEffect::GetApplicationList(std::list<AuraApplication* const> & applicationList) const
 {
     Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
     // remove all targets which were not added to new list - they no longer deserve area aura
@@ -950,12 +950,14 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
         handleMask |= AURA_EFFECT_HANDLE_REAPPLY;
     if (!handleMask)
         return;
-    UnitList targetList;
-    GetTargetList(targetList);
-    for (UnitList::iterator aurEffTarget = targetList.begin(); aurEffTarget != targetList.end(); ++aurEffTarget)
-    {
-        HandleEffect(*aurEffTarget, handleMask, false);
-    }
+
+    std::list<AuraApplication* const> effectApplications;
+    GetApplicationList(effectApplications);
+
+    for (std::list<AuraApplication* const>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
+        if ((*apptItr)->HasEffect(GetEffIndex()))
+            HandleEffect(*apptItr, handleMask, false);
+
     if (handleMask & AURA_EFFECT_HANDLE_REAPPLY)
     {
         if (!mark)
@@ -964,10 +966,10 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
             SetAmount(newAmount);
         CalculateSpellMod();
     }
-    for (UnitList::iterator aurEffTarget = targetList.begin(); aurEffTarget != targetList.end(); ++aurEffTarget)
-    {
-        HandleEffect(*aurEffTarget, handleMask, true);
-    }
+
+    for (std::list<AuraApplication* const>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
+        if ((*apptItr)->HasEffect(GetEffIndex()))
+            HandleEffect(*apptItr, handleMask, true);
 }
 
 void AuraEffect::HandleEffect(AuraApplication const * aurApp, uint8 mode, bool apply)
@@ -1094,11 +1096,12 @@ void AuraEffect::Update(uint32 diff, Unit * caster)
             m_periodicTimer += m_amplitude - diff;
             UpdatePeriodic(caster);
 
-            std::list<AuraApplication*> effectApplications;
+            std::list<AuraApplication* const> effectApplications;
             GetApplicationList(effectApplications);
             // tick on targets of effects
-            for (std::list<AuraApplication*>::iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-                PeriodicTick(*apptItr, caster);
+            for (std::list<AuraApplication* const>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
+                if ((*apptItr)->HasEffect(GetEffIndex()))
+                    PeriodicTick(*apptItr, caster);
         }
     }
 }
