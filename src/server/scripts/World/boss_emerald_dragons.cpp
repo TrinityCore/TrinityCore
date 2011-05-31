@@ -159,11 +159,9 @@ struct emerald_dragonAI : public WorldBossAI
             ExecuteEvent(eventId);
 
         std::list<HostileReference*> threats = me->getThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator victim = threats.begin();
-        if (Unit* target = (*victim)->getTarget())
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                if (me->GetDistance(target) > 20.0f)
-                    DoCast(target, SPELL_SUMMON_PLAYER, true);
+        if (Unit* target = threats.front()->getTarget())
+            if ((target->GetTypeId() == TYPEID_PLAYER) && (me->GetDistance(target) > 20.0f))
+                DoCast(target, SPELL_SUMMON_PLAYER);
 
         DoMeleeAttackIfReady();
     }
@@ -203,11 +201,13 @@ class npc_dream_fog : public CreatureScript
                     if (target)
                     {
                         _roamTimer = urand(15000, 30000);
+                        me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveChase(target, 0.1f);
                     }
                     else
                     {
                         _roamTimer = 2500;
+                        me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveRandom(25.0f);
                     }
                     me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -431,7 +431,7 @@ class npc_demented_druid : public CreatureScript
                             _events.ScheduleEvent(EVENT_DRUID_SILENCE, urand(15000,20000));
                             break;
                         case EVENT_DRUID_CURSE_OF_THORNS:
-                            DoCastVictim(SPELL_SILENCE);
+                            DoCast(me, SPELL_CURSE_OF_THORNS, true);
                             _events.ScheduleEvent(EVENT_DRUID_CURSE_OF_THORNS, urand(15000,20000));
                             break;
                     }
