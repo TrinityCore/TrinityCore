@@ -107,7 +107,8 @@ enum DataTypes
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
 
-    DATA_KILL_CREDIT                = 37
+    DATA_FALLEN_ADDS_SPAWNEN,
+    DATA_KILL_CREDIT
 };
 
 enum CreaturesIds
@@ -260,10 +261,13 @@ enum CreaturesIds
 enum GameObjectsIds
 {
     // Lower Spire Trash
-    GO_SPIRIT_ALARM_1                       = 201814,
-    GO_SPIRIT_ALARM_2                       = 201815,
-    GO_SPIRIT_ALARM_3                       = 201816,
-    GO_SPIRIT_ALARM_4                       = 201817,
+    GO_SPIRIT_ALARM_1                       = 201814, // unten
+    GO_SPIRIT_ALARM_2                       = 201815, // unten
+    GO_SPIRIT_ALARM_3                       = 201816, // unten
+    GO_SPIRIT_ALARM_4                       = 201817, // unten
+
+    GO_SPIRIT_ALARM_5                       = 201888, // oben
+    GO_SPIRIT_ALARM_6                       = 201889, // oben
 
     // Lord Marrogar
     GO_DOODAD_ICECROWN_ICEWALL02            = 201910,

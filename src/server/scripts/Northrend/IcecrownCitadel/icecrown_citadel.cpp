@@ -34,6 +34,7 @@
 #include "SpellAuraEffects.h"
 #include "SmartAI.h"
 #include "icecrown_citadel.h"
+#include "CreatureGroups.h"
 
 enum TODESGEWEIHTER_WAECHTER_GUIDS
 {
@@ -41,6 +42,19 @@ enum TODESGEWEIHTER_WAECHTER_GUIDS
     TODESGEWEIHTER_WAECHTER_Y_FALLE_2 = 2290, // guid 201043 - x,y -193.786f,2290.22f
     TODESGEWEIHTER_WAECHTER_Y_FALLE_3 = 2242, // guid 201130 - x,y -300.354f,2242.18f
     TODESGEWEIHTER_WAECHTER_Y_FALLE_4 = 2182  // guid 201108 - x,y -300.566,2182.6f
+};
+
+enum eFALLEN_ADDS_WEG_INDEX
+{
+    SPAWNPUNKT = 0,
+    HOME // 10 Sek. hier warten, dann Wegpunkte ablaufen!
+};
+
+// Wegpunkte für den Spawn der Adds aus den Fallen GO_SPIRIT_ALARM_5 + GO_SPIRIT_ALARM_6
+const Position FallenAddsWegPunkte[2] =
+{
+    { 4360.740234f, 2982.070068f, 360.593994f, 0 },
+    { 4357.551758f, 3023.074463f, 360.518707f, 1.539818f },
 };
 
 enum ICC_RAID_TRASH_NPCS_UND_SPELLS
@@ -233,11 +247,6 @@ class mob_icc_raid_trash : public CreatureScript
 {
 public:
     mob_icc_raid_trash() : CreatureScript("mob_icc_raid_trash") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_icc_raid_trashAI(pCreature);
-    }
 
     struct mob_icc_raid_trashAI: public ScriptedAI
     {
@@ -446,7 +455,7 @@ public:
                         {
                             if (eventId == EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM)
                             {
-                                // Wird nur auf die Eiternden Schrecken gecastet dieser Spell, und auch nur au�erhalb des Kampfes!
+                                // Wird nur auf die Eiternden Schrecken gecastet dieser Spell, und auch nur außerhalb des Kampfes!
                                 if (Creature * Schrecken = GetClosestCreatureWithEntry(me, EITERNDER_SCHRECKEN, 80.0f, true))
                                 {
                                     me->SetFacing(0, Schrecken);
@@ -462,7 +471,7 @@ public:
 
             switch(me->GetEntry())
             {
-                // Diese NPC d�rfen niemals weiter als bis zur Treppe des Vorraumes folgen!
+                // Diese NPC dürfen niemals weiter als bis zur Treppe des Vorraumes folgen!
                 case DIE_VERDAMMTEN:
                 case DIENER_DES_THRONS:
                 case URALTER_SKELETT_SOLDAT:
@@ -847,6 +856,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_icc_raid_trashAI(pCreature);
+    }
 };
 
 enum Texts
@@ -1086,6 +1099,9 @@ enum EventIds
     EVENT_AWAKEN_WARD_2 = 22907,
     EVENT_AWAKEN_WARD_3 = 22908,
     EVENT_AWAKEN_WARD_4 = 22909,
+
+    EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_1 = 22869, // GO_SPIRIT_ALARM_5 - Spell 70739
+    EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_2 = 22870  // GO_SPIRIT_ALARM_6 - Spell 70740
 };
 
 class FrostwingVrykulSearcher
@@ -2528,8 +2544,70 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_icc_sprit_alarm_SpellScript);
 
+            InstanceScript * instance;
+
+            void SpieleGeistalarm()
+            {
+                GetCaster()->PlayDistanceSound(17274);
+                instance->DoSendNotifyToInstance("FALLE AUSGELÖST!");
+            }
+
+            void SpawnAdds()
+            {
+                SpieleGeistalarm();
+
+                // Anzahl der Adds aus den Fallen GO_SPIRIT_ALARM_5 + GO_SPIRIT_ALARM_6
+                uint8 NumAdds = 0;
+
+                switch(instance->instance->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                    case RAID_DIFFICULTY_10MAN_HEROIC:
+                        NumAdds = 10;
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                    case RAID_DIFFICULTY_25MAN_HEROIC:
+                        NumAdds = 25;
+                        break;
+                }
+
+                Position pos = FallenAddsWegPunkte[SPAWNPUNKT];
+
+                for (uint8 i=0; i<NumAdds; ++i)
+                {
+                    if (TempSummon * pAdd = instance->instance->SummonCreature(RACHSUECHTIGER_FLEISCHERNTER, pos))
+                    {   // Eigentlich müssten sie als Gruppe Wegpunkte ablaufen, nachdem sie am HOME Punkt 10 Sek. gewartet haben.
+                        // Leider habe ich gerade keinen Schimmer, wie ich aus TmpSpawns eine Gruppe erstellen kann, und diese auch noch steuern, geschweige denn Wegpunkte geben kann... :-(
+                        // Also erst einmal spawnen, und einfach nach Hause gehen lassen. ;)
+                        pAdd->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+
+                        if (i) // Das erste Add direkt am HOME lassen.
+                            switch(urand(0,1))
+                            {
+                                case 0:
+                                    pAdd->SetHomePosition(FallenAddsWegPunkte[HOME].m_positionX+float(urand(0,8)), FallenAddsWegPunkte[HOME].m_positionY-float(urand(0,8)),
+                                        FallenAddsWegPunkte[HOME].m_positionZ, FallenAddsWegPunkte[HOME].m_orientation);
+                                    break;
+                                case 1:
+                                    pAdd->SetHomePosition(FallenAddsWegPunkte[HOME].m_positionX-float(urand(0,8)), FallenAddsWegPunkte[HOME].m_positionY+float(urand(0,8)),
+                                        FallenAddsWegPunkte[HOME].m_positionZ, FallenAddsWegPunkte[HOME].m_orientation);
+                                    break;
+                            }
+                        // Ausgehend vom vorherigen Add, einen Random HOME Punkt für das nächste setzen, damit nicht alle auf einem Haufen hocken. ;)
+                        pAdd->GetNearPosition(pos, 8.0f, float(urand(0,360)));
+
+                        if (!pAdd->isInCombat())
+                            pAdd->GetMotionMaster()->MoveTargetedHome();
+                    }
+                }
+            }
+
             void HandleEvent(SpellEffIndex effIndex)
             {
+                instance = GetCaster()->GetInstanceScript();
+                if (!instance)
+                    return;
+
                 uint32 trapId = 0;
 
                 switch (GetSpellInfo()->EffectMiscValue[effIndex])
@@ -2538,6 +2616,12 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                     case EVENT_AWAKEN_WARD_2: trapId = GO_SPIRIT_ALARM_2; break;
                     case EVENT_AWAKEN_WARD_3: trapId = GO_SPIRIT_ALARM_3; break;
                     case EVENT_AWAKEN_WARD_4: trapId = GO_SPIRIT_ALARM_4; break;
+
+                    case EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_1:
+                    case EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_2:
+                        SpawnAdds();
+                        return;
+
                     default:
                         return;
                 }
@@ -2580,6 +2664,8 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
                         if (gefunden)
                         {
+                            SpieleGeistalarm();
+
                             (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
                             (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
                             if (Unit* target = (*itr)->SelectNearestTarget(150.0f))

@@ -1055,17 +1055,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             Map::PlayerList const &pl = instance->GetPlayers();
                             if (!pl.isEmpty())
-                            {
                                 for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
-                                {
                                     if (Player* pPl = itr->getSource())
                                         if (pPl->hasQuest(uiQuest) && !pPl->GetQuestRewardStatus(uiQuest))
                                         {
                                             pPl->CastSpell(pPl, SPELL_SOUL_FEAST_1, true);
                                             pPl->CastSpell(pPl, SPELL_SOUL_FEAST_2, true);
                                         }
-                                }
-                            }
                         }
                         break;
                 }
