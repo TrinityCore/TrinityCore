@@ -111,13 +111,13 @@ struct emerald_dragonAI : public WorldBossAI
     {
         if (who && me->IsHostileTo(who))
             if (who->HasAura(SPELL_MARK_OF_NATURE_AURA) && !who->HasAura(SPELL_AURA_OF_NATURE))
-                DoCast(who, SPELL_AURA_OF_NATURE, true);
+                who->CastSpell(who, SPELL_AURA_OF_NATURE, true);
     }
 
     // Target killed during encounter, mark them as suspectible for Aura Of Nature
     void KilledUnit(Unit* who)
     {
-        DoCast(who, SPELL_MARK_OF_NATURE, true);
+        who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
     }
 
     // Execute and reschedule base events shared between all Emerald Dragons
@@ -157,6 +157,13 @@ struct emerald_dragonAI : public WorldBossAI
 
         while (uint32 eventId = events.ExecuteEvent())
             ExecuteEvent(eventId);
+
+        std::list<HostileReference*> threats = me->getThreatManager().getThreatList();
+        std::list<HostileReference*>::const_iterator victim = threats.begin();
+        if (Unit* target = (*victim)->getTarget())
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                if (me->GetDistance(target) > 20.0f)
+                    DoCast(target, SPELL_SUMMON_PLAYER, true);
 
         DoMeleeAttackIfReady();
     }
