@@ -114,8 +114,8 @@ struct emerald_dragonAI : public WorldBossAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
-        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 8000);
-        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(10000, 20000));
+        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 7500, 15000);
+        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
     }
 
     // Test if the player has been killed before, and if so, put them to sleep
@@ -138,15 +138,19 @@ struct emerald_dragonAI : public WorldBossAI
         switch (eventId)
         {
             case EVENT_SEEPING_FOG:
+                // Seeping Fog appears only as "pairs", and only ONE pair at any given time!
+                // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
                 DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
                 DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(60000,120000));
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000,150000);
                 break;
             case EVENT_NOXIOUS_BREATH:
+                // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
                 DoCast(me, SPELL_NOXIOUS_BREATH);
-                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(15000, 20000));
+                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 7500, 15000);
                 break;
             case EVENT_TAIL_SWEEP:
+                // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
                 DoCast(me, SPELL_TAIL_SWEEP);
                 events.ScheduleEvent(EVENT_TAIL_SWEEP, 2000);
                 break;
@@ -172,10 +176,6 @@ struct emerald_dragonAI : public WorldBossAI
 
 /*
  * --- Dream Fog NPC
- *
- * TODO:
- * - Change to random targets on random intervals(?)
- * - Check if targets are selected based on threatlevel(?)
  *
  */
 
@@ -212,7 +212,7 @@ class npc_dream_fog : public CreatureScript
                     }
                     else
                     {
-                        _roamTimer = 5000;
+                        _roamTimer = 2500;
                         me->GetMotionMaster()->MoveRandom(25.0f);
                     }
                     me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
