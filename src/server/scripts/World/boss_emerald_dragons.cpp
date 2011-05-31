@@ -60,35 +60,23 @@ enum EmeraldDragonSpells
 // Emerald Dragon Eventlists (shared and specials)
 //
 
-enum EmeraldDragonEvents
+enum Events
 {
+    // General for all dragons
     EVENT_SEEPING_FOG               = 1,
     EVENT_NOXIOUS_BREATH            = 2,
     EVENT_TAIL_SWEEP                = 3,
-};
-
-enum YsondreEvents
-{
-    EVENT_LIGHTNING_WAVE            = 11,
-    EVENT_SUMMON_DRUID_SPIRITS      = 12,
-};
-
-enum LethonEvents
-{
-    EVENT_SHADOW_BOLT_WHIRL         = 21,
-    EVENT_DRAW_SPIRIT               = 22,
-};
-
-enum EmerissEvents
-{
-    EVENT_VOLATILE_INFECTION        = 31,
-    EVENT_CORRUPTION_OF_EARTH       = 32,
-};
-
-enum TaerarEvents
-{
-    EVENT_ARCANE_BLAST              = 41,
-    EVENT_BELLOWING_ROAR            = 42,
+    // Ysondre
+    EVENT_LIGHTNING_WAVE            = 4,
+    EVENT_SUMMON_DRUID_SPIRITS      = 5,
+    // Lethon
+    EVENT_SHADOW_BOLT_WHIRL         = 6,
+    // Emeriss
+    EVENT_VOLATILE_INFECTION        = 7,
+    EVENT_CORRUPTION_OF_EARTH       = 8,
+    // Taerar
+    EVENT_ARCANE_BLAST              = 9,
+    EVENT_BELLOWING_ROAR            = 10,
 };
 
 /*
@@ -327,7 +315,7 @@ class boss_ysondre : public CreatureScript
                 {
                     Talk(SAY_YSONDRE_SUMMON_DRUIDS);
 
-                    for (int i = 0 ; i < 10 ; ++i)
+                    for (uint8 i = 0 ; i < 10 ; ++i)
                         DoCast(me, SPELL_SUMMON_DRUID_SPIRITS, true);
                     ++_stage;
                 }
@@ -748,8 +736,8 @@ class boss_taerar : public CreatureScript
 
                     Talk(SAY_TAERAR_SUMMON_SHADES);
 
-                    int count = sizeof(TaerarShadeSpells) / sizeof(uint32);
-                    for (int i = 0; i < count; ++i)
+                    uint32 count = sizeof(TaerarShadeSpells) / sizeof(uint32);
+                    for (uint32 i = 0; i < count; ++i)
                         DoCastVictim(TaerarShadeSpells[i], true);
                     _shades += count;
 
