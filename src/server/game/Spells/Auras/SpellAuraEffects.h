@@ -49,7 +49,7 @@ class AuraEffect
         void RecalculateAmount(Unit * caster) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
         void SetCanBeRecalculated(bool val) { m_canBeRecalculated = val; }
-        void HandleEffect(AuraApplication const * aurApp, uint8 mode, bool apply);
+        void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply);
         void HandleEffect(Unit * target, uint8 mode, bool apply);
         void ApplySpellMod(Unit * target, bool apply);
 

@@ -484,6 +484,7 @@ void AddSC_icecrown_citadel();
 void AddSC_instance_ruby_sanctum();      // Ruby Sanctum
 void AddSC_ruby_sanctum();
 void AddSC_boss_baltharus_the_warborn();
+void AddSC_boss_saviana_ragefire();
 
 void AddSC_crystalsong_forest();
 void AddSC_borean_tundra();
@@ -1185,6 +1186,7 @@ void AddNorthrendScripts()
     AddSC_instance_ruby_sanctum();      // Ruby Sanctum
     AddSC_ruby_sanctum();
     AddSC_boss_baltharus_the_warborn();
+    AddSC_boss_saviana_ragefire();
 
     AddSC_crystalsong_forest();
     AddSC_borean_tundra();
