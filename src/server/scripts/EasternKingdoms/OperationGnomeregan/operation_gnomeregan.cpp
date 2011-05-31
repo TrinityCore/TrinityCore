@@ -153,7 +153,6 @@ class npc_og_infantry : public CreatureScript
             npc_og_infantryAI(Creature* pCreature) : npc_escortAI(pCreature) {}
 
             bool bDeployable;
-            bool bRooted;
             uint32 uiGCD;
             uint32 uiGrenade_timer;
             uint32 uiDeploy_timer;
@@ -162,7 +161,6 @@ class npc_og_infantry : public CreatureScript
             void Reset()
             {
                 bDeployable = true;
-                bRooted = false;
                 uiGCD = 2500;
                 uiGrenade_timer = urand(10000, 15000);
             }
@@ -235,6 +233,21 @@ class npc_og_infantry : public CreatureScript
                 }
             }
 
+            void AttackStart(Unit* pWho)
+            {
+                if (!pWho)
+                    return;
+
+                if (me->Attack(pWho, true))
+                {
+                    me->AddThreat(pWho, 10.0f);
+                    me->SetInCombatWith(pWho);
+                    pWho->SetInCombatWith(me);
+                    DoStartMovement(pWho, 20.0f);
+                    SetCombatMovement(true);
+                }
+            }
+
             void UpdateAI(const uint32 diff)
             {
                 npc_escortAI::UpdateAI(diff);
@@ -252,27 +265,7 @@ class npc_og_infantry : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->GetDistance2d(me->getVictim()) <= 5.0f)
-                {
-                    me->ClearUnitState(UNIT_STAT_ROOT);
-                    bRooted = false;
-                }
-                else 
-                {
-                    if (me->GetDistance2d(me->getVictim()) <= 30.0f)
-                    {
-                        me->AddUnitState(UNIT_STAT_ROOT);
-                        bRooted = true;
-                    }
-                    else
-                    {
-                        me->ClearUnitState(UNIT_STAT_ROOT);
-                        bRooted = false;
-                    }
-                }
-                
-
-                if (!bRooted)
+                if (me->IsWithinMeleeRange(me->getVictim()))
                 {
                     if (uiGCD <= diff)
                     {
@@ -289,7 +282,7 @@ class npc_og_infantry : public CreatureScript
                     if (uiGCD <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_SHOOT);
-                        uiGCD = 5000;
+                        uiGCD = 3000;
                     }
                     else
                         uiGCD -= diff;
@@ -297,7 +290,8 @@ class npc_og_infantry : public CreatureScript
 
                 if (uiGrenade_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_GRENADE);
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_GRENADE);
                     uiGrenade_timer = urand(10000, 15000);
                 }
                 else
@@ -320,13 +314,11 @@ class npc_og_tank : public CreatureScript
         {
             npc_og_tankAI(Creature* pCreature) : npc_escortAI(pCreature) {}
 
-            bool IsSelfRooted;
             uint32 uiGCD;
 
             void Reset()
             {
-                IsSelfRooted = false;
-                uiGCD = 5000;
+                uiGCD = urand(5000, 7000);
             }
 
             void WaypointReached(uint32 i)
@@ -338,6 +330,30 @@ class npc_og_tank : public CreatureScript
                 switch (variation)
                 {
                     case 0:
+                        AddWaypoint(0, -5402.410156f, 543.925049f, 387.239044f);
+                        AddWaypoint(1, -5395.444824f, 543.309692f, 386.707794f);
+                        AddWaypoint(2, -5386.854492f, 546.801086f, 386.116394f);
+                        AddWaypoint(3, -5360.019043f, 558.631836f, 387.000153f);
+                        AddWaypoint(4, -5335.933594f, 581.771667f, 386.494202f);
+                        AddWaypoint(5, -5312.586426f, 572.810486f, 388.351349f);
+                        AddWaypoint(6, -5303.000000f, 567.692078f, 386.120575f);
+                        break;
+                    case 1:
+                        AddWaypoint(0, -5404.278809f, 530.734863f, 387.149506f);
+                        AddWaypoint(1, -5395.379883f, 532.568787f, 387.045959f);
+                        AddWaypoint(2, -5383.813477f, 538.125305f, 386.221008f);
+                        AddWaypoint(3, -5358.499023f, 552.581299f, 387.086823f);
+                        AddWaypoint(4, -5344.463867f, 553.109802f, 384.685608f);
+                        AddWaypoint(5, -5318.844727f, 552.937134f, 385.461639f);
+                        break;
+                    case 2:
+                        AddWaypoint(0, -5394.302734f, 518.734436f, 386.275909f);
+                        AddWaypoint(1, -5388.748535f, 524.705505f, 386.650208f);
+                        AddWaypoint(2, -5378.070313f, 529.968689f, 386.955872f);
+                        AddWaypoint(3, -5353.919434f, 533.967957f, 385.093628f);
+                        AddWaypoint(4, -5326.888184f, 539.787048f, 384.828491f);
+                        break;
+                    case 3:
                         AddWaypoint(0, -5280.954102f, 559.265808f, 385.679932f);
                         AddWaypoint(1, -5267.337402f, 540.788391f, 387.169342f);
                         AddWaypoint(2, -5255.488281f, 521.325256f, 386.325378f);
@@ -364,7 +380,7 @@ class npc_og_tank : public CreatureScript
                         AddWaypoint(23, -5266.466797f, 537.124451f, 387.494537f);
                         AddWaypoint(24, -5283.755859f, 560.300293f, 385.199860f);
                         break;
-                    case 1:
+                    case 4:
                         AddWaypoint(0, -5263.007813f, 572.262085f, 388.673157f);
                         AddWaypoint(1, -5236.423340f, 542.552368f, 389.753387f);
                         AddWaypoint(2, -5214.283691f, 541.975586f, 389.412659f);
@@ -394,7 +410,13 @@ class npc_og_tank : public CreatureScript
                 }
                 if (npc_og_tankAI* pEscortAI = CAST_AI(npc_og_tankAI, me->AI()))
                 {
-                    pEscortAI->Start(true, true, NULL, NULL, false, true);
+                    if (variation > 2)
+                        pEscortAI->Start(true, true, NULL, NULL, false, true);
+                    else
+                    {
+                        pEscortAI->Start(true, true);
+                        pEscortAI->SetDespawnAtEnd(false);
+                    }
                     pEscortAI->SetDespawnAtFar(false);
                     me->setActive(true);
                 }
@@ -407,36 +429,16 @@ class npc_og_tank : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->IsWithinMeleeRange(me->getVictim()))
+                if (uiGCD <= diff)
                 {
-                    IsSelfRooted = false;
-
-                    if (me->isAttackReady())
-                    {
-                        if (uiGCD <= diff)
-                        {
-                            if (!urand(0, 3))
-                            {
-                                DoCast(me->getVictim(), SPELL_FLAME_SPRAY);
-                                uiGCD = 5000;
-                            }
-                        }
-                        else
-                            uiGCD -= diff;
-                    }
+                    DoCast(me->getVictim(), !urand(0, 3) ? SPELL_MACHINE_GUN : SPELL_FLAME_SPRAY);
+                    uiGCD = urand(5000, 7000);
                 }
                 else
-                {
-                    IsSelfRooted = true;
+                    uiGCD -= diff;
 
-                    if (uiGCD <= diff)
-                    {
-                        DoCast(me->getVictim(), SPELL_MACHINE_GUN);
-                        uiGCD = 5000;
-                    }
-                    else
-                        uiGCD -= diff;
-                }
+                if (!me->HasUnitState(UNIT_STAT_CASTING))
+                    DoMeleeAttackIfReady();
             }
         };
 
@@ -531,16 +533,14 @@ class npc_og_assistants : public CreatureScript
                 {
                     case 0:
                     case 2:
-                    case 11:
                     case 17:
                     case 20:
                     case 35:
                     case 52:
                     case 57:
                     case 65:
-                    case 67:
-                    case 71:
-                    case 75:
+                    case 66:
+                    case 70:
                         SetHoldState(true);
                         break;
                     case 49:
@@ -556,9 +556,12 @@ class npc_og_assistants : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_PARACHUTE_AURA);
                         me->Mount(me->GetEntry() == NPC_FASTBLAST ? DATA_MOUNT_FAST : DATA_MOUNT_COG);
                         break;
+                    case 11:
+                        SetHoldState(true);
+                        if (Creature* pMekkatorque = me->FindNearestCreature(NPC_MEKKATORQUE, 100, true))
+                            me->CastSpell(pMekkatorque, SPELL_TRIGGER, true);
+                        break;
                 }
-                if (i > 21)
-                    me->SummonGameObject(188646, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(),0,0,0,0,0,0);  // Debug feature
             }
 
             void SetHoldState(bool b_OnHold)
@@ -657,9 +660,10 @@ class npc_og_mekkatorque : public CreatureScript
             bool   bCanSummonBomber;
             bool   bCannonIntro;
             bool   bBuffs;
-            bool   bPreJumpWP_1;
-            bool   bPreJumpWP_2;
+            bool   bControlWP_1;
+            bool   bControlWP_2;
             Creature* RL[4];
+            Creature* Tank[3];
             Creature* Cannon[6];
             Creature* BattleSuit[3];
 
@@ -674,8 +678,8 @@ class npc_og_mekkatorque : public CreatureScript
                 bCanSummonBomber     = true;
                 bCannonIntro         = false;
                 bBuffs               = false;
-                bPreJumpWP_1         = false;
-                bPreJumpWP_2         = false;
+                bControlWP_1         = false;
+                bControlWP_2         = false;
             }
 
             void WaypointReached(uint32 i)
@@ -687,6 +691,10 @@ class npc_og_mekkatorque : public CreatureScript
                         DoTalk(me, MEK_1_1, SOUND_MEK_1, false);
                         for (int8 n = 0; n < 4; ++n)
                             RL[n] = me->SummonCreature(NPC_RL, RLSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
+                        for (int8 n = 0; n < 3; ++n)
+                            Tank[n] = me->SummonCreature(NPC_TANK, TankSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
+                        for (int8 n = 0; n < 8; ++n)
+                            me->SummonCreature(NPC_I_INFANTRY, iInfantrySpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
                         me->SummonCreature(NPC_I_TANK, iTankSpawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                         for (int8 n = 1; n < 3; ++n)
                             if (Creature* p_iTank = me->SummonCreature(NPC_I_TANK, iTankSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
@@ -700,11 +708,11 @@ class npc_og_mekkatorque : public CreatureScript
                         break;
                     case 3:
                         SquadSetRun(true);
+                        DoUpdateWorldState(WORLDSTATE_RL_DESTROYED, uiRLDestroyed);
+                        DoUpdateWorldState(WORLDSTATE_RL_DESTROYED_CTRL, 1);
                         break;
                     case 4:
                         DoTalk(me, MEK_6_1, SOUND_MEK_6, false);
-                        DoUpdateWorldState(WORLDSTATE_RL_DESTROYED, uiRLDestroyed);
-                        DoUpdateWorldState(WORLDSTATE_RL_DESTROYED_CTRL, 1);
                         if (RL[0]->isAlive())
                             AttackStart(RL[0]);
                         break;
@@ -798,8 +806,6 @@ class npc_og_mekkatorque : public CreatureScript
                         JumpToNextStep(2000);
                         break;
                 }
-                if (i > 21)
-                    me->SummonGameObject(190561, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(),0,0,0,0,0,0);  // Debug feature
             }
 
             void JumpToNextStep(uint32 uiTimer)
@@ -824,7 +830,7 @@ class npc_og_mekkatorque : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                DoRefreshkWorldStates();
+                DoRefreshWorldStates();
 
                 npc_escortAI::UpdateAI(diff);
 
@@ -891,10 +897,12 @@ class npc_og_mekkatorque : public CreatureScript
                             break;
                         case 12:
                             SetHoldState(false);
-                                break;
+                            break;
                         case 14:
                             me->MonsterSay(MEK_5_2, LANG_UNIVERSAL, NULL);
                             DoUpdateWorldState(WORLDSTATE_AIRFIELD_ATTACKED, 1);
+                            for (int8 n = 0; n < 3; ++n)
+                                CAST_AI(npc_og_tank::npc_og_tankAI, Tank[n]->AI())->SetupMovement(n);
                             JumpToNextStep(3300);
                             break;
                         case 15:
@@ -921,17 +929,20 @@ class npc_og_mekkatorque : public CreatureScript
                             break;
                         case 19:
                             me->MonsterSay(MEK_10_3, LANG_UNIVERSAL, NULL);
-                            if (Creature* pTank1 = me->SummonCreature(NPC_TANK, TankSpawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
-                                if (Creature* pTank2 = me->SummonCreature(NPC_TANK, TankSpawn[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                            if (Creature* pTank1 = me->SummonCreature(NPC_TANK, TankSpawn[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                                if (Creature* pTank2 = me->SummonCreature(NPC_TANK, TankSpawn[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                                 {
-                                    CAST_AI(npc_og_tank::npc_og_tankAI, pTank1->AI())->SetupMovement(0);
-                                    CAST_AI(npc_og_tank::npc_og_tankAI, pTank2->AI())->SetupMovement(1);
+                                    CAST_AI(npc_og_tank::npc_og_tankAI, pTank1->AI())->SetupMovement(3);
+                                    CAST_AI(npc_og_tank::npc_og_tankAI, pTank2->AI())->SetupMovement(4);
                                 }
                             DoSummonBomber();
                             JumpToNextStep(3000);
                             break;
                         case 20:
-                            SetHoldState(false);
+                            if(!ValidateEscortState())
+                                uiStep_timer = 2000;
+                            else
+                                SetHoldState(false);
                             break;
                         case 22:
                             me->MonsterSay(MEK_12_2, LANG_UNIVERSAL, NULL);
@@ -1018,11 +1029,10 @@ class npc_og_mekkatorque : public CreatureScript
                             SetHoldState(false);
                             break;
                         case 40:
-                            if (!bPreJumpWP_1 || !bPreJumpWP_2)
+                            if(!ValidateEscortState())
                                 uiStep_timer = 2000;
                             else
                             {
-                                me->MonsterSay("1", LANG_UNIVERSAL, NULL);
                                 PartyCast(SPELL_PARACHUTE);
                                 SetHoldState(false);
                             }
@@ -1240,6 +1250,7 @@ class npc_og_mekkatorque : public CreatureScript
                     case 0:
                     {
                         ++uiRLDestroyed;
+                        DoUpdateWorldState(WORLDSTATE_RL_DESTROYED, uiRLDestroyed);
 
                         if (uiStep > 14)
                         {
@@ -1260,15 +1271,11 @@ class npc_og_mekkatorque : public CreatureScript
                                     sLog->outError("More than 4 Rocket Launchers destroyed!");
                             }
                         }
-
-                        DoUpdateWorldState(WORLDSTATE_RL_DESTROYED, uiRLDestroyed);
-
                         break;
                     }
                     case 1:
                     {
                         ++uiCannonsDestroyed;
-
                         DoUpdateWorldState(WORLDSTATE_CANNONS_DESTROYED, uiCannonsDestroyed);
 
                         if (uiCannonsDestroyed == 6)
@@ -1304,7 +1311,7 @@ class npc_og_mekkatorque : public CreatureScript
                 else
                     pTalker->MonsterSay(text, LANG_UNIVERSAL, NULL);
 
-                if (sound != 0)
+                if (sound)
                     DoPlaySoundToSet(pTalker, sound);
             }
 
@@ -1323,9 +1330,9 @@ class npc_og_mekkatorque : public CreatureScript
             void SquadSetRun(bool b_Run)
             {
                 if (Creature* pCogspin = me->FindNearestCreature(NPC_COGSPIN, 100))
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->SetRun(b_Run);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->SetRun(b_Run);
                 if (Creature* pFastblast = me->FindNearestCreature(NPC_FASTBLAST, 100))
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->SetRun(b_Run);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->SetRun(b_Run);
 
                 SetRun(b_Run);
             }
@@ -1371,10 +1378,10 @@ class npc_og_mekkatorque : public CreatureScript
                             JumpToNextStep(100);
                             break;
                         case NPC_FASTBLAST:
-                            bPreJumpWP_1 = true;
+                            bControlWP_1 = true;
                             break;
                         case NPC_COGSPIN:
-                            bPreJumpWP_2 = true;
+                            bControlWP_2 = true;
                             break;
                     }
                 }
@@ -1397,7 +1404,7 @@ class npc_og_mekkatorque : public CreatureScript
                 }
             }
 
-            void DoRefreshkWorldStates()
+            void DoRefreshWorldStates()
             {
                 Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
@@ -1412,6 +1419,18 @@ class npc_og_mekkatorque : public CreatureScript
                             for (int8 n = 0; n < 15; ++n)
                                 pPlayer->SendUpdateWorldState(Worldsates[n], 0);
                     }
+                }
+            }
+
+            bool ValidateEscortState()
+            {
+                if (!bControlWP_1 || !bControlWP_2)
+                    return false;
+                else
+                {
+                    bControlWP_1 = false;
+                    bControlWP_2 = false;
+                    return true;
                 }
             }
         };
@@ -1429,17 +1448,17 @@ class npc_og_mekkatorque : public CreatureScript
                 }
                 if (Creature* pCogspin = pCreature->FindNearestCreature(NPC_COGSPIN, 20))
                 {
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->Start(true, true, pPlayer->GetGUID(), pQuest);
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->SetDespawnAtFar(false);
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->SetDespawnAtEnd(false);
-                        pCogspin->setActive(true);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->Start(true, true, pPlayer->GetGUID(), pQuest);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->SetDespawnAtFar(false);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pCogspin->AI())->SetDespawnAtEnd(false);
+                    pCogspin->setActive(true);
                 }
                 if (Creature* pFastblast = pCreature->FindNearestCreature(NPC_FASTBLAST, 20))
                 {
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->Start(true, true, pPlayer->GetGUID(), pQuest);
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->SetDespawnAtFar(false);
-                        CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->SetDespawnAtEnd(false);
-                        pFastblast->setActive(true);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->Start(true, true, pPlayer->GetGUID(), pQuest);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->SetDespawnAtFar(false);
+                    CAST_AI(npc_og_assistants::npc_og_assistantsAI, pFastblast->AI())->SetDespawnAtEnd(false);
+                    pFastblast->setActive(true);
                 }
             }
             return true;
@@ -1484,11 +1503,14 @@ class npc_og_cannon : public CreatureScript
             npc_og_cannonAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
             uint32 uiHits;
+            uint32 uiRocket_timer;
 
             void Reset()
             {
                 if (uiHits < 5 && !me->HasAura(SPELL_CANNON_SHIELD))
                     me->CastSpell(me, SPELL_CANNON_SHIELD, true);
+
+                uiRocket_timer = 1000;
             }
 
             void SpellHit(Unit* pHitter, const SpellEntry* pSpell)
@@ -1504,7 +1526,6 @@ class npc_og_cannon : public CreatureScript
                                 CAST_AI(npc_og_mekkatorque::npc_og_mekkatorqueAI, pMekkatorque->AI())->DoTalk(pMekkatorque, MEK_11_1, SOUND_MEK_11, false);
                                 CAST_AI(npc_og_mekkatorque::npc_og_mekkatorqueAI, pMekkatorque->AI())->bCannonIntro = true;
                             }
-
                         me->RemoveAurasDueToSpell(SPELL_CANNON_SHIELD);
                     }
                 }
@@ -1513,6 +1534,20 @@ class npc_og_cannon : public CreatureScript
                     uiHits = 0;
                     me->CastSpell(me, SPELL_CANNON_SHIELD, true);
                 }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (uiRocket_timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_CANNON_SHOT);
+                    uiRocket_timer = 1000;
+                }
+                else
+                    uiRocket_timer -= diff;
             }
 
             void JustDied(Unit * /*who*/)
@@ -1549,7 +1584,7 @@ class npc_og_bomber : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE && id == 1)
                     if (Creature* pMekkatorque = me->FindNearestCreature(NPC_MEKKATORQUE, 300, true))
-                            CAST_AI(npc_og_mekkatorque::npc_og_mekkatorqueAI, pMekkatorque->AI())->DoSummonBomber();
+                        CAST_AI(npc_og_mekkatorque::npc_og_mekkatorqueAI, pMekkatorque->AI())->DoSummonBomber();
                             
                 me->DisappearAndDie();
             }
@@ -1562,7 +1597,7 @@ class npc_og_bomber : public CreatureScript
                 if (who->GetEntry() != NPC_CANNON || !bAction || !who->HasAura(SPELL_CANNON_SHIELD))
                     return;
 
-                Creature* pInfantry = me->SummonCreature(NPC_INFANTRY, me->GetPositionX(),  me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
+                Creature* pInfantry = me->SummonCreature(NPC_INFANTRY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
                 CAST_AI(npc_og_infantry::npc_og_infantryAI, pInfantry->AI())->Deploy();
                 pInfantry->SetHomePosition(me->GetPositionX(), me->GetPositionY(), 394.9f, me->GetOrientation());
                 pInfantry->Relocate(me->GetPositionX(), me->GetPositionY(), 394.9f);
@@ -1619,10 +1654,51 @@ class npc_og_trogg : public CreatureScript
     }
 };
 
+class npc_og_i_infantry : public CreatureScript
+{
+    public:
+        npc_og_i_infantry() : CreatureScript("npc_og_i_infantry") {}
+
+        struct npc_og_i_infantryAI : public ScriptedAI
+        {
+            npc_og_i_infantryAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 uiGrenade_timer;
+
+            void Reset()
+            {
+                uiGrenade_timer = urand(10000, 15000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (uiGrenade_timer <= diff)
+                {
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_RAD_GRENADE);
+                    uiGrenade_timer = urand(10000, 15000);
+                }
+                else
+                    uiGrenade_timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_og_i_infantryAI(pCreature);
+    }
+};
+
 void AddSC_operation_gnomeregan()
 {
     new npc_og_mekkatorque;
     new npc_og_assistants;
+    new npc_og_i_infantry;
     new npc_og_infantry;
     new npc_og_boltcog;
     new npc_og_cannon;

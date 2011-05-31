@@ -33,15 +33,30 @@ enum eSpells
     SPELL_SHOOT                 = 74414,
     SPELL_GRENADE               = 74707,
 
+    SPELL_RAD_GRENADE           = 74764,
+
     SPELL_MACHINE_GUN           = 74438,
     SPELL_FLAME_SPRAY           = 74440,
 
+    SPELL_FIRE_MISSILE          = 74422,
+
     SPELL_EXPLOSION             = 74550,
-    SPELL_RAD_EXPLOSION         = 75545,
-    SPELL_CANNON_SHOT           = 51421, // May be wrong
-    SPELL_ROCKET                = 64979, // May be wrong too
+    SPELL_CANNON_SHOT           = 74307,
+    SPELL_ROCKET                = 64979, // May be wrong
     SPELL_PARACHUTE             = 79397,
     SPELL_PARACHUTE_AURA        = 79404,
+
+///-------Used in final cinematic------
+///--------Unused in this script-------  // This is temporary... i hope
+    SPELL_ATTACH_CAMERA         = 75512,
+    SPELL_SPAWN_INVISIBILITY    = 75513,
+    SPELL_SEE_INVISIBILITY      = 75514,
+
+    SPELL_RECALL_TRIGGER        = 75553, // Triggers Camere Vehicle summon
+    SPELL_RECALL                = 75510, // Unknown
+    SPELL_RECALL_FINAL          = 74412, // Realy final?
+
+    SPELL_RAD_EXPLOSION         = 75545,
 };
 
 enum eCreatures
@@ -56,7 +71,7 @@ enum eCreatures
     NPC_ELGIN                   = 40478,
     NPC_TANK                    = 39860,
 
-///----------------Enemies---------------
+///----------------Enemies--------------
     NPC_I_INFANTRY              = 39755,
     NPC_IRRADIATOR              = 39903,
     NPC_I_CAVALRY               = 39836,
@@ -67,6 +82,9 @@ enum eCreatures
     NPC_I_TANK                  = 39819,
     NPC_CANNON                  = 39759, // Tankbuster Cannon
     NPC_RL                      = 39820, // Rocket Launcher
+
+///--------------Bunnies----------------
+    NPC_EXPLOSION_BUNNY         = 40506,
 };
 
 enum eObjects
@@ -106,6 +124,18 @@ enum eWorldstates
     WORLDSTATE_TUNNELS_CAPTURED                         = 5011,
     WORLDSTATE_COUNTDOWN                                = 5037,
     WORLDSTATE_COUNTDOWN_CTRL                           = 5038,
+};
+
+const Position iInfantrySpawn[8] =
+{
+    {-5355.43f, 530.67f, 385.17f, 3.37f},
+    {-5356.68f, 535.13f, 385.54f, 3.43f},
+    {-5360.16f, 549.49f, 387.26f, 2.87f},
+    {-5360.22f, 555.62f, 387.21f, 3.02f},
+    {-5359.59f, 561.08f, 387.01f, 3.02f},
+    {-5336.43f, 541.66f, 384.97f, 2.67f},
+    {-5333.62f, 541.52f, 384.91f, 3.29f},
+    {-5345.95f, 532.78f, 384.68f, 2.82f}
 };
 
 const Position RLSpawn[4] =
@@ -151,9 +181,11 @@ const Position iSoldierSpawn[5] =
     {-5046.30f, 733.86f, 256.47f, 6.2f},
 };
 
-
-const Position TankSpawn[2] =
+const Position TankSpawn[5] =
 {
+    {-5402.421387f, 543.972229f, 387.243896f, 6.1f},
+    {-5404.228516f, 530.777527f, 387.151581f, 0.2f},
+    {-5394.222656f, 519.042908f, 386.308929f, 1.0f},
     {-5280.954102f, 559.265808f, 385.679932f, 5.0f},
     {-5263.007813f, 572.262085f, 388.673157f, 5.0f}
 };

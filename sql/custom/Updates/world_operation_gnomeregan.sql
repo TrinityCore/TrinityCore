@@ -4,11 +4,12 @@
 -- UPDATE `creature_template` SET `faction_A` = 1771, `faction_H` = 1771, `unit_flags` = 4, `ScriptName` = 'npc_og_cannon' WHERE `entry` = 39759;
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_bomber' WHERE `entry` = 39735;
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_infantry' WHERE `entry` = 39252;
+-- UPDATE `creature_template` SET `spell1` = 74764, `ScriptName` = 'npc_og_i_infantry' WHERE `entry` = 39755;
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_suit' WHERE `entry` = 39902;
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_trogg' WHERE `entry` IN ('39826', '39799');
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_boltcog' WHERE `entry` = 39837;
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_assistants' WHERE `entry` IN ('39273', '39910');
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_i_tank' WHERE `entry` = 39819;
+-- UPDATE `creature_template` SET `mechanic_immune_mask` = '8192', `ScriptName` = 'npc_og_i_tank' WHERE `entry` = 39819;
 -- UPDATE `creature_template` SET `AIName` = 'AggresorAI' WHERE `entry` IN ('39755', '39836');
 
 DELETE FROM `creature` WHERE `id` IN ('39273', '39910');
@@ -28,11 +29,18 @@ UPDATE `creature_template` SET `equipment_id` = '39368' WHERE `entry` = '39271';
 UPDATE `creature_template` SET `speed_run` = '1.25', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39273';
 UPDATE `creature_template` SET `speed_run` = '1.29', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39910';
 
-DELETE FROM `spell_area` WHERE (`spell`='74310') AND (`area` IN ('1', '135'));
-INSERT INTO `spell_area` VALUES ('74310', '1', '25393', '1', '25393', '0', '0', '2', '1');
-INSERT INTO `spell_area` VALUES ('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
+('40479', '75648', '25393', '1', '25393', '1');
+UPDATE `creature_template` SET `npcflag` = '16777216' WHERE `entry` = '40479';
+
+DELETE FROM `spell_area` WHERE (`spell` = '74310') AND (`area` IN ('1', '135'));
+INSERT INTO `spell_area` VALUES
+('74310', '1', '25393', '1', '25393', '0', '0', '2', '1'),
+('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
 
 UPDATE `gameobject` SET `phaseMask` = '256' WHERE `id` = '202922';
+
+-- /Can be wrong/ INSERT INTO `spell_scripts` (`id`, `command`, `x`, `y`, `z`, `o`) VALUES ('74412', '6', '-4842.156738', '-1277.52771', '501.868256', '0.84');
 
 -- waypoints for the last battle --
 
