@@ -876,7 +876,7 @@ void Aura::RecalculateAmountOfEffects()
             m_effects[i]->RecalculateAmount(caster);
 }
 
-void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply)
+void Aura::HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply)
 {
     ASSERT (!IsRemoved());
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
