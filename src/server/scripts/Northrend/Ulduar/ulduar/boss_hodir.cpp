@@ -97,6 +97,7 @@ enum HodirNPC
     NPC_SNOWPACKED_ICICLE                        = 33174,
     NPC_ICICLE                                   = 33169,
     NPC_ICICLE_SNOWDRIFT                         = 33173,
+    NPC_TOASTY_FIRE                              = 33342,
 };
 
 enum HodirGameObjects
@@ -353,7 +354,7 @@ class boss_hodir : public CreatureScript
                     me->RemoveAllAttackers();
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -484,7 +485,7 @@ class boss_hodir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_hodirAI (creature);
+            return GetUlduarAI<boss_hodirAI>(creature);
         };
 };
 
@@ -783,7 +784,7 @@ class npc_hodir_mage : public CreatureScript
 
         struct npc_hodir_mageAI : public ScriptedAI
         {
-            npc_hodir_mageAI(Creature* creature) : ScriptedAI(creature)
+            npc_hodir_mageAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
                 instance = me->GetInstanceScript();
             }
@@ -791,8 +792,21 @@ class npc_hodir_mage : public CreatureScript
             void Reset()
             {
                 events.Reset();
+                summons.DespawnAll();
                 events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(10000, 12500));
                 events.ScheduleEvent(EVENT_MELT_ICE, 5000);
+            }
+
+            void JustSummoned(Creature* summoned)
+            {
+                if (summoned->GetEntry() == NPC_TOASTY_FIRE)
+                    summons.Summon(summoned);
+            }
+
+            void SummonedCreatureDespawn(Creature* summoned)
+            {
+                if (summoned->GetEntry() == NPC_TOASTY_FIRE)
+                    summons.remove(summoned->GetGUID());
             }
 
             void UpdateAI(uint32 const diff)
@@ -810,8 +824,10 @@ class npc_hodir_mage : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CONJURE_FIRE:
+                            if (summons.size() >= RAID_MODE(2, 4))
+                                break;
                             DoCast(me, SPELL_CONJURE_FIRE, true);
-                            events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(35000, 40000));
+                            events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15000, 20000));
                             break;
                         case EVENT_MELT_ICE:
                             if (Creature* FlashFreeze = me->FindNearestCreature(NPC_FLASH_FREEZE, 50.0f, true))
@@ -833,6 +849,7 @@ class npc_hodir_mage : public CreatureScript
         private:
             InstanceScript* instance;
             EventMap events;
+            SummonList summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -851,8 +868,6 @@ class npc_toasty_fire : public CreatureScript
             npc_toasty_fireAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                me->SetReactState(REACT_PASSIVE);
             }
 
             void Reset()

@@ -708,7 +708,6 @@ class WorldSession
         void HandlePetAbandon(WorldPacket & recv_data);
         void HandlePetRename(WorldPacket & recv_data);
         void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
-        void HandlePetUnlearnOpcode(WorldPacket& recvPacket);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
         void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
         void HandlePetLearnTalent(WorldPacket& recvPacket);

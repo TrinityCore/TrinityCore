@@ -73,6 +73,8 @@ public:
         uint64 ThorimChestGUID;
         uint64 HodirChestGUID;
         uint64 FreyaChestGUID;
+        uint64 HodirDoorGUID;
+        uint64 HodirIceDoorGUID;
 
         uint32 TeamInInstance;
 
@@ -106,6 +108,8 @@ public:
             FreyaChestGUID                       = 0;
             LeviathanGateGUID                    = 0;
             VezaxDoorGUID                        = 0;
+            HodirDoorGUID                        = 0;
+            HodirIceDoorGUID                     = 0;
             TeamInInstance                       = 0;
 
             memset(Encounter, 0, sizeof(Encounter));
@@ -328,6 +332,12 @@ public:
                 case GO_MOLE_MACHINE:
                     if (GetBossState(BOSS_RAZORSCALE) == IN_PROGRESS)
                         gameObject->SetGoState(GO_STATE_ACTIVE);
+                case GO_HODIR_DOOR:
+                    HodirDoorGUID = gameObject->GetGUID();
+                    break;
+                case GO_HODIR_ICE_DOOR:
+                    HodirIceDoorGUID = gameObject->GetGUID();
+                    break;
             }
         }
 
@@ -404,8 +414,12 @@ public:
                     break;
                 case BOSS_HODIR:
                     if (state == DONE)
+                    {
                         if (GameObject* gameObject = instance->GetGameObject(HodirChestGUID))
                             gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
+                        HandleGameObject(HodirDoorGUID, true);
+                        HandleGameObject(HodirIceDoorGUID, true);
+                    }
                     break;
                 case BOSS_THORIM:
                     if (state == DONE)

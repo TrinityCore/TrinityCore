@@ -155,7 +155,7 @@ class Aura
         AuraEffect * GetEffect(uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
         uint8 GetEffectMask() const { uint8 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
         void RecalculateAmountOfEffects();
-        void HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply);
+        void HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply);
 
         // Helpers for targets
         ApplicationMap const & GetApplicationMap() {return m_applications;}
@@ -170,6 +170,7 @@ class Aura
 
         // AuraScript
         void LoadScripts();
+        bool CallScriptCheckAreaTargetHandlers(Unit * target);
         bool CallScriptEffectApplyHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectRemoveHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
         void CallScriptAfterEffectApplyHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
