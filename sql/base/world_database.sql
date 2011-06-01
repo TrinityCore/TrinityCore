@@ -19469,6 +19469,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 72858, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
 ( 72859, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
 ( 72860, 0x00,   0, 0x00000000, 0x00000000, 0x00000000 ,0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
+( 75475, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Chamber of Aspects 25 Tank Trinket
+( 75481, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Chamber of Aspects 25 Heroic Tank Trinket
 ( 75474, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale (Heroic)
 ( 75465, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale
 ( 75457, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Sharpened Twilight Scale (Heroic)
