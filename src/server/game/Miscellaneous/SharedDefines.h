@@ -2322,7 +2322,8 @@ enum HolidayIds
     HOLIDAY_PILGRIMS_BOUNTY          = 404,
     HOLIDAY_WOTLK_LAUNCH             = 406,
     HOLIDAY_DAY_OF_DEAD              = 409,
-    HOLIDAY_CALL_TO_ARMS_IC          = 420
+    HOLIDAY_CALL_TO_ARMS_IC          = 420,
+    HOLIDAY_KALU_AK_FISHING_DERBY    = 424
 };
 
 // values based at QuestInfo.dbc
