@@ -4177,6 +4177,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             ++count;
             break;
+        case 74412:
+            for (int8 i = 0; i < 3; ++i)
+                spellInfo->EffectImplicitTargetB[i] = TARGET_UNIT_TARGET_ANY;
+            ++count;
+            break;
         default:
             break;
         }
