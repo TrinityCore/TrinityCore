@@ -8693,7 +8693,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 75481:
         {
             // Procs only if damage takes health below $s1%
-            if (!pVictim || !pVictim->isAlive() || !pVictim->HealthBelowPctDamaged(triggerAmount, damage))
+            if (!HealthBelowPctDamaged(triggerAmount, damage))
                 return false;
             break;
         }
