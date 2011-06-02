@@ -655,6 +655,7 @@ public:
 /*########
 ## Quest: The Prophecy of Akida
 ########*/
+
 enum BristlelimbCage
 {
     QUEST_THE_PROPHECY_OF_AKIDA         = 9544,
@@ -678,12 +679,15 @@ class npc_stillpine_capitive : public CreatureScript
         {
             npc_stillpine_capitiveAI(Creature* creature) : ScriptedAI(creature)
             {
-                if (GameObject* cage = me->FindNearestGameObject(GO_BRISTELIMB_CAGE, 5.0f))
-                    cage->UseDoorOrButton();    // This may seem strange but is actually closing door.
             }
 
             void Reset()
             {
+                if (GameObject* cage = me->FindNearestGameObject(GO_BRISTELIMB_CAGE, 5.0f))
+                {
+                    cage->SetLootState(GO_JUST_DEACTIVATED);
+                    cage->SetGoState(GO_STATE_READY);
+                }
                 _events.Reset();
                 _player = NULL;
                 _movementComplete = false;
@@ -697,7 +701,7 @@ class npc_stillpine_capitive : public CreatureScript
                     _player = owner;
                 }
                 Position pos;
-                me->GetNearPosition(pos, 3.5f, 0.0f);
+                me->GetNearPosition(pos, 3.0f, 0.0f);
                 me->GetMotionMaster()->MovePoint(POINT_INIT, pos);
             }
 
@@ -708,9 +712,6 @@ class npc_stillpine_capitive : public CreatureScript
 
                 if (_player)
                     _player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                    me->GetMotionMaster()->MovementExpired();
 
                 _movementComplete = true;
                 _events.ScheduleEvent(EVENT_DESPAWN, 3500);
