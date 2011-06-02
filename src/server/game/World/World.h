@@ -77,7 +77,6 @@ enum WorldTimers
     WUPDATE_MAILBOXQUEUE,
     WUPDATE_DELETECHARS,
     WUPDATE_PINGDB,
-    WUPDATE_WARDEN, // Because I don't want to create yet another thread
     WUPDATE_COUNT
 };
 
@@ -760,7 +759,6 @@ class World
         void KickAll();
         void KickAllLess(AccountTypes sec);
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
-        BanReturn BanAccount(WorldSession *session, uint32 duration_secs, std::string reason, std::string author);
         void AntiCheatBanAccount(std::string name, std::string author);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
         BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);
