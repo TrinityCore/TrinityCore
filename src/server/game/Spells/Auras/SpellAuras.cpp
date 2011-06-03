@@ -276,7 +276,7 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit *
     return NULL;
 }
 
-Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
+Aura* Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
     ASSERT(effMask);
     ASSERT(spellproto);
@@ -287,33 +287,29 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
     if (casterGUID)
     {
         if (owner->GetGUID() == casterGUID)
-            caster = (Unit *)owner;
+            caster = owner->ToUnit();
         else
             caster = ObjectAccessor::GetUnit(*owner, casterGUID);
     }
     else
-    {
         casterGUID = caster->GetGUID();
-    }
+
     // check if aura can be owned by owner
     if (owner->isType(TYPEMASK_UNIT))
-    {
         if (!owner->IsInWorld() || ((Unit*)owner)->IsDuringRemoveFromWorld())
-        {
-            // owner not in world so
-            // don't allow to own not self casted single target auras
+            // owner not in world so don't allow to own not self casted single target auras
             if (casterGUID != owner->GetGUID() && IsSingleTargetSpell(spellproto))
                 return NULL;
-        }
-    }
-    Aura * aura = NULL;
-    switch(owner->GetTypeId())
+
+    Aura* aura = NULL;
+    switch (owner->GetTypeId())
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            if (aura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, baseAmount, castItem, casterGUID))
-                return aura;
-            aura = new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
+            if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID))
+                aura = foundAura;
+            else
+                aura = new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             break;
         case TYPEID_DYNAMICOBJECT:
             aura = new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);

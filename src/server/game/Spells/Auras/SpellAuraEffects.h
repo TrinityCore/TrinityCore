@@ -14,7 +14,7 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const * aurApp, ui
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint8 effMask, Unit * caster, int32 *baseAmount);
-    friend Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const * newAura, uint8 effMask, int32 *baseAmount, Item * castItem, uint64 casterGUID);
+    friend Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
     friend Aura::~Aura();
     private:
         ~AuraEffect();
