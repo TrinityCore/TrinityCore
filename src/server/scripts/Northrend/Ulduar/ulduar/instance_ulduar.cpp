@@ -301,6 +301,7 @@ public:
                 case GO_THORIM_CHEST:
                     ThorimChestGUID = gameObject->GetGUID();
                     break;
+                case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
                 case GO_HODIR_RARE_CACHE_OF_WINTER:
                     HodirRareCacheGUID = gameObject->GetGUID();
                     break;
