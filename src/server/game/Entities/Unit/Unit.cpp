@@ -3111,7 +3111,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
     ASSERT(casterGUID);
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
@@ -3134,15 +3134,16 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (!foundAura->m_effects[i])
+                if (!foundAura->HasEffect(i))
                     continue;
+
                 int bp;
                 if (baseAmount)
                     bp = *(baseAmount + i);
                 else
                     bp = foundAura->GetSpellProto()->EffectBasePoints[i];
 
-                int32* oldBP = const_cast<int32*>(&(foundAura->m_effects[i]->m_baseAmount));
+                int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(i)->m_baseAmount));
                 *oldBP = bp;
             }
 
@@ -3152,6 +3153,14 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
                 uint64* oldGUID = const_cast<uint64 *>(&foundAura->m_castItemGuid);
                 *oldGUID = castItemGUID;
             }
+
+            uint8 charges = foundAura->GetSpellProto()->procCharges;
+            if (caster)
+                if (Player* modOwner = caster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(foundAura->GetId(), SPELLMOD_CHARGES, charges);
+
+            // refresh charges
+            foundAura->SetCharges(charges);
 
             // try to increase stack amount
             foundAura->ModStackAmount(1);
@@ -3805,7 +3814,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                 // single target state must be removed before aura creation to preserve existing single target aura
                 if (aura->IsSingleTarget())
                     aura->UnregisterSingleTarget();
-                
+
                 if (newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID()))
                 {
                     // created aura must not be single target aura,, so stealer won't loose it on recast
