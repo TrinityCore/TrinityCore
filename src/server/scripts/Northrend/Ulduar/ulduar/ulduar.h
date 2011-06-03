@@ -123,6 +123,7 @@ enum UlduarGameObjects
     GO_THORIM_CHEST_HERO                         = 194315,
     GO_THORIM_CHEST                              = 194314,
     GO_HODIR_RARE_CACHE_OF_WINTER                = 194200,
+    GO_HODIR_RARE_CACHE_OF_WINTER_HERO           = 194201,
     GO_HODIR_CHEST_HERO                          = 194308,
     GO_HODIR_CHEST                               = 194307,
     GO_FREYA_CHEST_HERO                          = 194325,
