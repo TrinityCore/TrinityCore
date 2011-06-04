@@ -28,7 +28,7 @@ DoorData const doorData[] =
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
-        instance_ruby_sanctum() : InstanceMapScript("instance_ruby_sanctum", 724) { }
+        instance_ruby_sanctum() : InstanceMapScript(RSScriptName, 724) { }
 
         struct instance_ruby_sanctum_InstanceMapScript : public InstanceScript
         {
@@ -44,6 +44,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 XerestraszaGUID         = 0;
                 BaltharusSharedHealth   = 0;
                 FlameWallsGUID          = 0;
+                memset(ZarithianSpawnStalkerGUID, 0, 2*sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -67,6 +68,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case NPC_XERESTRASZA:
                         XerestraszaGUID = creature->GetGUID();
+                        break;
+                    case NPC_ZARITHIAN_SPAWN_STALKER:
+                        if (!ZarithianSpawnStalkerGUID[0])
+                            ZarithianSpawnStalkerGUID[0] = creature->GetGUID();
+                        else
+                            ZarithianSpawnStalkerGUID[1] = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -116,6 +123,10 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return CrystalChannelTargetGUID;
                     case DATA_XERESTRASZA:
                         return XerestraszaGUID;
+                    case DATA_ZARITHIAN_SPAWN_STALKER_1:
+                        return ZarithianSpawnStalkerGUID[0];
+                    case DATA_ZARITHIAN_SPAWN_STALKER_2:
+                        return ZarithianSpawnStalkerGUID[1];
                     default:
                         break;
                 }
@@ -134,12 +145,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                     {
                         if (state == DONE && GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE)
                         {
-                            // GO_FLAME_WALLS
                             if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
-                            {
-                                flameWalls->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                                flameWalls->SetGoState(GO_STATE_READY);
-                            }
+                                HandleGameObject(FlameWallsGUID, true, flameWalls);
+
                             if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
                                 zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         }
@@ -150,15 +158,17 @@ class instance_ruby_sanctum : public InstanceMapScript
                         if (state == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                         {
                             if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
-                            {
-                                flameWalls->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                                flameWalls->SetGoState(GO_STATE_READY);
-                            }
+                                HandleGameObject(FlameWallsGUID, true, flameWalls);
+
                             if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
                                 zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         }
                         break;
                     }
+                    case DATA_GENERAL_ZARITHRIAN:
+                        if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
+                            HandleGameObject(FlameWallsGUID, state != IN_PROGRESS, flameWalls);
+                        break;
                     default:
                         break;
                 }
@@ -242,6 +252,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 XerestraszaGUID;
             uint64 FlameWallsGUID;
             uint32 BaltharusSharedHealth;
+            uint64 ZarithianSpawnStalkerGUID[2];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
