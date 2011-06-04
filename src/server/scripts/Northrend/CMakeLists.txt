@@ -41,9 +41,14 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/HallsOfStone/boss_maiden_of_grief.cpp
   Northrend/Ulduar/HallsOfStone/boss_sjonnir.cpp
   Northrend/Ulduar/HallsOfStone/halls_of_stone.cpp
-  Northrend/ObsidianSanctum/instance_obsidian_sanctum.cpp
-  Northrend/ObsidianSanctum/obsidian_sanctum.h
-  Northrend/ObsidianSanctum/boss_sartharion.cpp
+  Northrend/ChamberOfAspects/ObsidianSanctum/instance_obsidian_sanctum.cpp
+  Northrend/ChamberOfAspects/ObsidianSanctum/obsidian_sanctum.h
+  Northrend/ChamberOfAspects/ObsidianSanctum/boss_sartharion.cpp
+  Northrend/ChamberOfAspects/RubySanctum/instance_ruby_sanctum.cpp
+  Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.h
+  Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.cpp
+  Northrend/ChamberOfAspects/RubySanctum/boss_baltharus_the_warborn.cpp
+  Northrend/ChamberOfAspects/RubySanctum/boss_saviana_ragefire.cpp
   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
   Northrend/FrozenHalls/HallsOfReflection/boss_falric.cpp
   Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp

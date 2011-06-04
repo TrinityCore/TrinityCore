@@ -166,17 +166,31 @@ class spell_ex_66244 : public SpellScriptLoader
                 return false;
             }
 
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+
+            void HandleOnEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 sLog->outString("Aura Effect is about to be applied on target!");
+                // this hook allows you to prevent execution of AuraEffect handler, or to replace it with your own handler
+                //PreventDefaultAction();
+            }
+            void HandleOnEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                sLog->outString("Aura Effect is about to be removed from target!");
+                // this hook allows you to prevent execution of AuraEffect handler, or to replace it with your own handler
+                //PreventDefaultAction();
+            }
+
+            void HandleAfterEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                sLog->outString("Aura Effect has just been applied on target!");
                 Unit* target = GetTarget();
                 // cast spell on target on aura apply
                 target->CastSpell(target, SPELL_TRIGGERED, true);
             }
 
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                sLog->outString("Aura Effect is just removed on target!");
+                sLog->outString("Aura Effect has just been just removed from target!");
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
                 // caster may be not avalible (logged out for example)
@@ -243,8 +257,11 @@ class spell_ex_66244 : public SpellScriptLoader
             // function registering
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_ex_66244AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_ex_66244AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                // AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK - makes handler to be called when aura is reapplied on target
+                AfterEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ex_66244AuraScript::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_ex_66244AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ex_66244AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_DUMMY);
@@ -274,6 +291,9 @@ class spell_ex_66244 : public SpellScriptLoader
             return new spell_ex_66244AuraScript();
         }
 };
+
+// example usage of OnEffectManaShield and AfterEffectManaShield hooks
+// see spell_ex_absorb_aura, these hooks work the same as OnEffectAbsorb and AfterEffectAbsorb
 
 // example usage of OnEffectAbsorb and AfterEffectAbsorb hooks
 class spell_ex_absorb_aura : public SpellScriptLoader
@@ -312,8 +332,33 @@ class spell_ex_absorb_aura : public SpellScriptLoader
         }
 };
 
-// example usage of OnEffectManaShield and AfterEffectManaShield hooks
-// see spell_ex_absorb_aura, these hooks work the same as OnEffectAbsorb and AfterEffectAbsorb
+class spell_ex_463 : public SpellScriptLoader
+{
+    public:
+        spell_ex_463() : SpellScriptLoader("spell_ex_463") { }
+
+        class spell_ex_463AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ex_463AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                sLog->outString("Area aura checks if unit is a valid target for it!");
+                // in our script we allow only players to be affected
+                return target->GetTypeId() == TYPEID_PLAYER;
+            }
+            void Register()
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_ex_463AuraScript::CheckAreaTarget);
+            }
+        };
+
+        // function which creates AuraScript
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ex_463AuraScript();
+        }
+};
 
 // this function has to be added to function set in ScriptLoader.cpp
 void AddSC_example_spell_scripts()
@@ -321,6 +366,7 @@ void AddSC_example_spell_scripts()
     new spell_ex_5581;
     new spell_ex_66244;
     new spell_ex_absorb_aura;
+    new spell_ex_463;
 }
 
 /* empty script for copypasting

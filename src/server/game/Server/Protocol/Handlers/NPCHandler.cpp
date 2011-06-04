@@ -497,7 +497,7 @@ void WorldSession::SendBindPoint(Creature *npc)
     data << uint32(bindspell);
     SendPacket(&data);
 
-    _player->PlayerTalkClass->CloseGossip();
+    _player->PlayerTalkClass->SendCloseGossip();
 }
 
 void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)

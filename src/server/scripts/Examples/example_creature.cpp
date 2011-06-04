@@ -150,10 +150,10 @@ class example_creature : public CreatureScript
 
                 switch(uiTextEmote)
                 {
-                    case TEXTEMOTE_DANCE:
+                    case TEXT_EMOTE_DANCE:
                         DoScriptText(SAY_DANCE, me);
                         break;
-                    case TEXTEMOTE_SALUTE:
+                    case TEXT_EMOTE_SALUTE:
                         DoScriptText(SAY_SALUTE, me);
                         break;
                 }

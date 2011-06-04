@@ -261,8 +261,8 @@ struct AchievementCriteriaEntry
         struct
         {
             uint32  teamtype;                               // 3 {2, 3, 5}
-            uint32  teamrating;                             // 4
-        } reach_team_rating;
+            uint32  PersonalRating;                             // 4
+        } highest_personal_rating;
 
         // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL      = 40
         struct
@@ -1061,19 +1061,18 @@ struct HolidayNamesEntry
 
 struct HolidaysEntry
 {
-    uint32 ID;                                              // 0, holiday id
-    //uint32 unk1;                                          // 1
-    //uint32 unk2;                                          // 2
-    //uint32 unk3[8]                                        // 3-10, empty fields
-    //uint32 unk11[13]                                      // 11-23, some unknown data (bit strings?)
-    //uint32 unk11[13]                                      // 24-36, some empty fields (continue prev?)
-    //uint32 unk11[12]                                      // 37-48, counters?
-    //uint32 holidayNameId;                                 // 49, id for HolidayNames.dbc
-    //uint32 holidayDescriptionId;                          // 50, id for HolidayDescriptions.dbc
-    //uint32 unk51;                                         // 51
-    //uint32 unk52;                                         // 52
-    //uint32 unk53;                                         // 53
-    //uint32 unk54;                                         // 54
+    uint32 ID;                                              // 0        m_ID
+    //uint32 duration[10];                                  // 1-10     m_duration
+    //uint32 date[26];                                      // 11-36    m_date (dates in unix time starting at January, 1, 2000)
+    //uint32 region;                                        // 37       m_region (wow region)
+    //uint32 looping;                                       // 38       m_looping
+    //uint32 calendarFlags[10];                             // 39-48    m_calendarFlags
+    //uint32 holidayNameId;                                 // 49       m_holidayNameID (HolidayNames.dbc)
+    //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
+    //char *textureFilename;                                // 51       m_textureFilename
+    //uint32 priority;                                      // 52       m_priority
+    //uint32 calendarFilterType;                            // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk,1 = Darkmoon Festival, 2 = Yearly holiday)
+    //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
 struct ItemEntry
@@ -1975,6 +1974,42 @@ struct WorldSafeLocsEntry
     //char*   name[16]                                      // 5-20 name, unused
                                                             // 21 name flags, unused
 };
+
+/*
+struct WorldStateSounds
+{
+    uint32    ID;                                           // 0        Worldstate
+    uint32    unk;                                          // 1
+    uint32    areaTable;                                    // 2
+    uint32    WMOAreaTable;                                 // 3
+    uint32    zoneIntroMusicTable;                          // 4
+    uint32    zoneIntroMusic;                               // 5
+    uint32    zoneMusic;                                    // 6
+    uint32    soundAmbience;                                // 7
+    uint32    soundProviderPreferences;                     // 8
+};
+*/
+
+/*
+struct WorldStateUI
+{
+    uint32    ID;                                           // 0
+    uint32    map_id;                                       // 1        Can be -1 to show up everywhere. 
+    uint32    zone;                                         // 2        Can be zero for "everywhere". 
+    uint32    phaseMask;                                    // 3        Phase this WorldState is avaliable in
+    uint32    icon;                                         // 4        The icon that is used in the interface. 
+    char*     textureFilename;                              // 5
+    char*     text;                                         // 6-21     The worldstate text
+    char*     description;                                  // 22-38    Text shown when hovering mouse on icon
+    uint32    worldstateID;                                 // 39       This is the actual ID used
+    uint32    type;                                         // 40       0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
+    uint32    unk1;                                         // 41
+    uint32    unk2;                                         // 43
+    uint32    unk3;                                         // 44-58
+    uint32    unk4;                                         // 59-61    Used for some progress bars.
+    uint32    unk7;                                         // 62       Unused in 3.3.5a
+};
+*/
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)

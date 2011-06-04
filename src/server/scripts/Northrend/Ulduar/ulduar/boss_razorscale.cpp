@@ -210,7 +210,23 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
+<<<<<<< HEAD
             _JustDied();
+=======
+            boss_razorscaleAI(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
+            {
+                // Do not let Razorscale be affected by Battle Shout buff
+                me->ApplySpellImmune(0, IMMUNITY_ID, (SPELL_BATTLE_SHOUT), true);
+            }
+
+            Phases phase;
+
+            uint32 EnrageTimer;
+            uint8 FlyCount;
+            uint8 HarpoonCounter;
+            bool PermaGround;
+            bool Enraged;
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 
             if (instance)
             {
@@ -411,6 +427,14 @@ public:
                     DoZoneInCombat();
                     break;
             }
+<<<<<<< HEAD
+=======
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetUlduarAI<boss_razorscaleAI>(creature);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
     };
 

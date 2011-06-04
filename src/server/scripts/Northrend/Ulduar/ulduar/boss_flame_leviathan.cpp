@@ -257,6 +257,7 @@ public:
                     DoSummon(NPC_ULDUAR_COLOSSUS, PosColossus[i], 7000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
+<<<<<<< HEAD
         Vehicle* vehicle;
         int32 ShutdownCount;
         int32 towerCount;
@@ -265,6 +266,26 @@ public:
         bool towerOfLife;
         bool towerOfFlames;
         bool towerOfFrost;
+=======
+            void InitializeAI()
+            {
+                ASSERT(vehicle);
+                if (!me->isDead())
+                    Reset();
+                ActiveTowersCount = 4;
+                Shutdown = 0;
+                ActiveTowers = false;
+                towerOfStorms = false;
+                towerOfLife = false;
+                towerOfFlames = false;
+                towerOfFrost = false;
+                Shutout = true;
+                Unbroken = true;
+
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+                me->SetReactState(REACT_PASSIVE);
+            }
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 
         void Reset()
         {
@@ -589,6 +610,14 @@ public:
                 default:
                     break;
             }
+<<<<<<< HEAD
+=======
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetUlduarAI<boss_flame_leviathanAI>(creature);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
     };
 

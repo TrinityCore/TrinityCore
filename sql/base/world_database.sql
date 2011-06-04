@@ -16985,7 +16985,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (32221, 0, 0, 0, 0, 'Paladin - Seal of Blood Proc Self'),
 (20424, 0, 0, 0, 0, 'Paladin - Seal of Command Proc'),
 (20167, 0.15, -1, 0.15, -1, 'Paladin - Seal of Light Proc'),
-(25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
+(25742, 0, -1, 0, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
 (53600, 0, 0, 0, 0 ,'Paladin - Shield of Righteousness'),
@@ -18215,7 +18215,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 70877, 72151, 2, 'Blood-Queen: Frenzied Bloodthirst 10man'),
 ( 71474, 72648, 2, 'Blood-Queen: Frenzied Bloodthirst 25man'),
 ( 71474, 72650, 2, 'Blood-Queen: Frenzied Bloodthirst 25man'),
-( 70923, 70924, 2, 'Blood-Queen: Uncontrollable Frenzy'),
+( 70923, 70924, 1, 'Blood-Queen: Uncontrollable Frenzy damage buff'),
+(-70923,-70924, 0, 'Blood-Queen: Uncontrollable Frenzy remove 10man'),
+(-70923,-73015, 0, 'Blood-Queen: Uncontrollable Frenzy remove 25man'),
 ( 71446, 71447, 1, 'Blood-Queen: Bloodbolt Splash'),
 ( 71478, 71481, 1, 'Blood-Queen: Bloodbolt Splash'),
 ( 71479, 71482, 1, 'Blood-Queen: Bloodbolt Splash'),
@@ -18580,7 +18582,6 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 20925, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 1)
 ( 20927, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 2)
 ( 20928, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000040,   0,   0,   0), -- Holy Shield (Rank 3)
-( 21084, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Seal of Righteousness
 ( 21185, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Spinal Reaper
 ( 21882, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Judgement Smite
 ( 21890, 0x00,   4, 0x2A764EEF, 0x0000036C, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Warrior's Wrath
@@ -19468,6 +19469,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 72858, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
 ( 72859, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
 ( 72860, 0x00,   0, 0x00000000, 0x00000000, 0x00000000 ,0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
+( 75475, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Chamber of Aspects 25 Tank Trinket
+( 75481, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Item - Chamber of Aspects 25 Heroic Tank Trinket
 ( 75474, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale (Heroic)
 ( 75465, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale
 ( 75457, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Sharpened Twilight Scale (Heroic)

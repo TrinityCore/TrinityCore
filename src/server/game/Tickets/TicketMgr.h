@@ -98,10 +98,17 @@ public:
     const char* GetAssignedToName() const
     {
         std::string name;
+        // save queries if ticket is not assigned
         if (_assignedTo)
+<<<<<<< HEAD
             if (sObjectMgr->GetPlayerNameByGUID(_assignedTo, name))
                 return name.c_str();
         return NULL;
+=======
+            sObjectMgr->GetPlayerNameByGUID(_assignedTo, name);
+
+        return name;
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
     }
     const uint64& GetLastModifiedTime() const { return _lastModifiedTime; }
     GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }

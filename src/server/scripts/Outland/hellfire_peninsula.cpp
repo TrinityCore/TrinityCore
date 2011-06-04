@@ -287,7 +287,7 @@ public:
                 pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRADE:
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 break;
         }
 

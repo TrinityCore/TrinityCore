@@ -69,6 +69,7 @@ public:
     }
 };
 
+<<<<<<< HEAD
 /*######
 ## vehicle_forsaken_blight_spreader
 ######*/
@@ -1136,4 +1137,9 @@ void AddSC_dragonblight()
     new npc_7th_legion_siege_engineer;
     new vehicle_alliance_steamtank;
     new mob_woodlands_walker;
+=======
+void AddSC_dragonblight()
+{
+    new npc_alexstrasza_wr_gate;
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 }

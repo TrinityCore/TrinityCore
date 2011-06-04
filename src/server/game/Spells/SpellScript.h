@@ -21,6 +21,7 @@
 #include "Util.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
+#include <stack>
 
 class Unit;
 struct SpellEntry;
@@ -58,6 +59,7 @@ class _SpellScript
         virtual bool _Validate(SpellEntry const* entry);
 
     public:
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE) {}
         virtual ~_SpellScript() {}
         virtual void _Register();
         virtual void _Unload();
@@ -331,7 +333,9 @@ class SpellScript : public _SpellScript
 enum AuraScriptHookType
 {
     AURA_SCRIPT_HOOK_EFFECT_APPLY = SPELL_SCRIPT_STATE_END,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY,
     AURA_SCRIPT_HOOK_EFFECT_REMOVE,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE,
     AURA_SCRIPT_HOOK_EFFECT_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT,
@@ -341,6 +345,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_MANASHIELD,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD,
+    AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     /*AURA_SCRIPT_HOOK_APPLY,
     AURA_SCRIPT_HOOK_REMOVE, */
 };
@@ -355,6 +360,7 @@ class AuraScript : public _SpellScript
     public:
 
     #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
+        typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit * target); \
         typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const *, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const *); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect *); \
@@ -365,6 +371,14 @@ class AuraScript : public _SpellScript
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
+        class CheckAreaTargetHandler
+        {
+            public:
+                CheckAreaTargetHandler(AuraCheckAreaTargetFnType pHandlerScript);
+                bool Call(AuraScript* auraScript, Unit * target);
+            private:
+                AuraCheckAreaTargetFnType pHandlerScript;
+        };
         class EffectBase : public  _SpellScript::EffectAuraNameCheck, public _SpellScript::EffectHook
         {
             public:
@@ -439,6 +453,7 @@ class AuraScript : public _SpellScript
         };
 
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
+        class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) {} }; \
         class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
@@ -451,6 +466,8 @@ class AuraScript : public _SpellScript
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
     public:
+        AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
+        {}
         bool _Validate(SpellEntry const * entry);
         bool _Load(Aura * aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const * aurApp = NULL);
@@ -460,21 +477,50 @@ class AuraScript : public _SpellScript
         Aura * m_aura;
         AuraApplication const * m_auraApplication;
         bool m_defaultActionPrevented;
+
+        class ScriptStateStore
+        {
+        public:
+            uint8 _currentScriptState;
+            AuraApplication const * _auraApplication;
+            bool _defaultActionPrevented;
+            ScriptStateStore(uint8 currentScriptState, AuraApplication const * auraApplication, bool defaultActionPrevented)
+                : _currentScriptState(currentScriptState), _auraApplication(auraApplication), _defaultActionPrevented(defaultActionPrevented)
+            {}
+        };
+        typedef std::stack<ScriptStateStore> ScriptStateStack;
+        ScriptStateStack m_scriptStates;
+        
     public:
         //
         // AuraScript interface
         // hooks to which you can attach your functions
         //
-        // executed when periodic aura effect is applied with specified mode to target
+        // executed when area aura checks if it can be applied on target
+        // example: OnEffectApply += AuraEffectApplyFn(class::function);
+        // where function is: bool function (Unit * target);
+        HookList<CheckAreaTargetHandler> DoCheckAreaTarget;
+        #define AuraCheckAreaTargetFn(F) CheckAreaTargetFunction(&F)
+        // executed when aura effect is applied with specified mode to target
+        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectApply;
+        // executed after aura effect is applied with specified mode to target
+        // example: AfterEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> AfterEffectApply;
         #define AuraEffectApplyFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
-        // executed when periodic aura effect is removed with specified mode from target
+        // executed after aura effect is removed with specified mode from target
+        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
         HookList<EffectApplyHandler> OnEffectRemove;
+        // executed when aura effect is removed with specified mode from target
+        // example: AfterEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> AfterEffectRemove;
         #define AuraEffectRemoveFn(F, I, N, M) EffectApplyHandlerFunction(&F, I, N, M)
 
         // executed when periodic aura effect ticks on target
@@ -581,8 +627,8 @@ class AuraScript : public _SpellScript
 
         // stack amount manipulation
         uint8 GetStackAmount() const;
-        void SetStackAmount(uint8 num, bool applied = true);
-        bool ModStackAmount(int32 num);
+        void SetStackAmount(uint8 num);
+        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // passive - "working in background", not saved, not removed by immonities, not seen by player
         bool IsPassive() const;

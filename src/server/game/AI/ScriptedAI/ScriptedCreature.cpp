@@ -70,10 +70,10 @@ void SummonList::DespawnAll()
         else
         {
             erase(begin());
-            if (summon->isSummon())
+            if (TempSummon* summ = summon->ToTempSummon())
             {
                 summon->DestroyForNearbyPlayers();
-                CAST_SUM(summon)->UnSummon();
+                summ->UnSummon();
             }
             else
                 summon->DisappearAndDie();
@@ -505,6 +505,8 @@ void Scripted_NoMovementAI::AttackStart(Unit* target)
         DoStartNoMovement(target);
 }
 
+// BossAI - for instanced bosses
+
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
     summons(creature),
@@ -622,6 +624,81 @@ void BossAI::JustSummoned(Creature* summon)
 void BossAI::SummonedCreatureDespawn(Creature* summon)
 {
     summons.Despawn(summon);
+}
+
+void BossAI::UpdateAI(uint32 const diff)
+{
+    if (!UpdateVictim())
+        return;
+
+    events.Update(diff);
+
+    if (me->HasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    while (uint32 eventId = events.ExecuteEvent())
+        ExecuteEvent(eventId);
+
+    DoMeleeAttackIfReady();
+}
+
+// WorldBossAI - for non-instanced bosses
+
+WorldBossAI::WorldBossAI(Creature* creature) :
+    ScriptedAI(creature),
+    summons(creature)
+{
+}
+
+void WorldBossAI::_Reset()
+{
+    if (!me->isAlive())
+        return;
+
+    events.Reset();
+    summons.DespawnAll();
+}
+
+void WorldBossAI::_JustDied()
+{
+    events.Reset();
+    summons.DespawnAll();
+}
+
+void WorldBossAI::_EnterCombat()
+{
+    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    if (target)
+        AttackStart(target);
+}
+
+void WorldBossAI::JustSummoned(Creature* summon)
+{
+    summons.Summon(summon);
+    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    if(target)
+        summon->AI()->AttackStart(target);
+}
+
+void WorldBossAI::SummonedCreatureDespawn(Creature* summon)
+{
+    summons.Despawn(summon);
+}
+
+void WorldBossAI::UpdateAI(uint32 const diff)
+{
+    if (!UpdateVictim())
+        return;
+
+    events.Update(diff);
+
+    if (me->HasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    while (uint32 eventId = events.ExecuteEvent())
+        ExecuteEvent(eventId);
+
+    DoMeleeAttackIfReady();
 }
 
 // SD2 grid searchers.

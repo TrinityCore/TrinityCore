@@ -2529,12 +2529,12 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
     if (!HandleResetStatsOrLevelHelper(target))
         return false;
 
+    uint8 oldLevel = target->getLevel();
+
     // set starting level
     uint32 start_level = target->getClass() != CLASS_DEATH_KNIGHT
         ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
         : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
-
-    sScriptMgr->OnPlayerLevelChanged(target, start_level);
 
     target->_ApplyAllLevelScaleItemMods(false);
     target->SetLevel(start_level);
@@ -2550,6 +2550,8 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
     // reset level for pet
     if (Pet* pet = target->GetPet())
         pet->SynchronizeLevelWithOwner();
+
+    sScriptMgr->OnPlayerLevelChanged(target, oldLevel);
 
     return true;
 }
@@ -2608,15 +2610,15 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
         Creature* creature = getSelectedCreature();
         if (!*args && creature && creature->isPet())
         {
-            Unit *owner = creature->GetOwner();
-            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)creature)->IsPermanentPetFor(owner->ToPlayer()))
+            Unit* owner = creature->GetOwner();
+            if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
             {
-                ((Pet *)creature)->resetTalents(true);
+                creature->ToPet()->resetTalents();
                 owner->ToPlayer()->SendTalentsInfoData(true);
 
                 ChatHandler(owner->ToPlayer()).SendSysMessage(LANG_RESET_PET_TALENTS);
                 if (!m_session || m_session->GetPlayer() != owner->ToPlayer())
-          PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, GetNameLink(owner->ToPlayer()).c_str());
+                    PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, GetNameLink(owner->ToPlayer()).c_str());
             }
             return true;
         }

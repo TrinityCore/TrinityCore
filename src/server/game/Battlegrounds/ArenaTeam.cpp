@@ -466,7 +466,9 @@ void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
         PersonalRating = 0;
     else
         PersonalRating += mod;
+
     if (plr)
+<<<<<<< HEAD
         {
         plr->SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, PersonalRating);
             // Achievements
@@ -544,6 +546,12 @@ void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
                 default: break;
             }
         } 
+=======
+    {
+        plr->SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, PersonalRating);
+        plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, slot);
+    }
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 }
 
 void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
@@ -727,10 +735,7 @@ void ArenaTeam::FinishGame(int32 mod)
         // Check if rating related achivements are met
         for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
             if (Player* member = ObjectAccessor::FindPlayer(itr->Guid))
-            {
                 member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);
-                member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING, Stats.Rating, Type);
-            }
     }
 
     // Update number of games played per season or week
@@ -820,8 +825,8 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchMakerRating, i
             itr->ModifyMatchmakerRating(mod, GetSlot());
 
             // update personal played stats
-            itr->WeekGames +=1;
-            itr->SeasonGames +=1;
+            itr->WeekGames += 1;
+            itr->SeasonGames += 1;
             return;
         }
     }

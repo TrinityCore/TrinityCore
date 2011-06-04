@@ -255,6 +255,7 @@ public:
 
         void JustDied(Unit * /*victim*/)
         {
+<<<<<<< HEAD
             DoScriptText(SAY_DEATH, me);
             _JustDied();
         
@@ -295,6 +296,55 @@ public:
                 case 3:
                     chest = RAID_MODE(194327, 194331);
                     break;
+=======
+            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
+            {
+            }
+
+            uint64 ElementalGUID[3][2];
+
+            uint32 deforestation[6][2];
+            uint32 elementalTimer[2];
+            uint32 diffTimer;
+            uint32 waveTime;
+            uint8 trioWaveCount;
+            uint8 trioWaveController;
+            uint8 waveCount;
+            uint8 elderCount;
+            uint8 attunedToNature;
+
+            bool checkElementalAlive[2];
+            bool trioDefeated[2];
+            bool waveInProgress;
+            bool deforestationCheck;
+            bool random[3];
+
+            void Reset()
+            {
+                _Reset();
+                summons.clear();
+                waveTime = 0;
+                trioWaveCount = 0;
+                trioWaveController = 0;
+                waveCount = 0;
+                elderCount = 0;
+
+                for (uint8 i = 0; i < 3; ++i)
+                    for (uint8 n = 0; n < 2; ++n)
+                        ElementalGUID[i][n] = 0;
+                for (uint8 i = 0; i < 6; ++i)
+                    for (uint8 n = 0; n < 2; ++n)
+                        deforestation[i][n] = 0;
+                for (uint8 n = 0; n < 2; ++n)
+                {
+                    checkElementalAlive[n] = true;
+                    trioDefeated[n] = false;
+                }
+                waveInProgress = false;
+                deforestationCheck = false;
+                for (uint8 n = 0; n < 3; ++n)
+                    random[n] = false;
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             }
             // Summon spells not work correctly, chest respawn is infinite
             me->SummonGameObject(chest,(me->GetPositionX()+15*cos(me->GetOrientation())),(me->GetPositionY()+15*sin(me->GetOrientation())),me->GetPositionZ(),me->GetOrientation(),0,0,1,0,0);
@@ -308,6 +358,7 @@ public:
             for (uint32 i = 0; i < 150; ++i)
                 DoCast(me, SPELL_ATTUNED_TO_NATURE);
 
+<<<<<<< HEAD
             events.ScheduleEvent(EVENT_SUNBEAM, 20000);
             events.ScheduleEvent(EVENT_EONAR_GIFT, 30000);
             events.ScheduleEvent(EVENT_SUMMON_ALLIES, 10000);
@@ -329,6 +380,48 @@ public:
             
                 if (Creature* Ironbranch = me->GetCreature(*me, instance->GetData64(DATA_IRONBRANCH)))
                     if (Ironbranch->isAlive())
+=======
+            void DamageTaken(Unit* /*who*/, uint32& damage)
+            {
+                if (damage >= me->GetHealth() && instance)
+                {
+                    damage = 0;
+                    DoScriptText(SAY_DEATH, me);
+                    me->SetReactState(REACT_PASSIVE);
+                    _JustDied();
+                    me->RemoveAllAuras();
+                    me->AttackStop();
+                    me->setFaction(35);
+                    me->DeleteThreatList();
+                    me->CombatStop(true);
+                    me->ForcedDespawn(7500);
+
+                    Creature* Elder[3];
+                    for (uint8 n = 0; n < 3; ++n)
+                    {
+                        Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
+                        if (Elder[n] && Elder[n]->isAlive())
+                        {
+                            Elder[n]->setFaction(35);
+                            Elder[n]->RemoveAllAuras();
+                            Elder[n]->AttackStop();
+                            Elder[n]->CombatStop(true);
+                            Elder[n]->DeleteThreatList();
+                        }
+                    }
+                }
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                _EnterCombat();
+                DoZoneInCombat();
+                Creature* Elder[3];
+                for (uint8 n = 0; n < 3; ++n)
+                {
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
+                    if (Elder[n] && Elder[n]->isAlive())
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
                     {
                         EldersCount++;
                         Ironbranch->SetInCombatWithZone();
@@ -346,6 +439,38 @@ public:
                         Stonebark->AddAura(SPELL_DRAINED_OF_POWER, Stonebark);
                         events.ScheduleEvent(EVENT_STONEBARK, urand(35000, 45000));
                     }
+<<<<<<< HEAD
+=======
+                }
+
+                if (Elder[0]->isAlive())
+                {
+                    Elder[0]->CastSpell(me, SPELL_BRIGHTLEAF_ESSENCE, true);
+                    events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(10000, 20000));
+                }
+                if (Elder[1]->isAlive())
+                {
+                    Elder[1]->CastSpell(me, SPELL_STONEBARK_ESSENCE, true);
+                    events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(10000, 20000));
+                }
+                if (Elder[2]->isAlive())
+                {
+                    Elder[2]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
+                    events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(10000, 20000));
+                }
+
+                if (elderCount == 0)
+                    DoScriptText(SAY_AGGRO, me);
+                else
+                    DoScriptText(SAY_AGGRO_WITH_ELDER, me);
+
+                me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
+
+                events.ScheduleEvent(EVENT_WAVE, 10000);
+                events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
+                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             }
             if (EldersCount == 0)
                 DoScriptText(SAY_AGGRO, me);
@@ -458,7 +583,27 @@ public:
                 }
             }
 
+<<<<<<< HEAD
             DoMeleeAttackIfReady();
+=======
+            void TimeCheck()
+            {
+                if (waveCount >= 6)
+                    return;
+
+                waveInProgress = false;
+                uint32 timeDifference = WAVE_TIME - waveTime;
+                if (timeDifference <= TIME_DIFFERENCE)
+                    events.RescheduleEvent(EVENT_WAVE, timeDifference);
+                else
+                    events.RescheduleEvent(EVENT_WAVE, TIME_DIFFERENCE);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetUlduarAI<boss_freyaAI>(creature);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
     
         void randomizeSpawnOrder()
@@ -526,7 +671,57 @@ public:
                     Elemental[2] = me->SummonCreature(NPC_STORM_LASHER, me->GetPositionX() + randomX, me->GetPositionY() + randomY, me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN);
                     break;
                 }
+<<<<<<< HEAD
                 case 2: 
+=======
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetUlduarAI<boss_elder_brightleafAI>(creature);
+        }
+};
+
+class boss_elder_stonebark : public CreatureScript
+{
+    public:
+        boss_elder_stonebark() : CreatureScript("boss_elder_stonebark") { }
+
+        struct boss_elder_stonebarkAI : public BossAI
+        {
+            boss_elder_stonebarkAI(Creature* creature) : BossAI(creature, BOSS_STONEBARK)
+            {
+            }
+
+            uint32 lumberjackTimer;
+            uint8 elderCount;
+            bool lumberjack;
+
+            void Reset()
+            {
+                _Reset();
+                if (me->HasAura(SPELL_DRAINED_OF_POWER))
+                    me->RemoveAurasDueToSpell(SPELL_DRAINED_OF_POWER);
+                events.ScheduleEvent(EVENT_TREMOR, urand(10000, 12000));
+                events.ScheduleEvent(EVENT_FISTS, urand(25000, 35000));
+                events.ScheduleEvent(EVENT_BARK, urand(37500, 40000));
+                elderCount = 0;
+                lumberjack = false;
+            }
+
+            void KilledUnit(Unit* who)
+            {
+                DoScriptText(RAND(SAY_STONEBARK_SLAY_1, SAY_STONEBARK_SLAY_2), me, who);
+            }
+
+            void JustDied(Unit* who)
+            {
+                _JustDied();
+                DoScriptText(SAY_STONEBARK_DEATH, me, who);
+
+                if (who && who->GetTypeId() == TYPEID_PLAYER)
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
                 {
                     DoScriptText(SAY_SUMMON_CONSERVATOR, me);
                     int8 randomX = -25 + rand() % 50;
@@ -589,10 +784,14 @@ public:
 
         void Reset()
         {
+<<<<<<< HEAD
             uiUnstableSunbeamTimer = 5000;
             uiSolarFlareTimer = 10000;
             uiUnstableEnergyTimer = 20000;
             uiBrightleafFluxTimer = 0;
+=======
+            return GetUlduarAI<boss_elder_stonebarkAI>(creature);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
 
         void EnterCombat(Unit* /*pWho*/)
@@ -673,11 +872,15 @@ public:
     {
         npc_sun_beamAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
         {
+<<<<<<< HEAD
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
             me->SetDisplayId(23258);
             DoCast(SPELL_FREYA_UNSTABLE_ENERGY);
             DoCast(SPELL_UNSTABLE_SUN_BEAM_VISUAL);
+=======
+            return GetUlduarAI<boss_elder_ironbranchAI>(creature);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
     };
 
@@ -1012,9 +1215,24 @@ public:
             pInstance = pCreature->GetInstanceScript();
         }
 
+<<<<<<< HEAD
         InstanceScript* pInstance;
         uint32 uiFlameLashTimer;
         uint32 uiSwitchTargetTimer;
+=======
+            void UpdateAI(uint32 const diff)
+            {
+                if (lifeTimer <= diff)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_GROW);
+                    me->ForcedDespawn(2200);
+                    lifeTimer = urand(22000, 30000);
+                }
+                else
+                    lifeTimer -= diff;
+            }
+        };
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 
         void Reset()
         {
@@ -1036,9 +1254,21 @@ public:
 
             if (uiSwitchTargetTimer <= diff)
             {
+<<<<<<< HEAD
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                     me->AI()->AttackStart(pTarget);
                 uiSwitchTargetTimer = urand(6000, 8000);
+=======
+                if (lifeBindersGiftTimer <= diff)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_GROW);
+                    DoCast(SPELL_LIFEBINDERS_GIFT);
+                    me->ForcedDespawn(2500);
+                    lifeBindersGiftTimer = 12000;
+                }
+                else
+                    lifeBindersGiftTimer -= diff;
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             }
             else uiSwitchTargetTimer -= diff;
 
@@ -1237,6 +1467,7 @@ public:
 
 };
 
+<<<<<<< HEAD
 
 class npc_snaplasher : public CreatureScript
 {
@@ -1317,6 +1548,8 @@ public:
 };
 
 
+=======
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 void AddSC_boss_freya()
 {
     new boss_freya();
@@ -1325,6 +1558,7 @@ void AddSC_boss_freya()
     new npc_unstable_sun_beam();
     new npc_elder_ironbranch();
     new npc_iron_roots();
+<<<<<<< HEAD
     new npc_elder_stonebark();
     new npc_eonars_gift();
     new npc_nature_bomb();
@@ -1334,4 +1568,8 @@ void AddSC_boss_freya()
     new npc_storm_lasher();
     new npc_snaplasher();
     new npc_ancient_water_spirit();
+=======
+    new spell_attuned_to_nature_dose_reduction();
+    new spell_freya_iron_roots();
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 }

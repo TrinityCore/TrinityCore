@@ -353,7 +353,7 @@ public:
         {
             switch(emote)
             {
-                case TEXTEMOTE_CHICKEN:
+                case TEXT_EMOTE_CHICKEN:
                     if (pPlayer->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand()%30 == 1)
                     {
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -361,7 +361,7 @@ public:
                         DoScriptText(EMOTE_HELLO, me);
                     }
                     break;
-                case TEXTEMOTE_CHEER:
+                case TEXT_EMOTE_CHEER:
                     if (pPlayer->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                     {
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -458,11 +458,11 @@ public:
                 me->SendMessageToSet(&data, true);
                 switch(emote)
                 {
-                    case TEXTEMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
-                    case TEXTEMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-                    case TEXTEMOTE_BOW:     me->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
-                    case TEXTEMOTE_JOKE:    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
-                    case TEXTEMOTE_DANCE:
+                    case TEXT_EMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
+                    case TEXT_EMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+                    case TEXT_EMOTE_BOW:     me->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
+                    case TEXT_EMOTE_JOKE:    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
+                    case TEXT_EMOTE_DANCE:
                     {
                         if (!pPlayer->HasAura(SPELL_SEDUCTION))
                             DoCast(pPlayer, SPELL_SEDUCTION, true);
@@ -1251,7 +1251,7 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -1304,7 +1304,7 @@ public:
                 pPlayer->CastSpell(pPlayer, 21100, false);
                 break;
             case GOSSIP_ACTION_TRAIN:
-                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendTrainerList(pCreature->GetGUID());
                 break;
             case GOSSIP_OPTION_UNLEARNTALENTS:
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -1316,7 +1316,7 @@ public:
                     if (!pPlayer->HasEnoughMoney(10000000))
                     {
                         pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-                        pPlayer->PlayerTalkClass->CloseGossip();
+                        pPlayer->PlayerTalkClass->SendCloseGossip();
                         break;
                     }
                     else
@@ -1329,7 +1329,7 @@ public:
                         pPlayer->CastSpell(pPlayer, 63624, true, NULL, NULL, pPlayer->GetGUID());
 
                         // Should show another Gossip text with "Congratulations..."
-                        pPlayer->PlayerTalkClass->CloseGossip();
+                        pPlayer->PlayerTalkClass->SendCloseGossip();
                     }
                 }
                 break;
@@ -1591,7 +1591,7 @@ public:
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
                 return;
 
-            if (emote == TEXTEMOTE_DANCE)
+            if (emote == TEXT_EMOTE_DANCE)
                 me->CastSpell(pPlayer, 41586, false);
         }
     };
@@ -1622,7 +1622,7 @@ public:
             if (pPlayer->HasAura(26218))
                 return;
 
-            if (emote == TEXTEMOTE_KISS)
+            if (emote == TEXT_EMOTE_KISS)
             {
                 me->CastSpell(me, 26218, false);
                 pPlayer->CastSpell(pPlayer, 26218, false);
@@ -1690,7 +1690,7 @@ public:
 
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
             if (!me->getVictim() && me->isSummon())
-                if (Unit * Owner = CAST_SUM(me)->GetSummoner())
+                if (Unit * Owner = me->ToTempSummon()->GetSummoner())
                     if (Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
         }
@@ -1800,7 +1800,7 @@ public:
             Unit* own = me->GetOwner();
             if (!own || own->GetTypeId() != TYPEID_PLAYER || CAST_PLR(own)->GetTeam() != pPlayer->GetTeam())
                 return;
-            if (emote == TEXTEMOTE_KISS)
+            if (emote == TEXT_EMOTE_KISS)
             {
                 std::string whisp = "";
                 switch (rand()%8)
@@ -2169,7 +2169,7 @@ public:
         void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
         {
             if (me->isSummon())
-                if (Unit* pOwner = CAST_SUM(me)->GetSummoner())
+                if (Unit* pOwner = me->ToTempSummon()->GetSummoner())
                 {
                     if (pOwner->HasAura(GLYPH_OF_SHADOWFIEND))
                         if (damage >= me->GetHealth())
@@ -2218,7 +2218,7 @@ public:
     {
         if (pCreature->isSummon())
         {
-            if (pPlayer == CAST_SUM(pCreature)->GetSummoner())
+            if (pPlayer == pCreature->ToTempSummon()->GetSummoner())
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -2560,7 +2560,7 @@ public:
             pPlayer->SEND_GOSSIP_MENU(13583, pCreature->GetGUID());
         }
         else
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -2571,7 +2571,7 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_TRADE:
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -2664,7 +2664,7 @@ public:
                 pPlayer->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
         }
-        pPlayer->PlayerTalkClass->CloseGossip();
+        pPlayer->PlayerTalkClass->SendCloseGossip();
         return true;
     }
 };

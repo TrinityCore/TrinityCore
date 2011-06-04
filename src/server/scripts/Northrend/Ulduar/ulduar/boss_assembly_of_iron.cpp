@@ -201,7 +201,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_steelbreakerAI (pCreature);
+        return GetUlduarAI<boss_steelbreakerAI>(pCreature);
     }
 
     struct boss_steelbreakerAI : public ScriptedAI
@@ -349,7 +349,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_runemaster_molgeimAI (pCreature);
+        return GetUlduarAI<boss_runemaster_molgeimAI>(pCreature);
     }
 
     struct boss_runemaster_molgeimAI : public ScriptedAI
@@ -633,7 +633,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_stormcaller_brundirAI (pCreature);
+        return GetUlduarAI<boss_stormcaller_brundirAI>(pCreature);
     }
 
     struct boss_stormcaller_brundirAI : public ScriptedAI
@@ -859,7 +859,7 @@ class spell_shield_of_runes : public SpellScriptLoader
 
             void Register()
             {
-                 OnEffectRemove += AuraEffectRemoveFn(spell_shield_of_runes_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove += AuraEffectRemoveFn(spell_shield_of_runes_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

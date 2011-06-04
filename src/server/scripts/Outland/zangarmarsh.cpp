@@ -288,9 +288,7 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-        {
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-        }
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
         return true;
     }
 };
@@ -415,7 +413,7 @@ public:
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TIMOTHY_DANIELS1, pCreature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRADE:
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 break;
         }
 

@@ -372,7 +372,6 @@ enum AuraRemoveMode
 {
     AURA_REMOVE_NONE = 0,
     AURA_REMOVE_BY_DEFAULT = 1,       // scripted remove, remove by stack with aura with different ids and sc aura remove
-    AURA_REMOVE_BY_STACK,             // replace by aura with same id
     AURA_REMOVE_BY_CANCEL,
     AURA_REMOVE_BY_ENEMY_SPELL,       // dispel and absorb aura destroy
     AURA_REMOVE_BY_EXPIRE,            // aura duration has ended
@@ -1618,6 +1617,7 @@ class Unit : public WorldObject
         bool InitTamedPet(Pet * pet, uint8 level, uint32 spell_id);
 
         // aura apply/remove helpers - you should better not use these
+        Aura* _TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0);
         void _AddAura(UnitAura * aura, Unit * caster);
         AuraApplication * _CreateAuraApplication(Aura * aura, uint8 effMask);
         void _ApplyAuraEffect(Aura * aura, uint8 effIndex);
@@ -1650,7 +1650,6 @@ class Unit : public WorldObject
 
         void RemoveAurasDueToSpell(uint32 spellId, uint64 caster = 0, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAuraFromStack(uint32 spellId, uint64 caster = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        inline void RemoveAuraFromStack(AuraMap::iterator &iter, AuraRemoveMode removeMode, uint8 chargesRemoved = 1);
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeller, uint8 chargesRemoved = 1);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
         void RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId);
@@ -1751,7 +1750,7 @@ class Unit : public WorldObject
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
         void SetCurrentCastedSpell(Spell * pSpell);
-        virtual void ProhibitSpellScholl(SpellSchoolMask /*idSchoolMask*/, uint32 /*unTimeMs*/) { }
+        virtual void ProhibitSpellSchool(SpellSchoolMask /*idSchoolMask*/, uint32 /*unTimeMs*/) { }
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
 
@@ -1939,7 +1938,6 @@ class Unit : public WorldObject
         bool IsImmunedToDamage(SpellEntry const* spellInfo);
         virtual bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
                                                             // redefined in Creature
-        uint32 CalcNotIgnoreDamageRedunction(uint32 damage, SpellSchoolMask damageSchoolMask);
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellEntry const *spellInfo = NULL, uint8 effIndex = MAX_SPELL_EFFECTS);
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
         void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo = NULL);

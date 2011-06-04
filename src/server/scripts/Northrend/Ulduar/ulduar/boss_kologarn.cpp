@@ -127,11 +127,15 @@ public:
         boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
             left(false), right(false)
         {
+<<<<<<< HEAD
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             emerged = false;
+=======
+            return GetUlduarAI<boss_kologarnAI>(pCreature);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
 
         Vehicle *vehicle;
@@ -483,10 +487,24 @@ public:
 
         void Reset()
         {
+<<<<<<< HEAD
             Gripped = false;
             ArmDamage = 0;
             SqueezeTimer = 0;
         }
+=======
+            PrepareAuraScript(spell_ulduar_stone_grip_absorb_AuraScript);
+
+            //! This will be called when Right Arm (vehicle) has sustained a specific amount of damage depending on instance mode
+            //! What we do here is remove all harmful aura's related and teleport to safe spot.
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() !=  AURA_REMOVE_BY_ENEMY_SPELL)
+                    return;
+
+                if (!GetOwner()->ToCreature())
+                    return;
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
 
         void JustDied(Unit* /*victim*/)
         {
@@ -510,8 +528,12 @@ public:
         {
             if (Victim)
             {
+<<<<<<< HEAD
                 Victim->ExitVehicle();
                 Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+=======
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_absorb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             }
         }
 
@@ -520,6 +542,7 @@ public:
             if (!UpdateVictim())
                 return;
 
+<<<<<<< HEAD
             if (Gripped)
             {
                 if (SqueezeTimer <= diff)
@@ -532,6 +555,12 @@ public:
                     Gripped = false;
                 }  
                 else SqueezeTimer -= diff;
+=======
+            void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* pOwner = GetOwner()->ToPlayer())
+                    pOwner->RemoveAurasDueToSpell(aurEff->GetAmount());
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             }
         }
 
@@ -564,6 +593,7 @@ public:
         {
             if (Gripped)
             {
+<<<<<<< HEAD
                 ArmDamage += damage;
                 int32 dmg = RAID_MODE(100000, 480000);
             
@@ -582,6 +612,10 @@ public:
                     }
                     Gripped = false;
                 }
+=======
+                OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveStun, EFFECT_2, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             }
         }
     };

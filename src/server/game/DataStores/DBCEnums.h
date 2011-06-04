@@ -45,7 +45,8 @@ enum AreaTeams
 {
     AREATEAM_NONE  = 0,
     AREATEAM_ALLY  = 2,
-    AREATEAM_HORDE = 4
+    AREATEAM_HORDE = 4,
+    AREATEAM_ANY   = 6
 };
 
 enum AchievementFaction
@@ -140,7 +141,7 @@ enum AchievementCriteriaTypes
     // TODO: the archievements 1162 and 1163 requires a special rating which can't be found in the dbc
     ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA = 37,
     ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING = 38,
-    ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING = 39,
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING = 39,
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL = 40,
     ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM = 41,
     ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM= 42,
@@ -232,34 +233,34 @@ enum AchievementCategory
 
 enum AreaFlags
 {
-    AREA_FLAG_SNOW             = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
-    AREA_FLAG_UNK1             = 0x00000002,                // may be necropolis?
+    AREA_FLAG_UNK0             = 0x00000001,                // Unknown
+    AREA_FLAG_UNK1             = 0x00000002,                // Razorfen Downs, Naxxramas and Acherus: The Ebon Hold (3.3.5a)
     AREA_FLAG_UNK2             = 0x00000004,                // Only used for areas on map 571 (development before)
     AREA_FLAG_SLAVE_CAPITAL    = 0x00000008,                // city and city subsones
     AREA_FLAG_UNK3             = 0x00000010,                // can't find common meaning
     AREA_FLAG_SLAVE_CAPITAL2   = 0x00000020,                // slave capital city flag?
-    AREA_FLAG_UNK4             = 0x00000040,                // many zones have this flag
+    AREA_FLAG_ALLOW_DUELS      = 0x00000040,                // allow to duel here
     AREA_FLAG_ARENA            = 0x00000080,                // arena, both instanced and world arenas
     AREA_FLAG_CAPITAL          = 0x00000100,                // main capital city flag
     AREA_FLAG_CITY             = 0x00000200,                // only for one zone named "City" (where it located?)
     AREA_FLAG_OUTLAND          = 0x00000400,                // expansion zones? (only Eye of the Storm not have this flag, but have 0x00004000 flag)
     AREA_FLAG_SANCTUARY        = 0x00000800,                // sanctuary area (PvP disabled)
-    AREA_FLAG_NEED_FLY         = 0x00001000,                // only Netherwing Ledge, Socrethar's Seat, Tempest Keep, The Arcatraz, The Botanica, The Mechanar, Sorrow Wing Point, Dragonspine Ridge, Netherwing Mines, Dragonmaw Base Camp, Dragonmaw Skyway
-    AREA_FLAG_UNUSED1          = 0x00002000,                // not used now (no area/zones with this flag set in 3.0.3)
+    AREA_FLAG_NEED_FLY         = 0x00001000,                // Unknown
+    AREA_FLAG_UNUSED1          = 0x00002000,                // Unused in 3.3.5a
     AREA_FLAG_OUTLAND2         = 0x00004000,                // expansion zones? (only Circle of Blood Arena not have this flag, but have 0x00000400 flag)
-    AREA_FLAG_PVP              = 0x00008000,                // pvp objective area? (Death's Door also has this flag although it's no pvp object area)
+    AREA_FLAG_OUTDOOR_PVP      = 0x00008000,                // pvp objective area? (Death's Door also has this flag although it's no pvp object area)
     AREA_FLAG_ARENA_INSTANCE   = 0x00010000,                // used by instanced arenas only
-    AREA_FLAG_UNUSED2          = 0x00020000,                // not used now (no area/zones with this flag set in 3.0.3)
-    AREA_FLAG_UNK5             = 0x00040000,                // only used for Amani Pass, Hatchet Hills
+    AREA_FLAG_UNUSED2          = 0x00020000,                // Unused in 3.3.5a
+    AREA_FLAG_CONTESTED_AREA   = 0x00040000,                // On PvP servers these areas are considered contested, even though the zone it is contained in is a Horde/Alliance territory.
     AREA_FLAG_UNK6             = 0x00080000,                // Valgarde and Acherus: The Ebon Hold
     AREA_FLAG_LOWLEVEL         = 0x00100000,                // used for some starting areas with area_level <= 15
     AREA_FLAG_TOWN             = 0x00200000,                // small towns with Inn
-    AREA_FLAG_UNK7             = 0x00400000,                // Warsong Hold, Acherus: The Ebon Hold, New Agamand Inn, Vengeance Landing Inn
-    AREA_FLAG_UNK8             = 0x00800000,                // Westguard Inn, Acherus: The Ebon Hold, Valgarde
-    AREA_FLAG_OUTDOOR_PVP      = 0x01000000,                // Wintergrasp and it's subzones
+    AREA_FLAG_UNK7             = 0x00400000,                // Warsong Hold, Acherus: The Ebon Hold, New Agamand Inn, Vengeance Landing Inn, Sunreaver Pavilion (Something to do with team?)
+    AREA_FLAG_UNK8             = 0x00800000,                // Valgarde, Acherus: The Ebon Hold, Westguard Inn, Silver Covenant Pavilion (Something to do with team?)
+    AREA_FLAG_WINTERGRASP      = 0x01000000,                // Wintergrasp and it's subzones
     AREA_FLAG_INSIDE           = 0x02000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_OUTSIDE          = 0x04000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
-    AREA_FLAG_OUTDOOR_PVP2     = 0x08000000,                // Wintergrasp and it's subzones
+    AREA_FLAG_WINTERGRASP_2    = 0x08000000,                // Same as AREA_FLAG_WINTERGRASP except for The Sunken Ring and Western Bridge.
     AREA_FLAG_NO_FLY_ZONE      = 0x20000000                 // Marks zones where you cannot fly
 };
 
@@ -384,27 +385,30 @@ enum SummonPropType
     SUMMON_PROP_TYPE_PHASING         = 8,                   // something todo with DK prequest line, 2 spells in 3.0.3
     SUMMON_PROP_TYPE_SIEGE_VEH       = 9,                   // summon different vehicles, 14 spells in 3.0.3
     SUMMON_PROP_TYPE_DRAKE_VEH       = 10,                  // summon drake (vehicle), 3 spells
-    SUMMON_PROP_TYPE_LIGHTWELL       = 11                   // summon lightwell, 6 spells in 3.0.3
+    SUMMON_PROP_TYPE_LIGHTWELL       = 11,                  // summon lightwell, 6 spells in 3.0.3
+    SUMMON_PROP_TYPE_JEEVES          = 12                   // summon Jeeves, 1 spell in 3.3.5a
 };
 
 // SummonProperties.dbc, col 5
 enum SummonPropFlags
 {
-    SUMMON_PROP_FLAG_NONE            = 0x0000,              // 1342 spells in 3.0.3
-    SUMMON_PROP_FLAG_UNK1            = 0x0001,              // 75 spells in 3.0.3, something unfriendly
-    SUMMON_PROP_FLAG_UNK2            = 0x0002,              // 616 spells in 3.0.3, something friendly
-    SUMMON_PROP_FLAG_UNK3            = 0x0004,              // 22 spells in 3.0.3, no idea...
-    SUMMON_PROP_FLAG_UNK4            = 0x0008,              // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_UNK5            = 0x0010,              // 25 spells in 3.0.3, quest related?
-    SUMMON_PROP_FLAG_UNK6            = 0x0020,              // 0 spells in 3.0.3, unused
-    SUMMON_PROP_FLAG_UNK7            = 0x0040,              // 12 spells in 3.0.3, no idea
-    SUMMON_PROP_FLAG_UNK8            = 0x0080,              // 4 spells in 3.0.3, no idea
-    SUMMON_PROP_FLAG_UNK9            = 0x0100,              // 51 spells in 3.0.3, no idea, many quest related
-    SUMMON_PROP_FLAG_UNK10           = 0x0200,              // 51 spells in 3.0.3, something defensive
-    SUMMON_PROP_FLAG_UNK11           = 0x0400,              // 3 spells, requires something near?
-    SUMMON_PROP_FLAG_UNK12           = 0x0800,              // 30 spells in 3.0.3, no idea
-    SUMMON_PROP_FLAG_UNK13           = 0x1000,              // 8 spells in 3.0.3, siege vehicle
-    SUMMON_PROP_FLAG_UNK14           = 0x2000,              // 2 spells in 3.0.3, escort?
+    SUMMON_PROP_FLAG_NONE            = 0x00000000,          // 1342 spells in 3.0.3
+    SUMMON_PROP_FLAG_UNK1            = 0x00000001,          // 75 spells in 3.0.3, something unfriendly
+    SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
+    SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
+    SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
+    SUMMON_PROP_FLAG_UNK5            = 0x00000010,          // 25 spells in 3.0.3, quest related?
+    SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
+    SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
+    SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
+    SUMMON_PROP_FLAG_UNK9            = 0x00000100,          // 51 spells in 3.0.3, no idea, many quest related
+    SUMMON_PROP_FLAG_UNK10           = 0x00000200,          // 51 spells in 3.0.3, something defensive
+    SUMMON_PROP_FLAG_UNK11           = 0x00000400,          // 3 spells, requires something near?
+    SUMMON_PROP_FLAG_UNK12           = 0x00000800,          // 30 spells in 3.0.3, no idea
+    SUMMON_PROP_FLAG_UNK13           = 0x00001000,          // Lightwell, Jeeves, Gnomish Alarm-o-bot, Build vehicles(wintergrasp)
+    SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
+    SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
+    SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
 };
 
 #endif

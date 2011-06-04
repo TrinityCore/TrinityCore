@@ -739,11 +739,10 @@ CREATE TABLE `character_pet` (
   `curmana` int(10) unsigned NOT NULL DEFAULT '0',
   `curhappiness` int(10) unsigned NOT NULL DEFAULT '0',
   `savetime` int(10) unsigned NOT NULL DEFAULT '0',
-  `resettalents_cost` int(10) unsigned NOT NULL DEFAULT '0',
-  `resettalents_time` int(10) unsigned NOT NULL DEFAULT '0',
   `abdata` text,
   PRIMARY KEY (`id`),
-  KEY `owner` (`owner`)
+  KEY `owner` (`owner`),
+  KEY `idx_slot` (`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1966,8 +1965,9 @@ CREATE TABLE `mail_items` (
   `mail_id` int(10) unsigned NOT NULL DEFAULT '0',
   `item_guid` int(10) unsigned NOT NULL DEFAULT '0',
   `receiver` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
-  PRIMARY KEY (`mail_id`,`item_guid`),
-  KEY `idx_receiver` (`receiver`)
+  PRIMARY KEY (`item_guid`),
+  KEY `idx_receiver` (`receiver`),
+  KEY `idx_mail_id` (`mail_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

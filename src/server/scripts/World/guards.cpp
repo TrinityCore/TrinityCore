@@ -196,12 +196,12 @@ public:
         {
             switch(emote)
             {
-                case TEXTEMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);    break;
-                case TEXTEMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);   break;
-                case TEXTEMOTE_SALUTE:  me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE); break;
-                case TEXTEMOTE_SHY:     me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);   break;
-                case TEXTEMOTE_RUDE:
-                case TEXTEMOTE_CHICKEN: me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);  break;
+                case TEXT_EMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);    break;
+                case TEXT_EMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);   break;
+                case TEXT_EMOTE_SALUTE:  me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE); break;
+                case TEXT_EMOTE_SHY:     me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);   break;
+                case TEXT_EMOTE_RUDE:
+                case TEXT_EMOTE_CHICKEN: me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);  break;
             }
         }
 

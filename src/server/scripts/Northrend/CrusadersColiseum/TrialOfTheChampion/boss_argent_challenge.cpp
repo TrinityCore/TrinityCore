@@ -516,6 +516,7 @@ public:
         void JustDied(Unit* pKiller)
         {
             if (me->isSummon())
+<<<<<<< HEAD
             {
                 if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 {
@@ -523,6 +524,11 @@ public:
                         CAST_CRE(pSummoner)->AI()->SetData(1,0);
                 }
             }
+=======
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (summoner->isAlive())
+                        summoner->GetAI()->SetData(1, 0);
+>>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         }
     };
 };
