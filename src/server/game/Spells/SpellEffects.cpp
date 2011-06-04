@@ -1323,7 +1323,14 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             {
                 int32 bp0 = damage;
                 m_caster->CastCustomSpell(unitTarget, 50783, &bp0, NULL, NULL, true, 0);
-                return;
+
+                // Item - Warrior T10 Melee 4P Bonus
+                if (Aura * aura = m_caster->GetAura(46916))
+                    if (aura->GetCharges())
+                    {
+                        m_caster->ToPlayer()->RestoreSpellMods(this, 46916);
+                        aura->DropCharge();
+                    }
             }
             // Execute
             if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & SPELLFAMILYFLAG_WARRIOR_EXECUTE)
@@ -1350,6 +1357,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     rageUsed += aurEff->GetAmount() * 10;
 
                 bp = damage + int32(rageUsed * m_spellInfo->EffectDamageMultiplier[effIndex] + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
+
+                // Item - Warrior T10 Melee 4P Bonus
+                if (Aura * aura = m_caster->GetAura(52437))
+                    aura->DropCharge();
                 break;
             }
             // Concussion Blow

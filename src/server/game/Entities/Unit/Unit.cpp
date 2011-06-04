@@ -8986,7 +8986,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // Item - Warrior T10 Melee 4P Bonus
             if (AuraEffect const * aurEff = GetAuraEffect(70847, EFFECT_0))
             {
-                uint32 amount = aurEff->GetAmount();
+                int32 amount = aurEff->GetAmount();
                 if (roll_chance_i(amount))
                     CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
                 if (roll_chance_i(amount))
