@@ -77,6 +77,7 @@ REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (74361,'spell_lich_king_valkyr_summon'),
 (72429,'spell_lich_king_tirion_mass_resurrection');
 
+REPLACE INTO `conditions` VALUES ('13', '0', '71614', '0', '18', '1', '38995', '0', '0', '', 'LichKing - Ice Lock');
 
 UPDATE waypoint_scripts SET delay = 3 WHERE dataint = 38879 AND command = 15;
 DELETE FROM `spell_scripts` WHERE id = 72429 AND command = 15;
