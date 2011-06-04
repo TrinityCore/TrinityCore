@@ -4224,13 +4224,8 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
         case 71266: // Swarming Shadows
-<<<<<<< HEAD
-        case 72890: // Swarming Shadows 25-man
-            spellInfo->AreaGroupId = 0;
-=======
         case 72890: // Swarming Shadows
             spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
             ++count;
             break;
         case 70588: // Suppression
@@ -4266,17 +4261,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->Effect[1] = 0;
             ++count;
             break;
-<<<<<<< HEAD
         case 49206: // Summon Gargoyle
             spellInfo->DurationIndex = 587;
             ++count;
             break;
-        case 51590: // Toss Ice Boulder
-            spellInfo->MaxAffectedTargets = 1;
-            ++count;
-            break;
-=======
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
         default:
             break;
         }
@@ -4316,7 +4304,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 ++count;
                 break;
-<<<<<<< HEAD
             case SPELLFAMILY_PRIEST:
                 // Twin Disciplines should affect at Prayer of Mending
                 if (spellInfo->SpellIconID == 2292)
@@ -4327,12 +4314,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Divine Providence should affect at Prayer of Mending
                 else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
                     spellInfo->EffectSpellClassMask[0][1] |= 0x20;
-=======
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness
                 if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
                     spellInfo->EffectSpellClassMask[0][1] |= 0x20000000;
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
                 else
                     break;
                 ++count;

@@ -173,7 +173,7 @@ public:
         {
             switch (emote)
             {
-                case TEXTEMOTE_KISS:
+                case TEXT_EMOTE_KISS:
 
                     if (me->HasAura(FROG_LOVE))
                         return;

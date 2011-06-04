@@ -1312,21 +1312,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 }
                 switch(GetId())
                 {
-<<<<<<< HEAD
-                    case 48018: // Demonic Circle
-                        // Do not remove GO when aura is removed by stack
-                        // to prevent remove GO added by new spell
-                        // old one is already removed
-                        if (removeMode != AURA_REMOVE_BY_STACK)
-                            target->RemoveGameObject(GetId(), true);
-=======
-                   case 48018: // Demonic Circle
-                        target->RemoveGameObject(GetId(), true);
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
-                        target->RemoveAura(62388);
+                    case 48020: // Demonic Circle
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (GameObject* obj = target->GetGameObject(48018))
+                            {
+                                target->NearTeleportTo(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
+                                target->RemoveMovementImpairingAuras();
+                            }
                         break;
-                    default:
-                       break;
                 }
                 break;
             case SPELLFAMILY_PRIEST:
@@ -1468,7 +1461,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             case SPELLFAMILY_HUNTER:
                 // Wyvern Sting
                 // If implemented through spell_linked_spell it can't proc from breaking by damage
-                if (removeMode != AURA_REMOVE_BY_STACK && removeMode != AURA_REMOVE_BY_DEATH &&
+                if (removeMode != AURA_REMOVE_BY_DEATH &&
                     GetSpellProto()->SpellFamilyFlags[1] & 0x1000 && caster)
                 {
                     uint32 spell_id = 0;

@@ -4609,20 +4609,10 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const * aurApp, uint
         target->ApplySpellImmune(GetId(), IMMUNITY_STATE, *iter, apply);
 
     // Patch 3.0.3 Bladestorm now breaks all snares and roots on the warrior when activated.
-<<<<<<< HEAD
-    // however not all mechanic specified in immunity
-    if (GetId() == 46924)
-    {
-        immunity_list.pop_back(); // delete Disarm
-        immunity_list.push_back(SPELL_AURA_MOD_PACIFY_SILENCE);
-        target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, apply);
-        target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply); 
-=======
     if (apply && GetId() == 46924)
     {
         target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
     }
 
     if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)

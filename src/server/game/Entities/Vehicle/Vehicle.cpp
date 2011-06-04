@@ -40,38 +40,6 @@ Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) 
             }
     }
 
-<<<<<<< HEAD
-    // HACKY WAY, We must found a more generic way to handle this
-    // Set inmunities since db ones are rewritten with player's ones
-    switch (GetVehicleInfo()->m_ID)
-    {
-        case 160:
-            me->SetControlled(true, UNIT_STAT_ROOT);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
-        case 158:
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_DISPEL, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_FEAR, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_ROOT, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SHIELD, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 13810, true); // Frost Trap
-            me->ApplySpellImmune(0, IMMUNITY_ID, 55741, true); // Desecration Rank 1
-            me->ApplySpellImmune(0, IMMUNITY_ID, 68766, true); // Desecration Rank 2
-            break;
-        default:
-            break;
-    }
-
-=======
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
     InitMovementInfoForBase();
 }
 
@@ -570,7 +538,6 @@ uint8 Vehicle::GetAvailableSeatCount() const
 
     return ret;
 }
-<<<<<<< HEAD
 
 void Vehicle::Relocate(Position pos)
 {
@@ -597,5 +564,3 @@ void Vehicle::Relocate(Position pos)
     // problems, and impossible to do delayed enter
     //pPlayer->EnterVehicle(veh);
 }
-=======
->>>>>>> 665dbfd9aef9dd5620f2fe44844872c9d0f5ea8f
