@@ -75,15 +75,15 @@ class boss_saviana_ragefire : public CreatureScript
             {
                 _Reset();
                 me->SetReactState(REACT_AGGRESSIVE);
-                events.ScheduleEvent(EVENT_ENRAGE, 20000, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_FLAME_BREATH, 30000, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_FLIGHT, 50000);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_ENRAGE, 20000, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_FLAME_BREATH, 14000, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_FLIGHT, 60000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -212,7 +212,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_FLAME_BEACON, true);
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_CONFLAGRATION_2, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_CONFLAGRATION_2, false);
             }
 
             void Register()
