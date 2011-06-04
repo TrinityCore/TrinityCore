@@ -270,3 +270,7 @@ UPDATE `script_texts` SET `content_loc8`='Помогите мне уничтож
 UPDATE `script_texts` SET `content_loc8`='Наконец я свободен! Всё кончено, сын мой... Настал час расплаты!' WHERE `entry`=-1810021;
 UPDATE `script_texts` SET `content_loc8`='Поднимитесь, Воины Света!' WHERE `entry`=-1810023;
 UPDATE `script_texts` SET `content_loc8`='Король-лич падет!' WHERE `entry`=-1810022;
+
+-- fix ice lock cast
+DELETE FROM conditions where SourceEntry=71614;
+INSERT INTO conditions VALUES ('13', '0', '71614', '0', '18', '1', '38995', '0', '0', '', 'LichKing - Ice Lock');

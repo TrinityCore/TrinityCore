@@ -94,7 +94,7 @@ class ulduar_teleporter : public GameObjectScript
                     player->CLOSE_GOSSIP_MENU();
                     break;
                 case DESCENT_MADNESS:
-                    pPlayer->TeleportTo(603, 1854.82f, -11.5608f, 334.175f, 0);
+                    player->TeleportTo(603, 1854.82f, -11.5608f, 334.175f, 0);
                     player->CLOSE_GOSSIP_MENU();
                     break;
             }
