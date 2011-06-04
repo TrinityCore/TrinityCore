@@ -1,7 +1,10 @@
 -- Temp solution for frostmourn room
-REPLACE INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+DELETE FROM `gameobject` WHERE `id` = 193070 and `map` = 631;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
 ('2710388', '193070', '631', '15', '1', '520', '-2524', '1038.42', '4.47344', '0', '0', '0.786348', '-0.617784', '300', '255', '1');
-REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+
+DELETE FROM `creature` WHERE `id` in (36823, 36824); 
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 ('250250', '36823', '631', '15', '1', '0', '0', '495', '-2502', '1050', '5.49385', '300', '0', '0', '315000', '59910', '0', '0', '0', '0', '0'),
 ('250251', '36824', '631', '15', '1', '0', '0', '495', '-2546', '1050.23', '1.72709', '300', '0', '0', '252000', '0', '0', '0', '0', '0', '0');
 
@@ -22,7 +25,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_ice_sphere_icc' WHERE `entry` =
 UPDATE `creature_template` SET `ScriptName`='npc_defile_icc' WHERE `entry` = 38757;
 UPDATE `creature_template` SET `ScriptName`='npc_terenas_fighter_icc' WHERE `entry` = 36823;
 UPDATE `creature_template` SET `ScriptName`='npc_spirit_warden_icc' WHERE `entry` = 36824;
+UPDATE `creature_template` SET `ScriptName`='npc_shadow_trap' WHERE `entry` = 39137;
 
+UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 39137;
 UPDATE `creature_template` SET `unit_flags` = 0, `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (15214,36633, 39305, 39306, 39307);
 
@@ -41,6 +46,8 @@ REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (74115,'spell_lich_king_pain_and_suffering'),
 (68980,'spell_lich_king_harvest_soul'),
 (74325,'spell_lich_king_harvest_soul'),
+(74326,'spell_lich_king_harvest_soul'),
+(74327,'spell_lich_king_harvest_soul'),
 (70541,'spell_lich_king_infection'),
 (73779,'spell_lich_king_infection'),
 (73780,'spell_lich_king_infection'),
