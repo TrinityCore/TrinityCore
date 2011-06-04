@@ -1368,7 +1368,7 @@ enum Targets
     TARGET_DEST_DEST                   = 87,
     TARGET_DEST_DYNOBJ_NONE            = 88,
     TARGET_DEST_TRAJ                   = 89,
-    TARGET_UNIT_TARGET_PUPPET          = 90,
+    TARGET_UNIT_TARGET_MINIPET         = 90,
     TARGET_DEST_DEST_RANDOM_DIR_DIST   = 91,
     TARGET_UNIT_SUMMONER               = 92,
     TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93, // TODO
@@ -2324,7 +2324,8 @@ enum HolidayIds
     HOLIDAY_PILGRIMS_BOUNTY          = 404,
     HOLIDAY_WOTLK_LAUNCH             = 406,
     HOLIDAY_DAY_OF_DEAD              = 409,
-    HOLIDAY_CALL_TO_ARMS_IC          = 420
+    HOLIDAY_CALL_TO_ARMS_IC          = 420,
+    HOLIDAY_KALU_AK_FISHING_DERBY    = 424
 };
 
 // values based at QuestInfo.dbc

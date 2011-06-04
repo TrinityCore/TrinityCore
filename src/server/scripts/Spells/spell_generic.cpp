@@ -90,6 +90,49 @@ class spell_gen_aura_of_anger : public SpellScriptLoader
         }
 };
 
+class spell_gen_av_drekthar_presence : public SpellScriptLoader
+{
+    public:
+        spell_gen_av_drekthar_presence() : SpellScriptLoader("spell_gen_av_drekthar_presence") { }
+
+        class spell_gen_av_drekthar_presence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_av_drekthar_presence_AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                switch(target->GetEntry())
+                {
+                    // alliance
+                    case 14762: // Dun Baldar North Marshal
+                    case 14763: // Dun Baldar South Marshal
+                    case 14764: // Icewing Marshal
+                    case 14765: // Stonehearth Marshal
+                    case 11948: // Vandar Stormspike
+                    // horde
+                    case 14772: // East Frostwolf Warmaster
+                    case 14776: // Tower Point Warmaster
+                    case 14773: // Iceblood Warmaster
+                    case 14777: // West Frostwolf Warmaster
+                    case 11946: // Drek'thar
+                        return true;
+                    default:
+                        return false;
+                        break;
+                }
+            }
+            void Register()
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_gen_av_drekthar_presence_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_av_drekthar_presence_AuraScript();
+        }
+};
+
 // 46394 Brutallus Burn
 class spell_gen_burn_brutallus : public SpellScriptLoader
 {
@@ -1062,10 +1105,67 @@ class spell_gen_lifeblood : public SpellScriptLoader
         }
 };
 
+enum MagicRoosterSpells
+{
+    SPELL_MAGIC_ROOSTER_NORMAL          = 66122,
+    SPELL_MAGIC_ROOSTER_DRAENEI_MALE    = 66123,
+    SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124,
+};
+
+class spell_gen_magic_rooster : public SpellScriptLoader
+{
+    public:
+        spell_gen_magic_rooster() : SpellScriptLoader("spell_gen_magic_rooster") { }
+
+        class spell_gen_magic_rooster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_magic_rooster_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Player* target = GetHitPlayer();
+                if (!target)
+                    return;
+
+                // prevent client crashes from stacking mounts
+                target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+                uint32 spellId = SPELL_MAGIC_ROOSTER_NORMAL;
+                switch (target->getRace())
+                {
+                    case RACE_DRAENEI:
+                        if (target->getGender() == GENDER_MALE)
+                            spellId = SPELL_MAGIC_ROOSTER_DRAENEI_MALE;
+                        break;
+                    case RACE_TAUREN:
+                        if (target->getGender() == GENDER_MALE)
+                            spellId = SPELL_MAGIC_ROOSTER_TAUREN_MALE;
+                        break;
+                    default:
+                        break;
+                }
+
+                target->CastSpell(target, spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_gen_magic_rooster_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_magic_rooster_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_aura_of_anger();
+    new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
     new spell_gen_leeching_swarm();
     new spell_gen_parachute();
@@ -1087,4 +1187,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_seaforium_blast();
     new spell_gen_turkey_marker();
     new spell_gen_lifeblood();
+    new spell_gen_magic_rooster();
 }
