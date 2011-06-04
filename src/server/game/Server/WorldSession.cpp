@@ -27,6 +27,7 @@
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WardenWin.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -118,6 +119,9 @@ WorldSession::~WorldSession()
         m_Socket->RemoveReference ();
         m_Socket = NULL;
     }
+
+    if (m_Warden)
+        delete m_Warden;
 
     ///- empty incoming packet queue
     WorldPacket *packet = NULL;
@@ -321,6 +325,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
 
     ProcessQueryCallbacks();
+
+    if (m_Socket)
+        m_Warden->Update();
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
@@ -1037,4 +1044,11 @@ void WorldSession::ProcessQueryCallbacks()
         HandleStableSwapPetCallback(result, param);
         m_stableSwapCallback.FreeResult();
     }
+}
+
+void WorldSession::InitWarden(BigNumber *K)
+{
+    // TODO: check client's os and create proper warden class
+    m_Warden = (WardenBase*)new WardenWin();
+    m_Warden->Init(this, K);
 }

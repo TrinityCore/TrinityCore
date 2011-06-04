@@ -28,7 +28,7 @@ extern LoginDatabaseWorkerPool LoginDatabase;
 #include <stdio.h>
 
 Log::Log() :
-    raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
+    raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL), wardenLogFile(NULL),
     dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), sqlLogFile(NULL),
     m_gmlog_per_account(false), m_enableLogDBLater(false),
     m_enableLogDB(false), m_colored(false)
@@ -161,6 +161,7 @@ void Log::Initialize()
     chatLogfile = openLogFile("ChatLogFile", "ChatLogTimestamp", "a");
     arenaLogFile = openLogFile("ArenaLogFile", NULL, "a");
     sqlLogFile = openLogFile("SQLDriverLogFile", NULL, "a");
+    wardenLogFile = openLogFile("WardenLogFile",NULL,"a");
 
     // Main log file settings
     m_logLevel     = sConfig->GetIntDefault("LogLevel", LOGL_NORMAL);
@@ -998,4 +999,31 @@ void Log::outChat(const char * str, ...)
         fflush(chatLogfile);
         va_end(ap);
     }
+}
+
+void Log::outWarden(const char * str, ...)
+{
+    if(!str)
+        return;
+
+    va_list ap;
+
+    printf("WARDEN: ");
+    va_start(ap, str);
+    vutf8printf(stdout, str, &ap);
+    va_end(ap);
+    printf("\n");
+
+    if (wardenLogFile)
+    {
+        outTimestamp(wardenLogFile);
+        
+        va_start(ap, str);
+        vfprintf(wardenLogFile, str, ap);
+        fprintf(wardenLogFile, "\n");
+        va_end(ap);
+
+        fflush(wardenLogFile);
+    }
+    fflush(stdout);
 }
