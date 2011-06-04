@@ -720,6 +720,32 @@ enum TransferAbortReason
     TRANSFER_ABORT_MAP_NOT_ALLOWED          = 0x10,         // Map can't be entered at this time.
 };
 
+enum ReferAFriendError
+{
+    ERR_REFER_A_FRIEND_NONE                          = 0x00,
+    ERR_REFER_A_FRIEND_NOT_REFERRED_BY               = 0x01,
+    ERR_REFER_A_FRIEND_TARGET_TOO_HIGH               = 0x02,
+    ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS = 0x03,
+    ERR_REFER_A_FRIEND_TOO_FAR                       = 0x04,
+    ERR_REFER_A_FRIEND_DIFFERENT_FACTION             = 0x05,
+    ERR_REFER_A_FRIEND_NOT_NOW                       = 0x06,
+    ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I             = 0x07,
+    ERR_REFER_A_FRIEND_NO_TARGET                     = 0x08,
+    ERR_REFER_A_FRIEND_NOT_IN_GROUP                  = 0x09,
+    ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I            = 0x0A,
+    ERR_REFER_A_FRIEND_SUMMON_COOLDOWN               = 0x0B,
+    ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL               = 0x0C,
+    ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
+};
+
+enum AccountLinkedState
+{
+    STATE_NOT_LINKED = 0x00,
+    STATE_REFER      = 0x01,
+    STATE_REFERRAL   = 0x02,
+    STATE_DUAL       = 0x04,
+};
+
 enum InstanceResetWarningType
 {
     RAID_INSTANCE_WARNING_HOURS     = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).
