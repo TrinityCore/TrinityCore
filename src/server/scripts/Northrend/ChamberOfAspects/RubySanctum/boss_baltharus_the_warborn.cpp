@@ -221,14 +221,14 @@ class boss_baltharus_the_warborn : public CreatureScript
         }
 };
 
-class npc_baltarhus_the_warborn_clone : public CreatureScript
+class npc_baltharus_the_warborn_clone : public CreatureScript
 {
     public:
-        npc_baltarhus_the_warborn_clone() : CreatureScript("npc_baltarhus_the_warborn_clone") { }
+        npc_baltharus_the_warborn_clone() : CreatureScript("npc_baltharus_the_warborn_clone") { }
 
-        struct npc_baltarhus_the_warborn_cloneAI : public ScriptedAI
+        struct npc_baltharus_the_warborn_cloneAI : public ScriptedAI
         {
-            npc_baltarhus_the_warborn_cloneAI(Creature* creature) : ScriptedAI(creature)
+            npc_baltharus_the_warborn_cloneAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = (InstanceScript*)creature->GetInstanceScript();
             }
@@ -251,8 +251,8 @@ class npc_baltarhus_the_warborn_clone : public CreatureScript
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
                 if (_instance)
-                    if (Creature* baltarhus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
-                        killer->Kill(baltarhus);
+                    if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
+                        killer->Kill(baltharus);
             }
 
             void UpdateAI(uint32 const diff)
@@ -295,7 +295,7 @@ class npc_baltarhus_the_warborn_clone : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetRubySanctumAI<npc_baltarhus_the_warborn_cloneAI>(creature);
+            return GetRubySanctumAI<npc_baltharus_the_warborn_cloneAI>(creature);
         }
 };
 
@@ -384,7 +384,7 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
 void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
-    new npc_baltarhus_the_warborn_clone();
+    new npc_baltharus_the_warborn_clone();
     new spell_baltharus_enervating_brand();
     new spell_baltharus_enervating_brand_trigger();
 }
