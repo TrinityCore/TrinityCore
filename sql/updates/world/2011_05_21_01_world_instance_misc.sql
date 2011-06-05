@@ -21,4 +21,4 @@ VALUES
 (3247,63240,63553,0,0), -- Ulduar: Ironroot Lasher - Ironroot Thorns
 (3248,63247,63568,0,0), -- Ulduar: Nature's Blade - Living Tsunami
 (3249,63226,63551,0,0), -- Ulduar: Guardian of Life - Poison Breath
-(3250,64587,34650,0,0); -- Ulduar: Nature Bomb - Nature Bomb
+(3250,64650,34650,0,0); -- Ulduar: Nature Bomb - Nature Bomb
