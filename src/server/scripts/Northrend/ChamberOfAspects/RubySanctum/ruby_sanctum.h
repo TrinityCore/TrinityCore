@@ -37,6 +37,8 @@ enum DataTypes
     DATA_XERESTRASZA                        = 4,
     DATA_CRYSTAL_CHANNEL_TARGET             = 5,
     DATA_BALTHARUS_SHARED_HEALTH            = 6,
+    DATA_ZARITHIAN_SPAWN_STALKER_1          = 7,
+    DATA_ZARITHIAN_SPAWN_STALKER_2          = 8,
 };
 
 enum SharedActions
