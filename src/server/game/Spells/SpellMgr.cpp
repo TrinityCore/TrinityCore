@@ -55,6 +55,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:  //107
             case SPELL_EFFECT_SUMMON_DEAD_PET:      //109
             case SPELL_EFFECT_TRIGGER_SPELL_2:      //151 ritual of summon
+            case SPELL_EFFECT_FRIEND_SUMMON:        //152
                 EffectTargetType[i] = SPELL_REQUIRE_DEST;
                 break;
             case SPELL_EFFECT_PARRY: // 0

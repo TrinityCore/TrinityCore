@@ -5297,6 +5297,39 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
                 break;
             }
+            case SPELL_EFFECT_FRIEND_SUMMON:
+            {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+                if (!m_caster->ToPlayer()->GetSelection())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Player* target = sObjectMgr->GetPlayer(m_caster->ToPlayer()->GetSelection());
+                if(!target)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (m_caster->ToPlayer() == target || !m_caster->ToPlayer()->IsReferAFriendLinked(target))
+                    return SPELL_FAILED_TARGET_ENEMY;
+
+                // check if our map is dungeon
+                MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
+                if (map->IsDungeon())
+                {
+                    uint32 mapId = m_caster->GetMap()->GetId();
+                    Difficulty difficulty = m_caster->GetMap()->GetDifficulty();
+                    if (map->IsRaid())
+                        if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
+                            if (targetBind->perm && targetBind != m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
+                                return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
+
+                    InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapId);
+                    if (!instance)
+                        return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
+                    if (!target->Satisfy(sObjectMgr->GetAccessRequirement(mapId, difficulty), mapId))
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                break;
+            }
             case SPELL_EFFECT_LEAP:
             case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER:
             {
@@ -6554,6 +6587,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
     //Check targets for LOS visibility (except spells without range limitations)
     switch(m_spellInfo->Effect[eff])
     {
+        case SPELL_EFFECT_FRIEND_SUMMON:                    // from anywhere
         case SPELL_EFFECT_SUMMON_PLAYER:                    // from anywhere
             break;
         case SPELL_EFFECT_DUMMY:
