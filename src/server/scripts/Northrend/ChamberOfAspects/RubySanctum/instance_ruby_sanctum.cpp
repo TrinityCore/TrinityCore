@@ -89,6 +89,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case GO_FLAME_WALLS:
                         FlameWallsGUID = go->GetGUID();
+                        if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
+                            HandleGameObject(FlameWallsGUID, true, go);
                         break;
                     default:
                         break;
@@ -142,32 +144,19 @@ class instance_ruby_sanctum : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_BALTHARUS_THE_WARBORN:
-                    {
-                        if (state == DONE && GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE)
+                        if (state == DONE)
                         {
-                            if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
-                                HandleGameObject(FlameWallsGUID, true, flameWalls);
-
-                            if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE)
+                                HandleGameObject(FlameWallsGUID, true);
+                            // for remove flags from zarithrian I think you should add at zarithrian script at void Reset()
                         }
                         break;
-                    }
                     case DATA_SAVIANA_RAGEFIRE:
-                    {
-                        if (state == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
+                        if (state == DONE)
                         {
-                            if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
-                                HandleGameObject(FlameWallsGUID, true, flameWalls);
-
-                            if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                        }
-                        break;
-                    }
-                    case DATA_GENERAL_ZARITHRIAN:
-                        if (GameObject* flameWalls = instance->GetGameObject(FlameWallsGUID))
-                            HandleGameObject(FlameWallsGUID, state != IN_PROGRESS, flameWalls);
+                            if (GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
+                                HandleGameObject(FlameWallsGUID, true);
+                            // same
                         break;
                     default:
                         break;
