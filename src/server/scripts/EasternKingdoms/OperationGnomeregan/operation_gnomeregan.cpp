@@ -240,6 +240,61 @@ class npc_og_infantry : public CreatureScript
                         AddWaypoint(8, -5071.622559f, 476.510834f, 402.198334f);
                         AddWaypoint(9, -5073.813477f, 481.830627f, 401.484741f);
                         break;
+                    case 15:
+                        AddWaypoint(0, -5103.443359f, 724.770813f, 257.777954f);
+                        AddWaypoint(1, -5094.822754f, 723.598328f, 260.490723f);
+                        AddWaypoint(2, -5086.649902f, 723.079773f, 260.556946f);
+                        AddWaypoint(3, -5055.190430f, 736.540833f, 260.557220f);
+                        AddWaypoint(4, -5054.147949f, 736.447632f, 261.243988f);
+                        AddWaypoint(5, -5047.112305f, 737.144043f, 256.501160f);
+                        AddWaypoint(6, -5036.274414f, 739.345154f, 256.475739f);
+                        AddWaypoint(7, -4976.154297f, 734.201904f, 256.277985f);
+                        AddWaypoint(8, -4947.897461f, 732.244080f, 260.438263f);
+                        AddWaypoint(9, -4946.339844f, 732.115906f, 261.646210f);
+                        AddWaypoint(10, -4939.273438f, 734.958496f, 261.646210f);
+                        AddWaypoint(11, -4938.026855f, 741.879028f, 261.644684f);
+                        AddWaypoint(12, -4938.707520f, 740.875122f, 261.644684f);
+                        break;
+                    case 16:
+                        AddWaypoint(0, -5109.180664f, 725.262878f, 255.981613f);
+                        AddWaypoint(1, -5095.178711f, 724.099243f, 260.368286f);
+                        AddWaypoint(2, -5086.729004f, 723.518494f, 260.557068f);
+                        AddWaypoint(3, -5055.729004f, 735.350525f, 260.556061f);
+                        AddWaypoint(4, -5054.227051f, 735.254822f, 261.244995f);
+                        AddWaypoint(5, -5046.759766f, 735.879211f, 256.475433f);
+                        AddWaypoint(6, -5035.186523f, 739.123962f, 256.475433f);
+                        AddWaypoint(7, -4974.740234f, 734.052185f, 256.263763f);
+                        AddWaypoint(8, -4963.679688f, 732.872192f, 257.911133f);
+                        AddWaypoint(9, -4959.834961f, 734.894470f, 259.341797f);
+                        AddWaypoint(10, -4963.027832f, 735.367432f, 258.783722f);
+                        break;
+                    case 17:
+                        AddWaypoint(0, -5104.795898f, 717.425720f, 257.537598f);
+                        AddWaypoint(1, -5095.783203f, 716.306946f, 260.370605f);
+                        AddWaypoint(2, -5085.620117f, 716.721130f, 260.557373f);
+                        AddWaypoint(3, -5056.110352f, 727.733398f, 260.561371f);
+                        AddWaypoint(4, -5054.630371f, 727.904541f, 261.246185f);
+                        AddWaypoint(5, -5047.102051f, 731.708801f, 256.475403f);
+                        AddWaypoint(6, -5036.331055f, 730.962219f, 256.475403f);
+                        AddWaypoint(7, -4974.770996f, 726.103333f, 256.258118f);
+                        AddWaypoint(8, -4948.733398f, 723.634705f, 260.412781f);
+                        AddWaypoint(9, -4947.263184f, 723.494263f, 261.646088f);
+                        AddWaypoint(10, -4940.096191f, 717.815491f, 261.646088f);
+                        AddWaypoint(11, -4939.854980f, 712.329895f, 261.644684f);
+                        AddWaypoint(12, -4940.705566f, 713.400269f, 261.644684f);
+                        break;
+                    case 18:
+                        AddWaypoint(0, -5109.956543f, 717.818481f, 255.921844f);
+                        AddWaypoint(1, -5095.956055f, 716.377014f, 260.314667f);
+                        AddWaypoint(2, -5085.541992f, 716.675903f, 260.557373f);
+                        AddWaypoint(3, -5056.114258f, 727.704346f, 260.561310f);
+                        AddWaypoint(4, -5054.369629f, 727.836121f, 261.243469f);
+                        AddWaypoint(5, -5047.054199f, 731.594299f, 256.475586f);
+                        AddWaypoint(6, -5036.313477f, 731.290100f, 256.475586f);
+                        AddWaypoint(7, -4975.180664f, 725.747314f, 256.261780f);
+                        AddWaypoint(8, -4964.648926f, 725.515686f, 257.849091f);
+                        AddWaypoint(9, -4960.842285f, 722.796204f, 259.332458f);
+                        AddWaypoint(10, -4964.441895f, 722.924133f, 258.709137f);
                     default:
                         sLog->outError("Unexpected movement variation (%i) in npc_og_infantryAI::SetupMovement call!", variation);
                         return;
@@ -1092,6 +1147,9 @@ class npc_og_mekkatorque : public CreatureScript
                                 CAST_AI(npc_og_suit::npc_og_suitAI, pSuit->AI())->SetupMovement(3);
                             if (Creature* pSuit = me->SummonCreature(NPC_BATTLE_SUIT, BattleSuitSpawn[4], TEMPSUMMON_MANUAL_DESPAWN))
                                 CAST_AI(npc_og_suit::npc_og_suitAI, pSuit->AI())->SetupMovement(4);
+                            for (int8 n = 15; n < 19; ++n)
+                                if (Creature* pInfantry = me->SummonCreature(NPC_INFANTRY, InfantrySpawn[n], TEMPSUMMON_MANUAL_DESPAWN))
+                                    CAST_AI(npc_og_infantry::npc_og_infantryAI, pInfantry->AI())->SetupMovement(n);
                             JumpToNextStep(1500);
                             break;
                         case 45:
@@ -1757,7 +1815,7 @@ class npc_og_i_infantry : public CreatureScript
                     me->AddThreat(pWho, 10.0f);
                     me->SetInCombatWith(pWho);
                     pWho->SetInCombatWith(me);
-                    if (!urand(0,5)
+                    if (!urand(0,5))
                         DoStartMovement(pWho, 20.0f);
                     else
                         DoStartMovement(pWho, 5.0f);
@@ -1767,8 +1825,6 @@ class npc_og_i_infantry : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                npc_escortAI::UpdateAI(diff);
-
                 if (!UpdateVictim())
                     return;
 
