@@ -435,8 +435,9 @@ bool Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /*= GROU
             _homebindIfInstance(player);
         }
 
-        // Remove player from group in DB
-        CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid=%u", GUID_LOPART(guid));
+        // Delete from the table if we're not a battleground group
+        if (!isBGGroup())
+            CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid=%u", GUID_LOPART(guid));
 
         // Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
         if ((player && player->GetSkillValue(SKILL_ENCHANTING)) || !player)
