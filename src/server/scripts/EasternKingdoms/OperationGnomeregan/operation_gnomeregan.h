@@ -47,13 +47,13 @@ enum eSpells
     SPELL_PARACHUTE_AURA        = 79404,
 
 ///-------Used in final cinematic------
-///--------Unused in this script-------  // This is temporary... i hope
-    SPELL_ATTACH_CAMERA         = 75512,
+  //SPELL_ATTACH_CAMERA         = 75512, // [Unused]
     SPELL_SPAWN_INVISIBILITY    = 75513,
     SPELL_SEE_INVISIBILITY      = 75514,
+    SPELL_BINDSIGHT             = 75517, // Custom spell
 
-    SPELL_RECALL_TRIGGER        = 75553, // Triggers Camere Vehicle summon
-    SPELL_RECALL                = 75510, // Unknown
+  //SPELL_RECALL_TRIGGER        = 75553, // Triggers Camera Vehicle summon [Unused]
+    SPELL_RECALL                = 75510, // Teleport to camera start position
     SPELL_RECALL_FINAL          = 74412, // Realy final?
 
     SPELL_RAD_EXPLOSION         = 75545,
@@ -85,12 +85,14 @@ enum eCreatures
 
 ///--------------Bunnies----------------
     NPC_EXPLOSION_BUNNY         = 40506,
+    NPC_CAMERA_VEHICLE          = 40479,
 };
 
 enum eObjects
 {
-    OBJ_RAD_CONTROL             = 202767,
-    OBJ_IRRADIATOR              = 202922,
+    GO_BANNER                  = 194498,
+    GO_RAD_CONTROL             = 202767,
+    GO_IRRADIATOR              = 202922,
 };
 
 enum eMisc
@@ -126,7 +128,7 @@ enum eWorldstates
     WORLDSTATE_COUNTDOWN_CTRL                           = 5038,
 };
 
-const Position iInfantrySpawn[8] =
+const Position iInfantrySpawn[26] =
 {
     {-5355.43f, 530.67f, 385.17f, 3.37f},
     {-5356.68f, 535.13f, 385.54f, 3.43f},
@@ -135,7 +137,61 @@ const Position iInfantrySpawn[8] =
     {-5359.59f, 561.08f, 387.01f, 3.02f},
     {-5336.43f, 541.66f, 384.97f, 2.67f},
     {-5333.62f, 541.52f, 384.91f, 3.29f},
-    {-5345.95f, 532.78f, 384.68f, 2.82f}
+    {-5345.95f, 532.78f, 384.68f, 2.82f},
+    {-5145.95f, 452.20f, 393.56f, 2.32f},
+    {-5137.67f, 460.88f, 393.24f, 2.34f},
+    {-5115.88f, 434.75f, 397.49f, 1.91f},
+    {-5128.01f, 430.56f, 396.55f, 1.70f},
+    {-5107.13f, 462.23f, 402.25f, 3.70f},
+    {-5103.22f, 455.80f, 402.69f, 3.66f},
+    {-5095.57f, 470.80f, 403.48f, 3.96f},
+    {-5090.65f, 466.22f, 404.34f, 3.96f},
+    {-5081.96f, 453.46f, 409.65f, 2.18f},
+    {-5087.25f, 448.15f, 409.30f, 2.17f},
+    {-5189.41f, 583.61f, 404.02f, 4.82f},
+    {-5178.16f, 583.22f, 403.94f, 4.60f},
+    {-5193.70f, 594.34f, 408.54f, 5.20f},
+    {-5195.24f, 597.54f, 409.39f, 5.20f},
+    {-5191.03f, 598.42f, 408.85f, 4.92f},
+    {-5171.88f, 593.29f, 407.82f, 4.17f},
+    {-5174.75f, 596.12f, 408.08f, 4.17f},
+    {-5171.76f, 597.32f, 408.66f, 4.17f}
+};
+
+const Position iTankSpawn[4] =
+{
+    {-5338.99f, 535.53f, 384.99f, 2.88f},
+    {-5349.29f, 556.11f, 385.13f, 3.47f},
+    {-5303.43f, 584.31f, 389.94f, 3.79f},
+    {-5085.88f, 475.44f, 402.24f, 3.92f}
+};
+
+const Position iSoldierSpawn[5] =
+{
+    {-5040.80f, 739.75f, 256.47f, 6.2f},
+    {-5043.66f, 731.75f, 256.47f, 6.2f},
+    {-5039.70f, 734.17f, 256.47f, 6.2f},
+    {-5044.24f, 737.27f, 256.47f, 6.2f},
+    {-5046.30f, 733.86f, 256.47f, 6.2f}
+};
+
+const Position InfantrySpawn[15] =
+{
+    {-5334.11f, 563.10f, 395.79f, 0.71f},
+    {-5303.73f, 588.68f, 390.12f, 5.27f},
+    {-5308.05f, 587.04f, 389.93f, 5.08f},
+    {-5271.25f, 572.90f, 387.12f, 4.93f},
+    {-5280.78f, 564.26f, 386.08f, 5.65f},
+    {-5085.68f, 480.86f, 401.69f, 4.12f},
+    {-5080.83f, 477.69f, 401.76f, 4.12f},
+    {-5085.44f, 446.00f, 410.11f, 2.51f},
+    {-5081.82f, 451.51f, 410.33f, 2.46f},
+    {-5152.82f, 455.32f, 392.82f, 2.49f},
+    {-5142.35f, 468.65f, 392.38f, 2.33f},
+    {-5191.10f, 574.74f, 400.96f, 1.51f},
+    {-5177.70f, 574.41f, 400.40f, 1.51f},
+    {-4975.04f, 736.62f, 256.91f, 3.04f},
+    {-4976.25f, 723.63f, 256.91f, 3.04f}
 };
 
 const Position RLSpawn[4] =
@@ -163,22 +219,14 @@ const Position BattleSuitDriverSpawn[3] =
     {-5154.23f, 475.71f, 390.82f, 5.0f}
 };
 
-const Position BattleSuitSpawn[5] =
+const Position BattleSuitSpawn[6] =
 {
     {-5073.81f, 481.83f, 401.48f, 5.0f},
     {-5069.55f, 485.22f, 401.49f, 4.8f},
     {-5064.04f, 486.30f, 401.48f, 4.8f},
     {-5086.02f, 713.15f, 260.56f, 6.3f},
-    {-5085.04f, 725.92f, 260.56f, 6.3f}
-};
-
-const Position iSoldierSpawn[5] =
-{
-    {-5040.80f, 739.75f, 256.47f, 6.2f},
-    {-5043.66f, 731.75f, 256.47f, 6.2f},
-    {-5039.70f, 734.17f, 256.47f, 6.2f},
-    {-5044.24f, 737.27f, 256.47f, 6.2f},
-    {-5046.30f, 733.86f, 256.47f, 6.2f},
+    {-5085.04f, 725.92f, 260.56f, 6.3f},
+    {-5085.31f, 477.48f, 401.95f, 3.9f}
 };
 
 const Position TankSpawn[5] =
@@ -188,13 +236,6 @@ const Position TankSpawn[5] =
     {-5394.222656f, 519.042908f, 386.308929f, 1.0f},
     {-5280.954102f, 559.265808f, 385.679932f, 5.0f},
     {-5263.007813f, 572.262085f, 388.673157f, 5.0f}
-};
-
-const Position iTankSpawn[3] =
-{
-    {-5338.99f, 535.53f, 384.99f, 2.88f},
-    {-5349.29f, 556.11f, 385.13f, 3.47f},
-    {-5303.43f, 584.31f, 389.94f, 3.79f}
 };
 
 const Position BragBotSpawn[2] =
@@ -222,10 +263,12 @@ const uint32 Worldsates[15] =
     {5038}
 };
 
-const Position BomberSpawn     = {-5314.53f, 564.82f, 391.43f, 5.7f};
-const Position RadControlSpawn = {-5072.80f, 441.48f, 410.97f, 2.6f};
+const Position BomberSpawn              = {-5314.53f, 564.82f, 391.43f, 5.7f};
+const Position RadControlSpawn          = {-5072.80f, 441.48f, 410.97f, 2.6f};
 
-const Position TroggSpawn      = {-5181.74f, 631.21f, 398.54f, 4.7f};
+const Position TroggSpawn               = {-5181.74f, 631.21f, 398.54f, 4.7f};
+
+const Position ExplosionBunnySpawn      = {-5183.24f, 608.97f, 410.89f, 4.7f};
 
 //#define SOUND_NAME            soundID // Duration
 #define MEK_1_1                 "Граждане и друзья Гномрегана!"

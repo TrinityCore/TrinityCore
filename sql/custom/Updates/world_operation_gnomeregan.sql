@@ -11,6 +11,7 @@
 -- UPDATE `creature_template` SET `ScriptName` = 'npc_og_assistants' WHERE `entry` IN ('39273', '39910');
 -- UPDATE `creature_template` SET `mechanic_immune_mask` = '8192', `ScriptName` = 'npc_og_i_tank' WHERE `entry` = 39819;
 -- UPDATE `creature_template` SET `AIName` = 'AggresorAI' WHERE `entry` IN ('39755', '39836');
+-- UPDATE `creature_template` SET `VehicleId` = 0, `ScriptName` = 'npc_og_camera_vehicle' WHERE `entry` = 40479;
 
 DELETE FROM `creature` WHERE `id` IN ('39273', '39910');
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
@@ -20,27 +21,31 @@ UPDATE `creature` SET `position_x` = '-5424.462891', `position_y` = '531.410095'
 UPDATE `creature` SET `phaseMask`= '257' WHERE `id` = '7937';
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN ('39820', '39273', '39910');
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39820', '0', '0', '0', '0', '0', '74311 0');
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39273', '0', '9473', '0', '0', '0', '');
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39910', '0', '6569', '0', '0', '0', '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
+('39820', '0', '0', '0', '0', '0', '74311'),
+('39273', '0', '9473', '0', '0', '0', ''),
+('39910', '0', '6569', '0', '0', '0', '');
 
 UPDATE `creature_template` SET `modelid2` = '0' WHERE `entry` = '39903';
 UPDATE `creature_template` SET `equipment_id` = '39368' WHERE `entry` = '39271';
 UPDATE `creature_template` SET `speed_run` = '1.25', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39273';
 UPDATE `creature_template` SET `speed_run` = '1.29', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39910';
 
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
-('40479', '75648', '25393', '1', '25393', '1');
-UPDATE `creature_template` SET `npcflag` = '16777216' WHERE `entry` = '40479';
-
 DELETE FROM `spell_area` WHERE (`spell` = '74310') AND (`area` IN ('1', '135'));
 INSERT INTO `spell_area` VALUES
 ('74310', '1', '25393', '1', '25393', '0', '0', '2', '1'),
 ('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
 
-UPDATE `gameobject` SET `phaseMask` = '256' WHERE `id` = '202922';
+UPDATE `gameobject` SET `phaseMask` = '1' WHERE `id` = '194498';
+UPDATE `gameobject` SET `phaseMask` = '256' WHERE `guid` IN ('2482', '2469', '2461', '2458', '2454', '2453', '2466', '2475') OR `id` = '202922';
 
--- /Can be wrong/ INSERT INTO `spell_scripts` (`id`, `command`, `x`, `y`, `z`, `o`) VALUES ('74412', '6', '-4842.156738', '-1277.52771', '501.868256', '0.84');
+DELETE FROM `spell_scripts` where `id` IN ('74412', '75510') AND `command` = '6';
+INSERT INTO `spell_scripts` (`id`, `command`, `x`, `y`, `z`, `o`) VALUES
+('74412', '6', '-4842.156738', '-1277.52771', '501.868256', '0.84'),
+('75510', '6', '-5164.767578', '556.341125', '423.753784', '25.29');
+
+DELETE FROM `spell_dbc` WHERE `id` = '75517';
+INSERT INTO `spell_dbc` VALUES ('75517', '0', '0', '384', '1024', '4', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '21', '13', '0', '-1', '0', '0', '6', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '25', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '[DND] Bind Sight');
 
 -- waypoints for the last battle --
 
