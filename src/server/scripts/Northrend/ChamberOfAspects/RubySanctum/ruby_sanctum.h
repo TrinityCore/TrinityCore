@@ -25,6 +25,8 @@
 #define RSScriptName "instance_ruby_sanctum"
 uint32 const EncounterCount = 4;
 
+Position const HalionControllerSpawnPos = {3156.037f, 533.2656f, 72.97205f, 0.0f};
+
 enum DataTypes
 {
     // Encounter States/Boss GUIDs
@@ -39,12 +41,18 @@ enum DataTypes
     DATA_BALTHARUS_SHARED_HEALTH            = 6,
     DATA_ZARITHIAN_SPAWN_STALKER_1          = 7,
     DATA_ZARITHIAN_SPAWN_STALKER_2          = 8,
+    DATA_HALION_CONTROLLER                  = 9,
+    DATA_BURNING_TREE_1                     = 10,
+    DATA_BURNING_TREE_2                     = 11,
+    DATA_BURNING_TREE_3                     = 12,
+    DATA_BURNING_TREE_4                     = 13,
 };
 
 enum SharedActions
 {
-    ACTION_INTRO_TRIGGER                    = -3975101,
+    ACTION_INTRO_BALTHARUS                  = -3975101,
     ACTION_BALTHARUS_DEATH                  = -3975102,
+    ACTION_INTRO_HALION                     = -4014601,
 };
 
 enum CreaturesIds
@@ -72,6 +80,11 @@ enum CreaturesIds
     NPC_ORB_ROTATION_FOCUS                  = 40091,
     NPC_SHADOW_ORB_N                        = 40083,
     NPC_SHADOW_ORB_S                        = 40100,
+    NPC_METEOR_STRIKE_NORTH                 = 40041,
+    NPC_METEOR_STRIKE_EAST                  = 40042,
+    NPC_METEOR_STRIKE_WEST                  = 40043,
+    NPC_METEOR_STRIKE_SOUTH                 = 40044,
+    NPC_METEOR_STRIKE_FLAME                 = 40055,
 
     // Xerestrasza
     NPC_XERESTRASZA                         = 40429,
@@ -85,13 +98,17 @@ enum GameObjectsIds
     GO_FIRE_FIELD                           = 203005,
     GO_FLAME_WALLS                          = 203006,
     GO_FLAME_RING                           = 203007,
+    GO_BURNING_TREE_1                       = 203034,
+    GO_BURNING_TREE_2                       = 203035,
+    GO_BURNING_TREE_3                       = 203036,
+    GO_BURNING_TREE_4                       = 203037,
 };
 
 enum WorldStatesRS
 {
-    WORLDSTATE_UNK_1                = 5049, // Halion corporeality amount - normal phase
-    WORLDSTATE_UNK_2                = 5050, // Halion corporeality amount - twilight phase
-    WORLDSTATE_UNK_3                = 5051, // Halion corporeality toggle show
+    WORLDSTATE_CORPOREALITY_MATERIAL = 5049,
+    WORLDSTATE_CORPOREALITY_TWILIGHT = 5050,
+    WORLDSTATE_CORPOREALITY_TOGGLE   = 5051,
 };
 
 template<class AI>
