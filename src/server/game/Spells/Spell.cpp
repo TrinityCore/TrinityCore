@@ -5332,12 +5332,21 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_LEAP:
             case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
             {
-              //Do not allow to cast it before BG starts.
+              //Do not allow to cast it before BG starts and on transport.
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                {
                     if (Battleground const *bg = m_caster->ToPlayer()->GetBattleground())
                         if (bg->GetStatus() != STATUS_IN_PROGRESS)
                             return SPELL_FAILED_TRY_AGAIN;
+
+                    if (m_caster->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+                            return SPELL_FAILED_NOT_HERE;
+                }
                 break;
             }
             case SPELL_EFFECT_STEAL_BENEFICIAL_BUFF:
