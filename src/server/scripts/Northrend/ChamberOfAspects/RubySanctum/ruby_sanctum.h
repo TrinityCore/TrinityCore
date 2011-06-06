@@ -46,6 +46,7 @@ enum DataTypes
     DATA_BURNING_TREE_2                     = 11,
     DATA_BURNING_TREE_3                     = 12,
     DATA_BURNING_TREE_4                     = 13,
+    DATA_FLAME_RING                         = 14,
 };
 
 enum SharedActions
