@@ -91,7 +91,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 switch(action)
                 {
-                    case ACTION_INTRO_TRIGGER:
+                    case ACTION_INTRO_BALTHARUS:
                         if (_introDone)
                             return;
                         _introDone = true;
