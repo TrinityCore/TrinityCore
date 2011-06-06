@@ -129,8 +129,11 @@ class boss_general_zarithrian : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 // Cant use room boundary, the gameobject is spawned on same position as the boss.
-                if (!UpdateVictim() || me->GetPositionX() > 3060.0f)
+                if (!UpdateVictim() || CheckInRoom())
                     return;
+           
+                if (me->GetPositionX() > 3060.0f)
+                    EnterEvadeMode();
 
                 events.Update(diff);
 
