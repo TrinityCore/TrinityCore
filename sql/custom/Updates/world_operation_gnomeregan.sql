@@ -1,17 +1,18 @@
--- UPDATE `creature_template` SET `mechanic_immune_mask` = 12658704, `ScriptName` = 'npc_og_mekkatorque' WHERE `entry` = 39271; -- Do not apply until script will be finished.
--- UPDATE `creature_template` SET `unit_flags` = 393220, `ScriptName` = 'npc_og_rl' WHERE `entry` = 39820;
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_tank' WHERE `entry` = 39860;
--- UPDATE `creature_template` SET `faction_A` = 1771, `faction_H` = 1771, `unit_flags` = 4, `ScriptName` = 'npc_og_cannon' WHERE `entry` = 39759;
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_bomber' WHERE `entry` = 39735;
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_infantry' WHERE `entry` = 39252;
--- UPDATE `creature_template` SET `spell1` = 74764, `ScriptName` = 'npc_og_i_infantry' WHERE `entry` = 39755;
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_suit' WHERE `entry` = 39902;
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_trogg' WHERE `entry` IN ('39826', '39799');
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_boltcog' WHERE `entry` = 39837;
--- UPDATE `creature_template` SET `ScriptName` = 'npc_og_assistants' WHERE `entry` IN ('39273', '39910');
--- UPDATE `creature_template` SET `mechanic_immune_mask` = '8192', `ScriptName` = 'npc_og_i_tank' WHERE `entry` = 39819;
--- UPDATE `creature_template` SET `AIName` = 'AggresorAI' WHERE `entry` IN ('39755', '39836');
--- UPDATE `creature_template` SET `VehicleId` = 0, `ScriptName` = 'npc_og_camera_vehicle' WHERE `entry` = 40479;
+UPDATE `creature_template` SET `mechanic_immune_mask` = '12658704', `ScriptName` = 'npc_og_mekkatorque' WHERE `entry` = '39271';
+UPDATE `creature_template` SET `unit_flags` = '393220', `ScriptName` = 'npc_og_rl' WHERE `entry` = '39820';
+UPDATE `creature_template` SET `npcflag` = '0', `VehicleId` = '0', `ScriptName` = 'npc_og_tank' WHERE `entry` = '39860';
+UPDATE `creature_template` SET `faction_A` = '1771', `faction_H` = '1771', `unit_flags` = '4', `ScriptName` = 'npc_og_cannon' WHERE `entry` = '39759';
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_bomber' WHERE `entry` = '39735';
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_infantry' WHERE `entry` = '39252';
+UPDATE `creature_template` SET `spell1` = '74764', `ScriptName` = 'npc_og_i_infantry' WHERE `entry` = '39755';
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_suit' WHERE `entry` = '39902';
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_trogg' WHERE `entry` IN ('39826', '39799');
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_boltcog' WHERE `entry` = '39837';
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_assistants' WHERE `entry` IN ('39273', '39910');
+UPDATE `creature_template` SET `ScriptName` = 'npc_og_i_tank' WHERE `entry` = '39819';
+UPDATE `creature_template` SET `AIName` = 'AggresorAI' WHERE `entry` IN ('39755', '39836');
+UPDATE `creature_template` SET `VehicleId` = '0', `ScriptName` = 'npc_og_camera_vehicle' WHERE `entry` = '40479';
+UPDATE `creature_template` SET `mechanic_immune_mask` = '8192' WHERE `entry` IN ('39860', '39826', '39799', '39819', '39273', '39910', '39837');
 
 DELETE FROM `creature` WHERE `id` IN ('39273', '39910');
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
@@ -19,6 +20,8 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 ('250248', '39910', '0', '1', '256', '0', '0', '-5427.93', '532.323', '386.85', '5.27046', '300', '0', '0', '630000', '0', '0', '0', '0', '0', '0');
 UPDATE `creature` SET `position_x` = '-5424.462891', `position_y` = '531.410095', `position_z` = '386.743347', `orientation` = '5.2' WHERE `id` = '39271';
 UPDATE `creature` SET `phaseMask`= '257' WHERE `id` = '7937';
+
+DELETE FROM `vehicle_template_accessory` WHERE `entry` = '39860';
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN ('39820', '39273', '39910');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
@@ -36,8 +39,9 @@ INSERT INTO `spell_area` VALUES
 ('74310', '1', '25393', '1', '25393', '0', '0', '2', '1'),
 ('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
 
-UPDATE `gameobject` SET `phaseMask` = '1' WHERE `id` = '194498';
-UPDATE `gameobject` SET `phaseMask` = '256' WHERE `guid` IN ('2482', '2469', '2461', '2458', '2454', '2453', '2466', '2475') OR `id` = '202922';
+UPDATE `gameobject` SET `phaseMask` = '257' WHERE `id` = '194498';
+UPDATE `gameobject` SET `phaseMask` = '256' WHERE `id` = '202922';
+UPDATE `gameobject` SET `spawntimesecs` = '-1' WHERE `guid` NOT IN ('2482', '2469', '2461', '2458', '2454', '2453', '2466', '2475') and `id` = '194498';
 
 DELETE FROM `spell_scripts` where `id` IN ('74412', '75510') AND `command` = '6';
 INSERT INTO `spell_scripts` (`id`, `command`, `x`, `y`, `z`, `o`) VALUES

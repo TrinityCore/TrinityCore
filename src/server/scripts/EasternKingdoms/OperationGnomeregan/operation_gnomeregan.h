@@ -27,8 +27,6 @@ enum eSpells
     SPELL_HEALTH_REGEN          = 74503,
     SPELL_BRILLIANT_TACTICS     = 74501,
 
-    SPELL_CANNON_SHIELD         = 74458,
-
     SPELL_ATTACK                = 74413,
     SPELL_SHOOT                 = 74414,
     SPELL_GRENADE               = 74707,
@@ -38,13 +36,15 @@ enum eSpells
     SPELL_MACHINE_GUN           = 74438,
     SPELL_FLAME_SPRAY           = 74440,
 
-    SPELL_FIRE_MISSILE          = 74422,
-
     SPELL_EXPLOSION             = 74550,
     SPELL_CANNON_SHOT           = 74307,
+    SPELL_CANNON_SHIELD         = 74458,
     SPELL_ROCKET                = 64979, // May be wrong
+
     SPELL_PARACHUTE             = 79397,
     SPELL_PARACHUTE_AURA        = 79404,
+
+    SPELL_WRENCH_THROW          = 74785, // Seems to have wrong throw model
 
 ///-------Used in final cinematic------
   //SPELL_ATTACH_CAMERA         = 75512, // [Unused]
@@ -334,7 +334,7 @@ const Position ExplosionBunnySpawn      = {-5183.24f, 608.97f, 410.89f, 4.7f};
 #define SOUND_THERM_2           17570 // 14640
 #define MEK_18_1                "ЭТО ЛОВУШКА! Здесь работает облучатель!"
 #define SOUND_MEK_18            17554 // 3830
-#define THERM_3_1               "Так и есть. И он в ДВАДЦАТЬ ШЕСТЬ РАЗ мощнее первого!"
+#define THERM_3_1               "Так и есть. И она в ДВАДЦАТЬ ШЕСТЬ РАЗ мощнее первой!"
 #define THERM_3_2               "Меггакрут, ты ПРОИГРАЛ! Я победил тебя раньше чем ты успел вступить в мой прекрасный город."
 #define THERM_3_3               "А теперь УМРИ!"
 #define THERM_3_4               "О, хотел бы я увидеть лицо этого жулика. Клянусь он... Что? Всё ещё включено? ВЫКЛЮЧИ!!!"
@@ -346,7 +346,7 @@ const Position ExplosionBunnySpawn      = {-5183.24f, 608.97f, 410.89f, 4.7f};
 #define SOUND_MEK_19            17556 // 14930
 #define THERM_4_1               "ДЕСЯТЬ МИНУТ?! Ты оставил заводские настройки? Идиот, быстро отдай регулятор!"
 #define SOUND_THERM_4           17572 // 9970
-#define IRRADIATOR_2_1          "'ПИ-ИП' Внимание. Чрезвычайная ситуация. У вас осталось 10 секунд для того, чтобы оказаться на минимальном безопасном расстоянии."
+#define IRRADIATOR_2_1          "Внимание. Чрезвычайная ситуация. У вас осталось 10 секунд для того, чтобы оказаться на минимальном безопасном расстоянии."
 #define SOUND_IRRADIATOR_2      17636 // 7670
 #define MEK_20_1                "Надо убираться отсюда! Ла Форж, скорее телепортируй нас!"
 #define SOUND_MEK_20            17557 // 4790
