@@ -180,11 +180,6 @@ INSERT INTO `spell_script_names` VALUES
 UPDATE `spell_bonus_data` SET `direct_bonus`=0.3857 WHERE `entry`=33778 ;
 UPDATE `spell_bonus_data` SET `dot_bonus`=0.0653 WHERE `entry` IN (48450, 48451, 48628);
 
--- Ashbringer sound effect fix
-DELETE FROM `spell_script_names` WHERE `spell_id`=28441;
-INSERT INTO `spell_script_names` VALUES
-(28441, 'spell_ashbringer_sound_effect');
-
 -- fix some quests in Borean Tundra
 UPDATE creature_template SET scriptname = 'vehicle_wyrmrest_skytalon' WHERE entry = 32535;
 
@@ -776,3 +771,8 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (35309, 43297, 0.054, 1, 0, 1, 1),
 (36829, 43297, 0.8, 1, 0, 1, 1),
 (38090, 43297, 1.6949, 1, 0, 1, 1);
+
+-- Ashbringer sound effect fix
+DELETE FROM `spell_script_names` WHERE `spell_id`=28441;
+INSERT INTO `spell_script_names` VALUES
+(28441,'spell_item_ashbringer');
