@@ -4265,6 +4265,20 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->DurationIndex = 587;
             ++count;
             break;
+        case 51590: // Toss Ice Boulder
+            spellInfo->MaxAffectedTargets = 1;
+            ++count;
+            break;
+        case 74412: // Emergency Recall [Final]
+            for (int8 i = 0; i < 3; ++i)
+                spellInfo->EffectImplicitTargetB[i] = TARGET_UNIT_TARGET_ANY;
+            ++count;
+            break;
+        case 75545: case 75536: // Explosion (prevent error message in console)
+        case 75553:             // Emergency Recall [Camera trigger]
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+            ++count;
+            break;
         default:
             break;
         }
