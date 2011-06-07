@@ -2208,6 +2208,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 63276, 'spell_mark_of_the_faceless'),
 ( 63489, 'spell_shield_of_runes'),
 ( 62274, 'spell_shield_of_runes'),
+( 63018, 'spell_xt002_searing_light_spawn_life_spark'),
+( 65121, 'spell_xt002_searing_light_spawn_life_spark'),
+( 64234, 'spell_xt002_gravity_bomb_spawn_void_zone'),
+( 63024, 'spell_xt002_gravity_bomb_spawn_void_zone'),
+( 62791, 'spell_xt002_heart_overload_periodic'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
