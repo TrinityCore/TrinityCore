@@ -778,6 +778,11 @@ void AuraScript::SetMaxDuration(int32 duration)
     m_aura->SetMaxDuration(duration);
 }
 
+int32 AuraScript::CalcMaxDuration() const
+{
+    return m_aura->CalcMaxDuration();
+}
+
 bool AuraScript::IsExpired() const
 {
     return m_aura->IsExpired();
@@ -798,9 +803,19 @@ void AuraScript::SetCharges(uint8 charges)
     m_aura->SetCharges(charges);
 }
 
-bool AuraScript::DropCharge()
+uint8 AuraScript::CalcMaxCharges() const
 {
-    return m_aura->DropCharge();
+    return m_aura->CalcMaxCharges();
+}
+
+bool AuraScript::ModCharges(int8 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/)
+{
+    return m_aura->ModCharges(num, removeMode);
+}
+
+bool AuraScript::DropCharge(AuraRemoveMode removeMode)
+{
+    return m_aura->DropCharge(removeMode);
 }
 
 uint8 AuraScript::GetStackAmount() const
@@ -813,7 +828,7 @@ void AuraScript::SetStackAmount(uint8 num)
     m_aura->SetStackAmount(num);
 }
 
-void AuraScript::ModStackAmount(int32 num, AuraRemoveMode removeMode)
+bool AuraScript::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 {
     return m_aura->ModStackAmount(num, removeMode);
 }
