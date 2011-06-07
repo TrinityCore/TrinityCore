@@ -131,11 +131,14 @@ class Aura
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
-        bool DropCharge();
+        uint8 CalcMaxCharges(Unit * caster) const;
+        uint8 CalcMaxCharges() const { return CalcMaxCharges(GetCaster()); }
+        bool ModCharges(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool DropCharge(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) { return ModCharges(-1, removeMode); } 
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
-        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
