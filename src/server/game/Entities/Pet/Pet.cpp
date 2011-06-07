@@ -31,14 +31,6 @@
 #include "Util.h"
 #include "Group.h"
 
-char const* petTypeSuffix[MAX_PET_TYPE] =
-{
-    "'s Minion",                                            // SUMMON_PET
-    "'s Pet",                                               // HUNTER_PET
-    "'s Guardian",                                          // GUARDIAN_PET
-    "'s Companion"                                          // MINI_PET
-};
-
 #define PET_XP_FACTOR 0.05f
 
 Pet::Pet(Player *owner, PetType type) : Guardian(NULL, owner),
@@ -1238,7 +1230,7 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = 0;
 
-            if (Aura * aura = Aura::TryCreate(spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
+            if (Aura* aura = Aura::TryCreate(spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
             {
                 if (!aura->CanBeSaved())
                 {

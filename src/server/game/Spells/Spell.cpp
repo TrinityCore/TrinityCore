@@ -1427,8 +1427,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
         if (m_originalCaster)
         {
-            m_spellAura = Aura::TryCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem);
+            bool refresh;
+            m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
+                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -1436,7 +1437,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
                     m_spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
 
                 // Now Reduce spell duration using data received at spell hit
-                int32 duration = m_spellAura->GetMaxDuration();
+                // if we're refreshing aura, recalculate max duration, to avoid applying mods twice
+                int32 duration = refresh ? m_spellAura->CalcMaxDuration() : m_spellAura->GetMaxDuration();
                 int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup, aurSpellInfo);
                 float diminishMod = unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel, limitduration);
 
@@ -2005,7 +2007,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     break;
                 case TARGET_UNIT_TARGET_RAID:
                 case TARGET_UNIT_TARGET_PARTY:
-                case TARGET_UNIT_TARGET_PUPPET:
+                case TARGET_UNIT_TARGET_MINIPET:
                     if (IsValidSingleTargetSpell(target))
                         AddUnitTarget(target, i);
                     break;
@@ -2256,7 +2258,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
         {
             if (!m_originalCaster || !m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
             {
-                sLog->outError("SPELL: no current channeled spell for spell ID %u", m_spellInfo->Id);
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SPELL: no current channeled spell for spell ID %u - spell triggering this spell was interrupted.", m_spellInfo->Id);
                 break;
             }
 
@@ -6719,8 +6721,8 @@ bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
             return m_caster != target && m_caster->IsInPartyWith(target);
         case TARGET_UNIT_TARGET_RAID:
             return m_caster->IsInRaidWith(target);
-        case TARGET_UNIT_TARGET_PUPPET:
-            return target->HasUnitTypeMask(UNIT_MASK_PUPPET) && m_caster == target->GetOwner();
+        case TARGET_UNIT_TARGET_MINIPET:
+            return target->GetGUID() == m_caster->GetCritterGUID();
         default:
             break;
     }

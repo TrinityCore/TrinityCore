@@ -51,9 +51,18 @@ enum UlduarBosses
     DATA_EXPEDITION_COMMANDER,
     DATA_RAZORSCALE_CONTROL,
 
+    // XT-002
+    DATA_TOY_PILE_0,
+    DATA_TOY_PILE_1,
+    DATA_TOY_PILE_2,
+    DATA_TOY_PILE_3,
+
     // Kologarn
     DATA_LEFT_ARM,
     DATA_RIGHT_ARM,
+
+    // Hodir
+    DATA_HODIR_RARE_CACHE,
 };
 
 enum UlduarNPCs
@@ -65,6 +74,7 @@ enum UlduarNPCs
     NPC_STEELFORGED_DEFFENDER                    = 33236,
     NPC_EXPEDITION_COMMANDER                     = 33210,
     NPC_XT002                                    = 33293,
+    NPC_XT_TOY_PILE                              = 33337,
     NPC_STEELBREAKER                             = 32867,
     NPC_MOLGEIM                                  = 32927,
     NPC_BRUNDIR                                  = 32857,
@@ -119,6 +129,8 @@ enum UlduarGameObjects
     GO_KOLOGARN_DOOR                             = 194553,
     GO_THORIM_CHEST_HERO                         = 194315,
     GO_THORIM_CHEST                              = 194314,
+    GO_HODIR_RARE_CACHE_OF_WINTER                = 194200,
+    GO_HODIR_RARE_CACHE_OF_WINTER_HERO           = 194201,
     GO_HODIR_CHEST_HERO                          = 194308,
     GO_HODIR_CHEST                               = 194307,
     GO_FREYA_CHEST_HERO                          = 194325,

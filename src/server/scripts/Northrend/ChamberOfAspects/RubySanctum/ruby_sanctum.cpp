@@ -82,7 +82,7 @@ class npc_xerestrasza : public CreatureScript
                     _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61000);
                     _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69000);
                 }
-                else if (action == ACTION_INTRO_TRIGGER && !_introDone)
+                else if (action == ACTION_INTRO_BALTHARUS && !_introDone)
                 {
                     _introDone = true;
                     Talk(SAY_XERESTRASZA_INTRO);
@@ -152,10 +152,10 @@ class at_baltharus_plateau : public AreaTriggerScript
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_XERESTRASZA)))
-                    xerestrasza->AI()->DoAction(ACTION_INTRO_TRIGGER);
+                    xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
 
                 if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
-                    baltharus->AI()->DoAction(ACTION_INTRO_TRIGGER);
+                    baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
             }
 
             return true;
