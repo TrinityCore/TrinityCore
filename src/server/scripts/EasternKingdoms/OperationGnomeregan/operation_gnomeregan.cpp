@@ -1526,7 +1526,7 @@ class npc_og_mekkatorque : public CreatureScript
                     {
                         if (pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_NONE || pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_REWARDED|| pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_FAILED)
                             for (int8 n = 0; n < 15; ++n)
-                                pPlayer->SendUpdateWorldState(Worldsates[n], 0);
+                                pPlayer->SendUpdateWorldState(WorldStates[n], 0);
                     }
                 }
             }
