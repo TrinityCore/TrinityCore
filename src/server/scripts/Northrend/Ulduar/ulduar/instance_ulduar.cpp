@@ -51,6 +51,7 @@ public:
         uint64 RazorHarpoonGUIDs[4];
         uint64 ExpeditionCommanderGUID;
         uint64 XT002GUID;
+        uint64 XTToyPileGUIDs[4];
         uint64 AssemblyGUIDs[3];
         uint64 KologarnGUID;
         uint64 LeftArmGUID;
@@ -117,6 +118,7 @@ public:
             HodirRareCacheData                   = 0;
 
             memset(Encounter, 0, sizeof(Encounter));
+            memset(XTToyPileGUIDs, 0, sizeof(XTToyPileGUIDs));
             memset(AssemblyGUIDs, 0, sizeof(AssemblyGUIDs));
             memset(RazorHarpoonGUIDs, 0, sizeof(RazorHarpoonGUIDs));
             memset(KeeperGUIDs, 0, sizeof(KeeperGUIDs));
@@ -168,6 +170,11 @@ public:
                     break;
                 case NPC_XT002:
                     XT002GUID = creature->GetGUID();
+                    break;
+                case NPC_XT_TOY_PILE:
+                    for (uint8 i = 0; i < 4; ++i)
+                        if (!XTToyPileGUIDs[i])
+                            XTToyPileGUIDs[i] = creature->GetGUID();
                     break;
 
                 // Assembly of Iron
@@ -497,6 +504,11 @@ public:
                     return RazorscaleController;
                 case BOSS_XT002:
                     return XT002GUID;
+                case DATA_TOY_PILE_0:
+                case DATA_TOY_PILE_1:
+                case DATA_TOY_PILE_2:
+                case DATA_TOY_PILE_3:
+                    return XTToyPileGUIDs[data - DATA_TOY_PILE_0];
                 case BOSS_KOLOGARN:
                     return KologarnGUID;
                 case DATA_LEFT_ARM:
