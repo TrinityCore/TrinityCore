@@ -19669,7 +19669,7 @@ void Player::RemoveSpellMods(Spell * spell)
             // remove from list
             spell->m_appliedMods.erase(iterMod);
 
-            if (mod->ownerAura->DropCharge())
+            if (mod->ownerAura->DropCharge(AURA_REMOVE_BY_EXPIRE))
                 itr = m_spellMods[i].begin();
         }
     }
