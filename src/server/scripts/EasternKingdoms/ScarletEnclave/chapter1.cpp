@@ -633,12 +633,15 @@ public:
                 {
                     if (Unit *charmer = caster->GetCharmer())
                     {
-                        charmer->RemoveAurasDueToSpell(EFFECT_STOLEN_HORSE);
-                        caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        caster->setFaction(35);
-                        DoCast(caster, CALL_DARK_RIDER, true);
-                        if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
-                            CAST_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
+                        if (charmer->HasAura(EFFECT_STOLEN_HORSE))
+                        {
+                            charmer->RemoveAurasDueToSpell(EFFECT_STOLEN_HORSE);
+                            caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            caster->setFaction(35);
+                            DoCast(caster, CALL_DARK_RIDER, true);
+                            if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
+                                CAST_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
+                        }
                     }
                 }
             }
