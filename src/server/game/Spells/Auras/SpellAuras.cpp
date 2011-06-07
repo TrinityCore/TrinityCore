@@ -334,23 +334,12 @@ m_isRemoved(false), m_isSingleTarget(false)
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
 
-    Player* modOwner = NULL;
-
-    if (caster)
-    {
-        modOwner = caster->GetSpellModOwner();
-        m_maxDuration = caster->CalcSpellDuration(m_spellProto);
-    }
-    else
-        m_maxDuration = GetSpellDuration(m_spellProto);
-
-    if (IsPassive() && m_spellProto->DurationIndex == 0)
-        m_maxDuration = -1;
-
-    if (!IsPermanent() && modOwner)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, m_maxDuration);
-
+    m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
+
+    Player* modOwner = NULL;
+    if (caster)
+        modOwner = caster->GetSpellModOwner();
 
     m_procCharges = m_spellProto->procCharges;
     if (modOwner)
@@ -698,6 +687,27 @@ void Aura::Update(uint32 diff, Unit * caster)
             }
         }
     }
+}
+
+int32 Aura::CalcMaxDuration(Unit* caster) const
+{
+    Player* modOwner = NULL;
+    int32 maxDuration;
+
+    if (caster)
+    {
+        modOwner = caster->GetSpellModOwner();
+        maxDuration = caster->CalcSpellDuration(m_spellProto);
+    }
+    else
+        maxDuration = GetSpellDuration(m_spellProto);
+
+    if (IsPassive() && m_spellProto->DurationIndex == 0)
+        maxDuration = -1;
+
+    if (!IsPermanent() && modOwner)
+        modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, maxDuration);
+    return maxDuration;
 }
 
 void Aura::SetDuration(int32 duration, bool withMods)
