@@ -336,14 +336,7 @@ m_isRemoved(false), m_isSingleTarget(false)
 
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
-
-    Player* modOwner = NULL;
-    if (caster)
-        modOwner = caster->GetSpellModOwner();
-
-    m_procCharges = m_spellProto->procCharges;
-    if (modOwner)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, m_procCharges);
+    m_procCharges = CalcMaxCharges(caster);
 }
 
 void Aura::_InitEffects(uint8 effMask, Unit * caster, int32 *baseAmount)
@@ -738,17 +731,34 @@ void Aura::SetCharges(uint8 charges)
     SetNeedClientUpdateForTargets();
 }
 
-bool Aura::DropCharge()
+uint8 Aura::CalcMaxCharges(Unit * caster) const
 {
-    if (m_procCharges) //auras without charges always have charge = 0
+    uint8 maxProcCharges = m_spellProto->procCharges;
+    
+    if (caster)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, maxProcCharges);
+    return maxProcCharges;
+}
+
+bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
+{
+    if (m_procCharges)
     {
-        if (--m_procCharges) // Send charge change
-            SetNeedClientUpdateForTargets();
-        else              // Last charge dropped
+        int32 charges = m_procCharges + num;
+        int32 maxCharges = CalcMaxCharges();
+
+        // limit charges (only on charges increase, charges may be changed manually)
+        if ((num > 0) && (charges > int32(maxCharges)))
+            charges = maxCharges;
+        // we're out of charges, remove
+        else if (charges <= 0)
         {
-            Remove(AURA_REMOVE_BY_EXPIRE);
+            Remove(removeMode);
             return true;
         }
+
+        SetCharges(charges);
     }
     return false;
 }
@@ -763,12 +773,12 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
-void Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
+bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 {
     int32 stackAmount = m_stackAmount + num;
 
-    // limit the stack amount
-    if (stackAmount > int32(m_spellProto->StackAmount))
+    // limit the stack amount (only on stack increase, stack amount may be changed manually)
+    if ((num > 0) && (stackAmount > int32(m_spellProto->StackAmount)))
     {
         // not stackable aura - set stack amount to 1
         if(!m_spellProto->StackAmount)
@@ -780,7 +790,7 @@ void Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     else if (stackAmount <= 0)
     {
         Remove(removeMode);
-        return;
+        return true;
     }
 
     bool refresh = stackAmount >= GetStackAmount();
@@ -791,6 +801,7 @@ void Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     if (refresh)
         RefreshDuration();
     SetNeedClientUpdateForTargets();
+    return false;
 }
 
 bool Aura::IsPassive() const
