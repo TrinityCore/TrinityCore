@@ -2213,6 +2213,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 64234, 'spell_xt002_gravity_bomb_spawn_void_zone'),
 ( 63024, 'spell_xt002_gravity_bomb_spawn_void_zone'),
 ( 62791, 'spell_xt002_heart_overload_periodic'),
+( 62775, 'spell_xt002_tympanic_tantrum'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
