@@ -21710,28 +21710,7 @@ void Player::SendAurasForTarget(Unit *target)
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
         AuraApplication * auraApp = itr->second;
-        Aura * aura = auraApp->GetBase();
-        data << uint8(auraApp->GetSlot());
-        data << uint32(aura->GetId());
-
-        // flags
-        uint32 flags = auraApp->GetFlags();
-        if (aura->GetMaxDuration() > 0)
-            flags |= AFLAG_DURATION;
-        data << uint8(flags);
-        // level
-        data << uint8(aura->GetCasterLevel());
-        // charges
-        data << uint8(aura->GetStackAmount() > 1 ? aura->GetStackAmount() : (aura->GetCharges()) ? aura->GetCharges() : 1);
-
-        if (!(flags & AFLAG_CASTER))
-            data.appendPackGUID(aura->GetCasterGUID());
-
-        if (flags & AFLAG_DURATION)          // include aura duration
-        {
-            data << uint32(aura->GetMaxDuration());
-            data << uint32(aura->GetDuration());
-        }
+        auraApp->BuildUpdatePacket(data, false);
     }
 
     GetSession()->SendPacket(&data);

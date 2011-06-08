@@ -41,7 +41,7 @@ m_effectsToApply(effMask), m_removeMode(AURA_REMOVE_NONE), m_needClientUpdate(fa
 {
     ASSERT(GetTarget() && GetBase());
 
-    if (GetBase()->IsVisible())
+    if (GetBase()->CanBeSentToClient())
     {
         // Try find slot for aura
         uint8 slot = MAX_AURAS;
@@ -174,20 +174,14 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     SetNeedClientUpdate();
 }
 
-void AuraApplication::ClientUpdate(bool remove)
+void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
 {
-    m_needClientUpdate = false;
-
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.append(GetTarget()->GetPackGUID());
     data << uint8(m_slot);
 
     if (remove)
     {
         ASSERT(!m_target->GetVisibleAura(m_slot));
         data << uint32(0);
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura %u removed slot %u", GetBase()->GetId(), m_slot);
-        m_target->SendMessageToSet(&data, true);
         return;
     }
     ASSERT(m_target->GetVisibleAura(m_slot));
@@ -209,6 +203,15 @@ void AuraApplication::ClientUpdate(bool remove)
         data << uint32(aura->GetMaxDuration());
         data << uint32(aura->GetDuration());
     }
+}
+
+void AuraApplication::ClientUpdate(bool remove)
+{
+    m_needClientUpdate = false;
+
+    WorldPacket data(SMSG_AURA_UPDATE);
+    data.append(GetTarget()->GetPackGUID());
+    BuildUpdatePacket(data, remove);
 
     m_target->SendMessageToSet(&data, true);
 }
@@ -839,7 +842,7 @@ bool Aura::CanBeSaved() const
     return true;
 }
 
-bool Aura::IsVisible() const
+bool Aura::CanBeSentToClient() const
 {
     return !IsPassive() || HasAreaAuraEffect(GetSpellProto()) || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
 }
