@@ -1950,6 +1950,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 52408, 'spell_gen_seaforium_blast'),
 ( 25281, 'spell_gen_turkey_marker'),
 (-55428, 'spell_gen_lifeblood'),
+( 65917, 'spell_gen_magic_rooster'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2207,6 +2208,12 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 63276, 'spell_mark_of_the_faceless'),
 ( 63489, 'spell_shield_of_runes'),
 ( 62274, 'spell_shield_of_runes'),
+( 63018, 'spell_xt002_searing_light_spawn_life_spark'),
+( 65121, 'spell_xt002_searing_light_spawn_life_spark'),
+( 64234, 'spell_xt002_gravity_bomb_spawn_void_zone'),
+( 63024, 'spell_xt002_gravity_bomb_spawn_void_zone'),
+( 62791, 'spell_xt002_heart_overload_periodic'),
+( 62775, 'spell_xt002_tympanic_tantrum'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),

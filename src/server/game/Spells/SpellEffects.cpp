@@ -1427,6 +1427,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     // not empty (checked), copy
                     Unit::AttackerSet attackers = unitTarget->getAttackers();
 
+                    // remove invalid attackers
+                    for (Unit::AttackerSet::iterator aItr = attackers.begin(); aItr != attackers.end(); )
+                        if (!(*aItr)->canAttack(m_caster))
+                            attackers.erase(aItr++);
+                        else
+                            ++aItr;
+
                     // selected from list 3
                     uint32 maxTargets = std::min<uint32>(3, attackers.size());
                     for (uint32 i = 0; i < maxTargets; ++i)
@@ -2582,7 +2589,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
 
         dynObj->GetMap()->Add(dynObj);
 
-        if (Aura* aura = Aura::TryCreate(m_spellInfo, dynObj, caster, &m_spellValue->EffectBasePoints[0]))
+        if (Aura* aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]))
         {
             m_spellAura = aura;
             m_spellAura->_RegisterForTargets();
@@ -3084,17 +3091,12 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
-                    //summon->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as summon...
                     summon->SelectLevel(summon->GetCreatureInfo());       // some summoned creaters have different from 1 DB data for level/hp
                     summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureInfo()->npcflag);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     summon->AI()->EnterEvadeMode();
-
-                    std::string name = m_originalCaster->GetName();
-                    name.append(petTypeSuffix[3]);
-                    summon->SetName(name);
                     break;
                 }
                 default:
@@ -5182,15 +5184,15 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             sLog->outError("Unknown Lightwell spell caster %u", m_caster->GetEntry());
                             return;
                     }
-                    Aura * chargesaura = m_caster->GetAura(59907);
 
-                    if (chargesaura && chargesaura->GetCharges() > 1)
+                    // proc a spellcast
+                    if (Aura * chargesAura = m_caster->GetAura(59907))
                     {
-                        chargesaura->SetCharges(chargesaura->GetCharges() - 1);
                         m_caster->CastSpell(unitTarget, spell_heal, true, NULL, NULL, m_caster->ToTempSummon()->GetSummonerGUID());
+                        if (chargesAura->ModCharges(-1))
+                            m_caster->ToTempSummon()->UnSummon();
                     }
-                    else
-                        m_caster->ToTempSummon()->UnSummon();
+                        
                     return;
                 }
                 // Stoneclaw Totem
@@ -6283,8 +6285,8 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     _player->GetPosition(x, y, z);
     _player->GetMap()->CreatureRelocation(pet, x, y, z, _player->GetOrientation());
 
-    pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-    pet->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+    pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
+    pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);
     pet->ClearUnitState(uint32(UNIT_STAT_ALL_STATE));
     pet->SetHealth(pet->CountPctFromMaxHealth(damage));

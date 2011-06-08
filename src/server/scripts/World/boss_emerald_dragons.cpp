@@ -19,6 +19,9 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
 
 //
 //  Emerald Dragon NPCs and IDs (kept here for reference)
@@ -43,7 +46,8 @@ enum EmeraldDragonSpells
 {
     SPELL_TAIL_SWEEP                = 15847,    // tail sweep - slap everything behind dragon (2 seconds interval)
     SPELL_SUMMON_PLAYER             = 24776,    // teleport highest threat player in front of dragon if wandering off
-    SPELL_DREAM_FOG                 = 24777,    // used by summoned NPC (Dream Fog/15224)
+    SPELL_DREAM_FOG                 = 24777,    // auraspell for Dream Fog NPC (15224)
+    SPELL_SLEEP                     = 24778,    // sleep triggerspell (used for Dream Fog)
     SPELL_SEEPING_FOG_LEFT          = 24813,    // dream fog - summon left
     SPELL_SEEPING_FOG_RIGHT         = 24814,    // dream fog - summon right
     SPELL_NOXIOUS_BREATH            = 24818,
@@ -56,35 +60,23 @@ enum EmeraldDragonSpells
 // Emerald Dragon Eventlists (shared and specials)
 //
 
-enum EmeraldDragonEvents
+enum Events
 {
+    // General for all dragons
     EVENT_SEEPING_FOG               = 1,
     EVENT_NOXIOUS_BREATH            = 2,
     EVENT_TAIL_SWEEP                = 3,
-};
-
-enum YsondreEvents
-{
-    EVENT_LIGHTNING_WAVE            = 11,
-    EVENT_SUMMON_DRUID_SPIRITS      = 12,
-};
-
-enum LethonEvents
-{
-    EVENT_SHADOW_BOLT_WHIRL         = 21,
-    EVENT_DRAW_SPIRIT               = 22,
-};
-
-enum EmerissEvents
-{
-    EVENT_VOLATILE_INFECTION        = 31,
-    EVENT_CORRUPTION_OF_EARTH       = 32,
-};
-
-enum TaerarEvents
-{
-    EVENT_ARCANE_BLAST              = 41,
-    EVENT_BELLOWING_ROAR            = 42,
+    // Ysondre
+    EVENT_LIGHTNING_WAVE            = 4,
+    EVENT_SUMMON_DRUID_SPIRITS      = 5,
+    // Lethon
+    EVENT_SHADOW_BOLT_WHIRL         = 6,
+    // Emeriss
+    EVENT_VOLATILE_INFECTION        = 7,
+    EVENT_CORRUPTION_OF_EARTH       = 8,
+    // Taerar
+    EVENT_ARCANE_BLAST              = 9,
+    EVENT_BELLOWING_ROAR            = 10,
 };
 
 /*
@@ -102,8 +94,6 @@ struct emerald_dragonAI : public WorldBossAI
 {
     emerald_dragonAI(Creature* creature) : WorldBossAI(creature)
     {
-        // Emerald Dragons are immune to nature
-        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
     }
 
     void Reset()
@@ -112,8 +102,8 @@ struct emerald_dragonAI : public WorldBossAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
-        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 8000);
-        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(10000, 20000));
+        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
+        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
     }
 
     // Test if the player has been killed before, and if so, put them to sleep
@@ -121,13 +111,13 @@ struct emerald_dragonAI : public WorldBossAI
     {
         if (who && me->IsHostileTo(who))
             if (who->HasAura(SPELL_MARK_OF_NATURE_AURA) && !who->HasAura(SPELL_AURA_OF_NATURE))
-                DoCast(who, SPELL_AURA_OF_NATURE, true);
+                who->CastSpell(who, SPELL_AURA_OF_NATURE, true);
     }
 
     // Target killed during encounter, mark them as suspectible for Aura Of Nature
     void KilledUnit(Unit* who)
     {
-        DoCast(who, SPELL_MARK_OF_NATURE, true);
+        who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
     }
 
     // Execute and reschedule base events shared between all Emerald Dragons
@@ -136,15 +126,19 @@ struct emerald_dragonAI : public WorldBossAI
         switch (eventId)
         {
             case EVENT_SEEPING_FOG:
+                // Seeping Fog appears only as "pairs", and only ONE pair at any given time!
+                // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
                 DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
                 DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(8000,16000));
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000,150000));
                 break;
             case EVENT_NOXIOUS_BREATH:
+                // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
                 DoCast(me, SPELL_NOXIOUS_BREATH);
-                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(15000, 20000));
+                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
                 break;
             case EVENT_TAIL_SWEEP:
+                // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
                 DoCast(me, SPELL_TAIL_SWEEP);
                 events.ScheduleEvent(EVENT_TAIL_SWEEP, 2000);
                 break;
@@ -164,17 +158,17 @@ struct emerald_dragonAI : public WorldBossAI
         while (uint32 eventId = events.ExecuteEvent())
             ExecuteEvent(eventId);
 
+        std::list<HostileReference*> threats = me->getThreatManager().getThreatList();
+        if (Unit* target = threats.front()->getTarget())
+            if ((target->GetTypeId() == TYPEID_PLAYER) && (me->GetDistance(target) > 20.0f))
+                DoCast(target, SPELL_SUMMON_PLAYER);
+
         DoMeleeAttackIfReady();
     }
 };
 
 /*
  * --- Dream Fog NPC
- *
- * TODO:
- * - Change to random targets on random intervals(?)
- * - Check if targets are selected based on threatlevel(?)
- * - Spell: Check for some disrupancies with the dreamfog triggering
  *
  */
 
@@ -191,43 +185,85 @@ class npc_dream_fog : public CreatureScript
 
             void Reset()
             {
-                _activeFog = false;
                 _roamTimer = 0;
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (!_activeFog)
-                {
-                    DoCast(SPELL_DREAM_FOG);
-                    _activeFog = true;
-                }
-
                 if (!_roamTimer)
                 {
                     // Chase target, but don't attack - otherwise just roam around
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+
                     if (target)
-                        me->GetMotionMaster()->MoveChase(target);
+                    {
+                        _roamTimer = urand(15000, 30000);
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->MoveChase(target, 0.1f);
+                    }
                     else
-                        me->GetMotionMaster()->MoveIdle();
-                    _roamTimer = 15000;
+                    {
+                        _roamTimer = 2500;
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->MoveRandom(25.0f);
+                    }
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 }
-                --_roamTimer;
+                else
+                    _roamTimer -= diff;
             }
 
         private:
-            bool _activeFog;
             uint32 _roamTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_dream_fogAI(creature);
+        }
+};
+
+/*
+ * --- Spell: Dream Fog
+ */
+
+class DreamFogTargetSelector
+{
+    public:
+        DreamFogTargetSelector() { }
+
+        bool operator()(Unit* unit)
+        {
+            return unit->HasAura(SPELL_SLEEP);
+        }
+};
+
+class spell_dream_fog_sleep : public SpellScriptLoader
+{
+    public:
+        spell_dream_fog_sleep() : SpellScriptLoader("spell_dream_fog_sleep") { }
+
+        class spell_dream_fog_sleep_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dream_fog_sleep_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(DreamFogTargetSelector());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dream_fog_sleep_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dream_fog_sleep_SpellScript();
         }
 };
 
@@ -286,7 +322,7 @@ class boss_ysondre : public CreatureScript
                 {
                     Talk(SAY_YSONDRE_SUMMON_DRUIDS);
 
-                    for (int i = 0 ; i < 10 ; ++i)
+                    for (uint8 i = 0 ; i < 10 ; ++i)
                         DoCast(me, SPELL_SUMMON_DRUID_SPIRITS, true);
                     ++_stage;
                 }
@@ -395,7 +431,7 @@ class npc_demented_druid : public CreatureScript
                             _events.ScheduleEvent(EVENT_DRUID_SILENCE, urand(15000,20000));
                             break;
                         case EVENT_DRUID_CURSE_OF_THORNS:
-                            DoCastVictim(SPELL_SILENCE);
+                            DoCast(me, SPELL_CURSE_OF_THORNS, true);
                             _events.ScheduleEvent(EVENT_DRUID_CURSE_OF_THORNS, urand(15000,20000));
                             break;
                     }
@@ -423,7 +459,7 @@ class npc_demented_druid : public CreatureScript
  * TODO:
  * - NPC helper for spirit shades(?)
  *   - Spirit shade NPC moves towards Lethon and heals him if close enough (each shade heals for 15000 HP)
- * - Spell: Shadow bolt whirl needs custom handling
+ * - Spell: Shadow bolt whirl needs custom handling (spellscript)
  *
  */
 
@@ -628,7 +664,7 @@ class boss_emeriss : public CreatureScript
  *
  * TODO:
  * - Fix shademode and reset-issues on evade
- * - Main functionality for this dragon is complete, need dreamfog/modelfixing
+ *
  */
 
 enum TaerarTexts
@@ -707,8 +743,8 @@ class boss_taerar : public CreatureScript
 
                     Talk(SAY_TAERAR_SUMMON_SHADES);
 
-                    int count = sizeof(TaerarShadeSpells) / sizeof(uint32);
-                    for (int i = 0; i < count; ++i)
+                    uint32 count = sizeof(TaerarShadeSpells) / sizeof(uint32);
+                    for (uint32 i = 0; i < count; ++i)
                         DoCastVictim(TaerarShadeSpells[i], true);
                     _shades += count;
 
@@ -809,7 +845,6 @@ class boss_shadeoftaerar : public CreatureScript
         {
             boss_shadeoftaerarAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
             void Reset()
@@ -858,6 +893,7 @@ void AddSC_emerald_dragons()
 {
     // helper NPC scripts
     new npc_dream_fog();
+    new spell_dream_fog_sleep();
 
     // ysondre and summons
     new boss_ysondre();

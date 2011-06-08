@@ -687,7 +687,6 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     else
         currenttguid = std::max(tguid, currenttguid);
 
-    pCreature->setActive(true);
     pCreature->SetGUIDTransport(tguid);
     sScriptMgr->OnAddCreaturePassenger(this, pCreature);
     return tguid;

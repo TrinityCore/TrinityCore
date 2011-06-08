@@ -30,8 +30,6 @@ enum PetType
     MAX_PET_TYPE            = 4,
 };
 
-extern char const* petTypeSuffix[MAX_PET_TYPE];
-
 #define MAX_PET_STABLES         4
 
 // stored in character_pet.slot
@@ -208,17 +206,14 @@ class Pet : public Guardian
 
         void InitPetCreateSpells();
 
-        bool resetTalents(bool no_cost = false);
+        bool resetTalents();
         static void resetTalentsForAllPetsOf(Player* owner, Pet* online_pet = NULL);
-        uint32 resetTalentsCost() const;
         void InitTalentForLevel();
 
         uint8 GetMaxTalentPointsForLevel(uint8 level);
         uint8 GetFreeTalentPoints() { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
         void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
 
-        uint32  m_resetTalentsCost;
-        time_t  m_resetTalentsTime;
         uint32  m_usedTalentCount;
 
         const uint64& GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }

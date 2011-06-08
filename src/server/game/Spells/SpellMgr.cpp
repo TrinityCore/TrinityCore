@@ -123,7 +123,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_SUMMONER:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
                 break;
-            case TARGET_UNIT_TARGET_PUPPET:
+            case TARGET_UNIT_TARGET_MINIPET:
             case TARGET_UNIT_TARGET_ALLY:
             case TARGET_UNIT_TARGET_RAID:
             case TARGET_UNIT_TARGET_ANY:
@@ -4062,6 +4062,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->StackAmount = 4;
             ++count;
             break;
+        case 63018: // Searing Light
+        case 65121: // Searing Light (25m)
+        case 63024: // Gravity Bomb
+        case 64234: // Gravity Bomb (25m)
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
         // ENDOF ULDUAR SPELLS
         //
         // ICECROWN CITADEL SPELLS
@@ -4230,6 +4237,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case SPELLFAMILY_ROGUE:
                 if (spellInfo->SpellFamilyFlags[1] & 0x1 || spellInfo->SpellFamilyFlags[0] & 0x40000)
                     spellInfo->AttributesEx4 |= SPELL_ATTR4_CANT_PROC_FROM_SELFCAST;
+                else
+                    break;
+                ++count;
+                break;
+            case SPELLFAMILY_PALADIN:
+                // Seals of the Pure should affect Seal of Righteousness
+                if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
+                    spellInfo->EffectSpellClassMask[0][1] |= 0x20000000;
                 else
                     break;
                 ++count;

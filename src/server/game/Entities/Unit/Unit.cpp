@@ -1338,7 +1338,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         return;
 
     // Hmmmm dont like this emotes client must by self do all animations
-    if (damageInfo->HitInfo&HITINFO_CRITICALHIT)
+    if (damageInfo->HitInfo & HITINFO_CRITICALHIT)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_WOUNDCRITICAL);
     if (damageInfo->blocked_amount && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_PARRYSHIELD);
@@ -3119,9 +3119,12 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
-    ASSERT(casterGUID);
+    ASSERT(casterGUID || caster);
+    if (!casterGUID)
+        casterGUID = caster->GetGUID();
+
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
     if (!IsPassiveSpell(newAura) && newAura->Id != 44413)
     {
@@ -3142,15 +3145,16 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (!foundAura->m_effects[i])
+                if (!foundAura->HasEffect(i))
                     continue;
+
                 int bp;
                 if (baseAmount)
                     bp = *(baseAmount + i);
                 else
                     bp = foundAura->GetSpellProto()->EffectBasePoints[i];
 
-                int32* oldBP = const_cast<int32*>(&(foundAura->m_effects[i]->m_baseAmount));
+                int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(i)->m_baseAmount));
                 *oldBP = bp;
             }
 
@@ -3160,6 +3164,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
                 uint64* oldGUID = const_cast<uint64 *>(&foundAura->m_castItemGuid);
                 *oldGUID = castItemGUID;
             }
+
+            // refresh charges
+            foundAura->SetCharges(foundAura->CalcMaxCharges(caster));
 
             // try to increase stack amount
             foundAura->ModStackAmount(1);
@@ -3671,10 +3678,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
         if (aura->GetCasterGUID() == casterGUID)
         {
             if (aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES)
-            {
-                for (uint8 i = 0; i < chargesRemoved; i++)
-                    aura->DropCharge();
-            }
+                aura->ModCharges(-chargesRemoved, AURA_REMOVE_BY_ENEMY_SPELL);
             else
                 aura->ModStackAmount(-chargesRemoved, AURA_REMOVE_BY_ENEMY_SPELL);
 
@@ -3789,50 +3793,39 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             }
 
             bool stealCharge = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
-            bool stealStack = aura->GetSpellProto()->StackAmount > 1;
-            int32 dur = (2*MINUTE*IN_MILLISECONDS < aura->GetDuration() || aura->GetDuration() < 0) ? 2*MINUTE*IN_MILLISECONDS : aura->GetDuration();
+            int32 dur = std::min(2*MINUTE*IN_MILLISECONDS, aura->GetDuration());
 
-            if (Aura * newAura = (stealCharge || stealStack) ? stealer->GetAura(aura->GetId(), aura->GetCasterGUID()) : NULL)
+            if (Aura * newAura = stealer->GetAura(aura->GetId(), aura->GetCasterGUID()))
             {
                 if (stealCharge)
-                {
-                    uint8 newCharges = newAura->GetCharges() + 1;
-                    uint8 maxCharges = newAura->GetSpellProto()->procCharges;
-                    // We must be able to steal as much charges as original caster can have
-                    if (caster)
-                        if (Player* modOwner = caster->GetSpellModOwner())
-                            modOwner->ApplySpellMod(aura->GetId(), SPELLMOD_CHARGES, maxCharges);
-                    newAura->SetCharges(maxCharges < newCharges ? maxCharges : newCharges);
-                }
+                    newAura->ModCharges(1);
                 else
-                {
-                    uint8 newStacks = newAura->GetStackAmount() + 1;
-                    uint8 maxStacks = newAura->GetSpellProto()->StackAmount;
-                    newAura->SetStackAmount(maxStacks < newStacks ? maxStacks : newStacks);
-                }
+                    newAura->ModStackAmount(1);
                 newAura->SetDuration(dur);
             }
             else
             {
-                bool isSingleTarget = aura->IsSingleTarget() && caster;
-                if (isSingleTarget)
+                // single target state must be removed before aura creation to preserve existing single target aura
+                if (aura->IsSingleTarget())
                     aura->UnregisterSingleTarget();
-                newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
-                // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
-                if (newAura && isSingleTarget)
+
+                if (newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID()))
                 {
-                    aura->SetIsSingleTarget(true);
-                    caster->GetSingleCastAuras().push_back(aura);
-                    newAura->UnregisterSingleTarget();
+                    // created aura must not be single target aura,, so stealer won't loose it on recast
+                    if (newAura->IsSingleTarget())
+                    {
+                        newAura->UnregisterSingleTarget();
+                        // bring back single target aura status to the old aura
+                        aura->SetIsSingleTarget(true);
+                        caster->GetSingleCastAuras().push_back(aura);
+                    }
+                    newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, &damage[0]);
+                    newAura->ApplyForTargets();
                 }
-                if (!newAura)
-                    return;
-                newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, &damage[0]);
-                newAura->ApplyForTargets();
             }
 
             if (stealCharge)
-                aura->DropCharge();
+                aura->ModCharges(-1, AURA_REMOVE_BY_ENEMY_SPELL);
             else
                 aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
 
@@ -4056,7 +4049,7 @@ void Unit::RemoveArenaAuras(bool onleave)
         Aura const * aura = aurApp->GetBase();
         if (!(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                               // don't remove passive auras
-            && (!(aura->GetSpellProto()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))   // not unaffected by invulnerability auras or not having that unknown flag (that seemed the most probable)
+            && !(aura->GetSpellProto()->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT) // not death persistent auras
             && (aurApp->IsPositive() ^ onleave))                   // remove positive buffs on enter, negative buffs on leave
             RemoveAura(iter);
         else
@@ -6618,7 +6611,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         case SPELLFAMILY_PALADIN:
         {
             // Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
-            if (dummySpell->SpellFamilyFlags[0]&0x8000000)
+            if (dummySpell->SpellFamilyFlags[0] & 0x8000000)
             {
                 if (effIndex != 0)
                     return false;
@@ -7996,7 +7989,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     if (!caster || !damage)
                         return false;
 
-                    //last charge and crit
+                    // last charge and crit
                     if (triggeredByAura->GetCharges() <= 1 && (procEx & PROC_EX_CRITICAL_HIT))
                         return true;                        // charge counting (will removed)
 
@@ -8661,14 +8654,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
             break;
         }
-        // Evasive Maneuvers (Commendation of Kael`thas trinket)
-        case 45057:
-        {
-            // reduce you below $s1% health
-            if ((GetHealth() - damage) > CalculatePctN(GetMaxHealth(), triggerAmount))
-                return false;
-            break;
-        }
         // Rapid Recuperation
         case 53228:
         case 53232:
@@ -8710,6 +8695,17 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             if (pVictim)
                 pVictim->CastSpell(pVictim, trigger_spell_id, true);    // EffectImplicitTarget is self
             return true;
+        case 45057: // Evasive Maneuvers (Commendation of Kael`thas trinket)
+        case 71634: // Item - Icecrown 25 Normal Tank Trinket 1
+        case 71640: // Item - Icecrown 25 Heroic Tank Trinket 1
+        case 75475: // Item - Chamber of Aspects 25 Normal Tank Trinket
+        case 75481: // Item - Chamber of Aspects 25 Heroic Tank Trinket
+        {
+            // Procs only if damage takes health below $s1%
+            if (!HealthBelowPctDamaged(triggerAmount, damage))
+                return false;
+            break;
+        }
         default:
             break;
     }
@@ -8736,8 +8732,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     // Blade Barrier
     if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
     {
-        Player * plr = this->ToPlayer();
-        if (this->GetTypeId() != TYPEID_PLAYER || !plr || plr->getClass() != CLASS_DEATH_KNIGHT)
+        Player* plr = ToPlayer();
+        if (!plr || plr->getClass() != CLASS_DEATH_KNIGHT)
             return false;
 
         if (!plr->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
@@ -10089,7 +10085,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
             if (Unit* magnet = (*itr)->GetBase()->GetUnitOwner())
                 if (magnet->isAlive())
                 {
-                    (*itr)->GetBase()->DropCharge();
+                    (*itr)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
                     return magnet;
                 }
     }
@@ -10102,7 +10098,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
                 if (magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if (roll_chance_i((*i)->GetAmount()))
                     {
-                        (*i)->GetBase()->DropCharge();
+                        (*i)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
                         return magnet;
                     }
     }
@@ -14444,7 +14440,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
         }
         // Remove charge (aura can be removed by triggers)
         if (useCharges && takeCharges)
-            i->aura->DropCharge();
+            i->aura->DropCharge(AURA_REMOVE_BY_EXPIRE);
 
         if (spellInfo->AttributesEx3 & SPELL_ATTR3_DISABLE_PROC)
             SetCantProc(false);
@@ -16214,7 +16210,7 @@ Aura * Unit::AddAura(SpellEntry const *spellInfo, uint8 effMask, Unit *target)
             effMask &= ~(1<<i);
     }
 
-    if (Aura * aura = Aura::TryCreate(spellInfo, effMask, target, this))
+    if (Aura * aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this))
     {
         aura->ApplyForTargets();
         return aura;
@@ -16798,7 +16794,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 else    // This can happen during Player::_LoadAuras
                 {
                     int32 bp0 = seatId;
-                    Aura::TryCreate(spellEntry, this, clicker, &bp0, NULL, origCasterGUID);
+                    Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, &bp0, NULL, origCasterGUID);
                 }
             }
             else
@@ -16806,7 +16802,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 if (IsInMap(caster))
                     caster->CastSpell(target, spellEntry, true, NULL, NULL, origCasterGUID);
                 else
-                    Aura::TryCreate(spellEntry, this, clicker, NULL, NULL, origCasterGUID);
+                    Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, NULL, NULL, origCasterGUID);
             }
 
             success = true;

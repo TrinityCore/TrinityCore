@@ -343,6 +343,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_MANASHIELD,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD,
+    AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     /*AURA_SCRIPT_HOOK_APPLY,
     AURA_SCRIPT_HOOK_REMOVE, */
 };
@@ -357,6 +358,7 @@ class AuraScript : public _SpellScript
     public:
 
     #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
+        typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit * target); \
         typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const *, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const *); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect *); \
@@ -367,6 +369,14 @@ class AuraScript : public _SpellScript
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
+        class CheckAreaTargetHandler
+        {
+            public:
+                CheckAreaTargetHandler(AuraCheckAreaTargetFnType pHandlerScript);
+                bool Call(AuraScript* auraScript, Unit * target);
+            private:
+                AuraCheckAreaTargetFnType pHandlerScript;
+        };
         class EffectBase : public  _SpellScript::EffectAuraNameCheck, public _SpellScript::EffectHook
         {
             public:
@@ -441,6 +451,7 @@ class AuraScript : public _SpellScript
         };
 
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
+        class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) {} }; \
         class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
@@ -483,6 +494,11 @@ class AuraScript : public _SpellScript
         // AuraScript interface
         // hooks to which you can attach your functions
         //
+        // executed when area aura checks if it can be applied on target
+        // example: OnEffectApply += AuraEffectApplyFn(class::function);
+        // where function is: bool function (Unit * target);
+        HookList<CheckAreaTargetHandler> DoCheckAreaTarget;
+        #define AuraCheckAreaTargetFn(F) CheckAreaTargetFunction(&F)
         // executed when aura effect is applied with specified mode to target
         // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
@@ -596,6 +612,7 @@ class AuraScript : public _SpellScript
         time_t GetApplyTime() const;
         int32 GetMaxDuration() const;
         void SetMaxDuration(int32 duration);
+        int32 CalcMaxDuration() const;
         // expired - duration just went to 0
         bool IsExpired() const;
         // permament - has infinite duration
@@ -604,13 +621,15 @@ class AuraScript : public _SpellScript
         // charges manipulation - 0 - not charged aura
         uint8 GetCharges() const;
         void SetCharges(uint8 charges);
+        uint8 CalcMaxCharges() const;
+        bool ModCharges(int8 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         // returns true if last charge dropped
-        bool DropCharge();
+        bool DropCharge(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // stack amount manipulation
         uint8 GetStackAmount() const;
         void SetStackAmount(uint8 num);
-        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // passive - "working in background", not saved, not removed by immonities, not seen by player
         bool IsPassive() const;

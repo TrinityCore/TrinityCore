@@ -19,6 +19,7 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+#include "SpellMgr.h"
 
 bool _SpellScript::_Validate(SpellEntry const* entry)
 {
@@ -478,6 +479,10 @@ int32 SpellScript::GetFinalDamage()
 
 bool AuraScript::_Validate(SpellEntry const * entry)
 {
+    for (std::list<CheckAreaTargetHandler>::iterator itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end();  ++itr)
+        if (!HasAreaAuraEffect(entry))
+            sLog->outError("TSCR: Spell `%u` of script `%s` does not have area aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
@@ -531,6 +536,16 @@ bool AuraScript::_Validate(SpellEntry const * entry)
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectManaShield` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
+}
+
+AuraScript::CheckAreaTargetHandler::CheckAreaTargetHandler(AuraCheckAreaTargetFnType _pHandlerScript)
+{
+    pHandlerScript = _pHandlerScript;
+}
+
+bool AuraScript::CheckAreaTargetHandler::Call(AuraScript* auraScript, Unit * _target)
+{
+    return (auraScript->*pHandlerScript)(_target);
 }
 
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
@@ -773,6 +788,11 @@ void AuraScript::SetMaxDuration(int32 duration)
     m_aura->SetMaxDuration(duration);
 }
 
+int32 AuraScript::CalcMaxDuration() const
+{
+    return m_aura->CalcMaxDuration();
+}
+
 bool AuraScript::IsExpired() const
 {
     return m_aura->IsExpired();
@@ -793,9 +813,19 @@ void AuraScript::SetCharges(uint8 charges)
     m_aura->SetCharges(charges);
 }
 
-bool AuraScript::DropCharge()
+uint8 AuraScript::CalcMaxCharges() const
 {
-    return m_aura->DropCharge();
+    return m_aura->CalcMaxCharges();
+}
+
+bool AuraScript::ModCharges(int8 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/)
+{
+    return m_aura->ModCharges(num, removeMode);
+}
+
+bool AuraScript::DropCharge(AuraRemoveMode removeMode)
+{
+    return m_aura->DropCharge(removeMode);
 }
 
 uint8 AuraScript::GetStackAmount() const
@@ -808,7 +838,7 @@ void AuraScript::SetStackAmount(uint8 num)
     m_aura->SetStackAmount(num);
 }
 
-void AuraScript::ModStackAmount(int32 num, AuraRemoveMode removeMode)
+bool AuraScript::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 {
     return m_aura->ModStackAmount(num, removeMode);
 }

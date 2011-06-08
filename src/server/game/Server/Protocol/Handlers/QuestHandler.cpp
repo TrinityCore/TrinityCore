@@ -305,9 +305,15 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
     if (!_player->CanInteractWithQuestGiver(pObject))
         return;
 
-    Quest const *pQuest = sObjectMgr->GetQuestTemplate(quest);
-    if (pQuest)
+    if (Quest const *pQuest = sObjectMgr->GetQuestTemplate(quest))
     {
+        if ((!_player->CanSeeStartQuest(pQuest) &&  _player->GetQuestStatus(quest) == QUEST_STATUS_NONE) ||
+            (_player->GetQuestStatus(quest) != QUEST_STATUS_COMPLETE && !pQuest->IsAutoComplete()))
+        {
+            sLog->outError("HACK ALERT: Player %s (guid: %u) is trying to complete quest (id: %u) but he has no right to do it!",
+                           _player->GetName(), _player->GetGUID(), quest);
+            return;
+        }
         if (_player->CanRewardQuest(pQuest, reward, true))
         {
             _player->RewardQuest(pQuest, reward, pObject);

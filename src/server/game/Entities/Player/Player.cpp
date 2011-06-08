@@ -5280,7 +5280,7 @@ void Player::KillPlayer()
     setDeathState(CORPSE);
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_IN_PVP);
 
-    SetFlag(UNIT_DYNAMIC_FLAGS, 0x00);
+    SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
     ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable());
 
     // 6 minutes until repop at graveyard
@@ -6576,13 +6576,13 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
             for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
                 if ((*j)->GetMiscValue() == int32(id))
-                        (*j)->HandleEffect(this, 0, true);
+                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
             // permanent bonuses
             AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
             for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
                 if ((*j)->GetMiscValue() == int32(id))
-                        (*j)->HandleEffect(this, 0, true);
+                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
             // Learn all spells for skill
             learnSkillRewardedSpells(id, newVal);
@@ -17405,19 +17405,22 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
             // prevent wrong values of remaincharges
             if (spellproto->procCharges)
             {
-                if (remaincharges <= 0 || remaincharges > spellproto->procCharges)
+                // we have no control over the order of applying auras and modifiers allow auras
+                // to have more charges than value in SpellEntry
+                if (remaincharges <= 0/* || remaincharges > spellproto->procCharges*/)
                     remaincharges = spellproto->procCharges;
             }
             else
                 remaincharges = 0;
 
-            if (Aura * aura = Aura::TryCreate(spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
+            if (Aura* aura = Aura::TryCreate(spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
             {
                 if (!aura->CanBeSaved())
                 {
                     aura->Remove();
                     continue;
                 }
+
                 aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, &damage[0]);
                 aura->ApplyForTargets();
                 sLog->outDetail("Added aura spellid %u, effectmask %u", spellproto->Id, effmask);
@@ -20138,7 +20141,7 @@ void Player::RemoveSpellMods(Spell * spell)
             // remove from list
             spell->m_appliedMods.erase(iterMod);
 
-            if (mod->ownerAura->DropCharge())
+            if (mod->ownerAura->DropCharge(AURA_REMOVE_BY_EXPIRE))
                 itr = m_spellMods[i].begin();
         }
     }
@@ -20146,17 +20149,17 @@ void Player::RemoveSpellMods(Spell * spell)
 
 void Player::DropModCharge(SpellModifier * mod, Spell * spell)
 {
-    // this mod shouldn't be removed here
-    if (mod->op == SPELLMOD_CRIT_DAMAGE_BONUS)
+    // don't handle spells with proc_event entry defined
+    // this is a temporary workaround, because all spellmods should be handled like that
+    if (sSpellMgr->GetSpellProcEvent(mod->spellId))
         return;
 
     if (spell && mod->ownerAura && mod->charges > 0)
     {
         --mod->charges;
         if (mod->charges == 0)
-        {
             mod->charges = -1;
-        }
+
         spell->m_appliedMods.insert(mod->ownerAura);
     }
 }
@@ -22212,28 +22215,7 @@ void Player::SendAurasForTarget(Unit *target)
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
         AuraApplication * auraApp = itr->second;
-        Aura * aura = auraApp->GetBase();
-        data << uint8(auraApp->GetSlot());
-        data << uint32(aura->GetId());
-
-        // flags
-        uint32 flags = auraApp->GetFlags();
-        if (aura->GetMaxDuration() > 0)
-            flags |= AFLAG_DURATION;
-        data << uint8(flags);
-        // level
-        data << uint8(aura->GetCasterLevel());
-        // charges
-        data << uint8(aura->GetStackAmount() > 1 ? aura->GetStackAmount() : (aura->GetCharges()) ? aura->GetCharges() : 1);
-
-        if (!(flags & AFLAG_CASTER))
-            data.appendPackGUID(aura->GetCasterGUID());
-
-        if (flags & AFLAG_DURATION)          // include aura duration
-        {
-            data << uint32(aura->GetMaxDuration());
-            data << uint32(aura->GetDuration());
-        }
+        auraApp->BuildUpdatePacket(data, false);
     }
 
     GetSession()->SendPacket(&data);

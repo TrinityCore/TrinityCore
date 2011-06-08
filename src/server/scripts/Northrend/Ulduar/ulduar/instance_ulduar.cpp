@@ -51,6 +51,7 @@ public:
         uint64 RazorHarpoonGUIDs[4];
         uint64 ExpeditionCommanderGUID;
         uint64 XT002GUID;
+        uint64 XTToyPileGUIDs[4];
         uint64 AssemblyGUIDs[3];
         uint64 KologarnGUID;
         uint64 LeftArmGUID;
@@ -71,10 +72,14 @@ public:
         uint64 KologarnBridgeGUID;
         uint64 KologarnDoorGUID;
         uint64 ThorimChestGUID;
+        uint64 HodirRareCacheGUID;
         uint64 HodirChestGUID;
         uint64 FreyaChestGUID;
+        uint64 HodirDoorGUID;
+        uint64 HodirIceDoorGUID;
 
         uint32 TeamInInstance;
+        uint32 HodirRareCacheData;
 
         std::set<uint64> mRubbleSpawns;
 
@@ -102,13 +107,18 @@ public:
             KologarnBridgeGUID                   = 0;
             KologarnChestGUID                    = 0;
             ThorimChestGUID                      = 0;
+            HodirRareCacheGUID                   = 0;
             HodirChestGUID                       = 0;
             FreyaChestGUID                       = 0;
             LeviathanGateGUID                    = 0;
             VezaxDoorGUID                        = 0;
+            HodirDoorGUID                        = 0;
+            HodirIceDoorGUID                     = 0;
             TeamInInstance                       = 0;
+            HodirRareCacheData                   = 0;
 
             memset(Encounter, 0, sizeof(Encounter));
+            memset(XTToyPileGUIDs, 0, sizeof(XTToyPileGUIDs));
             memset(AssemblyGUIDs, 0, sizeof(AssemblyGUIDs));
             memset(RazorHarpoonGUIDs, 0, sizeof(RazorHarpoonGUIDs));
             memset(KeeperGUIDs, 0, sizeof(KeeperGUIDs));
@@ -160,6 +170,11 @@ public:
                     break;
                 case NPC_XT002:
                     XT002GUID = creature->GetGUID();
+                    break;
+                case NPC_XT_TOY_PILE:
+                    for (uint8 i = 0; i < 4; ++i)
+                        if (!XTToyPileGUIDs[i])
+                            XTToyPileGUIDs[i] = creature->GetGUID();
                     break;
 
                 // Assembly of Iron
@@ -293,6 +308,10 @@ public:
                 case GO_THORIM_CHEST:
                     ThorimChestGUID = gameObject->GetGUID();
                     break;
+                case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
+                case GO_HODIR_RARE_CACHE_OF_WINTER:
+                    HodirRareCacheGUID = gameObject->GetGUID();
+                    break;
                 case GO_HODIR_CHEST_HERO:
                 case GO_HODIR_CHEST:
                     HodirChestGUID = gameObject->GetGUID();
@@ -328,6 +347,12 @@ public:
                 case GO_MOLE_MACHINE:
                     if (GetBossState(BOSS_RAZORSCALE) == IN_PROGRESS)
                         gameObject->SetGoState(GO_STATE_ACTIVE);
+                case GO_HODIR_DOOR:
+                    HodirDoorGUID = gameObject->GetGUID();
+                    break;
+                case GO_HODIR_ICE_DOOR:
+                    HodirIceDoorGUID = gameObject->GetGUID();
+                    break;
             }
         }
 
@@ -404,8 +429,15 @@ public:
                     break;
                 case BOSS_HODIR:
                     if (state == DONE)
-                        if (GameObject* gameObject = instance->GetGameObject(HodirChestGUID))
-                            gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
+                    {
+                        if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
+                            if (GetData(DATA_HODIR_RARE_CACHE) == 1)
+                                HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
+                            HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                        HandleGameObject(HodirDoorGUID, true);
+                        HandleGameObject(HodirIceDoorGUID, true);
+                    }
                     break;
                 case BOSS_THORIM:
                     if (state == DONE)
@@ -436,6 +468,9 @@ public:
                             gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         SaveToDB();
                     }
+                    break;
+                case DATA_HODIR_RARE_CACHE:
+                    HodirRareCacheData = data;
                     break;
                 default:
                     break;
@@ -469,6 +504,11 @@ public:
                     return RazorscaleController;
                 case BOSS_XT002:
                     return XT002GUID;
+                case DATA_TOY_PILE_0:
+                case DATA_TOY_PILE_1:
+                case DATA_TOY_PILE_2:
+                case DATA_TOY_PILE_3:
+                    return XTToyPileGUIDs[data - DATA_TOY_PILE_0];
                 case BOSS_KOLOGARN:
                     return KologarnGUID;
                 case DATA_LEFT_ARM:
@@ -530,6 +570,10 @@ public:
             {
                 case TYPE_COLOSSUS:
                     return Encounter[type];
+                    break;
+                case DATA_HODIR_RARE_CACHE:
+                    return HodirRareCacheData;
+                    break;
             }
 
             return 0;

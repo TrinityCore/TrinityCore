@@ -14,7 +14,7 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const * aurApp, ui
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint8 effMask, Unit * caster, int32 *baseAmount);
-    friend Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const * newAura, uint8 effMask, int32 *baseAmount, Item * castItem, uint64 casterGUID);
+    friend Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
     friend Aura::~Aura();
     private:
         ~AuraEffect();
@@ -49,7 +49,7 @@ class AuraEffect
         void RecalculateAmount(Unit * caster) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
         void SetCanBeRecalculated(bool val) { m_canBeRecalculated = val; }
-        void HandleEffect(AuraApplication const * aurApp, uint8 mode, bool apply);
+        void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply);
         void HandleEffect(Unit * target, uint8 mode, bool apply);
         void ApplySpellMod(Unit * target, bool apply);
 
