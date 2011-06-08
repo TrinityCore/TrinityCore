@@ -2618,9 +2618,13 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                     case EVENT_AWAKEN_WARD_4: trapId = GO_SPIRIT_ALARM_4; break;
 
                     case EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_1:
-                    case EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_2:
+                        trapId = GO_SPIRIT_ALARM_5;
                         SpawnAdds();
-                        return;
+                        break;
+                    case EVENT_RACHSUECHTIGER_FLEISCHERNTER_FALLE_2:
+                        trapId = GO_SPIRIT_ALARM_6;
+                        SpawnAdds();
+                        break;
 
                     default:
                         return;
