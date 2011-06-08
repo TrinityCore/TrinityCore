@@ -218,7 +218,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectChargeDest,                               //149 SPELL_EFFECT_CHARGE_DEST
     &Spell::EffectQuestStart,                               //150 SPELL_EFFECT_QUEST_START
     &Spell::EffectTriggerRitualOfSummoning,                 //151 SPELL_EFFECT_TRIGGER_SPELL_2
-    &Spell::EffectFriendSummon,                             //152 SPELL_EFFECT_FRIEND_SUMMON            summon Refer-a-Friend
+    &Spell::EffectNULL,                                     //152 SPELL_EFFECT_152                      summon Refer-a-Friend
     &Spell::EffectCreateTamedPet,                           //153 SPELL_EFFECT_CREATE_TAMED_PET         misc value is creature entry
     &Spell::EffectDiscoverTaxi,                             //154 SPELL_EFFECT_DISCOVER_TAXI
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
@@ -5569,18 +5569,6 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         return;
     Spell spell(pTarget, spellInfo, true, 0);
     spell.SendSpellCooldown();
-}
-
-void Spell::EffectFriendSummon(SpellEffIndex effIndex )
-{
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell Effect: EffectFriendSummon");
-
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    //m_caster->CastSpell(unitTarget, m_spellInfo->EffectTriggerSpell[effIndex], true);
-    // triggered spell have wrong guid in selection, so we do this hack
-    m_caster->CastSpell(unitTarget, 7720, true);
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)

@@ -350,7 +350,6 @@ class Spell
         void EffectAddComboPoints(SpellEffIndex effIndex);
         void EffectDuel(SpellEffIndex effIndex);
         void EffectStuck(SpellEffIndex effIndex);
-        void EffectFriendSummon(SpellEffIndex effIndex);
         void EffectSummonPlayer(SpellEffIndex effIndex);
         void EffectActivateObject(SpellEffIndex effIndex);
         void EffectApplyGlyph(SpellEffIndex effIndex);

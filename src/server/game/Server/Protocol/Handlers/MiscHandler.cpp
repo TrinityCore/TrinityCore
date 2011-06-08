@@ -521,61 +521,6 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket & recv_data)
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
 }
 
-// Refer-A-Friend
-void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_GRANT_LEVEL");
-
-    uint64 guid;
-    recv_data.readPackGUID(guid);
-
-    if (!IS_PLAYER_GUID(guid))
-        return;
-
-    Player *target = ObjectAccessor::GetPlayer(*_player, guid);
-
-    // cheating and other check
-    ReferAFriendError err = _player->GetReferFriendError(target);
-
-    if (err)
-    {
-        _player->SendReferFriendError(err, target);
-        return;
-    }
-
-
-    WorldPacket data(SMSG_PROPOSE_LEVEL_GRANT, 8);
-
-    data.append(_player->GetPackGUID());
-    target->GetSession()->SendPacket(&data);
-}
-
-void WorldSession::HandleAcceptGrantLevel(WorldPacket& recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ACCEPT_LEVEL_GRANT");
-
-    uint64 guid;
-    recv_data.readPackGUID(guid);
-
-    if (!IS_PLAYER_GUID(guid))
-        return;
-
-    Player * grant_giver = ObjectAccessor::GetPlayer(*_player, guid);
-
-    if (!grant_giver)
-        return;
-
-    if (!_player->IsReferAFriendLinked(grant_giver))
-        return;
-
-    if (!grant_giver->GetGrantableLevels())
-        return;
-
-     grant_giver->SetGrantableLevels(grant_giver->GetGrantableLevels()-0x01);
-
-    _player->GiveLevel(_player->getLevel() + 1);
-}
-
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket & recv_data)
 {
     // sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_STANDSTATECHANGE"); -- too many spam in log at lags/debug stop

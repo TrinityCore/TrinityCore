@@ -2043,14 +2043,8 @@ class Player : public Unit, public GridObject<Player>
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit* pVictim);
 
-        /*** REFER-A-FRIEND SYSTEM ***/
         bool GetsRecruitAFriendBonus(bool forXP);
         uint8 GetGrantableLevels() { return GetByteValue(PLAYER_FIELD_BYTES, 1); }
-        void SetGrantableLevels(int8 levels) { SetByteValue(PLAYER_FIELD_BYTES, 1, levels); }
-        AccountLinkedState GetAccountLinkedState();
-        void SendReferFriendError(ReferAFriendError err, Player *target = NULL);
-        ReferAFriendError GetReferFriendError(Player *target);
-        bool IsReferAFriendLinked(Player *target);
 
         ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
