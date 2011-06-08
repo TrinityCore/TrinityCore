@@ -818,6 +818,46 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         }
 };
 
+class PlayerOrPetCheck
+{
+    public:
+        bool operator() (Unit* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->isPet())
+                    return true;
+
+            return false;
+        }
+};
+
+class spell_xt002_tympanic_tantrum : public SpellScriptLoader
+{
+    public:
+        spell_xt002_tympanic_tantrum() : SpellScriptLoader("spell_xt002_tympanic_tantrum") { }
+
+        class spell_xt002_tympanic_tantrum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_xt002_tympanic_tantrum_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PlayerOrPetCheck());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_xt002_tympanic_tantrum_SpellScript();
+        }
+};
+
 void AddSC_boss_xt002()
 {
     new mob_xt002_heart();
@@ -831,4 +871,5 @@ void AddSC_boss_xt002()
     new spell_xt002_searing_light_spawn_life_spark();
     new spell_xt002_gravity_bomb_spawn_void_zone();
     new spell_xt002_heart_overload_periodic();
+    new spell_xt002_tympanic_tantrum();
 }
