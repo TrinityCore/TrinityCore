@@ -93,10 +93,18 @@ class boss_general_zarithrian : public CreatureScript
             {
             }
 
+            void Reset()
+            {
+                _Reset();
+                if (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
+                events.Reset();
                 events.ScheduleEvent(EVENT_CLEAVE, 15000);
                 events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
                 events.ScheduleEvent(EVENT_SUMMON_ADDS, 40000);
@@ -128,9 +136,15 @@ class boss_general_zarithrian : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                // Cant use room boundary, the gameobject is spawned on same position as the boss.
-                if (!UpdateVictim() || me->GetPositionX() > 3060.0f)
+                if (!UpdateVictim())
                     return;
+
+                // Can't use room boundary here, the gameobject is spawned at the same position as the boss. This is just as good anyway.
+                if (me->GetPositionX() > 3060.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
 
                 events.Update(diff);
 

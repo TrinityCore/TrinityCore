@@ -609,6 +609,7 @@ class AuraScript : public _SpellScript
         time_t GetApplyTime() const;
         int32 GetMaxDuration() const;
         void SetMaxDuration(int32 duration);
+        int32 CalcMaxDuration() const;
         // expired - duration just went to 0
         bool IsExpired() const;
         // permament - has infinite duration
@@ -617,13 +618,15 @@ class AuraScript : public _SpellScript
         // charges manipulation - 0 - not charged aura
         uint8 GetCharges() const;
         void SetCharges(uint8 charges);
+        uint8 CalcMaxCharges() const;
+        bool ModCharges(int8 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         // returns true if last charge dropped
-        bool DropCharge();
+        bool DropCharge(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // stack amount manipulation
         uint8 GetStackAmount() const;
         void SetStackAmount(uint8 num);
-        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // passive - "working in background", not saved, not removed by immonities, not seen by player
         bool IsPassive() const;

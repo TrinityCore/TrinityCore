@@ -74,6 +74,7 @@ class AuraApplication
 
         void SetNeedClientUpdate() { m_needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return m_needClientUpdate;}
+        void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
         void ClientUpdate(bool remove = false);
 };
 
@@ -83,9 +84,10 @@ class Aura
     public:
         typedef std::map<uint64, AuraApplication *> ApplicationMap;
 
-        static Aura * TryCreate(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount = NULL, Item * castItem = NULL, uint64 casterGUID = 0);
-        static Aura * TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit * caster, int32 *baseAmount = NULL, Item * castItem = NULL, uint64 casterGUID = 0);
-        static Aura* Create(SpellEntry const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0);
+        static uint8 BuildEffectMaskForOwner(SpellEntry const* spellProto, uint8 avalibleEffectMask, WorldObject* owner);
+        static Aura* TryRefreshStackOrCreate(SpellEntry const* spellproto, uint8 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0, bool* refresh = NULL);
+        static Aura* TryCreate(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount = NULL, Item * castItem = NULL, uint64 casterGUID = 0);
+        static Aura* Create(SpellEntry const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
         explicit Aura(SpellEntry const* spellproto, WorldObject * owner, Unit * caster, Item * castItem, uint64 casterGUID);
         void _InitEffects(uint8 effMask, Unit * caster, int32 *baseAmount);
         virtual ~Aura();
@@ -120,6 +122,8 @@ class Aura
         time_t GetApplyTime() const { return m_applyTime; }
         int32 GetMaxDuration() const { return m_maxDuration; }
         void SetMaxDuration(int32 duration) { m_maxDuration = duration; }
+        int32 CalcMaxDuration() const { return CalcMaxDuration(GetCaster()); } 
+        int32 CalcMaxDuration(Unit * caster) const;
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration();
@@ -128,11 +132,14 @@ class Aura
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
-        bool DropCharge();
+        uint8 CalcMaxCharges(Unit * caster) const;
+        uint8 CalcMaxCharges() const { return CalcMaxCharges(GetCaster()); }
+        bool ModCharges(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool DropCharge(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) { return ModCharges(-1, removeMode); } 
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
-        void ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
@@ -141,7 +148,7 @@ class Aura
         bool IsRemovedOnShapeLost(Unit * target) const { return (GetCasterGUID() == target->GetGUID() && m_spellProto->Stances && !(m_spellProto->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT) && !(m_spellProto->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT)); }
         bool CanBeSaved() const;
         bool IsRemoved() const { return m_isRemoved; }
-        bool IsVisible() const;
+        bool CanBeSentToClient() const;
         // Single cast aura helpers
         bool IsSingleTarget() const {return m_isSingleTarget;}
         void SetIsSingleTarget(bool val) { m_isSingleTarget = val;}

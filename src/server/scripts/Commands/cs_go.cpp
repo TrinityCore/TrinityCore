@@ -123,7 +123,7 @@ public:
         }
         //sLog->outError("DEBUG: %s", whereClause.c_str());
 
-        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map FROM creature %s", whereClause.str().c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
         if (!result)
         {
             handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
@@ -139,6 +139,17 @@ public:
         float z = fields[2].GetFloat();
         float ort = fields[3].GetFloat();
         int mapid = fields[4].GetUInt16();
+        uint32 guid = fields[5].GetUInt32();
+        uint32 id = fields[6].GetUInt32();
+
+        // if creature is in same map with caster go at its current location
+        if (Creature * creature = sObjectAccessor->GetCreature(*_player, MAKE_NEW_GUID(guid, id, HIGHGUID_UNIT)))
+        {
+            x = creature->GetPositionX();
+            y = creature->GetPositionY();
+            z = creature->GetPositionZ();
+            ort = creature->GetOrientation();
+        }
 
         if (!MapManager::IsValidMapCoord(mapid, x, y, z, ort))
         {
