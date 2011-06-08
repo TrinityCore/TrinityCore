@@ -6455,13 +6455,13 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
             for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
                 if ((*j)->GetMiscValue() == int32(id))
-                        (*j)->HandleEffect(this, 0, true);
+                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
             // permanent bonuses
             AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
             for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
                 if ((*j)->GetMiscValue() == int32(id))
-                        (*j)->HandleEffect(this, 0, true);
+                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
             // Learn all spells for skill
             learnSkillRewardedSpells(id, newVal);
