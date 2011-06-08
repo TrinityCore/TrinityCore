@@ -4023,11 +4023,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
-        case 62775: // Tympanic Tantrum
-            spellInfo->EffectRadiusIndex[EFFECT_0] = 12;    // 100yds instead of 500
-            spellInfo->EffectRadiusIndex[EFFECT_1] = 12;
-            count++;
-            break;
         // ENDOF ULDUAR SPELLS
         //
         // ICECROWN CITADEL SPELLS
