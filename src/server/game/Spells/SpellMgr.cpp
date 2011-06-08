@@ -4017,10 +4017,15 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
         case 63018: // Searing Light
-        case 65121: // Searing Light (Heroic)
+        case 65121: // Searing Light (25m)
         case 63024: // Gravity Bomb
-        case 64234: // Gravity Bomb (Heroic)
+        case 64234: // Gravity Bomb (25m)
             spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
+        case 62775: // Tympanic Tantrum
+            spellInfo->EffectRadiusIndex[EFFECT_0] = 12;    // 100yds instead of 500
+            spellInfo->EffectRadiusIndex[EFFECT_1] = 12;
             count++;
             break;
         // ENDOF ULDUAR SPELLS
