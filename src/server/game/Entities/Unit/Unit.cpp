@@ -3158,9 +3158,6 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
                 *oldGUID = castItemGUID;
             }
 
-            // refresh charges
-            foundAura->SetCharges(foundAura->CalcMaxCharges(caster));
-
             // try to increase stack amount
             foundAura->ModStackAmount(1);
             return foundAura;
