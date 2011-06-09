@@ -13,7 +13,6 @@ UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32415;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32412;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32251;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32252;
-
 UPDATE `quest_template` SET `SrcSpell` = '70972' WHERE `entry` =24451;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 35507;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31580;
@@ -39,9 +38,17 @@ UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
 -- hack quest "An End To All Things..."
 UPDATE `quest_template` SET Method = 0 WHERE `entry` = 12779;
 
+-- Argent Tournament quests fixes
+UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33229;
+UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33272;
+UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33243;
+-- npc_lake_frog
+UPDATE `creature_template` SET `ScriptName` = 'npc_lake_frog' WHERE `entry` IN (33211,33224);
+UPDATE `creature_template` SET `gossip_menu_id` = 33220 WHERE `entry` = 33220;
+REPLACE INTO `gossip_menu_option` (`menu_id`, `option_text`, `option_id`, `npc_option_npcflag`, `action_script_id`) VALUES ('33220', 'Do you know, where I can find Ashwood Brand Sword?', '1', '1', '33220');
+REPLACE INTO `gossip_scripts` (`id`, `command`, `datalong`, `datalong2`) VALUES ('33220', '15', '62554', '3');
 -- fix The Black Knight's Orders quest
 UPDATE `creature_template` SET `VehicleId` = 369, `InhabitType` = 7 WHERE `entry` = 33519;
-
 SET @ENTRY :=33519;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
@@ -50,7 +57,6 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,1,0,40,0,100,0,40,@ENTRY,0,0,33,33519,0,0,0,0,0,7,0,0,0,0,0,0,0,'Black Knight''s Gryphon - Quest Credit'),
 (@ENTRY,0,2,0,40,0,100,0,43,@ENTRY,0,0,11,50630,0,0,0,0,0,7,0,0,0,0,0,0,0,'Black Knight''s Gryphon - Dismount Spell'),
 (@ENTRY,0,3,0,40,0,100,0,44,@ENTRY,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Black Knight''s Gryphon - Despawn');
-
 DELETE FROM `waypoints` WHERE `entry`=33519;
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
 (33519,1,8521.271,569.596,552.8375,'Black Knight''s Gryphon'),
@@ -97,6 +103,3 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (33519,42,9128.608,2089.091,141.3593,'Black Knight''s Gryphon'),
 (33519,43,9093.364,2128.384,99.38685,'Black Knight''s Gryphon'),
 (33519,44,9050.709,2123.656,60.24802,'Black Knight''s Gryphon');
-
--- fix phase fox NPC 37158
-UPDATE `creature` SET `phaseMask` = '99' WHERE `id` = 37158;
