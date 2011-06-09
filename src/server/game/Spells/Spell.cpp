@@ -2114,8 +2114,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 case TARGET_DEST_CASTER_FRONT_LEAP:
                 case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;                                          break;
                 case TARGET_DEST_CASTER_BACK:       angle = static_cast<float>(M_PI);                      break;
-                case TARGET_DEST_CASTER_RIGHT:      angle = static_cast<float>(M_PI/2);                    break;
-                case TARGET_DEST_CASTER_LEFT:       angle = static_cast<float>(-M_PI/2);                   break;
+                case TARGET_DEST_CASTER_RIGHT:      angle = static_cast<float>(-M_PI/2);                   break;
+                case TARGET_DEST_CASTER_LEFT:       angle = static_cast<float>(M_PI/2);                    break;
                 default:                            angle = (float)rand_norm()*static_cast<float>(2*M_PI); break;
             }
 
