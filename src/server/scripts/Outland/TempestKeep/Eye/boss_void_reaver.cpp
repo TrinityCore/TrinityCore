@@ -126,11 +126,8 @@ class boss_void_reaver : public CreatureScript
                         pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                         if (!pTarget)
                             continue;
-                        // exclude pets & totems
-                        if (pTarget->GetTypeId() != TYPEID_PLAYER)
-                            continue;
-                        //18 yard radius minimum
-                        if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive() && !pTarget->IsWithinDist(me, 18, false))
+                        // exclude pets & totems, 18 yard radius minimum
+                        if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive() && !pTarget->IsWithinDist(me, 18, false))
                             target_list.push_back(pTarget);
                         pTarget = NULL;
                     }
