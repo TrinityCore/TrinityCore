@@ -4140,9 +4140,9 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
         case 63018: // Searing Light
-        case 65121: // Searing Light (Heroic)
+        case 65121: // Searing Light (25m)
         case 63024: // Gravity Bomb
-        case 64234: // Gravity Bomb (Heroic)
+        case 64234: // Gravity Bomb (25m)
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
