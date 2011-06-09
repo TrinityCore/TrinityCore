@@ -4844,10 +4844,11 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         */
 
-        if (target)
-            if (IsPositiveSpell(m_spellInfo->Id))
-                if (target->IsImmunedToSpell(m_spellInfo))
-                    return SPELL_FAILED_TARGET_AURASTATE;
+        if (m_spellInfo->Id != 51678) // Workaround für's Rammen der Belagerungsmaschinen in TW! DAS IST KEIN FIX!
+            if (target)
+                if (IsPositiveSpell(m_spellInfo->Id))
+                    if (target->IsImmunedToSpell(m_spellInfo))
+                        return SPELL_FAILED_TARGET_AURASTATE;
 
         //Must be behind the target.
         if (m_spellInfo->AttributesEx2 == SPELL_ATTR2_UNK20 && m_spellInfo->AttributesEx & SPELL_ATTR1_UNK9 && target->HasInArc(static_cast<float>(M_PI), m_caster)
