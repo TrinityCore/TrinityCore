@@ -53,6 +53,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "Transport.h"
+#include "InstanceScript.h"
 
 #include <math.h>
 
@@ -5727,6 +5728,18 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                     break;
                 }
+                case 65032: // Boom aura (321 Boombot)
+                {
+                    if (pVictim->GetEntry() != 33343)   // Scrapbot
+                        return false;
+
+                    InstanceScript* instance = GetInstanceScript();
+                    if (!instance)
+                        return false;
+
+                    instance->DoCastSpellOnPlayers(65037);  // Achievement criteria marker
+                    break;
+                }
                 // Meteor Fists
                 case 66725:
                 {
@@ -8033,6 +8046,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     break;
                 }
             }
+
             break;
         case SPELLFAMILY_PALADIN:
         {
