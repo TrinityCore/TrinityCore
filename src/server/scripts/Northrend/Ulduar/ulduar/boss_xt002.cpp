@@ -20,12 +20,10 @@
         Add achievments
         Boombot explosion only hurt allies to the npc at the moment
         Boombot explosion visual
-        Fix gravity bomb - tractor beam.    /? Need test
-        Fix void zone spell                 /? Need test
+        Fix void zone damage
         If the boss is to close to a scrap pile -> no summon 
         make the life sparks visible...     /? Need test
         Phase transition kneel/stand up animation
-        Tympanic Tantrum needs its range reduced
         Proper scripts for adds (scrapbots should enter vehicle)
         Codestyle
 */
@@ -93,7 +91,11 @@ enum Spells
     SPELL_SUICIDE                               = 7,
 
     //------------------BOOMBOT-----------------------
+    SPELL_AURA_BOOMBOT                          = 65032,
     SPELL_BOOM                                  = 62834,
+
+    // Achievement-related spells
+    SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS     = 65037
 };
 
 enum Events
@@ -170,14 +172,6 @@ enum
     ACHIEV_TIMED_START_EVENT                      = 21027,
 };
 
-const Position SpawnPos[4] = 
-{
-    {888.69f, 25.63f, 409.81f, 1.58f},
-    {896.74f, 68.08f, 412.24f, 4.03f},
-    {895.88f, -93.45f, 441.95f, 2.21f},
-    {787.33f, -92.33f, 412.01f, 0.83f}
-};
-
 #define HEART_VEHICLE_SEAT 0
 
 /*-------------------------------------------------------
@@ -218,8 +212,10 @@ class boss_xt002 : public CreatureScript
                 _phase = 1;
                 _heartExposed = 0;
 
-                if (instance)
-                    instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                if (!instance)
+                    return;
+
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -280,6 +276,7 @@ class boss_xt002 : public CreatureScript
             {
                 DoScriptText(SAY_DEATH, me);
                 _JustDied();
+
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -306,7 +303,7 @@ class boss_xt002 : public CreatureScript
 
                 // Handles spell casting. These spells only occur during phase 1 and hard mode
                 if (_phase == 1)
-                    {
+                {
                     while (uint32 eventId = events.ExecuteEvent())
                     {
                         switch (eventId)
@@ -334,6 +331,7 @@ class boss_xt002 : public CreatureScript
                                 break;
                         }
                     }
+
                     DoMeleeAttackIfReady();
                 }
                 else if (_phase == 2)
@@ -532,10 +530,10 @@ public:
     {
         mob_pummellerAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            Instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* Instance;
         uint32 uiArcingSmashTimer;
         uint32 uiTrampleTimer;
         uint32 uiUppercutTimer;
@@ -545,6 +543,13 @@ public:
             uiArcingSmashTimer = TIMER_ARCING_SMASH;
             uiTrampleTimer = TIMER_TRAMPLE;
             uiUppercutTimer = TIMER_UPPERCUT;
+
+            if (Creature* pXT002 = me->GetCreature(*me, Instance->GetData64(BOSS_XT002)))
+            {
+                Position pos;
+                pXT002->GetPosition(&pos);
+                me->GetMotionMaster()->MovePoint(0, pos);
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -558,19 +563,25 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_ARCING_SMASH);
                     uiArcingSmashTimer = TIMER_ARCING_SMASH;
-                } else uiArcingSmashTimer -= diff;
+                }
+                else
+                    uiArcingSmashTimer -= diff;
 
                 if (uiTrampleTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_TRAMPLE);
                     uiTrampleTimer = TIMER_TRAMPLE;
-                } else uiTrampleTimer -= diff;
+                }
+                else 
+                    uiTrampleTimer -= diff;
 
                 if (uiUppercutTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_UPPERCUT);
                     uiUppercutTimer = TIMER_UPPERCUT;
-                } else uiUppercutTimer -= diff;
+                } 
+                else
+                    uiUppercutTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -598,35 +609,33 @@ public:
     {
         mob_boombotAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            _instance = pCreature->GetInstanceScript();
         }
-
-        InstanceScript* m_pInstance;
 
         void Reset()
         {
-            me->SetReactState(REACT_PASSIVE);
+            _boomed = false;
 
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(BOSS_XT002)))
+            DoCast(SPELL_AURA_BOOMBOT); // For achievement
+
+            if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                 me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void DamageTaken(Unit* /*who*/, uint32& damage)
         {
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(BOSS_XT002)))
+            if (damage >= me->GetHealth() && !_boomed)
             {
-                if (me->GetDistance2d(pXT002) <= 0.5)
-                {
-                    //Explosion
-                    DoCast(me, SPELL_BOOM);
-
-                    //Despawns the boombot
-                    me->DespawnOrUnsummon();
-                }
+                _boomed = true; // Prevent recursive calls
+                DoCast(SPELL_BOOM); //TODO: Figure out why visual doesn't always work like it should
+                damage = 0;
             }
         }
-    };
 
+    private:
+        InstanceScript* _instance;
+        bool _boomed;
+    };
 };
 
 
@@ -857,6 +866,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
             return new spell_xt002_tympanic_tantrum_SpellScript();
         }
 };
+
 
 void AddSC_boss_xt002()
 {
