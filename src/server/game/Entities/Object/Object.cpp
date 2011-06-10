@@ -614,6 +614,14 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 {
                     uint32 dynamicFlags = m_uint32Values[index];
 
+                     // RAF: Hide flag for not linked accounts
+                    if (const Player* player = ToPlayer())
+                    {
+                        if (!target->IsReferAFriendLinked(player))
+                            dynamicFlags &= ~ UNIT_DYNFLAG_REFER_A_FRIEND;
+                            
+                    }
+
                     if (const Creature* creature = ToCreature())
                     {
                         if (creature->hasLootRecipient())

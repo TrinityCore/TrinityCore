@@ -738,14 +738,6 @@ enum ReferAFriendError
     ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
 };
 
-enum AccountLinkedState
-{
-    STATE_NOT_LINKED = 0x00,
-    STATE_REFER      = 0x01,
-    STATE_REFERRAL   = 0x02,
-    STATE_DUAL       = 0x04,
-};
-
 enum InstanceResetWarningType
 {
     RAID_INSTANCE_WARNING_HOURS     = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).
@@ -2043,8 +2035,13 @@ class Player : public Unit, public GridObject<Player>
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit* pVictim);
 
+        /*** REFER-A-FRIEND SYSTEM ***/
         bool GetsRecruitAFriendBonus(bool forXP);
         uint8 GetGrantableLevels() { return GetByteValue(PLAYER_FIELD_BYTES, 1); }
+        void SetGrantableLevels(uint8 levels) { SetByteValue(PLAYER_FIELD_BYTES, 1, levels); }
+        void SendReferFriendError(ReferAFriendError err, Player* target = NULL);
+        ReferAFriendError GetReferFriendError(Player* target);
+        bool IsReferAFriendLinked(const Player* target);
 
         ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }

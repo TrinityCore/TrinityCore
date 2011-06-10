@@ -94,7 +94,8 @@ m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
-m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter)
+m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
+m_recruiterState(STATE_NOT_LINKED)
 {
     if (sock)
     {
@@ -680,6 +681,27 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
         if (mask & (1 << i))
             data << uint32(GetAccountData(AccountDataType(i))->Time);// also unix time
     SendPacket(&data);
+}
+
+void WorldSession::LoadAccountLinkedState()
+{
+    bool BRecruitedA = false;
+    bool ARecruitedB = false;
+
+    QueryResult resultacctB = LoginDatabase.PQuery("SELECT recruiter FROM account WHERE id = '%d' AND recruiter != 0", GetAccountId());
+    if (resultacctB)
+        BRecruitedA = true;
+
+    QueryResult resultacctA = LoginDatabase.PQuery("SELECT 1 FROM account WHERE recruiter = '%d' LIMIT 1", GetAccountId());
+    if (resultacctA)
+        ARecruitedB = true;
+
+    if (BRecruitedA && ARecruitedB)
+        m_recruiterState = STATE_DUAL;
+    else if (BRecruitedA)
+        m_recruiterState = STATE_REFERRAL;
+    else if (ARecruitedB)
+        m_recruiterState = STATE_REFER;
 }
 
 void WorldSession::LoadTutorialsData()

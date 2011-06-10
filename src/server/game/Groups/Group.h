@@ -65,6 +65,7 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_UNK3      = 0x0020,                       // never seen
     MEMBER_STATUS_UNK4      = 0x0040,                       // appears with dead and ghost flags
     MEMBER_STATUS_UNK5      = 0x0080,                       // never seen
+    MEMBER_STATUS_RAF       = 0x0100,                       // RAF status in party/raid
 };
 
 enum GroupMemberFlags

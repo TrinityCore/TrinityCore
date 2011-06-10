@@ -3185,6 +3185,10 @@ void Player::GiveLevel(uint8 level)
 
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 
+    // RAF system
+    if ((GetSession()->GetAccountLinkedState() == STATE_REFERRAL || GetSession()->GetAccountLinkedState() == STATE_DUAL) && getLevel() < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+        SetGrantableLevels(GetGrantableLevels() + (getLevel() > oldLevel ? 0x01 : -0x01));
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -17216,6 +17220,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // Loads the jail datas and if jailed it corrects the position to the corresponding jail
     _LoadJail();
 
+    // Refer-a-friend flag
+    if (GetSession()->GetAccountLinkedState() != STATE_NOT_LINKED && getLevel() < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+        SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
+
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
     return true;
@@ -20264,11 +20272,16 @@ void Player::SetRestBonus (float rest_bonus_new)
     else
         m_rest_bonus = rest_bonus_new;
 
-    // update data for client
-    if (m_rest_bonus>10)
-        SetByteValue(PLAYER_BYTES_2, 3, 0x01);              // Set Reststate = Rested
-    else if (m_rest_bonus <= 1)
-        SetByteValue(PLAYER_BYTES_2, 3, 0x02);              // Set Reststate = Normal
+    if (GetSession()->GetAccountLinkedState() != STATE_NOT_LINKED)
+        SetByteValue(PLAYER_BYTES_2, 3, 0x06);                  // Set Reststate = Refer-A-Friend
+    else
+    {
+        // update data for client
+        if (m_rest_bonus>10)
+            SetByteValue(PLAYER_BYTES_2, 3, 0x01);              // Set Reststate = Rested
+        else if (m_rest_bonus <= 1)
+            SetByteValue(PLAYER_BYTES_2, 3, 0x02);              // Set Reststate = Normal
+    }
 
     //RestTickUpdate
     SetUInt32Value(PLAYER_REST_STATE_EXPERIENCE, uint32(m_rest_bonus));
@@ -22711,9 +22724,7 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
                             continue;
                 }
 
-                bool ARecruitedB = (pGroupGuy->GetSession()->GetRecruiterId() == GetSession()->GetAccountId());
-                bool BRecruitedA = (GetSession()->GetRecruiterId() == pGroupGuy->GetSession()->GetAccountId());
-                if (ARecruitedB || BRecruitedA)
+                if (IsReferAFriendLinked(pGroupGuy))
                 {
                     recruitAFriend = true;
                     break;
@@ -22722,6 +22733,48 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
         }
     }
     return recruitAFriend;
+}
+
+bool Player::IsReferAFriendLinked(const Player* target)
+{
+    bool ARecruitedB = (target->GetSession()->GetRecruiterId() == GetSession()->GetAccountId());
+    bool BRecruitedA = (GetSession()->GetRecruiterId() == target->GetSession()->GetAccountId());
+    if (ARecruitedB || BRecruitedA)
+        return true;
+    return false;
+}
+
+void Player::SendReferFriendError(ReferAFriendError err, Player* target)
+{
+    WorldPacket data(SMSG_REFER_A_FRIEND_FAILURE, 24);
+    data << uint32(err);
+    if (target && (err == ERR_REFER_A_FRIEND_NOT_IN_GROUP || err == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S))
+        data << target->GetName();
+
+    GetSession()->SendPacket(&data);
+}
+
+ReferAFriendError Player::GetReferFriendError(Player* target)
+{
+    if (!target || target->GetTypeId() != TYPEID_PLAYER)
+        return ERR_REFER_A_FRIEND_NO_TARGET;
+
+    if (!IsReferAFriendLinked(target))
+        return ERR_REFER_A_FRIEND_NOT_REFERRED_BY;
+
+    if (!IsInSameGroupWith(target))
+        return ERR_REFER_A_FRIEND_NOT_IN_GROUP;
+
+    if (GetTeam() != target->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+        return ERR_REFER_A_FRIEND_DIFFERENT_FACTION;
+    if (getLevel() <= target->getLevel())
+        return ERR_REFER_A_FRIEND_TARGET_TOO_HIGH;
+    if (!GetGrantableLevels())
+        return ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS;
+    if (target->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+        return ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I;
+
+    return ERR_REFER_A_FRIEND_NONE;
 }
 
 void Player::RewardPlayerAndGroupAtKill(Unit* pVictim, bool isBattleGround)
