@@ -36,7 +36,7 @@
 #include "icecrown_citadel.h"
 #include "CreatureGroups.h"
 
-enum TODESGEWEIHTER_WAECHTER_GUIDS
+enum TODESGEWEIHTER_WAECHTER_POS
 {
     TODESGEWEIHTER_WAECHTER_Y_FALLE_1 = 2137, // guid 200987 - x,y -194.007f,2137.95f 
     TODESGEWEIHTER_WAECHTER_Y_FALLE_2 = 2290, // guid 201043 - x,y -193.786f,2290.22f
