@@ -153,7 +153,10 @@ class spell_sunreaver_disguise : public SpellScriptLoader
                     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, unitTarget->getGender() == GENDER_MALE ? 70973 : 70974, true, NULL);
+                    if (GetSpellInfo()->Id == 69672)
+                        unitTarget->CastSpell(unitTarget, unitTarget->getGender() == GENDER_MALE ? 70972 : 70971, true, NULL);
+                    else
+                        unitTarget->CastSpell(unitTarget, unitTarget->getGender() == GENDER_MALE ? 70974 : 70973, true, NULL);
                 }
 
             }
