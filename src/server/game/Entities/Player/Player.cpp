@@ -2446,8 +2446,9 @@ void Player::RegenerateAll()
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
-        if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
-            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) || IsPolymorphed())
+        if (!isInCombat() || IsPolymorphed() || m_baseHealthRegen ||
+            HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
+            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
         {
             RegenerateHealth();
         }
@@ -2600,7 +2601,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = OCTRegenHPPerSpirit()* HealthIncreaseRate;
+        addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
         if (!isInCombat())
         {
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
