@@ -111,8 +111,8 @@ class ulduar_teleporter : public GameObjectScript
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Antechamber of Ulduar", GOSSIP_SENDER_MAIN, ANTECHAMBER);
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, WALKWAY);
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, CONSERVATORY);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Spark of Imagination", GOSSIP_SENDER_MAIN, SPARK_IMAGINATION);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Descent into Madness", GOSSIP_SENDER_MAIN, DESCENT_MADNESS);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Spark of Imagination", GOSSIP_SENDER_MAIN, SPARK_IMAGINATION);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Descent into Madness", GOSSIP_SENDER_MAIN, DESCENT_MADNESS);
 
             player->SEND_GOSSIP_MENU(gameObject->GetGOInfo()->GetGossipMenuId(), gameObject->GetGUID());
             return true;
