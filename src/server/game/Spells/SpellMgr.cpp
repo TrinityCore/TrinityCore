@@ -4048,6 +4048,15 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63024: // Gravity Bomb
         case 64234: // Gravity Bomb (25m)
             spellInfo->MaxAffectedTargets = 1;
+            ++count;
+            break;
+        case 62834: // Boom
+        // This hack is here because we suspect our implementation of spell effect execution on targets
+        // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
+        // then EFFECT_1, etc - instead of applying each effect on target1, then target2, etc.
+        // The above situation causes the visual for this spell to be bugged, so we remove the instakill
+        // effect and implement a script hack for that.
+            spellInfo->Effect[EFFECT_1] = 0;
             count++;
             break;
         // ENDOF ULDUAR SPELLS
@@ -4269,7 +4278,7 @@ void SpellMgr::LoadEnchantCustomAttr()
                 if (!ench)
                     continue;
                 mEnchantCustomAttr[enchId] = true;
-                count++;
+                ++count;
                 break;
             }
         }
