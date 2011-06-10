@@ -119,6 +119,14 @@ enum UlduarNPCs
     NPC_BATTLE_PRIEST_GINA                       = 33330,
     NPC_FIELD_MEDIC_PENNY                        = 32897,
     NPC_FIELD_MEDIC_JESSI                        = 33326,
+
+    // Yogg_saron
+    NPC_YS_FREYA                                 = 33410,
+    NPC_YS_THORIM                                = 33413,
+    NPC_YS_MIMIRON                               = 33412,
+    NPC_YS_HODIR                                 = 33411,
+    NPC_YOGGSARON_BRAIN                          = 33890,			 
+
 };
 
 enum UlduarGameObjects
