@@ -1574,12 +1574,6 @@ void ObjectMgr::LoadCreatures()
             data.phaseMask = 1;
         }
 
-        if (data.npcflag & UNIT_NPC_FLAG_SPELLCLICK)
-        {
-            sLog->outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with npcflag UNIT_NPC_FLAG_SPELLCLICK (%u) set, it is expected to be set by code handling `npc_spellclick_spells` content.", guid, data.id, UNIT_NPC_FLAG_SPELLCLICK);
-            data.npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
-        }
-
         // Add to grid if not managed by the game event or pool system
         if (gameEvent == 0 && PoolId == 0)
             AddCreatureToGrid(guid, &data);

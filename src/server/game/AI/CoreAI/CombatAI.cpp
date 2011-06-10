@@ -44,7 +44,7 @@ int CombatAI::Permissible(const Creature * /*creature*/)
     return PERMIT_BASE_NO;
 }
 
-int ArchorAI::Permissible(const Creature * /*creature*/)
+int ArcherAI::Permissible(const Creature * /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
@@ -174,13 +174,13 @@ void CasterAI::UpdateAI(const uint32 diff)
 }
 
 //////////////
-//ArchorAI
+//ArcherAI
 //////////////
 
-ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
+ArcherAI::ArcherAI(Creature *c) : CreatureAI(c)
 {
     if (!me->m_spells[0])
-        sLog->outError("ArchorAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+        sLog->outError("ArcherAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
 
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
     if (!m_minRange)
@@ -189,7 +189,7 @@ ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-void ArchorAI::AttackStart(Unit *who)
+void ArcherAI::AttackStart(Unit *who)
 {
     if (!who)
         return;
@@ -209,7 +209,7 @@ void ArchorAI::AttackStart(Unit *who)
         me->GetMotionMaster()->MoveIdle();
 }
 
-void ArchorAI::UpdateAI(const uint32 /*diff*/)
+void ArcherAI::UpdateAI(const uint32 /*diff*/)
 {
     if (!UpdateVictim())
         return;
