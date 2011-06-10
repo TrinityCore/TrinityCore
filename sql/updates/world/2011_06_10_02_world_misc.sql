@@ -28,4 +28,4 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (63025,'spell_xt002_gravity_bomb_damage');
 
 -- Better naming for changed script with new functionality
-UPDATE `spell_script_names` SET `ScriptName`='spell_xt002_gravity_bomb_aura' WHERE `spell_id` IN(64234,63024)
+UPDATE `spell_script_names` SET `ScriptName`='spell_xt002_gravity_bomb_aura' WHERE `spell_id` IN(64234,63024);
