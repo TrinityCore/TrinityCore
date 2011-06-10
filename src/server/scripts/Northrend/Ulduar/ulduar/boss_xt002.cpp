@@ -17,13 +17,11 @@
 
 /*
     TODO:
-        Add achievments
-        Boombot explosion only hurt allies to the npc at the moment
         Boombot explosion visual
+        Boombot damage (dependant on weapon damage in creature_template)
         Fix void zone damage
-        If the boss is to close to a scrap pile -> no summon 
+        If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
         make the life sparks visible...     /? Need test
-        Phase transition kneel/stand up animation
         Proper scripts for adds (scrapbots should enter vehicle)
         Codestyle
 */
@@ -45,8 +43,6 @@ enum Spells
 
     SPELL_GRAVITY_BOMB_10                       = 63024,
     SPELL_GRAVITY_BOMB_25                       = 64234,
-    SPELL_GRAVITY_BOMB_AURA_10                  = 63025,
-    SPELL_GRAVITY_BOMB_AURA_25                  = 63233,
 
     SPELL_HEARTBREAK_10                         = 65737,
     SPELL_HEARTBREAK_25                         = 64193,
@@ -455,49 +451,48 @@ public:
  *///----------------------------------------------------
 class mob_scrapbot : public CreatureScript
 {
-public:
-    mob_scrapbot() : CreatureScript("mob_scrapbot") { }
+    public:
+        mob_scrapbot() : CreatureScript("mob_scrapbot") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_scrapbotAI(pCreature);
-    }
-
-    struct mob_scrapbotAI : public ScriptedAI
-    {
-        mob_scrapbotAI(Creature* pCreature) : ScriptedAI(pCreature)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
-            m_pInstance = me->GetInstanceScript();
+            return new mob_scrapbotAI(pCreature);
         }
 
-        InstanceScript* m_pInstance;
-
-        void Reset()
+        struct mob_scrapbotAI : public ScriptedAI
         {
-            me->SetReactState(REACT_PASSIVE);
-
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(BOSS_XT002)))
-                me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
-        }
-
-        void UpdateAI(const uint32 /*diff*/)
-        {
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(BOSS_XT002)))
+            mob_scrapbotAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                if (me->GetDistance2d(pXT002) <= 0.5)
-                {
-                    // TODO Send raid message
-
-                    // Increase health with 1 percent
-                    pXT002->ModifyHealth(int32(pXT002->CountPctFromMaxHealth(1)));
-
-                    // Despawns the scrapbot
-                    me->DespawnOrUnsummon();
-                }
+                Instance = me->GetInstanceScript();
             }
-        }
-    };
 
+            InstanceScript* Instance;
+            uint32 RangeCheckTimer;
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+
+                RangeCheckTimer = 500;
+
+                if (Creature* pXT002 = me->GetCreature(*me, Instance->GetData64(BOSS_XT002)))
+                    me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (RangeCheckTimer <= diff)
+                {
+                    if (Creature* pXT002 = me->GetCreature(*me, Instance->GetData64(BOSS_XT002)))
+                    {
+                        if (me->IsWithinMeleeRange(pXT002))
+                            DoCast(pXT002, SPELL_SCRAPBOT_RIDE_VEHICLE);
+                    }
+                }
+                else
+                    RangeCheckTimer -= diff;
+            }
+        };
 };
 
 /*-------------------------------------------------------
@@ -584,6 +579,29 @@ public:
  *        XE-321 BOOMBOT
  *
  *///----------------------------------------------------
+class BoomEvent : public BasicEvent
+{
+    public:
+        BoomEvent(Creature* me) : _me(me)
+        {
+        }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        {
+            // This hack is here because we suspect our implementation of spell effect execution on targets
+            // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
+            // then EFFECT_1, etc - instead of applying each effect on target1, then target2, etc.
+            // The above situation causes the visual for this spell to be bugged, so we remove the instakill
+            // effect and implement a script hack for that.
+            
+            _me->CastSpell(_me, SPELL_BOOM, false);
+            return true;
+        }
+
+    private:
+        Creature* _me;
+};
+
 class mob_boombot : public CreatureScript
 {
     public:
@@ -607,17 +625,39 @@ class mob_boombot : public CreatureScript
 
                 DoCast(SPELL_AURA_BOOMBOT); // For achievement
 
+                // HACK/workaround:
+                // these values aren't confirmed - lack of data - and the values in DB are incorrect
+                // these values are needed for correct damage of Boom spell
+                me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
+                me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
+
+                // Todo: proper waypoints?
                 if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
             {
-                if (damage >= me->GetHealth() && !_boomed)
+                if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
                 {
                     _boomed = true; // Prevent recursive calls
-                    DoCast(SPELL_BOOM); //TODO: Figure out why visual doesn't always work like it should
+
+                    WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
+                    data << uint64(me->GetGUID());
+                    data << uint64(me->GetGUID());
+                    data << uint32(SPELL_BOOM);
+                    me->SendMessageToSet(&data, false);
+
+                    me->DealDamage(me, me->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+
                     damage = 0;
+
+                    // Visual only seems to work if the instant kill event is delayed
+                    // Casting done from player and caster source has the same targetinfo flags,
+                    // so that can't be the issue
+                    // See InstantKillEvent class
+                    // Schedule 1ms delayed
+                    me->m_Events.AddEvent(new BoomEvent(me), me->m_Events.CalculateTime(1*IN_MILLISECONDS));
                 }
             }
 
