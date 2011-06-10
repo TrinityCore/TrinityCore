@@ -6,3 +6,9 @@ UPDATE `waypoint_scripts` SET `datalong2`='1' WHERE datalong IN (39950,76221,543
 
 -- fix crash with use .gob near command and russian locale
 UPDATE `trinity_string` SET `content_loc8` = '%d (Entry: %d) - |cffffffff|Hgameobject:%d|h[%s X:%f Y:%f Z:%f MapId:%d]|h|r' WHERE `entry` = '517';
+
+-- Anub'arak, fix of incorrect YTDB flag
+UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34564;
+UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34566;
+UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35615;
+UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35616;
