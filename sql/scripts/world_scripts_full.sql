@@ -172,7 +172,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner_cart' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner' WHERE `entry`=28841;
 UPDATE `creature_template` SET `ScriptName`='npc_crusade_persuaded' WHERE `entry` IN (28939,28940,28610);
 UPDATE `creature_template` SET `ScriptName`='mob_scarlet_courier' WHERE `entry`=29076;
-UPDATE `creature_template` SET `AIName`='ArchorAI', `ScriptName`='' WHERE `entry` IN (29102,29103);
+UPDATE `creature_template` SET `AIName`='ArcherAI', `ScriptName`='' WHERE `entry` IN (29102,29103);
 UPDATE `creature_template` SET `AIName`='TurretAI', `ScriptName`='' WHERE `entry`=29104;
 UPDATE `creature_template` SET `ScriptName`='npc_highlord_darion_mograine' WHERE `entry`=29173;
 UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_tirion_dawn' WHERE `entry` IN (29183,29175);

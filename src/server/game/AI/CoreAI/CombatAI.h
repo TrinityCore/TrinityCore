@@ -64,10 +64,10 @@ class CasterAI : public CombatAI
         float m_attackDist;
 };
 
-struct ArchorAI : public CreatureAI
+struct ArcherAI : public CreatureAI
 {
     public:
-        explicit ArchorAI(Creature *c);
+        explicit ArcherAI(Creature *c);
         void AttackStart(Unit *who);
         void UpdateAI(const uint32 diff);
 
