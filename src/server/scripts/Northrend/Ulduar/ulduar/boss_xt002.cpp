@@ -17,12 +17,9 @@
 
 /*
     TODO:
-        Boombot explosion visual
-        Boombot damage (dependant on weapon damage in creature_template)
         Fix void zone damage
         If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
         make the life sparks visible...     /? Need test
-        Proper scripts for adds (scrapbots should enter vehicle)
         Codestyle
 */
 
