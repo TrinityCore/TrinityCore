@@ -4030,7 +4030,7 @@ void SpellMgr::LoadSpellCustomAttr()
         // The above situation causes the visual for this spell to be bugged, so we remove the instakill
         // effect and implement a script hack for that.
             spellInfo->Effect[EFFECT_1] = 0;
-            count++;
+            ++count;
             break;
         // ENDOF ULDUAR SPELLS
         //
