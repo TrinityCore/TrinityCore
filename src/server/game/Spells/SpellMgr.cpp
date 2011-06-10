@@ -4068,7 +4068,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63024: // Gravity Bomb
         case 64234: // Gravity Bomb (25m)
             spellInfo->MaxAffectedTargets = 1;
-            count++;
+            ++count;
             break;
         case 62834: // Boom
         // This hack is here because we suspect our implementation of spell effect execution on targets
@@ -4312,7 +4312,7 @@ void SpellMgr::LoadEnchantCustomAttr()
                 if (!ench)
                     continue;
                 mEnchantCustomAttr[enchId] = true;
-                count++;
+                ++count;
                 break;
             }
         }
