@@ -185,11 +185,11 @@ class boss_kologarn : public CreatureScript
                         instance->SetData64(DATA_RIGHT_ARM, who->GetGUID());
                 }
 
+                if (!isEncounterInProgress)
+                    return;
+
                 if (!apply)
                 {
-                    if (!isEncounterInProgress)
-                        return;
-
                     who->CastSpell(me, SPELL_ARM_DEAD_DAMAGE, true);
 
                     if (Creature* rubbleStalker = who->FindNearestCreature(NPC_RUBBLE_STALKER, 70.0f))
