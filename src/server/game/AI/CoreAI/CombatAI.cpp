@@ -258,36 +258,6 @@ void TurretAI::UpdateAI(const uint32 /*diff*/)
 }
 
 //////////////
-//AOEAI
-//////////////
-
-AOEAI::AOEAI(Creature *c) : CreatureAI(c)
-{
-    if (!me->m_spells[0])
-        sLog->outError("AOEAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
-
-    me->SetVisible(true);//visible to see all spell anims
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);//can't be targeted
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);//can't be damaged
-    me->SetDisplayId(11686);//invisible model, around a size of a player
-}
-
-bool AOEAI::CanAIAttack(const Unit * /*who*/) const
-{
-    return false;
-}
-
-void AOEAI::AttackStart(Unit * /*who*/)
-{
-}
-
-void AOEAI::UpdateAI(const uint32 /*diff*/)
-{
-    if (!me->HasAura(me->m_spells[0]))
-        me->CastSpell(me, me->m_spells[0], false);
-}
-
-//////////////
 //VehicleAI
 //////////////
 
