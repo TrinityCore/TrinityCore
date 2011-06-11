@@ -726,6 +726,16 @@ void Aura::RefreshDuration()
         m_timeCla = 1 * IN_MILLISECONDS;
 }
 
+void Aura::RefreshTimers()
+{
+    m_maxDuration = CalcMaxDuration();
+    RefreshDuration();
+    Unit * caster = GetCaster();
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (HasEffect(i))
+            GetEffect(i)->CalculatePeriodic(caster, false, false);
+}
+
 void Aura::SetCharges(uint8 charges)
 {
     if (m_procCharges == charges)
@@ -770,9 +780,22 @@ void Aura::SetStackAmount(uint8 stackAmount)
 {
     m_stackAmount = stackAmount;
     Unit * caster = GetCaster();
+    
+    std::list<AuraApplication*> applications;
+    GetApplicationList(applications);
+
+    for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
+        if (!(*apptItr)->GetRemoveMode())
+            HandleAuraSpecificMods(*apptItr, caster, false, true);
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (HasEffect(i))
             m_effects[i]->ChangeAmount(m_effects[i]->CalculateAmount(caster), false, true);
+
+    for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
+        if (!(*apptItr)->GetRemoveMode())
+            HandleAuraSpecificMods(*apptItr, caster, true, true);
+
     SetNeedClientUpdateForTargets();
 }
 
@@ -802,7 +825,12 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     SetStackAmount(stackAmount);
 
     if (refresh)
-        RefreshDuration();
+    {
+        RefreshTimers();
+
+        // reset charges
+        SetCharges(CalcMaxCharges());
+    }
     SetNeedClientUpdateForTargets();
     return false;
 }
@@ -871,7 +899,7 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
         {
             m_effects[i]->SetAmount(amount[i]);
             m_effects[i]->SetCanBeRecalculated(recalculateMask & (1<<i));
-            m_effects[i]->CalculatePeriodic(caster);
+            m_effects[i]->CalculatePeriodic(caster, false, true);
             m_effects[i]->CalculateSpellMod();
             m_effects[i]->RecalculateAmount(caster);
         }
@@ -904,6 +932,15 @@ void Aura::HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply)
             m_effects[i]->HandleEffect(aurApp, mode, apply);
 }
 
+void Aura::GetApplicationList(std::list<AuraApplication*> & applicationList) const
+{
+    for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+    {
+        if (appIter->second->GetEffectMask())
+            applicationList.push_back(appIter->second);
+    }
+}
+
 void Aura::SetNeedClientUpdateForTargets() const
 {
     for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
@@ -911,7 +948,7 @@ void Aura::SetNeedClientUpdateForTargets() const
 }
 
 // trigger effects on real aura apply/remove
-void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster, bool apply)
+void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster, bool apply, bool onReapply)
 {
     Unit * target = aurApp->GetTarget();
     AuraRemoveMode removeMode = aurApp->GetRemoveMode();
@@ -1157,7 +1194,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
     else
     {
         // Remove Linked Auras
-        if (removeMode != AURA_REMOVE_BY_DEATH)
+        if (!onReapply && removeMode != AURA_REMOVE_BY_DEATH)
         {
             if (uint32 customAttr = sSpellMgr->GetSpellCustomAttr(GetId()))
             {
@@ -1322,14 +1359,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 }
                 switch(GetId())
                 {
-                    case 48020: // Demonic Circle
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            if (GameObject* obj = target->GetGameObject(48018))
-                            {
-                                target->NearTeleportTo(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
-                                target->RemoveMovementImpairingAuras();
-                            }
-                        break;
+                   case 48018: // Demonic Circle
+                        // Do not remove GO when aura is removed by stack
+                        // to prevent remove GO added by new spell
+                        // old one is already removed
+                        if (!onReapply)
+                            target->RemoveGameObject(GetId(), true);
+                        target->RemoveAura(62388);
+                    break;
                 }
                 break;
             case SPELLFAMILY_PRIEST:
