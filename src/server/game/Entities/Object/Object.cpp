@@ -1147,7 +1147,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     return false;
 }
 
-bool Position::HasInLine(const Unit * const target, float distance, float width) const
+bool Position::HasInLine(const Unit* const target, float distance, float width) const
 {
     if (!HasInArc(M_PI, target) || !target->IsWithinDist3d(m_positionX, m_positionY, m_positionZ, distance))
         return false;

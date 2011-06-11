@@ -90,7 +90,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 CanPullBack = false;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
             }

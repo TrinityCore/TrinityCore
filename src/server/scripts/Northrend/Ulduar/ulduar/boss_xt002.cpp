@@ -277,7 +277,7 @@ class boss_xt002 : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void JustDied(Unit * /*victim*/)
+            void JustDied(Unit* /*victim*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 _JustDied();
@@ -441,7 +441,7 @@ public:
         InstanceScript* m_pInstance;
         uint32 _damageTaken;
 
-        void DamageTaken(Unit * /*pDone*/, uint32 &damage)
+        void DamageTaken(Unit* /*pDone*/, uint32 &damage)
         {
             Creature* XT002 = me->GetCreature(*me, m_pInstance->GetData64(BOSS_XT002));
             if (!XT002 || !XT002->AI())

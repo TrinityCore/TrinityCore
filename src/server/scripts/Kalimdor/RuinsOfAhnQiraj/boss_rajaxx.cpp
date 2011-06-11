@@ -70,13 +70,13 @@ public:
                 pInstance->SetData(DATA_RAJAXX_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_RAJAXX_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_RAJAXX_EVENT, DONE);

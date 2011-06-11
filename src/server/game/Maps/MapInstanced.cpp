@@ -107,7 +107,7 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
+Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
 {
     if (GetId() != mapId || !player)
         return NULL;
@@ -257,7 +257,7 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     return true;
 }
 
-bool MapInstanced::CanEnter(Player * /*player*/)
+bool MapInstanced::CanEnter(Player* /*player*/)
 {
     //ASSERT(false);
     return true;

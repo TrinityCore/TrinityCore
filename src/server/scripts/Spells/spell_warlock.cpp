@@ -46,7 +46,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_empowerment_SpellScript);
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS))
                     return false;
@@ -67,7 +67,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                 {
                     if (targetCreature->isPet())
                     {
-                        CreatureTemplate const * ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
+                        CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
                         switch (ci->family)
                         {
                         case CREATURE_FAMILY_SUCCUBUS:
@@ -119,7 +119,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
 
             static uint32 const iTypes[8][3];
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(WARLOCK_IMPROVED_HEALTHSTONE_R1))
                     return false;
@@ -134,7 +134,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                 {
                     uint32 rank = 0;
                     // Improved Healthstone
-                    if (AuraEffect const * aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
+                    if (AuraEffect const* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
                     {
                         switch (aurEff->GetId())
                         {

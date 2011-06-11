@@ -356,7 +356,7 @@ public:
                 pInstance->SetData(DATA_KING_YMIRON_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
         }

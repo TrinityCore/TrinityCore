@@ -316,7 +316,7 @@ void BattlegroundIC::RemovePlayer(Player* plr, uint64 /*guid*/)
     plr->RemoveAura(SPELL_OIL_REFINERY);
 }
 
-void BattlegroundIC::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattlegroundIC::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)

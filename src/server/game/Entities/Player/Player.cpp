@@ -4202,7 +4202,7 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     {
         next = itr;
         ++next;
-        SpellEntry const * entry = sSpellStore.LookupEntry(itr->first);
+        SpellEntry const* entry = sSpellStore.LookupEntry(itr->first);
         // check if spellentry is present and if the cooldown is less or equal to 10 min
         if (entry &&
             entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
@@ -6897,7 +6897,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     float percent = 100.0f;
 
     // Get the generic rate first
-    if (RepRewardRate const * repData = sObjectMgr->GetRepRewardRate(faction))
+    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
     {
         float repRate = for_quest ? repData->quest_rate : repData->creature_rate;
         percent *= repRate;
@@ -7582,7 +7582,7 @@ void Player::DuelComplete(DuelCompleteType type)
     AuraApplicationMap &itsAuras = duel->opponent->GetAppliedAuras();
     for (AuraApplicationMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
-        Aura const * aura = i->second->GetBase();
+        Aura const* aura = i->second->GetBase();
         if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
             duel->opponent->RemoveAura(i);
         else
@@ -7592,7 +7592,7 @@ void Player::DuelComplete(DuelCompleteType type)
     AuraApplicationMap &myAuras = GetAppliedAuras();
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
-        Aura const * aura = i->second->GetBase();
+        Aura const* aura = i->second->GetBase();
         if (!i->second->IsPositive() && aura->GetCasterGUID() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
             RemoveAura(i);
         else
@@ -8183,7 +8183,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
         // If usable, try to cast item spell
-        if (Item * item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (!item->IsBroken() && CanUseAttackType(attType))
                 if (ItemTemplate const *proto = item->GetTemplate())
                 {
@@ -8211,7 +8211,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const * proto)
+void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const* proto)
 {
     // Can do effect if any damage done to target
     if (procVictim & PROC_FLAG_TAKEN_DAMAGE)
@@ -9611,7 +9611,7 @@ void Player::SendBGWeekendWorldStates()
 {
     for (uint32 i = 1; i < sBattlemasterListStore.GetNumRows(); ++i)
     {
-        BattlemasterListEntry const * bl = sBattlemasterListStore.LookupEntry(i);
+        BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
         if (bl && bl->HolidayWorldStateId)
         {
             if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
@@ -14481,7 +14481,7 @@ bool Player::IsActiveQuest(uint32 quest_id) const
     return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
-Quest const * Player::GetNextQuest(uint64 guid, Quest const *pQuest)
+Quest const* Player::GetNextQuest(uint64 guid, Quest const *pQuest)
 {
     QuestRelationBounds pObjectQR;
 
@@ -15435,7 +15435,7 @@ bool Player::GiveQuestSourceItem(Quest const *pQuest)
         InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, srcitem, count);
         if (msg == EQUIP_ERR_OK)
         {
-            Item * item = StoreNewItem(dest, srcitem, true);
+            Item* item = StoreNewItem(dest, srcitem, true);
             SendNewItem(item, count, true, false);
             return true;
         }
@@ -16548,7 +16548,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
 
-    MapEntry const * mapEntry = sMapStore.LookupEntry(mapId);
+    MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
     if (!mapEntry || !IsPositionValid())
     {
         sLog->outError("Player (guidlow %d) have invalid coordinates (MapId: %u X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
@@ -17316,7 +17316,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
     Item* item = NULL;
     uint32 itemGuid  = fields[13].GetUInt32();
     uint32 itemEntry = fields[14].GetUInt32();
-    if (ItemTemplate const * proto = sObjectMgr->GetItemTemplate(itemEntry))
+    if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
         item = NewItemOrBag(proto);
@@ -19543,7 +19543,7 @@ void Player::SendRemoveControlBar()
     GetSession()->SendPacket(&data);
 }
 
-bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell * spell)
+bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell* spell)
 {
      if (!mod || !spellInfo)
          return false;
@@ -19645,7 +19645,7 @@ void Player::RestoreSpellMods(Spell *spell, uint32 ownerAuraId)
     }
 }
 
-void Player::RemoveSpellMods(Spell * spell)
+void Player::RemoveSpellMods(Spell* spell)
 {
     if (!spell)
         return;
@@ -19678,7 +19678,7 @@ void Player::RemoveSpellMods(Spell * spell)
     }
 }
 
-void Player::DropModCharge(SpellModifier * mod, Spell * spell)
+void Player::DropModCharge(SpellModifier* mod, Spell* spell)
 {
     // don't handle spells with proc_event entry defined
     // this is a temporary workaround, because all spellmods should be handled like that
@@ -19695,7 +19695,7 @@ void Player::DropModCharge(SpellModifier * mod, Spell * spell)
     }
 }
 
-void Player::SetSpellModTakingSpell(Spell * spell, bool apply)
+void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
 {
     if (!spell || (m_spellModTakingSpell && m_spellModTakingSpell != spell))
         return;
@@ -21195,14 +21195,14 @@ void Player::ModifyMoney(int32 d)
     }
 }
 
-Unit * Player::GetSelectedUnit() const
+Unit* Player::GetSelectedUnit() const
 {
     if (m_curSelection)
         return ObjectAccessor::GetUnit(*this, m_curSelection);
     return NULL;
 }
 
-Player * Player::GetSelectedPlayer() const
+Player* Player::GetSelectedPlayer() const
 {
     if (m_curSelection)
         return ObjectAccessor::GetPlayer(*this, m_curSelection);
@@ -21228,7 +21228,7 @@ void Player::SendComboPoints()
     }
 }
 
-void Player::AddComboPoints(Unit* target, int8 count, Spell * spell)
+void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
 {
     if (!count)
         return;
@@ -21481,7 +21481,7 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     GetSession()->SendPacket(&data);
 }
 
-void Player::ApplyEquipCooldown(Item * pItem)
+void Player::ApplyEquipCooldown(Item* pItem)
 {
     if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
         return;
@@ -22074,7 +22074,7 @@ bool Player::CanNoReagentCast(SpellEntry const* spellInfo) const
     return false;
 }
 
-void Player::RemoveItemDependentAurasAndCasts(Item * pItem)
+void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
 {
     for (AuraMap::iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end();)
     {
@@ -22765,7 +22765,7 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 void Player::InitGlyphsForLevel()
 {
     for (uint32 i = 0; i < sGlyphSlotStore.GetNumRows(); ++i)
-        if (GlyphSlotEntry const * gs = sGlyphSlotStore.LookupEntry(i))
+        if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(i))
             if (gs->Order)
                 SetGlyphSlot(gs->Order - 1, gs->Id);
 
@@ -22946,7 +22946,7 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
     return cooldown;
 }
 
-void Player::RemoveRunesByAuraEffect(AuraEffect const * aura)
+void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
 {
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
@@ -22960,7 +22960,7 @@ void Player::RemoveRunesByAuraEffect(AuraEffect const * aura)
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    AuraEffect const * aura = m_runes->runes[index].ConvertAura;
+    AuraEffect const* aura = m_runes->runes[index].ConvertAura;
     ConvertRune(index, GetBaseRune(index));
     SetRuneConvertAura(index, NULL);
     // Don't drop passive talents providing rune convertion
@@ -23097,7 +23097,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     if (msg == EQUIP_ERR_OK)
     {
         AllowedLooterSet* looters = item->GetAllowedLooters();
-        Item * newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
 
         if (qitem)
         {

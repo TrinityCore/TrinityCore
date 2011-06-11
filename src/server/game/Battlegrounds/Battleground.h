@@ -557,7 +557,7 @@ class Battleground
         //to be removed
         const char* GetTrinityString(int32 entry);
 
-        virtual bool HandlePlayerUnderMap(Player * /*plr*/) { return false; }
+        virtual bool HandlePlayerUnderMap(Player* /*plr*/) { return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(const uint64& guid) const;
@@ -591,7 +591,7 @@ class Battleground
         // Scorekeeping
         BattlegroundScoreMap m_PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player * /*player*/, uint64 /*guid*/) {}
+        virtual void RemovePlayer(Player* /*player*/, uint64 /*guid*/) {}
 
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap  m_Players;

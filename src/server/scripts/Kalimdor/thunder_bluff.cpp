@@ -90,7 +90,7 @@ public:
             Uppercut_Timer = 10000;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {

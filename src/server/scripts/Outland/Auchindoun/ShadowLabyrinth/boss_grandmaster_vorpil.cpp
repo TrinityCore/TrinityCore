@@ -89,7 +89,7 @@ public:
             sacrificed = false;
         }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
 
         void UpdateAI(const uint32 diff)
         {
@@ -227,12 +227,12 @@ public:
                 CAST_AI(mob_voidtraveler::mob_voidtravelerAI, summoned->AI())->VorpilGUID = me->GetGUID();
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
             destroyPortals();
@@ -241,7 +241,7 @@ public:
                 pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
             summonPortals();

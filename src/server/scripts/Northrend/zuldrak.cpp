@@ -144,7 +144,7 @@ public:
             DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
-        void MoveInLineOfSight(Unit * /*who*/){}
+        void MoveInLineOfSight(Unit* /*who*/){}
 
         void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
         {

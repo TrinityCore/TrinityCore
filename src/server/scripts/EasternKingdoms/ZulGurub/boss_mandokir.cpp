@@ -134,7 +134,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
              DoScriptText(SAY_AGGRO, me);
             }
@@ -307,7 +307,7 @@ class mob_ohgan : public CreatureScript
                 SunderArmor_Timer = 5000;
             }
 
-            void EnterCombat(Unit * /*who*/) {}
+            void EnterCombat(Unit* /*who*/) {}
 
             void JustDied(Unit* /*Killer*/)
             {

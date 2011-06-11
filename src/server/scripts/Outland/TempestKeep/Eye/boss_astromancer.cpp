@@ -143,12 +143,12 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Summons.DespawnAll();
             }
 
-            void KilledUnit(Unit * /*victim*/)
+            void KilledUnit(Unit* /*victim*/)
             {
                 DoScriptText(RAND(SAY_KILL1, SAY_KILL2, SAY_KILL3), me);
             }
 
-            void JustDied(Unit * /*victim*/)
+            void JustDied(Unit* /*victim*/)
             {
                 me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
@@ -157,7 +157,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
                 DoZoneInCombat();
@@ -435,7 +435,7 @@ class mob_solarium_priest : public CreatureScript
                 aoesilenceTimer = 15000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 

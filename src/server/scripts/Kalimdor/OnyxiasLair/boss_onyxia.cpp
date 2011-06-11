@@ -225,7 +225,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHit(Unit * /*pCaster*/, const SpellEntry* pSpell)
+        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
         {
             if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||

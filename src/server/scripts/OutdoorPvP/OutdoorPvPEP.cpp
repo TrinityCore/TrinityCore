@@ -302,7 +302,7 @@ void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
         m_SummonedGOSide = team;
         DelObject(EP_NPT_BUFF);
         AddObject(EP_NPT_BUFF, EP_NPT_LordaeronShrine.entry, EP_NPT_LordaeronShrine.map, EP_NPT_LordaeronShrine.x, EP_NPT_LordaeronShrine.y, EP_NPT_LordaeronShrine.z, EP_NPT_LordaeronShrine.o, EP_NPT_LordaeronShrine.rot0, EP_NPT_LordaeronShrine.rot1, EP_NPT_LordaeronShrine.rot2, EP_NPT_LordaeronShrine.rot3);
-        GameObject * go = HashMapHolder<GameObject>::Find(m_Objects[EP_NPT_BUFF]);
+        GameObject* go = HashMapHolder<GameObject>::Find(m_Objects[EP_NPT_BUFF]);
         if (go)
             go->SetUInt32Value(GAMEOBJECT_FACTION, (team == ALLIANCE ? 84 : 83));
     }
@@ -576,7 +576,7 @@ void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
         /*
         // sky - we need update gso code
 
-        Creature * c = HashMapHolder<Creature>::Find(m_Creatures[EP_PWT_FLIGHTMASTER]);
+        Creature* c = HashMapHolder<Creature>::Find(m_Creatures[EP_PWT_FLIGHTMASTER]);
         //Spawn flight master as friendly to capturing team
         c->SetUInt32Value(GAMEOBJECT_FACTION, (team == ALLIANCE ? 55 : 68));
         if(c)
@@ -658,7 +658,7 @@ bool OutdoorPvPEP::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPEP::HandlePlayerEnterZone(Player * plr, uint32 zone)
+void OutdoorPvPEP::HandlePlayerEnterZone(Player* plr, uint32 zone)
 {
     // add buffs
     if (plr->GetTeam() == ALLIANCE)
@@ -674,7 +674,7 @@ void OutdoorPvPEP::HandlePlayerEnterZone(Player * plr, uint32 zone)
     OutdoorPvP::HandlePlayerEnterZone(plr, zone);
 }
 
-void OutdoorPvPEP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
+void OutdoorPvPEP::HandlePlayerLeaveZone(Player* plr, uint32 zone)
 {
     // remove buffs
     if (plr->GetTeam() == ALLIANCE)
@@ -694,7 +694,7 @@ void OutdoorPvPEP::BuffTeams()
 {
     for (PlayerSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
     {
-        Player * plr = *itr;
+        Player* plr = *itr;
         {
             for (int i = 0; i < 4; ++i)
                 plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
@@ -704,7 +704,7 @@ void OutdoorPvPEP::BuffTeams()
     }
     for (PlayerSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
     {
-        Player * plr = *itr;
+        Player* plr = *itr;
         {
             for (int i = 0; i < 4; ++i)
                 plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);

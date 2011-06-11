@@ -52,7 +52,7 @@ class boss_gahzranka : public CreatureScript
                 Slam_Timer = 17000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 

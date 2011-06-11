@@ -159,7 +159,7 @@ public:
                 pInstance->SetData(DATA_FELMYST_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_BERSERK, 600000);
 

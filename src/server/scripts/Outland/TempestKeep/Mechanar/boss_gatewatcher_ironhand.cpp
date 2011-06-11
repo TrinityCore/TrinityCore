@@ -73,7 +73,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     Stream_of_Machine_Fluid_Timer = 55000;
 
                 }
-                void EnterCombat(Unit * /*who*/)
+                void EnterCombat(Unit* /*who*/)
                 {
                     DoScriptText(SAY_AGGRO_1, me);
                 }

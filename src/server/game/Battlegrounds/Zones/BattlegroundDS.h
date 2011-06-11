@@ -77,7 +77,7 @@ class BattlegroundDS : public Battleground
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player *killer);
-        bool HandlePlayerUnderMap(Player * plr);
+        bool HandlePlayerUnderMap(Player* plr);
     private:
         uint32 m_waterTimer;
         bool m_waterfallActive;

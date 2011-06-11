@@ -72,7 +72,7 @@ public:
             FocusedTargetGUID = 0;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         { }
 
         void JustSummoned(Creature *summoned)
@@ -185,7 +185,7 @@ public:
             fiery1 = fiery2 = true;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         { }
 
         void UpdateAI(const uint32 diff)

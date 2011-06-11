@@ -469,7 +469,7 @@ void BattlegroundSA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
 }
 
-void BattlegroundSA::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -912,7 +912,7 @@ void BattlegroundSA::SendTransportInit(Player *player)
     }
 }
 
-void BattlegroundSA::SendTransportsRemove(Player * player)
+void BattlegroundSA::SendTransportsRemove(Player* player)
 {
     if (m_BgObjects[BG_SA_BOAT_ONE] ||  m_BgObjects[BG_SA_BOAT_TWO])
     {

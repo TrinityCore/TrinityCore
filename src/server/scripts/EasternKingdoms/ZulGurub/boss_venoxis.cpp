@@ -84,7 +84,7 @@ class boss_venoxis : public CreatureScript
                 InBerserk= false;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 

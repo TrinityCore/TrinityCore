@@ -162,7 +162,7 @@ class boss_devourer_of_souls : public CreatureScript
                 instance->SetData(DATA_DEVOURER_EVENT, IN_PROGRESS);
             }
 
-            void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
+            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
             {
                 if (mirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
                 {

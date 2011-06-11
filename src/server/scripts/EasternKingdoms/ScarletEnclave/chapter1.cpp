@@ -130,7 +130,7 @@ public:
             me->LoadEquipment(0, true);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
             events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
@@ -694,7 +694,7 @@ public:
     {
         npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->ExitVehicle();
         }
@@ -902,7 +902,7 @@ public:
             }
         }
 
-        void PassengerBoarded(Unit * /*who*/, int8 /*seatId*/, bool apply)
+        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply)
         {
             if (!apply)
                 if (Creature *miner = Unit::GetCreature(*me, minerGUID))

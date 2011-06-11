@@ -103,7 +103,7 @@ bool ChatHandler::HandleSetSkillCommand(const char *args)
 
     int32 level = atol (level_p);
 
-    Player * target = getSelectedPlayer();
+    Player* target = getSelectedPlayer();
     if (!target)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -614,7 +614,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
         return false;
     }
 
-    GameObjectTemplate const * gInfo = sObjectMgr->GetGameObjectTemplate(go_id);
+    GameObjectTemplate const* gInfo = sObjectMgr->GetGameObjectTemplate(go_id);
     if (!gInfo)
     {
         PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, go_id);
@@ -2405,8 +2405,8 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
     {
         bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
 
-        AuraApplication const * aurApp = itr->second;
-        Aura const * aura = aurApp->GetBase();
+        AuraApplication const* aurApp = itr->second;
+        Aura const* aura = aurApp->GetBase();
         char const* name = aura->GetSpellProto()->SpellName[GetSessionDbcLocale()];
 
         if (m_session)

@@ -222,7 +222,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
         if (clicker->HasAura(auraForbidden))
             return false;
 
-    Unit const * summoner = NULL;
+    Unit const* summoner = NULL;
     // Check summoners for party
     if (clickee->isSummon())
         summoner = clickee->ToTempSummon()->GetSummoner();
@@ -987,7 +987,7 @@ void ObjectMgr::LoadCreatureAddons()
     sLog->outString();
 }
 
-CreatureAddon const * ObjectMgr::GetCreatureAddon(uint32 lowguid)
+CreatureAddon const* ObjectMgr::GetCreatureAddon(uint32 lowguid)
 {
     CreatureAddonContainer::const_iterator itr = CreatureAddonStore.find(lowguid);
     if (itr != CreatureAddonStore.end())
@@ -996,7 +996,7 @@ CreatureAddon const * ObjectMgr::GetCreatureAddon(uint32 lowguid)
     return NULL;
 }
 
-CreatureAddon const * ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
+CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
 {
     CreatureAddonContainer::const_iterator itr = CreatureTemplateAddonStore.find(entry);
     if (itr != CreatureTemplateAddonStore.end())
@@ -4906,7 +4906,7 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from spells
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
-        SpellEntry const * spell = sSpellStore.LookupEntry(i);
+        SpellEntry const* spell = sSpellStore.LookupEntry(i);
         if (spell)
         {
             for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
@@ -5048,7 +5048,7 @@ void ObjectMgr::ValidateSpellScripts()
 
     for (SpellScriptsMap::iterator itr = mSpellScripts.begin(); itr != mSpellScripts.end();)
     {
-        SpellEntry const * spellEntry = sSpellStore.LookupEntry(itr->first);
+        SpellEntry const* spellEntry = sSpellStore.LookupEntry(itr->first);
         std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> > SpellScriptLoaders;
         sScriptMgr->CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
         itr = mSpellScripts.upper_bound(itr->first);

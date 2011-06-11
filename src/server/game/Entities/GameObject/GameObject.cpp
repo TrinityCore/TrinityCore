@@ -144,7 +144,7 @@ void GameObject::RemoveFromWorld()
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if (uint64 owner_guid = GetOwnerGUID())
         {
-            if (Unit * owner = GetOwner())
+            if (Unit* owner = GetOwner())
                 owner->RemoveGameObject(this, false);
             else
                 sLog->outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.", GetGUIDLow(), GetGOInfo()->entry, GUID_LOPART(owner_guid));
@@ -609,7 +609,7 @@ void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
     if (GetOwnerGUID())
-        if (Unit * owner = GetOwner())
+        if (Unit* owner = GetOwner())
             owner->RemoveGameObject(this, false);
 
     ASSERT (!GetOwnerGUID());
@@ -817,7 +817,7 @@ bool GameObject::hasInvolvedQuest(uint32 quest_id) const
 bool GameObject::IsTransport() const
 {
     // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectTemplate const * gInfo = GetGOInfo();
+    GameObjectTemplate const* gInfo = GetGOInfo();
     if (!gInfo) return false;
     return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT;
 }
@@ -826,7 +826,7 @@ bool GameObject::IsTransport() const
 bool GameObject::IsDynTransport() const
 {
     // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectTemplate const * gInfo = GetGOInfo();
+    GameObjectTemplate const* gInfo = GetGOInfo();
     if (!gInfo) return false;
     return gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
 }
@@ -929,7 +929,7 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
         return;
 
     float range;
-    SpellRangeEntry const * srentry = sSpellRangeStore.LookupEntry(trapSpell->rangeIndex);
+    SpellRangeEntry const* srentry = sSpellRangeStore.LookupEntry(trapSpell->rangeIndex);
     if (GetSpellMaxRangeForHostile(srentry) == GetSpellMaxRangeForFriend(srentry))
         range = GetSpellMaxRangeForHostile(srentry);
     else
@@ -1657,7 +1657,7 @@ void GameObject::SendCustomAnim(uint32 anim)
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
 {
-    GameObjectDisplayInfoEntry const * info = sGameObjectDisplayInfoStore.LookupEntry(GetUInt32Value(GAMEOBJECT_DISPLAYID));
+    GameObjectDisplayInfoEntry const* info = sGameObjectDisplayInfoStore.LookupEntry(GetUInt32Value(GAMEOBJECT_DISPLAYID));
     if (!info)
         return IsWithinDist3d(x, y, z, radius);
 

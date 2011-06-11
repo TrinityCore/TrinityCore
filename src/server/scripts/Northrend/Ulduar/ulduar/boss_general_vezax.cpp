@@ -448,7 +448,7 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                if (Unit * caster = GetCaster())
+                if (Unit* caster = GetCaster())
                     caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
             }
 
