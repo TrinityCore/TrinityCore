@@ -419,7 +419,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // check item enchant aura cast
     if (!amount && caster)
         if (uint64 itemGUID = GetBase()->GetCastItemGUID())
-            if (Player *playerCaster = dynamic_cast<Player*>(caster))
+            if (Player* playerCaster = dynamic_cast<Player*>(caster))
                 if (Item *castItem = playerCaster->GetItemByGuid(itemGUID))
                     if (castItem->GetItemSuffixFactor())
                     {
@@ -6378,7 +6378,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
             return;
 
         Player *plCaster = caster->ToPlayer();
-        Unit *target = aurApp->GetTarget();
+        Unit* target = aurApp->GetTarget();
 
         if (target->getDeathState() != JUST_DIED)
             return;

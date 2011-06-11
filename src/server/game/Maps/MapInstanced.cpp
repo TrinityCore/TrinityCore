@@ -135,7 +135,7 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
         if (!pBind || !pBind->perm)
         {
             InstanceGroupBind *groupBind = NULL;
-            Group *group = player->GetGroup();
+            Group* group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
             if (group)
             {

@@ -1315,7 +1315,7 @@ public:
             }
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             float x, y, z;
             me->GetPosition(x, y, z);

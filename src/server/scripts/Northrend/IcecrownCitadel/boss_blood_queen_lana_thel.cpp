@@ -283,7 +283,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         me->SetFlying(false);
                         me->SendMovementFlagUpdate();
                         me->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit *victim = me->SelectVictim())
+                        if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
                         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                         break;

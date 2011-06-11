@@ -182,7 +182,7 @@ public:
                     switch(uiImpalePhase)
                     {
                     case IMPALE_PHASE_TARGET:
-                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                                 pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
@@ -312,7 +312,7 @@ public:
 
                 if (uiPoundTimer <= diff)
                 {
-                    if (Unit *target = me->getVictim())
+                    if (Unit* target = me->getVictim())
                     {
                         if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                             me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);

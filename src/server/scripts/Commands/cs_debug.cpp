@@ -250,7 +250,7 @@ public:
     static bool HandleDebugSendOpcodeCommand(ChatHandler* handler, const char* /*args*/)
     {
         Unit *unit = handler->getSelectedUnit();
-        Player *player = NULL;
+        Player* player = NULL;
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
             player = handler->GetSession()->GetPlayer();
         else

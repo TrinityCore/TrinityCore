@@ -55,14 +55,14 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player *receiver)
+    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player* receiver)
     {
         if (sWorld->getBoolConfig(CONFIG_CHATLOG_WHISPER))
             sLog->outChat("[WHISPER] Player %s tells %s: %s",
                 player->GetName(), receiver ? receiver->GetName() : "<unknown>", msg.c_str());
     }
 
-    void OnChat(Player *player, uint32 type, uint32 /*lang*/, std::string& msg, Group *group)
+    void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg, Group* group)
     {
         switch (type)
         {
@@ -110,7 +110,7 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 type, uint32 lang, std::string& msg, Guild *guild)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
     {
         switch(type)
         {
@@ -131,7 +131,7 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel *channel)
+    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel)
     {
         bool isSystem = channel &&
                         (channel->HasFlag(CHANNEL_FLAG_TRADE) ||

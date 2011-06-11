@@ -1003,14 +1003,14 @@ void Creature::SetLootRecipient(Unit *unit)
         return;
 
     m_lootRecipient = player->GetGUID();
-    if (Group *group = player->GetGroup())
+    if (Group* group = player->GetGroup())
         m_lootRecipientGroup = group->GetLowGUID();
 
     SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
 }
 
 // return true if this creature is tapped by the player or by a member of his group.
-bool Creature::isTappedBy(Player *player) const
+bool Creature::isTappedBy(Player* player) const
 {
     if (player->GetGUID() == m_lootRecipient)
         return true;
@@ -1441,7 +1441,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
             return false;
 
         if (who->isInCombat())
-            if (Unit *victim = who->getAttackerForHelper())
+            if (Unit* victim = who->getAttackerForHelper())
                 if (IsWithinDistInMap(victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
                     force = true;
 
@@ -1794,7 +1794,7 @@ Unit* Creature::SelectNearestTarget(float dist) const
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Unit *target = NULL;
+    Unit* target = NULL;
 
     {
         if (dist == 0.0f)
@@ -1821,7 +1821,7 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Unit *target = NULL;
+    Unit* target = NULL;
 
     if (dist > ATTACK_DISTANCE)
         sLog->outError("Creature (GUID: %u Entry: %u) SelectNearestTargetInAttackDistance called with dist > ATTACK_DISTANCE. Extra distance ignored.", GetGUIDLow(), GetEntry());
@@ -1957,7 +1957,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 
 // use this function to avoid having hostile creatures attack
 // friendlies and other mobs they shouldn't attack
-bool Creature::_IsTargetAcceptable(const Unit *target) const
+bool Creature::_IsTargetAcceptable(const Unit* target) const
 {
     ASSERT(target);
 
@@ -1977,7 +1977,7 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
     }
 
     const Unit *myVictim = getAttackerForHelper();
-    const Unit *targetVictim = target->getAttackerForHelper();
+    const Unit* targetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
     if (myVictim == target || targetVictim == this || IsHostileTo(target))

@@ -122,7 +122,7 @@ public:
             }
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             hyjal_trashAI::JustDied(victim);
             if (pInstance && IsEvent)

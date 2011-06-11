@@ -374,7 +374,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     return true;
 }
 
-void LootItem::AddAllowedLooter(const Player *player)
+void LootItem::AddAllowedLooter(const Player* player)
 {
     allowedGUIDs.insert(player->GetGUIDLow());
 }

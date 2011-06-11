@@ -301,7 +301,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         {
       //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
-            Player *player = const_cast<Object*>(this)->ToPlayer();
+            Player* player = const_cast<Object*>(this)->ToPlayer();
             if (!player)
                 return;
 
@@ -450,7 +450,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x4
     if (flags & UPDATEFLAG_HAS_TARGET)                       // packed guid (current target guid)
     {
-        if (Unit *victim = ((Unit*)this)->getVictim())
+        if (Unit* victim = ((Unit*)this)->getVictim())
             data->append(victim->GetPackGUID());
         else
             *data << uint8(0);
@@ -1982,7 +1982,7 @@ void WorldObject::MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossE
 
 void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossWhisper)
 {
-    Player *player = sObjectMgr->GetPlayer(receiver);
+    Player* player = sObjectMgr->GetPlayer(receiver);
     if (!player || !player->GetSession())
         return;
 
@@ -1996,7 +1996,7 @@ void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossW
 
 void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper)
 {
-    Player *player = sObjectMgr->GetPlayer(receiver);
+    Player* player = sObjectMgr->GetPlayer(receiver);
     if (!player || !player->GetSession())
         return;
 
