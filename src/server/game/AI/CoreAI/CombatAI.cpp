@@ -54,11 +54,6 @@ int TurretAI::Permissible(const Creature * /*creature*/)
     return PERMIT_BASE_NO;
 }
 
-int AOEAI::Permissible(const Creature * /*creature*/)
-{
-    return PERMIT_BASE_NO;
-}
-
 int VehicleAI::Permissible(const Creature * /*creature*/)
 {
     return PERMIT_BASE_NO;
