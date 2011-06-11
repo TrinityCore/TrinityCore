@@ -69,6 +69,6 @@ class BattlegroundNA : public Battleground
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player *killer);
-        bool HandlePlayerUnderMap(Player * plr);
+        bool HandlePlayerUnderMap(Player* plr);
 };
 #endif

@@ -122,7 +122,7 @@ class BattlegroundRV : public Battleground
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player *killer);
-        bool HandlePlayerUnderMap(Player * plr);
+        bool HandlePlayerUnderMap(Player* plr);
 
     private:
         uint32 Timer;

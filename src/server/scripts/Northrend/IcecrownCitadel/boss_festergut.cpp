@@ -439,7 +439,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit * caster = GetCaster())
+                if (Unit* caster = GetCaster())
                 {
                     uint32 inoculatedId = sSpellMgr->GetSpellIdForDifficulty(SPELL_INOCULATED, caster);
                     uint32 currStack = 0;

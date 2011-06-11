@@ -73,7 +73,7 @@ public:
             Striders.clear();
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void JustSummoned(Creature *summon)
         {
@@ -88,7 +88,7 @@ public:
             }
         }
 
-        void JustDied(Unit * /*who*/)
+        void JustDied(Unit* /*who*/)
         {
             for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
                 if (Creature *strider = Unit::GetCreature(*me, *i))

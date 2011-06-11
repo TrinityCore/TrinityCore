@@ -465,7 +465,7 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit * caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (!caster || caster->GetTypeId() != TYPEID_UNIT)
                     return;
 

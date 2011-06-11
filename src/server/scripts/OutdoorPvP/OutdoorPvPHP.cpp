@@ -81,7 +81,7 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     return true;
 }
 
-void OutdoorPvPHP::HandlePlayerEnterZone(Player * plr, uint32 zone)
+void OutdoorPvPHP::HandlePlayerEnterZone(Player* plr, uint32 zone)
 {
     // add buffs
     if (plr->GetTeam() == ALLIANCE)
@@ -97,7 +97,7 @@ void OutdoorPvPHP::HandlePlayerEnterZone(Player * plr, uint32 zone)
     OutdoorPvP::HandlePlayerEnterZone(plr, zone);
 }
 
-void OutdoorPvPHP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
+void OutdoorPvPHP::HandlePlayerLeaveZone(Player* plr, uint32 zone)
 {
     // remove buffs
     if (plr->GetTeam() == ALLIANCE)
@@ -320,7 +320,7 @@ void OPvPCapturePointHP::HandlePlayerLeave(Player *plr)
     OPvPCapturePoint::HandlePlayerLeave(plr);
 }
 
-void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)
+void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit* killed)
 {
     if (killed->GetTypeId() != TYPEID_PLAYER)
         return;

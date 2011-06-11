@@ -57,7 +57,7 @@ class Minion : public TempSummon
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
         bool IsGuardianPet() const;
     protected:
-        Unit * const m_owner;
+        Unit* const m_owner;
         float m_followAngle;
 };
 

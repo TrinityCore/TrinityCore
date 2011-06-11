@@ -61,7 +61,7 @@ public:
             spellhit = false;
         }
 
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
         {
@@ -508,7 +508,7 @@ public:
             }
         }
 
-        void AttackStart(Unit * /*who*/)
+        void AttackStart(Unit* /*who*/)
         {
         }
 

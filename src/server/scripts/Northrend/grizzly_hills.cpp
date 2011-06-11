@@ -367,7 +367,7 @@ public:
 
         void EnterEvadeMode() {}
 
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 /*diff*/)
         {
@@ -675,7 +675,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit * pKiller)
+        void JustDied(Unit* pKiller)
         {
             if (pKiller->ToPlayer() && pKiller->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
             {

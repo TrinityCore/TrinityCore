@@ -67,7 +67,7 @@ void OutdoorPvPTF::FillInitialWorldStates(WorldPacket &data)
     }
 }
 
-void OutdoorPvPTF::SendRemoveWorldStates(Player * plr)
+void OutdoorPvPTF::SendRemoveWorldStates(Player* plr)
 {
     plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, uint32(0));
     plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, uint32(0));
@@ -186,7 +186,7 @@ bool OutdoorPvPTF::Update(uint32 diff)
     return changed;
 }
 
-void OutdoorPvPTF::HandlePlayerEnterZone(Player * plr, uint32 zone)
+void OutdoorPvPTF::HandlePlayerEnterZone(Player* plr, uint32 zone)
 {
     if (plr->GetTeam() == ALLIANCE)
     {
@@ -201,7 +201,7 @@ void OutdoorPvPTF::HandlePlayerEnterZone(Player * plr, uint32 zone)
     OutdoorPvP::HandlePlayerEnterZone(plr, zone);
 }
 
-void OutdoorPvPTF::HandlePlayerLeaveZone(Player * plr, uint32 zone)
+void OutdoorPvPTF::HandlePlayerLeaveZone(Player* plr, uint32 zone)
 {
     // remove buffs
     plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);

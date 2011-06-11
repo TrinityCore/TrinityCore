@@ -232,7 +232,7 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
     float cur_dist;
     float angle_to_caster;
 
-    Unit * fright = ObjectAccessor::GetUnit(owner, i_frightGUID);
+    Unit* fright = ObjectAccessor::GetUnit(owner, i_frightGUID);
 
     if (fright)
     {
@@ -307,7 +307,7 @@ FleeingMovementGenerator<T>::Initialize(T &owner)
     owner.SetUInt64Value(UNIT_FIELD_TARGET, 0);
     owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
-    if (Unit * fright = ObjectAccessor::GetUnit(owner, i_frightGUID))
+    if (Unit* fright = ObjectAccessor::GetUnit(owner, i_frightGUID))
     {
         i_caster_x = fright->GetPositionX();
         i_caster_y = fright->GetPositionY();
