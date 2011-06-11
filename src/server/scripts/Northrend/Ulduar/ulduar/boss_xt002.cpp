@@ -810,7 +810,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                 if (!owner)
                     return;
 
-                if (aurEff->GetAmount() >= owner->GetHealth())
+                if (aurEff->GetAmount() >= int32(owner->GetHealth()))
                     if (XT002AI* xt002AI = CAST_AI(XT002AI, xt002->GetAI()))
                         xt002AI->GravityBombCasualty = true;
             }
@@ -843,7 +843,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                if (GetHitDamage() >= GetHitUnit()->GetHealth())
+                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
                     if (XT002AI* xt002AI = CAST_AI(XT002AI, GetCaster()->GetAI()))
                         xt002AI->GravityBombCasualty = true;
             }
