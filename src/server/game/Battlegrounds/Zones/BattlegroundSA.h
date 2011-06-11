@@ -538,7 +538,7 @@ class BattlegroundSA : public Battleground
         /// Send packet to player for create boats (client part)
         void SendTransportInit(Player *player);
         /// Send packet to player for destroy boats (client part)
-        void SendTransportsRemove(Player * player);
+        void SendTransportsRemove(Player* player);
 
         /// Id of attacker team
         TeamId Attackers;

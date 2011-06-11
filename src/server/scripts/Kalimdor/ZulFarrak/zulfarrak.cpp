@@ -322,7 +322,7 @@ public:
             AttackStartCaster(victim, 10);//keep back & toss bombs/shoot
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             /*if (pInstance)
                 pInstance->SetData(0, DONE);*/

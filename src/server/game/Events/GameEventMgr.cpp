@@ -910,7 +910,7 @@ void GameEventMgr::LoadFromDB()
     }
 }
 
-uint32 GameEventMgr::GetNPCFlag(Creature * cr)
+uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 {
     uint32 mask = 0;
     uint32 guid = cr->GetDBTableGUIDLow();
@@ -1109,7 +1109,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
         if (CreatureData const* data = sObjectMgr->GetCreatureData(itr->first))
         {
-            Creature * cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first, data->id, HIGHGUID_UNIT));
+            Creature* cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first, data->id, HIGHGUID_UNIT));
             // if we found the creature, modify its npcflag
             if (cr)
             {
@@ -1480,7 +1480,7 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
-            BattlemasterListEntry const * bl = sBattlemasterListStore.LookupEntry(bgTypeId);
+            BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
             if (bl && bl->HolidayWorldStateId)
             {
                 WorldPacket data;
@@ -1583,7 +1583,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void GameEventMgr::SendWorldStateUpdate(Player * plr, uint16 event_id)
+void GameEventMgr::SendWorldStateUpdate(Player* plr, uint16 event_id)
 {
     std::map<uint32, GameEventFinishCondition>::iterator itr;
     for (itr = mGameEvent[event_id].conditions.begin(); itr !=mGameEvent[event_id].conditions.end(); ++itr)

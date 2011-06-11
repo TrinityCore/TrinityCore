@@ -69,7 +69,7 @@ public:
             return false;
         }
 
-        Player * target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayer();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -114,7 +114,7 @@ public:
             return false;
         }
 
-        Player * target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayer();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -161,7 +161,7 @@ public:
             return false;
         }
 
-        Player * target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayer();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);

@@ -59,7 +59,7 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_SNAP_KICK, 8*IN_MILLISECONDS);

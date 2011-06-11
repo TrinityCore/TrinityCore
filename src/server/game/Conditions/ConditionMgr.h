@@ -127,7 +127,7 @@ struct Condition
         mScriptId           = 0;
     }
 
-    bool Meets(Player * player, Unit* invoker = NULL);
+    bool Meets(Player* player, Unit* invoker = NULL);
     bool isLoaded() const { return mConditionType > CONDITION_NONE || mReferenceId; }
 };
 

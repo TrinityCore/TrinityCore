@@ -135,7 +135,7 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
@@ -144,12 +144,12 @@ public:
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);

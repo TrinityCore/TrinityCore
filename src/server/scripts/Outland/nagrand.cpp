@@ -200,7 +200,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (me->HasAura(SPELL_VISUAL_SLEEP))
                 me->RemoveAura(SPELL_VISUAL_SLEEP);
@@ -267,9 +267,9 @@ public:
             me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == 32146)
             {
@@ -301,7 +301,7 @@ class npc_altruis_the_sufferer : public CreatureScript
 public:
     npc_altruis_the_sufferer() : CreatureScript("npc_altruis_the_sufferer") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* /*pCreature*/, Quest const * /*quest*/)
+    bool OnQuestAccept(Player* pPlayer, Creature* /*pCreature*/, Quest const* /*quest*/)
     {
         if (!pPlayer->GetQuestRewardStatus(9991))              //Survey the Land, q-id 9991
         {

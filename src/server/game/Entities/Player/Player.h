@@ -310,7 +310,7 @@ struct RuneInfo
     uint8 BaseRune;
     uint8 CurrentRune;
     uint32 Cooldown;
-    AuraEffect const * ConvertAura;
+    AuraEffect const* ConvertAura;
 };
 
 struct Runes
@@ -331,10 +331,10 @@ struct Runes
 struct EnchantDuration
 {
     EnchantDuration() : item(NULL), slot(MAX_ENCHANTMENT_SLOT), leftduration(0) {};
-    EnchantDuration(Item * _item, EnchantmentSlot _slot, uint32 _leftduration) : item(_item), slot(_slot),
+    EnchantDuration(Item* _item, EnchantmentSlot _slot, uint32 _leftduration) : item(_item), slot(_slot),
         leftduration(_leftduration){ ASSERT(item); };
 
-    Item * item;
+    Item* item;
     EnchantmentSlot slot;
     uint32 leftduration;
 };
@@ -1250,7 +1250,7 @@ class Player : public Unit, public GridObject<Player>
         void AddRefundReference(uint32 it);
         void DeleteRefundReference(uint32 it);
 
-        void ApplyEquipCooldown(Item * pItem);
+        void ApplyEquipCooldown(Item* pItem);
         void SetAmmo(uint32 item);
         void RemoveAmmo();
         float GetAmmoDPS() const { return m_ammoDPS; }
@@ -1268,7 +1268,7 @@ class Player : public Unit, public GridObject<Player>
                                                             // in trade, auction, guild bank, mail....
         void MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool update, bool in_characterInventoryDB = false);
                                                             // in trade, guild bank, mail....
-        void RemoveItemDependentAurasAndCasts(Item * pItem);
+        void RemoveItemDependentAurasAndCasts(Item* pItem);
         void DestroyItem(uint8 bag, uint8 slot, bool update);
         void DestroyItemCount(uint32 item, uint32 count, bool update, bool unequip_check = false);
         void DestroyItemCount(Item* item, uint32& count, bool update);
@@ -1536,7 +1536,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetComboPoints() { return m_comboPoints; }
         const uint64& GetComboTarget() const { return m_comboTarget; }
 
-        void AddComboPoints(Unit* target, int8 count, Spell * spell = NULL);
+        void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
         void GainSpellComboPoints(int8 count);
         void ClearComboPoints();
         void SendComboPoints();
@@ -1655,11 +1655,11 @@ class Player : public Unit, public GridObject<Player>
         SpellCooldowns const& GetSpellCooldownMap() const { return m_spellCooldowns; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell * spell = NULL);
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell * spell = NULL);
-        void RemoveSpellMods(Spell * spell);
+        bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell* spell = NULL);
+        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL);
+        void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell *spell, uint32 ownerAuraId=0);
-        void DropModCharge(SpellModifier * mod, Spell * spell);
+        void DropModCharge(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         static uint32 const infinityCooldownDelay = MONTH;  // used for set "infinity cooldowns" for spells and check
@@ -2042,8 +2042,8 @@ class Player : public Unit, public GridObject<Player>
         void ResetAllPowers();
 
         void _ApplyWeaponDependentAuraMods(Item *item, WeaponAttackType attackType, bool apply);
-        void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const * aura, bool apply);
-        void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, AuraEffect const * aura, bool apply);
+        void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
+        void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
 
         void _ApplyItemMods(Item *item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
@@ -2062,7 +2062,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
         void CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex);
-        void CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const * proto);
+        void CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
         void SetEquipmentSet(uint32 index, EquipmentSet eqset);
@@ -2407,9 +2407,9 @@ class Player : public Unit, public GridObject<Player>
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
         void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes->runes[index].Cooldown = cooldown; m_runes->SetRuneState(index, (cooldown == 0) ? true : false); }
-        void SetRuneConvertAura(uint8 index, AuraEffect const * aura) { m_runes->runes[index].ConvertAura = aura; }
-        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const * aura) { SetRuneConvertAura(index, aura); ConvertRune(index, newType); }
-        void RemoveRunesByAuraEffect(AuraEffect const * aura);
+        void SetRuneConvertAura(uint8 index, AuraEffect const* aura) { m_runes->runes[index].ConvertAura = aura; }
+        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura) { SetRuneConvertAura(index, aura); ConvertRune(index, newType); }
+        void RemoveRunesByAuraEffect(AuraEffect const* aura);
         void RestoreBaseRune(uint8 index);
         void ConvertRune(uint8 index, RuneType newType);
         void ResyncRunes(uint8 count);
@@ -2430,7 +2430,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
-        Spell * m_spellModTakingSpell;
+        Spell* m_spellModTakingSpell;
 
         float GetAverageItemLevel();
         bool isDebugAreaTriggers;
@@ -2597,7 +2597,7 @@ class Player : public Unit, public GridObject<Player>
 
         SpellModList m_spellMods[MAX_SPELLMOD];
         //uint32 m_pad;
-//        Spell * m_spellModTakingSpell;  // Spell for which charges are dropped in spell::finish
+//        Spell* m_spellModTakingSpell;  // Spell for which charges are dropped in spell::finish
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;

@@ -145,7 +145,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
     };
 
 };

@@ -571,9 +571,9 @@ public:
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -778,7 +778,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void JustDied(Unit * /*unit*/)
+    void JustDied(Unit* /*unit*/)
     {
         if (Creature* portal = Unit::GetCreature((*me), pInstance->GetData64(DATA_TELEPORTATION_PORTAL)))
             CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);

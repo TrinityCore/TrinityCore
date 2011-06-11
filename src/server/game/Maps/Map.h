@@ -309,7 +309,7 @@ class Map : public GridRefManager<NGridType>
         static void InitStateMachine();
         static void DeleteStateMachine();
 
-        Map const * GetParent() const { return m_parentMap; }
+        Map const* GetParent() const { return m_parentMap; }
 
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
@@ -446,10 +446,10 @@ class Map : public GridRefManager<NGridType>
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf(Player * player);
+        void SendInitSelf(Player* player);
 
-        void SendInitTransports(Player * player);
-        void SendRemoveTransports(Player * player);
+        void SendInitTransports(Player* player);
+        void SendRemoveTransports(Player* player);
 
         bool CreatureCellRelocation(Creature *creature, Cell new_cell);
 

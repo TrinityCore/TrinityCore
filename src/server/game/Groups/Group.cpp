@@ -1466,7 +1466,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
-    Player * reference = GetFirstMember()->getSource();
+    Player* reference = GetFirstMember()->getSource();
     // no reference found, can't join this way
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;

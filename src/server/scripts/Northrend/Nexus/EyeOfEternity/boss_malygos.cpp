@@ -671,7 +671,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit * caster = GetCaster())
+                if (Unit* caster = GetCaster())
                 {
                     std::list<HostileReference*> &m_threatlist = caster->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)

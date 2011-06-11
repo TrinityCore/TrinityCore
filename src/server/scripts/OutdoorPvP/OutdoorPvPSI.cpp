@@ -67,14 +67,14 @@ bool OutdoorPvPSI::Update(uint32 /*diff*/)
     return false;
 }
 
-void OutdoorPvPSI::HandlePlayerEnterZone(Player * plr, uint32 zone)
+void OutdoorPvPSI::HandlePlayerEnterZone(Player* plr, uint32 zone)
 {
     if (plr->GetTeam() == m_LastController)
         plr->CastSpell(plr, SI_CENARION_FAVOR, true);
     OutdoorPvP::HandlePlayerEnterZone(plr, zone);
 }
 
-void OutdoorPvPSI::HandlePlayerLeaveZone(Player * plr, uint32 zone)
+void OutdoorPvPSI::HandlePlayerLeaveZone(Player* plr, uint32 zone)
 {
     // remove buffs
     plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
@@ -155,7 +155,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                     if (plr->GetDistance(atEntry->x, atEntry->y, atEntry->z) > 5.0f + atEntry->radius)
                     {
                         // he dropped it further, summon mound
-                        GameObject * go = new GameObject;
+                        GameObject* go = new GameObject;
                         Map * map = plr->GetMap();
                         if (!map)
                         {
@@ -185,7 +185,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                     if (plr->GetDistance(atEntry->x, atEntry->y, atEntry->z) > 5.0f + atEntry->radius)
                     {
                         // he dropped it further, summon mound
-                        GameObject * go = new GameObject;
+                        GameObject* go = new GameObject;
                         Map * map = plr->GetMap();
                         if (!map)
                         {

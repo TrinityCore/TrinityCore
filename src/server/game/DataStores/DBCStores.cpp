@@ -300,7 +300,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
-        FactionEntry const * faction = sFactionStore.LookupEntry(i);
+        FactionEntry const* faction = sFactionStore.LookupEntry(i);
         if (faction && faction->team)
         {
             SimpleFactionsList &flist = sFactionTeamMap[faction->team];
@@ -312,7 +312,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGameObjectDisplayInfoStore,  dbcPath, "GameObjectDisplayInfo.dbc");
     for (uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
     {
-        if (GameObjectDisplayInfoEntry const * info = sGameObjectDisplayInfoStore.LookupEntry(i))
+        if (GameObjectDisplayInfoEntry const* info = sGameObjectDisplayInfoStore.LookupEntry(i))
         {
             if (info->maxX < info->minX)
                 std::swap(*(float*)(&info->maxX), *(float*)(&info->minX));
@@ -386,7 +386,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc", &CustomSpellEntryfmt, &CustomSpellEntryIndex);
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
-        SpellEntry const * spell = sSpellStore.LookupEntry(i);
+        SpellEntry const* spell = sSpellStore.LookupEntry(i);
         if (spell && spell->Category)
             sSpellCategoryStore[spell->Category].insert(i);
     }

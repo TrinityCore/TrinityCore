@@ -83,7 +83,7 @@ class boss_marli : public CreatureScript
                 PhaseTwo = false;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
             }
@@ -239,7 +239,7 @@ class mob_spawn_of_marli : public CreatureScript
                 LevelUp_Timer = 3000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 

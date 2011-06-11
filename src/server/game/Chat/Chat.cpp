@@ -1056,7 +1056,7 @@ void ChatHandler::FillMessageData(WorldPacket *data, WorldSession* session, uint
         *data << uint8(0);
 }
 
-Player * ChatHandler::getSelectedPlayer()
+Player* ChatHandler::getSelectedPlayer()
 {
     if (!m_session)
         return NULL;

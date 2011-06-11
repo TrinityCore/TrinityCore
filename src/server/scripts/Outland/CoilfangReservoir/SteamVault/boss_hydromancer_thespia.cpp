@@ -92,7 +92,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
 
@@ -167,7 +167,7 @@ public:
             WaterBoltVolley_Timer = 3000+rand()%3000;
         }
 
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(const uint32 diff)
         {

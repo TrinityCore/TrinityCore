@@ -152,7 +152,7 @@ public:
                 pInstance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me)
                 return;
@@ -286,7 +286,7 @@ public:
             isDead = false;
         }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
         void DamageTaken(Unit *done_by, uint32 &damage)
         {
             if (done_by->GetGUID() == me->GetGUID())

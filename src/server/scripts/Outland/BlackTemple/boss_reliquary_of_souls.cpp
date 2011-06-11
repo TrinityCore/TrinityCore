@@ -125,7 +125,7 @@ public:
             DoZoneInCombat();
         }
 
-        void JustDied(Unit * /*killer*/);
+        void JustDied(Unit* /*killer*/);
     };
 
 };
@@ -358,7 +358,7 @@ public:
 
 };
 
-void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit * /*killer*/)
+void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
 {
     if (ReliquaryGUID)
         if (Creature *Reliquary = (Unit::GetCreature((*me), ReliquaryGUID)))
@@ -400,7 +400,7 @@ public:
             AuraTimer = 5000;
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage >= me->GetHealth())
             {
@@ -411,7 +411,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 {
@@ -424,7 +424,7 @@ public:
             else return;
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SUFF_SAY_SLAY1, SUFF_SAY_SLAY2, SUFF_SAY_SLAY3), me);
         }
@@ -536,7 +536,7 @@ public:
             }
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 for (uint8 i = 0; i < 3; ++i)
@@ -546,14 +546,14 @@ public:
                             me->InterruptSpell(CURRENT_GENERIC_SPELL, false);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(DESI_SAY_FREED, me);
             DoZoneInCombat();
             DoCast(me, AURA_OF_DESIRE, true);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(DESI_SAY_SLAY1, DESI_SAY_SLAY2, DESI_SAY_SLAY3), me);
         }
@@ -632,7 +632,7 @@ public:
             CheckedAggro = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(ANGER_SAY_FREED, ANGER_SAY_FREED2), me);
 
@@ -640,12 +640,12 @@ public:
             DoCast(me, AURA_OF_ANGER, true);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(ANGER_SAY_DEATH, me);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(ANGER_SAY_SLAY1, ANGER_SAY_SLAY2), me);
         }

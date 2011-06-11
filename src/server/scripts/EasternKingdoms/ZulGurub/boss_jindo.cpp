@@ -69,7 +69,7 @@ class boss_jindo : public CreatureScript
                 Teleport_Timer = 5000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
             }
@@ -201,7 +201,7 @@ class mob_healing_ward : public CreatureScript
                 Heal_Timer = 2000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 
@@ -251,7 +251,7 @@ class mob_shade_of_jindo : public CreatureScript
                 DoCast(me, SPELL_INVISIBLE, true);
             }
 
-            void EnterCombat(Unit * /*who*/){}
+            void EnterCombat(Unit* /*who*/){}
 
             void UpdateAI (const uint32 diff)
             {

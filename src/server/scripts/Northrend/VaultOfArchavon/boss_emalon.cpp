@@ -203,7 +203,7 @@ class mob_tempest_minion : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit * who)
+            void EnterCombat(Unit* who)
             {
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SHOCK, 20000);

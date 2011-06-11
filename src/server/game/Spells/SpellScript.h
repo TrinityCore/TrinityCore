@@ -281,7 +281,7 @@ class SpellScript : public _SpellScript
         // returns: target of current effect if it was Player otherwise NULL
         Player* GetHitPlayer();
         // returns: target of current effect if it was Item otherwise NULL
-        Item * GetHitItem();
+        Item* GetHitItem();
         // returns: target of current effect if it was GameObject otherwise NULL
         GameObject* GetHitGObj();
         // setter/getter for for damage done by spell to target of spell hit
@@ -355,7 +355,7 @@ class AuraScript : public _SpellScript
     public:
 
     #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
-        typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit * target); \
+        typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit* target); \
         typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const *, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const *); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect *); \
@@ -370,7 +370,7 @@ class AuraScript : public _SpellScript
         {
             public:
                 CheckAreaTargetHandler(AuraCheckAreaTargetFnType pHandlerScript);
-                bool Call(AuraScript* auraScript, Unit * target);
+                bool Call(AuraScript* auraScript, Unit* target);
             private:
                 AuraCheckAreaTargetFnType pHandlerScript;
         };
@@ -379,13 +379,13 @@ class AuraScript : public _SpellScript
             public:
                 EffectBase(uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellEntry const * spellEntry, uint8 effIndex);
+                bool CheckEffect(SpellEntry const* spellEntry, uint8 effIndex);
         };
         class EffectPeriodicHandler : public EffectBase
         {
             public:
                 EffectPeriodicHandler(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
-                void Call(AuraScript * auraScript, AuraEffect const * _aurEff);
+                void Call(AuraScript * auraScript, AuraEffect const* _aurEff);
             private:
                 AuraEffectPeriodicFnType pEffectHandlerScript;
         };
@@ -425,7 +425,7 @@ class AuraScript : public _SpellScript
         {
             public:
                 EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode);
-                void Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraEffectHandleModes _mode);
+                void Call(AuraScript * auraScript, AuraEffect const* _aurEff, AuraEffectHandleModes _mode);
             private:
                 AuraEffectApplicationModeFnType pEffectHandlerScript;
                 AuraEffectHandleModes mode;
@@ -463,23 +463,23 @@ class AuraScript : public _SpellScript
     public:
         AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
         {}
-        bool _Validate(SpellEntry const * entry);
+        bool _Validate(SpellEntry const* entry);
         bool _Load(Aura * aura);
-        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const * aurApp = NULL);
+        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = NULL);
         void _FinishScriptCall();
         bool _IsDefaultActionPrevented();
     private:
         Aura * m_aura;
-        AuraApplication const * m_auraApplication;
+        AuraApplication const* m_auraApplication;
         bool m_defaultActionPrevented;
 
         class ScriptStateStore
         {
         public:
             uint8 _currentScriptState;
-            AuraApplication const * _auraApplication;
+            AuraApplication const* _auraApplication;
             bool _defaultActionPrevented;
-            ScriptStateStore(uint8 currentScriptState, AuraApplication const * auraApplication, bool defaultActionPrevented)
+            ScriptStateStore(uint8 currentScriptState, AuraApplication const* auraApplication, bool defaultActionPrevented)
                 : _currentScriptState(currentScriptState), _auraApplication(auraApplication), _defaultActionPrevented(defaultActionPrevented)
             {}
         };
@@ -493,7 +493,7 @@ class AuraScript : public _SpellScript
         //
         // executed when area aura checks if it can be applied on target
         // example: OnEffectApply += AuraEffectApplyFn(class::function);
-        // where function is: bool function (Unit * target);
+        // where function is: bool function (Unit* target);
         HookList<CheckAreaTargetHandler> DoCheckAreaTarget;
         #define AuraCheckAreaTargetFn(F) CheckAreaTargetFunction(&F)
         // executed when aura effect is applied with specified mode to target
@@ -589,7 +589,7 @@ class AuraScript : public _SpellScript
         // returns object on which aura was casted, target for non-area auras, area aura source for area auras
         WorldObject * GetOwner() const;
         // returns owner if it's unit or unit derived object, NULL otherwise (only for persistent area auras NULL is returned)
-        Unit * GetUnitOwner() const;
+        Unit* GetUnitOwner() const;
         // returns owner if it's dynobj, NULL otherwise
         DynamicObject * GetDynobjOwner() const;
 
@@ -647,9 +647,9 @@ class AuraScript : public _SpellScript
         // returns currently processed target of an aura
         // Return value does not need to be NULL-checked, the only situation this will (always)
         // return NULL is when the call happens in an unsupported hook, in other cases, it is always valid
-        Unit * GetTarget() const;
+        Unit* GetTarget() const;
         // returns AuraApplication object of currently processed target
-        AuraApplication const * GetTargetApplication() const;
+        AuraApplication const* GetTargetApplication() const;
 };
 
 //

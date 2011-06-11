@@ -243,7 +243,7 @@ public:
             AttackStart(pTarget);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 

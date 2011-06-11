@@ -1866,7 +1866,7 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpai
     notifier.SendToSelf();
 }
 
-void Map::SendInitSelf(Player * player)
+void Map::SendInitSelf(Player* player)
 {
     sLog->outDetail("Creating player data for himself %u", player->GetGUIDLow());
 
@@ -1898,7 +1898,7 @@ void Map::SendInitSelf(Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendInitTransports(Player * player)
+void Map::SendInitTransports(Player* player)
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr->m_TransportsByMap;
@@ -1925,7 +1925,7 @@ void Map::SendInitTransports(Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendRemoveTransports(Player * player)
+void Map::SendRemoveTransports(Player* player)
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr->m_TransportsByMap;
@@ -2583,7 +2583,7 @@ void BattlegroundMap::InitVisibilityDistance()
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
 }
 
-bool BattlegroundMap::CanEnter(Player * player)
+bool BattlegroundMap::CanEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
@@ -2600,7 +2600,7 @@ bool BattlegroundMap::CanEnter(Player * player)
     return Map::CanEnter(player);
 }
 
-bool BattlegroundMap::Add(Player * player)
+bool BattlegroundMap::Add(Player* player)
 {
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);

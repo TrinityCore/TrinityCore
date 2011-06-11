@@ -29,7 +29,7 @@
 
 // Checks if player meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
-bool Condition::Meets(Player * player, Unit* invoker)
+bool Condition::Meets(Player* player, Unit* invoker)
 {
     if (!player)
     {
@@ -1289,7 +1289,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_MAPID:
         {
-            MapEntry const * me = sMapStore.LookupEntry(cond->mConditionValue1);
+            MapEntry const* me = sMapStore.LookupEntry(cond->mConditionValue1);
             if (!me)
             {
                 sLog->outErrorDb("Map condition has non existing map (%u), skipped", cond->mConditionValue1);

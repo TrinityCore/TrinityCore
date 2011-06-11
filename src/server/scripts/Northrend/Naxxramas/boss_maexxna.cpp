@@ -72,7 +72,7 @@ public:
 
         bool enraged;
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             enraged = false;
@@ -171,7 +171,7 @@ public:
                     victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (me->m_spells[0] && victimGUID)
                 if (Unit *victim = Unit::GetUnit(*me, victimGUID))
