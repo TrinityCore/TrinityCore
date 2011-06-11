@@ -89,16 +89,6 @@ struct TurretAI : public CreatureAI
         float m_minRange;
 };
 
-struct AOEAI : public CreatureAI
-{
-    public:
-        explicit AOEAI(Creature *c);
-        bool CanAIAttack(const Unit *who) const;
-        void AttackStart(Unit *who);
-        void UpdateAI(const uint32 diff);
-
-        static int Permissible(const Creature *);
-};
 #define VEHICLE_CONDITION_CHECK_TIME 1000
 #define VEHICLE_DISMISS_TIME 5000
 struct VehicleAI : public CreatureAI
