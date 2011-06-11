@@ -4112,10 +4112,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             ++count;
             break;
-        case 71340: // Pact of the Darkfallen (Blood-Queen Lana'thel)
-            spellInfo->DurationIndex = 21;
-            ++count;
-            break;
         case 71266: // Swarming Shadows
         case 72890: // Swarming Shadows
             spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
