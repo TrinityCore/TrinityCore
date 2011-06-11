@@ -145,7 +145,7 @@ Player* World::FindPlayerInZone(uint32 zone)
         if (!itr->second)
             continue;
 
-        Player *player = itr->second->GetPlayer();
+        Player* player = itr->second->GetPlayer();
         if (!player)
             continue;
 

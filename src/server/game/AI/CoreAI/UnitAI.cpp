@@ -24,13 +24,13 @@
 #include "SpellMgr.h"
 #include "CreatureAIImpl.h"
 
-void UnitAI::AttackStart(Unit *victim)
+void UnitAI::AttackStart(Unit* victim)
 {
     if (victim && me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
 
-void UnitAI::AttackStartCaster(Unit *victim, float dist)
+void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))
         me->GetMotionMaster()->MoveChase(victim, dist);
@@ -127,7 +127,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 
 void UnitAI::DoCast(uint32 spellId)
 {
-    Unit *target = NULL;
+    Unit* target = NULL;
     //sLog->outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
     switch(AISpellInfo[spellId].target)
     {
@@ -242,7 +242,7 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
     if (!charmer->isInCombat())
         me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, me->GetFollowAngle());
 
-    Unit *target = me->getVictim();
+    Unit* target = me->getVictim();
     if (!target || !charmer->canAttack(target))
         AttackStart(charmer->SelectNearestTargetInAttackDistance());
 }

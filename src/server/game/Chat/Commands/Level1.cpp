@@ -396,7 +396,7 @@ bool ChatHandler::HandleAppearCommand(const char* args)
             InstancePlayerBind *pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(cMap->IsRaid()));
             if (!pBind)
             {
-                Group *group = _player->GetGroup();
+                Group* group = _player->GetGroup();
                 // if no bind exists, create a solo bind
                 InstanceGroupBind *gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
                 if (!gBind)

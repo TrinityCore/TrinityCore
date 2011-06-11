@@ -317,7 +317,7 @@ public:
                 pInstance->SetData(0, NOT_STARTED);*/
         }
 
-        void AttackStart(Unit *victim)
+        void AttackStart(Unit* victim)
         {
             AttackStartCaster(victim, 10);//keep back & toss bombs/shoot
         }

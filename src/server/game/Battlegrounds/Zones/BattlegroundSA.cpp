@@ -897,7 +897,7 @@ void BattlegroundSA::UpdateDemolisherSpawns()
     }
 }
 
-void BattlegroundSA::SendTransportInit(Player *player)
+void BattlegroundSA::SendTransportInit(Player* player)
 {
     if (m_BgObjects[BG_SA_BOAT_ONE] ||  m_BgObjects[BG_SA_BOAT_TWO])
     {

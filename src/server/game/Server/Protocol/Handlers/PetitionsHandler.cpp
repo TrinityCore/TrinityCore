@@ -602,7 +602,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     uint8 signs = 0;
     uint64 petitionguid, plguid;
     uint32 type, junk;
-    Player *player;
+    Player* player;
     recv_data >> junk;                                      // this is not petition type!
     recv_data >> petitionguid;                              // petition guid
     recv_data >> plguid;                                    // player guid

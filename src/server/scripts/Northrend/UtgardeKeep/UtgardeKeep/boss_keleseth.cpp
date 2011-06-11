@@ -89,7 +89,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             if (killer->GetGUID() != me->GetGUID())
                 ShatterFrostTomb = true;

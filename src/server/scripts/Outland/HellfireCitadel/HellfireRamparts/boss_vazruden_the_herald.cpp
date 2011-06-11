@@ -262,7 +262,7 @@ class boss_vazruden : public CreatureScript
 
                 if (Revenge_Timer <= diff)
                 {
-                    if (Unit *victim = me->getVictim())
+                    if (Unit* victim = me->getVictim())
                         DoCast(victim, DUNGEON_MODE(SPELL_REVENGE, SPELL_REVENGE_H));
                     Revenge_Timer = 5000;
                 }
@@ -493,7 +493,7 @@ class mob_hellfire_sentry : public CreatureScript
 
                 if (KidneyShot_Timer <= diff)
                 {
-                    if (Unit *victim = me->getVictim())
+                    if (Unit* victim = me->getVictim())
                         DoCast(victim, SPELL_KIDNEY_SHOT);
                     KidneyShot_Timer = 20000;
                 }

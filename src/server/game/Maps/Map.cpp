@@ -338,7 +338,7 @@ Map::EnsureGridCreated(const GridPair &p)
 }
 
 void
-Map::EnsureGridLoadedAtEnter(const Cell &cell, Player *player)
+Map::EnsureGridLoadedAtEnter(const Cell &cell, Player* player)
 {
     EnsureGridLoaded(cell);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
@@ -391,7 +391,7 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(cell);
 }
 
-bool Map::Add(Player *player)
+bool Map::Add(Player* player)
 {
     // Check if we are adding to correct map
     ASSERT (player->GetMap() == this);
@@ -657,7 +657,7 @@ void Map::ProcessRelocationNotifies(const uint32 & diff)
     }
 }
 
-void Map::Remove(Player *player, bool remove)
+void Map::Remove(Player* player, bool remove)
 {
     player->RemoveFromWorld();
     SendRemoveTransports(player);
@@ -724,7 +724,7 @@ Map::Remove(T *obj, bool remove)
 }
 
 void
-Map::PlayerRelocation(Player *player, float x, float y, float z, float orientation)
+Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
 {
     ASSERT(player);
 
@@ -2198,7 +2198,7 @@ void InstanceMap::InitVisibilityDistance()
 /*
     Do map specific checks to see if the player can enter
 */
-bool InstanceMap::CanEnter(Player *player)
+bool InstanceMap::CanEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
@@ -2260,7 +2260,7 @@ bool InstanceMap::CanEnter(Player *player)
 /*
     Do map specific checks and add the player to the map if successful.
 */
-bool InstanceMap::Add(Player *player)
+bool InstanceMap::Add(Player* player)
 {
     // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
     // GMs still can teleport player in instance.
@@ -2275,7 +2275,7 @@ bool InstanceMap::Add(Player *player)
         // Dungeon only code
         if (IsDungeon())
         {
-            Group *group = player->GetGroup();
+            Group* group = player->GetGroup();
 
             // increase current instances (hourly limit)
             if (!group || !group->isLFGGroup())
@@ -2386,7 +2386,7 @@ void InstanceMap::Update(const uint32& t_diff)
         i_data->Update(t_diff);
 }
 
-void InstanceMap::Remove(Player *player, bool remove)
+void InstanceMap::Remove(Player* player, bool remove)
 {
     sLog->outDetail("MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
     //if last player set unload timer
@@ -2471,7 +2471,7 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player *player)
+void InstanceMap::PermBindAllPlayers(Player* player)
 {
     if (!IsDungeon())
         return;
@@ -2483,7 +2483,7 @@ void InstanceMap::PermBindAllPlayers(Player *player)
         return;
     }
 
-    Group *group = player->GetGroup();
+    Group* group = player->GetGroup();
     // group members outside the instance group don't get bound
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
@@ -2613,7 +2613,7 @@ bool BattlegroundMap::Add(Player* player)
     return Map::Add(player);
 }
 
-void BattlegroundMap::Remove(Player *player, bool remove)
+void BattlegroundMap::Remove(Player* player, bool remove)
 {
     sLog->outDetail("MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
     Map::Remove(player, remove);
@@ -2652,7 +2652,7 @@ Map::GetDynamicObject(uint64 guid)
     return ObjectAccessor::GetObjectInMap(guid, this, (DynamicObject*)NULL);
 }
 
-void Map::UpdateIteratorBack(Player *player)
+void Map::UpdateIteratorBack(Player* player)
 {
     if (m_mapRefIter == player->GetMapRef())
         m_mapRefIter = m_mapRefIter->nocheck_prev();

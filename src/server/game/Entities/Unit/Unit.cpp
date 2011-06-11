@@ -403,7 +403,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 T
     AddUnitState(UNIT_STAT_MOVE);
 }
 
-void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player)
+void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player* player)
 {
     WorldPacket data(SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
     data.append(GetPackGUID());
@@ -675,7 +675,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     if (GetTypeId() == TYPEID_PLAYER && this != pVictim)
     {
-        Player *killer = this->ToPlayer();
+        Player* killer = this->ToPlayer();
 
         // in bg, count dmg if victim is also a player
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
@@ -853,7 +853,7 @@ void Unit::CastSpell(Unit* Victim, SpellEntry const *spellInfo, bool triggered, 
     if (!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
 
-    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster);
+    Spell* spell = new Spell(this, spellInfo, triggered, originalCaster);
 
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
@@ -893,7 +893,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit*
     if (!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
 
-    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster);
+    Spell* spell = new Spell(this, spellInfo, triggered, originalCaster);
 
     if (castItem)
     {
@@ -924,7 +924,7 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
     if (!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
 
-    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster);
+    Spell* spell = new Spell(this, spellInfo, triggered, originalCaster);
 
     SpellCastTargets targets;
     targets.setDst(x, y, z, GetOrientation());
@@ -960,7 +960,7 @@ void Unit::CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castI
     if (!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
 
-    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster);
+    Spell* spell = new Spell(this, spellInfo, triggered, originalCaster);
 
     SpellCastTargets targets;
     targets.setGOTarget(go);
@@ -2973,7 +2973,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
     ASSERT(spellType < CURRENT_MAX_SPELL);
 
     //sLog->outDebug(LOG_FILTER_UNITS, "Interrupt spell for unit %u.", GetEntry());
-    Spell *spell = m_currentSpells[spellType];
+    Spell* spell = m_currentSpells[spellType];
     if (spell
         && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
         && (withInstant || spell->GetCastTime() > 0))
@@ -4789,7 +4789,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendSpellNonMeleeDamageLog(Unit *target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
+void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
 {
     SpellNonMeleeDamage log(this, target, SpellID, damageSchoolMask);
     log.damage = Damage - AbsorbedDamage - Resist - Blocked;
@@ -4860,7 +4860,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo)
+void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 {
     WorldPacket data(SMSG_SPELLLOGMISS, (4+8+1+4+8+1));
     data << uint32(spellID);
@@ -4947,7 +4947,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
+void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
 {
     CalcDamageInfo dmgInfo;
     dmgInfo.HitInfo = HitInfo;
@@ -9156,7 +9156,7 @@ FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
 
         if (GetGUID() != guid)
         {
-            if (const Player *player = ToPlayer())
+            if (const Player* player = ToPlayer())
                 sLog->outError("Player %s has invalid faction (faction template id) #%u", player->GetName(), getFaction());
             else if (const Creature *creature = ToCreature())
                 sLog->outError("Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureInfo()->Entry, getFaction());
@@ -9427,7 +9427,7 @@ bool Unit::IsNeutralToAll() const
     return my_faction->IsNeutralToAll();
 }
 
-bool Unit::Attack(Unit *victim, bool meleeAttack)
+bool Unit::Attack(Unit* victim, bool meleeAttack)
 {
     if (!victim || victim == this)
         return false;
@@ -9999,7 +9999,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             charm->ToPlayer()->UpdatePvPState();
         }
-        else if (Player *player = charm->GetCharmerOrOwnerPlayerOrPlayerItself())
+        else if (Player* player = charm->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
             charm->m_ControlledByPlayer = true;
             charm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
@@ -10058,7 +10058,7 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth)
     return gain;
 }
 
-Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
+Unit* Unit::SelectMagnetTarget(Unit* victim, SpellEntry const *spellInfo)
 {
     if (!victim)
         return NULL;
@@ -10115,7 +10115,7 @@ void Unit::RemoveAllControlled()
 
     while (!m_Controlled.empty())
     {
-        Unit *target = *m_Controlled.begin();
+        Unit* target = *m_Controlled.begin();
         m_Controlled.erase(m_Controlled.begin());
         if (target->GetCharmerGUID() == GetGUID())
             target->RemoveCharmAuras();
@@ -12744,7 +12744,7 @@ void Unit::TauntApply(Unit* taunter)
     if (this->ToCreature()->HasReactState(REACT_PASSIVE))
         return;
 
-    Unit *target = getVictim();
+    Unit* target = getVictim();
     if (target && target == taunter)
         return;
 
@@ -12770,7 +12770,7 @@ void Unit::TauntFadeOut(Unit *taunter)
     if (this->ToCreature()->HasReactState(REACT_PASSIVE))
         return;
 
-    Unit *target = getVictim();
+    Unit* target = getVictim();
     if (!target || target != taunter)
         return;
 
@@ -15134,7 +15134,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffect *triggeredByAura)
             if (Player* modOwner = caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_RADIUS, radius, NULL);
 
-            if (Unit *target = GetNextRandomRaidMemberOrPet(radius))
+            if (Unit* target = GetNextRandomRaidMemberOrPet(radius))
             {
                 CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
                 if (Aura * aura = target->GetAura(spellProto->Id, caster->GetGUID()))
@@ -15247,7 +15247,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         Player* looter = player;
 
-        if (Group *group = player->GetGroup())
+        if (Group* group = player->GetGroup())
         {
             group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()));
 
@@ -15472,8 +15472,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         }
         else if (victim->GetTypeId() == TYPEID_UNIT)
         {
-            Player *killer = this->ToPlayer();
-            Creature *killed = victim->ToCreature();
+            Player* killer = this->ToPlayer();
+            Creature* killed = victim->ToCreature();
             sScriptMgr->OnCreatureKill(killer, killed);
         }
     }
@@ -15481,8 +15481,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
-            Creature *killer = this->ToCreature();
-            Player *killed = victim->ToPlayer();
+            Creature* killer = this->ToCreature();
+            Player* killed = victim->ToPlayer();
             sScriptMgr->OnPlayerKilledByCreature(killer, killed);
         }
     }
@@ -16165,7 +16165,7 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
     }
 }
 
-Aura * Unit::AddAura(uint32 spellId, Unit *target)
+Aura * Unit::AddAura(uint32 spellId, Unit* target)
 {
     if (!target)
         return NULL;
@@ -16180,7 +16180,7 @@ Aura * Unit::AddAura(uint32 spellId, Unit *target)
     return AddAura(spellInfo, MAX_EFFECT_MASK, target);
 }
 
-Aura * Unit::AddAura(SpellEntry const *spellInfo, uint8 effMask, Unit *target)
+Aura * Unit::AddAura(SpellEntry const *spellInfo, uint8 effMask, Unit* target)
 {
     if (!spellInfo)
         return NULL;
@@ -16204,7 +16204,7 @@ Aura * Unit::AddAura(SpellEntry const *spellInfo, uint8 effMask, Unit *target)
     return NULL;
 }
 
-void Unit::SetAuraStack(uint32 spellId, Unit *target, uint32 stack)
+void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
 {
     Aura *aura = target->GetAura(spellId, GetGUID());
     if (!aura)
@@ -16363,7 +16363,7 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
-    Player *player = NULL;
+    Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;
     else if (GetCharmer())
@@ -16746,7 +16746,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
         if (itr->second.IsFitToRequirements(clicker, this))
         {
             Unit *caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
-            Unit *target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
+            Unit* target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
             uint64 origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
 
             SpellEntry const* spellEntry = sSpellStore.LookupEntry(itr->second.spellId);

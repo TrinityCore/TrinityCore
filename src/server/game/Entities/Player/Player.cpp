@@ -2926,7 +2926,7 @@ void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool re
     GetSession()->SendPacket(&data);
 }
 
-void Player::GiveXP(uint32 xp, Unit *victim, float group_rate)
+void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
 {
     if (xp < 1)
         return;
@@ -8175,7 +8175,7 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 }
-void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
+void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
 {
     if (!target || !target->isAlive() || target == this)
         return;
@@ -8211,7 +8211,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const* proto)
+void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemTemplate const* proto)
 {
     // Can do effect if any damage done to target
     if (procVictim & PROC_FLAG_TAKEN_DAMAGE)
@@ -8349,7 +8349,7 @@ void Player::CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8
             return;
         }
 
-        Spell *spell = new Spell(this, spellInfo, false);
+        Spell* spell = new Spell(this, spellInfo, false);
         spell->m_CastItem = item;
         spell->m_cast_count = cast_count;                   //set count of casts
         spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
@@ -8380,7 +8380,7 @@ void Player::CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8
             continue;
         }
 
-        Spell *spell = new Spell(this, spellInfo, (count > 0));
+        Spell* spell = new Spell(this, spellInfo, (count > 0));
         spell->m_CastItem = item;
         spell->m_cast_count = cast_count;                   // set count of casts
         spell->m_glyphIndex = glyphIndex;                   // glyph index
@@ -8408,7 +8408,7 @@ void Player::CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8
                 continue;
             }
 
-            Spell *spell = new Spell(this, spellInfo, (count > 0));
+            Spell* spell = new Spell(this, spellInfo, (count > 0));
             spell->m_CastItem = item;
             spell->m_cast_count = cast_count;               // set count of casts
             spell->m_glyphIndex = glyphIndex;               // glyph index
@@ -15730,7 +15730,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
     uint32 real_entry = entry;
     if (guid)
     {
-        Creature *killed = GetMap()->GetCreature(guid);
+        Creature* killed = GetMap()->GetCreature(guid);
         if (killed && killed->GetEntry())
             real_entry = killed->GetEntry();
     }
@@ -17760,7 +17760,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         m_boundInstances[i].clear();
 
-    Group *group = GetGroup();
+    Group* group = GetGroup();
 
     //QueryResult *result = CharacterDatabase.PQuery("SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
     if (result)
@@ -17836,7 +17836,7 @@ InstanceSave * Player::GetInstanceSave(uint32 mapid, bool raid)
     InstancePlayerBind *pBind = GetBoundInstance(mapid, GetDifficulty(raid));
     InstanceSave *pSave = pBind ? pBind->save : NULL;
     if (!pBind || !pBind->perm)
-        if (Group *group = GetGroup())
+        if (Group* group = GetGroup())
             if (InstanceGroupBind *groupBind = group->GetBoundInstance(this))
                 pSave = groupBind->save;
 
@@ -17980,7 +17980,7 @@ void Player::SendSavedInstances()
 }
 
 /// convert the player's binds to the group
-void Player::ConvertInstancesToGroup(Player *player, Group *group, bool switchLeader)
+void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader)
 {
     // copy all binds to the group, when changing leader it's assumed the character
     // will not have any solo binds
@@ -18929,7 +18929,7 @@ void Player::SendAttackSwingBadFacingAttack()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendAutoRepeatCancel(Unit *target)
+void Player::SendAutoRepeatCancel(Unit* target)
 {
     WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
     data.append(target->GetPackGUID());                     // may be it's target guid
@@ -19601,7 +19601,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 }
 
 // Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell *spell, uint32 ownerAuraId)
+void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId)
 {
     if (!spell || spell->m_appliedMods.empty())
         return;
@@ -21295,7 +21295,7 @@ void Player::ClearComboPoints()
     m_comboTarget = 0;
 }
 
-void Player::SetGroup(Group *group, int8 subgroup)
+void Player::SetGroup(Group* group, int8 subgroup)
 {
     if (group == NULL)
         m_group.unlink();
@@ -21701,7 +21701,7 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
     }
 }
 
-void Player::SendAurasForTarget(Unit *target)
+void Player::SendAurasForTarget(Unit* target)
 {
     if (!target || target->GetVisibleAuras()->empty())                  // speedup things
         return;
@@ -22173,7 +22173,7 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
     bool recruitAFriend = false;
     if (getLevel() <= sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL) || !forXP)
     {
-        if (Group *group = this->GetGroup())
+        if (Group* group = this->GetGroup())
         {
             for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
@@ -22551,7 +22551,7 @@ void Player::RemoveFromBattlegroundRaid()
     SetOriginalGroup(NULL);
 }
 
-void Player::SetOriginalGroup(Group *group, int8 subgroup)
+void Player::SetOriginalGroup(Group* group, int8 subgroup)
 {
     if (group == NULL)
         m_originalGroup.unlink();
@@ -22882,7 +22882,7 @@ void Player::UpdateCharmedAI()
     if (!charmer->isInCombat())
         GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    Unit *target = getVictim();
+    Unit* target = getVictim();
     if (!target || !charmer->canAttack(target))
     {
         target = charmer->SelectNearestTarget();
@@ -22894,7 +22894,7 @@ void Player::UpdateCharmedAI()
     }
 }
 
-void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell *spell)
+void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell* spell)
 {
     if (!spellInfo || !spellInfo->StartRecoveryTime)
         return;

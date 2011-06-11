@@ -57,7 +57,7 @@ public:
         if (!*args)
             return false;
 
-        Player *player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetSession()->GetPlayer();
         if (!player)
             return false;
 
@@ -187,7 +187,7 @@ public:
         if (!*args)
             return false;
 
-        Player *player = handler->getSelectedPlayer();
+        Player* player = handler->getSelectedPlayer();
         if (!player)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);

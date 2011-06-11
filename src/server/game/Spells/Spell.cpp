@@ -91,7 +91,7 @@ SpellCastTargets::~SpellCastTargets()
 {
 }
 
-void SpellCastTargets::setUnitTarget(Unit *target)
+void SpellCastTargets::setUnitTarget(Unit* target)
 {
     if (!target)
         return;
@@ -223,7 +223,7 @@ void SpellCastTargets::Update(Unit* caster)
     m_itemTarget = NULL;
     if (caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Player *player = caster->ToPlayer();
+        Player* player = caster->ToPlayer();
         if (m_targetMask & TARGET_FLAG_ITEM)
             m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
@@ -1762,7 +1762,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
             break;
         case PUSH_CHAIN:
         {
-            Unit *target = m_targets.getUnitTarget();
+            Unit* target = m_targets.getUnitTarget();
             if (!target)
             {
                 sLog->outError("SPELL: cannot find unit target for spell ID %u\n", m_spellInfo->Id);
@@ -1893,7 +1893,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
         default:
         case SPELL_TARGETS_ENEMY:
         {
-            Unit *target = NULL;
+            Unit* target = NULL;
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, range);
             Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_caster, target, u_check);
             m_caster->VisitNearbyObject(range, searcher);
@@ -1901,7 +1901,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
         }
         case SPELL_TARGETS_ALLY:
         {
-            Unit *target = NULL;
+            Unit* target = NULL;
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, range);
             Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(m_caster, target, u_check);
             m_caster->VisitNearbyObject(range, searcher);
@@ -1975,7 +1975,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
         case TARGET_TYPE_UNIT_TARGET:
         {
-            Unit *target = m_targets.getUnitTarget();
+            Unit* target = m_targets.getUnitTarget();
             if (!target)
             {
                 sLog->outError("SPELL: no unit target for spell ID %u", m_spellInfo->Id);
@@ -2129,7 +2129,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
         case TARGET_TYPE_DEST_TARGET: //2+8+2
         {
-            Unit *target = m_targets.getUnitTarget();
+            Unit* target = m_targets.getUnitTarget();
             if (!target)
             {
                 sLog->outError("SPELL: no unit target for spell ID %u", m_spellInfo->Id);
@@ -2229,7 +2229,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     else
                     {
                         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id);
-                        Unit *target = NULL;
+                        Unit* target = NULL;
                         if (uint64 guid = m_caster->GetUInt64Value(UNIT_FIELD_TARGET))
                             target = ObjectAccessor::GetUnit(*m_caster, guid);
                         m_targets.setDst(target ? *target : *m_caster);
@@ -2314,7 +2314,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
     if (pushType == PUSH_CHAIN) // Chain
     {
-        Unit *target = m_targets.getUnitTarget();
+        Unit* target = m_targets.getUnitTarget();
         if (!target)
         {
             sLog->outError("SPELL: no chain unit target for spell ID %u", m_spellInfo->Id);
@@ -2747,7 +2747,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     if (!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
     {
-        Unit *target = NULL;
+        Unit* target = NULL;
         if (m_caster->GetTypeId() == TYPEID_UNIT)
             target = m_caster->getVictim();
         else
@@ -2780,7 +2780,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     if (!m_targets.HasDst() && m_spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
     {
-        Unit *target = m_targets.getUnitTarget();
+        Unit* target = m_targets.getUnitTarget();
         if (!target)
         {
             if (m_caster->GetTypeId() == TYPEID_UNIT)
@@ -2987,7 +2987,7 @@ void Spell::cast(bool skipCheck)
     // update pointers base at GUIDs to prevent access to non-existed already object
     UpdatePointers();
 
-    if (Unit *target = m_targets.getUnitTarget())
+    if (Unit* target = m_targets.getUnitTarget())
     {
         // three check: prepare, cast (m_casttime > 0), hit (delayed)
         if (m_casttime && target->isAlive() && !target->IsFriendlyTo(m_caster) && !m_caster->canSeeOrDetect(target))
@@ -3010,7 +3010,7 @@ void Spell::cast(bool skipCheck)
 
     // now that we've done the basic check, now run the scripts
     // should be done before the spell is actually executed
-    if (Player *playerCaster = m_caster->ToPlayer())
+    if (Player* playerCaster = m_caster->ToPlayer())
         sScriptMgr->OnPlayerSpellCast(playerCaster, this, skipCheck);
 
     SetExecutedCurrently(true);
@@ -4700,7 +4700,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_MOVING;
     }
 
-    Unit *target = m_targets.getUnitTarget();
+    Unit* target = m_targets.getUnitTarget();
 
     // In pure self-cast spells, the client won't send any unit target
     if (!target && (m_targets.getTargetMask() == TARGET_FLAG_SELF || m_targets.getTargetMask() & TARGET_FLAG_UNIT_CASTER)) // TARGET_FLAG_SELF == 0, remember!
@@ -4757,7 +4757,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
-                        Player *player = target->ToPlayer();
+                        Player* player = target->ToPlayer();
                         if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
@@ -5408,7 +5408,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
 
-                if (Unit *target = m_targets.getUnitTarget())
+                if (Unit* target = m_targets.getUnitTarget())
                 {
                     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
                         return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
@@ -5724,7 +5724,7 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
 
-    Unit *target = m_targets.getUnitTarget();
+    Unit* target = m_targets.getUnitTarget();
     float max_range = (float)m_caster->GetSpellMaxRangeForTarget(target, srange);
     float min_range = (float)m_caster->GetSpellMinRangeForTarget(target, srange);
     uint32 range_type = GetSpellRangeType(srange);

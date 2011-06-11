@@ -304,7 +304,7 @@ public:
 
                 if (pInstance && pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
                 {
-                    Unit *victim = NULL;
+                    Unit* victim = NULL;
                     victim = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         me->getThreatManager().addThreat(victim, 1);
@@ -738,7 +738,7 @@ public:
 
                 if (!me->isInCombat() && pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
                 {
-                    Unit *victim = NULL;
+                    Unit* victim = NULL;
                     victim = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         AttackStart(victim);

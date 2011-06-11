@@ -710,7 +710,7 @@ public:
                 me->EnterVehicle(deathcharger);
         }
 
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
             if (!deathcharger) return;

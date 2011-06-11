@@ -574,7 +574,7 @@ void BattlegroundEY::RespawnFlagAfterDrop()
     SetDroppedFlagGUID(0);
 }
 
-void BattlegroundEY::HandleKillPlayer(Player *player, Player *killer)
+void BattlegroundEY::HandleKillPlayer(Player* player, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
