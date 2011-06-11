@@ -1007,7 +1007,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    Player *player = (Player*)m_caster;
+                    Player* player = (Player*)m_caster;
 
                     if (player && player->GetQuestStatus(11379) == QUEST_STATUS_INCOMPLETE)
                     {
@@ -1157,7 +1157,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                 // use 99 because it is 3d search
                                 SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, 33114);
                                 float minDist = 99 * 99;
-                                Unit *target = NULL;
+                                Unit* target = NULL;
                                 for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                                 {
                                     if (Vehicle *seat = (*itr)->GetVehicleKit())
@@ -2860,7 +2860,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player *player = (Player*)m_caster;
+    Player* player = (Player*)m_caster;
 
     // applied only to using item
     if (!m_CastItem)
@@ -3135,7 +3135,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
         return;
     }
 
-    Player *player = (Player*)unitTarget;
+    Player* player = (Player*)unitTarget;
 
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->EffectTriggerSpell[effIndex];
     player->learnSpell(spellToLearn, false);
@@ -3609,7 +3609,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
             {
                 if (item->IsFitToSpellRequirements(m_spellInfo))
                 {
-                    Spell *spell = new Spell(m_caster, spellInfo, true);
+                    Spell* spell = new Spell(m_caster, spellInfo, true);
                     SpellCastTargets targets;
                     targets.setItemTarget(item);
                     spell->prepare(&targets);
@@ -5547,7 +5547,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
         return;
 
-    Player *player = (Player*)m_caster;
+    Player* player = (Player*)m_caster;
 
     // glyph sockets level requirement
     uint8 minLevel = 0;
@@ -5660,7 +5660,7 @@ void Spell::EffectInebriate(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player *player = (Player*)unitTarget;
+    Player* player = (Player*)unitTarget;
     uint16 currentDrunk = player->GetDrunkValue();
     uint16 drunkMod = damage * 256;
     if (currentDrunk + drunkMod > 0xFFFF)
@@ -5984,7 +5984,7 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 {
-    Unit *target = m_targets.getUnitTarget();
+    Unit* target = m_targets.getUnitTarget();
     if (!target)
         return;
 
@@ -7039,7 +7039,7 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player *player = m_caster->ToPlayer();
+    Player* player = m_caster->ToPlayer();
 
     if (!player)
         return;

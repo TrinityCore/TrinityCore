@@ -108,7 +108,7 @@ void SimpleAI::EnterCombat(Unit *who)
                 DoPlaySoundToSet(me, Aggro_Sound[random_text]);
 }
 
-void SimpleAI::KilledUnit(Unit *victim)
+void SimpleAI::KilledUnit(Unit* victim)
 {
     uint8 random_text = urand(0, 2);
 
@@ -152,7 +152,7 @@ void SimpleAI::KilledUnit(Unit *victim)
         DoCast(pTarget, Kill_Spell);
 }
 
-void SimpleAI::DamageTaken(Unit *killer, uint32 &damage)
+void SimpleAI::DamageTaken(Unit* killer, uint32 &damage)
 {
     //Return if damage taken won't kill us
     if (me->GetHealth() > damage)

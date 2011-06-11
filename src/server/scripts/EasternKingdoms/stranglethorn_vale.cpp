@@ -97,7 +97,7 @@ public:
                 {
                     if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
                     {
-                        Unit *victim = me->getVictim();
+                        Unit* victim = me->getVictim();
                         if (CAST_PLR(victim)->GetTeam() == HORDE)
                         {
                             me->CombatStop();

@@ -397,7 +397,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellInfo = actualSpellInfo;
     }
 
-    Spell *spell = new Spell(mover, spellInfo, false);
+    Spell* spell = new Spell(mover, spellInfo, false);
     spell->m_cast_count = castCount;                       // set count of casts
     spell->prepare(&targets);
 }
@@ -550,7 +550,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recv_data)
     recv_data >> guid;
 
     // this will get something not in world. crash
-    Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
     if (!unit)
         return;

@@ -30,7 +30,7 @@ void PassiveAI::UpdateAI(const uint32)
         EnterEvadeMode();
 }
 
-void PossessedAI::AttackStart(Unit *target)
+void PossessedAI::AttackStart(Unit* target)
 {
     me->Attack(target, true);
 }

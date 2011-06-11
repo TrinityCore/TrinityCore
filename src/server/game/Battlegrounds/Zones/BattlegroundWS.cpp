@@ -747,7 +747,7 @@ void BattlegroundWS::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-void BattlegroundWS::HandleKillPlayer(Player *player, Player *killer)
+void BattlegroundWS::HandleKillPlayer(Player* player, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

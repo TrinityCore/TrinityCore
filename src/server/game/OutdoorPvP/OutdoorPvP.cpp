@@ -282,7 +282,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
     {
         for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
         {
-            Player *player = *itr;
+            Player* player = *itr;
             ++itr;
             if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
                 HandlePlayerLeave(player);
@@ -430,7 +430,7 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
         (*itr)->KilledMonsterCredit(id, guid);
 }
 
-void OutdoorPvP::HandleKill(Player *killer, Unit* killed)
+void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
 {
     if (Group * pGroup = killer->GetGroup())
     {

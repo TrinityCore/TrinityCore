@@ -166,7 +166,7 @@ class boss_devourer_of_souls : public CreatureScript
             {
                 if (mirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
                 {
-                    if (Player *player = Unit::GetPlayer(*me, mirroredSoulTarget))
+                    if (Player* player = Unit::GetPlayer(*me, mirroredSoulTarget))
                     {
                         if (player->GetAura(SPELL_MIRRORED_SOUL))
                         {

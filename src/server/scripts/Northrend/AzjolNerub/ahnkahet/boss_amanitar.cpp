@@ -183,7 +183,7 @@ public:
             uiDeathTimer = 30*IN_MILLISECONDS;
         }
 
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             if (!killer)
                 return;
