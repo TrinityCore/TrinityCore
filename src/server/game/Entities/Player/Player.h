@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
+#include "SharedDefines.h"
 #include "GroupReference.h"
 #include "ItemPrototype.h"
 #include "Item.h"
@@ -1781,7 +1782,7 @@ class Player : public Unit, public GridObject<Player>
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
 
         // Arena Team
-        void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
+        void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, ArenaType type)
         {
             SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
             SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
@@ -1790,7 +1791,7 @@ class Player : public Unit, public GridObject<Player>
         {
             SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
         }
-        static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
+        static uint32 GetArenaTeamIdFromDB(uint64 guid, ArenaType type);
         static void LeaveAllArenaTeams(uint64 guid);
         uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
         uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
@@ -1890,7 +1891,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendDungeonDifficulty(bool IsInGroup);
         void SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty = -1);
-        void ResetInstances(uint8 method, bool isRaid);
+        void ResetInstances(InstanceResetMethod method, bool isRaid);
         void SendResetInstanceSuccess(uint32 MapId);
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
         void SendResetFailedNotify(uint32 mapid);

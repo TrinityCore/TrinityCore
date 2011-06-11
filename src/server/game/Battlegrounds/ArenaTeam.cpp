@@ -26,7 +26,7 @@
 ArenaTeam::ArenaTeam()
 {
     TeamId            = 0;
-    Type              = 0;
+    Type              = ARENA_TYPE_NONE;
     TeamName          = "";
     CaptainGuid       = 0;
     BackgroundColor   = 0;
@@ -46,8 +46,11 @@ ArenaTeam::~ArenaTeam()
 {
 }
 
-bool ArenaTeam::Create(uint32 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
+bool ArenaTeam::Create(uint32 captainGuid, ArenaType type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
+    if (!IsArenaTypeValid(type))
+        return false;
+        
     // Check if captain is present
     if (!sObjectMgr->GetPlayer(captainGuid))
         return false;
@@ -99,7 +102,7 @@ bool ArenaTeam::AddMember(const uint64& playerGuid)
     uint8 playerClass;
 
     // Check if arena team is full (Can't have more than type * 2 players)
-    if (GetMembersSize() >= GetType() * 2)
+    if (GetMembersSize() >= GetMaxMembersSize())
         return false;
 
     // Get player name and class either from db or ObjectMgr
@@ -201,7 +204,11 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
     TeamId            = fields[0].GetUInt32();
     TeamName          = fields[1].GetString();
     CaptainGuid       = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
-    Type              = fields[3].GetUInt8();
+    Type              = ArenaType(fields[3].GetUInt8());
+    
+    if (!IsArenaTypeValid(Type))
+        return false;
+        
     BackgroundColor   = fields[4].GetUInt32();
     EmblemStyle       = fields[5].GetUInt8();
     EmblemColor       = fields[6].GetUInt32();
@@ -239,13 +246,13 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
             break;
 
         ArenaTeamMember newMember;
-        newMember.Guid              = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
+        newMember.Guid             = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
         newMember.WeekGames        = fields[2].GetUInt16();
         newMember.WeekWins         = fields[3].GetUInt16();
         newMember.SeasonGames      = fields[4].GetUInt16();
         newMember.SeasonWins       = fields[5].GetUInt16();
-        newMember.Name              = fields[6].GetString();
-        newMember.Class             = fields[7].GetUInt8();
+        newMember.Name             = fields[6].GetString();
+        newMember.Class            = fields[7].GetUInt8();
         newMember.PersonalRating   = fields[8].GetUInt16();
         newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : 1500;
 
@@ -257,6 +264,10 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
             continue;
         }
 
+        // check max. number members
+        if (GetMembersSize() >= GetMaxMembersSize())
+            return false;
+        
         // Check if team team has a valid captain
         if (newMember.Guid == GetCaptain())
             captainPresentInTeam = true;
@@ -523,13 +534,16 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCoun
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
 }
 
-uint8 ArenaTeam::GetSlotByType(uint32 type)
+uint8 ArenaTeam::GetSlotByType(ArenaType type)
 {
     switch(type)
     {
-        case ARENA_TEAM_2v2: return 0;
-        case ARENA_TEAM_3v3: return 1;
-        case ARENA_TEAM_5v5: return 2;
+        case ARENA_TYPE_2v2: 
+            return 0;
+        case ARENA_TYPE_3v3: 
+            return 1;
+        case ARENA_TYPE_5v5: 
+            return 2;
         default:
             break;
     }
@@ -564,9 +578,9 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
         points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
 
     // Type penalties for teams < 5v5
-    if  (Type == ARENA_TEAM_2v2)
+    if (Type == ARENA_TYPE_2v2)
         points *= 0.76f;
-    else if (Type == ARENA_TEAM_3v3)
+    else if (Type == ARENA_TYPE_3v3)
         points *= 0.88f;
 
     return (uint32) points;

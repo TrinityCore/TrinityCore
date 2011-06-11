@@ -2839,6 +2839,16 @@ enum EventId
     EVENT_CHARGE            = 1003,
 };
 
+enum InstanceResetMethod
+{
+    INSTANCE_RESET_ALL,
+    INSTANCE_RESET_CHANGE_DIFFICULTY,
+    INSTANCE_RESET_GLOBAL,
+    INSTANCE_RESET_GROUP_DISBAND,
+    INSTANCE_RESET_GROUP_JOIN,
+    INSTANCE_RESET_RESPAWN_DELAY
+};
+
 enum ResponseCodes
 {
     RESPONSE_SUCCESS                                       = 0x00,
@@ -2994,6 +3004,16 @@ enum BattlegroundTypeId
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 33
+
+enum ArenaType
+{
+    ARENA_TYPE_NONE     = 0,
+    ARENA_TYPE_2v2      = 2,
+    ARENA_TYPE_3v3      = 3,
+    ARENA_TYPE_5v5      = 5
+};
+
+inline bool IsArenaTypeValid(ArenaType type) { return type == ARENA_TYPE_2v2 || type == ARENA_TYPE_3v3 || type == ARENA_TYPE_5v5; }
 
 enum MailResponseType
 {

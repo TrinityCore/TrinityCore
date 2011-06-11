@@ -254,7 +254,7 @@ class Group
         void SetRaidDifficulty(Difficulty difficulty);
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
-        void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
+        void ResetInstances(InstanceResetMethod method, bool isRaid, Player* SendMsgTo);
 
         // -no description-
         //void SendInit(WorldSession *session);

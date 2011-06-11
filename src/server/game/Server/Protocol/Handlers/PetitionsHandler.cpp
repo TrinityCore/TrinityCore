@@ -493,7 +493,10 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
             return;
         }
 
-        uint8 slot = ArenaTeam::GetSlotByType(type);
+        if (!IsArenaTypeValid(ArenaType(type)))
+            return;
+            
+        uint8 slot = ArenaTeam::GetSlotByType(ArenaType(type));
         if (slot >= MAX_ARENA_SLOT)
             return;
 
@@ -638,7 +641,10 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
             return;
         }
 
-        uint8 slot = ArenaTeam::GetSlotByType(type);
+        if (!IsArenaTypeValid(ArenaType(type)))
+            return;
+            
+        uint8 slot = ArenaTeam::GetSlotByType(ArenaType(type));
         if (slot >= MAX_ARENA_SLOT)
             return;
 
@@ -760,7 +766,10 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     else
     {
         // Check for valid arena bracket (2v2, 3v3, 5v5)
-        uint8 slot = ArenaTeam::GetSlotByType(type);
+        if (!IsArenaTypeValid(ArenaType(type)))
+            return;
+            
+        uint8 slot = ArenaTeam::GetSlotByType(ArenaType(type));
         if (slot >= MAX_ARENA_SLOT)
             return;
 
@@ -842,7 +851,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         // Create arena team
         ArenaTeam* arenaTeam = new ArenaTeam();
 
-        if (!arenaTeam->Create(GUID_LOPART(_player->GetGUID()), type, name, background, icon, iconcolor, border, bordercolor))
+        if (!arenaTeam->Create(GUID_LOPART(_player->GetGUID()), ArenaType(type), name, background, icon, iconcolor, border, bordercolor))
         {
             delete arenaTeam;
             return;
