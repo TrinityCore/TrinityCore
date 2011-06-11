@@ -584,14 +584,15 @@ enum UnitFlags
 // Value masks for UNIT_FIELD_FLAGS_2
 enum UnitFlags2
 {
-    UNIT_FLAG2_FEIGN_DEATH      = 0x00000001,
-    UNIT_FLAG2_UNK1             = 0x00000002,               // Hide unit model (show only player equip)
-    UNIT_FLAG2_COMPREHEND_LANG  = 0x00000008,
-    UNIT_FLAG2_MIRROR_IMAGE     = 0x00000010,
-    UNIT_FLAG2_FORCE_MOVE       = 0x00000040,
-    UNIT_FLAG2_DISARM_OFFHAND   = 0x00000080,
-    UNIT_FLAG2_DISARM_RANGED    = 0x00000400,               //this does not disable ranged weapon display (maybe additional flag needed?)
-    UNIT_FLAG2_REGENERATE_POWER = 0x00000800
+    UNIT_FLAG2_FEIGN_DEATH          = 0x00000001,
+    UNIT_FLAG2_UNK1                 = 0x00000002,   // Hide unit model (show only player equip)
+    UNIT_FLAG2_COMPREHEND_LANG      = 0x00000008,
+    UNIT_FLAG2_MIRROR_IMAGE         = 0x00000010,
+    UNIT_FLAG2_FORCE_MOVE           = 0x00000040,
+    UNIT_FLAG2_DISARM_OFFHAND       = 0x00000080,
+    UNIT_FLAG2_DISARM_RANGED        = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
+    UNIT_FLAG2_REGENERATE_POWER     = 0x00000800,
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS   = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_DISABLED_CLIENT_SIDE
 };
 
 /// Non Player Character flags
