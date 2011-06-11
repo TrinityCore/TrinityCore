@@ -363,12 +363,17 @@ public:
             if (aurEff->GetAmount() > 0)
                 return;
 
+            Unit * caster = GetCaster();
+
+            if (!caster)
+                return;
+
             uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
             Unit * pTarget = GetTarget();
             if (!pTarget->HasAura(spellId))
             {
                 SpellEntry const * triggeredSpellInfo = sSpellStore.LookupEntry(spellId);
-                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, GetCaster(), pTarget);
+                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, pTarget);
                 triggerCaster->CastSpell(pTarget, triggeredSpellInfo, true, 0, aurEff);
             }
         }

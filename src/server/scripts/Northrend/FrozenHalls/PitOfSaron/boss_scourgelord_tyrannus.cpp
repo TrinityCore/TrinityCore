@@ -465,11 +465,12 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster() || GetCaster()->GetTypeId() != TYPEID_UNIT)
+                Unit * caster = GetCaster();
+                if (!caster || caster->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    if (Creature* rimefang = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_RIMEFANG)))
+                if (InstanceScript* instance = caster->GetInstanceScript())
+                    if (Creature* rimefang = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_RIMEFANG)))
                         rimefang->AI()->SetGUID(GetTarget()->GetGUID(), GUID_HOARFROST);
             }
 

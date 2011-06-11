@@ -671,35 +671,38 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                std::list<HostileReference*> &m_threatlist = GetCaster()->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                if (Unit * caster = GetCaster())
                 {
-                    if (Unit* target = (*itr)->getTarget())
+                    std::list<HostileReference*> &m_threatlist = caster->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
                     {
-                        Player* targetPlayer = target->ToPlayer();
-
-                        if (!targetPlayer || targetPlayer->isGameMaster())
-                            continue;
-
-                        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                        if (Unit* target = (*itr)->getTarget())
                         {
-                            // teleport spell - i am not sure but might be it must be casted by each vehicle when its passenger leaves it
-                            if (Creature* trigger = GetCaster()->GetMap()->GetCreature(instance->GetData64(DATA_TRIGGER)))
-                                trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
+                            Player* targetPlayer = target->ToPlayer();
+
+                            if (!targetPlayer || targetPlayer->isGameMaster())
+                                continue;
+
+                            if (InstanceScript* instance = caster->GetInstanceScript())
+                            {
+                                // teleport spell - i am not sure but might be it must be casted by each vehicle when its passenger leaves it
+                                if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetData64(DATA_TRIGGER)))
+                                    trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
+                            }
                         }
                     }
-                }
 
-                if (Creature* malygos = GetCaster()->ToCreature())
-                {
-                    // This is a hack, we have to re add players to the threat list because when they enter to the vehicles they are removed.
-                    // Anyway even with this issue, the boss does not enter in evade mode - this prevents iterate an empty list in the next vortex execution.
-                    malygos->SetInCombatWithZone();
+                    if (Creature* malygos = caster->ToCreature())
+                    {
+                        // This is a hack, we have to re add players to the threat list because when they enter to the vehicles they are removed.
+                        // Anyway even with this issue, the boss does not enter in evade mode - this prevents iterate an empty list in the next vortex execution.
+                        malygos->SetInCombatWithZone();
 
-                    malygos->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        malygos->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 
-                    malygos->GetMotionMaster()->MoveChase(GetCaster()->getVictim());
-                    malygos->RemoveAura(SPELL_VORTEX_1);
+                        malygos->GetMotionMaster()->MoveChase(caster->getVictim());
+                        malygos->RemoveAura(SPELL_VORTEX_1);
+                    }
                 }
 
             }

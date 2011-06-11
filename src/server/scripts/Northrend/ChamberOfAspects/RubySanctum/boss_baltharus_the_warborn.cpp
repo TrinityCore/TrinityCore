@@ -311,14 +311,13 @@ class spell_baltharus_enervating_brand : public SpellScriptLoader
             void HandleTriggerSpell(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                if (Unit* target = GetTarget())
-                {
-                    uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
-                    target->CastSpell(target, triggerSpellId, true);
+                Unit* target = GetTarget();
+                uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
+                target->CastSpell(target, triggerSpellId, true);
 
-                    if (target->GetDistance(GetCaster()) <= 12.0f)
-                        target->CastSpell(GetCaster(), SPELL_SIPHONED_MIGHT, true);
-                }
+                if (Unit * caster = GetCaster())
+                    if (target->GetDistance(caster) <= 12.0f)
+                        target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
             }
 
             void Register()
