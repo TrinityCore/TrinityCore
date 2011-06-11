@@ -717,10 +717,12 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
             void HandleExtraEffect(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
-                Unit* caster = GetCaster();
-                target->RemoveAuraFromStack(GetSpellProto()->Id, GetCasterGUID());
-                if (!target->HasAura(GetId()) && caster && caster->GetTypeId() == TYPEID_UNIT)
-                    caster->ToCreature()->DespawnOrUnsummon();
+                if (Unit* caster = GetCaster())
+                {
+                    target->RemoveAuraFromStack(GetSpellProto()->Id, GetCasterGUID());
+                    if (!target->HasAura(GetId())&& caster->GetTypeId() == TYPEID_UNIT)
+                        caster->ToCreature()->DespawnOrUnsummon();
+                }
             }
 
             void Register()

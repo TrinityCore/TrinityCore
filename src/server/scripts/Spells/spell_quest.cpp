@@ -644,23 +644,21 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* target = GetTarget())
+                Unit* target = GetTarget();
+                if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
                 {
-                    if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    switch(target->GetEntry())
                     {
-                        switch(target->GetEntry())
-                        {
-                            case NPC_FROSTWORG:
-                                target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
-                                target->CastSpell(target, SPELL_IMMOLATION, true);
-                                target->CastSpell(target, SPELL_ABLAZE, true);
-                                break;
-                            case NPC_FROSTGIANT:
-                                target->CastSpell(player, SPELL_FROSTGIANT_CREDIT, true);
-                                target->CastSpell(target, SPELL_IMMOLATION, true);
-                                target->CastSpell(target, SPELL_ABLAZE, true);
-                                break;
-                        }
+                        case NPC_FROSTWORG:
+                            target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
+                            target->CastSpell(target, SPELL_IMMOLATION, true);
+                            target->CastSpell(target, SPELL_ABLAZE, true);
+                            break;
+                        case NPC_FROSTGIANT:
+                            target->CastSpell(player, SPELL_FROSTGIANT_CREDIT, true);
+                            target->CastSpell(target, SPELL_IMMOLATION, true);
+                            target->CastSpell(target, SPELL_ABLAZE, true);
+                            break;
                     }
                 }
             }

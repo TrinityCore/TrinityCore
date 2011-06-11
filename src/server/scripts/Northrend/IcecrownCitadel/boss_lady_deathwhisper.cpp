@@ -971,10 +971,12 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                Unit* caster = GetCaster();
-                int32 missingHealth = int32(caster->GetMaxHealth() - caster->GetHealth());
-                caster->ModifyHealth(missingHealth);
-                caster->ModifyPower(POWER_MANA, -missingHealth);
+                if (Unit* caster = GetCaster())
+                {
+                    int32 missingHealth = int32(caster->GetMaxHealth() - caster->GetHealth());
+                    caster->ModifyHealth(missingHealth);
+                    caster->ModifyPower(POWER_MANA, -missingHealth);
+                }
             }
 
             void Register()
