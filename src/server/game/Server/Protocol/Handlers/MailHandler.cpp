@@ -152,7 +152,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
         if (item)
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if(!itemProto || !(itemProto->Flags & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT))
+            if (!itemProto || !(itemProto->Flags & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;

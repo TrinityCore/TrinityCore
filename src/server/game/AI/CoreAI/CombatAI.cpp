@@ -307,7 +307,7 @@ void VehicleAI::LoadConditions()
 
 void VehicleAI::CheckConditions(const uint32 diff)
 {
-    if(m_ConditionsTimer < diff)
+    if (m_ConditionsTimer < diff)
     {
         if (!conditions.empty())
         {

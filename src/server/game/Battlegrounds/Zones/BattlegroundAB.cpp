@@ -379,7 +379,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     if (capturedNodes >= 4)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
 
-    if(node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+    if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         return;
     Creature* trigger = GetBGCreature(node+7);//0-6 spirit guides
     if (!trigger)
@@ -401,7 +401,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         return;
 
     //remove bonus honor aura trigger creature when node is lost
-    if(node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+    if (node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard

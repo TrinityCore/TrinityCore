@@ -446,7 +446,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     case 52942:
                     {
                         // don't damage self and only players
-                        if(unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        if (unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
                             return;
 
                         float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[0]));
@@ -1385,7 +1385,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     Unit::AttackerSet attackers = unitTarget->getAttackers();
 
                     // remove invalid attackers
-                    for (Unit::AttackerSet::iterator aItr = attackers.begin(); aItr != attackers.end(); )
+                    for (Unit::AttackerSet::iterator aItr = attackers.begin(); aItr != attackers.end();)
                         if (!(*aItr)->canAttack(m_caster))
                             attackers.erase(aItr++);
                         else
@@ -5808,7 +5808,7 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
                 return;
             }
             break;
-        // Defibrillate ( Gnomish Army Knife) have 67% chance on success_list
+        // Defibrillate (Gnomish Army Knife) have 67% chance on success_list
         case 54732:
             if (roll_chance_i(33))
             {
@@ -6324,7 +6324,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE || goinfo->type == GAMEOBJECT_TYPE_FISHINGHOLE)
     {
         LiquidData liqData;
-        if ( !cMap->IsInWater(fx, fy, fz + 1.f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
+        if (!cMap->IsInWater(fx, fy, fz + 1.f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
         { // but this is not proper, we really need to ignore not materialized objects
             SendCastResult(SPELL_FAILED_NOT_HERE);
             SendChannelUpdate(0);
@@ -7113,5 +7113,5 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     data.Initialize(SMSG_PLAYERBOUND, 8+4);
     data << uint64(player->GetGUID());
     data << uint32(area_id);
-    player->SendDirectMessage( &data );
+    player->SendDirectMessage(&data);
 }
