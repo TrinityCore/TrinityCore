@@ -40,7 +40,7 @@ class PossessedAI : public CreatureAI
         explicit PossessedAI(Creature *c);
 
         void MoveInLineOfSight(Unit *) {}
-        void AttackStart(Unit *target);
+        void AttackStart(Unit* target);
         void UpdateAI(const uint32);
         void EnterEvadeMode() {}
 
