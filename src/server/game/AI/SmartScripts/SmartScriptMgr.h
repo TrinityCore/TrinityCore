@@ -458,7 +458,11 @@ enum SMART_ACTION
 
     SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
 
-    SMART_ACTION_END                                = 94,
+    SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // Flags
+    SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // Flags
+    SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
+
+    SMART_ACTION_END                                = 97,
 };
 
 struct SmartAction
@@ -1214,7 +1218,7 @@ class SmartAIMgr
                 return mEventMap[uint32(type)][entry];
             else
             {
-                if(entry > 0)//first search is for guid (negative), do not drop error if not found
+                if (entry > 0)//first search is for guid (negative), do not drop error if not found
                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartAIMgr::GetScript: Could not load Script for Entry %d ScriptType %u.", entry, uint32(type));
                 return temp;
             }

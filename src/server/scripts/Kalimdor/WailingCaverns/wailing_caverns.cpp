@@ -193,7 +193,7 @@ public:
             DoScriptText(SAY_ATTACKED, me, who);
         }
 
-        void JustDied(Unit * /*slayer*/)
+        void JustDied(Unit* /*slayer*/)
         {
             if (pInstance)
             {

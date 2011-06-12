@@ -424,7 +424,7 @@ class spell_mount_check : public SpellScriptLoader
         class spell_mount_check_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_mount_check_AuraScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MOUNTING_CHECK))
                     return false;
@@ -472,7 +472,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
         class spell_voljin_war_drums_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_voljin_war_drums_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MOTIVATE_1))
                     return false;

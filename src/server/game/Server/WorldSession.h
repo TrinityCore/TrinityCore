@@ -297,7 +297,7 @@ class WorldSession
         //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
-        void SendAuctionHello(uint64 guid, Creature * unit);
+        void SendAuctionHello(uint64 guid, Creature* unit);
         void SendAuctionCommandResult(uint32 auctionId, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry * auction);
@@ -318,7 +318,7 @@ class WorldSession
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
 
-        void BuildPartyMemberStatsChangedPacket(Player *player, WorldPacket *data);
+        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket *data);
 
         void DoLootRelease(uint64 lguid);
 
@@ -876,8 +876,8 @@ class WorldSession
         void moveItems(Item* myItems[], Item* hisItems[]);
 
         // logging helper
-        void LogUnexpectedOpcode(WorldPacket *packet, const char* status, const char *reason);
-        void LogUnprocessedTail(WorldPacket *packet);
+        void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
+        void LogUnprocessedTail(WorldPacket* packet);
 
         // EnumData helpers
         bool CharCanLogin(uint32 lowGUID)

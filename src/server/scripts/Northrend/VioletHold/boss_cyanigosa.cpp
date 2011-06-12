@@ -149,7 +149,7 @@ public:
                 pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me)
                 return;

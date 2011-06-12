@@ -500,7 +500,7 @@ void Vehicle::InitMovementInfoForBase()
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDTURNING)
         me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
     if (vehicleFlags & VEHICLE_FLAG_ALLOW_PITCHING)
-        me->AddExtraUnitMovementFlag( MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
         me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
 }

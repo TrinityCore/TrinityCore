@@ -42,7 +42,7 @@ public:
     public:
         spell_item_trigger_spell_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(_triggeredSpellId))
                 return false;
@@ -87,7 +87,7 @@ public:
     {
         PrepareSpellScript(spell_item_deviate_fish_SpellScript)
     public:
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_SLEEPY; spellId <= SPELL_HEALTHY_SPIRIT; ++spellId)
                 if (!sSpellStore.LookupEntry(spellId))
@@ -135,7 +135,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_flask_of_the_north_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_SP))
                 return false;
@@ -211,7 +211,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_GNOMISH_DEATH_RAY_SELF))
                 return false;
@@ -264,7 +264,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_make_a_wish_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_MR_PINCHYS_BLESSING))
                 return false;
@@ -381,7 +381,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_net_o_matic_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_NET_O_MATIC_TRIGGERED1))
                 return false;
@@ -437,7 +437,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_noggenfogger_elixir_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1))
                 return false;
@@ -495,7 +495,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_savory_deviate_delight_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_FLIP_OUT_MALE; spellId <= SPELL_YAAARRRR_FEMALE; ++spellId)
                 if (!sSpellStore.LookupEntry(spellId))
@@ -553,7 +553,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_six_demon_bag_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_FROSTBOLT))
                 return false;
@@ -632,7 +632,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_underbelly_elixir_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1))
                 return false;

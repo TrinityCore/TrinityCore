@@ -43,13 +43,13 @@ public:
         {
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (me->GetHealth() <= damage)
                 DoCast(me, 23261, true);   //Summon Darkreaver's Fallen Charger
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
     };

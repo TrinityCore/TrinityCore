@@ -126,7 +126,7 @@ class boss_akilzon : public CreatureScript
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_ONAGGRO);
@@ -417,7 +417,7 @@ class mob_akilzon_eagle : public CreatureScript
                 me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             }
 
-            void EnterCombat(Unit * /*who*/) {DoZoneInCombat();}
+            void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
 
             void MoveInLineOfSight(Unit* /*who*/) {}
 

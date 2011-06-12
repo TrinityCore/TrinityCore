@@ -46,7 +46,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 
             uint32 healPct;
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 return sSpellStore.LookupEntry(PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL) != NULL;
             }
@@ -57,7 +57,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 // Set absorbtion amount to unlimited
                 amount = -1;
@@ -65,7 +65,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 
             void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
-                Unit * target = GetTarget();
+                Unit* target = GetTarget();
                 if (dmgInfo.GetDamage() < target->GetHealth())
                     return;
 
@@ -184,7 +184,7 @@ class spell_pri_penance : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_penance_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const* spellEntry)
             {
                 if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1))
                     return false;
@@ -240,17 +240,17 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 return sSpellStore.LookupEntry(PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED) && sSpellStore.LookupEntry(PRIEST_SPELL_REFLECTIVE_SHIELD_R1);
             }
 
             void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
-                Unit * target = GetTarget();
+                Unit* target = GetTarget();
                 if (dmgInfo.GetAttacker() == target)
                     return;
-                Unit * caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (!caster)
                     return;
                 if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))

@@ -491,14 +491,14 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
     InstanceSave::PlayerListType &pList = itr->second->m_playerList;
     while (!pList.empty())
     {
-        Player *player = *(pList.begin());
+        Player* player = *(pList.begin());
         player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
     }
 
     InstanceSave::GroupListType &gList = itr->second->m_groupList;
     while (!gList.empty())
     {
-        Group *group = *(gList.begin());
+        Group* group = *(gList.begin());
         group->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
     }
 

@@ -46,7 +46,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
         class spell_mage_blast_wave_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blast_wave_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
                     return false;
@@ -126,7 +126,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript)
             static const uint32 spell_list[6];
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 // check if spell ids exist in dbc
                 for (int i = 0; i < 6; i++)
@@ -173,7 +173,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
                     return false;
@@ -225,7 +225,7 @@ public:
             SPELL_MAGE_FROST_WARDING_R1 = 28332,
         };
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             return sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_TRIGGERED)
                 && sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_R1);
@@ -233,7 +233,7 @@ public:
 
         void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            Unit * target = GetTarget();
+            Unit* target = GetTarget();
             if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
             {
                 int32 chance = SpellMgr::CalculateSpellEffectAmount(talentAurEff->GetSpellProto(), EFFECT_1);
@@ -268,7 +268,7 @@ public:
         SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
     };
 
-    bool Validate(SpellEntry const * /*spellEntry*/)
+    bool Validate(SpellEntry const* /*spellEntry*/)
     {
         return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
             && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
@@ -276,7 +276,7 @@ public:
 
     void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
     {
-        Unit * target = GetTarget();
+        Unit* target = GetTarget();
 
         if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
         {

@@ -27,11 +27,11 @@ struct SimpleAI : public ScriptedAI
 
     void Reset();
 
-    void EnterCombat(Unit * /*who*/);
+    void EnterCombat(Unit* /*who*/);
 
-    void KilledUnit(Unit * /*victim*/);
+    void KilledUnit(Unit* /*victim*/);
 
-    void DamageTaken(Unit *killer, uint32 &damage);
+    void DamageTaken(Unit* killer, uint32 &damage);
 
     void UpdateAI(const uint32 diff);
 

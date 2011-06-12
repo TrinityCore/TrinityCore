@@ -934,7 +934,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 return;
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if(!IsUnit((*itr))) continue;
+                if (!IsUnit((*itr)))
+                    continue;
                 if (e.action.morphOrMount.creature || e.action.morphOrMount.model)
                 {
                     if (e.action.morphOrMount.creature > 0)
@@ -1307,7 +1308,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if(Creature* npc = (*itr)->ToCreature())
+                if (Creature* npc = (*itr)->ToCreature())
                 {
                     uint32 slot[3];
                     if (e.action.equip.entry)
@@ -1696,6 +1697,45 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_SET_DYNAMIC_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                return;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsUnit(*itr))
+                    (*itr)->ToUnit()->SetUInt32Value(UNIT_DYNAMIC_FLAGS, e.action.unitFlag.flag);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_ADD_DYNAMIC_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                return;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsUnit(*itr))
+                    (*itr)->ToUnit()->SetFlag(UNIT_DYNAMIC_FLAGS, e.action.unitFlag.flag);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                return;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsUnit(*itr))
+                    (*itr)->ToUnit()->RemoveFlag(UNIT_DYNAMIC_FLAGS, e.action.unitFlag.flag);
+
+            delete targets;
+            break;
+        }
         default:
             sLog->outErrorDb("SmartScript::ProcessAction: Unhandled Action type %u", e.GetActionType());
             break;
@@ -1930,7 +1970,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             ObjectList* units = GetWorldObjectsInDist((float)e.target.goRange.maxDist);
             for (ObjectList::const_iterator itr = units->begin(); itr != units->end(); ++itr)
             {
-                if(!IsGameObject(*itr))
+                if (!IsGameObject(*itr))
                     continue;
 
                 if (go && go == *itr)
@@ -2098,13 +2138,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e);
             break;
         case SMART_EVENT_UPDATE_OOC:
-            if(me && me->isInCombat())
+            if (me && me->isInCombat())
                 return;
             RecalcTimer(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             ProcessAction(e);
             break;
         case SMART_EVENT_UPDATE_IC:
-            if(!me || !me->isInCombat())
+            if (!me || !me->isInCombat())
                 return;
             RecalcTimer(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             ProcessAction(e);
@@ -2734,7 +2774,7 @@ void SmartScript::OnMoveInLineOfSight(Unit* who)
 {
     ProcessEventsFor(SMART_EVENT_OOC_LOS, who);
 
-    if(!me) return;
+    if (!me) return;
     if (me->getVictim())
         return;
 

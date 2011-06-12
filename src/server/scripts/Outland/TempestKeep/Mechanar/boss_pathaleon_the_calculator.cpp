@@ -93,7 +93,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 Counter = 0;
                 summons.DespawnAll();
             }
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
             }

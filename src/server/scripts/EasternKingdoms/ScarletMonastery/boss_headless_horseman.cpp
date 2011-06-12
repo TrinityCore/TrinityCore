@@ -157,7 +157,7 @@ public:
         uint32 spell;
         uint32 spell2;
         void Reset(){}
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
         void SetType(uint32 _type)
         {
             switch(Creaturetype = _type)
@@ -248,7 +248,7 @@ public:
             laugh = urand(15000, 30000);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void SaySound(int32 textEntry, Unit *pTarget = 0)
         {
             DoScriptText(textEntry, me, pTarget);
@@ -478,7 +478,7 @@ public:
             ++id;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
@@ -780,9 +780,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_SPROUTING)
             {
@@ -804,7 +804,7 @@ public:
                 debuffGUID = 0;
         }
 
-        void JustDied(Unit * /*killer*/) { if (!sprouted) Despawn(); }
+        void JustDied(Unit* /*killer*/) { if (!sprouted) Despawn(); }
 
         void MoveInLineOfSight(Unit *who)
         {

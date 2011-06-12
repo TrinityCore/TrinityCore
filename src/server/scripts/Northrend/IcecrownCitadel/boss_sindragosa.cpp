@@ -791,7 +791,7 @@ class npc_rimefang : public CreatureScript
                                 }
                                 _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
                             }
-                            else if (Unit *victim = me->SelectVictim())
+                            else if (Unit* victim = me->SelectVictim())
                             {
                                 me->SetReactState(REACT_DEFENSIVE);
                                 AttackStart(victim);
@@ -1034,7 +1034,6 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                PreventDefaultAction();
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
             }

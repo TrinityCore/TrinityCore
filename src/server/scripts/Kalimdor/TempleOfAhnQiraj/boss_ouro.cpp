@@ -70,7 +70,7 @@ public:
             Submerged = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me->getVictim(), SPELL_BIRTH);
         }

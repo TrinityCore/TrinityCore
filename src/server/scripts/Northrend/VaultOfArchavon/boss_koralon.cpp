@@ -138,7 +138,7 @@ class mob_flame_warder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoZoneInCombat();
 

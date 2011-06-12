@@ -100,7 +100,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
 class UnitAI
 {
     protected:
-        Unit * const me;
+        Unit* const me;
     public:
         explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}

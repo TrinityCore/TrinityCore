@@ -44,7 +44,7 @@ class CombatAI : public CreatureAI
         void InitializeAI();
         void Reset();
         void EnterCombat(Unit* who);
-        void JustDied(Unit *killer);
+        void JustDied(Unit* killer);
         void UpdateAI(const uint32 diff);
         static int Permissible(const Creature *);
     protected:
@@ -57,9 +57,9 @@ class CasterAI : public CombatAI
     public:
         explicit CasterAI(Creature *c) : CombatAI(c) { m_attackDist = MELEE_RANGE; }
         void InitializeAI();
-        void AttackStart(Unit * victim) { AttackStartCaster(victim, m_attackDist); }
+        void AttackStart(Unit* victim) { AttackStartCaster(victim, m_attackDist); }
         void UpdateAI(const uint32 diff);
-        void EnterCombat(Unit * /*who*/);
+        void EnterCombat(Unit* /*who*/);
     private:
         float m_attackDist;
 };

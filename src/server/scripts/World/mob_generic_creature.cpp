@@ -211,7 +211,7 @@ public:
     struct trigger_deathAI : public NullCreatureAI
     {
         trigger_deathAI(Creature* c) : NullCreatureAI(c) {}
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             if (me->m_spells[0])
                 me->CastSpell(killer, me->m_spells[0], true);

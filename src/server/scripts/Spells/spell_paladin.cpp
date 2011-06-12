@@ -65,7 +65,7 @@ public:
             return GetUnitOwner()->ToPlayer();
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -73,7 +73,7 @@ public:
 
         void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            Unit * pVictim = GetTarget();
+            Unit* pVictim = GetTarget();
             int32 remainingHealth = pVictim->GetHealth() - dmgInfo.GetDamage();
             uint32 allowedHealth = pVictim->CountPctFromMaxHealth(35);
             // If damage kills us
@@ -125,7 +125,7 @@ public:
     class spell_pal_blessing_of_faith_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_blessing_of_faith_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
                 return false;
@@ -186,7 +186,7 @@ public:
             return true;
         }
 
-        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* pTarget = GetTarget();
             if (Unit* pCaster = GetCaster())
@@ -194,7 +194,7 @@ public:
             pTarget->CastSpell(pTarget, PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER, true);
         }
 
-        void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* pTarget = GetTarget();
             pTarget->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
@@ -223,7 +223,7 @@ public:
     class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(PALADIN_SPELL_DIVINE_PLEA))
                 return false;

@@ -78,7 +78,7 @@ bool VendorItemData::RemoveItem(uint32 item_id)
 VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extendedCost) const
 {
     for (VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i)
-        if((*i)->item == item_id && (*i)->ExtendedCost == extendedCost)
+        if ((*i)->item == item_id && (*i)->ExtendedCost == extendedCost)
             return *i;
     return NULL;
 }
@@ -241,7 +241,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
         AI()->CorpseRemoved(respawnDelay);
 
     // Should get removed later, just keep "compatibility" with scripts
-    if(setSpawnTime)
+    if (setSpawnTime)
         m_respawnTime = time(NULL) + respawnDelay;
 
     float x, y, z, o;
@@ -1003,14 +1003,14 @@ void Creature::SetLootRecipient(Unit *unit)
         return;
 
     m_lootRecipient = player->GetGUID();
-    if (Group *group = player->GetGroup())
+    if (Group* group = player->GetGroup())
         m_lootRecipientGroup = group->GetLowGUID();
 
     SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
 }
 
 // return true if this creature is tapped by the player or by a member of his group.
-bool Creature::isTappedBy(Player *player) const
+bool Creature::isTappedBy(Player* player) const
 {
     if (player->GetGUID() == m_lootRecipient)
         return true;
@@ -1441,7 +1441,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
             return false;
 
         if (who->isInCombat())
-            if (Unit *victim = who->getAttackerForHelper())
+            if (Unit* victim = who->getAttackerForHelper())
                 if (IsWithinDistInMap(victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
                     force = true;
 
@@ -1794,7 +1794,7 @@ Unit* Creature::SelectNearestTarget(float dist) const
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Unit *target = NULL;
+    Unit* target = NULL;
 
     {
         if (dist == 0.0f)
@@ -1821,10 +1821,13 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Unit *target = NULL;
+    Unit* target = NULL;
 
-    if (dist > ATTACK_DISTANCE)
-        sLog->outError("Creature (GUID: %u Entry: %u) SelectNearestTargetInAttackDistance called with dist > ATTACK_DISTANCE. Extra distance ignored.", GetGUIDLow(), GetEntry());
+    if (dist > MAX_VISIBILITY_DISTANCE)
+    {
+        sLog->outError("Creature (GUID: %u Entry: %u) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GetGUIDLow(), GetEntry());
+        dist = ATTACK_DISTANCE;
+    }
 
     {
         Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
@@ -1833,8 +1836,8 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
         TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
         TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
-        cell.Visit(p, world_unit_searcher, *GetMap(), *this, ATTACK_DISTANCE);
-        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, ATTACK_DISTANCE);
+        cell.Visit(p, world_unit_searcher, *GetMap(), *this, ATTACK_DISTANCE > dist ? ATTACK_DISTANCE : dist);
+        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, ATTACK_DISTANCE > dist ? ATTACK_DISTANCE : dist);
     }
 
     return target;
@@ -1957,7 +1960,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 
 // use this function to avoid having hostile creatures attack
 // friendlies and other mobs they shouldn't attack
-bool Creature::_IsTargetAcceptable(const Unit *target) const
+bool Creature::_IsTargetAcceptable(const Unit* target) const
 {
     ASSERT(target);
 
@@ -1977,7 +1980,7 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
     }
 
     const Unit *myVictim = getAttackerForHelper();
-    const Unit *targetVictim = target->getAttackerForHelper();
+    const Unit* targetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
     if (myVictim == target || targetVictim == this || IsHostileTo(target))
@@ -2252,7 +2255,7 @@ void Creature::AllLootRemovedFromCorpse()
     if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE))
     {
         time_t now = time(NULL);
-        if(m_corpseRemoveTime <= now)
+        if (m_corpseRemoveTime <= now)
             return;
 
         float decayRate;

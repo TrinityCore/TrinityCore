@@ -192,6 +192,9 @@ class npc_flash_freeze : public CreatureScript
                 if (!UpdateVictim() || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->getVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
+                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS) 
+                    me->DespawnOrUnsummon(); 
+
                 if (checkDespawnTimer <= diff)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -827,7 +830,7 @@ class npc_hodir_mage : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CONJURE_FIRE:
-                            if (summons.size() >= RAID_MODE(2, 4))
+                            if (summons.size() >= RAID_MODE<uint64>(2, 4))
                                 break;
                             DoCast(me, SPELL_CONJURE_FIRE, true);
                             events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15000, 20000));

@@ -155,7 +155,7 @@ public:
         return true;
     }
 
-    bool OnQuestAccept(Player* /*pPlayer*/, Creature* pCreature, Quest const * /*_Quest*/)
+    bool OnQuestAccept(Player* /*pPlayer*/, Creature* pCreature, Quest const* /*_Quest*/)
     {
         DoScriptText(SAY_QUEST_ACCEPT_IRO, pCreature);
         return false;

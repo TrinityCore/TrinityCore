@@ -53,7 +53,7 @@ public:
             BloodLust_Timer = 20000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
         }

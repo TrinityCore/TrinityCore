@@ -130,7 +130,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (rand()%5)
                 return;
@@ -138,7 +138,7 @@ public:
             DoScriptText(SAY_KILLTARGET, me, victim);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_ESSENCEOFTHERED);
             DoZoneInCombat();

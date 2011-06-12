@@ -51,7 +51,7 @@ class go_blackfathom_fire : public GameObjectScript
 public:
     go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
 
-    bool OnGossipHello(Player * /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
     {
         InstanceScript *pInstance = pGo->GetInstanceScript();
 

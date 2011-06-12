@@ -276,7 +276,7 @@ public:
             Summons.Despawn(pSummoned);
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
@@ -415,7 +415,7 @@ public:
                 m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }

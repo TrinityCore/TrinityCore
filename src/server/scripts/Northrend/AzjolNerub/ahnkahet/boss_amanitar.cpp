@@ -83,7 +83,7 @@ public:
             }
         }
 
-        void JustDied(Unit * /*Killer*/)
+        void JustDied(Unit* /*Killer*/)
         {
             if (pInstance)
             {
@@ -92,7 +92,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
@@ -183,7 +183,7 @@ public:
             uiDeathTimer = 30*IN_MILLISECONDS;
         }
 
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             if (!killer)
                 return;
@@ -195,8 +195,8 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/) {}
-        void AttackStart(Unit * /*victim*/) {}
+        void EnterCombat(Unit* /*who*/) {}
+        void AttackStart(Unit* /*victim*/) {}
 
         void UpdateAI(const uint32 diff)
         {

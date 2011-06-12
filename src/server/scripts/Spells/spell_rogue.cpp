@@ -48,7 +48,7 @@ public:
             ROG_SPELL_CHEAT_DEATH_COOLDOWN = 31231,
         };
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             return sSpellStore.LookupEntry(ROG_SPELL_CHEAT_DEATH_COOLDOWN);
         }
@@ -59,7 +59,7 @@ public:
             return GetUnitOwner()->ToPlayer();
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -67,7 +67,7 @@ public:
 
         void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            Unit * target = GetTarget();
+            Unit* target = GetTarget();
             if (dmgInfo.GetDamage() < target->GetHealth())
                 return;
             if (target->ToPlayer()->HasSpellCooldown(ROG_SPELL_CHEAT_DEATH_COOLDOWN))
@@ -119,7 +119,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -153,7 +153,7 @@ class spell_rog_preparation : public SpellScriptLoader
         class spell_rog_preparation_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_preparation_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_GLYPH_OF_PREPARATION))
                     return false;
@@ -217,14 +217,14 @@ public:
     class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(ROGUE_SPELL_PREY_ON_THE_WEAK))
                 return false;
             return true;
         }
 
-        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* pTarget = GetTarget();
             Unit* pVictim = pTarget->getVictim();
@@ -260,7 +260,7 @@ class spell_rog_shiv : public SpellScriptLoader
         class spell_rog_shiv_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_shiv_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_SHIV_TRIGGERED))
                     return false;
