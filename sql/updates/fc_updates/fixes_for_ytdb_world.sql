@@ -12,3 +12,6 @@ UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34564;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34566;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35615;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35616;
+
+-- fix crash with NPC 38068 cast spel (recursion)
+UPDATE `creature_template` SET `ScriptName`="", `spell1`="" WHERE `entry` = 38068;
