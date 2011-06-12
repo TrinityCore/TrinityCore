@@ -192,6 +192,9 @@ class npc_flash_freeze : public CreatureScript
                 if (!UpdateVictim() || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->getVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
+                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS) 
+                    me->DespawnOrUnsummon(); 
+
                 if (checkDespawnTimer <= diff)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
