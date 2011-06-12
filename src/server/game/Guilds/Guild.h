@@ -642,8 +642,8 @@ public:
 
     // Broadcasts
     void BroadcastToGuild(WorldSession *session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;
-    void BroadcastPacketToRank(WorldPacket *packet, uint8 rankId) const;
-    void BroadcastPacket(WorldPacket *packet) const;
+    void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
+    void BroadcastPacket(WorldPacket* packet) const;
 
     template<class Do>
     void BroadcastWorker(Do& _do, Player* except = NULL)

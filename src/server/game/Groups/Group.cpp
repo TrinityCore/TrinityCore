@@ -1256,7 +1256,7 @@ void Group::UpdatePlayerOutOfRange(Player* pPlayer)
     }
 }
 
-void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group, uint64 ignore)
+void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group, uint64 ignore)
 {
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1269,7 +1269,7 @@ void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int
     }
 }
 
-void Group::BroadcastReadyCheck(WorldPacket *packet)
+void Group::BroadcastReadyCheck(WorldPacket* packet)
 {
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
