@@ -66,7 +66,13 @@ class icecrown_citadel_teleport : public GameObjectScript
             }
 
             if (sender == GOSSIP_SENDER_ICC_PORT)
+            {
+                //Preload the Lich King's platform before teleporting player to there
+                if (action == FROZEN_THRONE_TELEPORT)
+                    player->GetMap()->LoadGrid(530.3f, -2122.67f);
+
                 player->CastSpell(player, spell, true);
+            }
 
             return true;
         }
