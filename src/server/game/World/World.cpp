@@ -2008,7 +2008,7 @@ void World::ForceGameEventUpdate()
 }
 
 /// Send a packet to all players (except self if mentioned)
-void World::SendGlobalMessage(WorldPacket *packet, WorldSession *self, uint32 team)
+void World::SendGlobalMessage(WorldPacket* packet, WorldSession* self, uint32 team)
 {
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2025,7 +2025,7 @@ void World::SendGlobalMessage(WorldPacket *packet, WorldSession *self, uint32 te
 }
 
 /// Send a packet to all GMs (except self if mentioned)
-void World::SendGlobalGMMessage(WorldPacket *packet, WorldSession *self, uint32 team)
+void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 team)
 {
     SessionMap::iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2141,7 +2141,7 @@ void World::SendGMText(int32 string_id, ...)
 }
 
 /// DEPRECATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
-void World::SendGlobalText(const char* text, WorldSession *self)
+void World::SendGlobalText(const char* text, WorldSession* self)
 {
     WorldPacket data;
 
@@ -2159,7 +2159,7 @@ void World::SendGlobalText(const char* text, WorldSession *self)
 }
 
 /// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
-void World::SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self, uint32 team)
+void World::SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self, uint32 team)
 {
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2177,7 +2177,7 @@ void World::SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self
 }
 
 /// Send a System Message to all players in the zone (except self if mentioned)
-void World::SendZoneText(uint32 zone, const char* text, WorldSession *self, uint32 team)
+void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
 {
     WorldPacket data;
     ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, text, NULL);
