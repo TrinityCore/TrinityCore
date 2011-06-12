@@ -351,7 +351,7 @@ class BattlegroundEY : public Battleground
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleBuffUse(uint64 const& buff_guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        void HandleKillPlayer(Player *player, Player *killer);
+        void HandleKillPlayer(Player* player, Player* killer);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         virtual bool SetupBattleground();
         virtual void Reset();

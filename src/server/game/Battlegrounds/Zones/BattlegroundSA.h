@@ -536,7 +536,7 @@ class BattlegroundSA : public Battleground
         void UpdateDemolisherSpawns();
 
         /// Send packet to player for create boats (client part)
-        void SendTransportInit(Player *player);
+        void SendTransportInit(Player* player);
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player* player);
 

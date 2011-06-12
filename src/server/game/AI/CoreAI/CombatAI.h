@@ -44,7 +44,7 @@ class CombatAI : public CreatureAI
         void InitializeAI();
         void Reset();
         void EnterCombat(Unit* who);
-        void JustDied(Unit *killer);
+        void JustDied(Unit* killer);
         void UpdateAI(const uint32 diff);
         static int Permissible(const Creature *);
     protected:
