@@ -873,7 +873,7 @@ class BattlegroundIC : public Battleground
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
-        void HandleKillUnit(Creature *unit, Player *killer);
+        void HandleKillUnit(Creature* unit, Player* killer);
         void HandleKillPlayer(Player* player, Player* killer);
         void EndBattleground(uint32 winner);
         void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);

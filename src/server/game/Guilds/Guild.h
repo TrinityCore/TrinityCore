@@ -649,7 +649,7 @@ public:
     void BroadcastWorker(Do& _do, Player* except = NULL)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-            if (Player *player = itr->second->FindPlayer())
+            if (Player* player = itr->second->FindPlayer())
                 if (player != except)
                     _do(player);
     }

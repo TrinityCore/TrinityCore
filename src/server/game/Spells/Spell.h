@@ -170,7 +170,7 @@ class SpellCastTargets
 
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
-        void setUnitTarget(Unit *target);
+        void setUnitTarget(Unit* target);
         void setSrc(float x, float y, float z);
         void setSrc(Position &pos);
         void setSrc(WorldObject &wObj);
@@ -765,7 +765,7 @@ namespace Trinity
 
             for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
-                Unit *target = (Unit*)itr->getSource();
+                Unit* target = (Unit*)itr->getSource();
 
                 if (!i_source->canSeeOrDetect(target, true))
                     continue;

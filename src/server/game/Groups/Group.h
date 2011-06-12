@@ -186,11 +186,11 @@ class Group
         bool   Create(Player *leader);
         void   LoadGroupFromDB(Field *field);
         void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
-        bool   AddInvite(Player *player);
-        void   RemoveInvite(Player *player);
+        bool   AddInvite(Player* player);
+        void   RemoveInvite(Player* player);
         void   RemoveAllInvites();
-        bool   AddLeaderInvite(Player *player);
-        bool   AddMember(Player *player);
+        bool   AddLeaderInvite(Player* player);
+        bool   AddMember(Player* player);
         bool   RemoveMember(const uint64 &guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, uint64 kicker = 0, const char* reason = NULL);
         void   ChangeLeader(const uint64 &guid);
         void   SetLootMethod(LootMethod method);
@@ -242,7 +242,7 @@ class Group
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(const uint64 &guid, const uint8 &group);
-        void ChangeMembersGroup(Player *player, const uint8 &group);
+        void ChangeMembersGroup(Player* player, const uint8 &group);
         void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid);
         void SetGroupMemberFlag(uint64 guid, const bool &apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
@@ -302,7 +302,7 @@ class Group
 
     protected:
         bool _setMembersGroup(const uint64 &guid, const uint8 &group);
-        void _homebindIfInstance(Player *player);
+        void _homebindIfInstance(Player* player);
 
         void _initRaidSubGroupsCounter();
         member_citerator _getMemberCSlot(uint64 Guid) const;

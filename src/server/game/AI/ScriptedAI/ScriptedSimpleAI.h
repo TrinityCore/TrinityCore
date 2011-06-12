@@ -31,7 +31,7 @@ struct SimpleAI : public ScriptedAI
 
     void KilledUnit(Unit* /*victim*/);
 
-    void DamageTaken(Unit *killer, uint32 &damage);
+    void DamageTaken(Unit* killer, uint32 &damage);
 
     void UpdateAI(const uint32 diff);
 
