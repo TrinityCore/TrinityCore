@@ -457,12 +457,15 @@ enum SMART_ACTION
 
     SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
 
-    SMART_ACTION_CASTER_MOVEMENT                    = 94,     // Param1 = Castermovement deaktivieren/aktivieren - 0/1 - default = 0
+    SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // Flags
+    SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // Flags
+    SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
+
+    SMART_ACTION_CASTER_MOVEMENT                    = 97,     // Param1 = Castermovement deaktivieren/aktivieren - 0/1 - default = 0
                                                               // Param2 = Minimum Distanz setzen - default = 0
                                                               // Param3 = Maximum Distanz setzen - default = 29
                                                               // Am besten mit EVENT_T_AGGRO zu nutzen. ;)
-
-    SMART_ACTION_END                                = 95
+    SMART_ACTION_END                                = 98,
 };
 
 struct SmartAction
