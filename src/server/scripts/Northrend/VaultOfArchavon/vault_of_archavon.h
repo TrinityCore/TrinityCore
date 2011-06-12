@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2011 by WarHead (United Worlds of MaNGOS)
+ * Copyright (C) 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,11 +18,6 @@
 
 #ifndef DEF_ARCHAVON_H
 #define DEF_ARCHAVON_H
-
-/*
-#include "OutdoorPvPMgr.h"
-#include "../../OutdoorPvP/OutdoorPvPTW.h"
-*/
 
 enum Creatures
 {

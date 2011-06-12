@@ -1,4 +1,4 @@
-// Copyright 2009-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2009-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 
 #include "OutdoorPvPTW.h"
 #include "Group.h"

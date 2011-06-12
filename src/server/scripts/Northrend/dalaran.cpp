@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2011 by WarHead (United Worlds of MaNGOS)
+ * Copyright (C) 2009-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@ Script Data End */
 
 #include "ScriptPCH.h"
 
-// Copyright 2009-2011 by WarHead (United Worlds of MaNGOS) NPC IDs: 29254,29255
+// NPC IDs: 29254,29255
 
 /*******************************************************
  * npc_mageguard_dalaran

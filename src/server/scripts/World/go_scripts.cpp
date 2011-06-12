@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 by WarHead (United Worlds of MaNGOS)
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -88,7 +88,7 @@ public:
     }
 };
 
-// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // Ei der Geißelneruber 193051 - Quest 13182
 class go_ei_der_geisselneruber : public GameObjectScript
 {

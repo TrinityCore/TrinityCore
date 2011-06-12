@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 by WarHead (United Worlds of MaNGOS)
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -50,7 +50,7 @@ EndContentData */
 #include "ReputationMgr.h"
 #include "Config.h"
 
-// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // Feuerrufer 60000
 // ------------------------------------------------------------------------------------------------------------
@@ -476,7 +476,7 @@ public:
     }
 };
 
-// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // Flugmeister sowie Add Skripte - http://de.wowhead.com/npcs?filter=cr=21;crs=1;crv=0#0+1
 // ------------------------------------------------------------------------------------------------------------
@@ -892,7 +892,7 @@ public:
     }
 };
 
-// Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // UWoM's GM-Pimper 60001
 // ------------------------------------------------------------------------------------------------------------
@@ -1531,7 +1531,7 @@ public:
     }
 };
 
-// Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // UWoM's User-Pimper 60002
 // ------------------------------------------------------------------------------------------------------------
@@ -2210,7 +2210,7 @@ public:
     }
 };
 
-// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // Hati 60003
 // ------------------------------------------------------------------------------------------------------------

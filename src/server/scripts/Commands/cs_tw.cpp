@@ -1,8 +1,8 @@
-// Copyright 2010 by WarHead (United Worlds of MaNGOS)
+// Copyright 2010 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "../OutdoorPvP/OutdoorPvPTW.h"
+#include "OutdoorPvPTW.h"
 #include "OutdoorPvPMgr.h"
 
 class tw_commandscript : public CommandScript

@@ -1,4 +1,4 @@
-/* Copyright (C) 2008-2011 by WarHead (United Worlds of MaNGOS)
+/* Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
  * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
