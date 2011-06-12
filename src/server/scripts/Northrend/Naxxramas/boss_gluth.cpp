@@ -75,7 +75,7 @@ public:
                 BossAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_WOUND, 10000);

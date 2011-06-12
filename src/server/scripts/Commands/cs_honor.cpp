@@ -75,7 +75,7 @@ public:
     }
     static bool HandleHonorAddKillCommand(ChatHandler* handler, const char* /*args*/)
     {
-        Unit *target = handler->getSelectedUnit();
+        Unit* target = handler->getSelectedUnit();
         if (!target)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);

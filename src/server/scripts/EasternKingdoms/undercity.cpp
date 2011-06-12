@@ -101,7 +101,7 @@ public:
             targetGUID = 0;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void JustSummoned(Creature *summoned)
         {
@@ -177,7 +177,7 @@ public:
             EventCast = true;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {

@@ -60,7 +60,7 @@ public:
             KnockBack_Timer = 30000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();

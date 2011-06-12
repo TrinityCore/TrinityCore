@@ -91,7 +91,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
     if (_player->PlayerTalkClass->IsGossipOptionCoded(gossipListId))
         recv_data >> code;
 
-    Creature *unit = NULL;
+    Creature* unit = NULL;
     GameObject *go = NULL;
     if (IS_CRE_OR_VEH_GUID(guid))
     {
@@ -1250,7 +1250,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    Player *player = sObjectMgr->GetPlayer(guid);
+    Player* player = sObjectMgr->GetPlayer(guid);
 
     if (!player)
     {
@@ -1691,7 +1691,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket & recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player *player = sObjectMgr->GetPlayer(guid);
+    Player* player = sObjectMgr->GetPlayer(guid);
     if (!player)
         return;
 

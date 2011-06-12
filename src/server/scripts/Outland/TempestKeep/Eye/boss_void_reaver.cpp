@@ -80,12 +80,12 @@ class boss_void_reaver : public CreatureScript
                             pInstance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
             }
 
-            void KilledUnit(Unit * /*victim*/)
+            void KilledUnit(Unit* /*victim*/)
             {
                 DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
             }
 
-            void JustDied(Unit * /*victim*/)
+            void JustDied(Unit* /*victim*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 DoZoneInCombat();
@@ -94,7 +94,7 @@ class boss_void_reaver : public CreatureScript
                     pInstance->SetData(DATA_VOIDREAVEREVENT, DONE);
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
 

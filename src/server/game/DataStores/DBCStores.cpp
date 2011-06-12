@@ -300,7 +300,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
-        FactionEntry const * faction = sFactionStore.LookupEntry(i);
+        FactionEntry const* faction = sFactionStore.LookupEntry(i);
         if (faction && faction->team)
         {
             SimpleFactionsList &flist = sFactionTeamMap[faction->team];
@@ -312,7 +312,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGameObjectDisplayInfoStore,  dbcPath, "GameObjectDisplayInfo.dbc");
     for (uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
     {
-        if (GameObjectDisplayInfoEntry const * info = sGameObjectDisplayInfoStore.LookupEntry(i))
+        if (GameObjectDisplayInfoEntry const* info = sGameObjectDisplayInfoStore.LookupEntry(i))
         {
             if (info->maxX < info->minX)
                 std::swap(*(float*)(&info->maxX), *(float*)(&info->minX));
@@ -386,7 +386,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc", &CustomSpellEntryfmt, &CustomSpellEntryIndex);
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
-        SpellEntry const * spell = sSpellStore.LookupEntry(i);
+        SpellEntry const* spell = sSpellStore.LookupEntry(i);
         if (spell && spell->Category)
             sSpellCategoryStore[spell->Category].insert(i);
     }
@@ -592,8 +592,8 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleSeatStore,            dbcPath, "VehicleSeat.dbc");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sWMOAreaTableStore,           dbcPath, "WMOAreaTable.dbc");
-    for(uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
-        if(WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
+    for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
+        if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
             sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");
@@ -680,7 +680,7 @@ int32 GetAreaFlagByAreaID(uint32 area_id)
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)
 {
     WMOAreaInfoByTripple::iterator i = sWMOAreaInfoByTripple.find(WMOAreaTableTripple(rootid, adtid, groupid));
-        if(i == sWMOAreaInfoByTripple.end())
+        if (i == sWMOAreaInfoByTripple.end())
             return NULL;
         return i->second;
 }

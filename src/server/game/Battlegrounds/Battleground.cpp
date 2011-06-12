@@ -560,14 +560,14 @@ void Battleground::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, flo
     m_TeamStartLocO[idx] = O;
 }
 
-void Battleground::SendPacketToAll(WorldPacket *packet)
+void Battleground::SendPacketToAll(WorldPacket* packet)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
             player->GetSession()->SendPacket(packet);
 }
 
-void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket *packet, Player *sender, bool self)
+void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player *sender, bool self)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "SendPacketToTeam"))
@@ -960,7 +960,7 @@ void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool 
         }
 
         // remove from raid group if player is member
-        if (Group *group = GetBgRaid(team))
+        if (Group* group = GetBgRaid(team))
         {
             if (!group->RemoveMember(guid))                // group was disbanded
             {
@@ -1373,7 +1373,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
-    GameObject * go = new GameObject;
+    GameObject* go = new GameObject;
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, GetBgMap(),
         PHASEMASK_NORMAL, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {

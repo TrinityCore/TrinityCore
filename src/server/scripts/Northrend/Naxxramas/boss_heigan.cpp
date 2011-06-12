@@ -72,7 +72,7 @@ public:
             DoScriptText(SAY_DEATH, me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);

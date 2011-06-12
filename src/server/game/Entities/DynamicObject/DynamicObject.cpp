@@ -196,7 +196,7 @@ void DynamicObject::SetCasterViewpoint()
 
 void DynamicObject::RemoveCasterViewpoint()
 {
-    if (Player * caster = _caster->ToPlayer())
+    if (Player* caster = _caster->ToPlayer())
     {
         caster->SetViewpoint(this, false);
         _isViewpoint = false;

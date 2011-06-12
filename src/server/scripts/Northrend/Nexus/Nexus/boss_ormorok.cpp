@@ -113,7 +113,7 @@ public:
                 pInstance->SetData(DATA_ORMOROK_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(SAY_KILL, me);
         }

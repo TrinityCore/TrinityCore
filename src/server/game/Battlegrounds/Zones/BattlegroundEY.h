@@ -351,7 +351,7 @@ class BattlegroundEY : public Battleground
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleBuffUse(uint64 const& buff_guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        void HandleKillPlayer(Player *player, Player *killer);
+        void HandleKillPlayer(Player* player, Player* killer);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         virtual bool SetupBattleground();
         virtual void Reset();
@@ -370,7 +370,7 @@ class BattlegroundEY : public Battleground
         bool IsAllNodesConrolledByTeam(uint32 team) const;
     private:
         void EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType);
-        void EventPlayerCapturedFlag(Player * /*Source*/) {}
+        void EventPlayerCapturedFlag(Player* /*Source*/) {}
         void EventTeamCapturedPoint(Player *Source, uint32 Point);
         void EventTeamLostPoint(Player *Source, uint32 Point);
         void UpdatePointsCount(uint32 Team);

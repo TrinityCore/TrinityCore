@@ -172,7 +172,7 @@ class boss_janalai : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (pInstance)
                     pInstance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
@@ -454,7 +454,7 @@ class mob_janalai_firebomb : public CreatureScript
 
             void Reset() {}
 
-            void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+            void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
@@ -638,7 +638,7 @@ class mob_janalai_hatchling : public CreatureScript
                 me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             }
 
-            void EnterCombat(Unit * /*who*/) {/*DoZoneInCombat();*/}
+            void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
 
             void UpdateAI(const uint32 diff)
             {

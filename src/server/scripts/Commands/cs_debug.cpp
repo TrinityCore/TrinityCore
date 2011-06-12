@@ -250,7 +250,7 @@ public:
     static bool HandleDebugSendOpcodeCommand(ChatHandler* handler, const char* /*args*/)
     {
         Unit *unit = handler->getSelectedUnit();
-        Player *player = NULL;
+        Player* player = NULL;
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
             player = handler->GetSession()->GetPlayer();
         else
@@ -732,7 +732,7 @@ public:
         handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName(), target->GetGUIDLow());
         while (ref)
         {
-            if (Unit * unit = ref->getSource()->getOwner())
+            if (Unit* unit = ref->getSource()->getOwner())
             {
                 ++cnt;
                 handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", cnt, unit->GetName(), unit->GetGUIDLow(), ref->getThreat());

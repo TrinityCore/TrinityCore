@@ -126,7 +126,7 @@ public:
                 pInstance->SetData(BOSS_ALGALON, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }

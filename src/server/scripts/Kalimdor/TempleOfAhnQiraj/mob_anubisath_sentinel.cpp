@@ -149,7 +149,7 @@ public:
             }
         }
 
-        void AddSentinelsNear(Unit * /*nears*/)
+        void AddSentinelsNear(Unit* /*nears*/)
         {
             std::list<Creature*> assistList;
             me->GetCreatureListWithEntryInGrid(assistList, 15264, 70.0f);
@@ -233,7 +233,7 @@ public:
             me->AddAura(id, me);
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who)
         {
             if (gatherOthersWhenAggro)
                 GetOtherSentinels(who);

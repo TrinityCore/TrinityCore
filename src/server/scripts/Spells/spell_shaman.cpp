@@ -54,7 +54,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -89,7 +89,7 @@ public:
     class spell_sha_fire_nova_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_sha_fire_nova_SpellScript)
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const* spellEntry)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_FIRE_NOVA_R1))
                 return false;
@@ -148,7 +148,7 @@ public:
     class spell_sha_mana_tide_totem_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_sha_mana_tide_totem_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE))
                 return false;
@@ -198,7 +198,7 @@ public:
     {
         PrepareAuraScript(spell_sha_earthbind_totem_AuraScript);
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM))
                 return false;
@@ -207,7 +207,7 @@ public:
             return true;
         }
 
-        void HandleEffectPeriodic(AuraEffect const * aurEff)
+        void HandleEffectPeriodic(AuraEffect const* aurEff)
         {
             Unit* target = GetTarget();
             if (Unit *caster = aurEff->GetBase()->GetCaster())

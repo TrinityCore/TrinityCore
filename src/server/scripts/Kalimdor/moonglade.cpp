@@ -320,7 +320,7 @@ public:
             }
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (!PlayerGUID)
                 return;

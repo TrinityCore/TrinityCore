@@ -105,7 +105,7 @@ class boss_bronjahm : public CreatureScript
                 instance->SetBossState(DATA_BRONJAHM, DONE);
             }
 
-            void KilledUnit(Unit * who)
+            void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);

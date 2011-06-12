@@ -88,7 +88,7 @@ class boss_jeklik : public CreatureScript
                 PhaseTwo = false;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
                 DoCast(me, SPELL_BAT_FORM);
@@ -254,7 +254,7 @@ class mob_batrider : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit * /*who*/) {}
+            void EnterCombat(Unit* /*who*/) {}
 
             void UpdateAI (const uint32 diff)
             {

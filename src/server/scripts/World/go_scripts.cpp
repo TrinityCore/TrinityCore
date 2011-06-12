@@ -123,7 +123,7 @@ class go_cat_figurine : public GameObjectScript
 public:
     go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         pPlayer->CastSpell(pPlayer, SPELL_SUMMON_GHOST_SABER, true);
         return false;
@@ -202,7 +202,7 @@ class go_barov_journal : public GameObjectScript
 public:
     go_barov_journal() : GameObjectScript("go_barov_journal") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !pPlayer->HasSpell(26086))
         {
@@ -221,7 +221,7 @@ class go_field_repair_bot_74A : public GameObjectScript
 public:
     go_field_repair_bot_74A() : GameObjectScript("go_field_repair_bot_74A") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->HasSkill(SKILL_ENGINERING) && pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !pPlayer->HasSpell(22704))
         {
@@ -268,7 +268,7 @@ class go_orb_of_command : public GameObjectScript
 public:
     go_orb_of_command() : GameObjectScript("go_orb_of_command") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->GetQuestRewardStatus(7761))
             pPlayer->CastSpell(pPlayer, 23460, true);
@@ -286,7 +286,7 @@ class go_tablet_of_madness : public GameObjectScript
 public:
     go_tablet_of_madness() : GameObjectScript("go_tablet_of_madness") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetSkillValue(SKILL_ALCHEMY) >= 300 && !pPlayer->HasSpell(24266))
         {
@@ -327,7 +327,7 @@ class go_jump_a_tron : public GameObjectScript
 public:
     go_jump_a_tron() : GameObjectScript("go_jump_a_tron") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
          pPlayer->CastSpell(pPlayer, 33382, true);
@@ -437,7 +437,7 @@ class go_resonite_cask : public GameObjectScript
 public:
     go_resonite_cask() : GameObjectScript("go_resonite_cask") { }
 
-    bool OnGossipHello(Player * /*pPlayer*/, GameObject *pGO)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject *pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
             pGO->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
@@ -528,7 +528,7 @@ class go_southfury_moonstone : public GameObjectScript
 public:
     go_southfury_moonstone() : GameObjectScript("go_southfury_moonstone") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
         //pPlayer->CastSpell(pPlayer, SPELL_SUMMON_RIZZLE, false);
@@ -556,7 +556,7 @@ class go_tele_to_dalaran_crystal : public GameObjectScript
 public:
     go_tele_to_dalaran_crystal() : GameObjectScript("go_tele_to_dalaran_crystal") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
         {
@@ -578,7 +578,7 @@ class go_tele_to_violet_stand : public GameObjectScript
 public:
     go_tele_to_violet_stand() : GameObjectScript("go_tele_to_violet_stand") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
     {
         if (pPlayer->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || pPlayer->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
             return false;

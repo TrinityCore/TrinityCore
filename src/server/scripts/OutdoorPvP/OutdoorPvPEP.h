@@ -197,8 +197,8 @@ class OPvPCapturePointEP_EWT : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
         // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player * plr);
-        void HandlePlayerLeave(Player * plr);
+        bool HandlePlayerEnter(Player* plr);
+        void HandlePlayerLeave(Player* plr);
 
     protected:
 
@@ -228,8 +228,8 @@ class OPvPCapturePointEP_NPT : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
         // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player * plr);
-        void HandlePlayerLeave(Player * plr);
+        bool HandlePlayerEnter(Player* plr);
+        void HandlePlayerLeave(Player* plr);
 
     protected:
 
@@ -259,8 +259,8 @@ class OPvPCapturePointEP_CGT : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
         // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player * plr);
-        void HandlePlayerLeave(Player * plr);
+        bool HandlePlayerEnter(Player* plr);
+        void HandlePlayerLeave(Player* plr);
 
     protected:
 
@@ -290,8 +290,8 @@ class OPvPCapturePointEP_PWT : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
         // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player * plr);
-        void HandlePlayerLeave(Player * plr);
+        bool HandlePlayerEnter(Player* plr);
+        void HandlePlayerLeave(Player* plr);
 
     protected:
 
@@ -326,7 +326,7 @@ class OutdoorPvPEP : public OutdoorPvP
 
         void FillInitialWorldStates(WorldPacket &data);
 
-        void SendRemoveWorldStates(Player * plr);
+        void SendRemoveWorldStates(Player* plr);
 
         void BuffTeams();
 

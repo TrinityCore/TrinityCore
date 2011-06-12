@@ -54,7 +54,7 @@ public:
             FlameBuffet_Timer = 5000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
         }

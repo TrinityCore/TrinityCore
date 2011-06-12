@@ -273,7 +273,7 @@ public:
                 pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me)
                 return;
@@ -367,8 +367,8 @@ public:
             uiDespawnTimer = 10*IN_MILLISECONDS;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void JustDied(Unit* /*who*/)
         {
@@ -395,7 +395,7 @@ class prince_taldaram_sphere : public GameObjectScript
 public:
     prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
-    bool OnGossipHello(Player * /*pPlayer*/, GameObject *pGO)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject *pGO)
     {
         InstanceScript *pInstance = pGO->GetInstanceScript();
 

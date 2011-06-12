@@ -315,7 +315,7 @@ public:
             DoScriptText(SAY_DEATH[id], me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 

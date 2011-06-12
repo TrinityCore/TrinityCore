@@ -66,13 +66,13 @@ class OutdoorPvPSI : public OutdoorPvP
 
         void FillInitialWorldStates(WorldPacket &data);
 
-        void SendRemoveWorldStates(Player * plr);
+        void SendRemoveWorldStates(Player* plr);
 
-        bool HandleAreaTrigger(Player * plr, uint32 trigger);
+        bool HandleAreaTrigger(Player* plr, uint32 trigger);
 
-        bool HandleDropFlag(Player * plr, uint32 spellId);
+        bool HandleDropFlag(Player* plr, uint32 spellId);
 
-        bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject *go);
+        bool HandleCustomSpell(Player* plr, uint32 spellId, GameObject *go);
 
         void UpdateWorldState();
 

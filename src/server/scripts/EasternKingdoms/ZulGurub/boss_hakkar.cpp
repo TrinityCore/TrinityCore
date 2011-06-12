@@ -105,7 +105,7 @@ class boss_hakkar : public CreatureScript
                 Enraged = false;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
             }

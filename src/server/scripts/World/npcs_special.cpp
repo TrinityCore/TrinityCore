@@ -2587,7 +2587,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -3179,7 +3179,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void SpellHit(Unit* pCaster, const SpellEntry *Spell)
         {
@@ -3721,7 +3721,7 @@ public:
         npc_steam_tonkAI(Creature *c) : ScriptedAI(c) {}
 
         void Reset() {}
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void OnPossess(bool apply)
         {
@@ -3766,9 +3766,9 @@ public:
             ExplosionTimer = 3000;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
-        void AttackStart(Unit * /*who*/) {}
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -3882,7 +3882,7 @@ public:
         uint32 SpellTimer;
         bool IsViper;
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void Reset()
         {
@@ -3903,7 +3903,7 @@ public:
 
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
             if (!me->getVictim() && me->isSummon())
-                if (Unit * Owner = me->ToTempSummon()->GetSummoner())
+                if (Unit* Owner = me->ToTempSummon()->GetSummoner())
                     if (Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
         }
@@ -3995,7 +3995,7 @@ public:
             if (Unit* own = me->GetOwner())
                 me->GetMotionMaster()->MoveFollow(own, 0, 0);
         }
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
         void UpdateAI(const uint32 diff)
         {
             if (me->HasAura(20372))
@@ -4065,7 +4065,7 @@ public:
         void InitializeAI()
         {
             CasterAI::InitializeAI();
-            Unit * owner = me->GetOwner();
+            Unit* owner = me->GetOwner();
             if (!owner)
                 return;
             // Inherit Master's Threat List (not yet implemented)
@@ -4113,7 +4113,7 @@ public:
         void InitializeAI()
         {
             CasterAI::InitializeAI();
-            Unit * owner = me->GetOwner();
+            Unit* owner = me->GetOwner();
             if (!owner)
                 return;
             // Not needed to be despawned now
@@ -4131,7 +4131,7 @@ public:
                 }
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             // Stop Feeding Gargoyle when it dies
             if (Unit *owner = me->GetOwner())
@@ -4251,13 +4251,13 @@ public:
             Reset();
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             uiResetTimer = 5000;
             damage = 0;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (uiEntry != NPC_ADVANCED_TARGET_DUMMY && uiEntry != NPC_TARGET_DUMMY)
                 return;
@@ -4290,7 +4290,7 @@ public:
                     uiDespawnTimer -= uiDiff;
             }
         }
-        void MoveInLineOfSight(Unit * /*who*/){return;}
+        void MoveInLineOfSight(Unit* /*who*/){return;}
     };
 
     CreatureAI* GetAI(Creature* pCreature) const

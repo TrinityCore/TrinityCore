@@ -114,7 +114,7 @@ void LoadSkillExtraItemTable()
     sLog->outString();
 }
 
-bool canCreateExtraItems(Player * player, uint32 spellId, float &additionalChance, uint8 &additionalMax)
+bool canCreateExtraItems(Player* player, uint32 spellId, float &additionalChance, uint8 &additionalMax)
 {
     // get the info for the specified spell
     SkillExtraItemMap::const_iterator ret = SkillExtraItemStore.find(spellId);

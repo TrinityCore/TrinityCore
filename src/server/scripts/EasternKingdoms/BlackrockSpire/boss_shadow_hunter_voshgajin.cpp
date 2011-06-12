@@ -54,7 +54,7 @@ public:
             //DoCast(me, SPELL_ICEARMOR, true);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2*IN_MILLISECONDS);
