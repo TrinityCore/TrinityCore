@@ -30,8 +30,6 @@
 enum EmeraldDragonNPC
 {
     NPC_DREAM_FOG                   = 15224,
-    NPC_DEMENTED_DRUID              = 15260,
-
     DRAGON_YSONDRE                  = 14887,
     DRAGON_LETHON                   = 14888,
     DRAGON_EMERISS                  = 14889,
@@ -52,7 +50,7 @@ enum EmeraldDragonSpells
     SPELL_SEEPING_FOG_RIGHT         = 24814,    // dream fog - summon right
     SPELL_NOXIOUS_BREATH            = 24818,
     SPELL_MARK_OF_NATURE            = 25040,    // Mark of Nature trigger (applied on target death - 15 minutes of being suspectible to Aura Of Nature)
-    SPELL_MARK_OF_NATURE_AURA       = 25041,    // Mark of Nature (passive marker-test, runs every 10 seconds from boss, triggers spellID 25042 (spell_dbc or script needed)
+    SPELL_MARK_OF_NATURE_AURA       = 25041,    // Mark of Nature (passive marker-test, ticks every 10 seconds from boss, triggers spellID 25042 (scripted)
     SPELL_AURA_OF_NATURE            = 25043,    // Stun for 2 minutes (used when SPELL_MARK_OF_NATURE exists on the target)
 };
 
@@ -62,21 +60,25 @@ enum EmeraldDragonSpells
 
 enum Events
 {
-    // General for all dragons
-    EVENT_SEEPING_FOG               = 1,
-    EVENT_NOXIOUS_BREATH            = 2,
-    EVENT_TAIL_SWEEP                = 3,
+    // General events for all dragons
+    EVENT_SEEPING_FOG = 1,
+    EVENT_NOXIOUS_BREATH,
+    EVENT_TAIL_SWEEP,
+
     // Ysondre
-    EVENT_LIGHTNING_WAVE            = 4,
-    EVENT_SUMMON_DRUID_SPIRITS      = 5,
+    EVENT_LIGHTNING_WAVE,
+    EVENT_SUMMON_DRUID_SPIRITS,
+
     // Lethon
-    EVENT_SHADOW_BOLT_WHIRL         = 6,
+    EVENT_SHADOW_BOLT_WHIRL,
+
     // Emeriss
-    EVENT_VOLATILE_INFECTION        = 7,
-    EVENT_CORRUPTION_OF_EARTH       = 8,
+    EVENT_VOLATILE_INFECTION,
+    EVENT_CORRUPTION_OF_EARTH,
+
     // Taerar
-    EVENT_ARCANE_BLAST              = 9,
-    EVENT_BELLOWING_ROAR            = 10,
+    EVENT_ARCANE_BLAST,
+    EVENT_BELLOWING_ROAR,
 };
 
 /*
@@ -86,32 +88,25 @@ enum Events
  *
  * TODO
  * - Fix player teleportation when running off too far from the dragon (emerald_dragonAI)
- * - Verify handling of Mark Of Nature / Aura of Nature
- *
  */
 
 struct emerald_dragonAI : public WorldBossAI
 {
     emerald_dragonAI(Creature* creature) : WorldBossAI(creature)
     {
+//        me->m_CombatDistance = 12.0f;
+//        me->m_SightDistance  = 60.0f;
     }
 
     void Reset()
     {
-        WorldBossAI::Reset();
+        _Reset();
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
+        DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
         events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
         events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
-    }
-
-    // Test if the player has been killed before, and if so, put them to sleep
-    void MoveInLineOfSight(Unit* who)
-    {
-        if (who && me->IsHostileTo(who))
-            if (who->HasAura(SPELL_MARK_OF_NATURE_AURA) && !who->HasAura(SPELL_AURA_OF_NATURE))
-                who->CastSpell(who, SPELL_AURA_OF_NATURE, true);
     }
 
     // Target killed during encounter, mark them as suspectible for Aura Of Nature
@@ -168,8 +163,7 @@ struct emerald_dragonAI : public WorldBossAI
 };
 
 /*
- * --- Dream Fog NPC
- *
+ * --- NPC: Dream Fog
  */
 
 class npc_dream_fog : public CreatureScript
@@ -197,12 +191,11 @@ class npc_dream_fog : public CreatureScript
                 {
                     // Chase target, but don't attack - otherwise just roam around
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-
                     if (target)
                     {
                         _roamTimer = urand(15000, 30000);
                         me->GetMotionMaster()->Clear(false);
-                        me->GetMotionMaster()->MoveChase(target, 0.1f);
+                        me->GetMotionMaster()->MoveChase(target, 0.2f);
                     }
                     else
                     {
@@ -210,7 +203,9 @@ class npc_dream_fog : public CreatureScript
                         me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveRandom(25.0f);
                     }
+                    // Seeping fog movement is slow enough for a player to be able to walk backwards and still outpace it
                     me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetSpeed(MOVE_WALK, 0.75f);
                 }
                 else
                     _roamTimer -= diff;
@@ -268,15 +263,75 @@ class spell_dream_fog_sleep : public SpellScriptLoader
 };
 
 /*
+ * --- Spell: Mark of Nature
+ */
+
+class MarkOfNatureTargetSelector
+{
+    public:
+        MarkOfNatureTargetSelector() { }
+
+        bool operator()(Unit* unit)
+        {
+            // return anyone that isn't tagged , or already under the influence of Aura of Nature
+            return !unit->HasAura(SPELL_MARK_OF_NATURE);
+        }
+};
+
+class spell_mark_of_nature : public SpellScriptLoader
+{
+    public:
+        spell_mark_of_nature() : SpellScriptLoader("spell_mark_of_nature") { }
+
+        class spell_mark_of_nature_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mark_of_nature_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellInfo*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_NATURE))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_AURA_OF_NATURE))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(MarkOfNatureTargetSelector());
+            }
+
+            void HandleEffect(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (GetHitUnit())
+                    GetHitUnit()->CastSpell(GetHitUnit(), SPELL_AURA_OF_NATURE, true);
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnEffect += SpellEffectFn(spell_mark_of_nature_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mark_of_nature_SpellScript();
+        }
+};
+
+/*
  * ---
  * --- Dragonspecific scripts and handling: YSONDRE
  * ---
- *
- * TODO:
- * - NPC summoning needs to be sorted properly
- * - Get proper timers for spellcasts
- *
  */
+
+enum YsondreNPC
+{
+    NPC_DEMENTED_DRUID              = 15260,
+};
 
 enum YsondreTexts
 {
@@ -369,89 +424,6 @@ class boss_ysondre : public CreatureScript
 };
 
 /*
- * Ysondres' demented druids
- *
- * TODO:
- * - Fix summoned druid appearance
- * - Verify that all spells work as they should
- * - Get proper timers for spellcasts
- *
- */
-
-enum DementedEvent
-{
-    EVENT_DRUID_MOONFIRE        = 1,
-    EVENT_DRUID_CURSE_OF_THORNS = 2,
-    EVENT_DRUID_SILENCE         = 3,
-};
-
-enum DementedSpell
-{
-    SPELL_SILENCE               = 6726,
-    SPELL_CURSE_OF_THORNS       = 16247,
-    SPELL_MOONFIRE              = 21669,
-};
-
-class npc_demented_druid : public CreatureScript
-{
-    public:
-        npc_demented_druid() : CreatureScript("npc_demented_druid") { }
-
-        struct npc_demented_druidAI : public ScriptedAI
-        {
-            npc_demented_druidAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset()
-            {
-                _lifeTimer = 600000;
-                _events.ScheduleEvent(EVENT_DRUID_MOONFIRE, 2500);
-                _events.ScheduleEvent(EVENT_DRUID_SILENCE, 15000);
-                _events.ScheduleEvent(EVENT_DRUID_CURSE_OF_THORNS, 10000);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_DRUID_MOONFIRE:
-                            DoCastVictim(SPELL_MOONFIRE);
-                            _events.ScheduleEvent(EVENT_DRUID_MOONFIRE, urand(10000, 15000));
-                            break;
-                        case EVENT_DRUID_SILENCE:
-                            DoCastVictim(SPELL_SILENCE);
-                            _events.ScheduleEvent(EVENT_DRUID_SILENCE, urand(15000,20000));
-                            break;
-                        case EVENT_DRUID_CURSE_OF_THORNS:
-                            DoCast(me, SPELL_CURSE_OF_THORNS, true);
-                            _events.ScheduleEvent(EVENT_DRUID_CURSE_OF_THORNS, urand(15000,20000));
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            uint32 _lifeTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_demented_druidAI(creature);
-        }
-};
-
-/*
  * ---
  * --- Dragonspecific scripts and handling: LETHON
  * ---
@@ -459,8 +431,7 @@ class npc_demented_druid : public CreatureScript
  * TODO:
  * - NPC helper for spirit shades(?)
  *   - Spirit shade NPC moves towards Lethon and heals him if close enough (each shade heals for 15000 HP)
- * - Spell: Shadow bolt whirl needs custom handling (spellscript)
- *
+ * - Spell: Shadow bolt whirl casts needs custom handling (spellscript)
  */
 
 enum LethonTexts
@@ -471,8 +442,9 @@ enum LethonTexts
 
 enum LethonSpells
 {
-    SPELL_SHADOW_BOLT_WHIRL         = 24834,
     SPELL_DRAW_SPIRIT               = 24811,
+    SPELL_SHADOW_BOLT_WHIRL         = 24834,
+    SPELL_SPIRIT_SHADE_VISUAL       = 24908,
 };
 
 class boss_lethon : public CreatureScript
@@ -554,12 +526,6 @@ class boss_lethon : public CreatureScript
  * ---
  * --- Dragonspecific scripts and handling: EMERISS
  * ---
- *
- * TODO:
- * - Get proper timers for all spellcasts
- * - Spell: Volatile Infection: Random target selection, areaa damage to close units
- * - Spell: Putrid Mushroom needs further scripting/testing
- *
  */
 
 enum EmerissTexts
@@ -661,10 +627,6 @@ class boss_emeriss : public CreatureScript
  * ---
  * --- Dragonspecific scripts and handling: TAERAR
  * ---
- *
- * TODO:
- * - Fix shademode and reset-issues on evade
- *
  */
 
 enum TaerarTexts
@@ -820,92 +782,18 @@ class boss_taerar : public CreatureScript
         }
 };
 
-/*
- * Taerars shades
- */
-
-enum ShadeEvents
-{
-    EVENT_SHADE_POISON_CLOUD    = 1,
-    EVENT_SHADE_ACID_BREATH     = 2,
-};
-
-enum ShadeSpells
-{
-    SPELL_POISON_CLOUD          = 24840,
-    SPELL_ACID_BREATH           = 20667,
-};
-
-class boss_shadeoftaerar : public CreatureScript
-{
-    public:
-        boss_shadeoftaerar() : CreatureScript("boss_shade_of_taerar") { }
-
-        struct boss_shadeoftaerarAI : public ScriptedAI
-        {
-            boss_shadeoftaerarAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset()
-            {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_SHADE_ACID_BREATH, 12000);
-                _events.ScheduleEvent(EVENT_SHADE_POISON_CLOUD, 30000);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SHADE_ACID_BREATH:
-                            DoCast(SPELL_ACID_BREATH);
-                            _events.ScheduleEvent(EVENT_SHADE_ACID_BREATH, urand(10000, 14000));
-                            break;
-                        case EVENT_SHADE_POISON_CLOUD:
-                            DoCast(SPELL_POISON_CLOUD);
-                            _events.ScheduleEvent(EVENT_SHADE_POISON_CLOUD, urand(25000, 30000));
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_shadeoftaerarAI(creature);
-        }
-};
-
 void AddSC_emerald_dragons()
 {
     // helper NPC scripts
     new npc_dream_fog();
+
+    // dragon spellscripts
     new spell_dream_fog_sleep();
+    new spell_mark_of_nature();
 
-    // ysondre and summons
+    // dragons
     new boss_ysondre();
-    new npc_demented_druid();
-
-    // taerar and summons
     new boss_taerar();
-    new boss_shadeoftaerar();
-
-    // emeriss
     new boss_emeriss();
-
-    // lethon and summons
     new boss_lethon();
 };
