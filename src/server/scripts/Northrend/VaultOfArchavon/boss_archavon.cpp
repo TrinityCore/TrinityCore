@@ -78,7 +78,7 @@ class boss_archavon : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (instance)
                     instance->SetData(DATA_ARCHAVON, IN_PROGRESS);

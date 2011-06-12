@@ -58,7 +58,7 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player *receiver)
+    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player* receiver)
     {
         if ((sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT) == 0) || (player->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)) || (receiver->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)))
         {
@@ -68,7 +68,7 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 type, uint32 /*lang*/, std::string& msg, Group *group)
+    void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg, Group* group)
     {
         if ((sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT) == 0) || (player->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)))
         {
@@ -119,7 +119,7 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 type, uint32 lang, std::string& msg, Guild *guild)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
     {
         if ((sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT) == 0) || (player->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)))
         {
@@ -143,7 +143,7 @@ public:
         }
     }
 
-    void OnChat(Player *player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel *channel)
+    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel)
     {
         if ((sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT) == 0) || (player->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)))
         {

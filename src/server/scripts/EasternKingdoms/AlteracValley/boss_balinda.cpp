@@ -120,7 +120,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(YELL_AGGRO, me);
         }

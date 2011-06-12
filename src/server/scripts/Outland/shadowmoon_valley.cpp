@@ -1469,7 +1469,7 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-        void JustDied(Unit * /*slayer*/)
+        void JustDied(Unit* /*slayer*/)
         {
             me->RemoveCorpse();
             if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
@@ -1713,7 +1713,7 @@ public:
 
         void Reset()   { }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
 
         void JustDied(Unit* /*killer*/)
         {

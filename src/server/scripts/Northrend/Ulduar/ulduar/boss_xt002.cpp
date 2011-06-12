@@ -277,7 +277,7 @@ class boss_xt002 : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void JustDied(Unit * /*victim*/)
+            void JustDied(Unit* /*victim*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 _JustDied();
@@ -441,7 +441,7 @@ public:
         InstanceScript* m_pInstance;
         uint32 _damageTaken;
 
-        void DamageTaken(Unit * /*pDone*/, uint32 &damage)
+        void DamageTaken(Unit* /*pDone*/, uint32 &damage)
         {
             Creature* XT002 = me->GetCreature(*me, m_pInstance->GetData64(BOSS_XT002));
             if (!XT002 || !XT002->AI())
@@ -810,7 +810,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                 if (!owner)
                     return;
 
-                if (aurEff->GetAmount() >= owner->GetHealth())
+                if (aurEff->GetAmount() >= int32(owner->GetHealth()))
                     if (XT002AI* xt002AI = CAST_AI(XT002AI, xt002->GetAI()))
                         xt002AI->GravityBombCasualty = true;
             }
@@ -843,7 +843,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                if (GetHitDamage() >= GetHitUnit()->GetHealth())
+                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
                     if (XT002AI* xt002AI = CAST_AI(XT002AI, GetCaster()->GetAI()))
                         xt002AI->GravityBombCasualty = true;
             }

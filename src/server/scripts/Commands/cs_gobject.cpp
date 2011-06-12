@@ -556,7 +556,7 @@ public:
                 float z = fields[4].GetFloat();
                 uint16 mapid = fields[5].GetUInt16();
 
-                GameObjectTemplate const * gInfo = sObjectMgr->GetGameObjectTemplate(entry);
+                GameObjectTemplate const* gInfo = sObjectMgr->GetGameObjectTemplate(entry);
 
                 if (!gInfo)
                     continue;

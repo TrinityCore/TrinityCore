@@ -75,13 +75,13 @@ public:
                 pInstance->SetData(DATA_KURINNAXX_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_KURINNAXX_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_KURINNAXX_EVENT, DONE);

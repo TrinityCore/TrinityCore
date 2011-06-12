@@ -136,8 +136,8 @@ class Pet : public Guardian
 
         bool Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         bool CreateBaseAtCreature(Creature* creature);
-        bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit * owner);
-        bool CreateBaseAtTamed(CreatureTemplate const * cinfo, Map * map, uint32 phaseMask);
+        bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
+        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map * map, uint32 phaseMask);
         bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSaveMode mode);

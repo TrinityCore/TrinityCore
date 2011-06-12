@@ -352,7 +352,7 @@ class boss_magtheridon : public CreatureScript
                     ScriptedAI::AttackStart(who);
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (pInstance)
                     pInstance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
@@ -519,7 +519,7 @@ class mob_hellfire_channeler : public CreatureScript
                 Check_Timer = 5000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (pInstance)
                     pInstance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
@@ -611,7 +611,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * pGO)
+    bool OnGossipHello(Player *pPlayer, GameObject* pGO)
     {
         InstanceScript* pInstance = pGO->GetInstanceScript();
 

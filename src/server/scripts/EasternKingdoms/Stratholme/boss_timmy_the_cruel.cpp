@@ -52,7 +52,7 @@ public:
             HasYelled = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (!HasYelled)
             {

@@ -71,7 +71,7 @@ public:
             }
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (fm_Type == 0) fm_Type = GetForgeMasterType();
             if (pInstance)
@@ -91,7 +91,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (fm_Type == 0) fm_Type = GetForgeMasterType();
             if (pInstance)

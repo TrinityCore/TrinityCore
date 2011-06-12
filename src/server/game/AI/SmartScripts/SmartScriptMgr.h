@@ -1214,7 +1214,7 @@ class SmartAIMgr
                 return mEventMap[uint32(type)][entry];
             else
             {
-                if(entry > 0)//first search is for guid (negative), do not drop error if not found
+                if (entry > 0)//first search is for guid (negative), do not drop error if not found
                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartAIMgr::GetScript: Could not load Script for Entry %d ScriptType %u.", entry, uint32(type));
                 return temp;
             }

@@ -377,7 +377,7 @@ void hyjal_trashAI::UpdateAI(const uint32 /*diff*/)
     }
 }
 
-void hyjal_trashAI::JustDied(Unit * /*victim*/)
+void hyjal_trashAI::JustDied(Unit* /*victim*/)
 {
     if (!pInstance)
         return;
@@ -1193,7 +1193,7 @@ public:
             }
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             if (pInstance && IsEvent)
                 pInstance->SetData(DATA_TRASH, 0);//signal trash is dead
@@ -1315,7 +1315,7 @@ public:
             }
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             float x, y, z;
             me->GetPosition(x, y, z);
@@ -1445,7 +1445,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 

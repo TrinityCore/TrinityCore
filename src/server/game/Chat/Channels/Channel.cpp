@@ -205,11 +205,11 @@ void Channel::Join(uint64 p, const char *pass)
     if (!IsConstant())
     {
         // Update last_used timestamp in db
-        if(!players.empty())
+        if (!players.empty())
             UpdateChannelUseageInDB();
 
         // If the channel has no owner yet and ownership is allowed, set the new owner.
-        if ( !m_ownerGUID && m_ownership)
+        if (!m_ownerGUID && m_ownership)
         {
             SetOwner(p, (players.size() > 1 ? true : false));
             players[p].SetModerator(true);

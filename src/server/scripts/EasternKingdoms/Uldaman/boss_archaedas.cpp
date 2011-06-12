@@ -105,7 +105,7 @@ class boss_archaedas : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->setFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -124,7 +124,7 @@ class boss_archaedas : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit * /*victim*/)
+            void KilledUnit(Unit* /*victim*/)
             {
                 me->MonsterYell(SAY_KILL, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_KILL);
@@ -196,7 +196,7 @@ class boss_archaedas : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied (Unit * /*pKiller*/)
+            void JustDied (Unit* /*pKiller*/)
             {
                 if (pInstance)
                 {
@@ -258,7 +258,7 @@ class mob_archaedas_minions : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->setFaction (14);
                 me->RemoveAllAuras();
@@ -346,7 +346,7 @@ class mob_stonekeepers : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->setFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -362,7 +362,7 @@ class mob_stonekeepers : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit * /*attacker*/)
+            void JustDied(Unit* /*attacker*/)
             {
                 DoCast (me, SPELL_SELF_DESTRUCT, true);
                 if (pInstance)

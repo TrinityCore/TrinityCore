@@ -136,8 +136,8 @@ class OPvPCapturePointTF : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
         // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player * plr);
-        void HandlePlayerLeave(Player * plr);
+        bool HandlePlayerEnter(Player* plr);
+        void HandlePlayerLeave(Player* plr);
 
         void UpdateTowerState();
 
@@ -165,7 +165,7 @@ class OutdoorPvPTF : public OutdoorPvP
 
         void FillInitialWorldStates(WorldPacket &data);
 
-        void SendRemoveWorldStates(Player * plr);
+        void SendRemoveWorldStates(Player* plr);
 
     private:
 

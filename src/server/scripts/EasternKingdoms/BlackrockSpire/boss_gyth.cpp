@@ -87,8 +87,8 @@ public:
         void SummonCreatureWithRandomTarget(uint32 creatureId, uint8 count)
         {
             for (uint8 n = 0; n < count; n++)
-                if (Unit * Summoned = me->SummonCreature(creatureId, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240*IN_MILLISECONDS))
-                    if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                if (Unit* Summoned = me->SummonCreature(creatureId, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240*IN_MILLISECONDS))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         Summoned->AddThreat(target, 250.0f);
         }
 
