@@ -2046,7 +2046,7 @@ void Guild::BroadcastToGuild(WorldSession *session, bool officerOnly, const std:
     }
 }
 
-void Guild::BroadcastPacketToRank(WorldPacket *packet, uint8 rankId) const
+void Guild::BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const
 {
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->second->IsRank(rankId))
@@ -2054,7 +2054,7 @@ void Guild::BroadcastPacketToRank(WorldPacket *packet, uint8 rankId) const
                 player->GetSession()->SendPacket(packet);
 }
 
-void Guild::BroadcastPacket(WorldPacket *packet) const
+void Guild::BroadcastPacket(WorldPacket* packet) const
 {
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (Player* player = itr->second->FindPlayer())

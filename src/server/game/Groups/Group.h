@@ -262,8 +262,8 @@ class Group
         void SendUpdate();
         void UpdatePlayerOutOfRange(Player* pPlayer);
                                                             // ignore: GUID of player that will be ignored
-        void BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group=-1, uint64 ignore=0);
-        void BroadcastReadyCheck(WorldPacket *packet);
+        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group=-1, uint64 ignore=0);
+        void BroadcastReadyCheck(WorldPacket* packet);
         void OfflineReadyCheck();
 
         /*********************************************************/
