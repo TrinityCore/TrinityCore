@@ -728,7 +728,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
             float z = fields[3].GetFloat();
             int mapid = fields[4].GetUInt16();
 
-            if  (m_session)
+            if (m_session)
                 PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name.c_str(), x, y, z, mapid);
             else
                 PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name.c_str(), x, y, z, mapid);
@@ -4113,13 +4113,13 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
             return false;
     }
 
-    for(uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
         Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
-        for(Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+        for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
         {
             InstanceSave *save = itr->second.save;
-            if(itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
+            if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
             {
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
                 PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
@@ -4414,7 +4414,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
 
     if (strcmp(argstr, "on") == 0)
     {
-        if(chn)
+        if (chn)
             chn->SetOwnership(true);
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_OWNERSHIP);
         stmt->setUInt8 (0, 1);
@@ -4424,7 +4424,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
     }
     else if (strcmp(argstr, "off") == 0)
     {
-        if(chn)
+        if (chn)
             chn->SetOwnership(false);
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_OWNERSHIP);
         stmt->setUInt8 (0, 0);

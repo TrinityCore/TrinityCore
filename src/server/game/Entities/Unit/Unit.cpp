@@ -1948,12 +1948,12 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
                 GetGUIDLow(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
     }
 
-    if(!extra && m_extraAttacks)
+    if (!extra && m_extraAttacks)
     {
         while(m_extraAttacks)
         {
             AttackerStateUpdate(pVictim, BASE_ATTACK, true);
-            if(m_extraAttacks > 0)
+            if (m_extraAttacks > 0)
                 --m_extraAttacks;
         }
     }
@@ -6619,7 +6619,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 break;
             }
             // Glyph of Mend Pet
-            if(dummySpell->Id == 57870)
+            if (dummySpell->Id == 57870)
             {
                 pVictim->CastSpell(pVictim, 57894, true, NULL, NULL, GetGUID());
                 return true;
@@ -7208,7 +7208,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 70808:
                 {
                     // Chain Heal
-                    if((procSpell->SpellFamilyFlags[0] & 0x100) && (procEx & PROC_EX_CRITICAL_HIT))
+                    if ((procSpell->SpellFamilyFlags[0] & 0x100) && (procEx & PROC_EX_CRITICAL_HIT))
                     {
                         triggered_spell_id = 70809;
                         SpellEntry const* triggeredSpell = sSpellStore.LookupEntry(triggered_spell_id);
@@ -7222,7 +7222,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 70811:
                 {
                     // Lightning Bolt & Chain Lightning
-                    if(procSpell->SpellFamilyFlags[0] & 0x3)
+                    if (procSpell->SpellFamilyFlags[0] & 0x3)
                     {
                         if (ToPlayer()->HasSpellCooldown(16166))
                         {
@@ -8417,14 +8417,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     //Item - Coliseum 25 Normal Caster Trinket
                     case 67712:
                     {
-                        if(!pVictim || !pVictim->isAlive())
+                        if (!pVictim || !pVictim->isAlive())
                             return false;
                         // stacking
                         CastSpell(this, 67713, true, NULL, triggeredByAura);
 
                         Aura * dummy = GetAura(67713);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
+                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
                             return false;
 
                         RemoveAurasDueToSpell(67713);
@@ -8435,14 +8435,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     //Item - Coliseum 25 Heroic Caster Trinket
                     case 67758:
                     {
-                        if(!pVictim || !pVictim->isAlive())
+                        if (!pVictim || !pVictim->isAlive())
                             return false;
                         // stacking
                         CastSpell(this, 67759, true, NULL, triggeredByAura);
 
                         Aura * dummy = GetAura(67759);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
+                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
                             return false;
 
                         RemoveAurasDueToSpell(67759);
@@ -10560,7 +10560,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         break;
         case SPELLFAMILY_HUNTER:
             // Steady Shot
-            if(spellProto->SpellFamilyFlags[1] & 0x1)
+            if (spellProto->SpellFamilyFlags[1] & 0x1)
                 if (AuraEffect * aurEff = GetAuraEffect(56826, 0))  // Glyph of Steady Shot
                     if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 0x00004000, 0, 0, GetGUID()))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
@@ -12895,7 +12895,7 @@ Unit* Creature::SelectVictim()
     }
 
     Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
-    if(!iAuras.empty())
+    if (!iAuras.empty())
     {
         for (Unit::AuraEffectList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
         {
@@ -14195,7 +14195,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
         if (isVictim)
             procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
         SpellEntry const* spellProto = itr->second->GetBase()->GetSpellProto();
-        if(!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
+        if (!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
             continue;
 
         // Triggered spells not triggering additional spells
@@ -16750,7 +16750,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             uint64 origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
 
             SpellEntry const* spellEntry = sSpellStore.LookupEntry(itr->second.spellId);
-            // if(!spellEntry) should be checked at npc_spellclick load
+            // if (!spellEntry) should be checked at npc_spellclick load
 
             if (seatId > -1)
             {

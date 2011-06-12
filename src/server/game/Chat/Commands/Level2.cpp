@@ -441,10 +441,10 @@ bool ChatHandler::HandleCharacterChangeFactionCommand(const char * args)
     uint64 target_guid;
     std::string target_name;
 
-    if(!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
+    if (!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if(target)
+    if (target)
     {
         // TODO : add text into database
         PSendSysMessage(LANG_CUSTOMIZE_PLAYER, GetNameLink(target).c_str());
@@ -468,10 +468,10 @@ bool ChatHandler::HandleCharacterChangeRaceCommand(const char * args)
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if(!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
+    if (!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if(target)
+    if (target)
     {
         // TODO : add text into database
         PSendSysMessage(LANG_CUSTOMIZE_PLAYER, GetNameLink(target).c_str());

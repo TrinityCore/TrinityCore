@@ -1152,7 +1152,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& pla
     {
         uint64 guid = (*it)->GetGUID();
         LfgLockMap cachedLockMap = GetLockedDungeons(guid);
-        for(LfgLockMap::const_iterator it = cachedLockMap.begin(); it != cachedLockMap.end() && dungeons.size(); ++it)
+        for (LfgLockMap::const_iterator it = cachedLockMap.begin(); it != cachedLockMap.end() && dungeons.size(); ++it)
         {
             uint32 dungeonId = (it->first & 0x00FFFFFF); // Compare dungeon ids
             LfgDungeonSet::iterator itDungeon = dungeons.find(dungeonId);

@@ -219,7 +219,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item **m
     hisTrade->SetInAcceptProcess(true);
 
     // store items in local list and set 'in-trade' flag
-    for(uint8 i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
+    for (uint8 i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {

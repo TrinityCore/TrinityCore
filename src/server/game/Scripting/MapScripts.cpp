@@ -513,7 +513,7 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_TELEPORT_TO:
-                if  (step.script->TeleportTo.Flags & SF_TELEPORT_USE_CREATURE)
+                if (step.script->TeleportTo.Flags & SF_TELEPORT_USE_CREATURE)
                 {
                     // Source or target must be Creature.
                     if (Creature *cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script, true))

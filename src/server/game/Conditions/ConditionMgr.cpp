@@ -271,7 +271,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, ConditionList con
                 ConditionReferenceMap::const_iterator ref = m_ConditionReferenceMap.find((*i)->mReferenceId);
                 if (ref != m_ConditionReferenceMap.end())
                 {
-                    if(!IsPlayerMeetToConditionList(player, (*ref).second, invoker))
+                    if (!IsPlayerMeetToConditionList(player, (*ref).second, invoker))
                         ElseGroupMap[(*i)->mElseGroup] = false;
                 }
                 else
