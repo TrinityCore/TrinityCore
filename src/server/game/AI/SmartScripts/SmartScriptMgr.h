@@ -458,7 +458,11 @@ enum SMART_ACTION
 
     SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
 
-    SMART_ACTION_END                                = 94,
+    SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // Flags
+    SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // Flags
+    SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
+
+    SMART_ACTION_END                                = 97,
 };
 
 struct SmartAction
