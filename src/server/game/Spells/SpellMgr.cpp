@@ -3671,44 +3671,59 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 26029: // Dark Glare
         case 37433: // Spout
-        case 43140: case 43215: // Flame Breath
+        case 43140: // Flame Breath
+        case 43215: // Flame Breath
         case 70461: // Coldflame Trap
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_CONE_LINE;
             ++count;
             break;
-        case 24340: case 26558: case 28884: // Meteor
-        case 36837: case 38903: case 41276: // Meteor
-        case 57467:                         // Meteor
-        case 26789:                         // Shard of the Fallen Star
-        case 31436:                         // Malevolent Cleave
-        case 35181:                         // Dive Bomb
-        case 40810: case 43267: case 43268: // Saber Lash
-        case 42384:                         // Brutal Swipe
-        case 45150:                         // Meteor Slash
-        case 64422: case 64688:             // Sonic Screech
-        case 72373:                         // Shared Suffering
-        case 71904:                         // Chaos Bane
-        case 70492: case 72505:             // Ooze Eruption
-        case 72624: case 72625:             // Ooze Eruption
+        case 24340: // Meteor
+        case 26558: // Meteor
+        case 28884: // Meteor
+        case 36837: // Meteor
+        case 38903: // Meteor
+        case 41276: // Meteor
+        case 57467: // Meteor
+        case 26789: // Shard of the Fallen Star
+        case 31436: // Malevolent Cleave
+        case 35181: // Dive Bomb
+        case 40810: // Saber Lash
+        case 43267: // Saber Lash
+        case 43268: // Saber Lash
+        case 42384: // Brutal Swipe
+        case 45150: // Meteor Slash
+        case 64688: // Sonic Screech
+        case 72373: // Shared Suffering
+        case 71904: // Chaos Bane
+        case 70492: // Ooze Eruption
+        case 72505: // Ooze Eruption
+        case 72624: // Ooze Eruption
+        case 72625: // Ooze Eruption
             // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_SHARE_DAMAGE;
             ++count;
             break;
-        case 59725:                         // Improved Spell Reflection - aoe aura
+        case 59725: // Improved Spell Reflection - aoe aura
             // Target entry seems to be wrong for this spell :/
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_PARTY_CASTER;
             spellInfo->EffectRadiusIndex[0] = 45;
             ++count;
             break;
-        case 27820:                         // Mana Detonation
+        case 27820: // Mana Detonation
         //case 28062: case 39090:             // Positive/Negative Charge
         //case 28085: case 39093:
-        case 69782: case 69796:             // Ooze Flood
-        case 69798: case 69801:             // Ooze Flood
-        case 69538: case 69553: case 69610: // Ooze Combine
-        case 71447: case 71481:             // Bloodbolt Splash
-        case 71482: case 71483:             // Bloodbolt Splash
-        case 71390:                         // Pact of the Darkfallen
+        case 69782: // Ooze Flood
+        case 69796: // Ooze Flood
+        case 69798: // Ooze Flood
+        case 69801: // Ooze Flood
+        case 69538: // Ooze Combine
+        case 69553: // Ooze Combine
+        case 69610: // Ooze Combine
+        case 71447: // Bloodbolt Splash
+        case 71481: // Bloodbolt Splash
+        case 71482: // Bloodbolt Splash
+        case 71483: // Bloodbolt Splash
+        case 71390: // Pact of the Darkfallen
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
             ++count;
             break;
@@ -3917,13 +3932,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             ++count;
             break;
-        case 64321: // Potent Pheromones
-            // spell should dispel area aura, but doesn't have the attribute
-            // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
-            // that will be clear if we get more spells with problem like this
-            spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
-            ++count;
-            break;
         case 18500: // Wing Buffet
         case 33086: // Wild Bite
         case 49749: // Piercing Blow
@@ -3939,7 +3947,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 67860: // Impale
         case 69293: // Wing Buffet
         case 74439: // Machine Gun
-        case 63278: // Mark of the Faceless
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
             ++count;
             break;
@@ -3999,33 +4006,52 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         // ULDUAR SPELLS
         //
-        case 63342: // Focused Eyebeam Summon Trigger
+        case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
             spellInfo->MaxAffectedTargets = 1;
             ++count;
             break;
-        case 62716: // Growth of Nature
-        case 65584: // Growth of Nature
+        case 62716: // Growth of Nature (Freya)
+        case 65584: // Growth of Nature (Freya)
+        case 64381: // Strength of the Pack (Auriaya)
             spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
             ++count;
             break;
-        case 64381: // Strength of the Pack
-            spellInfo->StackAmount = 4;
-            ++count;
-            break;
-        case 63018: // Searing Light
-        case 65121: // Searing Light (25m)
-        case 63024: // Gravity Bomb
-        case 64234: // Gravity Bomb (25m)
+        case 63018: // Searing Light (XT-002)
+        case 65121: // Searing Light (25m) (XT-002)
+        case 63024: // Gravity Bomb (XT-002)
+        case 64234: // Gravity Bomb (25m) (XT-002)
             spellInfo->MaxAffectedTargets = 1;
             ++count;
             break;
-        case 62834: // Boom
+        case 62834: // Boom (XT-002)
         // This hack is here because we suspect our implementation of spell effect execution on targets
         // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
         // then EFFECT_1, etc - instead of applying each effect on target1, then target2, etc.
         // The above situation causes the visual for this spell to be bugged, so we remove the instakill
         // effect and implement a script hack for that.
             spellInfo->Effect[EFFECT_1] = 0;
+            ++count;
+            break;
+        case 64386: // Terrifying Screech (Auriaya)
+        case 64389: // Sentinel Blast (Auriaya)
+        case 64678: // Sentinel Blast (Auriaya)
+            spellInfo->DurationIndex = 28; // 5 seconds, wrong DBC data?
+            ++count;
+            break;
+        case 63278: // Mark of the Faceless (General Vezax)
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+            ++count;
+            break;
+        case 64422: // Sonic Screech (Auriaya)
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+            ++count;
+            break;
+        case 64321: // Potent Pheromones (Freya)
+            // spell should dispel area aura, but doesn't have the attribute
+            // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
+            // that will be clear if we get more spells with problem like this
+            spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
             ++count;
             break;
         // ENDOF ULDUAR SPELLS
