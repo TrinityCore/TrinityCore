@@ -816,6 +816,47 @@ public:
     };
 };
 
+// http://www.wowhead.com/quest=12659 Scalps!
+// 52090 Ahunae's Knife
+enum eQuest12659Data
+{
+    NPC_SCALPS_KC_BUNNY = 28622,
+};
+
+class spell_q12659_ahunaes_knife : public SpellScriptLoader
+{
+public:
+    spell_q12659_ahunaes_knife() : SpellScriptLoader("spell_q12659_ahunaes_knife") { }
+
+    class spell_q12659_ahunaes_knife_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q12659_ahunaes_knife_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            if (!caster)
+                return;
+
+            if (Creature* target = GetTargetUnit()->ToCreature())
+            {
+                target->ForcedDespawn();
+                caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY, 0);
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_q12659_ahunaes_knife_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12659_ahunaes_knife_SpellScript();
+    };
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -835,4 +876,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12937_relief_for_the_fallen();
     new spell_q10041_q10040_who_are_they();
     new spell_symbol_of_life_dummy();
+    new spell_q12659_ahunaes_knife();
 }
