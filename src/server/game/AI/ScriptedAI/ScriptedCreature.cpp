@@ -676,7 +676,7 @@ void WorldBossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-    if(target)
+    if (target)
         summon->AI()->AttackStart(target);
 }
 

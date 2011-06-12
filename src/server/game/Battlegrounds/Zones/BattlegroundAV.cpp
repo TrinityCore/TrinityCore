@@ -789,7 +789,7 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
         DelCreature(node);
 
     //remove bonus honor aura trigger creature when node is lost
-    if(node < BG_AV_NODES_MAX)//fail safe
+    if (node < BG_AV_NODES_MAX)//fail safe
         DelCreature(node + 302);//NULL checks are in DelCreature! 0-302 spirit guides
 }
 

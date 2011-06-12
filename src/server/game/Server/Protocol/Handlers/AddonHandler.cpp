@@ -64,7 +64,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket *Source, WorldPacket *Target)
     *Source >> TempValue;                                   // get real size of the packed structure
 
     // empty addon packet, nothing process, can't be received from real client
-    if(!TempValue)
+    if (!TempValue)
         return false;
 
     AddonRealSize = TempValue;                              // temp value because ZLIB only excepts uLongf
@@ -80,20 +80,20 @@ bool AddonHandler::BuildAddonPacket(WorldPacket *Source, WorldPacket *Target)
         uint32 addonsCount;
         AddOnPacked >> addonsCount;                         // addons count?
 
-        for(uint32 i = 0; i < addonsCount; ++i)
+        for (uint32 i = 0; i < addonsCount; ++i)
         {
             std::string addonName;
             uint8 enabled;
             uint32 crc, unk2;
 
             // check next addon data format correctness
-            if(AddOnPacked.rpos()+1 > AddOnPacked.size())
+            if (AddOnPacked.rpos()+1 > AddOnPacked.size())
                 return false;
 
             AddOnPacked >> addonName;
 
             // recheck next addon data format correctness
-            if(AddOnPacked.rpos()+1+4+4 > AddOnPacked.size())
+            if (AddOnPacked.rpos()+1+4+4 > AddOnPacked.size())
                 return false;
 
             AddOnPacked >> enabled >> crc >> unk2;
@@ -130,7 +130,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket *Source, WorldPacket *Target)
         uint32 count = 0;
         *Target << uint32(count);
 
-        if(AddOnPacked.rpos() != AddOnPacked.size())
+        if (AddOnPacked.rpos() != AddOnPacked.size())
             sLog->outDebug(LOG_FILTER_NETWORKIO, "packet under read!");
     }
     else
