@@ -70,7 +70,7 @@ void BattlegroundMgr::DeleteAllBattlegrounds()
     {
         for (BattlegroundSet::iterator itr = m_Battlegrounds[i].begin(); itr != m_Battlegrounds[i].end();)
         {
-            Battleground * bg = itr->second;
+            Battleground* bg = itr->second;
             m_Battlegrounds[i].erase(itr++);
             if (!m_ClientBattlegroundIds[i][bg->GetBracketId()].empty())
                 m_ClientBattlegroundIds[i][bg->GetBracketId()].erase(bg->GetClientInstanceID());
@@ -106,7 +106,7 @@ void BattlegroundMgr::Update(uint32 diff)
             // direct deletion caused crashes
             if (itr->second->m_SetDeleteThis)
             {
-                Battleground * bg = itr->second;
+                Battleground* bg = itr->second;
                 m_Battlegrounds[i].erase(itr);
                 if (!m_ClientBattlegroundIds[i][bg->GetBracketId()].empty())
                     m_ClientBattlegroundIds[i][bg->GetBracketId()].erase(bg->GetClientInstanceID());
@@ -429,7 +429,7 @@ void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket *data, Pla
     *data << uint64(plr->GetGUID());
 }
 
-Battleground * BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
+Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     //cause at HandleBattlegroundJoinOpcode the clients sends the instanceid he gets from
     //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
@@ -448,7 +448,7 @@ Battleground * BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 inst
     return NULL;
 }
 
-Battleground * BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId)
+Battleground* BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId)
 {
     if (!InstanceID)
         return NULL;
@@ -468,7 +468,7 @@ Battleground * BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundT
     return ((itr != m_Battlegrounds[bgTypeId].end()) ? itr->second : NULL);
 }
 
-Battleground * BattlegroundMgr::GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
+Battleground* BattlegroundMgr::GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
 {
     //map is sorted and we can be sure that lowest instance id has only BG template
     return m_Battlegrounds[bgTypeId].empty() ? NULL : m_Battlegrounds[bgTypeId].begin()->second;
@@ -497,7 +497,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground * BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     // get the template BG
     Battleground *bg_template = GetBattlegroundTemplate(bgTypeId);
@@ -1026,7 +1026,7 @@ void BattlegroundMgr::SetHolidayWeekends(uint32 mask)
 {
     for (uint32 bgtype = 1; bgtype < MAX_BATTLEGROUND_TYPE_ID; ++bgtype)
     {
-        if (Battleground * bg = GetBattlegroundTemplate(BattlegroundTypeId(bgtype)))
+        if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(bgtype)))
         {
             bg->SetHoliday(mask & (1 << bgtype));
         }

@@ -338,7 +338,7 @@ Map::EnsureGridCreated(const GridPair &p)
 }
 
 void
-Map::EnsureGridLoadedAtEnter(const Cell &cell, Player *player)
+Map::EnsureGridLoadedAtEnter(const Cell &cell, Player* player)
 {
     EnsureGridLoaded(cell);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
@@ -391,7 +391,7 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(cell);
 }
 
-bool Map::Add(Player *player)
+bool Map::Add(Player* player)
 {
     // Check if we are adding to correct map
     ASSERT (player->GetMap() == this);
@@ -505,10 +505,10 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
 void Map::Update(const uint32 &t_diff)
 {
     /// update worldsessions for existing players
-    for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
+    for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
         Player* plr = m_mapRefIter->getSource();
-        if(plr && plr->IsInWorld())
+        if (plr && plr->IsInWorld())
         {
             //plr->Update(t_diff);
             WorldSession * pSession = plr->GetSession();
@@ -657,7 +657,7 @@ void Map::ProcessRelocationNotifies(const uint32 & diff)
     }
 }
 
-void Map::Remove(Player *player, bool remove)
+void Map::Remove(Player* player, bool remove)
 {
     player->RemoveFromWorld();
     SendRemoveTransports(player);
@@ -724,7 +724,7 @@ Map::Remove(T *obj, bool remove)
 }
 
 void
-Map::PlayerRelocation(Player *player, float x, float y, float z, float orientation)
+Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
 {
     ASSERT(player);
 
@@ -1605,21 +1605,21 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, in
 {
     bool outdoor = true;
 
-    if(wmoEntry && atEntry)
+    if (wmoEntry && atEntry)
     {
-        if(atEntry->flags & AREA_FLAG_OUTSIDE)
+        if (atEntry->flags & AREA_FLAG_OUTSIDE)
             return true;
-        if(atEntry->flags & AREA_FLAG_INSIDE)
+        if (atEntry->flags & AREA_FLAG_INSIDE)
             return false;
     }
 
     outdoor = mogpFlags&0x8;
 
-    if(wmoEntry)
+    if (wmoEntry)
     {
-        if(wmoEntry->Flags & 4)
+        if (wmoEntry->Flags & 4)
             return true;
-        if((wmoEntry->Flags & 2)!=0)
+        if ((wmoEntry->Flags & 2)!=0)
             outdoor = false;
     }
     return outdoor;
@@ -1631,12 +1631,12 @@ bool Map::IsOutdoors(float x, float y, float z) const
     int32 adtId, rootId, groupId;
 
     // no wmo found? -> outside by default
-    if(!GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
+    if (!GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
         return true;
 
     AreaTableEntry const* atEntry = 0;
     WMOAreaTableEntry const* wmoEntry= GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
-    if(wmoEntry)
+    if (wmoEntry)
     {
         sLog->outStaticDebug("Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->areaId);
         atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
@@ -1651,11 +1651,11 @@ bool Map::GetAreaInfo(float x, float y, float z, uint32 &flags, int32 &adtId, in
     if (vmgr->getAreaInfo(GetId(), x, y, vmap_z, flags, adtId, rootId, groupId))
     {
         // check if there's terrain between player height and object height
-        if(GridMap *gmap = const_cast<Map*>(this)->GetGrid(x, y))
+        if (GridMap *gmap = const_cast<Map*>(this)->GetGrid(x, y))
         {
             float _mapheight = gmap->getHeight(x, y);
             // z + 2.0f condition taken from GetHeight(), not sure if it's such a great choice...
-            if(z + 2.0f > _mapheight &&  _mapheight > vmap_z)
+            if (z + 2.0f > _mapheight &&  _mapheight > vmap_z)
                 return false;
         }
         return true;
@@ -1744,7 +1744,7 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
         }
     }
 
-    if(GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
     {
         LiquidData map_data;
         ZLiquidStatus map_result = gmap->getLiquidStatus(x, y, z, ReqLiquidType, &map_data);
@@ -1866,7 +1866,7 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpai
     notifier.SendToSelf();
 }
 
-void Map::SendInitSelf(Player * player)
+void Map::SendInitSelf(Player* player)
 {
     sLog->outDetail("Creating player data for himself %u", player->GetGUIDLow());
 
@@ -1898,7 +1898,7 @@ void Map::SendInitSelf(Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendInitTransports(Player * player)
+void Map::SendInitTransports(Player* player)
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr->m_TransportsByMap;
@@ -1925,7 +1925,7 @@ void Map::SendInitTransports(Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendRemoveTransports(Player * player)
+void Map::SendRemoveTransports(Player* player)
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr->m_TransportsByMap;
@@ -2198,7 +2198,7 @@ void InstanceMap::InitVisibilityDistance()
 /*
     Do map specific checks to see if the player can enter
 */
-bool InstanceMap::CanEnter(Player *player)
+bool InstanceMap::CanEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
@@ -2261,7 +2261,7 @@ bool InstanceMap::CanEnter(Player *player)
 /*
     Do map specific checks and add the player to the map if successful.
 */
-bool InstanceMap::Add(Player *player)
+bool InstanceMap::Add(Player* player)
 {
     // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
     // GMs still can teleport player in instance.
@@ -2276,7 +2276,7 @@ bool InstanceMap::Add(Player *player)
         // Dungeon only code
         if (IsDungeon())
         {
-            Group *group = player->GetGroup();
+            Group* group = player->GetGroup();
 
             // increase current instances (hourly limit)
             if (!group || !group->isLFGGroup())
@@ -2387,7 +2387,7 @@ void InstanceMap::Update(const uint32& t_diff)
         i_data->Update(t_diff);
 }
 
-void InstanceMap::Remove(Player *player, bool remove)
+void InstanceMap::Remove(Player* player, bool remove)
 {
     sLog->outDetail("MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
     //if last player set unload timer
@@ -2472,7 +2472,7 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player *player)
+void InstanceMap::PermBindAllPlayers(Player* player)
 {
     if (!IsDungeon())
         return;
@@ -2484,7 +2484,7 @@ void InstanceMap::PermBindAllPlayers(Player *player)
         return;
     }
 
-    Group *group = player->GetGroup();
+    Group* group = player->GetGroup();
     // group members outside the instance group don't get bound
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
@@ -2584,7 +2584,7 @@ void BattlegroundMap::InitVisibilityDistance()
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
 }
 
-bool BattlegroundMap::CanEnter(Player * player)
+bool BattlegroundMap::CanEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
@@ -2601,7 +2601,7 @@ bool BattlegroundMap::CanEnter(Player * player)
     return Map::CanEnter(player);
 }
 
-bool BattlegroundMap::Add(Player * player)
+bool BattlegroundMap::Add(Player* player)
 {
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);
@@ -2614,7 +2614,7 @@ bool BattlegroundMap::Add(Player * player)
     return Map::Add(player);
 }
 
-void BattlegroundMap::Remove(Player *player, bool remove)
+void BattlegroundMap::Remove(Player* player, bool remove)
 {
     sLog->outDetail("MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
     Map::Remove(player, remove);
@@ -2653,7 +2653,7 @@ Map::GetDynamicObject(uint64 guid)
     return ObjectAccessor::GetObjectInMap(guid, this, (DynamicObject*)NULL);
 }
 
-void Map::UpdateIteratorBack(Player *player)
+void Map::UpdateIteratorBack(Player* player)
 {
     if (m_mapRefIter == player->GetMapRef())
         m_mapRefIter = m_mapRefIter->nocheck_prev();

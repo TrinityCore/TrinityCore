@@ -77,7 +77,7 @@ public:
             me->setFaction(FACTION_HOSTILE);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void DoNice()
         {
@@ -172,7 +172,7 @@ public:
         mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
 
         void Reset() { }
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void DamageTaken(Unit *done_by, uint32 &damage)
         {
@@ -267,7 +267,7 @@ public:
         mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
 
         void Reset() { }
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void DamageTaken(Unit *done_by, uint32 &damage)
         {
@@ -307,8 +307,8 @@ public:
         mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
 
         void Reset() { }
-        void EnterCombat(Unit * /*who*/) { }
-        void MoveInLineOfSight(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
+        void MoveInLineOfSight(Unit* /*who*/) { }
 
         void JustDied(Unit* Killer)
         {
@@ -411,7 +411,7 @@ public:
                 me->setFaction(m_uiNormFaction);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {

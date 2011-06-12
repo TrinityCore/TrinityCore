@@ -88,7 +88,7 @@ public:
             me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             DoPlaySoundToSet(me, SOUND_AGGRO);

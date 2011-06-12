@@ -265,7 +265,7 @@ public:
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
             {
@@ -381,7 +381,7 @@ public:
             BigWill = 0;
         }
 
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void MoveInLineOfSight(Unit *who)
         {
@@ -394,7 +394,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit * /*victim*/) { }
+        void KilledUnit(Unit* /*victim*/) { }
 
         void UpdateAI(const uint32 diff)
         {

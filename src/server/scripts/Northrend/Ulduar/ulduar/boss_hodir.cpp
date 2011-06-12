@@ -827,7 +827,7 @@ class npc_hodir_mage : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CONJURE_FIRE:
-                            if (summons.size() >= RAID_MODE(2, 4))
+                            if (summons.size() >= RAID_MODE<uint64>(2, 4))
                                 break;
                             DoCast(me, SPELL_CONJURE_FIRE, true);
                             events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15000, 20000));

@@ -63,7 +63,7 @@ public:
             uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(YELL_AGGRO, me);
         }

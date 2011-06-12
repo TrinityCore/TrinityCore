@@ -133,7 +133,7 @@ void BattlegroundDS::AddPlayer(Player *plr)
     UpdateArenaWorldState();
 }
 
-void BattlegroundDS::RemovePlayer(Player * /*plr*/, uint64 /*guid*/)
+void BattlegroundDS::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -176,7 +176,7 @@ void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
     }
 }
 
-bool BattlegroundDS::HandlePlayerUnderMap(Player *player)
+bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
 {
     player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
     return true;

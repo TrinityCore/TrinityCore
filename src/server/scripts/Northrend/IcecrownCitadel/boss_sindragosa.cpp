@@ -791,7 +791,7 @@ class npc_rimefang : public CreatureScript
                                 }
                                 _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
                             }
-                            else if (Unit *victim = me->SelectVictim())
+                            else if (Unit* victim = me->SelectVictim())
                             {
                                 me->SetReactState(REACT_DEFENSIVE);
                                 AttackStart(victim);

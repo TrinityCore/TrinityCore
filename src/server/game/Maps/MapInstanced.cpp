@@ -107,7 +107,7 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
+Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
 {
     if (GetId() != mapId || !player)
         return NULL;
@@ -135,7 +135,7 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
         if (!pBind || !pBind->perm)
         {
             InstanceGroupBind *groupBind = NULL;
-            Group *group = player->GetGroup();
+            Group* group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
             if (group)
             {
@@ -257,7 +257,7 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     return true;
 }
 
-bool MapInstanced::CanEnter(Player * /*player*/)
+bool MapInstanced::CanEnter(Player* /*player*/)
 {
     //ASSERT(false);
     return true;

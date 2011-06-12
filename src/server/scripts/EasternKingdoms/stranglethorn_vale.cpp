@@ -78,7 +78,7 @@ public:
             return;
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -97,7 +97,7 @@ public:
                 {
                     if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
                     {
-                        Unit *victim = me->getVictim();
+                        Unit* victim = me->getVictim();
                         if (CAST_PLR(victim)->GetTeam() == HORDE)
                         {
                             me->CombatStop();

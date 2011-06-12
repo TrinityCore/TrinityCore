@@ -422,7 +422,7 @@ void hyjalAI::EnterEvadeMode()
     me->SetLootRecipient(NULL);
 }
 
-void hyjalAI::EnterCombat(Unit * /*who*/)
+void hyjalAI::EnterCombat(Unit* /*who*/)
 {
     if (IsDummy)return;
     for (uint8 i = 0; i < HYJAL_AI_MAX_SPELLS; ++i)

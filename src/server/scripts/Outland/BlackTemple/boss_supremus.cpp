@@ -119,7 +119,7 @@ public:
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
@@ -155,7 +155,7 @@ public:
             events.ScheduleEvent(EVENT_SWITCH_PHASE, 60000, GCD_CAST);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
             {
@@ -275,9 +275,9 @@ public:
         }
         uint32 wait;
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void DoAction(const int32 /*info*/)
         {

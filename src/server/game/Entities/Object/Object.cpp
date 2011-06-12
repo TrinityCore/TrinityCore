@@ -301,7 +301,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         {
       //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
-            Player *player = const_cast<Object*>(this)->ToPlayer();
+            Player* player = const_cast<Object*>(this)->ToPlayer();
             if (!player)
                 return;
 
@@ -450,7 +450,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x4
     if (flags & UPDATEFLAG_HAS_TARGET)                       // packed guid (current target guid)
     {
-        if (Unit *victim = ((Unit*)this)->getVictim())
+        if (Unit* victim = ((Unit*)this)->getVictim())
             data->append(victim->GetPackGUID());
         else
             *data << uint8(0);
@@ -1147,7 +1147,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     return false;
 }
 
-bool Position::HasInLine(const Unit * const target, float distance, float width) const
+bool Position::HasInLine(const Unit* const target, float distance, float width) const
 {
     if (!HasInArc(M_PI, target) || !target->IsWithinDist3d(m_positionX, m_positionY, m_positionZ, distance))
         return false;
@@ -1530,7 +1530,7 @@ bool Position::HasInArc(float arc, const Position *obj) const
 
     // move angle to range -pi ... +pi
     angle = MapManager::NormalizeOrientation(angle);
-    if(angle > M_PI)
+    if (angle > M_PI)
         angle -= 2.0f*M_PI;
 
     float lborder =  -1 * (arc/2.0f);                       // in range -pi..0
@@ -2005,7 +2005,7 @@ void WorldObject::MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossE
 
 void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossWhisper)
 {
-    Player *player = sObjectMgr->GetPlayer(receiver);
+    Player* player = sObjectMgr->GetPlayer(receiver);
     if (!player || !player->GetSession())
         return;
 
@@ -2019,7 +2019,7 @@ void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossW
 
 void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper)
 {
-    Player *player = sObjectMgr->GetPlayer(receiver);
+    Player* player = sObjectMgr->GetPlayer(receiver);
     if (!player || !player->GetSession())
         return;
 

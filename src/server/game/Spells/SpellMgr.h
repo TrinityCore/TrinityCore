@@ -173,15 +173,15 @@ enum SpellLinkedType
     SPELL_LINK_REMOVE   = 0,
 };
 
-bool IsSpellRequiringFocusedTarget(SpellEntry const * spellInfo);
-Unit * GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit * target);
-SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo);
-AuraState GetSpellAuraState(SpellEntry const * spellInfo);
+bool IsSpellRequiringFocusedTarget(SpellEntry const* spellInfo);
+Unit* GetTriggeredSpellCaster(SpellEntry const* spellInfo, Unit* caster, Unit* target);
+SpellSpecific GetSpellSpecific(SpellEntry const* spellInfo);
+AuraState GetSpellAuraState(SpellEntry const* spellInfo);
 
 // Different spell properties
 inline float GetSpellRadiusForHostile(SpellRadiusEntry const *radius) { return (radius ? radius->radiusHostile : 0); }
 inline float GetSpellRadiusForFriend(SpellRadiusEntry const *radius) { return (radius ? radius->radiusFriend : 0); }
-uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell * spell = NULL);
+uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell* spell = NULL);
 uint32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offensive, bool *result);
 inline float GetSpellMinRangeForHostile(SpellRangeEntry const *range) { return (range ? range->minRangeHostile : 0); }
 inline float GetSpellMaxRangeForHostile(SpellRangeEntry const *range) { return (range ? range->maxRangeHostile : 0); }
@@ -230,7 +230,7 @@ inline float GetSpellMaxRange(uint32 id, bool positive)
 {
     uint64 casterGuid;
     uint32 spellId;
-    Unit * caster;
+    Unit* caster;
     uint8 stackAmount;
 
     bool operator < (const DispelEntry & _Right) const
@@ -293,10 +293,10 @@ bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2);
 bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
-bool IsPassiveSpell(SpellEntry const * spellInfo);
+bool IsPassiveSpell(SpellEntry const* spellInfo);
 bool IsAutocastableSpell(uint32 spellId);
 
-uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask);
+uint32 CalculatePowerCost(SpellEntry const* spellInfo, Unit const* caster, SpellSchoolMask schoolMask);
 
 inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
 {
@@ -334,8 +334,8 @@ inline bool IsNonCombatSpell(SpellEntry const *spellInfo)
 bool IsPositiveSpell(uint32 spellId);
 bool IsPositiveEffect(uint32 spellId, uint32 effIndex);
 bool IsPositiveTarget(uint32 targetA, uint32 targetB);
-bool CanSpellDispelAura(SpellEntry const * dispelSpell, SpellEntry const * aura);
-bool CanSpellPierceImmuneAura(SpellEntry const * pierceSpell, SpellEntry const * aura);
+bool CanSpellDispelAura(SpellEntry const* dispelSpell, SpellEntry const* aura);
+bool CanSpellPierceImmuneAura(SpellEntry const* pierceSpell, SpellEntry const* aura);
 
 bool IsSingleTargetSpell(SpellEntry const *spellInfo);
 bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellInfo2);
@@ -1025,7 +1025,7 @@ class SpellMgr
             return NULL;
         }
 
-        bool IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
+        bool IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const* procSpell, uint32 procFlags, uint32 procExtra, bool active);
 
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
         {
@@ -1261,13 +1261,13 @@ class SpellMgr
 
         bool IsSkillBonusSpell(uint32 spellId) const;
         bool IsSkillTypeSpell(uint32 spellId, SkillType type) const;
-        static int32 CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 effIndex, Unit const * caster = NULL, int32 const * basePoints = NULL, Unit const * target = NULL);
-        static int32 CalculateSpellEffectBaseAmount(int32 value, SpellEntry const * spellEntry, uint8 effIndex);
-        static float CalculateSpellEffectValueMultiplier(SpellEntry const * spellEntry, uint8 effIndex, Unit * caster, Spell * spell = NULL);
-        static float CalculateSpellEffectDamageMultiplier(SpellEntry const * spellEntry, uint8 effIndex, Unit * caster, Spell * spell = NULL);
+        static int32 CalculateSpellEffectAmount(SpellEntry const* spellEntry, uint8 effIndex, Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL);
+        static int32 CalculateSpellEffectBaseAmount(int32 value, SpellEntry const* spellEntry, uint8 effIndex);
+        static float CalculateSpellEffectValueMultiplier(SpellEntry const* spellEntry, uint8 effIndex, Unit* caster, Spell* spell = NULL);
+        static float CalculateSpellEffectDamageMultiplier(SpellEntry const* spellEntry, uint8 effIndex, Unit* caster, Spell* spell = NULL);
 
         // Spell correctess for client using
-        static bool IsSpellValid(SpellEntry const * spellInfo, Player* pl = NULL, bool msg = true);
+        static bool IsSpellValid(SpellEntry const* spellInfo, Player* pl = NULL, bool msg = true);
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const
         {

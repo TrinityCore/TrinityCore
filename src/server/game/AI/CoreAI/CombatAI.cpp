@@ -39,22 +39,22 @@ void AggressorAI::UpdateAI(const uint32 /*diff*/)
 }
 
 // some day we will delete these useless things
-int CombatAI::Permissible(const Creature * /*creature*/)
+int CombatAI::Permissible(const Creature* /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
 
-int ArcherAI::Permissible(const Creature * /*creature*/)
+int ArcherAI::Permissible(const Creature* /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
 
-int TurretAI::Permissible(const Creature * /*creature*/)
+int TurretAI::Permissible(const Creature* /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
 
-int VehicleAI::Permissible(const Creature * /*creature*/)
+int VehicleAI::Permissible(const Creature* /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
@@ -73,7 +73,7 @@ void CombatAI::Reset()
     events.Reset();
 }
 
-void CombatAI::JustDied(Unit *killer)
+void CombatAI::JustDied(Unit* killer)
 {
     for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
         if (AISpellInfo[*i].condition == AICOND_DIE)
@@ -229,7 +229,7 @@ TurretAI::TurretAI(Creature *c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-bool TurretAI::CanAIAttack(const Unit * /*who*/) const
+bool TurretAI::CanAIAttack(const Unit* /*who*/) const
 {
     // TODO: use one function to replace it
     if (!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
@@ -307,7 +307,7 @@ void VehicleAI::LoadConditions()
 
 void VehicleAI::CheckConditions(const uint32 diff)
 {
-    if(m_ConditionsTimer < diff)
+    if (m_ConditionsTimer < diff)
     {
         if (!conditions.empty())
         {

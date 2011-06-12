@@ -388,7 +388,7 @@ public:
             GlaiveGUID = 0;
         }
 
-        void EnterCombat(Unit * /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
 
         void ChargeCheck()
         {
@@ -532,7 +532,7 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 1000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->setActive(true);
             DoZoneInCombat();
@@ -551,7 +551,7 @@ public:
 
         void MoveInLineOfSight(Unit *) {}
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -564,7 +564,7 @@ public:
                 pInstance->HandleGameObject(pInstance->GetData64(i), true);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me) return;
             // TODO: Find better way to handle emote
@@ -589,7 +589,7 @@ public:
                 done_by->AddThreat(me, -(3*(float)damage)/4); // do not let maiev tank him
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
             {
@@ -1178,8 +1178,8 @@ public:
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
         void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
 
@@ -1457,7 +1457,7 @@ public:
             me->CombatStop(true);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void MovementInform(uint32 MovementType, uint32 /*Data*/)
@@ -2037,7 +2037,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
 
         void MoveInLineOfSight(Unit *who)
         {
@@ -2118,7 +2118,7 @@ public:
 
         uint64 TargetGUID;
 
-        void EnterCombat(Unit * /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
 
         void Reset()
         {
@@ -2126,7 +2126,7 @@ public:
             DoCast(me, SPELL_SHADOW_DEMON_PASSIVE, true);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (Unit *pTarget = Unit::GetUnit((*me), TargetGUID))
                 pTarget->RemoveAurasDueToSpell(SPELL_PARALYZE);
@@ -2167,7 +2167,7 @@ public:
     {
         blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
                 me->SetDisplayId(21431);//appear when hit by Illidan's glaive

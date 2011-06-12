@@ -84,12 +84,12 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_KILL1, SAY_KILL2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
             if (Unit *pMidnight = Unit::GetUnit(*me, Midnight))
@@ -98,7 +98,7 @@ public:
 
         void UpdateAI(const uint32 diff);
 
-        void SpellHit(Unit * /*source*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*source*/, const SpellEntry *spell)
         {
             if (spell->Mechanic == MECHANIC_DISARM)
                 DoScriptText(SAY_DISARMED, me);
@@ -137,7 +137,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (Phase == 2)
             {

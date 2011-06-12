@@ -145,7 +145,7 @@ class SmartScript
         ObjectList* GetTargetList(uint32 id)
         {
             ObjectListMap::iterator itr = mTargetStorage->find(id);
-            if(itr != mTargetStorage->end())
+            if (itr != mTargetStorage->end())
                 return (*itr).second;
             return NULL;
         }
@@ -216,7 +216,7 @@ class SmartScript
     private:
         void IncPhase(int32 p = 1)
         {
-            if(p >= 0)
+            if (p >= 0)
                 mEventPhase += (uint32)p;
             else
                 DecPhase(abs(p));

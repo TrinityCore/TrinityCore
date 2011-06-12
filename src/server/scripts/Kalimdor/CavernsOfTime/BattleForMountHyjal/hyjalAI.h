@@ -177,7 +177,7 @@ struct hyjalAI : public npc_escortAI
 
     void EnterEvadeMode();                                  // Send creature back to spawn location and evade.
 
-    void EnterCombat(Unit * /*who*/);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
+    void EnterCombat(Unit* /*who*/);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
     void UpdateAI(const uint32 diff);                       // Called to summon waves, check for boss deaths and to cast our spells.
 

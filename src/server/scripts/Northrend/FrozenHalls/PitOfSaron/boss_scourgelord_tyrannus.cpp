@@ -240,7 +240,7 @@ class boss_tyrannus : public CreatureScript
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(25000, 27000));
                             break;
                         case EVENT_OVERLORD_BRAND:
-                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_OVERLORD_BRAND);
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(11000, 12000));
                             break;
@@ -465,7 +465,7 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit * caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (!caster || caster->GetTypeId() != TYPEID_UNIT)
                     return;
 

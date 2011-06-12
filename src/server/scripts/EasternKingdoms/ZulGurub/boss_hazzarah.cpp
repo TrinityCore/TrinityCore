@@ -53,7 +53,7 @@ class boss_hazzarah : public CreatureScript
                 Illusions_Timer = 10000 + rand()%8000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 
