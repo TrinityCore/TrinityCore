@@ -263,9 +263,9 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(pTarget, 1.0f);
-                        me->TauntApply(pTarget);
-                        AttackStart(pTarget);
+                        me->AddThreat(target, 1.0f);
+                        me->TauntApply(target);
+                        AttackStart(target);
                     }
 
                     AggroReset = true;
