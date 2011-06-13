@@ -171,7 +171,7 @@ public:
                 //WowWiki say "Curse of Fatigue-Kirk'thir will cast Curse of Fatigue on 2-3 targets periodically."
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_CURSE_OF_FATIGUE);
-                if (Unit* tankTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                if (Unit* tankTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     DoCast(tankTarget, SPELL_CURSE_OF_FATIGUE);
 
                 uiCurseFatigueTimer = 10*IN_MILLISECONDS;
