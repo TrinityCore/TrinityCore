@@ -15,3 +15,6 @@ UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35616;
 
 -- fix crash with NPC 38068 cast spel (recursion)
 UPDATE `creature_template` SET `ScriptName`="", `spell1`="" WHERE `entry` = 38068;
+
+-- fix aggro for Rimefang and Spinestalker
+UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry` IN (37533, 37534);
