@@ -524,7 +524,7 @@ public:
 
         return true;
     }
-    //teleport at coordinates, including Z and optional orientation
+    //teleport at coordinates, including Z
     static bool HandleGoXYZCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
@@ -535,8 +535,7 @@ public:
         char* px = strtok((char*)args, " ");
         char* py = strtok(NULL, " ");
         char* pz = strtok(NULL, " ");
-        char* pvar4 = strtok(NULL, " ");
-        char* pvar5 = strtok(NULL, " ");
+        char* pmapid = strtok(NULL, " ");
 
         if (!px || !py || !pz)
             return false;
@@ -544,24 +543,13 @@ public:
         float x = (float)atof(px);
         float y = (float)atof(py);
         float z = (float)atof(pz);
-        float ort;
         uint32 mapid;
-        
-        if( pvar4 && pvar5 )
-        {
-            ort    = (float)atof(pvar4);
-            mapid = (uint32)atoi(pvar5);
-        }
+        if (pmapid)
+            mapid = (uint32)atoi(pmapid);
         else
-        {
-            ort = _player->GetOrientation();
-            if( pvar4 )
-                mapid = (uint32)atoi(pvar4);
-            else
-                mapid = _player->GetMapId();
-        }
+            mapid = _player->GetMapId();
 
-        if (!MapManager::IsValidMapCoord(mapid, x, y, z, ort))
+        if (!MapManager::IsValidMapCoord(mapid, x, y, z))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapid);
             handler->SetSentErrorMessage(true);
@@ -578,7 +566,7 @@ public:
         else
             _player->SaveRecallPosition();
 
-        _player->TeleportTo(mapid, x, y, z, ort);
+        _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
 
         return true;
     }
