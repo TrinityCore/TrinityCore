@@ -24805,7 +24805,7 @@ void Player::ActivateSpec(uint8 spec)
     ClearAllReactives();
     UnsummonAllTotems();
     RemoveAllControlled();
-    RemoveArenaAuras();
+
     /*RemoveAllAurasOnDeath();
     if (GetPet())
         GetPet()->RemoveAllAurasOnDeath();*/

@@ -4043,12 +4043,13 @@ void Unit::RemoveArenaAuras(bool onleave)
     // used to remove positive visible auras in arenas
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
-        AuraApplication const* aurApp = iter->second;
-        Aura const* aura = aurApp->GetBase();
-        if (!(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
-            && !aura->IsPassive()                               // don't remove passive auras
-            && !(aura->GetSpellProto()->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT) // not death persistent auras
-            && (aurApp->IsPositive() ^ onleave))                   // remove positive buffs on enter, negative buffs on leave
+        AuraApplication const * aurApp = iter->second;
+        Aura const * aura = aurApp->GetBase();
+        if (!onleave // don't remove anything on remove
+            && !(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
+            && !(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_USABLE_IN_ARENA) // Don't remove arena auras
+            && !(aura->GetSpellProto()->Attributes & SPELL_ATTR0_HIDE_IN_COMBAT_LOG) // that seemed the most probable auras
+            && !aura->IsPassive())                               // don't remove passive auras
             RemoveAura(iter);
         else
             ++iter;
