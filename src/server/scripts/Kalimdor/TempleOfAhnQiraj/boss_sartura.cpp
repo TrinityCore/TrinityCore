@@ -105,13 +105,12 @@ public:
                 if (WhirlWindRandom_Timer <= diff)
                 {
                     //Attack random Gamers
-                    Unit *pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (pTarget)
-                    me->AddThreat(pTarget, 1.0f);
-                    me->TauntApply(pTarget);
-                    AttackStart(pTarget);
-
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                    {
+                        me->AddThreat(target, 1.0f);
+                        me->TauntApply(target);
+                        AttackStart(target);
+                    }
                     WhirlWindRandom_Timer = 3000 + rand()%4000;
                 } else WhirlWindRandom_Timer -= diff;
 
@@ -134,15 +133,14 @@ public:
                 if (AggroReset_Timer <= diff)
                 {
                     //Attack random Gamers
-                    Unit *pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (pTarget)
-                    me->AddThreat(pTarget, 1.0f);
-                    me->TauntApply(pTarget);
-                    AttackStart(pTarget);
-
-                        AggroReset = true;
-                        AggroReset_Timer = 2000 + rand()%3000;
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                    {
+                        me->AddThreat(target, 1.0f);
+                        me->TauntApply(target);
+                        AttackStart(target);
+                    }
+                    AggroReset = true;
+                    AggroReset_Timer = 2000 + rand()%3000;
                 } else AggroReset_Timer -= diff;
 
                 if (AggroReset)
@@ -242,12 +240,12 @@ public:
                 if (WhirlWindRandom_Timer <= diff)
                 {
                     //Attack random Gamers
-                    Unit *pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (pTarget)
-                    me->AddThreat(pTarget, 1.0f);
-                    me->TauntApply(pTarget);
-                    AttackStart(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                    {
+                        me->AddThreat(target, 1.0f);
+                        me->TauntApply(target);
+                        AttackStart(target);
+                    }
 
                     WhirlWindRandom_Timer = 3000 + rand()%4000;
                 } else WhirlWindRandom_Timer -= diff;
@@ -263,12 +261,12 @@ public:
                 if (AggroReset_Timer <= diff)
                 {
                     //Attack random Gamers
-                    Unit *pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (pTarget)
-                    me->AddThreat(pTarget, 1.0f);
-                    me->TauntApply(pTarget);
-                    AttackStart(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                    {
+                        me->AddThreat(pTarget, 1.0f);
+                        me->TauntApply(pTarget);
+                        AttackStart(pTarget);
+                    }
 
                     AggroReset = true;
                     AggroReset_Timer = 2000 + rand()%3000;
