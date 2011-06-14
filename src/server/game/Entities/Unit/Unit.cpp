@@ -683,8 +683,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             {
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
                 /** World of Warcraft Armory **/
-                if (Battleground *bgV = ((Player*)pVictim)->GetBattleground())
-                    bgV->UpdatePlayerScore(((Player*)pVictim), SCORE_DAMAGE_TAKEN, damage);
+                if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+                    if (Battleground *bgV = ((Player*)pVictim)->GetBattleground())
+                        bgV->UpdatePlayerScore(((Player*)pVictim), SCORE_DAMAGE_TAKEN, damage);
                 /** World of Warcraft Armory **/
             }
         }
@@ -10227,8 +10228,9 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth)
         pVictim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED, gain);
         pVictim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);
         /** World of Warcraft Armory **/
-        if (Battleground *bgV = pVictim->ToPlayer()->GetBattleground())
-            bgV->UpdatePlayerScore((Player*)pVictim, SCORE_HEALING_TAKEN, gain);
+        if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+            if (Battleground *bgV = pVictim->ToPlayer()->GetBattleground())
+                bgV->UpdatePlayerScore((Player*)pVictim, SCORE_HEALING_TAKEN, gain);
         /** World of Warcraft Armory **/
     }
 
@@ -15613,7 +15615,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     {
                         ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
                         /** World of Warcraft Armory **/
-                        creditedPlayer->CreateWowarmoryFeed(3, creature->GetCreatureInfo()->Entry, 0, 0);
+                        if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+                            creditedPlayer->CreateWowarmoryFeed(3, creature->GetCreatureInfo()->Entry, 0, 0);
                         /** World of Warcraft Armory **/
                     }
                 }

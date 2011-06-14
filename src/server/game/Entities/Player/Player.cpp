@@ -18464,25 +18464,28 @@ void Player::SaveToDB()
     /* World of Warcraft Armory */
     // Place this code AFTER CharacterDatabase.CommitTransaction(); to avoid some character saving errors.
     // Wowarmory feeds
-    std::ostringstream sWowarmory;
-    for (WowarmoryFeeds::iterator iter = m_wowarmory_feeds.begin(); iter < m_wowarmory_feeds.end(); ++iter) {
-        sWowarmory << "INSERT IGNORE INTO character_feed_log (guid,type,data,date,counter,difficulty,item_guid,item_quality) VALUES ";
-        //                      guid                    type                        data                    date                            counter                   difficulty                        item_guid                      item_quality
-        sWowarmory << "(" << (*iter).guid << ", " << (*iter).type << ", " << (*iter).data << ", " << uint64((*iter).date) << ", " << (*iter).counter << ", " << uint32((*iter).difficulty) << ", " << (*iter).item_guid << ", " << (*iter).item_quality <<  ");";
-        CharacterDatabase.PExecute(sWowarmory.str().c_str());
-        sWowarmory.str("");
+    if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+    {
+        std::ostringstream sWowarmory;
+        for (WowarmoryFeeds::iterator iter = m_wowarmory_feeds.begin(); iter < m_wowarmory_feeds.end(); ++iter) {
+            sWowarmory << "INSERT IGNORE INTO character_feed_log (guid,type,data,date,counter,difficulty,item_guid,item_quality) VALUES ";
+            //                      guid                    type                        data                    date                            counter                   difficulty                        item_guid                      item_quality
+            sWowarmory << "(" << (*iter).guid << ", " << (*iter).type << ", " << (*iter).data << ", " << uint64((*iter).date) << ", " << (*iter).counter << ", " << uint32((*iter).difficulty) << ", " << (*iter).item_guid << ", " << (*iter).item_quality <<  ");";
+            CharacterDatabase.PExecute(sWowarmory.str().c_str());
+            sWowarmory.str("");
+        }
+        // Clear old saved feeds from storage - they are not required for server core.
+        InitWowarmoryFeeds();
+        // Character stats
+        std::ostringstream ps;
+        time_t t = time(NULL);
+        CharacterDatabase.PExecute("DELETE FROM armory_character_stats WHERE guid = %u", GetGUIDLow());
+        ps << "INSERT INTO armory_character_stats (guid, data, save_date) VALUES (" << GetGUIDLow() << ", '";
+        for (uint16 i = 0; i < m_valuesCount; ++i)
+            ps << GetUInt32Value(i) << " ";
+        ps << "', " << uint64(t) << ");";
+        CharacterDatabase.PExecute(ps.str().c_str());
     }
-    // Clear old saved feeds from storage - they are not required for server core.
-    InitWowarmoryFeeds();
-    // Character stats
-    std::ostringstream ps;
-    time_t t = time(NULL);
-    CharacterDatabase.PExecute("DELETE FROM armory_character_stats WHERE guid = %u", GetGUIDLow());
-    ps << "INSERT INTO armory_character_stats (guid, data, save_date) VALUES (" << GetGUIDLow() << ", '";
-    for (uint16 i = 0; i < m_valuesCount; ++i)
-        ps << GetUInt32Value(i) << " ";
-    ps << "', " << uint64(t) << ");";
-    CharacterDatabase.PExecute(ps.str().c_str());
     /* World of Warcraft Armory */
 
     // save pet (hunter pet level and experience and all type pets health/mana).

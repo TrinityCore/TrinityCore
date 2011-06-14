@@ -2786,6 +2786,13 @@ DuelResetCooldown = 0
 
 PreventPlayersAccessToGMIsland = 0
 
+#    Armory.Enable
+#        Description: Activates the WowArmory.
+#        Default:     0 - (Disable)
+#                     1 - (Enable)
+
+Armory.Enable = 1
+
 #
 ###################################################################################################
 
