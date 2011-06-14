@@ -378,7 +378,12 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* pPlayer = i->getSource())
+            {
                 pPlayer->RemoveAurasDueToSpell(spell);
+                // Remove auras on player's pets too
+                if (Pet* pet = pPlayer->GetPet())
+                    pet->RemoveAurasDueToSpell(spell);
+            }
 }
 
 // Cast spell on all players in instance
