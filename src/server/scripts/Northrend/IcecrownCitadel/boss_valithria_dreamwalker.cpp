@@ -698,7 +698,7 @@ class npc_risen_archmage : public CreatureScript
             void EnterCombat(Unit* /*target*/)
             {
                 me->FinishSpell(CURRENT_CHANNELED_SPELL, false);
-                if (me->GetDBTableGUIDLow() && _canCallEnterCombat)
+                if (me->GetDBTableGUIDLow() && _canCallEnterCombat && _instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
                 {
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
