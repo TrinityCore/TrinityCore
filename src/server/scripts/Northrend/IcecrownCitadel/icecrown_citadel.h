@@ -496,4 +496,6 @@ CreatureAI* GetIcecrownCitadelAI(Creature* creature)
     return NULL;
 }
 
+void TeleportPlayerToFrozenThrone(Player *player);
+
 #endif // ICECROWN_CITADEL_H_

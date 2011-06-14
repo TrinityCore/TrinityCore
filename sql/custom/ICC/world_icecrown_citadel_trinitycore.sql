@@ -553,6 +553,7 @@ DELETE FROM `linked_respawn` WHERE `guid`=111453 AND `linkType`=0;
 INSERT INTO `linked_respawn` (`guid`,`linkedGuid`,`linkType`) VALUES
 (111453,10718,0); -- The Lich King link to Green Dragon Combat Trigger
 UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `guid` IN (10718, 111453);
+UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (37534, 37533);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (37945,38430,38186,38429);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`quest_start_active`,`quest_end`,`cast_flags`,`aura_required`,`aura_forbidden`,`user_type`) VALUES
