@@ -555,6 +555,10 @@ INSERT INTO `linked_respawn` (`guid`,`linkedGuid`,`linkType`) VALUES
 UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `guid` IN (10718, 111453);
 UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (37534, 37533);
 
+-- Mutated Abomination abilities
+UPDATE `creature_template` SET `spell1` = 70360, `spell2` = 70539, `spell3` = 70542, `spell4` = 0, `spell5` = 0, `spell6` = 71516, `spell7` = 0, `spell8` = 0 WHERE `entry` IN (37672, 38605, 38786, 38787);
+UPDATE `creature_template` SET `spell1` = 72527, `spell2` = 72457, `spell3` = 70542, `spell4` = 0, `spell5` = 0, `spell6` = 71516, `spell7` = 0, `spell8` = 0 WHERE `entry` IN (38285, 38788, 38789, 38790);
+
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (37945,38430,38186,38429);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`quest_start_active`,`quest_end`,`cast_flags`,`aura_required`,`aura_forbidden`,`user_type`) VALUES
 (37945,70766,0,0,0,3,0,0,0), -- Dream Portal
