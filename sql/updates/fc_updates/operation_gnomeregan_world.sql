@@ -34,9 +34,10 @@ UPDATE `creature_template` SET `equipment_id` = '39368' WHERE `entry` = '39271';
 UPDATE `creature_template` SET `speed_run` = '1.25', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39273';
 UPDATE `creature_template` SET `speed_run` = '1.29', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39910';
 
-DELETE FROM `spell_area` WHERE (`spell` = '74310') AND (`area` IN ('1', '135'));
+DELETE FROM `spell_area` WHERE (`spell` = '74310') AND (`area` IN ('1', '135', '721'));
 INSERT INTO `spell_area` VALUES
 ('74310', '1', '25393', '1', '25393', '0', '0', '2', '1'),
+('74310', '721', '25287', '1', '25393', '0', '0', '2', '1'),
 ('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
 
 UPDATE `gameobject` SET `phaseMask` = '257' WHERE `id` = '194498';
