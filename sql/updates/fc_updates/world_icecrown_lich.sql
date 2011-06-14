@@ -12,6 +12,9 @@ INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equip
 -- test platform destruction
 UPDATE `gameobject_template` SET `flags` = 32 WHERE `entry` = 202161;
 UPDATE `gameobject` SET `state` = '1' WHERE `id` IN (202161);
+-- YTDB fix portals swaping
+-- UPDATE `gameobject` SET `id` = 202244 WHERE `guid` = 16797;
+-- UPDATE `gameobject` SET `id` = 202245 WHERE `guid` = 23368;
 
 -- Boss
 UPDATE `creature_template` SET `ScriptName`='boss_the_lich_king' WHERE `entry` = 36597;
@@ -30,6 +33,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_shadow_trap' WHERE `entry` = 39
 UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 39137;
 UPDATE `creature_template` SET `unit_flags` = 0, `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (15214,36633, 39305, 39306, 39307);
+UPDATE `creature_template` SET `mechanic_immune_mask` = 12582928 WHERE `entry` IN (36609, 39120, 39121, 39122);
 
 -- Spell
 -- Linked spell
