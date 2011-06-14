@@ -6,9 +6,9 @@ UPDATE `creature_template` set `VehicleId` = 301 WHERE `entry` = 32344;
 UPDATE `creature_template` set `npcflag`=`npcflag`|0x1000000 WHERE `entry` IN
 (25762,27131,31110,31137,31157,31262,31406,31407,31408,31409,32490,31583,31830,31881,31884,32225,32227,32292,32344,37968);
 
-DELETE FROM npc_spellclick_spells WHERE npc_entry IN
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN
 (25762,27131,31110,31137,31157,31262,31406,31407,31408,31409,32490,31583,31830,31881,31884,32225,32227,32292,32344,37968);
-INSERT INTO npc_spellclick_spells VALUES
+INSERT INTO `npc_spellclick_spells` VALUES
 (25762,43671,0,0,0,1,0,0,0),
 (27131,48754,0,0,0,1,0,0,0),
 (31110,46598,0,0,0,1,0,0,0), -- maybe missed quest data
@@ -31,9 +31,9 @@ INSERT INTO npc_spellclick_spells VALUES
 (32344,46598,0,0,0,1,0,0,0),
 (37968,46598,0,0,0,1,0,0,0);
 
-DELETE FROM vehicle_template_accessory WHERE entry IN
+DELETE FROM `vehicle_template_accessory` WHERE `entry` IN
 (29931,31262,31406,31583,31881,31884,32225,32227,32490,32344);
-INSERT INTO vehicle_template_accessory VALUES
+INSERT INTO `vehicle_template_accessory` VALUES
 (29931,29982,0,0,'Drakkari Rider on Drakkari Rhino',6,300),
 (29931,29982,1,0,'Drakkari Rider on Drakkari Rhino',6,300),
 (29931,29982,2,0,'Drakkari Rider on Drakkari Rhino',6,300),
