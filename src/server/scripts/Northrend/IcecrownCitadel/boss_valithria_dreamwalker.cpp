@@ -339,6 +339,13 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void HealReceived(Unit* /*healer*/, uint32& heal)
             {
+                // Do not recieve heal while encounter not in progress
+                if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != IN_PROGRESS)
+                {
+                    heal = 0;
+                    return;
+                }
+
                 // encounter complete
                 if (me->HealthAbovePctHealed(100, heal) && !_done)
                 {
