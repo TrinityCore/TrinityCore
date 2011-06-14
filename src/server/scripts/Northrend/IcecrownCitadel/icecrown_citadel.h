@@ -419,6 +419,7 @@ enum SharedActions
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
+    ACTION_BOMB_LANDED          = -368532,
 };
 
 enum WeekliesICC
