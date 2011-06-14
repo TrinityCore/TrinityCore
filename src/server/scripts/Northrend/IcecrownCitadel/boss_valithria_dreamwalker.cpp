@@ -347,7 +347,8 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-                    DoCast(me, SPELL_DREAMWALKERS_RAGE);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 60.0f, false))
+                        DoCast(target, SPELL_DREAMWALKERS_RAGE);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
@@ -445,7 +446,6 @@ class boss_valithria_dreamwalker : public CreatureScript
                             Talk(SAY_VALITHRIA_BERSERK);
                             break;
                         case EVENT_DREAM_PORTAL:
-                            if (!IsHeroic())
                                 Talk(SAY_VALITHRIA_DREAM_PORTAL);
                             for (uint32 i = 0; i < _portalCount; ++i)
                                 DoCast(me, SUMMON_PORTAL);
