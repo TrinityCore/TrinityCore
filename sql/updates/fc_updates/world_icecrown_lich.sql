@@ -43,7 +43,8 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`commen
 (-70337,72846,0, 'The Lich King: Necrotic plague immun'),
 (-70338,70338,0, 'The Lich King: Necrotic jump'),
 (-69200,69201,0, 'The Lich King: Raging Spirit'),
-(-70338,74074,0, 'The Licg King: Plague Siphon');
+(-70338,74074,0, 'The Licg King: Plague Siphon'),
+(70860, 39432,2, 'Gravity when Frozen tron teleport - prevent fall down player');
 
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (72743,'spell_lich_king_defile'),
