@@ -277,11 +277,14 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetUInt32Value(ITEM_FIELD_DURATION, abs(itemProto->Duration));
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
     /** World of Warcraft Armory **/
-    if (itemProto->Quality > 2 && itemProto->Flags != 2048 && (itemProto->Class == ITEM_CLASS_WEAPON || itemProto->Class == ITEM_CLASS_ARMOR))
+    if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
     {
-        if (!GetOwner())
-            return true;
-        GetOwner()->CreateWowarmoryFeed(2, itemid, guidlow, itemProto->Quality);
+        if (itemProto->Quality > 2 && itemProto->Flags != 2048 && (itemProto->Class == ITEM_CLASS_WEAPON || itemProto->Class == ITEM_CLASS_ARMOR))
+        {
+            if (!GetOwner())
+                return true;
+            GetOwner()->CreateWowarmoryFeed(2, itemid, guidlow, itemProto->Quality);
+        }
     }
     /** World of Warcraft Armory **/
     return true;
