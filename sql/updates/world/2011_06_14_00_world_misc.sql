@@ -1,5 +1,5 @@
 UPDATE `creature_template` set `VehicleId` = 129 WHERE `entry` = 28710;
-UPDATE `creature_template` set `npcflag` = 0x1000000 WHERE `entry` IN (28710,29838,33114,33167,34161);
+UPDATE `creature_template` set `npcflag`=`npcflag`|0x1000000 WHERE `entry` IN (28710,29838,33114,33167,34161);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (28710,29838,33114,33167,34161);
 INSERT INTO `npc_spellclick_spells` VALUES
