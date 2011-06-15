@@ -18,3 +18,6 @@ UPDATE `creature_template` SET `ScriptName`="", `spell1`="" WHERE `entry` = 3806
 
 -- fix aggro for Rimefang and Spinestalker
 UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry` IN (37533, 37534);
+
+-- Fix start Valithria encounter while enconter is DONE
+UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (38752, 16980);
