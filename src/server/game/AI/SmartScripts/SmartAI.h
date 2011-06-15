@@ -91,10 +91,10 @@ class SmartAI : public CreatureAI
         void KilledUnit(Unit* victim);
 
         // Called when the creature summon successfully other creature
-        void JustSummoned(Creature* pUnit);
+        void JustSummoned(Creature* creature);
 
         // Tell creature to attack and follow the victim
-        void AttackStart(Unit *who);
+        void AttackStart(Unit* who);
 
         // Called if IsVisible(Unit *who) is true at each *who move, reaction at visibility zone enter
         void MoveInLineOfSight(Unit *who);

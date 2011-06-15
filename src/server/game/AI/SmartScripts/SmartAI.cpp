@@ -586,9 +586,9 @@ void SmartAI::KilledUnit(Unit* victim)
     GetScript()->ProcessEventsFor(SMART_EVENT_KILL, victim);
 }
 
-void SmartAI::JustSummoned(Creature* pUnit)
+void SmartAI::JustSummoned(Creature* creature)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, pUnit);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
 }
 
 void SmartAI::AttackStart(Unit* who)
@@ -596,7 +596,7 @@ void SmartAI::AttackStart(Unit* who)
     if (who && me->Attack(who, true))
     {
         SetRun(mRun);
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+        if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == POINT_MOTION_TYPE)
             me->GetMotionMaster()->MovementExpired();
 
         if (mCanCombatMove)
