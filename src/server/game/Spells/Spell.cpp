@@ -819,7 +819,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
                 m_procAttacker |= PROC_FLAG_DONE_OFFHAND_ATTACK;
             else
                 m_procAttacker |= PROC_FLAG_DONE_MAINHAND_ATTACK;
-            m_procVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
+            m_procVictim   = PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
             // Auto attack
@@ -845,7 +845,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
             // For other spells trigger procflags are set in Spell::DoAllEffectOnTarget
             // Because spell positivity is dependant on target
     }
-    m_procEx= PROC_EX_NONE;
+    m_procEx = PROC_EX_NONE;
 
     // Hunter trap spells - activation proc for Lock and Load, Entrapment and Misdirection
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&

@@ -1339,8 +1339,8 @@ class Player : public Unit, public GridObject<Player>
         void OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId);
 
         uint32 GetGossipTextId(uint32 menuId);
-        uint32 GetGossipTextId(WorldObject *pSource);
-        uint32 GetDefaultGossipMenuForSource(WorldObject *pSource);
+        uint32 GetGossipTextId(WorldObject* source);
+        static uint32 GetDefaultGossipMenuForSource(WorldObject* source);
 
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/

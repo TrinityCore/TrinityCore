@@ -538,9 +538,6 @@ struct GraveYardData
 };
 typedef std::multimap<uint32, GraveYardData> GraveYardMap;
 
-// NPC gossip text id
-typedef UNORDERED_MAP<uint32, uint32> CacheNpcTextIdMap;
-
 typedef UNORDERED_MAP<uint32, VendorItemData> CacheVendorItemMap;
 typedef UNORDERED_MAP<uint32, TrainerSpellData> CacheTrainerSpellMap;
 
@@ -1148,15 +1145,6 @@ class ObjectMgr
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(const std::string& name);
 
-        uint32 GetNpcGossip(uint32 entry) const
-        {
-            CacheNpcTextIdMap::const_iterator iter = m_mCacheNpcTextIdMap.find(entry);
-            if (iter == m_mCacheNpcTextIdMap.end())
-                return 0;
-
-            return iter->second;
-        }
-
         TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
         {
             CacheTrainerSpellMap::const_iterator  iter = m_mCacheTrainerSpellMap.find(entry);
@@ -1369,7 +1357,6 @@ class ObjectMgr
         RespawnTimes mGORespawnTimes;
         ACE_Thread_Mutex m_GORespawnTimesMtx;
 
-        CacheNpcTextIdMap m_mCacheNpcTextIdMap;
         CacheVendorItemMap m_mCacheVendorItemMap;
         CacheTrainerSpellMap m_mCacheTrainerSpellMap;
 
