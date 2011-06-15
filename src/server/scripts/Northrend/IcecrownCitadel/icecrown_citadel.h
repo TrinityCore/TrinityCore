@@ -420,6 +420,7 @@ enum SharedActions
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
+    ACTION_BOMB_LANDED          = -368532,
 };
 
 enum WeekliesICC
@@ -495,5 +496,7 @@ CreatureAI* GetIcecrownCitadelAI(Creature* creature)
                 return new AI(creature);
     return NULL;
 }
+
+void TeleportPlayerToFrozenThrone(Player *player);
 
 #endif // ICECROWN_CITADEL_H_

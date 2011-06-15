@@ -346,27 +346,6 @@ uint32 GetPhase(const EventMap &em)
     }
 }
 
-class TeleportToFrozenThrone : public BasicEvent
-{
-    public:
-        TeleportToFrozenThrone(Player *player, uint8 attempts): pPlayer(player), attemptsLeft(attempts) { }
-
-        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
-        {
-            pPlayer->CastSpell(pPlayer, FROZEN_THRONE_TELEPORT, true);
-            if (--attemptsLeft)
-                pPlayer->m_Events.AddEvent(new TeleportToFrozenThrone(pPlayer, attemptsLeft), pPlayer->m_Events.CalculateTime(uint64(1500)));
-            return true;
-        }
-    private:
-        Player *pPlayer;
-        uint8 attemptsLeft;
-};
-void TeleportPlayerToFrozenThrone(Player *player)
-{
-    player->m_Events.AddEvent(new TeleportToFrozenThrone(player, 2), player->m_Events.CalculateTime(uint64(5000)));
-}
-
 class boss_the_lich_king : public CreatureScript
 {
     public:
