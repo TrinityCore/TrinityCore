@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,17 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Moam
-SD%Complete: 90
-SDComment: TODO: Adjust timer, correct Stone phase buff
-SDCategory: Ruins of Ahn'Qiraj
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "ruins_of_ahnqiraj.h"
 
-enum Emotes
+enum Texts
 {
     EMOTE_AGGRO             = -1509000,
     EMOTE_MANA_FULL         = -1509001
@@ -34,130 +26,158 @@ enum Emotes
 
 enum Spells
 {
-    SPELL_TRAMPLE           = 15550,
-    SPELL_DRAINMANA         = 27256,    //Doesn't exist ?
-    SPELL_ARCANEERUPTION    = 25672,
-    SPELL_SUMMONMANA        = 25681,    //Summon Mana fiend. It only summons one so exec it three times
-    SPELL_GRDRSLEEP         = 24360     //Greater Dreamless Sleep
+    SPELL_TRAMPLE               = 15550,
+    SPELL_DRAIN_MANA            = 25671,
+    SPELL_ARCANE_ERUPTION       = 25672,
+    SPELL_SUMMON_MANA_FIEND_1   = 25681, // TARGET_DEST_CASTER_FRONT
+    SPELL_SUMMON_MANA_FIEND_2   = 25682, // TARGET_DEST_CASTER_LEFT
+    SPELL_SUMMON_MANA_FIEND_3   = 25683, // TARGET_DEST_CASTER_RIGHT
+    SPELL_ENERGIZE              = 25685 
 };
 
-enum Creatures
+enum Events
 {
-    CREATURE_MANA_FIEND     = 15527
+    EVENT_TRAMPLE           = 1,
+    EVENT_DRAIN_MANA        = 2,
+    EVENT_STONE_PHASE       = 3,
+    EVENT_STONE_PHASE_END   = 4,
+    EVENT_WIDE_SLASH        = 5,
 };
 
-enum CombatPhase
+enum Actions
 {
-    NORMAL,
-    STONE
+    ACTION_STONE_PHASE_START = 1,
+    ACTION_STONE_PHASE_END   = 2,
 };
 
 class boss_moam : public CreatureScript
 {
-public:
-    boss_moam() : CreatureScript("boss_moam") { }
+    public:
+        boss_moam() : CreatureScript("boss_moam") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_moamAI (pCreature);
-    }
-
-    struct boss_moamAI : public ScriptedAI
-    {
-        boss_moamAI(Creature *c) : ScriptedAI(c)
+        struct boss_moamAI : public BossAI
         {
-            pInstance = c->GetInstanceScript();
-        }
-
-        uint32 uiTrampleTimer;
-        uint32 uiDrainManaTimer;
-        uint32 uiPhaseTimer;
-        CombatPhase Phase;
-
-        InstanceScript *pInstance;
-
-        void Reset()
-        {
-            uiTrampleTimer = urand(3000, 7000);
-            uiDrainManaTimer = urand(3000, 7000);
-            uiPhaseTimer = 90000;
-            Phase = NORMAL;
-            me->SetPower(POWER_MANA, 0);
-
-            if (pInstance)
-                pInstance->SetData(DATA_MOAM_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(EMOTE_AGGRO, me);
-
-            if (pInstance)
-                pInstance->SetData(DATA_MOAM_EVENT, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            if (pInstance)
-                pInstance->SetData(DATA_MOAM_EVENT, DONE);
-        }
-
-        void DrainMana()
-        {
-            for (uint8 i=0;i<6;++i)
+            boss_moamAI(Creature* creature) : BossAI(creature, BOSS_MOAM)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            }
+
+            void Reset()
+            {
+                _Reset();
+                me->SetPower(POWER_MANA, 0);
+                _isStonePhase = false;
+                events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
+                //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            {
+                if (!_isStonePhase && HealthBelowPct(45))
                 {
-                    pTarget->ModifyPower(POWER_MANA, -500);
-                    me->ModifyPower(POWER_MANA, 1000);
+                    _isStonePhase = true;
+                    DoAction(ACTION_STONE_PHASE_START);
                 }
             }
-        }
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (Phase == NORMAL)
+            void DoAction(int32 const action)
+            {
+                switch (action)
+                {
+                    case ACTION_STONE_PHASE_END:
+                    {
+                        me->RemoveAurasDueToSpell(SPELL_ENERGIZE);
+                        events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
+                        _isStonePhase = false;
+                        break;
+                    }
+                    case ACTION_STONE_PHASE_START:
+                    {
+                        DoCast(me, SPELL_SUMMON_MANA_FIEND_1);
+                        DoCast(me, SPELL_SUMMON_MANA_FIEND_2);
+                        DoCast(me, SPELL_SUMMON_MANA_FIEND_3);
+                        DoCast(me, SPELL_ENERGIZE);
+                        events.ScheduleEvent(EVENT_STONE_PHASE_END, 90000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                //If we are 100%MANA cast Arcane Erruption
+                events.Update(diff);
+
                 if (me->GetPower(POWER_MANA) == me->GetMaxPower(POWER_MANA))
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANEERUPTION);
-                    DoScriptText(EMOTE_MANA_FULL, me);
+                    if (_isStonePhase)
+                        DoAction(ACTION_STONE_PHASE_END);
+                    DoCastAOE(SPELL_ARCANE_ERUPTION);
                     me->SetPower(POWER_MANA, 0);
                 }
 
-                //Trample Spell
-                if (uiTrampleTimer <= diff)
+                if (_isStonePhase)
                 {
-                    DoCast(me->getVictim(), SPELL_TRAMPLE);
-                    uiTrampleTimer = urand(3000, 7000);
-                } else uiTrampleTimer -= diff;
+                    if (events.ExecuteEvent() == EVENT_STONE_PHASE_END)
+                        DoAction(ACTION_STONE_PHASE_END);
+                    return;
+                }
 
-                //Drain Mana
-                if (uiDrainManaTimer <= diff)
+                // Messing up mana-drain channel
+                //if (me->HasUnitState(UNIT_STAT_CASTING))
+                //    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DrainMana();
-                    uiDrainManaTimer = urand(3000, 7000);
-                } else uiDrainManaTimer -= diff;
+                    switch (eventId)
+                    {
+                        case EVENT_STONE_PHASE:
+                            DoAction(ACTION_STONE_PHASE_START);
+                            break;
+                        case EVENT_DRAIN_MANA:
+                        {
+                            std::list<Unit*> targetList;
+                            {
+                                const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
+                                for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
+                                        targetList.push_back((*itr)->getTarget());
+                            }
 
+                            Trinity::RandomResizeList(targetList, 5);
+
+                            for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                                DoCast(*itr, SPELL_DRAIN_MANA);
+
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, urand(5000,15000));
+                            break;
+                        }/*
+                        case EVENT_WIDE_SLASH:
+                            DoCast(me, SPELL_WIDE_SLASH);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                            break;
+                        case EVENT_TRASH:
+                            DoCast(me, SPELL_TRASH);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
+                            break;*/
+                        default:
+                            break;
+                    }
+                }
+ 
                 DoMeleeAttackIfReady();
-
-                //After 90secs change phase
-                if (uiPhaseTimer <= diff)
-                {
-                    Phase = STONE;
-                    DoCast(me, SPELL_SUMMONMANA);
-                    DoCast(me, SPELL_SUMMONMANA);
-                    DoCast(me, SPELL_SUMMONMANA);
-                    DoCast(me, SPELL_GRDRSLEEP);
-                } else uiPhaseTimer -= diff;
             }
-        }
-    };
+        private:
+            bool _isStonePhase;
+        };
 
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_moamAI(creature);
+        }
 };
 
 void AddSC_boss_moam()
