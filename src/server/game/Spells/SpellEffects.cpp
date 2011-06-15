@@ -5121,7 +5121,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         if (chargesAura->ModCharges(-1))
                             m_caster->ToTempSummon()->UnSummon();
                     }
-                        
+
                     return;
                 }
                 // Stoneclaw Totem
@@ -5895,27 +5895,26 @@ void Spell::EffectReputation(SpellEffIndex effIndex)
 
 void Spell::EffectQuestComplete(SpellEffIndex effIndex)
 {
-    Player *pPlayer;
-
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        pPlayer = (Player*)m_caster;
-    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
-        pPlayer = (Player*)unitTarget;
+    Player* player = NULL;
+    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
+        player = (Player*)unitTarget;
+    else if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        player = (Player*)m_caster;
     else
         return;
 
-    uint32 quest_id = m_spellInfo->EffectMiscValue[effIndex];
-    if (quest_id)
+    uint32 questId = m_spellInfo->EffectMiscValue[effIndex];
+    if (questId)
     {
-        Quest* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
-        if (!pQuest || !pPlayer->CanTakeQuest(pQuest, false))
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        if (!quest)
             return;
 
-        uint16 log_slot = pPlayer->FindQuestSlot(quest_id);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
-            pPlayer->AreaExploredOrEventHappens(quest_id);
-        else if (!pPlayer->GetQuestRewardStatus(quest_id))   // never rewarded before
-            pPlayer->CompleteQuest(quest_id);   // quest not in log - for internal use
+        uint16 logSlot = player->FindQuestSlot(questId);
+        if (logSlot < MAX_QUEST_LOG_SIZE)
+            player->AreaExploredOrEventHappens(questId);
+        else if (player->CanTakeQuest(quest, false))    // never rewarded before
+            player->CompleteQuest(questId);             // quest not in log - for internal use
     }
 }
 
