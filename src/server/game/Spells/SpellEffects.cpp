@@ -5907,6 +5907,10 @@ void Spell::EffectQuestComplete(SpellEffIndex effIndex)
     uint32 quest_id = m_spellInfo->EffectMiscValue[effIndex];
     if (quest_id)
     {
+        Quest* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
+        if (!pQuest || !pPlayer->CanTakeQuest(pQuest, false))
+            return;
+
         uint16 log_slot = pPlayer->FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
             pPlayer->AreaExploredOrEventHappens(quest_id);
