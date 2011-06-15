@@ -516,7 +516,8 @@ UPDATE `creature_template` SET `minlevel`=83,`maxlevel`=83,`exp`=2,`unit_class`=
 SET @GUID := 200200;
 UPDATE `creature` SET `phaseMask`=`phaseMask`|4 WHERE `id`=36789;
 -- Add The Lich King and Green Dragon Combat Trigger to all encounter phases, fixes evading when all players enter portals
-UPDATE `creature` SET `phaseMask`=`phaseMask`|16 WHERE `guid` IN (111453,10718);
+UPDATE `creature` SET `phaseMask`=`phaseMask`|16 WHERE `id` IN (16980, 38752);
+
 DELETE FROM `creature` WHERE `id` IN (37950,37985,38421) OR `guid` BETWEEN @GUID+00 AND @GUID+27 OR `guid` IN (200230, 200231);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (200230,37950,631,15,20,0,0,4202.847,2484.917,383.8368,0.00000,604800,0,0,0,0,0,0,0,0,0), -- Valithria Dreamwalker (dream phase)
@@ -552,8 +553,8 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 DELETE FROM `linked_respawn` WHERE `guid`=111453 AND `linkType`=0;
 INSERT INTO `linked_respawn` (`guid`,`linkedGuid`,`linkType`) VALUES
 (111453,10718,0); -- The Lich King link to Green Dragon Combat Trigger
-UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `guid` IN (10718, 111453);
-UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (37534, 37533);
+
+UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (37534, 37533, 16980, 38752);
 
 -- Mutated Abomination abilities
 UPDATE `creature_template` SET `spell1` = 70360, `spell2` = 70539, `spell3` = 70542, `spell4` = 0, `spell5` = 0, `spell6` = 71516, `spell7` = 0, `spell8` = 0 WHERE `entry` IN (37672, 38605, 38786, 38787);
