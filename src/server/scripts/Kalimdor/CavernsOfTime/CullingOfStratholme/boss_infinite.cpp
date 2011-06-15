@@ -62,8 +62,6 @@ public:
                 pInstance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 /*diff*/)
         {
             //Return since we have no target
