@@ -740,6 +740,7 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
         case TARGET_UNIT_AREA_ENEMY_SRC:
         case TARGET_UNIT_AREA_ENEMY_DST:
         case TARGET_UNIT_CONE_ENEMY:
+        case TARGET_UNIT_AREA_PATH:
         case TARGET_DEST_DYNOBJ_ENEMY:
         case TARGET_DST_TARGET_ENEMY:
             return false;
