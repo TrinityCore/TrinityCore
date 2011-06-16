@@ -10,7 +10,7 @@ Jail::~Jail()
 {
 }
 
-bool Jail::LadeKonfiguration()
+bool Jail::LadeKonfiguration(bool reload)
 {
     // Standardkonfiguration initialisieren...
     m_MaxJails = 4;
@@ -65,7 +65,10 @@ bool Jail::LadeKonfiguration()
     m_BanDauer = fields[16].GetUInt32();
     m_Radius = fields[17].GetUInt32();
 
-    sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
+    if (!reload)
+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
+    else
+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD));
 
     return true;
 }
@@ -76,8 +79,7 @@ bool Jail::InfoKommando(ChatHandler * handler)
     if (!chr)
         return false;
 
-    time_t localtime;
-    localtime = time(NULL);
+    time_t localtime = time(NULL);
 
     if (chr->m_JailRelease > 0)
     {
@@ -114,16 +116,64 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
 {
     Player * target = NULL;
     uint64 target_guid = 0;
-    std::string target_name = "";
+    std::string target_name;
+
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if (target->m_JailAnzahl > 0)
+    if (!target)
+    {
+        uint32 guid = GUID_LOPART(sObjectMgr->GetPlayerGUIDByName(target_name.c_str()));
+        if (!guid)
+        {
+            handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM jail WHERE guid = '%u' LIMIT 1", guid);
+        if (!result)
+        {
+            handler->PSendSysMessage(LANG_JAIL_GM_NOINFO, target_name.c_str());
+            return true;
+        }
+        else
+        {
+            Field * fields = result->Fetch();
+
+            uint32 release = fields[2].GetUInt32();
+            std::string reason = fields[3].GetString();
+            uint32 times = fields[4].GetUInt32();
+            std::string gmchar = fields[7].GetString();
+
+            if (release > 0)
+            {
+                time_t localtime = time(NULL);
+                uint32 min_left = uint32(floor(float(release - localtime) / 60));
+
+                if (min_left >= 60)
+                {
+                    uint32 hours = uint32(floor(float(release - localtime) / 60 / 60));
+                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), times, hours, min_left-(hours*60), gmchar.c_str(), reason.c_str());
+                }
+                else
+                    handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), times, min_left, gmchar.c_str(), reason.c_str());
+
+                return true;
+            }
+            else
+            {
+                handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), times, 0, gmchar.c_str(), reason.c_str());
+                return true;
+            }
+        }
+    }
+
+    if (target && target->m_JailAnzahl > 0)
     {
         if (target->m_JailRelease > 0)
         {
-            time_t localtime;
-            localtime = time(NULL);
+            time_t localtime = time(NULL);
             uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / 60));
 
             if (min_left <= 0)
@@ -152,11 +202,6 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
             return true;
         }
     }
-    else
-    {
-        handler->PSendSysMessage(LANG_JAIL_GM_NOINFO, target_name.c_str());
-        return true;
-    }
     return false;
 }
 
@@ -171,7 +216,10 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         return false;
     }
     else
+    {
         cname = charname;
+        normalizePlayerName(cname);
+    }
 
     char * timetojail = strtok(NULL, " ");
     if (timetojail == NULL)
@@ -215,14 +263,13 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         return false;
     }
 
-    time_t localtime;
-    localtime = time(NULL);
+    time_t localtime = time(NULL);
 
     uint32 times = 0;
     uint32 release = localtime + (jailtime * 60 * 60);
     uint32 banrelease = localtime + (m_BanDauer * 60 * 60);
 
-    std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason);
+    std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
 
     Player * chr = sObjectMgr->GetPlayer(GUID);
     if (!chr)
@@ -342,7 +389,8 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args)
 {
     Player * target = NULL;
     uint64 target_guid = 0;
-    std::string target_name = "";
+    std::string target_name;
+
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
@@ -373,7 +421,7 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args)
             sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), target_name.c_str(), target->GetGUIDLow()));
             sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), target_name.c_str(), target->GetGUIDLow()));
 
-            target->CastSpell(target,SPELL_STACK,false);
+            target->CastSpell(target, SPELL_STACK, true);
         }
         else
         {
@@ -418,14 +466,17 @@ bool Jail::ResetKommando(ChatHandler * handler, const char * args)
 {
     Player * target = NULL;
     uint64 target_guid = 0;
-    std::string target_name = "";
+    std::string target_name;
+
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if (target->m_Jailed)
-        ReleaseKommando(handler, args);
+    // Erst aus dem Knast holen, bevor der Jaileintrag gelöscht wird
+    ReleaseKommando(handler, args);
 
-    CharacterDatabase.PExecute("DELETE FROM jail WHERE guid = '%u' LIMIT 1", target->GetGUIDLow());
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM jail WHERE guid = '%u' LIMIT 1", GUID_LOPART(target_guid));
+    if (result)
+        CharacterDatabase.PExecute("DELETE FROM jail WHERE guid = '%u' LIMIT 1", GUID_LOPART(target_guid));
 
     return true;
 }
@@ -450,7 +501,7 @@ Position Jail::HoleHordeKnastPos()
     return pos;
 }
 
-void Jail::Kontrolle(Player * pPlayer)
+void Jail::Kontrolle(Player * pPlayer, bool update)
 {
     if (!pPlayer)
         return;
@@ -461,8 +512,7 @@ void Jail::Kontrolle(Player * pPlayer)
         return;
     }
 
-    time_t localtime;
-    localtime = time(NULL);
+    time_t localtime = time(NULL);
 
     if (pPlayer->m_JailRelease <= localtime)
     {
@@ -474,7 +524,7 @@ void Jail::Kontrolle(Player * pPlayer)
         sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
         sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
 
-        pPlayer->CastSpell(pPlayer,SPELL_STACK,false);
+        pPlayer->CastSpell(pPlayer, SPELL_STACK, true);
 
         return;
     }
@@ -482,18 +532,41 @@ void Jail::Kontrolle(Player * pPlayer)
     if (pPlayer->m_Jailed)
     {
         Position pos;
+        uint32 map;
 
         if (pPlayer->GetTeam() == ALLIANCE)
         {
+            map = HoleAllyKnastKarte();
             pos = HoleAllyKnastPos();
-            pPlayer->TeleportTo(HoleAllyKnastKarte(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation);
         }
         else
         {
+            map = HoleHordeKnastKarte();
             pos = HoleHordeKnastPos();
-            pPlayer->TeleportTo(HoleHordeKnastKarte(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation);
         }
-        sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_TELE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
-        sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_TELE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
+
+        if (pPlayer->GetMapId() != map || m_Radius < uint32(pPlayer->GetDistance(pos)))
+            pPlayer->TeleportTo(map, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation);
+
+        if (!update)
+        {
+            sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_TELE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
+            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_TELE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
+        }
+    }
+}
+
+void Jail::SendeWarnung(Player * pPlayer)
+{
+    if (!pPlayer)
+        return;
+
+    if (m_WarnUser && (m_MaxJails - pPlayer->m_JailAnzahl) <= 1)
+    {
+        if (m_DelChar)
+            pPlayer->GetSession()->SendNotification(LANG_JAIL_WARNING);
+
+        if (m_BanAcc)
+            pPlayer->GetSession()->SendNotification(LANG_JAIL_WARNING_BAN);
     }
 }

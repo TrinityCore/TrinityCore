@@ -682,16 +682,12 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_social = NULL;
 
     // Jail von WarHead
-    m_JailRelease = 0;  // Entlassungszeit
-    m_JailAnzahl = 0;   // Anzahl der Knastbesuche
-    m_JailGMAcc = 0;    // GM-Account der ihn eingebuchtet hat
-    m_JailDauer = 0;    // Dauer des Knastaufenthaltes
-
-    m_JailGrund = "";   // Der Grund
-    m_JailGMChar = "";  // GM-Charakter der ihn eingebuchtet hat
-    m_JailZeit = "";    // Zeit der letzten Inhaftierung
-
-    m_Jailed = false;   // Zur Zeit gerade im Knast?
+    m_JailRelease = 0;                      // Entlassungszeit
+    m_JailAnzahl = 0;                       // Anzahl der Knastbesuche
+    m_JailGMAcc = 0;                        // GM-Account der ihn eingebuchtet hat
+    m_JailDauer = 0;                        // Dauer des Knastaufenthaltes
+    m_JailWarnTimer = 10*IN_MILLISECONDS;   // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
+    m_Jailed = false;                       // Zur Zeit gerade im Knast?
 
     // group is initialized in the reference constructor
     SetGroupInvite(NULL);
@@ -1543,9 +1539,18 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+    // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
+    if (m_JailWarnTimer && m_JailWarnTimer <= p_time)
+    {
+        sJail->SendeWarnung(this);
+        m_JailWarnTimer = 0;
+    }
+    else
+        m_JailWarnTimer -= p_time;
+
     // Jail Kontrolle
     if (m_Jailed)
-        sJail->Kontrolle(this);
+        sJail->Kontrolle(this, true);
 
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
@@ -2454,9 +2459,6 @@ void Player::AddToWorld()
     for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         if (m_items[i])
             m_items[i]->AddToWorld();
-
-    // Jail Daten laden
-    JailDatenLaden();
 }
 
 void Player::RemoveFromWorld()
@@ -2469,7 +2471,6 @@ void Player::RemoveFromWorld()
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
-        JailDatenSpeichern(); // Jail Daten speichern
     }
 
     ///- Do not add/remove the player from the object storage
@@ -17078,6 +17079,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
+    // Jail von WarHEad
+    JailDatenLaden();
+
     return true;
 }
 
@@ -18416,7 +18420,13 @@ void Player::SaveToDB()
     // check if stats should only be saved on logout
     // save stats can be out of transaction
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
+    {
+        // Jail Daten speichern
+        if (m_Jailed)
+            JailDatenSpeichern();
+
         _SaveStats(trans);
+    }
 
     CharacterDatabase.CommitTransaction(trans);
 

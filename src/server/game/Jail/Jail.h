@@ -14,7 +14,7 @@ class Jail
     ~Jail();
 
 private:
-    uint32 m_MaxJails;  // Beim erreichen dieses Wertes, wird der Charakter gelöscht.
+    uint32 m_MaxJails;  // Beim erreichen dieses Wertes, wird der Charakter gelöscht / der Account gebannt.
     uint32 m_MaxDauer;  // Die maximale Dauer für einen Knastausenthalt.
     uint32 m_MinGrund;  // Minimale Zeichenlänge für den Jailgrund.
     uint32 m_Radius;    // Radius in dem der Knastbruder sich bewegen darf.
@@ -36,10 +36,10 @@ private:
 
     bool m_DelChar;     // Charakter löschen, wenn m_MaxJails erreicht wird?
     bool m_BanAcc;      // Account bannen, wenn m_MaxJails erreicht wird?
-    bool m_WarnUser;    // Spieler warnen, wenn er nur einen Jail von der Charakterlöschung entfernt ist?
+    bool m_WarnUser;    // Spieler warnen, wenn er nur einen Jail von der Charakterlöschung / Accountbannung entfernt ist?
 
 public:
-    bool LadeKonfiguration();
+    bool LadeKonfiguration(bool reload = false);
 
     // Kommandos aus jail_commandscript bearbeiten
     bool InfoKommando(ChatHandler * handler);
@@ -47,7 +47,7 @@ public:
     bool ArrestKommando(ChatHandler * handler, const char * args);
     bool ReleaseKommando(ChatHandler * handler, const char * args);
     bool ResetKommando(ChatHandler * handler, const char * args);
-    bool ReloadKommando() { return LadeKonfiguration(); };
+    bool ReloadKommando() { return LadeKonfiguration(true); };
 
     Position HoleAllyKnastPos();
     Position HoleHordeKnastPos();
@@ -55,7 +55,8 @@ public:
     const uint32 HoleAllyKnastKarte() { return m_MapAlly; };
     const uint32 HoleHordeKnastKarte() { return m_MapHorde; };
 
-    void Kontrolle(Player * pPlayer);
+    void Kontrolle(Player * pPlayer, bool update = false);
+    void SendeWarnung(Player * pPlayer);
 };
 
 #define sJail ACE_Singleton<Jail, ACE_Null_Mutex>::instance()

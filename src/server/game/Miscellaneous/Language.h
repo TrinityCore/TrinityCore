@@ -1147,7 +1147,7 @@ enum TrinityStrings
     LANG_JAIL_WARNING           = 12118,    // "Be carefull! Only one more jailtime and your current character will be deleted!"
     LANG_JAIL_ANNOUNCE          = 12119,    // "The character '%s' was jailed for %u hour(s) by the GM character '%s'.\nThe reason is: %s"
     LANG_JAIL_RELOAD            = 12120,    // "The jail configuration was reloaded."
-    LANG_JAIL_CONF_LOADED       = 12121,    // ">> Jail config loaded."
+    LANG_JAIL_CONF_LOADED       = 12121,    // "Jail config loaded."
     LANG_JAIL_CONF_ERR1         = 12122,    // "Can't load jail config! Table empty or missed! Use jail_conf.sql!"
     LANG_JAIL_CONF_ERR2         = 12123,    // "Set all jail config settings to default..."
     LANG_JAIL_CHAR_TELE         = 12124,    // "The Character '%s' (GUID %u) is jailed and teleportet into the jail."

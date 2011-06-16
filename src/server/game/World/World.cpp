@@ -1748,7 +1748,7 @@ void World::SetInitialWorldSettings()
 
     // Jail von WarHead
     sLog->outString();
-    sLog->outString("Lade Jailkonfiguration..." );
+    sLog->outString("Lade die Jail-Konfiguration..." );
     if (!sJail->LadeKonfiguration())
     {
         sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));

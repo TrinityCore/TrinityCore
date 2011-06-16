@@ -1129,6 +1129,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_JailAnzahl;        // Anzahl der Knastbesuche
         uint32 m_JailGMAcc;         // GM-Account der ihn eingebuchtet hat
         uint32 m_JailDauer;         // Dauer des Knastaufenthaltes
+        uint32 m_JailWarnTimer;     // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
 
         std::string m_JailGrund;    // Der Grund
         std::string m_JailGMChar;   // GM-Charakter der ihn eingebuchtet hat
