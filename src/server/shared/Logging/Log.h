@@ -130,7 +130,6 @@ class Log
         void outChat( const char * str, ... )                   ATTR_PRINTF(2, 3);
         void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
         void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2, 3);
-        void outWarden( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
         static void outTimestamp(FILE* file);
@@ -162,7 +161,6 @@ class Log
         FILE* chatLogfile;
         FILE* arenaLogFile;
         FILE* sqlLogFile;
-        FILE* wardenLogFile;
 
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;

@@ -2847,23 +2847,6 @@ Lottery.MinUserLVL = 60
 
 DuelReset.Cooldown = 0
 
-###################################################################################################
-# Warden options
-#
-#     WardenLogFile = "warden.log"
-#        Warden log file
-#
-#     Warden.Kick = 1
-#        Enable 1 or Disable 0 kick player if no answer\timeout\failed cheacks
-#
-#     Warden.BanDay = 3
-#        Number od days for ban player's account if cheack failed
-#        0 - Disable ban
-
-WardenLogFile = "warden.log"
-Warden.Kick = 1
-Warden.BanDay = 3
-
 
 #######################################################################
 #   OutdoorPvP.Wintergrasp.Enabled

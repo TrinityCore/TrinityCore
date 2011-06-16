@@ -28,8 +28,6 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
-#include "WardenBase.h"
-#include "Timer.h"
 
 struct ItemTemplate;
 struct AuctionEntry;
@@ -188,7 +186,6 @@ public:
 class WorldSession
 {
     friend class CharacterHandler;
-    friend class WardenBase;
     public:
         WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter);
         ~WorldSession();
@@ -225,8 +222,6 @@ class WorldSession
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player *plr);
         uint8 Expansion() const { return m_expansion; }
-
-        void InitWarden(BigNumber *K);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -925,9 +920,6 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
-
-        // Warden 
-        WardenBase *m_Warden;
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
