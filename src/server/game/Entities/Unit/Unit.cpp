@@ -8228,7 +8228,11 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 break;
             case SPELLFAMILY_WARRIOR:
                 if (auraSpellInfo->Id == 50421)             // Scent of Blood
-                    trigger_spell_id = 50422;
+                {
+                    CastSpell(this, 50422, true);
+                    RemoveAuraFromStack(auraSpellInfo->Id);
+                    return false;
+                }
                 break;
             case SPELLFAMILY_WARLOCK:
             {
