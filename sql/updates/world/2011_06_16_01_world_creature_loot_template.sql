@@ -89,5 +89,5 @@ INSERT INTO `creature_loot_template`
 (32495,44697,99,1,0,1,1), -- Val'kyr Vestments
 (32495,44663,96,1,0,1,1), -- Abandoned Adventurer's Satchel
 -- Putridus the Ancient
-(32487,44696,98,1,0,1,1), -- Corroded Faceguard
+(32487,44696,98,1,0,1,1), -- Giant's Toewrap
 (32487,44663,93,1,0,1,1); -- Abandoned Adventurer's Satchel
