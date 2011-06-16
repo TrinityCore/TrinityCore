@@ -628,7 +628,7 @@ class AuraScript : public _SpellScript
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
-        // passive - "working in background", not saved, not removed by immonities, not seen by player
+        // passive - "working in background", not saved, not removed by immunities, not seen by player
         bool IsPassive() const;
         // death persistent - not removed on death
         bool IsDeathPersistent() const;

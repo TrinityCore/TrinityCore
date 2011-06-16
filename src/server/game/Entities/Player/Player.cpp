@@ -1254,7 +1254,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     else if (type == DAMAGE_SLIME)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, damage, &absorb, &resist);
 
-    damage-=absorb+resist;
+    damage -= absorb + resist;
 
     DealDamageMods(this, damage, &absorb);
 
@@ -1412,7 +1412,7 @@ void Player::HandleDrowning(uint32 time_diff)
                 // Calculate and deal damage
                 // TODO: Check this formula
                 uint32 damage = urand(600, 700);
-                if (m_MirrorTimerFlags&UNDERWATER_INLAVA)
+                if (m_MirrorTimerFlags & UNDERWATER_INLAVA)
                     EnvironmentalDamage(DAMAGE_LAVA, damage);
                 // need to skip Slime damage in Undercity,
                 // maybe someone can find better way to handle environmental damage
@@ -5143,8 +5143,9 @@ bool Player::FallGround(uint8 FallMode)
     // Below formula for falling damage is from Player::HandleFall
     if (FallMode == 2 && z_diff >= 14.57f)
     {
-        uint32 damage = std::min(GetMaxHealth(), (uint32)((0.018f*z_diff-0.2426f)*GetMaxHealth()*sWorld->getRate(RATE_DAMAGE_FALL)));
-        if (damage > 0) EnvironmentalDamage(DAMAGE_FALL, damage);
+        uint32 damage = std::min(GetMaxHealth(), (uint32)((0.018f * z_diff - 0.2426f) * GetMaxHealth() * sWorld->getRate(RATE_DAMAGE_FALL)));
+        if (damage)
+            EnvironmentalDamage(DAMAGE_FALL, damage);
     }
     else if (FallMode == 0)
         Unit::setDeathState(DEAD_FALLING);
