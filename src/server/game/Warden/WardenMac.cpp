@@ -67,8 +67,8 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
 
     Module = GetModuleForClient(Client);
 
-    PrintHexArray("  Module Key: ", Module->Key, 16, true);
-    PrintHexArray("  Module ID: ", Module->ID, 16, true);
+   // PrintHexArray("  Module Key: ", Module->Key, 16, true);
+   // PrintHexArray("  Module ID: ", Module->ID, 16, true);
     RequestModule();
 }
 
