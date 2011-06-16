@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -73,6 +74,7 @@
 #include "LFGMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "InstanceScript.h"
+#include "Jail.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -679,6 +681,18 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_social = NULL;
 
+    // Jail von WarHead
+    m_JailRelease = 0;  // Entlassungszeit
+    m_JailAnzahl = 0;   // Anzahl der Knastbesuche
+    m_JailGMAcc = 0;    // GM-Account der ihn eingebuchtet hat
+    m_JailDauer = 0;    // Dauer des Knastaufenthaltes
+
+    m_JailGrund = "";   // Der Grund
+    m_JailGMChar = "";  // GM-Charakter der ihn eingebuchtet hat
+    m_JailZeit = "";    // Zeit der letzten Inhaftierung
+
+    m_Jailed = false;   // Zur Zeit gerade im Knast?
+
     // group is initialized in the reference constructor
     SetGroupInvite(NULL);
     m_groupUpdateMask = 0;
@@ -1181,6 +1195,45 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
     return true;
 }
 
+// Jail Daten laden
+void Player::JailDatenLaden()
+{
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM jail WHERE guid = '%u' LIMIT 1", GetGUIDLow());
+    if (!result)
+        return;
+
+    Field * fields = result->Fetch();
+
+    m_Jailed = true;
+    // fields[0].GetUInt32(); = GUIDLow
+    // fields[1].GetString(); = Charname
+    m_JailRelease = fields[2].GetUInt32();
+    m_JailGrund = fields[3].GetString();
+    m_JailAnzahl = fields[4].GetUInt32();
+    m_JailGMAcc = fields[5].GetUInt32();
+    m_JailGMChar = fields[6].GetString();
+    m_JailZeit = fields[7].GetString();
+    m_JailDauer = fields[8].GetUInt32();
+
+    sJail->Kontrolle(this);
+}
+
+// Jail Daten speichern
+void Player::JailDatenSpeichern()
+{
+    QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM jail WHERE guid = '%u' LIMIT 1", GetGUIDLow());
+    if (!result)
+    {
+        CharacterDatabase.PExecute("INSERT INTO jail VALUES ('%u','%s','%u','%s','%u','%u','%s',CURRENT_TIMESTAMP,'%u')",
+            GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailDauer);
+    }
+    else
+    {
+        CharacterDatabase.PExecute("UPDATE jail SET release = '%u', reason = '%s', times = '%u', gmacc = '%u', gmchar = '%s', duration = '%u' WHERE guid = '%u' LIMIT 1",
+            m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailDauer, GetGUIDLow());
+    }
+}
+
 bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
 {
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
@@ -1490,6 +1543,10 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+    // Jail Kontrolle
+    if (m_Jailed)
+        sJail->Kontrolle(this);
+
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -1707,7 +1764,15 @@ void Player::Update(uint32 p_time)
     }
 
     if (m_deathState == JUST_DIED)
-        KillPlayer();
+    {   // Knastbrüder nicht sterben lassen (z.B. durch andere User / NPCs etc.)
+        if (!m_Jailed)
+            KillPlayer();
+        else
+        {
+            m_deathState = ALIVE;
+            RegenerateAll();
+        }
+    }
 
     if (m_nextSave > 0)
     {
@@ -2389,6 +2454,9 @@ void Player::AddToWorld()
     for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         if (m_items[i])
             m_items[i]->AddToWorld();
+
+    // Jail Daten laden
+    JailDatenLaden();
 }
 
 void Player::RemoveFromWorld()
@@ -2401,6 +2469,7 @@ void Player::RemoveFromWorld()
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        JailDatenSpeichern(); // Jail Daten speichern
     }
 
     ///- Do not add/remove the player from the object storage
@@ -4901,6 +4970,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
             trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
             trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
+            trans->PAppend("DELETE FROM jail WHERE guid = '%u'", guid); // Jail von WarHead
             trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                         "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                         "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements

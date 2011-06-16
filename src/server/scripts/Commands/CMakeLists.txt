@@ -1,3 +1,4 @@
+# Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 # Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
@@ -23,6 +24,7 @@ set(scripts_STAT_SRCS
   Commands/cs_event.cpp
   Commands/cs_gobject.cpp
   Commands/cs_honor.cpp
+  Commands/cs_jail.cpp
   Commands/cs_wp.cpp
   Commands/cs_titles.cpp
   Commands/cs_tw.cpp 

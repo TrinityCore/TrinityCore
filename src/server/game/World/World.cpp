@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -74,6 +75,7 @@
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Channel.h"
+#include "Jail.h"
 #include "AuctionHouseBot.h"
 
 volatile bool World::m_stopEvent = false;
@@ -1743,6 +1745,16 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Calculate random battleground reset time..." );
     InitRandomBGResetTime();
+
+    // Jail von WarHead
+    sLog->outString();
+    sLog->outString("Lade Jailkonfiguration..." );
+    if (!sJail->LadeKonfiguration())
+    {
+        sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));
+        sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR2));
+    }
+    sLog->outString();
 
     sLog->outString("Initialisiere den AuktionshausBot...");
     auctionbot.Initialize();

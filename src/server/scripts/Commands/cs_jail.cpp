@@ -1,0 +1,42 @@
+// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+
+#include "Jail.h"
+#include "ScriptMgr.h"
+#include "Chat.h"
+
+class jail_commandscript : public CommandScript
+{
+public:
+    jail_commandscript() : CommandScript("jail_commandscript") { }
+
+    ChatCommand * GetCommands() const
+    {
+        static ChatCommand JailCommandTable[] =
+        {
+            { "info",       SEC_PLAYER,     true,   &HandleJailInfoCmd,     "", NULL },
+            { "pinfo",      SEC_ANWAERTER,  true,   &HandleJailPInfoCmd,    "", NULL },
+            { "arrest",     SEC_GAMEMASTER, true,   &HandleJailArrestCmd,   "", NULL },
+            { "release",    SEC_GAMEMASTER, true,   &HandleJailReleaseCmd,  "", NULL },
+            { "reset",      SEC_GAMEMASTER, true,   &HandleJailResetCmd,    "", NULL },
+            { "reload",     SEC_GGM,        true,   &HandleJailReloadCmd,   "", NULL },
+            { NULL,         0,              false,  NULL,                   "", NULL }
+        };
+        static ChatCommand commandTable[] =
+        {
+            { "jail",   SEC_PLAYER, true,   NULL,   "", JailCommandTable },
+            { NULL,     0,          false,  NULL,   "", NULL }
+        };
+        return commandTable;
+    }
+    static bool HandleJailInfoCmd(ChatHandler * handler, const char * /*args*/)     { return sJail->InfoKommando(handler);          }
+    static bool HandleJailPInfoCmd(ChatHandler * handler, const char * args)        { return sJail->PInfoKommando(handler, args);   }
+    static bool HandleJailArrestCmd(ChatHandler * handler, const char * args)       { return sJail->ArrestKommando(handler, args);  }
+    static bool HandleJailReleaseCmd(ChatHandler * handler, const char * args)      { return sJail->ReleaseKommando(handler, args); }
+    static bool HandleJailResetCmd(ChatHandler * handler, const char * args)        { return sJail->ResetKommando(handler, args);   }
+    static bool HandleJailReloadCmd(ChatHandler * handler, const char * /*args*/)   { return sJail->ReloadKommando();               }
+};
+
+void AddSC_jail_commandscript()
+{
+    new jail_commandscript();
+}

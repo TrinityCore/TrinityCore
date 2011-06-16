@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -54,7 +55,17 @@ bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 
 bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
-    Player *chr = m_session->GetPlayer();
+    Player * chr = m_session->GetPlayer();
+    if (!chr)
+        return false;
+
+    // Jail von WarHead
+    if (chr->m_Jailed)
+    {
+        SendSysMessage(LANG_JAIL_DENIED);
+        SetSentErrorMessage(true);
+        return false;
+    }
 
     if (chr->isInFlight())
     {
