@@ -337,8 +337,8 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB);
 bool CanSpellDispelAura(SpellEntry const* dispelSpell, SpellEntry const* aura);
 bool CanSpellPierceImmuneAura(SpellEntry const* pierceSpell, SpellEntry const* aura);
 
-bool IsSingleTargetSpell(SpellEntry const *spellInfo);
-bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellInfo2);
+bool IsSingleTargetSpell(SpellEntry const* spellInfo);
+bool IsSingleTargetSpells(SpellEntry const* spellInfo1, SpellEntry const* spellInfo2);
 
 extern bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 extern SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
@@ -482,7 +482,7 @@ inline bool IsRangedWeaponSpell(SpellEntry const* spellInfo)
         || (spellInfo->EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED);
 }
 
-SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 form);
+SpellCastResult GetErrorAtShapeshiftedCast(SpellEntry const* spellInfo, uint32 form);
 
 inline bool IsChanneledSpell(SpellEntry const* spellInfo)
 {
