@@ -77,6 +77,7 @@ public:
         uint64 FreyaChestGUID;
         uint64 HodirDoorGUID;
         uint64 HodirIceDoorGUID;
+        uint64 ArchivumDoorGUID;
 
         uint32 TeamInInstance;
         uint32 HodirRareCacheData;
@@ -114,6 +115,7 @@ public:
             VezaxDoorGUID                        = 0;
             HodirDoorGUID                        = 0;
             HodirIceDoorGUID                     = 0;
+            ArchivumDoorGUID                     = 0;
             TeamInInstance                       = 0;
             HodirRareCacheData                   = 0;
 
@@ -353,6 +355,11 @@ public:
                 case GO_HODIR_ICE_DOOR:
                     HodirIceDoorGUID = gameObject->GetGUID();
                     break;
+                case GO_ARCHIVUM_DOOR:
+                    ArchivumDoorGUID = gameObject->GetGUID();
+                    if (GetBossState(BOSS_ASSEMBLY_OF_IRON) != DONE)
+                        HandleGameObject(ArchivumDoorGUID, false);
+                    break;
             }
         }
 
@@ -406,9 +413,13 @@ public:
                 case BOSS_IGNIS:
                 case BOSS_RAZORSCALE:
                 case BOSS_XT002:
-                case BOSS_ASSEMBLY_OF_IRON:
                 case BOSS_AURIAYA:
                 case BOSS_MIMIRON:
+                    break;
+                case BOSS_ASSEMBLY_OF_IRON:
+                    if (state == DONE)
+                        HandleGameObject(ArchivumDoorGUID, true);
+                    break;
                 case BOSS_VEZAX:
                     if (state == DONE)
                         HandleGameObject(VezaxDoorGUID, true);
