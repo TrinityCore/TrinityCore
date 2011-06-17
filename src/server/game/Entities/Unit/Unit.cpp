@@ -5853,6 +5853,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 26654;
                     break;
                 }
+                // Victorious
+                case 32216:
+                {
+                    RemoveAura(dummySpell->Id);
+                    return false;
+                }
                 // Improved Spell Reflection
                 case 59088:
                 case 59089:
