@@ -1614,6 +1614,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_eonars_gift' WHERE `entry`=3322
 UPDATE `creature_template` SET `ScriptName`='npc_healthy_spore' WHERE `entry`=33215;
 UPDATE `creature_template` SET `ScriptName`='npc_unstable_sun_beam' WHERE `entry`=33050;
 UPDATE `creature_template` SET `ScriptName`='npc_iron_roots' WHERE `entry` IN (33088,33168);
+UPDATE `creature_template` SET `ScriptName`='npc_feral_defender' WHERE `entry`=34035;
+UPDATE `creature_template` SET `ScriptName`='npc_sanctum_sentry' WHERE `entry`=34014;
+UPDATE `creature_template` SET `ScriptName`='npc_auriaya_seeping_trigger' WHERE `entry` =34098;
 
 
 /* UN'GORO CRATER */
@@ -2218,6 +2221,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62775, 'spell_xt002_tympanic_tantrum'),
 ( 37751, 'spell_xt002_submerged'),
 ( 37752, 'spell_xt002_stand'),
+( 64381, 'spell_auriaya_strenght_of_the_pack'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
