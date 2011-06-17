@@ -165,7 +165,9 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
 
     if (!target)
     {
-        uint32 guid = GUID_LOPART(sObjectMgr->GetPlayerGUIDByName(target_name.c_str()));
+        uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name.c_str());
+        uint32 guid = GUID_LOPART(GUID);
+        
         if (!guid)
         {
             handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
