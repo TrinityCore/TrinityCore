@@ -55,7 +55,6 @@ enum Spells
     H_SPELL_PHANTOM_BLAST                         = 70322,
     SPELL_MIRRORED_SOUL                           = 69051,
     SPELL_WELL_OF_SOULS                           = 68820,
-    SPELL_WELL_OF_SOULS_VIS                       = 68854,
     SPELL_UNLEASHED_SOULS                         = 68939,
     SPELL_WAILING_SOULS_STARTING                  = 68912,  // Initial spell cast at begining of wailing souls phase
     SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
@@ -142,6 +141,7 @@ class boss_devourer_of_souls : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 events.Reset();
+                summons.DespawnAll();
 
                 threeFaceAchievement = true;
                 mirroredSoulTarget = 0;
@@ -206,6 +206,8 @@ class boss_devourer_of_souls : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                summons.DespawnAll();
+
                 Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
 
                 DoScriptText(RAND(SAY_FACE_SORROW_DEATH, SAY_FACE_DESIRE_DEATH), me);
