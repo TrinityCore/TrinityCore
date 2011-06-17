@@ -1264,7 +1264,6 @@ class npc_ancient_conservator : public CreatureScript
                 natureFuryTimer = 7500;
                 healthySporeTimer = 3500;
                 SummonHealthySpores(2);
-                grip = false;
             }
 
             void SummonHealthySpores(uint8 sporesCount)
@@ -1278,16 +1277,15 @@ class npc_ancient_conservator : public CreatureScript
                 }
             }
 
+            void EnterCombat(Unit* who)
+            {
+                DoCast(who, SPELL_CONSERVATOR_GRIP, true);
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
-
-                if (!grip)
-                {
-                    me->CastSpell(me->getVictim(), SPELL_CONSERVATOR_GRIP, true);
-                    grip = true;
-                }
 
                 if (healthySporeTimer <= diff)
                 {
@@ -1313,7 +1311,6 @@ class npc_ancient_conservator : public CreatureScript
         private:
             uint32 natureFuryTimer;
             uint32 healthySporeTimer;
-            bool grip;
         };
 
         CreatureAI* GetAI(Creature* creature) const
