@@ -469,10 +469,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     damage += int32(m_caster->ApplyEffectModifiers(m_spellInfo, effIndex, float(m_caster->GetShieldBlockValue())));
                 // Victory Rush
                 else if (m_spellInfo->SpellFamilyFlags[1] & 0x100)
-                {
                     ApplyPctF(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                    m_caster->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, false);
-                }
                 // Shockwave
                 else if (m_spellInfo->Id == 46968)
                 {
