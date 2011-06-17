@@ -873,16 +873,6 @@ void Battleground::BlockMovement(Player* plr)
 void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool SendPacket)
 {
     uint32 team = GetPlayerTeam(guid);
-    bool participant = false;
-    // Remove from lists/maps
-    BattlegroundPlayerMap::iterator itr = m_Players.find(guid);
-    if (itr != m_Players.end())
-    {
-        UpdatePlayersCountByTeam(team, true);               // -1 player
-        m_Players.erase(itr);
-        // check if the player was a participant of the match, or only entered through gm command (goname)
-        participant = true;
-    }
 
     BattlegroundScoreMap::iterator itr2 = m_PlayerScores.find(guid);
     if (itr2 != m_PlayerScores.end())
@@ -906,6 +896,17 @@ void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool 
     }
 
     RemovePlayer(plr, guid);                                // BG subclass specific code
+
+    bool participant = false;
+    // Remove from lists/maps
+    BattlegroundPlayerMap::iterator itr = m_Players.find(guid);
+    if (itr != m_Players.end())
+    {
+        UpdatePlayersCountByTeam(team, true);               // -1 player
+        m_Players.erase(itr);
+        // check if the player was a participant of the match, or only entered through gm command (goname)
+        participant = true;
+    }
 
     if (participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
