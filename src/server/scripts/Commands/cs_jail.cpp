@@ -17,8 +17,10 @@ public:
             { "pinfo",      SEC_ANWAERTER,  true,   &HandleJailPInfoCmd,    "", NULL },
             { "arrest",     SEC_GAMEMASTER, true,   &HandleJailArrestCmd,   "", NULL },
             { "release",    SEC_GAMEMASTER, true,   &HandleJailReleaseCmd,  "", NULL },
-            { "reset",      SEC_GAMEMASTER, true,   &HandleJailResetCmd,    "", NULL },
+            { "reset",      SEC_HGM,        true,   &HandleJailResetCmd,    "", NULL },
             { "reload",     SEC_GGM,        true,   &HandleJailReloadCmd,   "", NULL },
+            { "enable",     SEC_GGM,        true,   &HandleJailEnableCmd,   "", NULL },
+            { "disable",    SEC_GGM,        true,   &HandleJailDisableCmd,  "", NULL },
             { NULL,         0,              false,  NULL,                   "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -28,12 +30,14 @@ public:
         };
         return commandTable;
     }
-    static bool HandleJailInfoCmd(ChatHandler * handler, const char * /*args*/)     { return sJail->InfoKommando(handler);          }
-    static bool HandleJailPInfoCmd(ChatHandler * handler, const char * args)        { return sJail->PInfoKommando(handler, args);   }
-    static bool HandleJailArrestCmd(ChatHandler * handler, const char * args)       { return sJail->ArrestKommando(handler, args);  }
-    static bool HandleJailReleaseCmd(ChatHandler * handler, const char * args)      { return sJail->ReleaseKommando(handler, args); }
-    static bool HandleJailResetCmd(ChatHandler * handler, const char * args)        { return sJail->ResetKommando(handler, args);   }
-    static bool HandleJailReloadCmd(ChatHandler * handler, const char * /*args*/)   { return sJail->ReloadKommando();               }
+    static bool HandleJailInfoCmd(ChatHandler       * handler, const char * /*args*/)   { return sJail->InfoKommando(handler);          }
+    static bool HandleJailPInfoCmd(ChatHandler      * handler, const char * args)       { return sJail->PInfoKommando(handler, args);   }
+    static bool HandleJailArrestCmd(ChatHandler     * handler, const char * args)       { return sJail->ArrestKommando(handler, args);  }
+    static bool HandleJailReleaseCmd(ChatHandler    * handler, const char * args)       { return sJail->ReleaseKommando(handler, args); }
+    static bool HandleJailResetCmd(ChatHandler      * handler, const char * args)       { return sJail->ResetKommando(handler, args);   }
+    static bool HandleJailReloadCmd(ChatHandler     * handler, const char * /*args*/)   { return sJail->ReloadKommando(handler);        }
+    static bool HandleJailEnableCmd(ChatHandler     * handler, const char * /*args*/)   { return sJail->EnableKommando(handler);        }
+    static bool HandleJailDisableCmd(ChatHandler    * handler, const char * /*args*/)   { return sJail->DisableKommando(handler);       }
 };
 
 void AddSC_jail_commandscript()

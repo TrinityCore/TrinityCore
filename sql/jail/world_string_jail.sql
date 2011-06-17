@@ -1,6 +1,6 @@
 ﻿SET NAMES utf8;
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12100 AND 12130;
+DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12100 AND 12199;
 INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc3`) VALUES
 (12100, 'You are jailed by %s for %u hour(s)!', 'Du wurdest von %s für %u Stunde(n) eingebuchtet!'),
 (12101, '%s wrote this as reason: %s', '%s gab dies als Grund an: %s'),
@@ -16,7 +16,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc3`) VALUES
 (12111, 'You have %u hour(s) left in the jail.', 'Du musst noch %u Stunde(n) absitzen.'),
 (12112, 'You have %u minute(s) left in the jail.', 'Du musst noch %u Minute(n) absitzen.'),
 (12113, 'You are a free like a bird! ;-)', 'Du bist frei, wie ein Vogel! ;-)'),
-(12114, '%s was %u times jailed and has %u minute(s) left.\nLast time jailed by %s.\nLast reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Minute(n) abzusitzen.\nZuletzt eingebuchtet von: %s\nLetzter Grund war: %s'),
+(12114, '%s was %u times jailed and has %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Minute(n) abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'),
 (12115, '%s was never jailed.', '%s hat eine weisse Weste.'),
 (12116, 'You can not jail yourself!', 'Du kannst dich nicht selber einbuchten!'),
 (12117, 'You can not unjail yourself!', 'So weit kommt es noch, dass Knastbrüder sich selber befreien! :-('),
@@ -32,4 +32,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc3`) VALUES
 (12127, 'Be carefull!\nOnly one more jailtime and your account will be banned!', '!!! ACHTUNG - WICHTIG - WARNUNG !!!\nBeim nächsten Knastbesuch wird dein Account gebannt!'),
 (12128, 'Max. jailtimes reached!', 'Maximale Anzahl an Jails erreicht!'),
 (12129, 'Robotron', 'Robotron'),
-(12130, '%s was %u times jailed and has %u hour(s) and %u minute(s) left.\nLast time jailed by %s.\nLast reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Stunde(n) und %u Minuten abzusitzen.\nZuletzt eingebuchtet von: %s\nLetzter Grund war: %s');
+(12130, '%s was %u times jailed and has %u hour(s) and %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Stunde(n) und %u Minuten abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'),
+(12197, 'The Jail is now active.', 'Das Jail ist nun aktiv.'),
+(12198, 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'),
+(12199, 'The Jail is not active!', 'Das Jail ist nicht aktiv!');

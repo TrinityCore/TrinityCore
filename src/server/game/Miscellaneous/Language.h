@@ -1114,7 +1114,7 @@ enum TrinityStrings
     LANG_TAUSENDWINTER_FESTUNGSTOR_BESCHAEDIGT  = 12045,
     LANG_TAUSENDWINTER_FESTUNGSTOR_ZERSTOERT    = 12046,
 
-    // Tausendwinter Reliktkammert�r
+    // Tausendwinter Reliktkammertür
     LANG_TAUSENDWINTER_FESTUNGSTUER_BESCHAEDIGT = 12047,
     LANG_TAUSENDWINTER_FESTUNGSTUER_ZERSTOERT   = 12048,
 
@@ -1122,41 +1122,44 @@ enum TrinityStrings
     LANG_TAUSENDWINTER_KAMPF_HAT_BEGONNEN       = 12049,
     LANG_TAUSENDWINTER_KAMPF_COUNTDOWN          = 12050,
 
-    // Tausendwinter Standardausgabe f�r fehlende Eventtexte
+    // Tausendwinter Standardausgabe für fehlende Eventtexte
     LANG_TAUSENDWINTER_STANDARD_EVENT_AUSGABE   = 12099,
 
     // Jail 12100-12199 reserviert
-    LANG_JAIL_YOURE_JAILED      = 12100,    // "You are jailed by %s for %u hour(s)!"
-    LANG_JAIL_REASON            = 12101,    // "%s wrote this as reason: %s"
-    LANG_JAIL_WAS_JAILED        = 12102,    // "%s was jailed by you for %u hour(s)!"
-    LANG_JAIL_YOURE_UNJAILED    = 12103,    // "You was released out of the jail by %s."
-    LANG_JAIL_WAS_UNJAILED      = 12104,    // "You have released %s out of the jail."
-    LANG_JAIL_NOREASON          = 12105,    // "No reason given or reason is < %u chars!"
-    LANG_JAIL_NONAME            = 12106,    // "No name given!"
-    LANG_JAIL_NOTIME            = 12107,    // "No time given!"
-    LANG_JAIL_VALUE             = 12108,    // "The jailtime must be between 1 and %u hours!"
-    LANG_JAIL_CHAR_NOTJAILED    = 12109,    // "The character (%s) is not jailed!"
-    LANG_JAIL_DENIED            = 12110,    // "Command forbidden for jailed characters!"
-    LANG_JAIL_JAILED_H_INFO     = 12111,    // "You have %u hour(s) left in the jail."
-    LANG_JAIL_JAILED_M_INFO     = 12112,    // "You have %u minute(s) left in the jail."
-    LANG_JAIL_NOTJAILED_INFO    = 12113,    // "You're a free woman / man. ;-)"
-    LANG_JAIL_GM_INFO           = 12114,    // "%s was %u times jailed and has %u minute(s) left. Last time jailed by %s. Last reason was: '%s'"
-    LANG_JAIL_GM_NOINFO         = 12115,    // "%s was never jailed."
-    LANG_JAIL_NO_JAIL           = 12116,    // "You can't jail yourself!"
-    LANG_JAIL_NO_UNJAIL         = 12117,    // "You can't unjail yourself!"
-    LANG_JAIL_WARNING           = 12118,    // "Be carefull! Only one more jailtime and your current character will be deleted!"
-    LANG_JAIL_ANNOUNCE          = 12119,    // "The character '%s' was jailed for %u hour(s) by the GM character '%s'.\nThe reason is: %s"
-    LANG_JAIL_RELOAD            = 12120,    // "The jail configuration was reloaded."
-    LANG_JAIL_CONF_LOADED       = 12121,    // "Jail config loaded."
-    LANG_JAIL_CONF_ERR1         = 12122,    // "Can't load jail config! Table empty or missed! Use jail_conf.sql!"
-    LANG_JAIL_CONF_ERR2         = 12123,    // "Set all jail config settings to default..."
-    LANG_JAIL_CHAR_TELE         = 12124,    // "The Character '%s' (GUID %u) is jailed and teleportet into the jail."
-    LANG_JAIL_CHAR_FREE         = 12125,    // "The Character '%s' (GUID %u) was released out of the jail."
-    LANG_JAIL_WRONG_NAME        = 12126,    // "A character with this name doesn't exists!"
-    LANG_JAIL_WARNING_BAN       = 12127,    // "Be carefull! Only one more jailtime and your account will be banned!"
-    LANG_JAIL_BAN_REASON        = 12128,    // "Max. jailtimes reached!"
-    LANG_JAIL_BAN_BY            = 12129,    // "Robotron"
-    LANG_JAIL_GM_INFO_H         = 12130     // "%s was %u times jailed and has %u hour(s) and %u minute(s) left. Last time jailed by %s. Last reason was: '%s'"
+    LANG_JAIL_YOURE_JAILED      = 12100,    // 'You are jailed by %s for %u hour(s)!', 'Du wurdest von %s für %u Stunde(n) eingebuchtet!'
+    LANG_JAIL_REASON            = 12101,    // '%s wrote this as reason: %s', '%s gab dies als Grund an: %s'
+    LANG_JAIL_WAS_JAILED        = 12102,    // '%s was jailed by you for %u hour(s).', '%s wurde von dir für %u Stunde(n) eingebuchtet.'
+    LANG_JAIL_YOURE_UNJAILED    = 12103,    // 'You was released out of the jail by %s.', '%s hat dich aus dem Knast entlassen.'
+    LANG_JAIL_WAS_UNJAILED      = 12104,    // 'You have released %s out of the jail.', 'Du hast %s aus dem Knast geholt.'
+    LANG_JAIL_NOREASON          = 12105,    // 'No reason given or reason is < %u chars!', 'Du hast keinen Grund angegeben, oder der Grund ist < %u Zeichen!'
+    LANG_JAIL_NONAME            = 12106,    // 'No name given!', 'Du hast keinen Namen angegeben!'
+    LANG_JAIL_NOTIME            = 12107,    // 'No time given!', 'Du hast keine Zeit angegeben!'
+    LANG_JAIL_VALUE             = 12108,    // 'The jailtime must be between 1 and %u hours!', 'Die Jailzeit muss zwischen 1 und %u Std. liegen!'
+    LANG_JAIL_CHAR_NOTJAILED    = 12109,    // 'The character %s is not jailed!', 'Der Charakter %s ist überhaupt nicht im Knast!'
+    LANG_JAIL_DENIED            = 12110,    // 'Command forbidden for jailed characters!', 'Sorry, aber das dürfen Gefangene nicht!'
+    LANG_JAIL_JAILED_H_INFO     = 12111,    // 'You have %u hour(s) left in the jail.', 'Du musst noch %u Stunde(n) absitzen.'
+    LANG_JAIL_JAILED_M_INFO     = 12112,    // 'You have %u minute(s) left in the jail.', 'Du musst noch %u Minute(n) absitzen.'
+    LANG_JAIL_NOTJAILED_INFO    = 12113,    // 'You are a free like a bird! ;-)', 'Du bist frei, wie ein Vogel! ;-)'
+    LANG_JAIL_GM_INFO           = 12114,    // '%s was %u times jailed and has %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Minute(n) abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'
+    LANG_JAIL_GM_NOINFO         = 12115,    // '%s was never jailed.', '%s hat eine weisse Weste.'
+    LANG_JAIL_NO_JAIL           = 12116,    // 'You can not jail yourself!', 'Du kannst dich nicht selber einbuchten!'
+    LANG_JAIL_NO_UNJAIL         = 12117,    // 'You can not unjail yourself!', 'So weit kommt es noch, dass Knastbrüder sich selber befreien! :-('
+    LANG_JAIL_WARNING           = 12118,    // 'Be carefull!\nOnly one more jailtime and your current character will be deleted!', '!!! ACHTUNG - WICHTIG - WARNUNG !!!\nBeim nächsten Knastbesuch wird dieser Charakter gelöscht!'
+    LANG_JAIL_ANNOUNCE          = 12119,    // 'The character %s was jailed for %u hour(s) by the GM character %s!\nThe reason is: %s', 'Der Charakter %s wurde für %u Stunde(n) vom GM-Charakter %s eingebuchtet!\nDer Grund ist: %s'
+    LANG_JAIL_RELOAD            = 12120,    // 'The jail configuration was reloaded.', 'Die Jail-Konfiguration wurde neu geladen.'
+    LANG_JAIL_CONF_LOADED       = 12121,    // 'Jail config loaded.', 'Jail-Konfiguration geladen.'
+    LANG_JAIL_CONF_ERR1         = 12122,    // 'Can not load the jail config! Table empty or missed! Use character_jail.sql!', 'Fehler beim laden der Jail-Konfiguration!\nDie Tabelle jail_conf ist leer, oder nicht vorhanden!\nNutze die character_jail.sql!'
+    LANG_JAIL_CONF_ERR2         = 12123,    // 'Set all jail config settings to default...', 'Setze die Konfiguration des Jails auf Standardwerte...'
+    LANG_JAIL_CHAR_TELE         = 12124,    // 'The Character %s (GUID %u) is a jail brother and teleported into the jail.', 'Der Charakter %s (GUID %u) ist ein Knastbruder, und wird in den Knast teleportiert.'
+    LANG_JAIL_CHAR_FREE         = 12125,    // 'The Character %s (GUID %u) was released out of the jail.', 'Der Charakter %s (GUID %u) wurde aus dem Knast entlassen.'
+    LANG_JAIL_WRONG_NAME        = 12126,    // 'A character with this name does not exists!', 'Ein Charakter mit diesem Namen gibt es nicht!'
+    LANG_JAIL_WARNING_BAN       = 12127,    // 'Be carefull!\nOnly one more jailtime and your account will be banned!', '!!! ACHTUNG - WICHTIG - WARNUNG !!!\nBeim nächsten Knastbesuch wird dein Account gebannt!'
+    LANG_JAIL_BAN_REASON        = 12128,    // 'Max. jailtimes reached!', 'Maximale Anzahl an Jails erreicht!'
+    LANG_JAIL_BAN_BY            = 12129,    // 'Robotron', 'Robotron'
+    LANG_JAIL_GM_INFO_H         = 12130,    // '%s was %u times jailed and has %u hour(s) and %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Stunde(n) und %u Minuten abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'
+    LANG_JAIL_ENABLED           = 12197,    // 'The Jail is now active.', 'Das Jail ist nun aktiv.'
+    LANG_JAIL_DISABLED          = 12198,    // 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'
+    LANG_JAIL_NOT_ACTIVE        = 12199     // 'The Jail is not active!', 'Das Jail ist nicht aktiv!'
 };
 
 #endif

@@ -6,5 +6,7 @@ INSERT INTO `command` (name, security, help) VALUES
 ('jail pinfo',      10, 'Syntax: .jail pinfo [Charakter]\nZeigt Jail-Infos vom selektiertem, oder angegeben Charakter an.'),
 ('jail arrest',     20, 'Syntax: .jail arrest Charakter Stunden Grund\nBuchtet den Charakter für Stunden aus dem Grund ein.'),
 ('jail release',    20, 'Syntax: .jail release Charakter\nEntlässt den Charakter aus dem Knast.'),
-('jail reset',      20, 'Syntax: .jail reset [Charakter]\nGibt dem selektiertem, oder angegebenen Charakter, wieder eine weisse Weste.\nAls wäre nie etwas geschehen. ;-)\nAmnasty International lässt grüssen! :D'),
-('jail reload',     40, 'Syntax: .jail reload\nLädt die Jail-Konfiguration neu aus der Datenbank.');
+('jail reset',      30, 'Syntax: .jail reset [Charakter]\nGibt dem selektiertem, oder angegebenen Charakter, wieder eine weisse Weste.\nAls wäre nie etwas geschehen. ;-)\nAmnasty International lässt grüssen! :D'),
+('jail reload',     40, 'Syntax: .jail reload\nLädt die Jail-Konfiguration neu aus der Datenbank.'),
+('jail enable',     40, 'Syntax: .jail enable\nSchaltet das Jail ein.'),
+('jail disable',    40, 'Syntax: .jail disable\nSchaltet das Jail aus.');

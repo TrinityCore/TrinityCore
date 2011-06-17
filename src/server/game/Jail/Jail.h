@@ -37,6 +37,9 @@ private:
     bool m_DelChar;     // Charakter löschen, wenn m_MaxJails erreicht wird?
     bool m_BanAcc;      // Account bannen, wenn m_MaxJails erreicht wird?
     bool m_WarnUser;    // Spieler warnen, wenn er nur einen Jail von der Charakterlöschung / Accountbannung entfernt ist?
+    bool m_Enabled;     // Ist das Jail aktiviert?
+
+    bool SendeInaktiv(ChatHandler * handler);
 
 public:
     bool LadeKonfiguration(bool reload = false);
@@ -47,7 +50,9 @@ public:
     bool ArrestKommando(ChatHandler * handler, const char * args);
     bool ReleaseKommando(ChatHandler * handler, const char * args);
     bool ResetKommando(ChatHandler * handler, const char * args);
-    bool ReloadKommando() { return LadeKonfiguration(true); };
+    bool ReloadKommando(ChatHandler * handler);
+    bool EnableKommando(ChatHandler * handler);
+    bool DisableKommando(ChatHandler * handler);
 
     Position HoleAllyKnastPos();
     Position HoleHordeKnastPos();
