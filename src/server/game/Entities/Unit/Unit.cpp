@@ -6809,21 +6809,27 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // At melee attack or Hammer of the Righteous spell damage considered as melee attack
-                    if ((procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK) || (procSpell && procSpell->Id == 53595))
-                        triggered_spell_id = 31803;
+                    bool stacker = !procSpell || procSpell->Id == 53595;
+                    bool damager = procSpell && procSpell->EquippedItemClass == ITEM_CLASS_WEAPON;
+
+                    if (!stacker && !damager)
+                        return false;
+
+                    triggered_spell_id = 31803;
+
                     // On target with 5 stacks of Holy Vengeance direct damage is done
                     if (Aura* aur = pVictim->GetAura(triggered_spell_id, GetGUID()))
                     {
                         if (aur->GetStackAmount() == 5)
                         {
-                            aur->RefreshDuration();
+                            if (stacker)
+                                aur->RefreshDuration();
                             CastSpell(pVictim, 42463, true);
                             return true;
                         }
                     }
 
-                    // Only Autoattack can stack debuff
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
+                    if (!stacker)
                         return false;
                     break;
                 }
@@ -6834,21 +6840,27 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // At melee attack or Hammer of the Righteous spell damage considered as melee attack
-                    if ((procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK) || (procSpell && procSpell->Id == 53595))
-                        triggered_spell_id = 53742;
+                    bool stacker = !procSpell || procSpell->Id == 53595;
+                    bool damager = procSpell && procSpell->EquippedItemClass == ITEM_CLASS_WEAPON;
+
+                    if (!stacker && !damager)
+                        return false;
+
+                    triggered_spell_id = 53742;
+
                     // On target with 5 stacks of Blood Corruption direct damage is done
                     if (Aura* aur = pVictim->GetAura(triggered_spell_id, GetGUID()))
                     {
                         if (aur->GetStackAmount() == 5)
                         {
-                            aur->RefreshDuration();
+                            if (stacker)
+                                aur->RefreshDuration();
                             CastSpell(pVictim, 53739, true);
                             return true;
                         }
                     }
 
-                    // Only Autoattack can stack debuff
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
+                    if (!stacker)
                         return false;
                     break;
                 }
