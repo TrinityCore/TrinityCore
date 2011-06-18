@@ -574,10 +574,7 @@ Position Jail::HoleHordeKnastPos()
 
 void Jail::Kontrolle(Player * pPlayer, bool update)
 {
-    if (!pPlayer)
-        return;
-
-    if (!m_Enabled)
+    if (!pPlayer || !m_Enabled)
         return;
 
     if (pPlayer->m_JailRelease == 0)
@@ -639,13 +636,11 @@ bool Jail::SendeInaktiv(ChatHandler * handler)
 
 void Jail::SendeWarnung(Player * pPlayer)
 {
-    if (!pPlayer)
+    if (!pPlayer || !m_Enabled)
         return;
 
-    if (!m_Enabled)
-        return;
-
-    if (m_WarnUser && (m_MaxJails - pPlayer->m_JailAnzahl) <= 1)
+    // Nur warnen, wenn m_MaxJails auch gesetzt ist! ;)
+    if (m_WarnUser && m_MaxJails && (m_MaxJails - pPlayer->m_JailAnzahl) <= 1)
     {
         if (m_DelChar)
             pPlayer->GetSession()->SendNotification(LANG_JAIL_WARNING);
