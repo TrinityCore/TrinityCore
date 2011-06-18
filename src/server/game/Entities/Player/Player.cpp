@@ -15449,31 +15449,42 @@ bool Player::GiveQuestSourceItem(Quest const *pQuest)
     return true;
 }
 
-bool Player::TakeQuestSourceItem(uint32 quest_id, bool msg)
+bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
 {
-    Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
-    if (qInfo)
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    if (quest)
     {
-        uint32 srcitem = qInfo->GetSrcItemId();
-        if (srcitem > 0)
+        uint32 srcItemId = quest->GetSrcItemId();
+        ItemTemplate const* item = sObjectMgr->GetItemTemplate(srcItemId);
+        bool destroyItem = true;
+
+        if (srcItemId > 0)
         {
-            uint32 count = qInfo->GetSrcItemCount();
+            uint32 count = quest->GetSrcItemCount();
             if (count <= 0)
                 count = 1;
 
-            // exist one case when destroy source quest item not possible:
-            // non un-equippable item (equipped non-empty bag, for example)
-            InventoryResult res = CanUnequipItems(srcitem, count);
+            // exist two cases when destroy source quest item not possible:
+            // a) non un-equippable item (equipped non-empty bag, for example)
+            // b) when quest is started from an item and item also is needed in
+            // the end as ReqItemId
+            InventoryResult res = CanUnequipItems(srcItemId, count);
             if (res != EQUIP_ERR_OK)
             {
                 if (msg)
-                    SendEquipError(res, NULL, NULL, srcitem);
+                    SendEquipError(res, NULL, NULL, srcItemId);
                 return false;
             }
 
-            DestroyItemCount(srcitem, count, true, true);
+            for (uint8 n = 0; n < QUEST_ITEM_OBJECTIVES_COUNT; ++n)
+                if (item->StartQuest == questId && srcItemId == quest->ReqItemId[n])
+                    destroyItem = false;
+
+            if (destroyItem)
+                DestroyItemCount(srcItemId, count, true, true);
         }
     }
+
     return true;
 }
 
