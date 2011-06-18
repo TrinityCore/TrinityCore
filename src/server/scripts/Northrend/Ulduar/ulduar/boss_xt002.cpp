@@ -198,7 +198,7 @@ class boss_xt002 : public CreatureScript
 
             uint32 transferHealth;
             bool enterHardMode;
-            
+
 
             void Reset()
             {
@@ -353,7 +353,7 @@ class boss_xt002 : public CreatureScript
                 DoCast(SPELL_SUBMERGE);  // WIll make creature untargetable
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
-                
+
                 Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
                 if (heart)
                 {
@@ -364,7 +364,7 @@ class boss_xt002 : public CreatureScript
 
                     //heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29);
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            
+
                 }
 
                 events.CancelEvent(EVENT_SEARING_LIGHT);
@@ -451,7 +451,7 @@ public:
             {
                 XT002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetMaxHealth());
                 XT002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
-                damage = 0;                
+                damage = 0;
             }
         }
     };
@@ -570,14 +570,14 @@ public:
                     DoCast(me->getVictim(), SPELL_TRAMPLE);
                     uiTrampleTimer = TIMER_TRAMPLE;
                 }
-                else 
+                else
                     uiTrampleTimer -= diff;
 
                 if (uiUppercutTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_UPPERCUT);
                     uiUppercutTimer = TIMER_UPPERCUT;
-                } 
+                }
                 else
                     uiUppercutTimer -= diff;
             }
@@ -607,7 +607,7 @@ class BoomEvent : public BasicEvent
             // then EFFECT_1, etc - instead of applying each effect on target1, then target2, etc.
             // The above situation causes the visual for this spell to be bugged, so we remove the instakill
             // effect and implement a script hack for that.
-            
+
             _me->CastSpell(_me, SPELL_BOOM, false);
             return true;
         }
@@ -708,7 +708,7 @@ public:
     struct mob_life_sparkAI : public ScriptedAI
     {
         mob_life_sparkAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {   
+        {
             m_pInstance = pCreature->GetInstanceScript();
         }
 

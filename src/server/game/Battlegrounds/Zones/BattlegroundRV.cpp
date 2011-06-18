@@ -131,7 +131,7 @@ void BattlegroundRV::AddPlayer(Player *plr)
     UpdateWorldState(BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
 }
 
-void BattlegroundRV::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
+void BattlegroundRV::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;

@@ -873,6 +873,16 @@ void Battleground::BlockMovement(Player* plr)
 void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool SendPacket)
 {
     uint32 team = GetPlayerTeam(guid);
+    bool participant = false;
+    // Remove from lists/maps
+    BattlegroundPlayerMap::iterator itr = m_Players.find(guid);
+    if (itr != m_Players.end())
+    {
+        UpdatePlayersCountByTeam(team, true);               // -1 player
+        m_Players.erase(itr);
+        // check if the player was a participant of the match, or only entered through gm command (goname)
+        participant = true;
+    }
 
     BattlegroundScoreMap::iterator itr2 = m_PlayerScores.find(guid);
     if (itr2 != m_PlayerScores.end())
@@ -895,18 +905,7 @@ void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool 
         plr->SpawnCorpseBones();
     }
 
-    RemovePlayer(plr, guid);                                // BG subclass specific code
-
-    bool participant = false;
-    // Remove from lists/maps
-    BattlegroundPlayerMap::iterator itr = m_Players.find(guid);
-    if (itr != m_Players.end())
-    {
-        UpdatePlayersCountByTeam(team, true);               // -1 player
-        m_Players.erase(itr);
-        // check if the player was a participant of the match, or only entered through gm command (goname)
-        participant = true;
-    }
+    RemovePlayer(plr, guid, team);                           // BG subclass specific code
 
     if (participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
@@ -1191,7 +1190,7 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // drop flag and handle other cleanups
-        RemovePlayer(player, player->GetGUID());
+        RemovePlayer(player, player->GetGUID(), GetPlayerTeam(player->GetGUID()));
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())

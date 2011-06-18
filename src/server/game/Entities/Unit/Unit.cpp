@@ -6825,21 +6825,27 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // At melee attack or Hammer of the Righteous spell damage considered as melee attack
-                    if ((procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK) || (procSpell && procSpell->Id == 53595))
-                        triggered_spell_id = 31803;
+                    bool stacker = !procSpell || procSpell->Id == 53595;
+                    bool damager = procSpell && procSpell->EquippedItemClass == ITEM_CLASS_WEAPON;
+
+                    if (!stacker && !damager)
+                        return false;
+
+                    triggered_spell_id = 31803;
+
                     // On target with 5 stacks of Holy Vengeance direct damage is done
                     if (Aura* aur = pVictim->GetAura(triggered_spell_id, GetGUID()))
                     {
                         if (aur->GetStackAmount() == 5)
                         {
-                            aur->RefreshDuration();
+                            if (stacker)
+                                aur->RefreshDuration();
                             CastSpell(pVictim, 42463, true);
                             return true;
                         }
                     }
 
-                    // Only Autoattack can stack debuff
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
+                    if (!stacker)
                         return false;
                     break;
                 }
@@ -6850,21 +6856,27 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // At melee attack or Hammer of the Righteous spell damage considered as melee attack
-                    if ((procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK) || (procSpell && procSpell->Id == 53595))
-                        triggered_spell_id = 53742;
+                    bool stacker = !procSpell || procSpell->Id == 53595;
+                    bool damager = procSpell && procSpell->EquippedItemClass == ITEM_CLASS_WEAPON;
+
+                    if (!stacker && !damager)
+                        return false;
+
+                    triggered_spell_id = 53742;
+
                     // On target with 5 stacks of Blood Corruption direct damage is done
                     if (Aura* aur = pVictim->GetAura(triggered_spell_id, GetGUID()))
                     {
                         if (aur->GetStackAmount() == 5)
                         {
-                            aur->RefreshDuration();
+                            if (stacker)
+                                aur->RefreshDuration();
                             CastSpell(pVictim, 53739, true);
                             return true;
                         }
                     }
 
-                    // Only Autoattack can stack debuff
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
+                    if (!stacker)
                         return false;
                     break;
                 }
@@ -6920,25 +6932,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
                 case 71406: // Tiny Abomination in a Jar
-                {
-                    if (!pVictim || !pVictim->isAlive())
-                        return false;
-
-                    CastSpell(this, 71432, true, NULL, triggeredByAura);
-
-                    Aura const* dummy = GetAura(71432);
-                    if (!dummy || dummy->GetStackAmount() < 8)
-                        return false;
-
-                    RemoveAurasDueToSpell(71432);
-                    triggered_spell_id = 71433;  // default main hand attack
-                    // roll if offhand
-                    if (Player const* player = ToPlayer())
-                        if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
-                            triggered_spell_id = 71434;
-                    target = pVictim;
-                    break;
-                }
                 case 71545: // Tiny Abomination in a Jar (Heroic)
                 {
                     if (!pVictim || !pVictim->isAlive())
@@ -6947,7 +6940,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     CastSpell(this, 71432, true, NULL, triggeredByAura);
 
                     Aura const* dummy = GetAura(71432);
-                    if (!dummy || dummy->GetStackAmount() < 7)
+                    if (!dummy || dummy->GetStackAmount() < (dummySpell->Id == 71406 ? 8 : 7))
                         return false;
 
                     RemoveAurasDueToSpell(71432);
