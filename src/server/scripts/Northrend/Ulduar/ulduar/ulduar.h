@@ -146,6 +146,7 @@ enum UlduarGameObjects
     GO_RAZOR_BROKEN_HARPOON                      = 194565,
     GO_HODIR_DOOR                                = 194634,
     GO_HODIR_ICE_DOOR                            = 194441,
+    GO_ARCHIVUM_DOOR                             = 194556,
 };
 
 enum UlduarTowerEvents

@@ -2423,6 +2423,8 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33515,-1603052,'There is no escape!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15475,1,0,0,'Auriaya SAY_SLAY_2'),
    (33515,-1603053,'Auriaya screams in agony.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,6,0,15476,'Auriaya SAY_DEATH'),
    (33515,-1603054,'You waste my time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15477,1,0,0,'Auriaya SAY_BERSERK'),
+   (33515,-1603055,'Auriaya begins to cast Terrifying Screech.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'Auriaya - EMOTE_FEAR'),
+   (33515,-1603056,'Auriaya begins to activate the Feral Defender!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'Auriaya - EMOTE_DEFENDER'),
 
 -- Flame Leviathan
    (33113,-1603060,'Hostile entities detected. Threat assessment protocol active. Primary target engaged. Time minus thirty seconds to re-evaluation.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15506,1,0,0,'Flame Leviathan SAY_AGGRO'),
