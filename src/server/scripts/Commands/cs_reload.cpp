@@ -98,7 +98,6 @@ public:
             { "gm_tickets",                   SEC_ADMINISTRATOR, true,  &HandleReloadGMTicketsCommand,                  "", NULL },
             { "gossip_menu",                  SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuCommand,                 "", NULL },
             { "gossip_menu_option",           SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
-            { "gossip_scripts",               SEC_ADMINISTRATOR, true,  &HandleReloadGossipScriptsCommand,              "", NULL },
             { "item_enchantment_template",    SEC_ADMINISTRATOR, true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",           SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
             { "item_set_names",               SEC_ADMINISTRATOR, true,  &HandleReloadItemSetNamesCommand,               "", NULL },
@@ -257,7 +256,6 @@ public:
 
         sLog->outString("Re-Loading Scripts...");
         HandleReloadGameObjectScriptsCommand(handler, "a");
-        HandleReloadGossipScriptsCommand(handler, "a");
         HandleReloadEventScriptsCommand(handler, "a");
         HandleReloadQuestEndScriptsCommand(handler, "a");
         HandleReloadQuestStartScriptsCommand(handler, "a");
@@ -299,7 +297,6 @@ public:
         HandleReloadGossipMenuCommand(handler, "a");
         HandleReloadGossipMenuOptionCommand(handler, "a");
         if(*args != 'a')                                          // already reload from all_scripts
-        HandleReloadGossipScriptsCommand(handler, "a");
         HandleReloadPointsOfInterestCommand(handler, "a");
         return true;
     }
@@ -916,26 +913,6 @@ public:
         sLog->outString("Re-Loading Item set names...");
         LoadRandomEnchantmentsTable();
         handler->SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadGossipScriptsCommand(ChatHandler* handler, const char* args)
-    {
-        if (sScriptMgr->IsScriptScheduled())
-        {
-            handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (*args != 'a')
-            sLog->outString("Re-Loading Scripts from `gossip_scripts`...");
-
-        sObjectMgr->LoadGossipScripts();
-
-        if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB table `gossip_scripts` reloaded.");
-
         return true;
     }
 
