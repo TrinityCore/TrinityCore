@@ -686,7 +686,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_JailAnzahl = 0;                       // Anzahl der Knastbesuche
     m_JailGMAcc = 0;                        // GM-Account der ihn eingebuchtet hat
     m_JailDauer = 0;                        // Dauer des Knastaufenthaltes
-    m_JailWarnTimer = 10*IN_MILLISECONDS;   // Timer damit die Warnungen vom Jail nicht w‰rend eines Ladebildschirms gesendet werden!
+    m_JailWarnTimer = 10*IN_MILLISECONDS;   // Timer damit die Warnungen vom Jail nicht w√§rend eines Ladebildschirms gesendet werden!
     m_Jailed = false;                       // Zur Zeit gerade im Knast?
 
     // group is initialized in the reference constructor
@@ -1539,7 +1539,7 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
-    // Timer damit die Warnungen vom Jail nicht w‰rend eines Ladebildschirms gesendet werden!
+    // Timer damit die Warnungen vom Jail nicht w√§rend eines Ladebildschirms gesendet werden!
     if (m_JailWarnTimer && m_JailWarnTimer <= p_time)
     {
         sJail->SendeWarnung(this);
@@ -1769,7 +1769,7 @@ void Player::Update(uint32 p_time)
     }
 
     if (m_deathState == JUST_DIED)
-    {   // Knastbr¸der nicht sterben lassen (z.B. durch andere User / NPCs etc.)
+    {   // Knastbr√ºder nicht sterben lassen (z.B. durch andere User / NPCs etc.)
         if (!m_Jailed)
             KillPlayer();
         else

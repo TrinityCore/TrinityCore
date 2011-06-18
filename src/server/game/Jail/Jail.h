@@ -14,29 +14,29 @@ class Jail
     ~Jail();
 
 private:
-    uint32 m_MaxJails;  // Beim erreichen dieses Wertes, wird der Charakter gelöscht / der Account gebannt.
-    uint32 m_MaxDauer;  // Die maximale Dauer für einen Knastausenthalt.
-    uint32 m_MinGrund;  // Minimale Zeichenlänge für den Jailgrund.
+    uint32 m_MaxJails;  // Beim erreichen dieses Wertes, wird der Charakter gelÃ¶scht / der Account gebannt.
+    uint32 m_MaxDauer;  // Die maximale Dauer fÃ¼r einen Knastausenthalt.
+    uint32 m_MinGrund;  // Minimale ZeichenlÃ¤nge fÃ¼r den Jailgrund.
     uint32 m_Radius;    // Radius in dem der Knastbruder sich bewegen darf.
 
-    uint32 m_MapAlly;   // Knastkarte für die Allies
-    uint32 m_MapHorde;  // Knastkarte für die Horde
+    uint32 m_MapAlly;   // Knastkarte fÃ¼r die Allies
+    uint32 m_MapHorde;  // Knastkarte fÃ¼r die Horde
 
     uint32 m_BanDauer;  // Nach dieser Zeit (Std.) wird ein durch das Jail gebannter Account wieder freigeschaltet.
 
-    float m_AllyPosX;   // Koordinaten für den Allyknast
+    float m_AllyPosX;   // Koordinaten fÃ¼r den Allyknast
     float m_AllyPosY;
     float m_AllyPosZ;
     float m_AllyPosO;
 
-    float m_HordePosX;  // Koordinaten für den Hordeknast
+    float m_HordePosX;  // Koordinaten fÃ¼r den Hordeknast
     float m_HordePosY;
     float m_HordePosZ;
     float m_HordePosO;
 
-    bool m_DelChar;     // Charakter löschen, wenn m_MaxJails erreicht wird?
+    bool m_DelChar;     // Charakter lÃ¶schen, wenn m_MaxJails erreicht wird?
     bool m_BanAcc;      // Account bannen, wenn m_MaxJails erreicht wird?
-    bool m_WarnUser;    // Spieler warnen, wenn er nur einen Jail von der Charakterlöschung / Accountbannung entfernt ist?
+    bool m_WarnUser;    // Spieler warnen, wenn er nur einen Jail von der CharakterlÃ¶schung / Accountbannung entfernt ist?
     bool m_Enabled;     // Ist das Jail aktiviert?
 
     bool SendeInaktiv(ChatHandler * handler);

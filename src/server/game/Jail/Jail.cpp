@@ -343,8 +343,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
                 LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,UNIX_TIMESTAMP,%u,'%s','%s')",
                     acc_id, banrelease, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
 
-                // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
-                // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
+                // Wenn der Account gebannt wurde, mÃ¼ssen die Daten im Jail zurÃ¼ck gesetzt werden!
+                // Um sehen zu kÃ¶nnen, warum sie zurÃ¼ck gesetzt wurden, tragen wir dafÃ¼r die Banndaten ein. ;)
                 CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
                     sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, GUID_LOPART(GUID));
             }
@@ -389,7 +389,7 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         if (m_DelChar)
         {
             chr->GetSession()->KickPlayer();
-            chr = NULL; // chr wird durch KickPlayer() ungültig!
+            chr = NULL; // chr wird durch KickPlayer() ungÃ¼ltig!
             Player::DeleteFromDB(fields[0].GetUInt64(), fields[1].GetUInt32());
         }
         if (m_BanAcc)
@@ -400,8 +400,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
             LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,UNIX_TIMESTAMP,%u,'%s','%s')",
                 acc_id, banrelease, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
 
-            // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
-            // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
+            // Wenn der Account gebannt wurde, mÃ¼ssen die Daten im Jail zurÃ¼ck gesetzt werden!
+            // Um sehen zu kÃ¶nnen, warum sie zurÃ¼ck gesetzt wurden, tragen wir dafÃ¼r die Banndaten ein. ;)
             CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
                 sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, GUID_LOPART(GUID));
         }
@@ -473,7 +473,7 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args)
         if (!fields[2].GetUInt32())
         {
             // Es gibt zwar einen Jaileintrag, aber die Entlassungszeit ist auf 0 ergo -> nicht noch einmal entlassen lassen!
-            // Zum Löschen der Jaileinträge ist das 'reset' Kommando da! ;)
+            // Zum LÃ¶schen der JaileintrÃ¤ge ist das 'reset' Kommando da! ;)
             handler->PSendSysMessage(LANG_JAIL_CHAR_NOTJAILED, target_name.c_str());
             handler->SetSentErrorMessage(true);
             return false;
@@ -487,7 +487,7 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args)
             else
                 CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`times`=%u WHERE `guid`=%u LIMIT 1", jail_times, GUID_LOPART(target_guid));
 
-            // Da der Charakter nicht online ist, setzen wir ihn von Hand zurück nach hause. ;)
+            // Da der Charakter nicht online ist, setzen wir ihn von Hand zurÃ¼ck nach hause. ;)
             QueryResult cresult = CharacterDatabase.PQuery("SELECT * FROM `character_homebind` WHERE `guid`=%u", GUID_LOPART(target_guid));
             if (cresult)
             {
@@ -520,7 +520,7 @@ bool Jail::ResetKommando(ChatHandler * handler, const char * args)
     if (!m_Enabled)
         return SendeInaktiv(handler);
 
-    // Erst aus dem Knast holen, bevor der Jaileintrag gelöscht wird
+    // Erst aus dem Knast holen, bevor der Jaileintrag gelÃ¶scht wird
     ReleaseKommando(handler, args);
 
     CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(target_guid));
