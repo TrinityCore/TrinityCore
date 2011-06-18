@@ -1978,10 +1978,10 @@ struct WorldStateSounds
 struct WorldStateUI
 {
     uint32    ID;                                           // 0
-    uint32    map_id;                                       // 1        Can be -1 to show up everywhere. 
-    uint32    zone;                                         // 2        Can be zero for "everywhere". 
+    uint32    map_id;                                       // 1        Can be -1 to show up everywhere.
+    uint32    zone;                                         // 2        Can be zero for "everywhere".
     uint32    phaseMask;                                    // 3        Phase this WorldState is avaliable in
-    uint32    icon;                                         // 4        The icon that is used in the interface. 
+    uint32    icon;                                         // 4        The icon that is used in the interface.
     char*     textureFilename;                              // 5
     char*     text;                                         // 6-21     The worldstate text
     char*     description;                                  // 22-38    Text shown when hovering mouse on icon

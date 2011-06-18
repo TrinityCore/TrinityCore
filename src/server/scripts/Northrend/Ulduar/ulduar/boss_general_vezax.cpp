@@ -293,7 +293,7 @@ class boss_general_vezax : public CreatureScript
                     std::advance(itr, urand(0, size - 1));
                     return *itr;
                 }
-                
+
                 return NULL;
             }
         };
