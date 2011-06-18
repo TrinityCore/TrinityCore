@@ -87,7 +87,7 @@ void BattlegroundBE::AddPlayer(Player *plr)
     UpdateArenaWorldState();
 }
 
-void BattlegroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
+void BattlegroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
