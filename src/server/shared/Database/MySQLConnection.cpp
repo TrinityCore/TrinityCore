@@ -422,7 +422,7 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
     // we might want to restart the transaction. So to prevent data loss, we only clean up when it's all done.
     // This is done in calling functions DatabaseWorkerPool<T>::DirectCommitTransaction and TransactionTask::Execute,
     // and not while iterating over every element.
- 
+
     CommitTransaction();
     return true;
 }
