@@ -112,7 +112,7 @@ class boss_rajaxx : public CreatureScript
                             break;
                     }
                 }
- 
+
                 DoMeleeAttackIfReady();
             }
             private:
