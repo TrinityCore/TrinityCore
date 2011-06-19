@@ -119,15 +119,15 @@ bool Jail::InfoKommando(ChatHandler * handler)
 
 bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
 {
+    if (!m_Enabled)
+        return SendeInaktiv(handler);
+
     Player * target = NULL;
     uint64 target_guid = 0;
     std::string target_name;
 
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
-
-    if (!m_Enabled)
-        return SendeInaktiv(handler);
 
     if (target && target->m_JailAnzahl > 0)
     {

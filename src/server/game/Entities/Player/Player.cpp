@@ -686,6 +686,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_JailAnzahl = 0;                       // Anzahl der Knastbesuche
     m_JailGMAcc = 0;                        // GM-Account der ihn eingebuchtet hat
     m_JailDauer = 0;                        // Dauer des Knastaufenthaltes
+    m_JailBans = 0;                         // Anzahl der Bannungen durch das Jail
     m_JailWarnTimer = 10*IN_MILLISECONDS;   // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
     m_Jailed = false;                       // Zur Zeit gerade im Knast?
 
@@ -1194,13 +1195,13 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
 // Jail Daten laden
 void Player::JailDatenLaden()
 {
-    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM jail WHERE guid = '%u' LIMIT 1", GetGUIDLow());
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`=%u LIMIT 1", GetGUIDLow());
     if (!result)
         return;
 
     Field * fields = result->Fetch();
 
-    m_Jailed = true;
+    m_Jailed = true; // Eintrag vorhanden, also erst einmal als Knastbruder markieren. Wird in der Kontrolle genauer untersucht.
     // fields[0].GetUInt32(); = GUIDLow
     // fields[1].GetString(); = Charname
     m_JailRelease = fields[2].GetUInt32();
@@ -1210,6 +1211,7 @@ void Player::JailDatenLaden()
     m_JailGMChar = fields[6].GetString();
     m_JailZeit = fields[7].GetString();
     m_JailDauer = fields[8].GetUInt32();
+    m_JailBans = fields[8].GetUInt32();
 
     sJail->Kontrolle(this);
 }
@@ -1217,16 +1219,16 @@ void Player::JailDatenLaden()
 // Jail Daten speichern
 void Player::JailDatenSpeichern()
 {
-    QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM jail WHERE guid = '%u' LIMIT 1", GetGUIDLow());
+    QueryResult result = CharacterDatabase.PQuery("SELECT `guid` FROM `jail` WHERE `guid`=%u LIMIT 1", GetGUIDLow());
     if (!result)
     {
-        CharacterDatabase.PExecute("INSERT INTO jail VALUES ('%u','%s','%u','%s','%u','%u','%s',CURRENT_TIMESTAMP,'%u')",
-            GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailDauer);
+        CharacterDatabase.PExecute("INSERT INTO `jail` VALUES (%u,'%s',%u,'%s',%u,%u,'%s',CURRENT_TIMESTAMP,%u,%u)",
+            GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailDauer, m_JailBans);
     }
     else
     {
-        CharacterDatabase.PExecute("UPDATE jail SET release = '%u', reason = '%s', times = '%u', gmacc = '%u', gmchar = '%s', duration = '%u' WHERE guid = '%u' LIMIT 1",
-            m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailDauer, GetGUIDLow());
+        CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
+            m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailDauer, m_JailBans, GetGUIDLow());
     }
 }
 
