@@ -407,10 +407,8 @@ class npc_feral_defender : public CreatureScript
 
             void Reset()
             {
-                if (me->HasAura(SPELL_FERAL_ESSENCE))
-                    me->RemoveAuraFromStack(SPELL_FERAL_ESSENCE);
-                else
-                    me->RemoveAurasDueToSpell(SPELL_FERAL_ESSENCE);
+                events.ScheduleEvent(EVENT_FERAL_POUNCE, 5000);
+                events.ScheduleEvent(EVENT_RUSH, 10000);
             }
 
             void UpdateAI(uint32 const diff)
