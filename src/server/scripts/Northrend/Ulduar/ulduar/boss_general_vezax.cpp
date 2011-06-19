@@ -200,7 +200,7 @@ class boss_general_vezax : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* who, const SpellEntry* spell)
+            void SpellHitTarget(Unit* who, SpellEntry const* spell)
             {
                 if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
                     shadowDodger = false;
@@ -217,30 +217,26 @@ class boss_general_vezax : public CreatureScript
 
                 DoScriptText(SAY_DEATH, me);
 
-                if (instance)
-                {
-                    if (shadowDodger)
-                        instance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_DESPAIR);
 
-                    if (smellSaronite && animusDead)
-                        instance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
-                }
+                if (shadowDodger)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
+
+                if (smellSaronite && animusDead)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
             }
 
             void CheckShamanisticRage()
             {
-                if (instance)
+                Map* map = me->GetMap();
+                if (map && map->IsDungeon())
                 {
-                    Map* map = me->GetMap();
-                    if (map && map->IsDungeon())
-                    {
-                        // If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
-                        Map::PlayerList const& Players = map->GetPlayers();
-                        for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                            if (Player* player = itr->getSource())
-                                if (player->HasSpell(SPELL_SHAMANTIC_RAGE))
-                                    player->CastSpell(player, SPELL_CORRUPTED_RAGE, false);
-                    }
+                    // If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
+                    Map::PlayerList const& Players = map->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                        if (Player* player = itr->getSource())
+                            if (player->HasSpell(SPELL_SHAMANTIC_RAGE))
+                                player->CastSpell(player, SPELL_CORRUPTED_RAGE, false);
                 }
             }
 
@@ -326,7 +322,7 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* Vezax = me->GetCreature(*me, instance ? instance->GetData64(BOSS_VEZAX) : 0))
+                if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
                     Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
@@ -421,7 +417,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30000);
 
-                    if (Creature* Vezax = me->GetCreature(*me, instance ? instance->GetData64(BOSS_VEZAX) : 0))
+                    if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
                         Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }

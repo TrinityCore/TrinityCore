@@ -1008,7 +1008,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
         return;
     }
 
-    Unit *pVictim = damageInfo->target;
+    Unit* pVictim = damageInfo->target;
     if (!pVictim || !pVictim->isAlive())
         return;
 
@@ -1111,7 +1111,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     if (damageInfo == 0)
         return;
 
-    Unit *pVictim = damageInfo->target;
+    Unit* pVictim = damageInfo->target;
 
     if (!pVictim)
         return;
@@ -1341,7 +1341,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
 
 void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 {
-    Unit *pVictim = damageInfo->target;
+    Unit* pVictim = damageInfo->target;
 
     if (!pVictim->isAlive() || pVictim->HasUnitState(UNIT_STAT_IN_FLIGHT) || (pVictim->HasUnitState(UNIT_STAT_ONVEHICLE) && pVictim->GetVehicleBase() != this) || (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->IsInEvadeMode()))
         return;
@@ -3823,7 +3823,8 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                         aura->SetIsSingleTarget(true);
                         caster->GetSingleCastAuras().push_back(aura);
                     }
-                    newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, &damage[0]);
+                    // FIXME: using aura->GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
+                    newAura->SetLoadedState(aura->GetMaxDuration(), dur, stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, &damage[0]);
                     newAura->ApplyForTargets();
                 }
             }
@@ -5731,7 +5732,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return true;
                     // Crititcal counted -> roll chance
                     if (roll_chance_i(triggerAmount))
-                       CastSpell(this, 48108, true, castItem, triggeredByAura);
+                        CastSpell(this, 48108, true, castItem, triggeredByAura);
                 }
                 counter->SetAmount(25);
                 return true;
@@ -10592,6 +10593,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             if (spellProto->SpellFamilyFlags[0] & 0x2)
                 if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2721, 0))
                     AddPctN(DoneTotalMod, aurEff->GetAmount());
+
+            // Sigil of the Vengeful Heart
+           if (spellProto->SpellFamilyFlags[0] & 0x2000)
+               if (AuraEffect* aurEff = GetAuraEffect(64962, EFFECT_1))
+                   AddPctN(DoneTotal, aurEff->GetAmount());
 
             // Glacier Rot
             if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
@@ -16769,7 +16775,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
     {
         if (itr->second.IsFitToRequirements(clicker, this))
         {
-            Unit *caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
+            Unit* caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
             Unit* target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
             uint64 origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
 

@@ -597,7 +597,7 @@ INSERT INTO `command` VALUES
 ('reload all achievement',3,'Syntax: .reload all achievement\r\n\r\nReload achievement_reward, achievement_criteria_data tables.'),
 ('reload all area',3,'Syntax: .reload all area\r\n\r\nReload areatrigger_teleport, areatrigger_tavern, game_graveyard_zone tables.'),
 ('reload all eventai',3,'Syntax: .reload all eventai\r\n\r\nReload creature_ai_scripts, creature_ai_summons, creature_ai_texts tables.'),
-('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, gossip_scripts, points_of_interest tables.'),
+('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, points_of_interest tables.'),
 ('reload all item',3,'Syntax: .reload all item\nReload page_text, item_enchantment_table tables.'),
 ('reload all locales',3,'Syntax: .reload all locales\r\n\r\nReload all `locales_*` tables with reload support added and that can be _safe_ reloaded.'),
 ('reload all loot',3,'Syntax: .reload all loot\r\n\r\nReload all `*_loot_template` tables. This can be slow operation with lags for server run.'),
@@ -632,7 +632,6 @@ INSERT INTO `command` VALUES
 ('reload game_tele',3,'Syntax: .reload game_tele\nReload game_tele table.'),
 ('reload gossip_menu',3,'Syntax: .reload gossip_menu\nReload gossip_menu table.'),
 ('reload gossip_menu_option',3,'Syntax: .reload gossip_menu_option\nReload gossip_menu_option table.'),
-('reload gossip_scripts',3,'Syntax: .reload gossip_scripts\nReload gossip_scripts table.'),
 ('reload gm_tickets',3,'Syntax: .reload gm_tickets\nReload gm_tickets table.'),
 ('reload item_enchantment_template',3,'Syntax: .reload item_enchantment_template\nReload item_enchantment_template table.'),
 ('reload item_loot_template',3,'Syntax: .reload item_loot_template\nReload item_loot_template table.'),
@@ -2726,36 +2725,6 @@ LOCK TABLES `gameobject_template` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gossip_scripts`
---
-
-DROP TABLE IF EXISTS `gossip_scripts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gossip_scripts` (
-  `id` mediumint(8) unsigned NOT NULL default '0',
-  `delay` int(10) unsigned NOT NULL default '0',
-  `command` mediumint(8) unsigned NOT NULL default '0',
-  `datalong` mediumint(8) unsigned NOT NULL default '0',
-  `datalong2` int(10) unsigned NOT NULL default '0',
-  `dataint` int(11) NOT NULL default '0',
-  `x` float NOT NULL default '0',
-  `y` float NOT NULL default '0',
-  `z` float NOT NULL default '0',
-  `o` float NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gossip_scripts`
---
-
-LOCK TABLES `gossip_scripts` WRITE;
-/*!40000 ALTER TABLE `gossip_scripts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gossip_scripts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `gossip_menu`
 --
 
@@ -2794,7 +2763,6 @@ CREATE TABLE gossip_menu_option (
   npc_option_npcflag int(10) unsigned NOT NULL default '0',
   action_menu_id mediumint(8) unsigned NOT NULL default '0',
   action_poi_id mediumint(8) unsigned NOT NULL default '0',
-  action_script_id mediumint(8) unsigned NOT NULL default '0',
   box_coded tinyint(3) unsigned NOT NULL default '0',
   box_money int(11) unsigned NOT NULL default '0',
   box_text text,

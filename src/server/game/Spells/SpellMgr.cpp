@@ -2861,7 +2861,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             else if ((spellproto->SpellFamilyFlags[0] & 0x40000) && spellproto->SpellIconID == 132)
                 return DIMINISHING_SCATTER_SHOT;
             // Entrapment (own diminishing)
-            else if ((spellproto->SpellVisual[0] == 7484) && spellproto->SpellIconID == 20)
+            else if (spellproto->SpellVisual[0] == 7484 && spellproto->SpellIconID == 20)
                 return DIMINISHING_ENTRAPMENT;
             // Wyvern Sting mechanic is MECHANIC_SLEEP but the diminishing is DIMINISHING_DISORIENT
             else if ((spellproto->SpellFamilyFlags[1] & 0x1000) && spellproto->SpellIconID == 1721)
@@ -2873,7 +2873,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         }
         case SPELLFAMILY_PALADIN:
         {
-            // Judgement of Justice  - limit duration to 10s in PvP
+            // Judgement of Justice - limit duration to 10s in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x100000)
                 return DIMINISHING_LIMITONLY;
             // Turn Evil
@@ -2929,7 +2929,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_HORROR;
             // Curses/etc
-            else if (spellproto->SpellFamilyFlags[0] & 0x80000000)
+            else if ((spellproto->SpellFamilyFlags[0] & 0x80000000) || (spellproto->SpellFamilyFlags[1] & 0x200))
                 return DIMINISHING_LIMITONLY;
             // Seduction
             else if (spellproto->SpellFamilyFlags[1] & 0x10000000)
@@ -3027,6 +3027,12 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Banish - limit to 6 seconds in PvP
             if (spellproto->SpellFamilyFlags[1] & 0x8000000)
                 return 6 * IN_MILLISECONDS;
+            // Curse of Tongues - limit to 12 seconds in PvP
+            else if (spellproto->SpellFamilyFlags[2] & 0x800)
+                return 12 * IN_MILLISECONDS;
+            // Curse of Elements - limit to 120 seconds in PvP
+            else if (spellproto->SpellFamilyFlags[1] & 0x200)
+               return 120 * IN_MILLISECONDS;
             break;
         }
         default:

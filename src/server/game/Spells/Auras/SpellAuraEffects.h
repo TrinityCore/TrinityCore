@@ -65,11 +65,7 @@ class AuraEffect
         bool IsAffectedOnSpell(SpellEntry const *spell) const;
 
         void SendTickImmune(Unit* target, Unit *caster) const;
-
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
-        void PeriodicDummyTick(Unit* target, Unit* caster) const;
-        void TriggerSpell(Unit* target, Unit* caster) const;
-        void TriggerSpellWithValue(Unit* target, Unit* caster) const;
 
         void CleanupTriggeredSpells(Unit* target);
 
@@ -95,7 +91,7 @@ class AuraEffect
         bool IsPeriodicTickCrit(Unit* target, Unit const* caster) const;
 
     public:
-        // aura effect handlers
+        // aura effect apply/remove handlers
         void HandleNULL(AuraApplication const* /*aurApp*/, uint8 /*mode*/, bool /*apply*/) const
         {
             // not implemented
@@ -259,9 +255,22 @@ class AuraEffect
         void HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
+        // aura effect periodic tick handlers
+        void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
+        void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
 };
 
 namespace Trinity
