@@ -41,6 +41,7 @@ class Totem : public Minion
         void UnSummon();
         uint32 GetSpell(uint8 slot = 0) const { return m_spells[slot]; }
         uint32 GetTotemDuration() const { return m_duration; }
+        void SetTotemDuration(uint32 duration) { m_duration = duration; }
         TotemType GetTotemType() const { return m_type; }
 
         bool UpdateStats(Stats /*stat*/) { return true; }
