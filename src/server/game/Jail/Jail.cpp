@@ -88,7 +88,7 @@ bool Jail::InfoKommando(ChatHandler * handler)
 
     if (chr->m_JailRelease > 0)
     {
-        uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / 60));
+        uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / MINUTE));
 
         if (min_left <= 0)
         {
@@ -99,8 +99,8 @@ bool Jail::InfoKommando(ChatHandler * handler)
         }
         else
         {
-            if (min_left >= 60)
-                handler->PSendSysMessage(LANG_JAIL_JAILED_H_INFO, uint32(floor(float(chr->m_JailRelease - localtime) / 60 / 60)));
+            if (min_left >= MINUTE)
+                handler->PSendSysMessage(LANG_JAIL_JAILED_H_INFO, uint32(floor(float(chr->m_JailRelease - localtime) / HOUR)));
             else
                 handler->PSendSysMessage(LANG_JAIL_JAILED_M_INFO, min_left);
 
@@ -134,7 +134,7 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
         if (target->m_JailRelease > 0)
         {
             time_t localtime = time(NULL);
-            uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / 60));
+            uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
 
             if (min_left <= 0)
             {
@@ -145,10 +145,10 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
             }
             else
             {
-                if (min_left >= 60)
+                if (min_left >= MINUTE)
                 {
-                    uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / 60 / 60));
-                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*60), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
+                    uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
+                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
                 }
                 else
                     handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
@@ -194,12 +194,12 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
             if (release > 0)
             {
                 time_t localtime = time(NULL);
-                uint32 min_left = uint32(floor(float(release - localtime) / 60));
+                uint32 min_left = uint32(floor(float(release - localtime) / MINUTE));
 
-                if (min_left >= 60)
+                if (min_left >= MINUTE)
                 {
-                    uint32 hours = uint32(floor(float(release - localtime) / 60 / 60));
-                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), times, hours, min_left-(hours*60), gmchar.c_str(), lasttime.c_str(), reason.c_str());
+                    uint32 hours = uint32(floor(float(release - localtime) / HOUR));
+                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), times, hours, min_left-(hours*MINUTE), gmchar.c_str(), lasttime.c_str(), reason.c_str());
                 }
                 else
                     handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), times, min_left, gmchar.c_str(), lasttime.c_str(), reason.c_str());
@@ -280,8 +280,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
     time_t localtime = time(NULL);
 
     uint32 times = 0;
-    uint32 release = localtime + (jailtime * 60 * 60);
-    uint32 banrelease = localtime + (m_BanDauer * 60 * 60);
+    uint32 release = localtime + (jailtime * HOUR);
+    uint32 banrelease = localtime + (m_BanDauer * HOUR);
 
     std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
 
@@ -291,17 +291,16 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(GUID));
         if (!result)
         {
-            ++times;
-            CharacterDatabase.PExecute("INSERT INTO `jail` VALUES (%u,'%s',%u,'%s',%u,%u,'%s',CURRENT_TIMESTAMP,%u)",
-                GUID_LOPART(GUID), cname.c_str(), release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), jailtime);
+            CharacterDatabase.PExecute("INSERT INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s',CURRENT_TIMESTAMP,%u)",
+                GUID_LOPART(GUID), cname.c_str(), release, jailreason.c_str(), ++times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), jailtime);
         }
         else
         {
             Field * fields = result->Fetch();
-            times = fields[4].GetUInt32()+1;
+            times = fields[4].GetUInt32();
 
             CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
-                release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), jailtime, GUID_LOPART(GUID));
+                release, jailreason.c_str(), ++times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), jailtime, GUID_LOPART(GUID));
         }
         handler->PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);
         sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str());
@@ -309,9 +308,9 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         // Nur wenn m_MaxJails gesetzt ist, hier hinein gehen!
         if (m_MaxJails && m_MaxJails == times)
         {
+            QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`=%u LIMIT 1", GUID_LOPART(GUID));
             if (m_DelChar)
             {
-                QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`=%u LIMIT 1", GUID_LOPART(GUID));
                 if (!result)
                 {
                     handler->PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
@@ -323,7 +322,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
             }
             if (m_BanAcc)
             {
-                QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`=%u LIMIT 1", GUID_LOPART(GUID));
+                uint32 btimes = 0;
+
                 if (!result)
                 {
                     handler->PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
@@ -343,10 +343,17 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
                 LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,UNIX_TIMESTAMP,%u,'%s','%s')",
                     acc_id, banrelease, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
 
+                // Anzahl der bisherigen Banns holen.
+                QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(GUID));
+                if (result)
+                {
+                    Field * fields = result->Fetch();
+                    btimes = fields[9].GetUInt32();
+                }
                 // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
                 // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
-                CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
-                    sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, GUID_LOPART(GUID));
+                CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
+                    sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, ++btimes, GUID_LOPART(GUID));
             }
         }
         return true;
@@ -385,6 +392,7 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
     if (m_MaxJails && m_MaxJails == chr->m_JailAnzahl)
     {
         uint32 acc_id = chr->GetSession()->GetAccountId();
+        uint32 btimes = chr->m_JailBans;
 
         if (m_DelChar)
         {
@@ -394,7 +402,7 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         }
         if (m_BanAcc)
         {
-            if (chr)
+            if (chr) // Kann sein, dass durch m_DelChar der Zeiger ungültig geworden ist!
                 chr->GetSession()->KickPlayer();
 
             LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,UNIX_TIMESTAMP,%u,'%s','%s')",
@@ -402,8 +410,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
 
             // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
             // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
-            CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
-                sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, GUID_LOPART(GUID));
+            CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
+                sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, ++btimes, GUID_LOPART(GUID));
         }
     }
     return true;
