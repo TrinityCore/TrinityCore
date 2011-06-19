@@ -499,6 +499,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
+
+                _combat = false;
             }
 
             void EnterCombat(Unit* /*target*/)
@@ -508,6 +510,15 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
                 if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALITHRIA_DREAMWALKER)))
                     valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
+            }
+
+            void MoveInLineOfSight(Unit* who)
+            { 
+                if (!_combat && me->IsWithinDistInMap(who, 40.0f))
+                {
+                    _combat = true;
+                    BossAI::EnterCombat(who);
+                }
             }
 
             void AttackStart(Unit* target)
@@ -564,6 +575,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
         private:
             bool _evadeCheck;
+            bool _combat;
         };
 
         CreatureAI* GetAI(Creature* creature) const
