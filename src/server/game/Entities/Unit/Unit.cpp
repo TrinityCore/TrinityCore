@@ -10577,6 +10577,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2721, 0))
                     AddPctN(DoneTotalMod, aurEff->GetAmount());
 
+            // Sigil of the Vengeful Heart
+           if (spellProto->SpellFamilyFlags[0] & 0x2000)
+               if (AuraEffect* aurEff = GetAuraEffect(64962, EFFECT_1))
+                   AddPctN(DoneTotal, aurEff->GetAmount());
+
             // Glacier Rot
             if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
                 if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 196, 0))
