@@ -1075,7 +1075,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 44544: // Fingers of Frost
                     {
                         // See if we already have the indicator aura. If not, create one.
-                        if (Aura *aur = target->GetAura(74396))
+                        if (Aura* aur = target->GetAura(74396))
                         {
                             // Aura already there. Refresh duration and set original charges
                             aur->SetCharges(2);
@@ -2041,7 +2041,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
                         targetList.push_back(GetUnitOwner());
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
-                        if (Unit *owner = GetUnitOwner()->GetCharmerOrOwner())
+                        if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
                             if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
                                 targetList.push_back(owner);
                         break;
