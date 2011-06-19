@@ -2850,7 +2850,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             else if ((spellproto->SpellFamilyFlags[0] & 0x40000) && spellproto->SpellIconID == 132)
                 return DIMINISHING_SCATTER_SHOT;
             // Entrapment (own diminishing)
-            else if ((spellproto->SpellVisual[0] == 7484) && spellproto->SpellIconID == 20)
+            else if (spellproto->SpellVisual[0] == 7484 && spellproto->SpellIconID == 20)
                 return DIMINISHING_ENTRAPMENT;
             // Wyvern Sting mechanic is MECHANIC_SLEEP but the diminishing is DIMINISHING_DISORIENT
             else if ((spellproto->SpellFamilyFlags[1] & 0x1000) && spellproto->SpellIconID == 1721)
@@ -2862,7 +2862,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         }
         case SPELLFAMILY_PALADIN:
         {
-            // Judgement of Justice  - limit duration to 10s in PvP
+            // Judgement of Justice - limit duration to 10s in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x100000)
                 return DIMINISHING_LIMITONLY;
             // Turn Evil
