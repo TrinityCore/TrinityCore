@@ -1748,12 +1748,13 @@ void World::SetInitialWorldSettings()
 
     // Jail von WarHead
     sLog->outString();
-    sLog->outString("Lade die Jail-Konfiguration..." );
+    sLog->outString("Jail: Lade die Konfiguration..." );
     if (!sJail->LadeKonfiguration())
     {
         sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));
         sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR2));
     }
+    sJail->KnastAufraeumen();
     sLog->outString();
 
     sLog->outString("Initialisiere den AuktionshausBot...");

@@ -9,4 +9,5 @@ INSERT INTO `command` (name, security, help) VALUES
 ('jail reset',      30, 'Syntax: .jail reset [Charakter]\nGibt dem selektiertem, oder angegebenen Charakter, wieder eine weisse Weste.\nAls wäre nie etwas geschehen. ;-)\nAmnasty International lässt grüssen! :D'),
 ('jail reload',     40, 'Syntax: .jail reload\nLädt die Jail-Konfiguration neu aus der Datenbank.'),
 ('jail enable',     40, 'Syntax: .jail enable\nSchaltet das Jail ein.'),
-('jail disable',    40, 'Syntax: .jail disable\nSchaltet das Jail aus.');
+('jail disable',    40, 'Syntax: .jail disable\nSchaltet das Jail aus.'),
+('jail delete',     50, 'Syntax: .jail delete\nWie reset, aber löscht auch Jails mit Bannungen!\nDie Bannung wird dadurch auch gelöscht!');

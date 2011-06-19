@@ -36,6 +36,8 @@ CREATE TABLE `jail_conf` (
   `ban_duration` int(11) unsigned NOT NULL default '168' COMMENT 'Banndauer in Stunden, nachdem der Account wieder freigeschaltet wird (Standard = 7 Tage).',
   `radius` int(11) unsigned NOT NULL default '10' COMMENT 'Radius in Yards (3D), in dem sich der Knastbruder bewegen kann (0 = keine Bewegung möglich).',
   `enabled` tinyint(4) NOT NULL default '0' COMMENT 'Ein/ausschalten des Jails. Standardeinstellung ist aus.',
+  `gm_acc` int(11) unsigned NOT NULL default '2019794' COMMENT 'Account der genutzt wird, um zu bannen.',
+  `gm_char` varchar(13) NOT NULL default 'Robotron' COMMENT 'Charaktername der genutzt wird, um zu bannen.',
   PRIMARY KEY  (`max_jails`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Jail Konfigurations-Tabelle für UWoM-Server von WarHead.';
 

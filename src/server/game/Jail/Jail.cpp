@@ -23,6 +23,8 @@ bool Jail::LadeKonfiguration(bool reload)
 
     m_BanDauer = 168;   // 1 Woche
 
+    m_GMAcc = 0;
+
     m_AllyPosX = -8673.43f;
     m_AllyPosY = 631.795f;
     m_AllyPosZ = 96.9406f;
@@ -67,6 +69,9 @@ bool Jail::LadeKonfiguration(bool reload)
     m_Radius = fields[17].GetUInt32();
     m_Enabled = fields[18].GetBool();
 
+    m_GMAcc = fields[19].GetUInt32();
+    m_GMChar = fields[20].GetString();
+
     if (!reload)
         sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
     else
@@ -75,14 +80,41 @@ bool Jail::LadeKonfiguration(bool reload)
     return true;
 }
 
+void Jail::KnastAufraeumen()
+{
+    QueryResult result = CharacterDatabase.Query("SELECT `guid` FROM `jail`");
+    if (!result)
+        return;
+
+    uint32 cnt = 0;
+    uint32 cntdel = 0;
+    uint32 oldMSTime = getMSTime();
+    sLog->outString("Jail: Bereinige das Gefängnis...");
+
+    do
+    {
+        Field * fields = result->Fetch();
+        uint32 guid = fields[0].GetUInt32();
+
+        QueryResult result = CharacterDatabase.PQuery("SELECT `guid` FROM `characters` WHERE `guid`=%u LIMIT 1", guid);
+        if (!result)
+        {
+            CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u", guid);
+            ++cntdel;
+        }
+        ++cnt;
+    } while (result->NextRow());
+    sLog->outString("Jail: %u Einträge (in %u ms) auf nicht mehr existierende Charaktere geprüft, und %u davon gelöscht.", cnt, GetMSTimeDiffToNow(oldMSTime), cntdel);
+}
+
 bool Jail::InfoKommando(ChatHandler * handler)
 {
+    if (!m_Enabled)
+        return SendeInaktiv(handler);
+
     Player * chr = handler->GetSession()->GetPlayer();
     if (!chr)
         return false;
-
-    if (!m_Enabled)
-        return SendeInaktiv(handler);
 
     time_t localtime = time(NULL);
 
@@ -122,52 +154,60 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
     if (!m_Enabled)
         return SendeInaktiv(handler);
 
-    Player * target = NULL;
+    Player * target = handler->getSelectedPlayer();
     uint64 target_guid = 0;
     std::string target_name;
 
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if (target && target->m_JailAnzahl > 0)
+    if (target)
     {
-        if (target->m_JailRelease > 0)
+        // Keine Jails eingetragen
+        if (!target->m_JailAnzahl)
         {
-            time_t localtime = time(NULL);
-            uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
-
-            if (min_left <= 0)
+            // Keine Banns eingetragen
+            if (!target->m_JailBans)
             {
-                target->m_JailRelease = 0;
-                target->JailDatenSpeichern();
-                handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, 0, target->m_JailGMChar.c_str(), target->m_JailGrund.c_str());
-                return true;
-            }
-            else
-            {
-                if (min_left >= MINUTE)
+                if (handler->GetSession()->GetPlayer()->GetGUIDLow() == target->GetGUIDLow())
                 {
-                    uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
-                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
+                    handler->SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
+                    return true;
                 }
                 else
-                    handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
-
+                {
+                    handler->SendSysMessage(LANG_JAIL_GM_NOINFO);
+                    return true;
+                }
+            }
+            // Banns ist nicht auf 0
+            else
+            {
+                handler->PSendSysMessage(LANG_JAIL_GM_INFO_BANS, target_name.c_str(), target->m_JailBans);
                 return true;
             }
         }
-        else
-        {
-            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, 0, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
-            return true;
-        }
-    }
+        // Aktiver oder abgelauferner Jail eingetragen
+        time_t localtime = time(NULL);
+        uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
 
-    if (!target)
+        if (min_left >= MINUTE)
+        {
+            uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
+        }
+        else
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
+
+        if (target->m_JailBans)
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, target->m_JailBans);
+
+        return true;
+    }
+    else
     {
         uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name.c_str());
         uint32 guid = GUID_LOPART(GUID);
-        
         if (!guid)
         {
             handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
@@ -190,28 +230,30 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
             uint32 times = fields[4].GetUInt32();
             std::string gmchar = fields[6].GetString();
             std::string lasttime = fields[7].GetString();
+            uint32 btimes = fields[9].GetUInt32();
 
-            if (release > 0)
+            // Keine aktiven oder abgelaufenen Jails, aber Bannungen
+            if (!times && btimes)
             {
-                time_t localtime = time(NULL);
-                uint32 min_left = uint32(floor(float(release - localtime) / MINUTE));
-
-                if (min_left >= MINUTE)
-                {
-                    uint32 hours = uint32(floor(float(release - localtime) / HOUR));
-                    handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), times, hours, min_left-(hours*MINUTE), gmchar.c_str(), lasttime.c_str(), reason.c_str());
-                }
-                else
-                    handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), times, min_left, gmchar.c_str(), lasttime.c_str(), reason.c_str());
-
+                handler->PSendSysMessage(LANG_JAIL_GM_INFO_BANS, target_name.c_str(), btimes);
                 return true;
+            }
+
+            time_t localtime = time(NULL);
+            uint32 min_left = uint32(floor(float(release - localtime) / MINUTE));
+
+            if (min_left >= MINUTE)
+            {
+                uint32 hours = uint32(floor(float(release - localtime) / HOUR));
+                handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), times, hours, min_left-(hours*MINUTE), gmchar.c_str(), lasttime.c_str(), reason.c_str());
             }
             else
-            {
-                handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), times, 0, gmchar.c_str(), lasttime.c_str(), reason.c_str());
-                return true;
-            }
+                handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), times, min_left, gmchar.c_str(), lasttime.c_str(), reason.c_str());
+
+            if (btimes)
+                handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, btimes);
         }
+        return true;
     }
     return false;
 }
@@ -297,8 +339,16 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         else
         {
             Field * fields = result->Fetch();
+            uint32 crelease = fields[2].GetUInt32();
             times = fields[4].GetUInt32();
 
+            // Es gibt bereits einen aktiven Jail! Nicht noch einmal einbuchten lassen!
+            if (crelease)
+            {
+                    handler->PSendSysMessage(LANG_JAIL_GM_ALREADY_JAILED, cname.c_str());
+                    handler->SetSentErrorMessage(true);
+                    return false;
+            }
             CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
                 release, jailreason.c_str(), ++times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), jailtime, GUID_LOPART(GUID));
         }
@@ -340,8 +390,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,UNIX_TIMESTAMP,%u,'%s','%s')",
-                    acc_id, banrelease, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
+                LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,%u,%u,'%s','%s')",
+                    acc_id, localtime, banrelease, m_GMChar.c_str(), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
 
                 // Anzahl der bisherigen Banns holen.
                 QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(GUID));
@@ -352,8 +402,8 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
                 }
                 // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
                 // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
-                CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
-                    sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, ++btimes, GUID_LOPART(GUID));
+                CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=%u,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
+                    sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), m_GMAcc, m_GMChar.c_str(), m_BanDauer, ++btimes, GUID_LOPART(GUID));
             }
         }
         return true;
@@ -363,6 +413,14 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
     if (!result)
     {
         handler->PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    // Es gibt bereits einen aktiven Jail! Nicht noch einmal einbuchten lassen!
+    if (chr->m_JailRelease)
+    {
+        handler->PSendSysMessage(LANG_JAIL_GM_ALREADY_JAILED, cname.c_str());
         handler->SetSentErrorMessage(true);
         return false;
     }
@@ -405,13 +463,13 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
             if (chr) // Kann sein, dass durch m_DelChar der Zeiger ungültig geworden ist!
                 chr->GetSession()->KickPlayer();
 
-            LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,UNIX_TIMESTAMP,%u,'%s','%s')",
-                acc_id, banrelease, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
+            LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,%u,%u,'%s','%s')",
+                acc_id, localtime, banrelease, m_GMChar.c_str(), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
 
             // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
             // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
-            CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=0,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
-                sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_BY), m_BanDauer, ++btimes, GUID_LOPART(GUID));
+            CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=%u,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
+                sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), m_GMAcc, m_GMChar.c_str(), m_BanDauer, ++btimes, GUID_LOPART(GUID));
         }
     }
     return true;
@@ -419,19 +477,19 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
 
 bool Jail::ReleaseKommando(ChatHandler * handler, const char * args)
 {
-    Player * target = NULL;
+    if (!m_Enabled)
+        return SendeInaktiv(handler);
+
+    Player * target = handler->getSelectedPlayer();
     uint64 target_guid = 0;
     std::string target_name;
 
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if (!m_Enabled)
-        return SendeInaktiv(handler);
-
     if (target)
     {
-        if (target_name == handler->GetSession()->GetPlayerName())
+        if (target_name.c_str() == handler->GetSession()->GetPlayerName())
         {
             handler->SendSysMessage(LANG_JAIL_NO_UNJAIL);
             handler->SetSentErrorMessage(true);
@@ -516,22 +574,63 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args)
     return false;
 }
 
-bool Jail::ResetKommando(ChatHandler * handler, const char * args)
+bool Jail::ResetKommando(ChatHandler * handler, const char * args, bool force)
 {
-    Player * target = NULL;
+    if (!m_Enabled)
+        return SendeInaktiv(handler);
+
+    Player * target = handler->getSelectedPlayer();
     uint64 target_guid = 0;
     std::string target_name;
+    uint32 bans = 0;
+    uint32 acc = 0;
 
     if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    if (!m_Enabled)
-        return SendeInaktiv(handler);
+    QueryResult cresult = CharacterDatabase.PQuery("SELECT `account` FROM `characters` WHERE `guid`=%u LIMIT 1", GUID_LOPART(target_guid));
+    if (cresult)
+    {
+        Field * fields = cresult->Fetch();
+        acc = fields[0].GetUInt32();
+    }
+    else
+    {
+        handler->PSendSysMessage(LANG_NO_PLAYER, target_name.c_str());
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(target_guid));
+    if (!target && result)
+    {
+        Field * fields = result->Fetch();
+        bans = fields[9].GetUInt32();
+    }
+
+    // Jails, dessen Account gebannt wurde, nicht löschen lassen, es sei denn force (delete Kommando) ist gesetzt!
+    if (!force && ((target && target->m_JailBans) || bans))
+    {
+        handler->SendSysMessage(LANG_JAIL_GM_NO_DELETE);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
 
     // Erst aus dem Knast holen, bevor der Jaileintrag gelöscht wird
     ReleaseKommando(handler, args);
 
+    // Muss hier explizit überprüft werden, auch wenn es "ReleaseKommando(handler, args);" bereits prüft!
+    if (!force && target_name.c_str() == handler->GetSession()->GetPlayerName())
+    {
+        handler->SendSysMessage(LANG_JAIL_NO_UNJAIL);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
     CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(target_guid));
+
+    if (force && ((target && target->m_JailBans) || bans))
+        LoginDatabase.PExecute("DELETE FROM `account_banned` WHERE `id`=%u LIMIT 1", acc);
 
     return true;
 }

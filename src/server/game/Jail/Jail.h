@@ -24,6 +24,8 @@ private:
 
     uint32 m_BanDauer;  // Nach dieser Zeit (Std.) wird ein durch das Jail gebannter Account wieder freigeschaltet.
 
+    uint32 m_GMAcc;     // Account der zum Bannen genutzt wird
+
     float m_AllyPosX;   // Koordinaten für den Allyknast
     float m_AllyPosY;
     float m_AllyPosZ;
@@ -39,17 +41,20 @@ private:
     bool m_WarnUser;    // Spieler warnen, wenn er nur einen Jail von der Charakterlöschung / Accountbannung entfernt ist?
     bool m_Enabled;     // Ist das Jail aktiviert?
 
+    std::string m_GMChar;   // Charaktername der zum Bannen genutzt wird
+
     bool SendeInaktiv(ChatHandler * handler);
 
 public:
     bool LadeKonfiguration(bool reload = false);
+    void KnastAufraeumen();
 
     // Kommandos aus jail_commandscript bearbeiten
     bool InfoKommando(ChatHandler * handler);
     bool PInfoKommando(ChatHandler * handler, const char * args);
     bool ArrestKommando(ChatHandler * handler, const char * args);
     bool ReleaseKommando(ChatHandler * handler, const char * args);
-    bool ResetKommando(ChatHandler * handler, const char * args);
+    bool ResetKommando(ChatHandler * handler, const char * args, bool force = false);
     bool ReloadKommando(ChatHandler * handler);
     bool EnableKommando(ChatHandler * handler);
     bool DisableKommando(ChatHandler * handler);
