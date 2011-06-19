@@ -1061,24 +1061,13 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         continue;
                 }
 
-                // exist many achievements with this criteria, use at this moment hardcoded check to skil simple case
-                switch (achievement->ID)
+                if (achievement->ID == 1282)
                 {
-                    case 31:
-                    case 1275:
-                    case 1276:
-                    case 1277:
-                    case 1282:
-                    case 1789:
-                    {
-                        // those requirements couldn't be found in the dbc
-                        AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                        if (!data || !data->Meets(GetPlayer(), unit))
-                            continue;
-                        break;
-                    }
-                    default:
-                        break;
+                    // those requirements couldn't be found in the dbc
+                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
+                    if (!data || !data->Meets(GetPlayer(), unit))
+                        continue;
+                    break;
                 }
 
                 SetCriteriaProgress(achievementCriteria, 1);
@@ -2310,17 +2299,10 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                     continue;
 
                 // exist many achievements with this criteria, use at this moment hardcoded check to skil simple case
-                switch (achievement->ID)
-                {
-                    case 31:
-                    case 1275:
-                    case 1276:
-                    case 1277:
-                    case 1282:
-                        break;
-                    default:
-                        continue;
-                }
+                if (achievement->ID == 1282)
+                    break;
+
+                continue;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
                 break;                                      // any cases
