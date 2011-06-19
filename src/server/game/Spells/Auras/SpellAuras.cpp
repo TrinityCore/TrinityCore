@@ -1551,13 +1551,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     else
                         target->RemoveAurasDueToSpell(64364, GetCasterGUID());
                     break;
-                case 31842:
-                    if (caster->HasAura(70755))
+                case 31842: // Divine Illumination
+                    // Item - Paladin T10 Holy 2P Bonus
+                    if (target->HasAura(70755))
                     {
                         if (apply)
-                            caster->CastSpell(caster, 71166, true);
+                            target->CastSpell(target, 71166, true);
                         else
-                            caster->RemoveAurasDueToSpell(71166);
+                            target->RemoveAurasDueToSpell(71166);
                     }
                     break;
             }
