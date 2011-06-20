@@ -935,19 +935,6 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         }
 };
 
-class PlayerOrPetCheck
-{
-    public:
-        bool operator() (Unit* unit)
-        {
-            if (unit->GetTypeId() != TYPEID_PLAYER)
-                if (!unit->ToCreature()->isPet())
-                    return true;
-
-            return false;
-        }
-};
-
 class spell_xt002_tympanic_tantrum : public SpellScriptLoader
 {
     public:
