@@ -186,4 +186,17 @@ CreatureAI* GetUlduarAI(Creature* creature)
     return NULL;
 }
 
+class PlayerOrPetCheck
+{
+    public:
+        bool operator() (Unit* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->isPet())
+                    return true;
+
+            return false;
+        }
+};
+
 #endif

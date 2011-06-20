@@ -2207,6 +2207,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62166, 'spell_ulduar_stone_grip_cast_target'),
 ( 63981, 'spell_ulduar_stone_grip_cast_target'),
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
+ (63720, 'spell_kologarn_stone_shout'),
+ (64004, 'spell_kologarn_stone_shout'),
 ( 63027, 'spell_ulduar_proximity_mines'),
 ( 63276, 'spell_mark_of_the_faceless'),
 ( 63489, 'spell_shield_of_runes'),
