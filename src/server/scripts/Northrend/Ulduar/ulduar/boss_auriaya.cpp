@@ -113,7 +113,7 @@ class boss_auriaya : public CreatureScript
             {
                 _Reset();
                 DefenderGUID = 0;
-                defenderLifes = 9;
+                defenderLifes = 8;
                 crazyCatLady = true;
                 nineLives = false;
             }
