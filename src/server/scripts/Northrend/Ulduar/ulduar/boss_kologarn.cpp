@@ -330,8 +330,6 @@ class boss_kologarn : public CreatureScript
                 if (!arm->isAlive())
                     arm->Respawn();
 
-                // HACK: We should send spell SPELL_ARM_ENTER_VEHICLE here, but this will not work, because
-                // the aura system will not allow it to stack from two different casters
                 int32 seatId = arm->GetEntry() == NPC_LEFT_ARM ? 0 : 1;
                 arm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, seatId+1, me, true);
                 arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
@@ -625,13 +623,41 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
         }
 };
 
+class spell_kologarn_stone_shout : public SpellScriptLoader
+{
+    public:
+        spell_kologarn_stone_shout() : SpellScriptLoader("spell_kologarn_stone_shout") { }
+
+        class spell_kologarn_stone_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_kologarn_stone_shout_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PlayerOrPetCheck());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_kologarn_stone_shout_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_kologarn_stone_shout_SpellScript();
+        }
+};
+
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
+
     new spell_ulduar_rubble_summon();
     new spell_ulduar_squeezed_lifeless();
     new spell_ulduar_cancel_stone_grip();
     new spell_ulduar_stone_grip_cast_target();
     new spell_ulduar_stone_grip_absorb();
     new spell_ulduar_stone_grip();
+    new spell_kologarn_stone_shout();
 }
