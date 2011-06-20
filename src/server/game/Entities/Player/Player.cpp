@@ -1211,7 +1211,7 @@ void Player::JailDatenLaden()
     m_JailGMChar = fields[6].GetString();
     m_JailZeit = fields[7].GetString();
     m_JailDauer = fields[8].GetUInt32();
-    m_JailBans = fields[8].GetUInt32();
+    m_JailBans = fields[9].GetUInt32();
 
     sJail->Kontrolle(this);
 }
