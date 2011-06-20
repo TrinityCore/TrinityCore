@@ -5832,9 +5832,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
                     // Todo: Check if this amount is blizzlike
                     vehicleBase->ModifyHealth(int32(vehicleBase->CountPctFromMaxHealth(1)));
-
-                    // Despawns the scrapbot
-                    ToCreature()->DespawnOrUnsummon();
                     break;
                 }
             }
