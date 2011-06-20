@@ -47,6 +47,8 @@ enum Yells
     SAY_WHISPER                                 = -1608044
 };
 
+#define DATA_VOID_DANCE                         2153
+
 class boss_zuramat : public CreatureScript
 {
 public:
@@ -69,6 +71,7 @@ public:
         uint32 SpellVoidShiftTimer;
         uint32 SpellSummonVoidTimer;
         uint32 SpellShroudOfDarknessTimer;
+        bool voidDance;
 
         void Reset()
         {
@@ -83,6 +86,7 @@ public:
             SpellShroudOfDarknessTimer = 22000;
             SpellVoidShiftTimer = 15000;
             SpellSummonVoidTimer = 12000;
+            voidDance = true;
         }
 
         void AttackStart(Unit* pWho)
@@ -147,6 +151,26 @@ public:
             DoMeleeAttackIfReady();
         }
 
+        void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
+        {
+            if (summoned->GetEntry() == CREATURE_VOID_SENTRY)
+                SetData(DATA_VOID_DANCE, 0);
+        }
+
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == DATA_VOID_DANCE)
+                voidDance = data ? true : false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_VOID_DANCE)
+                return voidDance ? 1 : 0;
+
+            return 0;
+        }
+
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
@@ -184,7 +208,25 @@ public:
 
 };
 
+class achievement_void_dance : public AchievementCriteriaScript
+{
+    public:
+        achievement_void_dance() : AchievementCriteriaScript("achievement_void_dance")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Zuramat = target->ToCreature())
+                if (Zuramat->AI()->GetData(DATA_VOID_DANCE))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_zuramat()
 {
     new boss_zuramat();
+    new achievement_void_dance();
 }
