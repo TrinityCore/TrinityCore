@@ -1004,7 +1004,7 @@ public:
 
     bool OnGossipHello(Player *pPlayer, Creature *pCreature)
     {
-        if (pPlayer->GetSession()->GetSecurity() == SEC_PLAYER)
+        if (pPlayer->GetSession()->GetSecurity() < SEC_ANWAERTER)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GM_PIMPER_01, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             pPlayer->SEND_GOSSIP_MENU(13674, pCreature->GetGUID());
@@ -1518,7 +1518,7 @@ public:
         switch(uiSender)
         {
             case GOSSIP_SENDER_MAIN:
-                if (pPlayer->GetSession()->GetSecurity() == SEC_PLAYER)
+                if (pPlayer->GetSession()->GetSecurity() < SEC_ANWAERTER)
                     pCreature->CastSpell(pPlayer, SPELL_TURKEY_FEATHERS, true); // Truthahnfedern
                 SendDefaultMenu(pPlayer, pCreature, uiAction);
                 break;
