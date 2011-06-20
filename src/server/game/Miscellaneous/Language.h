@@ -1137,7 +1137,7 @@ enum TrinityStrings
     LANG_JAIL_VALUE             = 12108,    // 'The jailtime must be between 1 and %u hours!', 'Die Jailzeit muss zwischen 1 und %u Std. liegen!'
     LANG_JAIL_CHAR_NOTJAILED    = 12109,    // 'The character %s is not jailed!', 'Der Charakter %s ist überhaupt nicht im Knast!'
     LANG_JAIL_DENIED            = 12110,    // 'Command forbidden for jailed characters!', 'Sorry, aber das dürfen Gefangene nicht!'
-    LANG_JAIL_JAILED_H_INFO     = 12111,    // 'You have %u hour(s) left in the jail.', 'Du musst noch %u Stunde(n) absitzen.'
+    LANG_JAIL_JAILED_H_INFO     = 12111,    // 'You have %u hour(s) %u and minute(s) left in the jail.', 'Du musst noch %u Stunde(n) und %u Minute(n) absitzen.'
     LANG_JAIL_JAILED_M_INFO     = 12112,    // 'You have %u minute(s) left in the jail.', 'Du musst noch %u Minute(n) absitzen.'
     LANG_JAIL_NOTJAILED_INFO    = 12113,    // 'You are a free like a bird! ;-)', 'Du bist frei, wie ein Vogel! ;-)'
     LANG_JAIL_GM_INFO           = 12114,    // '%s was %u times jailed and has %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Minute(n) abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'

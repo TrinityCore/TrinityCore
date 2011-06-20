@@ -116,37 +116,40 @@ bool Jail::InfoKommando(ChatHandler * handler)
     if (!chr)
         return false;
 
-    time_t localtime = time(NULL);
-
-    if (chr->m_JailRelease > 0)
+    // Keine Jails eingetragen
+    if (!chr->m_JailAnzahl)
     {
-        uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / MINUTE));
-
-        if (min_left <= 0)
+        // Keine Banns eingetragen
+        if (!chr->m_JailBans)
         {
-            chr->m_JailRelease = 0;
-            chr->JailDatenSpeichern();
             handler->SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
             return true;
         }
+        // Banns ist nicht auf 0
         else
         {
-            if (min_left >= MINUTE)
-                handler->PSendSysMessage(LANG_JAIL_JAILED_H_INFO, uint32(floor(float(chr->m_JailRelease - localtime) / HOUR)));
-            else
-                handler->PSendSysMessage(LANG_JAIL_JAILED_M_INFO, min_left);
-
-            handler->PSendSysMessage(LANG_JAIL_REASON, chr->m_JailGMChar.c_str(), chr->m_JailGrund.c_str());
-
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_BANS, chr->GetName(), chr->m_JailBans);
             return true;
         }
     }
-    else
+    // Aktiver oder abgelauferner Jail eingetragen
+    time_t localtime = time(NULL);
+    uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / MINUTE));
+
+    if (min_left && min_left > m_MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
+        min_left = 0;
+
+    if (min_left >= MINUTE)
     {
-        handler->SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
-        return true;
+        uint32 hours = uint32(floor(float(chr->m_JailRelease - localtime) / HOUR));
+        handler->PSendSysMessage(LANG_JAIL_JAILED_H_INFO, hours, min_left-(hours*MINUTE));
     }
-    return false;
+    else
+        handler->PSendSysMessage(LANG_JAIL_JAILED_M_INFO, min_left);
+
+    handler->PSendSysMessage(LANG_JAIL_REASON, chr->m_JailGMChar.c_str(), chr->m_JailGrund.c_str());
+
+    return true;
 }
 
 bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
@@ -190,6 +193,9 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
         // Aktiver oder abgelauferner Jail eingetragen
         time_t localtime = time(NULL);
         uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
+
+        if (min_left && min_left > m_MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
+            min_left = 0;
 
         if (min_left >= MINUTE)
         {
@@ -241,6 +247,9 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
 
             time_t localtime = time(NULL);
             uint32 min_left = uint32(floor(float(release - localtime) / MINUTE));
+
+            if (min_left && min_left > m_MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
+                min_left = 0;
 
             if (min_left >= MINUTE)
             {
@@ -683,12 +692,6 @@ void Jail::Kontrolle(Player * pPlayer, bool update)
 {
     if (!pPlayer || !m_Enabled)
         return;
-
-    if (pPlayer->m_JailRelease == 0)
-    {
-        pPlayer->m_Jailed = false;
-        return;
-    }
 
     time_t localtime = time(NULL);
 
