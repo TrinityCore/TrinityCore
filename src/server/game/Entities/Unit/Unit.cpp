@@ -14246,6 +14246,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
         if (i->aura->IsRemoved())
             continue;
 
+        // don't allow to proc from spells which have been recasted during spell proc
+        // this code is a temp workaround, to fix procs of auras refreshed during other aura procs
+        // will be dropped soon because of the new proc system implementation
+        if (i->aura->GetDuration() == i->aura->GetMaxDuration())
+            continue;
+
         bool useCharges  = i->aura->GetCharges() > 0;
         bool takeCharges = false;
         SpellEntry const* spellInfo = i->aura->GetSpellProto();
@@ -14407,14 +14413,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                         takeCharges = true;
                     else
                     {
-                        // Spell own direct damage at apply wont break the CC
-                        if (procSpell && (procSpell->Id == triggeredByAura->GetId()))
-                        {
-                            Aura* aura = triggeredByAura->GetBase();
-                            // called from spellcast, should not have ticked yet
-                            if (aura->GetDuration() == aura->GetMaxDuration())
-                                break;
-                        }
                         int32 damageLeft = triggeredByAura->GetAmount();
                         // No damage left
                         if (damageLeft < int32(damage))
