@@ -1,0 +1,1615 @@
+diff --git a/sql/jail/character_jail.sql b/sql/jail/character_jail.sql
+new file mode 100644
+index 0000000..dd87f5b
+--- /dev/null
++++ b/sql/jail/character_jail.sql
+@@ -0,0 +1,46 @@
++﻿SET NAMES utf8;
++
++DROP TABLE IF EXISTS `jail`;
++CREATE TABLE `jail` (
++  `guid` int(11) unsigned NOT NULL COMMENT 'GUID des Knastbruders',
++  `char` varchar(13) NOT NULL COMMENT 'Charname des Knastbruders',
++  `release` int(11) unsigned NOT NULL COMMENT 'Entlassungszeit',
++  `reason` varchar(255) NOT NULL COMMENT 'Grund für die Verhaftung',
++  `times` int(11) unsigned NOT NULL COMMENT 'Anzahl der Inhaftierungen',
++  `gmacc` int(11) unsigned NOT NULL COMMENT 'Verantwortlicher GM-Account',
++  `gmchar` varchar(13) NOT NULL COMMENT 'Verantwortlicher GM-Char',
++  `lasttime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Letzte Inhaftierungszeit',
++  `duration` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Dauer der Inhaftierung',
++  `btimes` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Anzahl der Bannungen durch das Jail.',
++  PRIMARY KEY (`guid`)
++) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Jail Tabelle für UWoM-Server von WarHead.';
++
++DROP TABLE IF EXISTS `jail_conf`;
++CREATE TABLE `jail_conf` (
++  `max_jails` int(11) unsigned NOT NULL default '3' COMMENT 'Anzahl von Inhaftierungen bei denen der Charrakter gelöscht, und/oder der Account gebannt wird.',
++  `max_duration` int(11) unsigned NOT NULL default '720' COMMENT 'Maximale Inhaftierungszeit in Stunden. (Standard = 30 Tage)',
++  `min_reason` int(11) unsigned NOT NULL default '40' COMMENT 'Minimum Zeichenlänge der Begründung.',
++  `warn_player` tinyint(4) NOT NULL default '1' COMMENT 'Spieler bei jedem Login warnen, wenn die maximale Anzahl der Inhaftierungen fast erreicht ist!? (max_jails)',
++  `ally_x` float NOT NULL default '-8673.43' COMMENT 'Allianz Jail X Koordinate',
++  `ally_y` float NOT NULL default '631.795' COMMENT 'Allianz Jail Y Koordinate',
++  `ally_z` float NOT NULL default '96.9406' COMMENT 'Allianz Jail Z Koordinate',
++  `ally_o` float NOT NULL default '2.1785' COMMENT 'Allianz Jail Orientierung',
++  `ally_m` int(11) unsigned NOT NULL default '0' COMMENT 'Allianz Jail Karte',
++  `horde_x` float NOT NULL default '2179.85' COMMENT 'Horde Jail X Koordinate',
++  `horde_y` float NOT NULL default '-4763.96' COMMENT 'Horde Jail Y Koordinate',
++  `horde_z` float NOT NULL default '54.911' COMMENT 'Horde Jail Z Koordinate',
++  `horde_o` float NOT NULL default '4.44216' COMMENT 'Horde Jail Orientierung',
++  `horde_m` int(11) unsigned NOT NULL default '1' COMMENT 'Horde Jail Karte',
++  `del_char` tinyint(4) NOT NULL default '0' COMMENT 'Charakter löschen, wenn die maximale Anzahl an Inhaftierungen errreicht ist?',
++  `ban_acc` tinyint(4) NOT NULL default '1' COMMENT 'Account bannen, wenn die maximale Anzahl an Inhaftierungen errreicht ist?',
++  `ban_duration` int(11) unsigned NOT NULL default '168' COMMENT 'Banndauer in Stunden, nachdem der Account wieder freigeschaltet wird (Standard = 7 Tage).',
++  `radius` int(11) unsigned NOT NULL default '10' COMMENT 'Radius in Yards (3D), in dem sich der Knastbruder bewegen kann (0 = keine Bewegung möglich).',
++  `enabled` tinyint(4) NOT NULL default '0' COMMENT 'Ein/ausschalten des Jails. Standardeinstellung ist aus.',
++  `gm_acc` int(11) unsigned NOT NULL default '2019794' COMMENT 'Account der genutzt wird, um zu bannen.',
++  `gm_char` varchar(13) NOT NULL default 'Robotron' COMMENT 'Charaktername der genutzt wird, um zu bannen.',
++  PRIMARY KEY  (`max_jails`)
++) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Jail Konfigurations-Tabelle für UWoM-Server von WarHead.';
++
++INSERT INTO `jail_conf` (`max_jails`,`max_duration`,`min_reason`,`warn_player`,`ally_x`,`ally_y`,`ally_z`,`ally_o`,`ally_m`,
++`horde_x`,`horde_y`,`horde_z`,`horde_o`,`horde_m`,`del_char`,`ban_acc`,`ban_duration`,`radius`,`enabled`) VALUES
++(3,672,30,1,31.7282,135.794,-40.0508,4.73516,35,2179.85,-4763.96,54.911,4.44216,1,0,1,168,15,1);
+diff --git a/sql/jail/world_command_jail.sql b/sql/jail/world_command_jail.sql
+new file mode 100644
+index 0000000..a304db7
+--- /dev/null
++++ b/sql/jail/world_command_jail.sql
+@@ -0,0 +1,13 @@
++﻿SET NAMES utf8;
++
++DELETE FROM `command` WHERE `name` LIKE '%jail%';
++INSERT INTO `command` (name, security, help) VALUES
++('jail info',       0, 'Syntax: .jail info\nZeigt dir deinen Knaststatus an.'),
++('jail pinfo',      1, 'Syntax: .jail pinfo [Charakter]\nZeigt Jail-Infos vom selektiertem, oder angegeben Charakter an.'),
++('jail arrest',     2, 'Syntax: .jail arrest Charakter Stunden Grund\nBuchtet den Charakter für Stunden aus dem Grund ein.'),
++('jail release',    2, 'Syntax: .jail release Charakter\nEntlässt den Charakter aus dem Knast.'),
++('jail reset',      2, 'Syntax: .jail reset [Charakter]\nGibt dem selektiertem, oder angegebenen Charakter, wieder eine weisse Weste.\nAls wäre nie etwas geschehen. ;-)\nAmnasty International lässt grüssen! :D'),
++('jail reload',     2, 'Syntax: .jail reload\nLädt die Jail-Konfiguration und die Inhaftierungen neu aus der Datenbank.'),
++('jail enable',     2, 'Syntax: .jail enable\nSchaltet das Jail ein.'),
++('jail disable',    2, 'Syntax: .jail disable\nSchaltet das Jail aus.'),
++('jail delete',     3, 'Syntax: .jail delete\nWie reset, aber löscht auch Jails mit Bannungen!\nDie Bannung wird dadurch auch gelöscht!');
+diff --git a/sql/jail/world_string_jail.sql b/sql/jail/world_string_jail.sql
+new file mode 100644
+index 0000000..8bd214e
+--- /dev/null
++++ b/sql/jail/world_string_jail.sql
+@@ -0,0 +1,43 @@
++﻿SET NAMES utf8;
++
++DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12100 AND 12199;
++INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc3`) VALUES
++(12100, 'You are jailed by %s for %u hour(s)!', 'Du wurdest von %s für %u Stunde(n) eingebuchtet!'),
++(12101, '%s wrote this as reason: %s', '%s gab dies als Grund an: %s'),
++(12102, '%s was jailed by you for %u hour(s).', '%s wurde von dir für %u Stunde(n) eingebuchtet.'),
++(12103, 'You was released out of the jail by %s.', '%s hat dich aus dem Knast entlassen.'),
++(12104, 'You have released %s out of the jail.', 'Du hast %s aus dem Knast geholt.'),
++(12105, 'No reason given or reason is < %u chars!', 'Du hast keinen Grund angegeben, oder der Grund ist < %u Zeichen!'),
++(12106, 'No name given!', 'Du hast keinen Namen angegeben!'),
++(12107, 'No time given!', 'Du hast keine Zeit angegeben!'),
++(12108, 'The jailtime must be between 1 and %u hours!', 'Die Jailzeit muss zwischen 1 und %u Std. liegen!'),
++(12109, 'The character %s is not jailed!', 'Der Charakter %s ist überhaupt nicht im Knast!'),
++(12110, 'Command forbidden for jailed characters!', 'Sorry, aber das dürfen Gefangene nicht!'),
++(12111, 'You have %u hour(s) and %u minute(s) left in the jail.', 'Du musst noch %u Stunde(n) und %u Minute(n) absitzen.'),
++(12112, 'You have %u minute(s) left in the jail.', 'Du musst noch %u Minute(n) absitzen.'),
++(12113, 'You are free like a bird! ;-)', 'Du bist frei, wie ein Vogel! ;-)'),
++(12114, '%s was %u times jailed and has %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Minute(n) abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'),
++(12115, '%s was never jailed.', '%s hat eine weisse Weste.'),
++(12116, 'You can not jail yourself!', 'Du kannst dich nicht selber einbuchten!'),
++(12117, 'You can not unjail yourself!', 'So weit kommt es noch, dass Knastbrüder sich selber befreien! :-('),
++(12118, 'Be carefull!\nOnly one more jailtime and your current character will be deleted!', '!!! ACHTUNG - WICHTIG - WARNUNG !!!\nBeim nächsten Knastbesuch wird dieser Charakter gelöscht!'),
++(12119, 'The character %s was jailed for %u hour(s) by the GM character %s!\nThe reason is: %s', 'Der Charakter %s wurde für %u Stunde(n) vom GM-Charakter %s eingebuchtet!\nDer Grund ist: %s'),
++(12120, 'Jail: The configuration was reloaded.', 'Jail: Die Konfiguration wurde neu geladen.'),
++(12121, 'Jail: Configuration loaded.', 'Jail: Konfiguration geladen.'),
++(12122, 'Jail: Can not load the configuration! The table is empty or missed! Use the character_jail.sql!', 'Jail: Fehler beim laden der Konfiguration! Die Tabelle ist leer, oder nicht vorhanden! Nutze die character_jail.sql!'),
++(12123, 'Jail: Set all config settings to default values.', 'Jail: Setze die Konfiguration auf Standardwerte.'),
++(12124, 'The Character %s (GUID %u) is a jail brother and teleported into the jail.', 'Der Charakter %s (GUID %u) ist ein Knastbruder, und wird in den Knast teleportiert.'),
++(12125, 'The Character %s (GUID %u) was released out of the jail.', 'Der Charakter %s (GUID %u) wurde aus dem Knast entlassen.'),
++(12126, 'A character with this name does not exists!', 'Ein Charakter mit diesem Namen gibt es nicht!'),
++(12127, 'Be carefull!\nOnly one more jailtime and your account will be banned!', '!!! ACHTUNG - WICHTIG - WARNUNG !!!\nBeim nächsten Knastbesuch wird dein Account gebannt!'),
++(12128, 'Max. jailtimes reached!', 'Maximale Anzahl an Jails erreicht!'),
++(12129, 'You are previously convicted but at the moment on preservation free.', 'Du bist vorbestraft, aber im Moment auf Bewährung frei.'),
++(12130, '%s was %u times jailed and has %u hour(s) and %u minute(s) left.\nLast time jailed by: %s.\nThe last jail was on: %s\nThe last reason was: %s', '%s war bis jetzt %u mal im Knast, und hat noch %u Stunde(n) und %u Minuten abzusitzen.\nZuletzt eingebuchtet von: %s\nZuletzt eingebuchtet am: %s\nDer letzte Grund war: %s'),
++(12131, '%s was multiple times jailed and has already %u bans!', '%s wurde mehrfach eingebuchtet, und hat bereits %u Bannung(en)!'),
++(12132, 'The account of this character has further %u bans!','Der Account von ihm wurde ausserdem bereits %u mal gebannt!'),
++(12133, '%s is already in the Jail!','%s ist bereits im Knast!'),
++(12134, 'You can not reset a Jail entry with a banned account!','Das Löschen eines Jaileintrags, dessen Account gebannt wurde, ist nicht möglich!'),
++(12135,  'Jail: Jail data reloaded.','Jail: Die Knastdaten wurden neu geladen.'),
++(12197, 'The Jail is now active.', 'Das Jail ist nun aktiv.'),
++(12198, 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'),
++(12199, 'The Jail is not active!', 'Das Jail ist nicht aktiv!');
+diff --git a/src/server/game/CMakeLists.txt b/src/server/game/CMakeLists.txt
+index 65ba160..7fc9f80 100644
+--- a/src/server/game/CMakeLists.txt
++++ b/src/server/game/CMakeLists.txt
+@@ -31,6 +31,7 @@ file(GLOB_RECURSE sources_Grids Grids/*.cpp Grids/*.h)
+ file(GLOB_RECURSE sources_Groups Groups/*.cpp Groups/*.h)
+ file(GLOB_RECURSE sources_Guilds Guilds/*.cpp Guilds/*.h)
+ file(GLOB_RECURSE sources_Instances Instances/*.cpp Instances/*.h)
++file(GLOB_RECURSE sources_Jail Jail/*.cpp Jail/*.h)
+ file(GLOB_RECURSE sources_Loot Loot/*.cpp Loot/*.h)
+ file(GLOB_RECURSE sources_Mails Mails/*.cpp Mails/*.h)
+ file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
+@@ -80,6 +81,7 @@ set(game_STAT_SRCS
+   ${sources_Groups}
+   ${sources_Guilds}
+   ${sources_Instances}
++  ${sources_Jail}
+   ${sources_Loot}
+   ${sources_Mails}
+   ${sources_Maps}
+@@ -165,6 +167,7 @@ include_directories(
+   ${CMAKE_CURRENT_SOURCE_DIR}/Groups
+   ${CMAKE_CURRENT_SOURCE_DIR}/Guilds
+   ${CMAKE_CURRENT_SOURCE_DIR}/Instances
++  ${CMAKE_CURRENT_SOURCE_DIR}/Jail
+   ${CMAKE_CURRENT_SOURCE_DIR}/Loot
+   ${CMAKE_CURRENT_SOURCE_DIR}/Mails
+   ${CMAKE_CURRENT_SOURCE_DIR}/Maps
+diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
+index 8f1467a..8e5dc09 100755
+--- a/src/server/game/Entities/Player/Player.cpp
++++ b/src/server/game/Entities/Player/Player.cpp
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+  *
+@@ -51,6 +52,7 @@
+ #include "Guild.h"
+ #include "Pet.h"
+ #include "Util.h"
++#include "Jail.h"
+ #include "Transport.h"
+ #include "Weather.h"
+ #include "Battleground.h"
+@@ -678,6 +680,15 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
+ 
+     m_social = NULL;
+ 
++    // Jail von WarHead
++    m_JailRelease = 0;                      // Entlassungszeit
++    m_JailAnzahl = 0;                       // Anzahl der Knastbesuche
++    m_JailGMAcc = 0;                        // GM-Account der ihn eingebuchtet hat
++    m_JailDauer = 0;                        // Dauer des Knastaufenthaltes
++    m_JailBans = 0;                         // Anzahl der Bannungen durch das Jail
++    m_JailWarnTimer = 20*IN_MILLISECONDS;   // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
++    m_Jailed = false;                       // Zur Zeit gerade im Knast?
++
+     // group is initialized in the reference constructor
+     SetGroupInvite(NULL);
+     m_groupUpdateMask = 0;
+@@ -1180,6 +1191,50 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
+     return true;
+ }
+ 
++// Jail Daten laden
++void Player::JailDatenLaden()
++{
++    JailMap const & jailMap = sJail->HoleJailMap();
++    JailMap::const_iterator itr = jailMap.find(GetGUIDLow());
++    if (itr == jailMap.end())
++        return;
++
++    if (itr->second.Release) // Entlassungszeit vorhanden, also ab in den Knast!
++        m_Jailed = true;
++
++    m_JailRelease = itr->second.Release;
++    m_JailGrund = itr->second.Reason;
++    m_JailAnzahl = itr->second.Times;
++    m_JailGMAcc = itr->second.GMAcc;
++    m_JailGMChar = itr->second.GMChar;
++    m_JailZeit = itr->second.Time;
++    m_JailDauer = itr->second.Duration;
++    m_JailBans = itr->second.BTimes;
++
++    sJail->Kontrolle(this);
++}
++
++// Jail Daten speichern
++void Player::JailDatenSpeichern()
++{
++    CharacterDatabase.PExecute("REPLACE INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`,`btimes`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s','%s',%u,%u)",
++        GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailZeit.c_str(), m_JailDauer, m_JailBans);
++
++    JailEintragStruktur JES;
++
++    JES.CharName    = GetName();
++    JES.Release     = m_JailRelease;
++    JES.Reason      = m_JailGrund;
++    JES.Times       = m_JailAnzahl;
++    JES.GMAcc       = m_JailGMAcc;
++    JES.GMChar      = m_JailGMChar;
++    JES.Time        = m_JailZeit;
++    JES.Duration    = m_JailDauer;
++    JES.BTimes      = m_JailBans;
++
++    sJail->AktualisiereJailMap(GetGUIDLow(), JES);
++}
++
+ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
+ {
+     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
+@@ -1489,6 +1544,19 @@ void Player::Update(uint32 p_time)
+     if (!IsInWorld())
+         return;
+ 
++    // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
++    if (m_JailWarnTimer && m_JailWarnTimer <= p_time)
++    {
++        sJail->SendeWarnung(this);
++        m_JailWarnTimer = 0;
++    }
++    else
++        m_JailWarnTimer -= p_time;
++
++    // Jail Kontrolle
++    if (m_Jailed)
++        sJail->Kontrolle(this, true);
++
+     // undelivered mail
+     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
+     {
+@@ -1706,7 +1774,15 @@ void Player::Update(uint32 p_time)
+     }
+ 
+     if (m_deathState == JUST_DIED)
+-        KillPlayer();
++    {   // Knastbrüder nicht sterben lassen (z.B. durch andere User / NPCs etc.)
++        if (!m_Jailed)
++            KillPlayer();
++        else
++        {
++            m_deathState = ALIVE;
++            RegenerateAll();
++        }
++    }
+ 
+     if (m_nextSave > 0)
+     {
+@@ -4900,6 +4976,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
+             trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
+             trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
+             trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
++            trans->PAppend("DELETE FROM jail WHERE guid = '%u'", guid); // Jail von WarHead
+             trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
+                                         "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
+                                         "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
+@@ -17012,6 +17089,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+ 
+     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
+ 
++    // Jail von WarHEad
++    JailDatenLaden();
++
+     return true;
+ }
+ 
+@@ -18350,7 +18430,13 @@ void Player::SaveToDB()
+     // check if stats should only be saved on logout
+     // save stats can be out of transaction
+     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
++    {
++        // Jail Daten speichern
++        if (m_Jailed)
++            JailDatenSpeichern();
++
+         _SaveStats(trans);
++    }
+ 
+     CharacterDatabase.CommitTransaction(trans);
+ 
+diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
+index 0b789ae..46eccba 100755
+--- a/src/server/game/Entities/Player/Player.h
++++ b/src/server/game/Entities/Player/Player.h
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+  *
+@@ -1123,6 +1124,23 @@ class Player : public Unit, public GridObject<Player>
+ 
+         void InitStatsForLevel(bool reapplyMods = false);
+ 
++        // Jail von WarHead
++        uint32 m_JailRelease;       // Entlassungszeit
++        uint32 m_JailAnzahl;        // Anzahl der Knastbesuche
++        uint32 m_JailGMAcc;         // GM-Account der ihn eingebuchtet hat
++        uint32 m_JailDauer;         // Dauer des Knastaufenthaltes
++        uint32 m_JailWarnTimer;     // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
++        uint32 m_JailBans;          // Anzahl der Bannungen durch das Jail
++
++        std::string m_JailGrund;    // Der Grund
++        std::string m_JailGMChar;   // GM-Charakter der ihn eingebuchtet hat
++        std::string m_JailZeit;     // Zeit der letzten Inhaftierung
++
++        bool m_Jailed;              // Zur Zeit gerade im Knast?
++
++        void JailDatenLaden();
++        void JailDatenSpeichern();
++
+         // Played Time Stuff
+         time_t m_logintime;
+         time_t m_Last_tick;
+diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
+new file mode 100644
+index 0000000..37818cf
+--- /dev/null
++++ b/src/server/game/Jail/Jail.cpp
+@@ -0,0 +1,869 @@
++// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
++
++#include "Jail.h"
++
++Jail::Jail()
++{
++}
++
++Jail::~Jail()
++{
++}
++
++bool Jail::LadeKonfiguration(bool reload)
++{
++    // Standardkonfiguration initialisieren...
++    m_JailKonf.MaxJails = 3;
++    m_JailKonf.MaxDauer = 720;  // 30 Tage
++    m_JailKonf.MinGrund = 40;
++    m_JailKonf.Radius = 15;     // Yards
++
++    m_JailKonf.MapAlly = 0;
++    m_JailKonf.MapHorde = 1;
++
++    m_JailKonf.BanDauer = 168;  // 1 Woche
++
++    m_JailKonf.GMAcc = 0;
++
++    m_JailKonf.AllyPos.m_positionX = -8673.43f;
++    m_JailKonf.AllyPos.m_positionY = 631.795f;
++    m_JailKonf.AllyPos.m_positionZ = 96.9406f;
++    m_JailKonf.AllyPos.m_orientation = 2.1785f;
++
++    m_JailKonf.HordePos.m_positionX = 2179.85f;
++    m_JailKonf.HordePos.m_positionY = -4763.96f;
++    m_JailKonf.HordePos.m_positionZ = 54.911f;
++    m_JailKonf.HordePos.m_orientation = 4.44216f;
++
++    m_JailKonf.DelChar = false;
++    m_JailKonf.BanAcc = true;
++    m_JailKonf.WarnUser = true;
++    m_JailKonf.Enabled = false;
++
++    QueryResult result = CharacterDatabase.Query("SELECT * FROM `jail_conf`");
++    if (!result)
++        return false;
++
++    Field * fields = result->Fetch();
++
++    m_JailKonf.MaxJails = fields[0].GetUInt32();
++    m_JailKonf.MaxDauer = fields[1].GetUInt32();
++    m_JailKonf.MinGrund = fields[2].GetUInt32();
++    m_JailKonf.WarnUser = fields[3].GetBool();
++
++    m_JailKonf.AllyPos.m_positionX = fields[4].GetFloat();
++    m_JailKonf.AllyPos.m_positionY = fields[5].GetFloat();
++    m_JailKonf.AllyPos.m_positionZ = fields[6].GetFloat();
++    m_JailKonf.AllyPos.m_orientation = fields[7].GetFloat();
++    m_JailKonf.MapAlly = fields[8].GetUInt32();
++
++    m_JailKonf.HordePos.m_positionX = fields[9].GetFloat();
++    m_JailKonf.HordePos.m_positionY = fields[10].GetFloat();
++    m_JailKonf.HordePos.m_positionZ = fields[11].GetFloat();
++    m_JailKonf.HordePos.m_orientation = fields[12].GetFloat();
++    m_JailKonf.MapHorde = fields[13].GetUInt32();
++
++    m_JailKonf.DelChar = fields[14].GetBool();
++    m_JailKonf.BanAcc = fields[15].GetBool();
++    m_JailKonf.BanDauer = fields[16].GetUInt32();
++    m_JailKonf.Radius = fields[17].GetUInt32();
++    m_JailKonf.Enabled = fields[18].GetBool();
++
++    m_JailKonf.GMAcc = fields[19].GetUInt32();
++    m_JailKonf.GMChar = fields[20].GetString();
++
++    if (!reload)
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
++    else
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD));
++
++    return true;
++}
++
++void Jail::KnastAufraeumen()
++{
++    sLog->outString("Jail: Lösche Einträge mit nicht mehr existierenden Charakteren.");
++    CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid` NOT IN (SELECT `guid` FROM `characters`)");
++}
++
++bool Jail::InfoKommando(ChatHandler * handler)
++{
++    if (!m_JailKonf.Enabled)
++        return SendeInaktiv(handler);
++
++    Player * chr = handler->GetSession()->GetPlayer();
++    if (!chr)
++        return false;
++
++    JailMap::iterator itr = m_JailMap.find(chr->GetGUIDLow());
++    if (itr == m_JailMap.end())
++    {
++        handler->PSendSysMessage(LANG_JAIL_NOTJAILED_INFO, chr->GetName());
++        return true;
++    }
++    // Nur Bannungen eingetragen
++    if (!chr->m_JailAnzahl && chr->m_JailBans)
++    {
++        handler->PSendSysMessage(LANG_JAIL_GM_INFO_BANS, chr->GetName(), chr->m_JailBans);
++        return true;
++    }
++    // Aktiver oder abgelauferner Jail eingetragen
++    time_t localtime = time(NULL);
++    uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / MINUTE));
++
++    if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
++        min_left = 0;
++
++    if (min_left >= MINUTE)
++    {
++        uint32 hours = uint32(floor(float(chr->m_JailRelease - localtime) / HOUR));
++        handler->PSendSysMessage(LANG_JAIL_JAILED_H_INFO, hours, min_left-(hours*MINUTE));
++        handler->PSendSysMessage(LANG_JAIL_REASON, chr->m_JailGMChar.c_str(), chr->m_JailGrund.c_str());
++    }
++    else if (min_left)
++    {
++        handler->PSendSysMessage(LANG_JAIL_JAILED_M_INFO, min_left);
++        handler->PSendSysMessage(LANG_JAIL_REASON, chr->m_JailGMChar.c_str(), chr->m_JailGrund.c_str());
++    }
++    else
++        handler->SendSysMessage(LANG_JAIL_PRESERVATION);
++
++    return true;
++}
++
++bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
++{
++    if (!m_JailKonf.Enabled)
++        return SendeInaktiv(handler);
++
++    Player * target = NULL;
++    uint64 target_guid = 0;
++    std::string target_name;
++
++    if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
++        return false;
++
++    JailMap::iterator itr = m_JailMap.find(GUID_LOPART(target_guid));
++    if (itr == m_JailMap.end())
++    {
++        handler->PSendSysMessage(LANG_JAIL_GM_NOINFO, target_name.c_str());
++        return true;
++    }
++
++    if (target)
++    {
++        // Keine Jails eingetragen
++        if (!target->m_JailAnzahl)
++        {
++            // Keine Banns eingetragen
++            if (!target->m_JailBans)
++            {
++                if (handler->GetSession()->GetPlayer()->GetGUID() == target->GetGUID())
++                {
++                    handler->SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
++                    return true;
++                }
++                else
++                {
++                    handler->SendSysMessage(LANG_JAIL_GM_NOINFO);
++                    return true;
++                }
++            }
++            // Banns ist nicht auf 0
++            else
++            {
++                handler->PSendSysMessage(LANG_JAIL_GM_INFO_BANS, target_name.c_str(), target->m_JailBans);
++                return true;
++            }
++        }
++        // Aktiver oder abgelauferner Jail eingetragen
++        time_t localtime = time(NULL);
++        uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
++
++        if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
++            min_left = 0;
++
++        if (min_left >= MINUTE)
++        {
++            uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
++        }
++        else
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
++
++        if (target->m_JailBans)
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, target->m_JailBans);
++
++        return true;
++    }
++    else
++    {
++        uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name.c_str());
++        uint32 guid = GUID_LOPART(GUID);
++        if (!guid)
++        {
++            handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
++            handler->SetSentErrorMessage(true);
++            return false;
++        }
++
++        // Keine aktiven / abgelaufenen Jails, aber Bannungen
++        if (!itr->second.Times && itr->second.BTimes)
++        {
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_BANS, target_name.c_str(), itr->second.BTimes);
++            return true;
++        }
++
++        time_t localtime = time(NULL);
++        uint32 min_left = uint32(floor(float(itr->second.Release - localtime) / MINUTE));
++
++        if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
++            min_left = 0;
++
++        if (min_left >= MINUTE)
++        {
++            uint32 hours = uint32(floor(float(itr->second.Release - localtime) / HOUR));
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), itr->second.Times, hours, min_left-(hours*MINUTE), itr->second.GMChar.c_str(), itr->second.Time.c_str(), itr->second.Reason.c_str());
++        }
++        else
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), itr->second.Time.c_str(), itr->second.Reason.c_str());
++
++        if (itr->second.BTimes)
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, itr->second.BTimes);
++
++        return true;
++    }
++    return false;
++}
++
++bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
++{
++    if (!m_JailKonf.Enabled)
++        return SendeInaktiv(handler);
++
++    std::string cname;
++    char * charname = strtok((char*)args, " ");
++    if (charname == NULL)
++    {
++        handler->SendSysMessage(LANG_JAIL_NONAME);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++    else
++    {
++        cname = charname;
++        normalizePlayerName(cname);
++    }
++
++    char * timetojail = strtok(NULL, " ");
++    if (timetojail == NULL)
++    {
++        handler->SendSysMessage(LANG_JAIL_NOTIME);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    uint32 jailtime = uint32(atoi(timetojail));
++    if (jailtime < 1 || jailtime > m_JailKonf.MaxDauer)
++    {
++        handler->PSendSysMessage(LANG_JAIL_VALUE, m_JailKonf.MaxDauer);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    char * reason = strtok(NULL, "\0");
++    std::string jailreason;
++    if (reason == NULL || strlen((const char*)reason) < m_JailKonf.MinGrund)
++    {
++        handler->PSendSysMessage(LANG_JAIL_NOREASON, m_JailKonf.MinGrund);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++    else
++        jailreason = reason;
++
++    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
++    if (!GUID)
++    {
++        handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    JailMap::iterator itr = m_JailMap.find(GUID_LOPART(GUID));
++    if (itr != m_JailMap.end())
++    {
++        // Es gibt bereits einen aktiven Jail! Nicht noch einmal einbuchten lassen!
++        if (itr->second.Release)
++        {
++            handler->PSendSysMessage(LANG_JAIL_GM_ALREADY_JAILED, cname.c_str());
++            handler->SetSentErrorMessage(true);
++            return false;
++        }
++    }
++
++    if (GUID == handler->GetSession()->GetPlayer()->GetGUID())
++    {
++        handler->SendSysMessage(LANG_JAIL_NO_JAIL);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
++    std::string timestamp;
++    std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
++
++    QueryResult result = CharacterDatabase.Query("SELECT CURRENT_TIMESTAMP");
++    if (result)
++    {
++        Field * fields = result->Fetch();
++        timestamp = fields[0].GetString();
++    }
++
++    if (Player * chr = sObjectMgr->GetPlayer(GUID_LOPART(GUID)))
++    {   // Ohne Klammern springt er zum Ende, wenn chr == NULL ist!!!
++        if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, timestamp, announce))
++            return true;
++    }
++    else
++    {
++        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, timestamp, announce))
++            return true;
++    }
++    return false;
++}
++
++bool Jail::ReleaseKommando(ChatHandler * handler, const char * args, bool reset)
++{
++    if (!m_JailKonf.Enabled)
++        return SendeInaktiv(handler);
++
++    Player * target = NULL;;
++    uint64 target_guid = 0;
++    std::string target_name;
++
++    if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
++        return false;
++
++    JailMap::iterator itr = m_JailMap.find(GUID_LOPART(target_guid));
++    if (itr == m_JailMap.end())
++    {
++        handler->PSendSysMessage(LANG_JAIL_GM_NOINFO, target_name.c_str());
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    if (target_guid == handler->GetSession()->GetPlayer()->GetGUID())
++    {
++        handler->SendSysMessage(LANG_JAIL_NO_JAIL);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    if (target)
++    {
++        if (target->m_Jailed || reset)
++        {
++            target->m_Jailed = false;
++            target->m_JailRelease = 0;
++            if (target->m_JailAnzahl)
++                --target->m_JailAnzahl;
++
++            if (target->m_JailAnzahl == 0 || reset)
++            {
++                CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", target->GetGUIDLow());
++                // Es gibt keinen DB Eintrag mehr -> also löschen!
++                m_JailMap.erase(itr);
++            }
++            else
++                target->JailDatenSpeichern();
++
++            handler->PSendSysMessage(LANG_JAIL_WAS_UNJAILED, target_name.c_str());
++            ChatHandler(target).PSendSysMessage(LANG_JAIL_YOURE_UNJAILED, handler->GetSession()->GetPlayerName());
++
++            sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), target_name.c_str(), target->GetGUIDLow()));
++            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), target_name.c_str(), target->GetGUIDLow()));
++
++            target->TeleportTo(target->GetStartPosition());
++        }
++        return true;
++    }
++    else
++    {
++        if (!itr->second.Release && !reset)
++        {
++            // Es gibt zwar einen Jaileintrag, aber die Entlassungszeit ist auf 0 ergo -> nicht noch einmal entlassen lassen!
++            // Zum Löschen der Jaileinträge ist das 'reset' Kommando da! ;)
++            handler->PSendSysMessage(LANG_JAIL_CHAR_NOTJAILED, target_name.c_str());
++            handler->SetSentErrorMessage(true);
++            return false;
++        }
++        else
++        {
++            if (itr->second.Times)
++                --itr->second.Times;
++
++            if (itr->second.Times == 0 || reset)
++            {
++                CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(target_guid));
++                // Es gibt keinen DB Eintrag mehr -> also löschen!
++                m_JailMap.erase(itr);
++            }
++            else
++            {
++                CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`times`=%u WHERE `guid`=%u LIMIT 1", itr->second.Times, GUID_LOPART(target_guid));
++                itr->second.Release = 0;
++            }
++
++            // Da der Charakter nicht online ist, setzen wir ihn von Hand zurück nach hause. ;)
++            CharacterDatabase.PExecute("UPDATE characters c,character_homebind b SET c.position_x=b.posX,c.position_y=b.posY,c.position_z= b.posZ,c.map=b.mapId WHERE c.guid=%u", GUID_LOPART(target_guid));
++
++            sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), target_name.c_str(), GUID_LOPART(target_guid)));
++            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), target_name.c_str(), GUID_LOPART(target_guid)));
++
++            handler->PSendSysMessage(LANG_JAIL_WAS_UNJAILED, target_name.c_str());
++        }
++        return true;
++    }
++    return false;
++}
++
++bool Jail::ResetKommando(ChatHandler * handler, const char * args, bool force)
++{
++    if (!m_JailKonf.Enabled)
++        return SendeInaktiv(handler);
++
++    Player * target = NULL;
++    uint64 target_guid = 0;
++    uint32 add_id = 0;
++    std::string target_name;
++
++    if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
++        return false;
++
++    JailMap::iterator itr = m_JailMap.find(GUID_LOPART(target_guid));
++    if (itr == m_JailMap.end())
++    {
++        handler->PSendSysMessage(LANG_JAIL_GM_NOINFO, target_name.c_str());
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    if (target_guid == handler->GetSession()->GetPlayer()->GetGUID())
++    {
++        handler->SendSysMessage(LANG_JAIL_NO_JAIL);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++
++    if (itr != m_JailMap.end())
++    {
++        // Jails, dessen Account gebannt wurde, nicht löschen lassen, es sei denn force (delete Kommando) ist gesetzt!
++        if (!force && ((target && target->m_JailBans) || itr->second.BTimes))
++        {
++            handler->SendSysMessage(LANG_JAIL_GM_NO_DELETE);
++            handler->SetSentErrorMessage(true);
++            return false;
++        }
++    }
++
++    add_id = itr->second.account;
++
++    // Erst aus dem Knast holen, bevor der Jaileintrag gelöscht wird!
++    ReleaseKommando(handler, args, true);
++
++    CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", GUID_LOPART(target_guid));
++
++    if (force)
++        LoginDatabase.PExecute("DELETE FROM `account_banned` WHERE `id`=%u LIMIT 1", add_id);
++
++    // Es gibt keinen DB Eintrag mehr -> also löschen! Es kann aber sein, das itr in ReleaseKommando() bereits gelöscht wurde!
++    itr = m_JailMap.find(GUID_LOPART(target_guid));
++    if (itr != m_JailMap.end())
++        m_JailMap.erase(itr);
++
++    return true;
++}
++
++bool Jail::EnableKommando(ChatHandler * handler)
++{
++    m_JailKonf.Enabled = true;
++    handler->SendSysMessage(LANG_JAIL_ENABLED);
++    return true;
++}
++
++bool Jail::DisableKommando(ChatHandler * handler)
++{
++    m_JailKonf.Enabled = false;
++    handler->SendSysMessage(LANG_JAIL_DISABLED);
++    return true;
++}
++
++bool Jail::ReloadKommando(ChatHandler * handler)
++{
++    if (LadeKonfiguration(true))
++    {
++        handler->SendSysMessage(LANG_JAIL_RELOAD);
++
++        if (Init(true))
++            handler->SendSysMessage(LANG_JAIL_RELOAD_JAIL);
++
++        return true;
++    }
++    return false;
++}
++
++Position Jail::HoleAllyKnastPos()
++{
++    Position pos;
++    pos.m_positionX = m_JailKonf.AllyPos.m_positionX;
++    pos.m_positionY = m_JailKonf.AllyPos.m_positionY;
++    pos.m_positionZ = m_JailKonf.AllyPos.m_positionZ;
++    pos.m_orientation = m_JailKonf.AllyPos.m_orientation;
++    return pos;
++}
++
++Position Jail::HoleHordeKnastPos()
++{
++    Position pos;
++    pos.m_positionX = m_JailKonf.HordePos.m_positionX;
++    pos.m_positionY = m_JailKonf.HordePos.m_positionY;
++    pos.m_positionZ = m_JailKonf.HordePos.m_positionZ;
++    pos.m_orientation = m_JailKonf.HordePos.m_orientation;
++    return pos;
++}
++
++void Jail::Kontrolle(Player * pPlayer, bool update)
++{
++    if (!pPlayer || !m_JailKonf.Enabled)
++        return;
++
++    if (pPlayer->m_Jailed)
++    {
++        Position pos;
++        uint32 map;
++
++        if (pPlayer->GetTeam() == ALLIANCE)
++        {
++            map = HoleAllyKnastKarte();
++            pos = HoleAllyKnastPos();
++        }
++        else
++        {
++            map = HoleHordeKnastKarte();
++            pos = HoleHordeKnastPos();
++        }
++
++        if (pPlayer->GetMapId() != map || m_JailKonf.Radius < uint32(pPlayer->GetDistance(pos)))
++            pPlayer->TeleportTo(map, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation);
++
++        // Spieler hat sich gerade eingelogt
++        if (!update)
++        {
++            sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_TELE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
++            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_TELE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
++        }
++    }
++}
++
++void Jail::Update()
++{
++    sLog->outDebug(LOG_FILTER_NONE, "Jail: Überprüfe das Gefängnis auf abgelaufene Inhaftierungen...");
++
++    if (m_JailMap.empty())
++    {
++        sLog->outDebug(LOG_FILTER_NONE, "Jail: Keine Inhaftierungen gefunden.");
++        return;
++    }
++
++    uint32 cnt = 0;
++    uint32 oldMSTime = getMSTime();
++
++    for (JailMap::iterator itr = m_JailMap.begin(); itr != m_JailMap.end(); ++itr)
++    {
++        if (!itr->second.Release)
++            continue;
++
++        time_t localtime = time(NULL);
++
++        if (Player * pPlayer = sObjectMgr->GetPlayer(itr->first))
++        {
++            // Online Char gefunden!
++            ++cnt;
++
++            if (itr->second.Release > localtime)
++                continue;
++
++            pPlayer->m_Jailed = false;
++            pPlayer->m_JailRelease = 0;
++            pPlayer->JailDatenSpeichern();
++            pPlayer->TeleportTo(pPlayer->GetStartPosition());
++
++            sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
++            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), pPlayer->GetName(), pPlayer->GetGUIDLow()));
++
++            continue;
++        }
++
++        if (itr->second.Release <= localtime)
++        {
++            ++cnt;
++
++            itr->second.Release = 0;
++            CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u WHERE `guid`=%u LIMIT 1", itr->second.Release, itr->first);
++
++            // Da der Charakter nicht online ist, setzen wir ihn von Hand zurück nach hause. ;)
++            CharacterDatabase.PExecute("UPDATE characters c,character_homebind b SET c.position_x=b.posX,c.position_y=b.posY,c.position_z= b.posZ,c.map=b.mapId WHERE c.guid=%u", itr->first);
++
++            sLog->outBasic(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), itr->second.CharName.c_str(), itr->first));
++            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), itr->second.CharName.c_str(), itr->first));
++        }
++    }
++    sLog->outDebug(LOG_FILTER_NONE, "Jail: %u abgelaufene Inhaftierung(en) in %u ms bearbeitet.", cnt, GetMSTimeDiffToNow(oldMSTime));
++}
++
++bool Jail::Init(bool reload)
++{
++    m_JailMap.clear(); // Für den Reload
++
++    sLog->outString("Jail: Initialisiere das Gefängnis...");
++
++    QueryResult result = CharacterDatabase.Query("SELECT * FROM `jail`");
++    if (!result)
++    {
++        sLog->outString("Jail: Keine Inhaftierungen gefunden.");
++        return false;
++    }
++
++    uint32 cnt = 0;
++    uint32 cntaktiv = 0;
++    uint32 oldMSTime = getMSTime();
++
++    do
++    {
++        ++cnt;
++
++        Field * fields = result->Fetch();
++
++        JailEintragStruktur JES;
++
++        uint32 guid     = fields[0].GetUInt32();
++        JES.CharName    = fields[1].GetString();
++        JES.Release     = fields[2].GetUInt32();
++        JES.Reason      = fields[3].GetString();
++        JES.Times       = fields[4].GetUInt32();
++        JES.GMAcc       = fields[5].GetUInt32();
++        JES.GMChar      = fields[6].GetString();
++        JES.Time        = fields[7].GetString();
++        JES.Duration    = fields[8].GetUInt32();
++        JES.BTimes      = fields[9].GetUInt32();
++        JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName.c_str());
++
++        if (JES.Release)
++            ++cntaktiv;
++
++         m_JailMap[guid] = JES;
++
++    } while (result->NextRow());
++
++    sLog->outString("Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.", cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
++
++    if (!reload)
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
++    else
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD));
++
++    return true;
++}
++
++bool Jail::SendeInaktiv(ChatHandler * handler)
++{
++    handler->SendSysMessage(LANG_JAIL_NOT_ACTIVE);
++    handler->SetSentErrorMessage(true);
++    return false;
++}
++
++void Jail::SendeWarnung(Player * pPlayer)
++{
++    if (!pPlayer || !m_JailKonf.Enabled)
++        return;
++
++    // Nur warnen, wenn m_MaxJails auch gesetzt ist! ;)
++    if (m_JailKonf.WarnUser && m_JailKonf.MaxJails && (m_JailKonf.MaxJails - pPlayer->m_JailAnzahl) <= 1)
++    {
++        if (m_JailKonf.DelChar)
++            pPlayer->GetSession()->SendNotification(LANG_JAIL_WARNING);
++
++        if (m_JailKonf.BanAcc)
++            pPlayer->GetSession()->SendNotification(LANG_JAIL_WARNING_BAN);
++    }
++}
++
++bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
++{
++    time_t localtime = time(NULL);
++    uint32 release = localtime + (jailtime * HOUR);
++
++    if (!chr)
++        return false;
++
++    chr->SaveToDB();
++
++    chr->m_Jailed = true;
++    chr->m_JailRelease = release;
++    chr->m_JailGrund = jailreason;
++    chr->m_JailGMAcc = handler->GetSession()->GetAccountId();
++    chr->m_JailGMChar = handler->GetSession()->GetPlayerName();
++    chr->m_JailDauer = jailtime;
++
++    ++chr->m_JailAnzahl;
++
++    chr->JailDatenSpeichern();
++
++    handler->PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);
++    ChatHandler(chr).PSendSysMessage(LANG_JAIL_YOURE_JAILED, handler->GetSession()->GetPlayerName(), jailtime);
++    ChatHandler(chr).PSendSysMessage(LANG_JAIL_REASON, handler->GetSession()->GetPlayerName(), jailreason.c_str());
++
++    sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str());
++
++    // Nur wenn m_MaxJails gesetzt ist, hier hinein gehen!
++    if (m_JailKonf.MaxJails && m_JailKonf.MaxJails == chr->m_JailAnzahl)
++    {
++        uint64 GUID = chr->GetGUID();
++
++        if (m_JailKonf.DelChar)
++        {
++            chr->GetSession()->KickPlayer();
++            chr = NULL; // chr wird durch KickPlayer() ungültig!
++            Player::DeleteFromDB(GUID, acc_id);
++        }
++
++        if (m_JailKonf.BanAcc)
++            if (chr)
++                BannAccount(acc_id, GUID_LOPART(GUID), chr);
++            else
++                BannAccount(acc_id, GUID_LOPART(GUID));
++    }
++    return true;
++}
++
++bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
++{
++    time_t localtime = time(NULL);
++    uint32 release = localtime + (jailtime * HOUR);
++    uint32 times = 0;
++    JailEintragStruktur JES;
++
++    JailMap::iterator itr = m_JailMap.find(guid);
++    if (itr == m_JailMap.end()) // Kein Eintrag vorhanden
++    {
++        ++times;
++
++        CharacterDatabase.PExecute("INSERT INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s','%s',%u)",
++            guid, cname.c_str(), release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), timestamp.c_str(), jailtime);
++
++        JES.BTimes = 0;
++        JES.CharName = cname;
++        JES.Duration = jailtime;
++        JES.GMAcc = handler->GetSession()->GetAccountId();
++        JES.GMChar = handler->GetSession()->GetPlayerName();
++        JES.Reason = jailreason;
++        JES.Time = timestamp;
++        JES.Times = times;
++        JES.Release = release;
++
++        m_JailMap[guid] = JES;
++    }
++    else // Es gibt bereits einen Eintrag
++    {
++        times = ++itr->second.Times;
++
++        CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`lasttime`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
++            release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), timestamp.c_str(), jailtime, guid);
++
++        itr->second.Release = release;
++        itr->second.Reason = jailreason;
++        itr->second.GMAcc = handler->GetSession()->GetAccountId();
++        itr->second.GMChar = handler->GetSession()->GetPlayerName();
++        itr->second.Time = timestamp;
++        itr->second.Duration = jailtime;
++    }
++    handler->PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);
++    sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str());
++
++    // Nur wenn m_MaxJails gesetzt ist, hier hinein gehen!
++    if (m_JailKonf.MaxJails && m_JailKonf.MaxJails == times)
++    {
++        if (m_JailKonf.DelChar)
++            Player::DeleteFromDB(guid, acc_id);
++
++        if (m_JailKonf.BanAcc)
++            BannAccount(acc_id, guid);
++    }
++    return true;
++}
++
++void Jail::BannAccount(uint32 acc_id, uint32 guid, Player * chr)
++{
++    uint32 btimes = 0;
++    time_t localtime = time(NULL);
++    uint32 banrelease = localtime + (m_JailKonf.BanDauer * HOUR);
++
++    JailMap::iterator itr = m_JailMap.find(guid);
++    if (itr != m_JailMap.end())
++    {
++        btimes = ++itr->second.BTimes;
++
++        itr->second.Release = 0;
++        itr->second.Reason = sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON);
++        itr->second.Times = 0;
++        itr->second.GMAcc = m_JailKonf.GMAcc;
++        itr->second.GMChar = m_JailKonf.GMChar;
++        itr->second.Duration = m_JailKonf.BanDauer;
++    }
++    else
++        btimes = 1;
++
++    LoginDatabase.PExecute("REPLACE INTO `account_banned` (`id`,`bandate`,`unbandate`,`bannedby`,`banreason`) VALUES (%u,%u,%u,'%s','%s')",
++        acc_id, localtime, banrelease, m_JailKonf.GMChar.c_str(), sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON));
++
++    // Wenn der Account gebannt wurde, müssen die Daten im Jail zurück gesetzt werden!
++    // Um sehen zu können, warum sie zurück gesetzt wurden, tragen wir dafür die Banndaten ein. ;)
++    CharacterDatabase.PExecute("UPDATE `jail` SET `release`=0,`reason`='%s',`times`=0,`gmacc`=%u,`gmchar`='%s',`duration`=%u,`btimes`=%u WHERE `guid`=%u LIMIT 1",
++        sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_BAN_REASON), m_JailKonf.GMAcc, m_JailKonf.GMChar.c_str(), m_JailKonf.BanDauer, btimes, guid);
++
++    if (chr)
++    {
++        chr->JailDatenSpeichern();
++        chr->GetSession()->KickPlayer();
++    }
++}
++
++char const * Jail::fmtstring(char const * format, ...)
++{
++    va_list     argptr;
++    static char temp_buffer[MAX_FMT_STRING];
++    static char string[MAX_FMT_STRING];
++    static int  index = 0;
++    char        *buf;
++    int         len;
++
++    va_start(argptr, format);
++    vsnprintf(temp_buffer,MAX_FMT_STRING, format, argptr);
++    va_end(argptr);
++
++    len = strlen(temp_buffer);
++
++    if (len >= MAX_FMT_STRING)
++        return "FEHLER";
++
++    if (len + index >= MAX_FMT_STRING-1)
++        index = 0;
++
++    buf = &string[index];
++    memcpy(buf, temp_buffer, len+1);
++
++    index += len + 1;
++
++    return buf;
++}
+diff --git a/src/server/game/Jail/Jail.h b/src/server/game/Jail/Jail.h
+new file mode 100644
+index 0000000..56d3048
+--- /dev/null
++++ b/src/server/game/Jail/Jail.h
+@@ -0,0 +1,101 @@
++// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
++
++#ifndef _JAIL_H
++#define _JAIL_H
++
++#include "Chat.h"
++
++#define MAX_FMT_STRING  32000
++
++struct JailKonfStruktur
++{
++    uint32 MaxJails;    // Beim erreichen dieses Wertes, wird der Charakter gelöscht / der Account gebannt.
++    uint32 MaxDauer;    // Die maximale Dauer für einen Knastausenthalt.
++    uint32 MinGrund;    // Minimale Zeichenlänge für den Jailgrund.
++    uint32 MapAlly;     // Knastkarte für die Allies
++    uint32 MapHorde;    // Knastkarte für die Horde
++    uint32 BanDauer;    // Nach dieser Zeit (Std.) wird ein durch das Jail gebannter Account wieder freigeschaltet.
++    uint32 Radius;      // Radius in dem der Knastbruder sich bewegen darf.
++    uint32 GMAcc;       // Account der zum Bannen genutzt wird
++
++    Position AllyPos;   // Koordinaten für den Allyknast
++    Position HordePos;  // Koordinaten für den Hordeknast
++
++    bool WarnUser;      // Spieler warnen, wenn er nur einen Jail von der Charakterlöschung / Accountbannung entfernt ist?
++    bool DelChar;       // Charakter löschen, wenn m_MaxJails erreicht wird?
++    bool BanAcc;        // Account bannen, wenn m_MaxJails erreicht wird?
++    bool Enabled;       // Ist das Jail aktiviert?
++
++    std::string GMChar; // Charname der zum Bannen genutzt wird
++};
++
++struct JailEintragStruktur
++{
++    uint32 Release;         // Entlassungszeit
++    uint32 Times;           // Anzahl der Inhaftierungen
++    uint32 BTimes;          // Anzahl der Bannungen des Accounts, aufgrund von diesem Char
++    uint32 Duration;        // Dauer der Inhaftierung
++    uint32 GMAcc;           // Account des GM
++
++    std::string CharName;   // Charaktername des Häftlings
++    std::string GMChar;     // Charaktername des GM
++    std::string Reason;     // Grund der Inhaftierung
++    std::string Time;       // Zeitstempel der Inhaftierung
++
++    uint32 account;         // Nicht im Jailtable vorhanden - dient nur zu internen Zwecken!
++};
++
++typedef UNORDERED_MAP<uint32, JailEintragStruktur> JailMap;
++
++class Jail
++{
++    friend class ACE_Singleton<Jail, ACE_Null_Mutex>;
++    Jail();
++    ~Jail();
++
++private:
++    JailKonfStruktur    m_JailKonf; // Konfiguration des Jails
++    JailMap             m_JailMap;  // UNORDERED_MAP aller Jaileinträge
++
++    bool SendeInaktiv(ChatHandler * handler);
++    bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
++    bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
++    void BannAccount(uint32 acc_id, uint32 guid, Player * chr = NULL);
++    char const * fmtstring(char const * format, ...);
++
++public:
++    // Konfiguration laden
++    bool LadeKonfiguration(bool reload = false);
++    // Inhaftierungen laden
++    bool Init(bool reload = false);
++    // Knast auf nicht mehr existierende Charaktere prüfen
++    void KnastAufraeumen();
++    // Jede Minute schauen, ob jemand entlassen werden muss.
++    void Update();
++
++    // Kommandos aus jail_commandscript bearbeiten
++    bool InfoKommando(ChatHandler * handler);
++    bool PInfoKommando(ChatHandler * handler, const char * args);
++    bool ArrestKommando(ChatHandler * handler, const char * args);
++    bool ReleaseKommando(ChatHandler * handler, const char * args, bool reset = false);
++    bool ResetKommando(ChatHandler * handler, const char * args, bool force = false);
++    bool ReloadKommando(ChatHandler * handler);
++    bool EnableKommando(ChatHandler * handler);
++    bool DisableKommando(ChatHandler * handler);
++
++    Position HoleAllyKnastPos();
++    Position HoleHordeKnastPos();
++
++    const uint32 HoleAllyKnastKarte() { return m_JailKonf.MapAlly; };
++    const uint32 HoleHordeKnastKarte() { return m_JailKonf.MapHorde; };
++
++    void Kontrolle(Player * pPlayer, bool update = false);
++    void SendeWarnung(Player * pPlayer);
++
++    JailMap const & HoleJailMap() const { return m_JailMap; }
++    void AktualisiereJailMap(uint32 guid, JailEintragStruktur & JES) { m_JailMap[guid] = JES; };
++};
++
++#define sJail ACE_Singleton<Jail, ACE_Null_Mutex>::instance()
++
++#endif
+diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
+index 41458ec..fec3cf4 100755
+--- a/src/server/game/Miscellaneous/Language.h
++++ b/src/server/game/Miscellaneous/Language.h
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+  *
+@@ -1048,9 +1049,50 @@ enum TrinityStrings
+     LANG_AUTO_BROADCAST                 = 11000,
+     LANG_INVALID_REALMID                = 11001,
+ 
+-    // NOT RESERVED IDS                   12000-1999999999
++    // NOT RESERVED IDS                   12200-1999999999
+     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
+     // For other tables maybe             2000010000-2147483647 (max index)
++
++    // Jail 12100-12199 reserviert
++    LANG_JAIL_YOURE_JAILED      = 12100,
++    LANG_JAIL_REASON            = 12101,
++    LANG_JAIL_WAS_JAILED        = 12102,
++    LANG_JAIL_YOURE_UNJAILED    = 12103,
++    LANG_JAIL_WAS_UNJAILED      = 12104,
++    LANG_JAIL_NOREASON          = 12105,
++    LANG_JAIL_NONAME            = 12106,
++    LANG_JAIL_NOTIME            = 12107,
++    LANG_JAIL_VALUE             = 12108,
++    LANG_JAIL_CHAR_NOTJAILED    = 12109,
++    LANG_JAIL_DENIED            = 12110,
++    LANG_JAIL_JAILED_H_INFO     = 12111,
++    LANG_JAIL_JAILED_M_INFO     = 12112,
++    LANG_JAIL_NOTJAILED_INFO    = 12113,
++    LANG_JAIL_GM_INFO           = 12114,
++    LANG_JAIL_GM_NOINFO         = 12115,
++    LANG_JAIL_NO_JAIL           = 12116,
++    LANG_JAIL_NO_UNJAIL         = 12117,
++    LANG_JAIL_WARNING           = 12118,
++    LANG_JAIL_ANNOUNCE          = 12119,
++    LANG_JAIL_RELOAD            = 12120,
++    LANG_JAIL_CONF_LOADED       = 12121,
++    LANG_JAIL_CONF_ERR1         = 12122,
++    LANG_JAIL_CONF_ERR2         = 12123,
++    LANG_JAIL_CHAR_TELE         = 12124,
++    LANG_JAIL_CHAR_FREE         = 12125,
++    LANG_JAIL_WRONG_NAME        = 12126,
++    LANG_JAIL_WARNING_BAN       = 12127,
++    LANG_JAIL_BAN_REASON        = 12128,
++    LANG_JAIL_PRESERVATION      = 12129,
++    LANG_JAIL_GM_INFO_H         = 12130,
++    LANG_JAIL_GM_INFO_BANS      = 12131,
++    LANG_JAIL_GM_INFO_ONLY_BANS = 12132,
++    LANG_JAIL_GM_ALREADY_JAILED = 12133,
++    LANG_JAIL_GM_NO_DELETE      = 12134,
++    LANG_JAIL_RELOAD_JAIL       = 12135,
++    LANG_JAIL_ENABLED           = 12197,
++    LANG_JAIL_DISABLED          = 12198,
++    LANG_JAIL_NOT_ACTIVE        = 12199
+ };
+-#endif
+ 
++#endif
+diff --git a/src/server/game/Scripting/ScriptLoader.cpp b/src/server/game/Scripting/ScriptLoader.cpp
+index 0293c35..a8fdc80 100755
+--- a/src/server/game/Scripting/ScriptLoader.cpp
++++ b/src/server/game/Scripting/ScriptLoader.cpp
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+@@ -51,6 +52,7 @@ void AddSC_gm_commandscript();
+ void AddSC_go_commandscript();
+ void AddSC_gobject_commandscript();
+ void AddSC_honor_commandscript();
++void AddSC_jail_commandscript();
+ void AddSC_learn_commandscript();
+ void AddSC_modify_commandscript();
+ void AddSC_npc_commandscript();
+@@ -486,17 +488,17 @@ void AddSC_boss_baltharus_the_warborn();
+ void AddSC_boss_saviana_ragefire();
+ void AddSC_boss_general_zarithrian();
+ 
+-void AddSC_dalaran();
++void AddSC_crystalsong_forest();
+ void AddSC_borean_tundra();
++void AddSC_dalaran();
+ void AddSC_dragonblight();
+ void AddSC_grizzly_hills();
+ void AddSC_howling_fjord();
+ void AddSC_icecrown();
++void AddSC_isle_of_conquest();
+ void AddSC_sholazar_basin();
+ void AddSC_storm_peaks();
+ void AddSC_zuldrak();
+-void AddSC_crystalsong_forest();
+-void AddSC_isle_of_conquest();
+ 
+ //outland
+ void AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
+@@ -650,6 +652,7 @@ void AddCommandScripts()
+     AddSC_go_commandscript();
+     AddSC_gobject_commandscript();
+     AddSC_honor_commandscript();
++    AddSC_jail_commandscript();
+     AddSC_learn_commandscript();
+     AddSC_modify_commandscript();
+     AddSC_npc_commandscript();
+diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
+index 494908b..7a0c169 100755
+--- a/src/server/game/World/World.cpp
++++ b/src/server/game/World/World.cpp
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+  *
+@@ -44,6 +45,7 @@
+ #include "SpellMgr.h"
+ #include "GroupMgr.h"
+ #include "Chat.h"
++#include "Jail.h"
+ #include "DBCStores.h"
+ #include "LootMgr.h"
+ #include "ItemEnchantmentMgr.h"
+@@ -1643,6 +1645,9 @@ void World::SetInitialWorldSettings()
+ 
+     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
+     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
++
++    m_timers[WUPDATE_JAILS].SetInterval(MINUTE*IN_MILLISECONDS); // Jail - Jede Minute schauen, ob jemand entlassen werden muss.
++
+     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
+                                                             //Update "uptime" table based on configuration entry in minutes.
+     m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
+@@ -1716,6 +1721,20 @@ void World::SetInitialWorldSettings()
+     sLog->outString("Calculate random battleground reset time..." );
+     InitRandomBGResetTime();
+ 
++    // Jail von WarHead
++    sLog->outString();
++    sLog->outString("Jail: (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de"); // Durch das Ändern / Löschen dieser Ausgabe erlischt das Recht zur Nutzung!
++    sLog->outString("Jail: Lade die Konfiguration..." );
++    if (!sJail->LadeKonfiguration())
++    {
++        sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));
++        sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR2));
++    }
++    if (sJail->Init())
++        sJail->KnastAufraeumen();
++
++    sLog->outString();
++
+     // possibly enable db logging; avoid massive startup spam by doing it here.
+     if (sLog->GetLogDBLater())
+     {
+@@ -1896,6 +1915,13 @@ void World::Update(uint32 diff)
+         sAuctionMgr->Update();
+     }
+ 
++    // Jail auf abgelaufene Einträge überprüfen
++    if (m_timers[WUPDATE_JAILS].Passed())
++    {
++        sJail->Update();
++        m_timers[WUPDATE_JAILS].Reset();
++    }
++
+     /// <li> Handle session updates when the timer has passed
+     RecordTimeDiff(NULL);
+     UpdateSessions(diff);
+diff --git a/src/server/game/World/World.h b/src/server/game/World/World.h
+index 1f3cd3c..c0fe2e3 100755
+--- a/src/server/game/World/World.h
++++ b/src/server/game/World/World.h
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+  *
+@@ -16,10 +17,6 @@
+  * with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+-/// \addtogroup world The World
+-/// @{
+-/// \file
+-
+ #ifndef __WORLD_H
+ #define __WORLD_H
+ 
+@@ -68,6 +65,7 @@ enum ShutdownExitCode
+ enum WorldTimers
+ {
+     WUPDATE_AUCTIONS,
++    WUPDATE_JAILS,
+     WUPDATE_WEATHERS,
+     WUPDATE_UPTIME,
+     WUPDATE_CORPSES,
+diff --git a/src/server/scripts/CMakeLists.txt b/src/server/scripts/CMakeLists.txt
+index de660b8..f1cecf0 100644
+--- a/src/server/scripts/CMakeLists.txt
++++ b/src/server/scripts/CMakeLists.txt
+@@ -113,6 +113,7 @@ include_directories(
+   ${CMAKE_SOURCE_DIR}/src/server/game/Groups
+   ${CMAKE_SOURCE_DIR}/src/server/game/Guilds
+   ${CMAKE_SOURCE_DIR}/src/server/game/Instances
++  ${CMAKE_SOURCE_DIR}/src/server/game/Jail
+   ${CMAKE_SOURCE_DIR}/src/server/game/LookingForGroup
+   ${CMAKE_SOURCE_DIR}/src/server/game/Loot
+   ${CMAKE_SOURCE_DIR}/src/server/game/Mails
+diff --git a/src/server/scripts/Commands/CMakeLists.txt b/src/server/scripts/Commands/CMakeLists.txt
+index 809e782..14775f1 100644
+--- a/src/server/scripts/Commands/CMakeLists.txt
++++ b/src/server/scripts/Commands/CMakeLists.txt
+@@ -1,3 +1,4 @@
++# Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ # Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ #
+ # This file is free software; as a special exception the author gives
+@@ -23,6 +24,7 @@ set(scripts_STAT_SRCS
+   Commands/cs_event.cpp
+   Commands/cs_gobject.cpp
+   Commands/cs_honor.cpp
++  Commands/cs_jail.cpp
+   Commands/cs_wp.cpp
+   Commands/cs_titles.cpp
+   Commands/cs_quest.cpp
+diff --git a/src/server/scripts/Commands/cs_jail.cpp b/src/server/scripts/Commands/cs_jail.cpp
+new file mode 100644
+index 0000000..01a1db0
+--- /dev/null
++++ b/src/server/scripts/Commands/cs_jail.cpp
+@@ -0,0 +1,48 @@
++// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
++
++#include "Jail.h"
++#include "ScriptMgr.h"
++#include "Chat.h"
++
++class jail_commandscript : public CommandScript
++{
++public:
++    jail_commandscript() : CommandScript("jail_commandscript") { }
++
++    ChatCommand * GetCommands() const
++    {
++        static ChatCommand JailCommandTable[] =
++        {
++            { "info",       SEC_PLAYER,         true,   &HandleJailInfoCmd,     "", NULL },
++            { "pinfo",      SEC_MODERATOR,      true,   &HandleJailPInfoCmd,    "", NULL },
++            { "arrest",     SEC_GAMEMASTER,     true,   &HandleJailArrestCmd,   "", NULL },
++            { "release",    SEC_GAMEMASTER,     true,   &HandleJailReleaseCmd,  "", NULL },
++            { "reset",      SEC_GAMEMASTER,     true,   &HandleJailResetCmd,    "", NULL },
++            { "reload",     SEC_GAMEMASTER,     true,   &HandleJailReloadCmd,   "", NULL },
++            { "enable",     SEC_GAMEMASTER,     true,   &HandleJailEnableCmd,   "", NULL },
++            { "disable",    SEC_GAMEMASTER,     true,   &HandleJailDisableCmd,  "", NULL },
++            { "delete",     SEC_ADMINISTRATOR,  true,   &HandleJailDeleteCmd,   "", NULL },
++            { NULL,         0,                  false,  NULL,                   "", NULL }
++        };
++        static ChatCommand commandTable[] =
++        {
++            { "jail",   SEC_PLAYER, true,   NULL,   "", JailCommandTable },
++            { NULL,     0,          false,  NULL,   "", NULL }
++        };
++        return commandTable;
++    }
++    static bool HandleJailInfoCmd(ChatHandler       * handler, const char * /*args*/)   { return sJail->InfoKommando(handler);              }
++    static bool HandleJailPInfoCmd(ChatHandler      * handler, const char * args)       { return sJail->PInfoKommando(handler, args);       }
++    static bool HandleJailArrestCmd(ChatHandler     * handler, const char * args)       { return sJail->ArrestKommando(handler, args);      }
++    static bool HandleJailReleaseCmd(ChatHandler    * handler, const char * args)       { return sJail->ReleaseKommando(handler, args);     }
++    static bool HandleJailResetCmd(ChatHandler      * handler, const char * args)       { return sJail->ResetKommando(handler, args);       }
++    static bool HandleJailReloadCmd(ChatHandler     * handler, const char * /*args*/)   { return sJail->ReloadKommando(handler);            }
++    static bool HandleJailEnableCmd(ChatHandler     * handler, const char * /*args*/)   { return sJail->EnableKommando(handler);            }
++    static bool HandleJailDisableCmd(ChatHandler    * handler, const char * /*args*/)   { return sJail->DisableKommando(handler);           }
++    static bool HandleJailDeleteCmd(ChatHandler     * handler, const char * args)       { return sJail->ResetKommando(handler, args, true); }
++};
++
++void AddSC_jail_commandscript()
++{
++    new jail_commandscript();
++}
+diff --git a/src/server/worldserver/CMakeLists.txt b/src/server/worldserver/CMakeLists.txt
+index cdd9b04..889554b 100644
+--- a/src/server/worldserver/CMakeLists.txt
++++ b/src/server/worldserver/CMakeLists.txt
+@@ -109,6 +109,7 @@ include_directories(
+   ${CMAKE_SOURCE_DIR}/src/server/game/Groups
+   ${CMAKE_SOURCE_DIR}/src/server/game/Guilds
+   ${CMAKE_SOURCE_DIR}/src/server/game/Instances
++  ${CMAKE_SOURCE_DIR}/src/server/game/Jail
+   ${CMAKE_SOURCE_DIR}/src/server/game/Loot
+   ${CMAKE_SOURCE_DIR}/src/server/game/Mails
+   ${CMAKE_SOURCE_DIR}/src/server/game/Maps
