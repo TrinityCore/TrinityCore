@@ -826,6 +826,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (refresh)
     {
+        RefreshSpellMods();
         RefreshTimers();
 
         // reset charges
@@ -833,6 +834,13 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     }
     SetNeedClientUpdateForTargets();
     return false;
+}
+
+void Aura::RefreshSpellMods()
+{
+    for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+        if (Player * player = appIter->second->GetTarget()->ToPlayer())
+            player->RestoreAllSpellMods(0, this);
 }
 
 bool Aura::IsPassive() const
