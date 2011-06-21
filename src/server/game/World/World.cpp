@@ -1749,6 +1749,7 @@ void World::SetInitialWorldSettings()
 
     // Jail von WarHead
     sLog->outString();
+    sLog->outString("Jail: (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de"); // Durch das Ändern / Löschen dieser Ausgabe erlischt das Recht zur Nutzung!
     sLog->outString("Jail: Lade die Konfiguration..." );
     if (!sJail->LadeKonfiguration())
     {
