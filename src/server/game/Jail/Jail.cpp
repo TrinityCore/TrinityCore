@@ -702,7 +702,7 @@ void Jail::SendeWarnung(Player * pPlayer)
 bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
 {
     time_t localtime = time(NULL);
-    uint32 release = localtime + (jailtime * HOUR);
+    uint32 release = uint32(localtime + (jailtime * HOUR));
 
     if (!chr)
         return false;
@@ -750,7 +750,7 @@ bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, 
 bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
 {
     time_t localtime = time(NULL);
-    uint32 release = localtime + (jailtime * HOUR);
+    uint32 release = uint32(localtime + (jailtime * HOUR));
     uint32 times = 0;
     JailEintragStruktur JES;
 
@@ -807,7 +807,7 @@ void Jail::BannAccount(uint32 acc_id, uint32 guid, Player * chr)
 {
     uint32 btimes = 0;
     time_t localtime = time(NULL);
-    uint32 banrelease = localtime + (m_JailKonf.BanDauer * HOUR);
+    uint32 banrelease = uint32(localtime + (m_JailKonf.BanDauer * HOUR));
 
     JailMap::iterator itr = m_JailMap.find(guid);
     if (itr != m_JailMap.end())
