@@ -63,7 +63,7 @@ class DatabaseWorkerPool
 
         ~DatabaseWorkerPool()
         {
-            sLog->outSQLDriver("~DatabaseWorkerPool for '%s'.", m_connectionInfo.database.c_str());
+            sLog->outDetail("~DatabaseWorkerPool for '%s'.", m_connectionInfo.database.c_str());
         }
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
@@ -71,7 +71,7 @@ class DatabaseWorkerPool
             bool res = true;
             m_connectionInfo = MySQLConnectionInfo(infoString);
 
-            sLog->outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
+            sLog->outDetail("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
 
             /// Open asynchronous connections (delayed operations)
             m_connections[IDX_ASYNC].resize(async_threads);
@@ -93,13 +93,13 @@ class DatabaseWorkerPool
                 ++m_connectionCount[IDX_SYNCH];
             }
 
-            sLog->outSQLDriver("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
+            sLog->outDetail("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
             return res;
         }
 
         void Close()
         {
-            sLog->outSQLDriver("Closing down databasepool '%s'.", m_connectionInfo.database.c_str());
+            sLog->outDetail("Closing down databasepool '%s'.", m_connectionInfo.database.c_str());
 
             /// Shuts down delaythreads for this connection pool by underlying deactivate()
             m_queue->queue()->close();
@@ -115,7 +115,7 @@ class DatabaseWorkerPool
                 t->Close();
             }
 
-            sLog->outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
+            sLog->outDetail("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
 
             /// Shut down the synchronous connections
             for (uint8 i = 0; i < m_connectionCount[IDX_SYNCH]; ++i)
@@ -126,7 +126,7 @@ class DatabaseWorkerPool
                 t->Close();
             }
 
-            sLog->outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
+            sLog->outDetail("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
         }
 
         /**
