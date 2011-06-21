@@ -1945,7 +1945,7 @@ void World::Update(uint32 diff)
         sAuctionMgr->Update();
     }
 
-    // Jail auf abgelaufene Einträge überprüfen
+    // Jail auf abgelaufene EintrÃ¤ge Ã¼berprÃ¼fen
     if (m_timers[WUPDATE_JAILS].Passed())
     {
         sJail->Update();
@@ -2895,7 +2895,7 @@ void World::ProcessQueryCallbacks()
     }
 }
 
-/* Werde ich für meinen Tausendwinter Source umschreiben.
+/* Werde ich fÃ¼r meinen Tausendwinter Source umschreiben.
 void World::SendWintergraspState()
 {
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
