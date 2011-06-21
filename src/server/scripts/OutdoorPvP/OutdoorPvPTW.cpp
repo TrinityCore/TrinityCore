@@ -932,8 +932,8 @@ void Tausendwinter::AktualisiereZeitanzeige(uint32 & Zeit, uint32 digit, uint32 
     if (m_TeamZeit[digit] != wert)
     {
         m_TeamZeit[digit] = wert;
-        OutdoorPvP::SendUpdateWorldState(WeltStatusZeit[digit], (Zeit + time(NULL)));
-        sWorld->AktualisiereNaechsteTWSchlachtZeit(Zeit + time(NULL), digit);
+        OutdoorPvP::SendUpdateWorldState(WeltStatusZeit[digit], uint32(Zeit + time(NULL)));
+        sWorld->AktualisiereNaechsteTWSchlachtZeit(uint32(Zeit + time(NULL)), digit);
     }
 }
 
@@ -3113,7 +3113,7 @@ void Tausendwinter::VerschiebeToteSpieler(Creature * pCr)
     if (!pCr || HoleNPCTyp(pCr->GetEntry()) != TW_NPC_TYP_GEISTERFUEHRER)
         return;
 
-    NPCMap::const_iterator iter = m_NPCMap.find(pCr->GetGUID());
+    NPCMap::const_iterator iter = m_NPCMap.find(pCr->GetGUIDLow());
     if (iter != m_NPCMap.end())
     {
         if (!(*iter).second->m_WiederbelebungsListe.empty())
