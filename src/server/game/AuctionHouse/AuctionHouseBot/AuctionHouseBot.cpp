@@ -430,8 +430,8 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
             auctionEntry->item_guidlow = item->GetGUIDLow();
             auctionEntry->item_template = item->GetEntry();
             auctionEntry->owner = AHBplayer->GetGUIDLow();
-            auctionEntry->startbid = bidPrice * stackCount;
-            auctionEntry->buyout = buyoutPrice * stackCount;
+            auctionEntry->startbid = uint32(bidPrice * stackCount);
+            auctionEntry->buyout = uint32(buyoutPrice * stackCount);
             auctionEntry->bidder = 0;
             auctionEntry->bid = 0;
             auctionEntry->deposit = dep;
@@ -1512,7 +1512,7 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
                 {
                     itr->second->expire_time = sWorld->GetGameTime();
                     uint32 id = itr->second->Id;
-                    uint32 expire_time = itr->second->expire_time;
+                    uint32 expire_time = uint32(itr->second->expire_time);
                     CharacterDatabase.PExecute("UPDATE auctionhouse SET time = '%u' WHERE id = '%u'", expire_time, id);
                 }
                 ++itr;
