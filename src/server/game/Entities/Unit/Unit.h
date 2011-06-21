@@ -2118,6 +2118,8 @@ class Unit : public WorldObject
         bool m_isSorted;
         uint32 m_transform;
 
+        Spell* m_currentSpells[CURRENT_MAX_SPELL];
+
         AuraMap m_ownedAuras;
         AuraApplicationMap m_appliedAuras;
         AuraList m_removedAuras;
@@ -2189,8 +2191,6 @@ class Unit : public WorldObject
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs
-
-        Spell* m_currentSpells[CURRENT_MAX_SPELL];
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

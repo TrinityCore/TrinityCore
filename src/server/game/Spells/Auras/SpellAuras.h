@@ -142,6 +142,8 @@ class Aura
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
+        void RefreshSpellMods();
+
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
         bool IsPassive() const;
