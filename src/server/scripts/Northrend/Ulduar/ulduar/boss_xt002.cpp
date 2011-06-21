@@ -1031,7 +1031,7 @@ class achievement_nerf_engineering : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
-            if (!target || target->GetAI())
+            if (!target || !target->GetAI())
                 return false;
             
             return !(target->GetAI()->GetData(DATA_HEALTH_RECOVERED));
@@ -1045,7 +1045,7 @@ class achievement_heartbreaker : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
-            if (!target || target->GetAI())
+            if (!target || !target->GetAI())
                 return false;
 
             return target->GetAI()->GetData(DATA_HARD_MODE);
@@ -1059,7 +1059,7 @@ class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* target)
         {
-            if (!target || target->GetAI())
+            if (!target || !target->GetAI())
                 return false;
 
             return !(target->GetAI()->GetData(DATA_GRAVITY_BOMB_CASUALTY));
