@@ -86,13 +86,15 @@ struct ActiveBoatStruct
     float MoveX, MoveY, MoveZ, SpawnX, SpawnY, SpawnZ, SpawnO;
 };
 
-static ActiveBoatStruct ActiveBot[4] =
+static ActiveBoatStruct ActiveBoat[4] =
 {
     {CREATURE_BJORN_VISUAL,  SAY_SUMMON_BJORN,  404.379f, -335.335f, 104.756f, 413.594f, -335.408f, 107.995f, 3.157f},
     {CREATURE_HALDOR_VISUAL, SAY_SUMMON_HALDOR, 380.813f, -335.069f, 104.756f, 369.994f, -334.771f, 107.995f, 6.232f},
     {CREATURE_RANULF_VISUAL, SAY_SUMMON_RANULF, 381.546f, -314.362f, 104.756f, 370.841f, -314.426f, 107.995f, 6.232f},
     {CREATURE_TORGYN_VISUAL, SAY_SUMMON_TORGYN, 404.310f, -314.761f, 104.756f, 413.992f, -314.703f, 107.995f, 3.157f}
 };
+
+#define DATA_KINGS_BANE                     2157
 
 class boss_ymiron : public CreatureScript
 {
@@ -126,6 +128,7 @@ public:
         bool m_bIsActiveWithHALDOR;
         bool m_bIsActiveWithRANULF;
         bool m_bIsActiveWithTORGYN;
+        bool kingsBane; // Achievement King's Bane
 
         uint8 m_uiActiveOrder[4];
         uint8 m_uiActivedNumber;
@@ -156,6 +159,7 @@ public:
             m_bIsActiveWithHALDOR = false;
             m_bIsActiveWithRANULF = false;
             m_bIsActiveWithTORGYN = false;
+            kingsBane = true;
 
             m_uiFetidRot_Timer            = urand(8000, 13000);
             m_uiBane_Timer                = urand(18000, 23000);
@@ -187,15 +191,35 @@ public:
                 pInstance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
         }
 
+        void SpellHitTarget(Unit* who, SpellEntry const* spell)
+        {
+            if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
+                SetData(DATA_KINGS_BANE, 0);
+        }
+
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == DATA_KINGS_BANE)
+                kingsBane = data ? true : false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_KINGS_BANE)
+                return kingsBane ? 1 : 0;
+
+            return 0;
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (m_bIsWalking)
             {
                 if (m_uiPause_Timer <= diff)
                 {
-                    DoScriptText(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].say, me);
+                    DoScriptText(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].say, me);
                     DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
-                    if (Creature* pTemp = me->SummonCreature(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pTemp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         m_uiActivedCreatureGUID = pTemp->GetGUID();
                         pTemp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
@@ -321,7 +345,7 @@ public:
                     me->GetMotionMaster()->Clear();
                     me->StopMoving();
                     me->AttackStop();
-                    me->GetMotionMaster()->MovePoint(0, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveX, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveY, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveZ);
+                    me->GetMotionMaster()->MovePoint(0, ActiveBoat[m_uiActiveOrder[m_uiOrder]].MoveX, ActiveBoat[m_uiActiveOrder[m_uiOrder]].MoveY, ActiveBoat[m_uiActiveOrder[m_uiOrder]].MoveZ);
 
                     DespawnBoatGhosts(m_uiActivedCreatureGUID);
                     DespawnBoatGhosts(m_uiOrbGUID);
@@ -373,7 +397,25 @@ public:
 
 };
 
+class achievement_kings_bane : public AchievementCriteriaScript
+{
+    public:
+        achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Ymiron = target->ToCreature())
+                if (Ymiron->AI()->GetData(DATA_KINGS_BANE))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_ymiron()
 {
     new boss_ymiron();
+    new achievement_kings_bane();
 }
