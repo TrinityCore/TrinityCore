@@ -2096,6 +2096,10 @@ class spell_lich_king_defile : public SpellScriptLoader
                     triggeredSpellBaseDamage = (int32)(defileDamage->EffectBasePoints[EFFECT_0] * (1.0f + (pMap->IsHeroic() ? 0.1f : 0.05f) * m_hitCount));
                 }
 
+                values.AddSpellMod(SPELLVALUE_BASE_POINT0, ((int32)(triggeredSpellBaseDamage)));
+                values.AddSpellMod(SPELLVALUE_RADIUS_MOD, ((int32)(m_radius * 50)));
+                //values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+
                 bool increaseRadius = false;
                 uint64 ownerGuid = (caster->GetOwner() ? caster->GetOwner()->GetGUID() : 0);
                 Unit *curVictim = NULL;
@@ -2108,11 +2112,12 @@ class spell_lich_king_defile : public SpellScriptLoader
                         continue;
                     if (curVictim->GetDistance2d(caster) > m_radius)
                         continue;
-                    caster->CastCustomSpell(triggeredSpellId, SPELLVALUE_BASE_POINT0, triggeredSpellBaseDamage, curVictim, true, NULL, NULL, GetCasterGUID());
+                    caster->CastCustomSpell(triggeredSpellId, values, curVictim, true, NULL, NULL, GetCasterGUID());
                     increaseRadius = true;
                 }
                 if (!increaseRadius)
                     return;
+
                 if (SpellEntry const* defileIncrease = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(SPELL_DEFILE_INCREASE), caster))
                 {
                     caster->CastSpell(caster, defileIncrease->Id, true);
@@ -2132,6 +2137,7 @@ class spell_lich_king_defile : public SpellScriptLoader
         private:
             uint32 m_hitCount;
             float m_radius;
+            CustomSpellValues values;
         };
 
         AuraScript* GetAuraScript() const
