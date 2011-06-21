@@ -64,6 +64,7 @@ enum ShutdownExitCode
 enum WorldTimers
 {
     WUPDATE_AUCTIONS,
+    WUPDATE_JAILS,
     WUPDATE_WEATHERS,
     WUPDATE_UPTIME,
     WUPDATE_CORPSES,

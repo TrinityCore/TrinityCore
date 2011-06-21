@@ -9,7 +9,7 @@ CREATE TABLE `jail` (
   `times` int(11) unsigned NOT NULL COMMENT 'Anzahl der Inhaftierungen',
   `gmacc` int(11) unsigned NOT NULL COMMENT 'Verantwortlicher GM-Account',
   `gmchar` varchar(13) NOT NULL COMMENT 'Verantwortlicher GM-Char',
-  `lasttime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT 'Letzte Inhaftierungszeit',
+  `lasttime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Letzte Inhaftierungszeit',
   `duration` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Dauer der Inhaftierung',
   `btimes` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Anzahl der Bannungen durch das Jail.',
   PRIMARY KEY (`guid`)

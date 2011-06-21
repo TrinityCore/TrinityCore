@@ -1671,6 +1671,9 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
+
+    m_timers[WUPDATE_JAILS].SetInterval(MINUTE*IN_MILLISECONDS); // Jail - Jede Minute schauen, ob jemand entlassen werden muss.
+
     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
                                                             //Update "uptime" table based on configuration entry in minutes.
     m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
@@ -1752,7 +1755,9 @@ void World::SetInitialWorldSettings()
         sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));
         sLog->outError(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR2));
     }
-    sJail->KnastAufraeumen();
+    if (sJail->Init())
+        sJail->KnastAufraeumen();
+
     sLog->outString();
 
     sLog->outString("Initialisiere den AuktionshausBot...");
@@ -1938,6 +1943,13 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr->Update();
+    }
+
+    // Jail auf abgelaufene Einträge überprüfen
+    if (m_timers[WUPDATE_JAILS].Passed())
+    {
+        sJail->Update();
+        m_timers[WUPDATE_JAILS].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed
