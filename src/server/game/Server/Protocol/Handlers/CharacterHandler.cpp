@@ -422,6 +422,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 data << uint8(CHAR_CREATE_NAME_IN_USE);
                 SendPacket(&data);
                 delete createInfo;
+                _charCreateCallback.SetParam(NULL);
                 _charCreateCallback.FreeResult();
                 return;
             }
