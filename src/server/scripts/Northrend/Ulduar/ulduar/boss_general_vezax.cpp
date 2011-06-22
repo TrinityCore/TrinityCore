@@ -86,8 +86,8 @@ enum VezaxEvents
     EVENT_RANDOM_MOVE                            = 8,
 };
 
-#define ACHIEVEMENT_SMELL_SARONITE               RAID_MODE<uint32>(3181, 3188)
-#define ACHIEVEMENT_SHADOWDODGER                 RAID_MODE<uint32>(2996, 2997)
+#define DATA_SMELL_SARONITE                      31813188
+#define DATA_SHADOWDODGER                        29962997
 
 class boss_general_vezax : public CreatureScript
 {
@@ -203,7 +203,7 @@ class boss_general_vezax : public CreatureScript
             void SpellHitTarget(Unit* who, SpellEntry const* spell)
             {
                 if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
-                    shadowDodger = false;
+                    SetData(DATA_SHADOWDODGER, 0);
             }
 
             void KilledUnit(Unit* /*who*/)
@@ -214,16 +214,8 @@ class boss_general_vezax : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 _JustDied();
-
                 DoScriptText(SAY_DEATH, me);
-
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_DESPAIR);
-
-                if (shadowDodger)
-                    instance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
-
-                if (smellSaronite && animusDead)
-                    instance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
             }
 
             void CheckShamanisticRage()
@@ -240,12 +232,38 @@ class boss_general_vezax : public CreatureScript
                 }
             }
 
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_SHADOWDODGER:
+                        return shadowDodger ? 1 : 0;
+                    case DATA_SMELL_SARONITE:
+                        return smellSaronite ? 1 : 0;
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 id, uint32 data)
+            {
+               switch (id)
+               {
+                   case DATA_SHADOWDODGER:
+                        shadowDodger = data ? true : false;
+                        break;
+                    case DATA_SMELL_SARONITE:
+                        smellSaronite = data ? true : false;
+                        break;
+               }
+            }
+
             void DoAction(int32 const action)
             {
                 switch (action)
                 {
                     case ACTION_VAPORS_DIE:
-                        smellSaronite = false;
+                        SetData(DATA_SMELL_SARONITE, 0);
                         break;
                     case ACTION_ANIMUS_DIE:
                         me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
@@ -460,10 +478,46 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
         }
 };
 
+class achievement_shadowdodger : public AchievementCriteriaScript
+{
+    public:
+        achievement_shadowdodger() : AchievementCriteriaScript("achievement_shadowdodger")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Vezax = target->ToCreature())
+                if (Vezax->AI()->GetData(DATA_SHADOWDODGER))
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_smell_saronite : public AchievementCriteriaScript
+{
+    public:
+        achievement_smell_saronite() : AchievementCriteriaScript("achievement_smell_saronite")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Vezax = target->ToCreature())
+                if (Vezax->AI()->GetData(DATA_SMELL_SARONITE))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_general_vezax()
 {
     new boss_general_vezax();
     new boss_saronite_animus();
     new npc_saronite_vapors();
     new spell_mark_of_the_faceless();
+    new achievement_shadowdodger();
+    new achievement_smell_saronite();
 }
