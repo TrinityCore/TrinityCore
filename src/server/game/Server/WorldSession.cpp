@@ -102,6 +102,8 @@ m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter)
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());
     }
+
+    InitializeQueryCallbackParameters();
 }
 
 /// WorldSession destructor
@@ -938,6 +940,13 @@ void WorldSession::SetPlayer(Player *plr)
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (_player)
         m_GUIDLow = _player->GetGUIDLow();
+}
+
+void WorldSession::InitializeQueryCallbackParameters()
+{
+    // Callback parameters that have pointers in them should be properly 
+    // initialized to NULL here.
+    _charCreateCallback.SetParam(NULL);
 }
 
 void WorldSession::ProcessQueryCallbacks()
