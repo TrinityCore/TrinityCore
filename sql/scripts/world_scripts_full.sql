@@ -1893,7 +1893,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12978,11,0,0,'achievement_portal_jockey'),
 (12979,11,0,0,'achievement_portal_jockey'),
 (12971,11,0,0,'achievement_portal_jockey'),
-(12980,11,0,0,'achievement_portal_jockey');
+(12980,11,0,0,'achievement_portal_jockey'),
 (7598,11,0,0,'achievement_kings_bane'),
 (7587,11,0,0,'achievement_void_dance'),
 (7264,11,0,0,'achievement_safety_dance'),
@@ -1909,7 +1909,9 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (10449,11,0,0,'achievement_knock_knock_knock_on_wood'),
 (10459,11,0,0,'achievement_knock_on_wood'),
 (10460,11,0,0,'achievement_knock_knock_on_wood'),
-(10461,11,0,0,'achievement_knock_knock_knock_on_wood');
+(10461,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10445,11,0,0,'achievement_getting_back_to_nature'),
+(10758,11,0,0,'achievement_getting_back_to_nature');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
