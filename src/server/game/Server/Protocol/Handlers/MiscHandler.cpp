@@ -558,8 +558,8 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'",
         GetPlayer()->GetName(), friendName.c_str());
 
-    m_addFriendCallback.SetParam(friendNote);
-    m_addFriendCallback.SetFutureResult(
+    _addFriendCallback.SetParam(friendNote);
+    _addFriendCallback.SetFutureResult(
         CharacterDatabase.AsyncPQuery("SELECT guid, race, account FROM characters WHERE name = '%s'", friendName.c_str())
         );
 }
@@ -647,7 +647,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
         GetPlayer()->GetName(), IgnoreName.c_str());
 
-    m_addIgnoreCallback = CharacterDatabase.AsyncPQuery("SELECT guid FROM characters WHERE name = '%s'", IgnoreName.c_str());
+    _addIgnoreCallback = CharacterDatabase.AsyncPQuery("SELECT guid FROM characters WHERE name = '%s'", IgnoreName.c_str());
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult result)
