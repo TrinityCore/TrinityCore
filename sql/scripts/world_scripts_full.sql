@@ -1827,7 +1827,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980,7598,7587,7264,7548,10068,10069) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980,7598,7587,7264,7548,10068,10069,10173,10306,10451,10462,10447,10448,10449,10459,10460,10461) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (3804,11,0,0, 'achievement_resilient_victory'),
@@ -1899,7 +1899,17 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (7264,11,0,0,'achievement_safety_dance'),
 (7548,11,0,0,'achievement_safety_dance'),
 (10068,11,0,0,'achievement_ignis_shattered'),
-(10069,11,0,0,'achievement_ignis_shattered');
+(10069,11,0,0,'achievement_ignis_shattered'),
+(10173,11,0,0,'achievement_shadowdodger'),
+(10306,11,0,0,'achievement_shadowdodger'),
+(10451,11,0,0,'achievement_smell_saronite'),
+(10462,11,0,0,'achievement_smell_saronite'),
+(10447,11,0,0,'achievement_knock_on_wood'),
+(10448,11,0,0,'achievement_knock_knock_on_wood'),
+(10449,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10459,11,0,0,'achievement_knock_on_wood'),
+(10460,11,0,0,'achievement_knock_knock_on_wood'),
+(10461,11,0,0,'achievement_knock_knock_knock_on_wood');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
