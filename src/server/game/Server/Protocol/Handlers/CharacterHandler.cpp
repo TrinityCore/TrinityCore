@@ -494,21 +494,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
-
-            // if 0 then allowed creating without any characters
-            bool hasHeroicReqLevel = (heroicReqLevel == 0);
-            if (GetSecurity() == SEC_PLAYER && createInfo->Class == CLASS_DEATH_KNIGHT && !hasHeroicReqLevel)
-            {
-                WorldPacket data(SMSG_CHAR_CREATE, 1);
-                data << uint8(CHAR_CREATE_LEVEL_REQUIREMENT);
-                SendPacket(&data);
-                delete createInfo;
-                _charCreateCallback.SetParam(NULL);
-                _charCreateCallback.FreeResult();
-                return;
-            }
-
+          
             _charCreateCallback.FreeResult();
 
             if (!allowTwoSideAccounts || skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT)
@@ -630,6 +616,17 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                         }
                     }
                 }
+            }
+
+            if (GetSecurity() == SEC_PLAYER && createInfo->Class == CLASS_DEATH_KNIGHT && !hasHeroicReqLevel)
+            {
+                WorldPacket data(SMSG_CHAR_CREATE, 1);
+                data << uint8(CHAR_CREATE_LEVEL_REQUIREMENT);
+                SendPacket(&data);
+                delete createInfo;
+                _charCreateCallback.SetParam(NULL);
+                _charCreateCallback.FreeResult();
+                return;
             }
 
             if (createInfo->Data.rpos() < createInfo->Data.wpos())
