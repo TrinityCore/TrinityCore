@@ -945,11 +945,11 @@ void WorldSession::ProcessQueryCallbacks()
     QueryResult result;
 
     //! HandleNameQueryOpcode
-    while (!m_nameQueryCallbacks.is_empty())
+    while (!_nameQueryCallbacks.is_empty())
     {
         QueryResultFuture lResult;
         ACE_Time_Value timeout = ACE_Time_Value::zero;
-        if (m_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
+        if (_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
            break;
 
         if (lResult.ready())
@@ -961,80 +961,87 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandleCharEnumOpcode
-    if (m_charEnumCallback.ready())
+    if (_charEnumCallback.ready())
     {
-        m_charEnumCallback.get(result);
+        _charEnumCallback.get(result);
         HandleCharEnum(result);
-        m_charEnumCallback.cancel();
+        _charEnumCallback.cancel();
     }
 
+    if (_charCreateCallback.IsReady())
+    {
+        PreparedQueryResult pResult;
+        _charCreateCallback.GetResult(pResult);
+        HandleCharCreateCallback(pResult, _charCreateCallback.GetParam());
+        // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
+    }
     //! HandlePlayerLoginOpcode
-    if (m_charLoginCallback.ready())
+    if (_charLoginCallback.ready())
     {
         SQLQueryHolder* param;
-        m_charLoginCallback.get(param);
+        _charLoginCallback.get(param);
         HandlePlayerLogin((LoginQueryHolder*)param);
-        m_charLoginCallback.cancel();
+        _charLoginCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
-    if (m_addFriendCallback.IsReady())
+    if (_addFriendCallback.IsReady())
     {
-        std::string param = m_addFriendCallback.GetParam();
-        m_addFriendCallback.GetResult(result);
+        std::string param = _addFriendCallback.GetParam();
+        _addFriendCallback.GetResult(result);
         HandleAddFriendOpcodeCallBack(result, param);
-        m_addFriendCallback.FreeResult();
+        _addFriendCallback.FreeResult();
     }
 
     //- HandleCharRenameOpcode
-    if (m_charRenameCallback.IsReady())
+    if (_charRenameCallback.IsReady())
     {
-        std::string param = m_charRenameCallback.GetParam();
-        m_charRenameCallback.GetResult(result);
+        std::string param = _charRenameCallback.GetParam();
+        _charRenameCallback.GetResult(result);
         HandleChangePlayerNameOpcodeCallBack(result, param);
-        m_charRenameCallback.FreeResult();
+        _charRenameCallback.FreeResult();
     }
 
     //- HandleCharAddIgnoreOpcode
-    if (m_addIgnoreCallback.ready())
+    if (_addIgnoreCallback.ready())
     {
-        m_addIgnoreCallback.get(result);
+        _addIgnoreCallback.get(result);
         HandleAddIgnoreOpcodeCallBack(result);
-        m_addIgnoreCallback.cancel();
+        _addIgnoreCallback.cancel();
     }
 
     //- SendStabledPet
-    if (m_sendStabledPetCallback.IsReady())
+    if (_sendStabledPetCallback.IsReady())
     {
-        uint64 param = m_sendStabledPetCallback.GetParam();
-        m_sendStabledPetCallback.GetResult(result);
+        uint64 param = _sendStabledPetCallback.GetParam();
+        _sendStabledPetCallback.GetResult(result);
         SendStablePetCallback(result, param);
-        m_sendStabledPetCallback.FreeResult();
+        _sendStabledPetCallback.FreeResult();
     }
 
     //- HandleStablePet
-    if (m_stablePetCallback.ready())
+    if (_stablePetCallback.ready())
     {
-        m_stablePetCallback.get(result);
+        _stablePetCallback.get(result);
         HandleStablePetCallback(result);
-        m_stablePetCallback.cancel();
+        _stablePetCallback.cancel();
     }
 
     //- HandleUnstablePet
-    if (m_unstablePetCallback.IsReady())
+    if (_unstablePetCallback.IsReady())
     {
-        uint32 param = m_unstablePetCallback.GetParam();
-        m_unstablePetCallback.GetResult(result);
+        uint32 param = _unstablePetCallback.GetParam();
+        _unstablePetCallback.GetResult(result);
         HandleUnstablePetCallback(result, param);
-        m_unstablePetCallback.FreeResult();
+        _unstablePetCallback.FreeResult();
     }
 
     //- HandleStableSwapPet
-    if (m_stableSwapCallback.IsReady())
+    if (_stableSwapCallback.IsReady())
     {
-        uint32 param = m_stableSwapCallback.GetParam();
-        m_stableSwapCallback.GetResult(result);
+        uint32 param = _stableSwapCallback.GetParam();
+        _stableSwapCallback.GetResult(result);
         HandleStableSwapPetCallback(result, param);
-        m_stableSwapCallback.FreeResult();
+        _stableSwapCallback.FreeResult();
     }
 }
