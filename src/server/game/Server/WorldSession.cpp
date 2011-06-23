@@ -944,7 +944,7 @@ void WorldSession::SetPlayer(Player *plr)
 
 void WorldSession::InitializeQueryCallbackParameters()
 {
-    // Callback parameters that have pointers in them should be properly 
+    // Callback parameters that have pointers in them should be properly
     // initialized to NULL here.
     _charCreateCallback.SetParam(NULL);
 }

@@ -411,7 +411,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
     /** This is a series of callbacks executed consecutively as a result from the database becomes available.
         This is much more efficient than synchronous requests on packet handler, and much less DoS prone.
         It also prevents data syncrhonisation errors.
-    */    
+    */
     switch (createInfo->Stage)
     {
         case 0:
@@ -427,7 +427,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 return;
             }
 
-            ASSERT(_charCreateCallback.GetParam() == createInfo);            
+            ASSERT(_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_SUM_REALMCHARS);
             stmt->setUInt32(0, GetAccountId());
@@ -462,7 +462,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
 
-            ASSERT(_charCreateCallback.GetParam() == createInfo);            
+            ASSERT(_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_SUM_CHARS);
             stmt->setUInt32(0, GetAccountId());
@@ -494,7 +494,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-          
+
             _charCreateCallback.FreeResult();
 
             if (!allowTwoSideAccounts || skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT)
@@ -525,11 +525,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 uint32 freeHeroicSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
 
                 Field* field = result->Fetch();
-                uint8 accRace  = field[1].GetUInt32();
+                uint8 accRace  = field[1].GetUInt8();
 
                 if (GetSecurity() == SEC_PLAYER && createInfo->Class == CLASS_DEATH_KNIGHT)
                 {
-                    uint8 accClass = field[2].GetUInt32();
+                    uint8 accClass = field[2].GetUInt8();
                     if (accClass == CLASS_DEATH_KNIGHT)
                     {
                         if (freeHeroicSlots > 0)
@@ -549,7 +549,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                     if (!hasHeroicReqLevel)
                     {
-                        uint32 accLevel = field[0].GetUInt32();
+                        uint8 accLevel = field[0].GetUInt8();
                         if (accLevel >= heroicReqLevel)
                             hasHeroicReqLevel = true;
                     }
@@ -583,14 +583,14 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                         break;
 
                     field = result->Fetch();
-                    accRace = field[1].GetUInt32();
+                    accRace = field[1].GetUInt8();
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
 
                     if (GetSecurity() == SEC_PLAYER && createInfo->Class == CLASS_DEATH_KNIGHT)
                     {
-                        uint8 acc_class = field[2].GetUInt32();
+                        uint8 acc_class = field[2].GetUInt8();
                         if (acc_class == CLASS_DEATH_KNIGHT)
                         {
                             if (freeHeroicSlots > 0)
@@ -610,7 +610,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                         if (!hasHeroicReqLevel)
                         {
-                            uint32 acc_level = field[0].GetUInt32();
+                            uint8 acc_level = field[0].GetUInt8();
                             if (acc_level >= heroicReqLevel)
                                 hasHeroicReqLevel = true;
                         }

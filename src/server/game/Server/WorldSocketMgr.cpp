@@ -43,6 +43,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "WorldSocket.h"
+#include "WorldSocketAcceptor.h"
 #include "ScriptMgr.h"
 
 /**
@@ -256,12 +257,11 @@ WorldSocketMgr::StartReactiveIO (ACE_UINT16 port, const char* address)
         return -1;
     }
 
-    WorldSocket::Acceptor *acc = new WorldSocket::Acceptor;
-    m_Acceptor = acc;
+    m_Acceptor = new WorldSocketAcceptor;
 
     ACE_INET_Addr listen_addr (port, address);
 
-    if (acc->open(listen_addr, m_NetThreads[0].GetReactor(), ACE_NONBLOCK) == -1)
+    if (m_Acceptor->open(listen_addr, m_NetThreads[0].GetReactor(), ACE_NONBLOCK) == -1)
     {
         sLog->outError ("Failed to open acceptor , check if the port is free");
         return -1;
@@ -292,10 +292,7 @@ WorldSocketMgr::StopNetwork()
 {
     if (m_Acceptor)
     {
-        WorldSocket::Acceptor* acc = dynamic_cast<WorldSocket::Acceptor*> (m_Acceptor);
-
-        if (acc)
-            acc->close();
+        m_Acceptor->close();
     }
 
     if (m_NetThreadsCount != 0)

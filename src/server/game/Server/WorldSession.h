@@ -28,6 +28,7 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
+#include "WorldPacket.h"
 
 struct ItemTemplate;
 struct AuctionEntry;
@@ -181,8 +182,8 @@ class CharacterCreateInfo
     friend class Player;
 
     protected:
-        CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId, 
-        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), 
+        CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId,
+        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair),
         OutfitId(outfitId), Data(data), CharCount(0), Stage(0)
         {}
 
@@ -197,7 +198,7 @@ class CharacterCreateInfo
         uint8 HairColor;
         uint8 FacialHair;
         uint8 OutfitId;
-        WorldPacket& Data;
+        WorldPacket Data;
 
         /// Server side data
         uint8 CharCount;
@@ -921,7 +922,7 @@ class WorldSession
         {
             return _allowedCharsToLogin.find(lowGUID) != _allowedCharsToLogin.end();
         }
-        
+
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
         std::set<uint32> _allowedCharsToLogin;
