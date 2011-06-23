@@ -1140,7 +1140,6 @@ void AddSC_generic_spell_scripts()
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
-    new spell_gen_shroud_of_death();
     new spell_gen_divine_storm_cd_reset();
     new spell_gen_parachute_ic();
     new spell_gen_gunship_portal();
