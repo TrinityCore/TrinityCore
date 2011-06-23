@@ -65,7 +65,7 @@ private:
     int m_SockOutUBuff;
     bool m_UseNoDelay;
 
-    ACE_Event_Handler* m_Acceptor;
+    class WorldSocketAcceptor* m_Acceptor;
 };
 
 #define sWorldSocketMgr ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>::instance()
