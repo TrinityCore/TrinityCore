@@ -2421,7 +2421,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
             {
                 if ((*iter)->GetCurrentSpell(i)
-                && (*iter)->GetCurrentSpell(i)->m_targets.getUnitTargetGUID() == target->GetGUID())
+                && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
                 {
                     (*iter)->InterruptSpell(CurrentSpellTypes(i), false);
                 }
@@ -4778,7 +4778,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         // AT REMOVE
         else
         {
-            if ((IsQuestTameSpell(GetId())) && caster && caster->isAlive() && target->isAlive())
+            if ((IsQuestTameSpell(GetSpellProto())) && caster && caster->isAlive() && target->isAlive())
             {
                 uint32 finalSpelId = 0;
                 switch(GetId())
@@ -5409,7 +5409,6 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
     else if (mode & AURA_EFFECT_HANDLE_REAPPLY && apply)
     {
         uint64 casterGUID = IsSpellRequiringFocusedTarget(GetSpellProto()) ? GetCasterGUID() : target->GetGUID();
-
         // change the stack amount to be equal to stack amount of our aura
         if (Aura* triggeredAura = target->GetAura(triggeredSpellId, casterGUID))
             triggeredAura->ModStackAmount(GetBase()->GetStackAmount() - triggeredAura->GetStackAmount());

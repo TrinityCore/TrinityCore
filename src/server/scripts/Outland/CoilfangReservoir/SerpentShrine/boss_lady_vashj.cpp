@@ -988,11 +988,11 @@ public:
         Vashj = (Unit::GetCreature((*pPlayer), pInstance->GetData64(DATA_LADYVASHJ)));
         if (Vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->AI())->Phase == 2))
         {
-            if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT)
+            if (GameObject* gObj = targets.GetGOTarget())
             {
                 uint32 identifier;
                 uint8 channel_identifier;
-                switch(targets.getGOTarget()->GetEntry())
+                switch(gObj->GetEntry())
                 {
                     case 185052:
                         identifier = DATA_SHIELDGENERATOR1;
@@ -1035,12 +1035,12 @@ public:
                 pPlayer->DestroyItemCount(31088, 1, true);
                 return true;
             }
-            else if (targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT)
+            else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT)
                 return false;
-            else if (targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+            else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
             {
                 pPlayer->DestroyItemCount(31088, 1, true);
-                pPlayer->CastSpell(targets.getUnitTarget(), 38134, true);
+                pPlayer->CastSpell(targets.GetUnitTarget(), 38134, true);
                 return true;
             }
         }
