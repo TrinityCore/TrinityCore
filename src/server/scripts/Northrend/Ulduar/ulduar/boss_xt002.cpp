@@ -314,7 +314,7 @@ class boss_xt002 : public CreatureScript
                     // Need this so we can properly determine when to expose heart again in damagetaken hook
                     if (me->GetHealthPct() > (25 * (4 - _heartExposed)))
                         ++_heartExposed;
-                        
+
                     _healthRecovered = true;
                 }
             }
@@ -453,7 +453,7 @@ class mob_xt002_heart : public CreatureScript
                 {
                     xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetMaxHealth());
                     xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
-                    damage = 0;                
+                    damage = 0;
                 }
             }
 
@@ -576,14 +576,14 @@ class mob_pummeller : public CreatureScript
                         DoCast(me->getVictim(), SPELL_TRAMPLE);
                         _trampleTimer = TIMER_TRAMPLE;
                     }
-                    else 
+                    else
                         _trampleTimer -= diff;
 
                     if (_uppercutTimer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_UPPERCUT);
                         _uppercutTimer = TIMER_UPPERCUT;
-                    } 
+                    }
                     else
                         _uppercutTimer -= diff;
                 }
@@ -686,7 +686,7 @@ class mob_boombot : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -719,7 +719,7 @@ class mob_life_spark : public CreatureScript
         struct mob_life_sparkAI : public ScriptedAI
         {
             mob_life_sparkAI(Creature* pCreature) : ScriptedAI(pCreature)
-            {   
+            {
             }
 
             void Reset()
@@ -1033,7 +1033,7 @@ class achievement_nerf_engineering : public AchievementCriteriaScript
         {
             if (!target || !target->GetAI())
                 return false;
-            
+
             return !(target->GetAI()->GetData(DATA_HEALTH_RECOVERED));
         }
 };
@@ -1057,7 +1057,7 @@ class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
     public:
         achievement_nerf_gravity_bombs() : AchievementCriteriaScript("achievement_nerf_gravity_bombs") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target || !target->GetAI())
                 return false;

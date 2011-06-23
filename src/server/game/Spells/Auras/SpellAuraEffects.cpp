@@ -42,7 +42,7 @@ class Aura;
 //
 // in aura handler there should be check for modes:
 // AURA_EFFECT_HANDLE_REAL set
-// AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK set 
+// AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK set
 // AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK set - aura is recalculated or is just applied/removed - need to redo all things related to m_amount
 // AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK - logical or of above conditions
 // AURA_EFFECT_HANDLE_STAT - set when stats are reapplied
@@ -850,7 +850,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
         // reset periodic timer on aura create or on reapply when aura isn't dot
         // possibly we should not reset periodic timers only when aura is triggered by proc
         // or maybe there's a spell attribute somewhere
-        bool resetPeriodicTimer = create 
+        bool resetPeriodicTimer = create
             || ((GetAuraType() != SPELL_AURA_PERIODIC_DAMAGE) && (GetAuraType() != SPELL_AURA_PERIODIC_DAMAGE_PERCENT));
 
         if (resetPeriodicTimer)
@@ -5409,7 +5409,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
     else if (mode & AURA_EFFECT_HANDLE_REAPPLY && apply)
     {
         uint64 casterGUID = IsSpellRequiringFocusedTarget(GetSpellProto()) ? GetCasterGUID() : target->GetGUID();
-        
+
         // change the stack amount to be equal to stack amount of our aura
         if (Aura* triggeredAura = target->GetAura(triggeredSpellId, casterGUID))
             triggeredAura->ModStackAmount(GetBase()->GetStackAmount() - triggeredAura->GetStackAmount());
