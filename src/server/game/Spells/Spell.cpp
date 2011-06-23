@@ -439,7 +439,7 @@ void SpellCastTargets::OutDebug() const
     sLog->outString("elevation: %f", m_elevation);
 }
 
-Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, bool skipCheck):
+Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, bool skipCheck, bool castedClientside):
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, Caster)),
 m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
 {
@@ -502,6 +502,7 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
 
     m_spellState = SPELL_STATE_NULL;
 
+    m_castedClientside = castedClientside;
     m_IsTriggeredSpell = bool(triggered || (info->AttributesEx4 & SPELL_ATTR4_TRIGGERED));
     m_CastItem = NULL;
 
@@ -4650,6 +4651,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL && !m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
         return SPELL_FAILED_SPELL_UNAVAILABLE;
+
+    if (m_castedClientside && m_spellInfo->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE && m_caster->GetTypeId() == TYPEID_PLAYER && !m_CastItem)
+        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
     // Check global cooldown
     if (strict && !m_IsTriggeredSpell && HasGlobalCooldown())
