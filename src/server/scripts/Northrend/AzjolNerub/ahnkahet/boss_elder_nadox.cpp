@@ -246,7 +246,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -311,7 +311,6 @@ class achievement_respect_your_elders : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
-            sLog->outString("OnCheck()");
             if (Creature* Nadox = target->ToCreature())
                 if (Nadox->AI()->GetData(DATA_RESPECT_YOUR_ELDERS))
                     return true;
