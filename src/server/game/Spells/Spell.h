@@ -34,6 +34,8 @@ class ByteBuffer;
 
 struct SpellEntry;
 
+#define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
+
 enum SpellCastTargetFlags
 {
     TARGET_FLAG_SELF            = 0x00000000,
@@ -117,117 +119,75 @@ enum SpellNotifyPushType
     PUSH_CHAIN,
 };
 
-bool IsQuestTameSpell(uint32 spellId);
-
-namespace Trinity
-{
-    struct SpellNotifierCreatureAndPlayer;
-}
-
-typedef std::list<Unit*> UnitList;
-
 class SpellCastTargets
 {
     public:
         SpellCastTargets();
         ~SpellCastTargets();
 
-        SpellCastTargets& operator=(const SpellCastTargets &target)
-        {
-            m_unitTarget = target.m_unitTarget;
-            m_itemTarget = target.m_itemTarget;
-            m_GOTarget   = target.m_GOTarget;
+        SpellCastTargets& operator=(const SpellCastTargets &target);
 
-            m_unitTargetGUID   = target.m_unitTargetGUID;
-            m_GOTargetGUID     = target.m_GOTargetGUID;
-            m_CorpseTargetGUID = target.m_CorpseTargetGUID;
-            m_itemTargetGUID   = target.m_itemTargetGUID;
+        void Read(ByteBuffer& data, Unit* caster);
+        void Write(ByteBuffer& data);
 
-            m_itemTargetEntry  = target.m_itemTargetEntry;
+        uint32 GetTargetMask() const { return m_targetMask; }
+        void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
 
-            m_srcTransGUID = target.m_srcTransGUID;
-            m_srcTransOffset = target.m_srcTransOffset;
-            m_srcPos = target.m_srcPos;
+        uint64 GetUnitTargetGUID() const { return m_unitTargetGUID; }
+        Unit* GetUnitTarget() const { return m_unitTarget; }
+        void SetUnitTarget(Unit* target);
 
-            m_dstTransGUID = target.m_dstTransGUID;
-            m_dstTransOffset = target.m_dstTransOffset;
-            m_dstPos = target.m_dstPos;
+        Position const* GetSrc() const;
+        void SetSrc(float x, float y, float z);
+        void SetSrc(Position const& pos);
+        void SetSrc(WorldObject const& wObj);
+        void ModSrc(Position const& pos);
 
-            m_elevation = target.m_elevation;
-            m_speed = target.m_speed;
+        WorldLocation const* GetDst() const;
+        void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
+        void SetDst(Position const& pos);
+        void SetDst(WorldObject const& wObj);
+        void SetDst(SpellCastTargets const& spellTargets);
+        void ModDst(Position const& pos);
 
-            m_strTarget = target.m_strTarget;
+        uint64 GetGOTargetGUID() const { return m_GOTargetGUID; }
+        GameObject* GetGOTarget() const { return m_GOTarget; }
+        void SetGOTarget(GameObject* target);
 
-            m_targetMask = target.m_targetMask;
+        uint64 GetCorpseTargetGUID() const { return m_CorpseTargetGUID; }
+        void SetCorpseTarget(Corpse* corpse);
 
-            return *this;
-        }
-        void read (ByteBuffer & data, Unit* caster);
-        void write (ByteBuffer & data);
-
-        uint32 getTargetMask() const { return m_targetMask; }
-        void setTargetMask(uint32 newMask) { m_targetMask = newMask; }
-
-        uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
-        Unit *getUnitTarget() const { return m_unitTarget; }
-        void setUnitTarget(Unit* target);
-        void setSrc(float x, float y, float z);
-        void setSrc(Position &pos);
-        void setSrc(WorldObject &wObj);
-        void modSrc(Position &pos);
-        void setDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
-        void setDst(Position &pos);
-        void setDst(WorldObject &wObj);
-        void setDst(SpellCastTargets &spellTargets);
-        void modDst(Position &pos);
-
-        uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
-        GameObject *getGOTarget() const { return m_GOTarget; }
-        void setGOTarget(GameObject *target);
-
-        uint64 getCorpseTargetGUID() const { return m_CorpseTargetGUID; }
-        void setCorpseTarget(Corpse* corpse);
-        uint64 getItemTargetGUID() const { return m_itemTargetGUID; }
-        Item* getItemTarget() const { return m_itemTarget; }
-        uint32 getItemTargetEntry() const { return m_itemTargetEntry; }
-        void setItemTarget(Item* item);
-        void setTradeItemTarget(Player* caster);
-        void updateTradeSlotItem()
-        {
-            if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
-            {
-                m_itemTargetGUID = m_itemTarget->GetGUID();
-                m_itemTargetEntry = m_itemTarget->GetEntry();
-            }
-        }
+        uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
+        Item* GetItemTarget() const { return m_itemTarget; }
+        uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
+        void SetItemTarget(Item* item);
+        void SetTradeItemTarget(Player* caster);
+        void UpdateTradeSlotItem();
 
         bool IsEmpty() const { return m_GOTargetGUID == 0 && m_unitTargetGUID == 0 && m_itemTarget == 0 && m_CorpseTargetGUID == 0; }
-        bool HasSrc() const { return getTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
-        bool HasDst() const { return getTargetMask() & TARGET_FLAG_DEST_LOCATION; }
+        bool HasSrc() const { return GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
+        bool HasDst() const { return GetTargetMask() & TARGET_FLAG_DEST_LOCATION; }
         bool HasTraj() const { return m_speed != 0; }
+
+        float GetElevation() const { return m_elevation; }
+        void SetElevation(float elevation) { m_elevation = elevation; }
+        float GetSpeed() const { return m_speed; }
+        void SetSpeed(float speed) { m_speed = speed; }
 
         float GetDist2d() const { return m_srcPos.GetExactDist2d(&m_dstPos); }
         float GetSpeedXY() const { return m_speed * cos(m_elevation); }
         float GetSpeedZ() const { return m_speed * sin(m_elevation); }
 
         void Update(Unit* caster);
-        void OutDebug();
-
-        uint64 m_srcTransGUID;
-        Position m_srcTransOffset;
-        Position m_srcPos;
-        uint64 m_dstTransGUID;
-        Position m_dstTransOffset;
-        WorldLocation m_dstPos;
-        float m_elevation, m_speed;
-        std::string m_strTarget;
+        void OutDebug() const;
 
     private:
         uint32 m_targetMask;
+
         // objects (can be used at spell creating and after Update at casting
-        Unit *m_unitTarget;
-        GameObject *m_GOTarget;
-        Item *m_itemTarget;
+        Unit* m_unitTarget;
+        GameObject* m_GOTarget;
+        Item* m_itemTarget;
 
         // object GUID/etc, can be used always
         uint64 m_unitTargetGUID;
@@ -235,6 +195,17 @@ class SpellCastTargets
         uint64 m_CorpseTargetGUID;
         uint64 m_itemTargetGUID;
         uint32 m_itemTargetEntry;
+
+        uint64 m_srcTransGUID;
+        Position m_srcTransOffset;
+        Position m_srcPos;
+
+        uint64 m_dstTransGUID;
+        Position m_dstTransOffset;
+        WorldLocation m_dstPos;
+
+        float m_elevation, m_speed;
+        std::string m_strTarget;
 };
 
 struct SpellValue
@@ -247,7 +218,7 @@ struct SpellValue
         RadiusMod = 1.0f;
         AuraStackAmount = 1;
     }
-    int32     EffectBasePoints[3];
+    int32     EffectBasePoints[MAX_SPELL_EFFECTS];
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
@@ -263,14 +234,6 @@ enum SpellState
     SPELL_STATE_DELAYED   = 5
 };
 
-enum ReplenishType
-{
-    REPLENISH_UNDEFINED = 0,
-    REPLENISH_HEALTH    = 20,
-    REPLENISH_MANA      = 21,
-    REPLENISH_RAGE      = 22
-};
-
 enum SpellTargets
 {
     SPELL_TARGETS_NONE      = 0,
@@ -281,6 +244,11 @@ enum SpellTargets
     SPELL_TARGETS_ANY,
     SPELL_TARGETS_GO
 };
+
+namespace Trinity
+{
+    struct SpellNotifierCreatureAndPlayer;
+}
 
 class Spell
 {
@@ -416,7 +384,7 @@ class Spell
         void EffectCastButtons(SpellEffIndex effIndex);
         void EffectRechargeManaGem(SpellEffIndex effIndex);
 
-        typedef std::set<Aura *> UsedSpellMods;
+        typedef std::set<Aura*> UsedSpellMods;
 
         Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false);
         ~Spell();
@@ -469,8 +437,8 @@ class Spell
 
         bool CheckTarget(Unit* target, uint32 eff);
         bool CanAutoCast(Unit* target);
-        void CheckSrc() { if (!m_targets.HasSrc()) m_targets.setSrc(*m_caster); }
-        void CheckDst() { if (!m_targets.HasDst()) m_targets.setDst(*m_caster); }
+        void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
+        void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
         static void SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
         void SendCastResult(SpellCastResult result);
@@ -565,7 +533,7 @@ class Spell
         //Spell data
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
         WeaponAttackType m_attackType;                      // For weapon based attack
-        int32 m_powerCost;                                  // Calculated spell cost     initialized only in Spell::prepare
+        int32 m_powerCost;                                  // Calculated spell cost initialized only in Spell::prepare
         int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
