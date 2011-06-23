@@ -18,13 +18,6 @@
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
 
-bool DeadAhnkaharGuardian; // needed for achievement: Respect Your Elders(2038)
-
-enum Achievements
-{
-    ACHIEV_RESPECT_YOUR_ELDERS                    = 2038
-};
-
 //not in db
 enum Yells
 {
@@ -53,135 +46,165 @@ enum Creatures
     MOB_AHNKAHAR_GUARDIAN_ENTRY                   = 30176
 };
 
+#define ACTION_AHNKAHAR_GUARDIAN_DEAD             1
+#define DATA_RESPECT_YOUR_ELDERS                  2
+
 #define EMOTE_HATCHES                       "An Ahn'kahar Guardian hatches!"
 
 class boss_elder_nadox : public CreatureScript
 {
-public:
-    boss_elder_nadox() : CreatureScript("boss_elder_nadox") { }
+    public:
+        boss_elder_nadox() : CreatureScript("boss_elder_nadox") { }
 
-    struct boss_elder_nadoxAI : public ScriptedAI
-    {
-        boss_elder_nadoxAI(Creature *c) : ScriptedAI(c)
+        struct boss_elder_nadoxAI : public ScriptedAI
         {
-            pInstance = c->GetInstanceScript();
-        }
-
-        uint32 uiPlagueTimer;
-        uint32 uiRagueTimer;
-
-        uint32 uiSwarmerSpawnTimer;
-        uint32 uiGuardSpawnTimer;
-        uint32 uiEnragueTimer;
-
-        bool bGuardSpawned;
-
-        InstanceScript *pInstance;
-
-        void Reset()
-        {
-            uiPlagueTimer = 13*IN_MILLISECONDS;
-            uiRagueTimer = 20*IN_MILLISECONDS;
-
-            uiSwarmerSpawnTimer = 10*IN_MILLISECONDS;
-            uiGuardSpawnTimer = 25*IN_MILLISECONDS;
-
-            uiEnragueTimer = 5*IN_MILLISECONDS;
-
-            DeadAhnkaharGuardian = false;
-            bGuardSpawned = false;
-
-            if (pInstance)
-                pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-
-            if (pInstance)
-                pInstance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_SLAY_3, me); //SAY_SLAY_3 on death?
-
-            if (pInstance)
+            boss_elder_nadoxAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
-                if (IsHeroic() && !DeadAhnkaharGuardian)
-                    pInstance->DoCompleteAchievement(ACHIEV_RESPECT_YOUR_ELDERS);
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiPlagueTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_BROOD_PLAGUE);
-                uiPlagueTimer = 15*IN_MILLISECONDS;
-            } else uiPlagueTimer -= diff;
-
-            if (IsHeroic())
-            {
-                if (uiRagueTimer <= diff)
-                {
-                    if (Creature *pSwarmer = me->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35))
-                    {
-                        DoCast(pSwarmer, H_SPELL_BROOD_RAGE, true);
-                        uiRagueTimer = 15*IN_MILLISECONDS;
-                    }
-                } else uiRagueTimer -= diff;
+                instance = me->GetInstanceScript();
             }
 
-            if (uiSwarmerSpawnTimer <= diff)
-            {
-                DoCast(me, SPELL_SUMMON_SWARMERS, true);
-                DoCast(me, SPELL_SUMMON_SWARMERS);
-                if (urand(1, 3) == 3) // 33% chance of dialog
-                    DoScriptText(RAND(SAY_EGG_SAC_1, SAY_EGG_SAC_2), me);
+            uint32 uiPlagueTimer;
+            uint32 uiRagueTimer;
 
-                uiSwarmerSpawnTimer = 10*IN_MILLISECONDS;
-            } else uiSwarmerSpawnTimer -= diff;
+            uint32 uiSwarmerSpawnTimer;
+            uint32 uiGuardSpawnTimer;
+            uint32 uiEnrageTimer;
 
-            if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
-            {
-                me->MonsterTextEmote(EMOTE_HATCHES, me->GetGUID(), true);
-                DoCast(me, SPELL_SUMMON_SWARM_GUARD);
-                bGuardSpawned = true;
-            } else uiGuardSpawnTimer -= diff;
+            bool bGuardSpawned;
+            bool respectYourElders;
 
-            if (uiEnragueTimer <= diff)
+            InstanceScript* instance;
+
+            void Reset()
             {
-                if (me->HasAura(SPELL_ENRAGE, 0))
+                uiPlagueTimer = 13000;
+                uiRagueTimer = 20000;
+
+                uiSwarmerSpawnTimer = 10000;
+                uiGuardSpawnTimer = 25000;
+
+                uiEnrageTimer = 5000;
+
+                bGuardSpawned = false;
+                respectYourElders = true;
+
+                if (instance)
+                    instance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                DoScriptText(SAY_DEATH, me);
+
+                if (instance)
+                    instance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
+            }
+
+            void KilledUnit(Unit* /*who*/)
+            {
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                DoScriptText(SAY_SLAY_3, me); //SAY_SLAY_3 on death?
+
+                if (instance)
+                    instance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_AHNKAHAR_GUARDIAN_DEAD)
+                    respectYourElders = false;
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                if (type == DATA_RESPECT_YOUR_ELDERS)
+                    return respectYourElders ? 1 : 0;
+
+                return 0;
+            }
+
+            void SetData(uint32 id, uint32 data)
+            {
+                if (id == DATA_RESPECT_YOUR_ELDERS)
+                    respectYourElders = data ? true : false;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
                     return;
 
-                float x, y, z, o;
-                me->GetHomePosition(x, y, z, o);
-                if (z < 24)
-                    if (!me->IsNonMeleeSpellCasted(false))
-                        DoCast(me, SPELL_ENRAGE, true);
+                if (uiPlagueTimer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_BROOD_PLAGUE);
+                    uiPlagueTimer = 15000;
+                }
+                else
+                    uiPlagueTimer -= diff;
 
-                uiEnragueTimer = 5*IN_MILLISECONDS;
-            } else uiEnragueTimer -= diff;
+                if (IsHeroic())
+                {
+                    if (uiRagueTimer <= diff)
+                    {
+                        if (Creature* Swarmer = me->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35.0f))
+                        {
+                            DoCast(Swarmer, H_SPELL_BROOD_RAGE, true);
+                            uiRagueTimer = 15000;
+                        }
+                    }
+                    else
+                        uiRagueTimer -= diff;
+                }
 
-            DoMeleeAttackIfReady();
+                if (uiSwarmerSpawnTimer <= diff)
+                {
+                    DoCast(me, SPELL_SUMMON_SWARMERS, true);
+                    DoCast(me, SPELL_SUMMON_SWARMERS);
+                    if (urand(1, 3) == 3) // 33% chance of dialog
+                        DoScriptText(RAND(SAY_EGG_SAC_1, SAY_EGG_SAC_2), me);
+
+                    uiSwarmerSpawnTimer = 10000;
+                }
+                else
+                    uiSwarmerSpawnTimer -= diff;
+
+                if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
+                {
+                    me->MonsterTextEmote(EMOTE_HATCHES, me->GetGUID(), true);
+                    DoCast(me, SPELL_SUMMON_SWARM_GUARD);
+                    bGuardSpawned = true;
+                }
+                else
+                    uiGuardSpawnTimer -= diff;
+
+                if (uiEnrageTimer <= diff)
+                {
+                    if (me->HasAura(SPELL_ENRAGE, 0))
+                        return;
+
+                    float x, y, z, o;
+                    me->GetHomePosition(x, y, z, o);
+                    if (z < 24)
+                        if (!me->IsNonMeleeSpellCasted(false))
+                            DoCast(me, SPELL_ENRAGE, true);
+
+                    uiEnrageTimer = 5000;
+                }
+                else
+                    uiEnrageTimer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_elder_nadoxAI(creature);
         }
-    };
-
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new boss_elder_nadoxAI(creature);
-    }
 };
 
 enum AddSpells
@@ -192,67 +215,65 @@ enum AddSpells
 
 class mob_ahnkahar_nerubian : public CreatureScript
 {
-public:
-    mob_ahnkahar_nerubian() : CreatureScript("mob_ahnkahar_nerubian") { }
+    public:
+        mob_ahnkahar_nerubian() : CreatureScript("mob_ahnkahar_nerubian") { }
 
-    struct mob_ahnkahar_nerubianAI : public ScriptedAI
-    {
-        mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c)
+        struct mob_ahnkahar_nerubianAI : public ScriptedAI
         {
-            pInstance = c->GetInstanceScript();
-        }
-
-        InstanceScript *pInstance;
-        uint32 uiSprintTimer;
-
-        void Reset()
-        {
-            if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY) //magic numbers are bad!
-                DoCast(me, SPELL_GUARDIAN_AURA, true);
-            uiSprintTimer = 10*IN_MILLISECONDS;
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
-                DeadAhnkaharGuardian = true;
-        }
-
-        void EnterCombat(Unit* /*who*/){}
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
-                me->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
-
-            if (pInstance)
+            mob_ahnkahar_nerubianAI(Creature* creature) : ScriptedAI(creature)
             {
-                if (pInstance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
-                {
-                    me->DisappearAndDie();
-                }
+                instance = me->GetInstanceScript();
             }
 
-            if (!UpdateVictim())
-                return;
+            InstanceScript* instance;
+            uint32 uiSprintTimer;
 
-            if (uiSprintTimer <= diff)
+            void Reset()
             {
-                DoCast(me, SPELL_SPRINT);
-                uiSprintTimer = 25*IN_MILLISECONDS;
-            } else uiSprintTimer -= diff;
+                if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+                    DoCast(me, SPELL_GUARDIAN_AURA, true);
+                uiSprintTimer = 10000;
+            }
 
-            DoMeleeAttackIfReady();
+            void JustDied(Unit* /*who*/)
+            {
+                if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+                    if (Creature* Nadox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ELDER_NADOX)))
+                        Nadox->AI()->DoAction(ACTION_AHNKAHAR_GUARDIAN_DEAD);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+                    me->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
+
+                if (instance)
+                    if (instance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
+                        me->DespawnOrUnsummon();
+
+                if (uiSprintTimer <= diff)
+                {
+                    DoCast(me, SPELL_SPRINT);
+                    uiSprintTimer = 25000;
+                }
+                else
+                    uiSprintTimer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_ahnkahar_nerubianAI(creature);
         }
-    };
-
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new mob_ahnkahar_nerubianAI(creature);
-    }
 };
 
 //HACK: No, AI. Replace with proper db content?
@@ -281,9 +302,28 @@ public:
     }
 };
 
+class achievement_respect_your_elders : public AchievementCriteriaScript
+{
+    public:
+        achievement_respect_your_elders() : AchievementCriteriaScript("achievement_respect_your_elders")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            sLog->outString("OnCheck()");
+            if (Creature* Nadox = target->ToCreature())
+                if (Nadox->AI()->GetData(DATA_RESPECT_YOUR_ELDERS))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_elder_nadox()
 {
     new boss_elder_nadox;
     new mob_ahnkahar_nerubian;
     new mob_nadox_eggs;
+    new achievement_respect_your_elders();
 }
