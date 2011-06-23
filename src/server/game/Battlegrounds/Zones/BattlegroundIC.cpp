@@ -186,7 +186,7 @@ void BattlegroundIC::Update(uint32 diff)
                             siege->Respawn(true);
                     }
 
-                    // we need to confirm this, i am not sure if this every 3 minutes
+                    // we need to confirm if it is every 3 minutes
                     for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_1_A : BG_IC_NPC_DEMOLISHER_1_H); u < (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_4_A : BG_IC_NPC_DEMOLISHER_4_H); u++)
                     {
                         if (Creature* demolisher = GetBGCreature(u))
@@ -200,7 +200,7 @@ void BattlegroundIC::Update(uint32 diff)
             }
         }
 
-        // the point is waiting for a change on his banner
+        // the point is waiting for a change on its banner
         if (nodePoint[i].needChange)
         {
             if (nodePoint[i].timer <= diff)
