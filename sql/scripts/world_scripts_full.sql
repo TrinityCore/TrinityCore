@@ -1919,7 +1919,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 39228, 'spell_gen_absorb0_hitlimit1'),
 ( 60218, 'spell_gen_absorb0_hitlimit1'),
 (  6962, 'spell_gen_pet_summoned'),
-( 10848, 'spell_gen_shroud_of_death'),
 ( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
