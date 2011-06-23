@@ -6435,7 +6435,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     if (powerType == POWER_MANA)
         drainAmount -= target->GetSpellCritDamageReduction(drainAmount);
 
-    int32 drainedAmount = target->ModifyPower(powerType, -drainAmount);
+    int32 drainedAmount = -target->ModifyPower(powerType, -drainAmount);
 
     float gainMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(GetSpellProto(), GetEffIndex(), caster);
 
