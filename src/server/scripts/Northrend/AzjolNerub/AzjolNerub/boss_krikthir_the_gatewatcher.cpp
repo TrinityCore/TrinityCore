@@ -75,11 +75,6 @@ enum Yells
     SAY_PREFIGHT_3                                = -1601019
 };
 
-enum Misc
-{
-    ACHIEV_WATH_HIM_DIE                           = 1296
-};
-
 const Position SpawnPoint[] =
 {
     { 566.164f, 682.087f, 769.079f, 2.21657f  },
@@ -186,24 +181,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (!pInstance)
-                return;
-
-            pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
-            //Achievement: Watch him die
-            Creature *pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_GASHRA));
-            if (!pAdd || !pAdd->isAlive())
-                return;
-
-            pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_SILTHIK));
-            if (!pAdd || !pAdd->isAlive())
-                return;
-
-            pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_NARJIL));
-            if (!pAdd || !pAdd->isAlive())
-                return;
-
-            pInstance->DoCompleteAchievement(ACHIEV_WATH_HIM_DIE);
+            if (pInstance)
+                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)
@@ -551,14 +530,40 @@ public:
     }
 };
 
+class achievement_watch_him_die : public AchievementCriteriaScript
+{
+    public:
+        achievement_watch_him_die() : AchievementCriteriaScript("achievement_watch_him_die")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            InstanceScript* instance = target->GetInstanceScript();
+            Creature* Watcher[3];
+            if (!instance)
+                return false;
+
+            for (uint8 n = 0; n < 3; ++n)
+            {
+                Watcher[n] = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_WATCHER_GASHRA + n));
+                if (Watcher[n] && !Watcher[n]->isAlive())
+                    return false;
+            }
+
+            return true;
+        }
+};
+
 void AddSC_boss_krik_thir()
 {
-    new boss_krik_thir;
-    new npc_skittering_infector;
-    new npc_anub_ar_skirmisher;
-    new npc_anub_ar_shadowcaster;
-    new npc_watcher_gashra;
-    new npc_anub_ar_warrior;
-    new npc_watcher_silthik;
-    new npc_watcher_narjil;
+    new boss_krik_thir();
+    new npc_skittering_infector();
+    new npc_anub_ar_skirmisher();
+    new npc_anub_ar_shadowcaster();
+    new npc_watcher_gashra();
+    new npc_anub_ar_warrior();
+    new npc_watcher_silthik();
+    new npc_watcher_narjil();
+    new achievement_watch_him_die();
 }
