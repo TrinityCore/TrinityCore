@@ -12309,6 +12309,7 @@ int32 Unit::GetHealthGain(int32 dVal)
     return gain;
 }
 
+// returns negative amount on power reduction
 int32 Unit::ModifyPower(Powers power, int32 dVal)
 {
     int32 gain = 0;
