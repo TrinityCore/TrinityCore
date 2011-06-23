@@ -525,11 +525,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 uint32 freeHeroicSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
 
                 Field* field = result->Fetch();
-                uint8 accRace  = field[1].GetUInt32();
+                uint8 accRace  = field[1].GetUInt8();
 
                 if (GetSecurity() == SEC_PLAYER && createInfo->Class == CLASS_DEATH_KNIGHT)
                 {
-                    uint8 accClass = field[2].GetUInt32();
+                    uint8 accClass = field[2].GetUInt8();
                     if (accClass == CLASS_DEATH_KNIGHT)
                     {
                         if (freeHeroicSlots > 0)
@@ -549,7 +549,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                     if (!hasHeroicReqLevel)
                     {
-                        uint32 accLevel = field[0].GetUInt32();
+                        uint8 accLevel = field[0].GetUInt8();
                         if (accLevel >= heroicReqLevel)
                             hasHeroicReqLevel = true;
                     }
@@ -583,14 +583,14 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                         break;
 
                     field = result->Fetch();
-                    accRace = field[1].GetUInt32();
+                    accRace = field[1].GetUInt8();
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
 
                     if (GetSecurity() == SEC_PLAYER && createInfo->Class == CLASS_DEATH_KNIGHT)
                     {
-                        uint8 acc_class = field[2].GetUInt32();
+                        uint8 acc_class = field[2].GetUInt8();
                         if (acc_class == CLASS_DEATH_KNIGHT)
                         {
                             if (freeHeroicSlots > 0)
@@ -610,7 +610,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                         if (!hasHeroicReqLevel)
                         {
-                            uint32 acc_level = field[0].GetUInt32();
+                            uint8 acc_level = field[0].GetUInt8();
                             if (acc_level >= heroicReqLevel)
                                 hasHeroicReqLevel = true;
                         }
