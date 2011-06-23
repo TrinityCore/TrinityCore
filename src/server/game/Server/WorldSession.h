@@ -28,6 +28,7 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
+#include "WorldPacket.h"
 
 struct ItemTemplate;
 struct AuctionEntry;
@@ -197,7 +198,7 @@ class CharacterCreateInfo
         uint8 HairColor;
         uint8 FacialHair;
         uint8 OutfitId;
-        WorldPacket& Data;
+        WorldPacket Data;
 
         /// Server side data
         uint8 CharCount;
