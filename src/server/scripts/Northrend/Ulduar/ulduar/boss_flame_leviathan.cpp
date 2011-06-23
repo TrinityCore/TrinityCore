@@ -872,7 +872,7 @@ class spell_pool_of_tar : public CreatureScript
                     me->CastSpell(me, SPELL_BLAZE, true);
             }
 
-            void UpdateAI(uint32 const diff) {}
+            void UpdateAI(uint32 const /*diff*/) {}
         };
 
         CreatureAI* GetAI(Creature* creature) const

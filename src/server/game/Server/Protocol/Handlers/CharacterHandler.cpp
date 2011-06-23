@@ -411,7 +411,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
     /** This is a series of callbacks executed consecutively as a result from the database becomes available.
         This is much more efficient than synchronous requests on packet handler, and much less DoS prone.
         It also prevents data syncrhonisation errors.
-    */    
+    */
     switch (createInfo->Stage)
     {
         case 0:
@@ -427,7 +427,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 return;
             }
 
-            ASSERT(_charCreateCallback.GetParam() == createInfo);            
+            ASSERT(_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_SUM_REALMCHARS);
             stmt->setUInt32(0, GetAccountId());
@@ -462,7 +462,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
 
-            ASSERT(_charCreateCallback.GetParam() == createInfo);            
+            ASSERT(_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_SUM_CHARS);
             stmt->setUInt32(0, GetAccountId());
@@ -494,7 +494,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-          
+
             _charCreateCallback.FreeResult();
 
             if (!allowTwoSideAccounts || skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT)

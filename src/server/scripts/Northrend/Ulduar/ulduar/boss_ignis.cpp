@@ -449,7 +449,7 @@ class spell_ignis_slag_pot : public SpellScriptLoader
                 aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->isAlive())
                     GetTarget()->CastSpell(GetTarget(), SPELL_SLAG_IMBUED, true);
