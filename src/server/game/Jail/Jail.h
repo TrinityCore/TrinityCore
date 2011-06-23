@@ -59,6 +59,7 @@ private:
     bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
     bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
     void BannAccount(uint32 acc_id, uint32 guid, Player * chr = NULL);
+    char const * fmtstring(char const * format, ...);
 
 public:
     // Konfiguration laden

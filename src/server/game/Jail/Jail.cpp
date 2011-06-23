@@ -82,7 +82,7 @@ bool Jail::LadeKonfiguration(bool reload)
 
 void Jail::KnastAufraeumen()
 {
-    sLog->outString("Jail: Lösche Einträge mit nicht mehr existierenden Charakteren.");
+    sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_STARTUP_CLEANUP));
     CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid` NOT IN (SELECT `guid` FROM `characters`)");
 }
 
@@ -489,7 +489,7 @@ bool Jail::EnableKommando(ChatHandler * handler)
 {
     m_JailKonf.Enabled = true;
     handler->SendSysMessage(LANG_JAIL_ENABLED);
-    return true;
+    return Init(true);
 }
 
 bool Jail::DisableKommando(ChatHandler * handler)
@@ -568,11 +568,11 @@ void Jail::Kontrolle(Player * pPlayer, bool update)
 
 void Jail::Update()
 {
-    sLog->outDebug(LOG_FILTER_NONE, "Jail: Überprüfe das Gefängnis auf abgelaufene Inhaftierungen...");
+    sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_1));
 
     if (m_JailMap.empty())
     {
-        sLog->outDebug(LOG_FILTER_NONE, "Jail: Keine Inhaftierungen gefunden.");
+        sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_2));
         return;
     }
 
@@ -619,19 +619,25 @@ void Jail::Update()
             sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), itr->second.CharName.c_str(), itr->first));
         }
     }
-    sLog->outDebug(LOG_FILTER_NONE, "Jail: %u abgelaufene Inhaftierung(en) in %u ms bearbeitet.", cnt, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outDebug(LOG_FILTER_NONE, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_3)), cnt, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool Jail::Init(bool reload)
 {
     m_JailMap.clear(); // Für den Reload
 
-    sLog->outString("Jail: Initialisiere das Gefängnis...");
+    sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_1));
+
+    if (!m_JailKonf.Enabled)
+    {
+         sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_2));
+         return false;
+    }
 
     QueryResult result = CharacterDatabase.Query("SELECT * FROM `jail`");
     if (!result)
     {
-        sLog->outString("Jail: Keine Inhaftierungen gefunden.");
+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_3));
         return false;
     }
 
@@ -666,7 +672,7 @@ bool Jail::Init(bool reload)
 
     } while (result->NextRow());
 
-    sLog->outString("Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.", cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_4)), cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
 
     if (!reload)
         sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
@@ -837,4 +843,33 @@ void Jail::BannAccount(uint32 acc_id, uint32 guid, Player * chr)
         chr->JailDatenSpeichern();
         chr->GetSession()->KickPlayer();
     }
+}
+
+char const * Jail::fmtstring(char const * format, ...)
+{
+    va_list     argptr;
+    static char temp_buffer[MAX_FMT_STRING];
+    static char string[MAX_FMT_STRING];
+    static int  index = 0;
+    char        *buf;
+    int         len;
+
+    va_start(argptr, format);
+    vsnprintf(temp_buffer,MAX_FMT_STRING, format, argptr);
+    va_end(argptr);
+
+    len = strlen(temp_buffer);
+
+    if (len >= MAX_FMT_STRING)
+        return sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_FMTSTR);
+
+    if (len + index >= MAX_FMT_STRING-1)
+        index = 0;
+
+    buf = &string[index];
+    memcpy(buf, temp_buffer, len+1);
+
+    index += len + 1;
+
+    return buf;
 }
