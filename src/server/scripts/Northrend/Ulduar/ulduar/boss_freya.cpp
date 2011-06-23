@@ -101,6 +101,10 @@ enum FreyaSpells
     SPELL_REMOVE_10STACK                         = 62525,
     SPELL_REMOVE_2STACK                          = 62524,
 
+    // Achievement spells
+    SPELL_DEFORESTATION_CREDIT                   = 65015,
+    SPELL_KNOCK_ON_WOOD_CREDIT                   = 65074,
+
     // Wave summoning spells
     SPELL_SUMMON_LASHERS                         = 62687,
     SPELL_SUMMON_TRIO                            = 62686,
@@ -216,6 +220,8 @@ enum FreyaEvents
 
 #define WAVE_TIME                                60000 // Normal wave is one minute
 #define TIME_DIFFERENCE                          10000 // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
+#define DATA_KNOCK_ON_WOOD                       1
+#define DATA_GETTING_BACK_TO_NATURE              2
 
 class npc_iron_roots : public CreatureScript
 {
@@ -290,7 +296,6 @@ class boss_freya : public CreatureScript
             bool checkElementalAlive[2];
             bool trioDefeated[2];
             bool waveInProgress;
-            bool deforestationCheck;
             bool random[3];
 
             void Reset()
@@ -315,7 +320,6 @@ class boss_freya : public CreatureScript
                     trioDefeated[n] = false;
                 }
                 waveInProgress = false;
-                deforestationCheck = false;
                 for (uint8 n = 0; n < 3; ++n)
                     random[n] = false;
             }
@@ -339,6 +343,8 @@ class boss_freya : public CreatureScript
                     me->DeleteThreatList();
                     me->CombatStop(true);
                     me->ForcedDespawn(7500);
+                    if (elderCount)
+                        me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 
                     Creature* Elder[3];
                     for (uint8 n = 0; n < 3; ++n)
@@ -403,6 +409,19 @@ class boss_freya : public CreatureScript
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_KNOCK_ON_WOOD:
+                        return elderCount;
+                    case DATA_GETTING_BACK_TO_NATURE:
+                        return attunedToNature;
+                }
+
+                return 0;
             }
 
             void UpdateAI(uint32 const diff)
@@ -515,7 +534,9 @@ class boss_freya : public CreatureScript
                         else
                         {
                             if (!trioDefeated[i])
+                            {
                                 if (Elemental[0][i] && Elemental[1][i] && Elemental[2][i])
+                                {
                                     if (Elemental[0][i]->isDead() && Elemental[1][i]->isDead() && Elemental[2][i]->isDead())
                                     {
                                         for (uint8 n = 0; n < 3; ++n)
@@ -527,6 +548,8 @@ class boss_freya : public CreatureScript
                                         }
                                         TimeCheck();
                                     }
+                                }
+                            }
                         }
                     }
                 }
@@ -559,7 +582,7 @@ class boss_freya : public CreatureScript
                     {
                         if (n == 14 && instance)                                 // Binary mask check - verification of lasher types
                         {
-                            deforestationCheck = true;
+                            instance->DoCastSpellOnPlayers(SPELL_DEFORESTATION_CREDIT);
                         }
                     }
                 }
@@ -1588,6 +1611,74 @@ class spell_freya_iron_roots : public SpellScriptLoader
         }
 };
 
+class achievement_knock_on_wood : public AchievementCriteriaScript
+{
+    public:
+        achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 1)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_knock_knock_on_wood : public AchievementCriteriaScript
+{
+    public:
+        achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 2)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
+{
+    public:
+        achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) == 3)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_getting_back_to_nature : public AchievementCriteriaScript
+{
+    public:
+        achievement_getting_back_to_nature() : AchievementCriteriaScript("achievement_getting_back_to_nature")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_GETTING_BACK_TO_NATURE) >= 25)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_freya()
 {
     new boss_freya();
@@ -1607,4 +1698,8 @@ void AddSC_boss_freya()
     new npc_iron_roots();
     new spell_freya_attuned_to_nature_dose_reduction();
     new spell_freya_iron_roots();
+    new achievement_knock_on_wood();
+    new achievement_knock_knock_on_wood();
+    new achievement_knock_knock_knock_on_wood();
+    new achievement_getting_back_to_nature();
 }

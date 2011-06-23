@@ -523,8 +523,8 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
 
 void WorldSession::SendStablePet(uint64 guid)
 {
-    m_sendStabledPetCallback.SetParam(guid);
-    m_sendStabledPetCallback.SetFutureResult(
+    _sendStabledPetCallback.SetParam(guid);
+    _sendStabledPetCallback.SetFutureResult(
         CharacterDatabase.AsyncPQuery("SELECT owner, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot >= '%u' AND slot <= '%u' ORDER BY slot",
             _player->GetGUIDLow(), PET_SAVE_FIRST_STABLE_SLOT, PET_SAVE_LAST_STABLE_SLOT)
         );
@@ -622,7 +622,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
         return;
     }
 
-    m_stablePetCallback = CharacterDatabase.AsyncPQuery("SELECT owner, slot, id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
+    _stablePetCallback = CharacterDatabase.AsyncPQuery("SELECT owner, slot, id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
         _player->GetGUIDLow(), PET_SAVE_FIRST_STABLE_SLOT, PET_SAVE_LAST_STABLE_SLOT);
 
 }
@@ -679,8 +679,8 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    m_unstablePetCallback.SetParam(petnumber);
-    m_unstablePetCallback.SetFutureResult(
+    _unstablePetCallback.SetParam(petnumber);
+    _unstablePetCallback.SetFutureResult(
             CharacterDatabase.AsyncPQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot >='%u' AND slot <= '%u'",
                 _player->GetGUIDLow(), petnumber, PET_SAVE_FIRST_STABLE_SLOT, PET_SAVE_LAST_STABLE_SLOT)
             );
@@ -803,8 +803,8 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
     }
 
     // find swapped pet slot in stable
-    m_stableSwapCallback.SetParam(pet_number);
-    m_stableSwapCallback.SetFutureResult(
+    _stableSwapCallback.SetParam(pet_number);
+    _stableSwapCallback.SetFutureResult(
             CharacterDatabase.PQuery("SELECT slot, entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
                 _player->GetGUIDLow(), pet_number)
             );
