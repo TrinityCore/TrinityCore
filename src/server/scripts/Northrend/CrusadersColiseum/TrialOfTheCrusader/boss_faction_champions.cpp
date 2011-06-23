@@ -1063,8 +1063,10 @@ public:
         uint32 m_uiHellfireTimer;
         uint32 m_uiUnstableAfflictionTimer;
         uint32 m_uiCommonTimer;
-        uint32 m_uiSummonPetTimer;
+        //uint32 m_uiSummonPetTimer;
         uint32 trinket_timer;
+        uint32 pet_summon_timer;
+        bool pet_check;
 
         void Reset()
         {
@@ -1075,14 +1077,30 @@ public:
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-            m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(SPELL_SUMMON_FELHUNTER);
+            //m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            //DoCast(SPELL_SUMMON_FELHUNTER);
             trinket_timer = urand(5000, 20000);
+            pet_check = false;
+            pet_summon_timer = 1000;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+            if(pet_summon_timer <=uiDiff)
+	      {
+		if(!pet_check)
+		{
+		   DoCast(SPELL_SUMMON_FELHUNTER);
+		   pet_check = true;
+		}
+
+	        else
+	        {
+	           pet_summon_timer = 120000;
+                }
+	      } else pet_summon_timer -= uiDiff;
 
                 if (IsHeroic())
 			{
@@ -1121,10 +1139,10 @@ public:
                 m_uiUnstableAfflictionTimer = urand(2*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             } else m_uiUnstableAfflictionTimer -= uiDiff;
 
-            if (m_uiSummonPetTimer <= uiDiff)
+            /*if (m_uiSummonPetTimer <= uiDiff)
             {
                 m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else m_uiSummonPetTimer -= uiDiff;
+            } else m_uiSummonPetTimer -= uiDiff;*/
 
             if (m_uiCommonTimer <= uiDiff)
             {
@@ -1311,8 +1329,10 @@ public:
         uint32 m_uiFrostTrapTimer;
         uint32 m_uiWingClipTimer;
         uint32 m_uiCommonTimer;
-        uint32 m_uiSummonPetTimer;
+        //uint32 m_uiSummonPetTimer;
         uint32 trinket_timer;
+        uint32 pet_summon_timer;
+        bool pet_check;
 
         void Reset()
         {
@@ -1325,14 +1345,30 @@ public:
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47156, EQUIP_NO_CHANGE, 48711);
 
-            m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(SPELL_CALL_PET);
+            //m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            //DoCast(SPELL_CALL_PET);
             trinket_timer = urand(5000, 20000);
+            pet_check = false;
+            pet_summon_timer = 1000;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+            if(pet_summon_timer <=uiDiff)
+		{
+		   if(!pet_check)
+		     {
+			DoCast(SPELL_CALL_PET);
+			pet_check = true;
+		     }
+
+		   else
+		     {
+			pet_summon_timer = 120000;
+		     }
+		} else pet_summon_timer -= uiDiff;
 
                 if (IsHeroic())
 			{
@@ -1383,10 +1419,10 @@ public:
                 m_uiWingClipTimer = urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS);
             } else m_uiWingClipTimer -= uiDiff;
 
-            if (m_uiSummonPetTimer <= uiDiff)
+            /*if (m_uiSummonPetTimer <= uiDiff)
             {
                 m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else m_uiSummonPetTimer -= uiDiff;
+            } else m_uiSummonPetTimer -= uiDiff;*/
 
             if (m_uiCommonTimer <= uiDiff)
             {
