@@ -2514,6 +2514,13 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     // TODO: move these to sql
                     switch (m_spellInfo->Id)
                     {
+                        //Icecrown Citadel: Highlord Tirion Fordring's Mass Resurrection
+                        //Requires players to have at least friendly reputation with Argent Crusade
+                        case 72429:
+                        {
+                            SearchAreaTarget(unitList, 300.0f, pushType, SPELL_TARGETS_ALLY);
+                            break;
+                        }
                         case 46584: // Raise Dead
                         {
                             if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
