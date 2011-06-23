@@ -623,42 +623,6 @@ class spell_gen_animal_blood : public SpellScriptLoader
         }
 };
 
-class spell_gen_shroud_of_death : public SpellScriptLoader
-{
-    public:
-        spell_gen_shroud_of_death() : SpellScriptLoader("spell_gen_shroud_of_death") { }
-
-        class spell_gen_shroud_of_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_shroud_of_death_AuraScript);
-
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-                target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-            }
-
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
-                target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_shroud_of_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_shroud_of_death_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_shroud_of_death_AuraScript();
-        }
-};
-
 enum DivineStormSpell
 {
     SPELL_DIVINE_STORM  = 53385,
