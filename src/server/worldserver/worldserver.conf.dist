@@ -1896,11 +1896,11 @@ GM.LowerSecurity = 0
 #
 #    GM.AllowAchievementGain.Level
 #        Description: Max GM level allowed to obtain achievements.
-#        Default:     3 - (Players, Moderators, GameMasters, Owners)
+#        Default:     3 - (Players, Moderators, GameMasters, Admins)
 #                     0 - (Players)
 #                     1 - (Players, Moderators)
 #                     2 - (Players, Moderators, GameMasters)
-#                     3 - (Players, Moderators, GameMasters, Owners)
+#                     3 - (Players, Moderators, GameMasters, Admins)
 
 GM.AllowAchievementGain.Level = 3
 
