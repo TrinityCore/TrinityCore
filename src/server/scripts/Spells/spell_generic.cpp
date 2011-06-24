@@ -1180,5 +1180,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_turkey_marker();
     new spell_gen_lifeblood();
     new spell_gen_magic_rooster();
-    new spell_gen_allow_cast_by_item_only();
+    new spell_gen_allow_cast_from_item_only();
 }
