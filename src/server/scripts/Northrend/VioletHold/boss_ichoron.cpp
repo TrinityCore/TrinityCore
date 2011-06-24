@@ -50,11 +50,6 @@ enum Yells
     SAY_BUBBLE                                  = -1608026
 };
 
-enum Achievements
-{
-    ACHIEVEMENT_DEHYDRATION                     = 2041,
-};
-
 enum Actions
 {
     ACTION_WATER_ELEMENT_HIT                    = 1,
@@ -71,6 +66,8 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
     {1918.97f, 850.645f, 47.225f, 4.136f},
     {1935.50f, 796.224f, 52.492f, 4.224f},
 };
+
+#define DATA_DEHYDRATION                        1
 
 class boss_ichoron : public CreatureScript
 {
@@ -91,7 +88,7 @@ public:
 
         bool bIsExploded;
         bool bIsFrenzy;
-        bool bAchievement;
+        bool dehydration;
 
         uint32 uiBubbleCheckerTimer;
         uint32 uiWaterBoltVolleyTimer;
@@ -104,7 +101,7 @@ public:
         {
             bIsExploded = false;
             bIsFrenzy = false;
-            bAchievement = true;
+            dehydration = true;
             uiBubbleCheckerTimer = 1000;
             uiWaterBoltVolleyTimer = urand(10000, 15000);
 
@@ -168,7 +165,7 @@ public:
                     if (bIsExploded)
                         DoExplodeCompleted();
 
-                    bAchievement = false;
+                    dehydration = false;
                     break;
                 case ACTION_WATER_ELEMENT_KILLED:
                     uint32 damage = me->CountPctFromMaxHealth(3);
@@ -199,11 +196,18 @@ public:
             me->GetMotionMaster()->MoveChase(me->getVictim());
         }
 
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_DEHYDRATION)
+                return dehydration ? 1 : 0;
+
+            return 0;
+        }
+
         void MoveInLineOfSight(Unit* /*pWho*/) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -284,9 +288,6 @@ public:
 
             if (pInstance)
             {
-                if (IsHeroic() && bAchievement)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_DEHYDRATION);
-
                 if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 {
                     pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
@@ -394,8 +395,26 @@ public:
 
 };
 
+class achievement_dehydration : public AchievementCriteriaScript
+{
+    public:
+        achievement_dehydration() : AchievementCriteriaScript("achievement_dehydration")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Ichoron = target->ToCreature())
+                if (Ichoron->AI()->GetData(DATA_DEHYDRATION))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_ichoron()
 {
     new boss_ichoron();
     new mob_ichor_globule();
+    new achievement_dehydration();
 }
