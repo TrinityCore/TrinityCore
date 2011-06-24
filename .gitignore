@@ -7,4 +7,3 @@ build/
 .hg/
 *.kdev*
 *.bak
-*.patch
