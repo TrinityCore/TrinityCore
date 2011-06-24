@@ -71,10 +71,10 @@ index 0000000..a304db7
 +('jail delete',     3, 'Syntax: .jail delete\nWie reset, aber löscht auch Jails mit Bannungen!\nDie Bannung wird dadurch auch gelöscht!');
 diff --git a/sql/jail/world_string_jail.sql b/sql/jail/world_string_jail.sql
 new file mode 100644
-index 0000000..8bd214e
+index 0000000..7e54e14
 --- /dev/null
 +++ b/sql/jail/world_string_jail.sql
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,52 @@
 +﻿SET NAMES utf8;
 +
 +DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12100 AND 12199;
@@ -114,7 +114,16 @@ index 0000000..8bd214e
 +(12132, 'The account of this character has further %u bans!','Der Account von ihm wurde ausserdem bereits %u mal gebannt!'),
 +(12133, '%s is already in the Jail!','%s ist bereits im Knast!'),
 +(12134, 'You can not reset a Jail entry with a banned account!','Das Löschen eines Jaileintrags, dessen Account gebannt wurde, ist nicht möglich!'),
-+(12135,  'Jail: Jail data reloaded.','Jail: Die Knastdaten wurden neu geladen.'),
++(12135, 'Jail: Jail data reloaded.','Jail: Die Knastdaten wurden neu geladen.'),
++(12136, 'Jail: Delete of entries with no longer existing characters.','Jail: Lösche Einträge mit nicht mehr existierenden Charakteren.'),
++(12137, 'Jail: Checking the jail for outdated arrests...','Jail: Überprüfe das Gefängnis auf abgelaufene Inhaftierungen...'),
++(12138, 'Jail: No arrests found.','Jail: Keine Inhaftierungen gefunden.'),
++(12139, 'Jail: %u outdated arrests found and within %u ms checked.','Jail: %u abgelaufene Inhaftierung(en) in %u ms bearbeitet.'),
++(12140, 'Jail: Initializate the jail...','Jail: Initialisiere das Gefängnis...'),
++(12141, 'Jail: The Jail isn''t activ! Terminating the initialization.','Jail: Das Jail ist nicht aktiv! Beende die Initialisierung.'),
++(12142, 'Jail: No arrests found.','Jail: Keine Inhaftierungen gefunden.'),
++(12143, 'Jail: %u arrests (%u are active) within %u ms loaded.','Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.'),
++(12144, 'ERROR! STRING TO LONG!','FEHLER! STRING ZU LANG!'),
 +(12197, 'The Jail is now active.', 'Das Jail ist nun aktiv.'),
 +(12198, 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'),
 +(12199, 'The Jail is not active!', 'Das Jail ist nicht aktiv!');
@@ -147,7 +156,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 8f1467a..8e5dc09 100755
+index 1c3bc04..10961e8 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -180,7 +189,7 @@ index 8f1467a..8e5dc09 100755
      // group is initialized in the reference constructor
      SetGroupInvite(NULL);
      m_groupUpdateMask = 0;
-@@ -1180,6 +1191,50 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
+@@ -1180,6 +1191,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
      return true;
  }
  
@@ -231,7 +240,7 @@ index 8f1467a..8e5dc09 100755
  bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
  {
      sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
-@@ -1489,6 +1544,19 @@ void Player::Update(uint32 p_time)
+@@ -1494,6 +1549,19 @@ void Player::Update(uint32 p_time)
      if (!IsInWorld())
          return;
  
@@ -251,7 +260,7 @@ index 8f1467a..8e5dc09 100755
      // undelivered mail
      if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
      {
-@@ -1706,7 +1774,15 @@ void Player::Update(uint32 p_time)
+@@ -1711,7 +1779,15 @@ void Player::Update(uint32 p_time)
      }
  
      if (m_deathState == JUST_DIED)
@@ -268,7 +277,7 @@ index 8f1467a..8e5dc09 100755
  
      if (m_nextSave > 0)
      {
-@@ -4900,6 +4976,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
+@@ -4905,6 +4981,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
              trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
@@ -276,7 +285,7 @@ index 8f1467a..8e5dc09 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17012,6 +17089,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17017,6 +17094,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -286,7 +295,7 @@ index 8f1467a..8e5dc09 100755
      return true;
  }
  
-@@ -18350,7 +18430,13 @@ void Player::SaveToDB()
+@@ -18355,7 +18435,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
@@ -301,7 +310,7 @@ index 8f1467a..8e5dc09 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 0b789ae..46eccba 100755
+index 725c3fb..ffef200 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -336,10 +345,10 @@ index 0b789ae..46eccba 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..37818cf
+index 0000000..db437e1
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,869 @@
+@@ -0,0 +1,875 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include "Jail.h"
@@ -424,7 +433,7 @@ index 0000000..37818cf
 +
 +void Jail::KnastAufraeumen()
 +{
-+    sLog->outString("Jail: Lösche Einträge mit nicht mehr existierenden Charakteren.");
++    sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_STARTUP_CLEANUP));
 +    CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid` NOT IN (SELECT `guid` FROM `characters`)");
 +}
 +
@@ -831,7 +840,7 @@ index 0000000..37818cf
 +{
 +    m_JailKonf.Enabled = true;
 +    handler->SendSysMessage(LANG_JAIL_ENABLED);
-+    return true;
++    return Init(true);
 +}
 +
 +bool Jail::DisableKommando(ChatHandler * handler)
@@ -910,11 +919,11 @@ index 0000000..37818cf
 +
 +void Jail::Update()
 +{
-+    sLog->outDebug(LOG_FILTER_NONE, "Jail: Überprüfe das Gefängnis auf abgelaufene Inhaftierungen...");
++    sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_1));
 +
 +    if (m_JailMap.empty())
 +    {
-+        sLog->outDebug(LOG_FILTER_NONE, "Jail: Keine Inhaftierungen gefunden.");
++        sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_2));
 +        return;
 +    }
 +
@@ -961,19 +970,25 @@ index 0000000..37818cf
 +            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), itr->second.CharName.c_str(), itr->first));
 +        }
 +    }
-+    sLog->outDebug(LOG_FILTER_NONE, "Jail: %u abgelaufene Inhaftierung(en) in %u ms bearbeitet.", cnt, GetMSTimeDiffToNow(oldMSTime));
++    sLog->outDebug(LOG_FILTER_NONE, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_3)), cnt, GetMSTimeDiffToNow(oldMSTime));
 +}
 +
 +bool Jail::Init(bool reload)
 +{
 +    m_JailMap.clear(); // Für den Reload
 +
-+    sLog->outString("Jail: Initialisiere das Gefängnis...");
++    sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_1));
++
++    if (!m_JailKonf.Enabled)
++    {
++         sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_2));
++         return false;
++    }
 +
 +    QueryResult result = CharacterDatabase.Query("SELECT * FROM `jail`");
 +    if (!result)
 +    {
-+        sLog->outString("Jail: Keine Inhaftierungen gefunden.");
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_3));
 +        return false;
 +    }
 +
@@ -1008,7 +1023,7 @@ index 0000000..37818cf
 +
 +    } while (result->NextRow());
 +
-+    sLog->outString("Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.", cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
++    sLog->outString(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_4)), cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
 +
 +    if (!reload)
 +        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
@@ -1044,7 +1059,7 @@ index 0000000..37818cf
 +bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
 +{
 +    time_t localtime = time(NULL);
-+    uint32 release = localtime + (jailtime * HOUR);
++    uint32 release = uint32(localtime + (jailtime * HOUR));
 +
 +    if (!chr)
 +        return false;
@@ -1092,7 +1107,7 @@ index 0000000..37818cf
 +bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
 +{
 +    time_t localtime = time(NULL);
-+    uint32 release = localtime + (jailtime * HOUR);
++    uint32 release = uint32(localtime + (jailtime * HOUR));
 +    uint32 times = 0;
 +    JailEintragStruktur JES;
 +
@@ -1149,7 +1164,7 @@ index 0000000..37818cf
 +{
 +    uint32 btimes = 0;
 +    time_t localtime = time(NULL);
-+    uint32 banrelease = localtime + (m_JailKonf.BanDauer * HOUR);
++    uint32 banrelease = uint32(localtime + (m_JailKonf.BanDauer * HOUR));
 +
 +    JailMap::iterator itr = m_JailMap.find(guid);
 +    if (itr != m_JailMap.end())
@@ -1197,7 +1212,7 @@ index 0000000..37818cf
 +    len = strlen(temp_buffer);
 +
 +    if (len >= MAX_FMT_STRING)
-+        return "FEHLER";
++        return sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_FMTSTR);
 +
 +    if (len + index >= MAX_FMT_STRING-1)
 +        index = 0;
@@ -1317,7 +1332,7 @@ index 0000000..56d3048
 +
 +#endif
 diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
-index 41458ec..fec3cf4 100755
+index bd2c34a..0d7d40b 100755
 --- a/src/server/game/Miscellaneous/Language.h
 +++ b/src/server/game/Miscellaneous/Language.h
 @@ -1,4 +1,5 @@
@@ -1326,7 +1341,7 @@ index 41458ec..fec3cf4 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1048,9 +1049,50 @@ enum TrinityStrings
+@@ -1048,9 +1049,59 @@ enum TrinityStrings
      LANG_AUTO_BROADCAST                 = 11000,
      LANG_INVALID_REALMID                = 11001,
  
@@ -1372,6 +1387,15 @@ index 41458ec..fec3cf4 100755
 +    LANG_JAIL_GM_ALREADY_JAILED = 12133,
 +    LANG_JAIL_GM_NO_DELETE      = 12134,
 +    LANG_JAIL_RELOAD_JAIL       = 12135,
++    LANG_JAIL_STARTUP_CLEANUP   = 12136,
++    LANG_JAIL_DEBUG_UPDATE_1    = 12137,
++    LANG_JAIL_DEBUG_UPDATE_2    = 12138,
++    LANG_JAIL_DEBUG_UPDATE_3    = 12139,
++    LANG_JAIL_INIT_1            = 12140,
++    LANG_JAIL_INIT_2            = 12141,
++    LANG_JAIL_INIT_3            = 12142,
++    LANG_JAIL_INIT_4            = 12143,
++    LANG_JAIL_FMTSTR            = 12144,
 +    LANG_JAIL_ENABLED           = 12197,
 +    LANG_JAIL_DISABLED          = 12198,
 +    LANG_JAIL_NOT_ACTIVE        = 12199
@@ -1602,10 +1626,18 @@ index 0000000..01a1db0
 +    new jail_commandscript();
 +}
 diff --git a/src/server/worldserver/CMakeLists.txt b/src/server/worldserver/CMakeLists.txt
-index cdd9b04..889554b 100644
+index cdd9b04..a5ecb17 100644
 --- a/src/server/worldserver/CMakeLists.txt
 +++ b/src/server/worldserver/CMakeLists.txt
-@@ -109,6 +109,7 @@ include_directories(
+@@ -75,7 +75,6 @@ include_directories(
+   ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
+   ${CMAKE_SOURCE_DIR}/src/server/game/AI/SmartScripts
+   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
+-  ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse/AuctionHouseBot
+   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
+   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds/Zones
+   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
+@@ -109,6 +108,7 @@ include_directories(
    ${CMAKE_SOURCE_DIR}/src/server/game/Groups
    ${CMAKE_SOURCE_DIR}/src/server/game/Guilds
    ${CMAKE_SOURCE_DIR}/src/server/game/Instances
