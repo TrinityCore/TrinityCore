@@ -6688,7 +6688,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
                 {
-                    if ((procSpell->SpellFamilyName == SPELLFAMILY_PALADIN) && (procSpell->SpellFamilyFlags[0] & 0x40000000))
+                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN && (procSpell->SpellFamilyFlags[0] & 0x40000000))
                     {
                         basepoints0 = damage / 12;
 
@@ -6702,6 +6702,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 }
                 else if (damage > 0)
                     triggered_spell_id = 58597;
+
+                // Item - Paladin T8 Holy 4P Bonus
+                if (AuraEffect* aurEff = GetAuraEffect(64895, 0))
+                    cooldown = aurEff->GetAmount();
 
                 target = this;
                 break;
