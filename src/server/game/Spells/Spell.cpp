@@ -4652,9 +4652,6 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL && !m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
         return SPELL_FAILED_SPELL_UNAVAILABLE;
 
-    if (m_castedClientside && m_spellInfo->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE && m_caster->GetTypeId() == TYPEID_PLAYER && !m_CastItem)
-        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
     // Check global cooldown
     if (strict && !m_IsTriggeredSpell && HasGlobalCooldown())
         return SPELL_FAILED_NOT_READY;
