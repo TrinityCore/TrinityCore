@@ -1125,6 +1125,35 @@ class spell_gen_magic_rooster : public SpellScriptLoader
         }
 };
 
+class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
+{
+public:
+    spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
+
+    class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
+
+        SpellCastResult CheckRequirement()
+        {
+            if (!GetCastItem())
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_allow_cast_from_item_only_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1151,4 +1180,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_turkey_marker();
     new spell_gen_lifeblood();
     new spell_gen_magic_rooster();
+    new spell_gen_allow_cast_by_item_only();
 }

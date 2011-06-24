@@ -1976,6 +1976,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 25281, 'spell_gen_turkey_marker'),
 (-55428, 'spell_gen_lifeblood'),
 ( 65917, 'spell_gen_magic_rooster'),
+( 4073,  'spell_gen_allow_cast_from_item_only'),
+( 19804, 'spell_gen_allow_cast_from_item_only'),
+( 12749, 'spell_gen_allow_cast_from_item_only'),
+( 13258, 'spell_gen_allow_cast_from_item_only'),
+( 13166, 'spell_gen_allow_cast_from_item_only'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
