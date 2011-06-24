@@ -85,9 +85,6 @@ enum Events
  * ---
  * --- Emerald Dragons : Base AI-structure used for all the Emerald dragons
  * ---
- *
- * TODO
- * - Fix player teleportation when running off too far from the dragon (emerald_dragonAI)
  */
 
 struct emerald_dragonAI : public WorldBossAI
@@ -153,10 +150,8 @@ struct emerald_dragonAI : public WorldBossAI
         while (uint32 eventId = events.ExecuteEvent())
             ExecuteEvent(eventId);
 
-        std::list<HostileReference*> threats = me->getThreatManager().getThreatList();
-        if (Unit* target = threats.front()->getTarget())
-            if ((target->GetTypeId() == TYPEID_PLAYER) && (me->GetDistance(target) > 20.0f))
-                DoCast(target, SPELL_SUMMON_PLAYER);
+        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, -50.0f, true))
+            DoCast(target, SPELL_SUMMON_PLAYER);
 
         DoMeleeAttackIfReady();
     }
@@ -190,8 +185,7 @@ class npc_dream_fog : public CreatureScript
                 if (!_roamTimer)
                 {
                     // Chase target, but don't attack - otherwise just roam around
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
                         _roamTimer = urand(15000, 30000);
                         me->GetMotionMaster()->Clear(false);
@@ -397,22 +391,6 @@ class boss_ysondre : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                    ExecuteEvent(eventId);
-
-                DoMeleeAttackIfReady();
-            }
-
         private:
             uint8   _stage;
         };
@@ -494,22 +472,6 @@ class boss_lethon : public CreatureScript
                         emerald_dragonAI::ExecuteEvent(eventId);
                         break;
                 }
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                    ExecuteEvent(eventId);
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -595,22 +557,6 @@ class boss_emeriss : public CreatureScript
                         emerald_dragonAI::ExecuteEvent(eventId);
                         break;
                 }
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                    ExecuteEvent(eventId);
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -738,12 +684,7 @@ class boss_taerar : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (!me->isInCombat())
                     return;
 
                 if (_banished)
@@ -760,13 +701,14 @@ class boss_taerar : public CreatureScript
                     // _banishtimer has not expired, and we still have active shades:
                     else
                         _banishedTimer -= diff;
+
+                    // Update the events before we return (handled under emerald_dragonAI::UpdateAI(diff); if we're not inside this check)
+                    events.Update(diff);
+
                     return;
                 }
 
-                while (uint32 eventId = events.ExecuteEvent())
-                    ExecuteEvent(eventId);
-
-                DoMeleeAttackIfReady();
+                emerald_dragonAI::UpdateAI(diff);
             }
 
         private:
