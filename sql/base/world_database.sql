@@ -16959,6 +16959,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (53600, 0, 0, 0, 0 ,'Paladin - Shield of Righteousness'),
 (20267, 0, 0, 0, 0, 'Paladin - Judgement of Light Proc'),
 (25997, 0, 0, 0, 0, 'Paladin - Eye for an Eye'),
+(64891, -1, 0, -1, -1, 'Paladin - T8 Holy 2P - Holy Mending'),
 (50256, -1, -1, 0.08, -1, 'Pet Skills - Bear (Swipe)'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
