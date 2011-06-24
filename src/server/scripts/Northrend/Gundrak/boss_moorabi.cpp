@@ -31,11 +31,6 @@ enum eSpells
     SPELL_TRANSFORMATION                          = 55098, //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
-enum eArchivements
-{
-    ACHIEV_LESS_RABI                              = 2040
-};
-
 enum eSays
 {
     SAY_AGGRO                                     = -1604010,
@@ -47,6 +42,8 @@ enum eSays
     SAY_QUAKE                                     = -1604016,
     EMOTE_TRANSFORM                               = -1604017
 };
+
+#define DATA_LESS_RABI                            1
 
 class boss_moorabi : public CreatureScript
 {
@@ -146,17 +143,20 @@ public:
             DoMeleeAttackIfReady();
          }
 
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_LESS_RABI)
+                return bPhase ? 0 : 1;
+
+            return 0;
+        }
+
          void JustDied(Unit* /*pKiller*/)
          {
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
-            {
                 pInstance->SetData(DATA_MOORABI_EVENT, DONE);
-
-                if (IsHeroic() && !bPhase)
-                    pInstance->DoCompleteAchievement(ACHIEV_LESS_RABI);
-            }
         }
 
         void KilledUnit(Unit* pVictim)
@@ -170,7 +170,25 @@ public:
 
 };
 
+class achievement_less_rabi : public AchievementCriteriaScript
+{
+    public:
+        achievement_less_rabi() : AchievementCriteriaScript("achievement_less_rabi")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Moorabi = target->ToCreature())
+                if (Moorabi->AI()->GetData(DATA_LESS_RABI))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_moorabi()
 {
     new boss_moorabi();
+    new achievement_less_rabi();
 }
