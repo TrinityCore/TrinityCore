@@ -1827,7 +1827,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980,7598,7587,7264,7548,10068,10069,10173,10306,10451,10462,10447,10448,10449,10459,10460,10461,7316,7317,7318,7583,4240) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980,7598,7587,7264,7548,10068,10069,10173,10306,10451,10462,10447,10448,10449,10459,10460,10461,7316,7317,7318,7583,4240,6803,7319,7577,7320,7590,7361) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (3804,11,0,0, 'achievement_resilient_victory'),
@@ -1916,7 +1916,13 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (7318,11,0,0,'achievement_king_dred'),
 (7316,11,0,0,'achievement_chaos_theory'),
 (7583,11,0,0,'achievement_share_the_love'),
-(4240,11,0,0,'achievement_watch_him_die');
+(4240,11,0,0,'achievement_watch_him_die'),
+(6803,11,0,0,'achievement_defenseless'),
+(7319,11,0,0,'achievement_less_rabi'),
+(7577,11,0,0,'achievement_split_personality'),
+(7320,11,0,0,'achievement_dehydration'),
+(7590,11,0,0,'achievement_brann_sparklin_news'),
+(7361,11,0,0,'achievement_oh_novos');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
