@@ -103,6 +103,7 @@ enum WorldBoolConfigs
     CONFIG_INSTANT_TAXI,
     CONFIG_INSTANCE_IGNORE_LEVEL,
     CONFIG_INSTANCE_IGNORE_RAID,
+    CONFIG_EXTERNAL_MAIL,
     CONFIG_CAST_UNSTUCK,
     CONFIG_GM_LOG_TRADE,
     CONFIG_ALLOW_GM_GROUP,
@@ -236,6 +237,7 @@ enum WorldIntConfigs
     CONFIG_START_GM_LEVEL,
     CONFIG_GROUP_VISIBILITY,
     CONFIG_MAIL_DELIVERY_DELAY,
+    CONFIG_EXTERNAL_MAIL_INTERVAL,
     CONFIG_UPTIME_UPDATE,
     CONFIG_SKILL_CHANCE_ORANGE,
     CONFIG_SKILL_CHANCE_YELLOW,
@@ -815,6 +817,7 @@ class World
         time_t m_startTime;
         time_t m_gameTime;
         IntervalTimer m_timers[WUPDATE_COUNT];
+        IntervalTimer extmail_timer;
         time_t mail_timer;
         time_t mail_timer_expires;
         uint32 m_updateTime, m_updateTimeSum;

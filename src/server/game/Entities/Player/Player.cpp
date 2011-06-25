@@ -7575,7 +7575,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
                 {
                     sLog->outError("Player (GUID: %u) tried to access GM Island.", GetGUIDLow());
                     sLog->outError("Error: Cannot set tele to GM Island (map: %u). Sending possible hacker to default location. (Jail Box)",map);
-                    TeleportTo(13,1.118799,0.477914,-144.708650,3.133046); // Tele to Jail Box
+                    TeleportTo(13,1.118799f,0.477914f,-144.708650f,3.133046f); // Tele to Jail Box
                     CastSpell(this, 9454, true); // Cast GM Freeze on player
                 }
 

@@ -331,6 +331,7 @@ class WorldSession
             }
         }
         //used with item_page table
+        static void SendExternalMails();
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
         void SendAuctionHello(uint64 guid, Creature* unit);
