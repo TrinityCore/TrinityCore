@@ -5720,7 +5720,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 if (effIndex != 0)
                     return false;
-                AuraEffect* counter = triggeredByAura->GetBase()->GetEffect(1);
+                AuraEffect* counter = triggeredByAura->GetBase()->GetEffect(EFFECT_1);
                 if (!counter)
                     return true;
 
@@ -6056,7 +6056,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             // regen mana for caster
                             CastCustomSpell(this, 59117, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                             // Get second aura of spell for replenishment effect on party
-                            if (AuraEffect const* aurEff = (*i)->GetBase()->GetEffect(1))
+                            if (AuraEffect const* aurEff = (*i)->GetBase()->GetEffect(EFFECT_1))
                             {
                                 // Replenishment - roll chance
                                 if (roll_chance_i(aurEff->GetAmount()))
@@ -6124,7 +6124,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 // Multiple effects stack, so let's try to find this aura.
                 int32 bonus = 0;
-                if (AuraEffect* aurEff = target->GetAuraEffect(47753, 0))
+                if (AuraEffect const* aurEff = target->GetAuraEffect(47753, 0))
                     bonus = aurEff->GetAmount();
 
                 basepoints0 = CalculatePctN(int32(damage), triggerAmount) + bonus;
@@ -6621,7 +6621,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // This effect only from Rapid Killing (mana regen)
                 if (!(procSpell->SpellFamilyFlags[1] & 0x01000000))
                     return false;
-                triggered_spell_id = 56654;
 
                 target = this;
 
@@ -6704,7 +6703,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
                 {
-                    if ((procSpell->SpellFamilyName == SPELLFAMILY_PALADIN) && (procSpell->SpellFamilyFlags[0] & 0x40000000))
+                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN && (procSpell->SpellFamilyFlags[0] & 0x40000000))
                     {
                         basepoints0 = damage / 12;
 
@@ -6719,6 +6718,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 else if (damage > 0)
                     triggered_spell_id = 58597;
 
+                // Item - Paladin T8 Holy 4P Bonus
+                if (Unit* caster = triggeredByAura->GetCaster())
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
+                        cooldown = aurEff->GetAmount();
+
                 target = this;
                 break;
             }
@@ -6726,7 +6730,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             if (dummySpell->SpellIconID == 3025)
             {
                 // 4 damage tick
-                basepoints0 = triggerAmount*damage/400;
+                basepoints0 = triggerAmount * damage / 400;
                 triggered_spell_id = 61840;
                 // Add remaining ticks to damage done
                 basepoints0 += pVictim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
@@ -6736,7 +6740,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             if (dummySpell->SpellIconID == 3030)
             {
                 // 4 healing tick
-                basepoints0 = triggerAmount*damage/400;
+                basepoints0 = triggerAmount * damage / 400;
                 triggered_spell_id = 54203;
                 break;
             }
@@ -6929,6 +6933,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     triggered_spell_id = 54968;
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+                    break;
+                }
+                // Item - Paladin T8 Holy 2P Bonus
+                case 64890:
+                {
+                    triggered_spell_id = 64891;
+                    basepoints0 = triggerAmount * damage / 300;
                     break;
                 }
                 case 71406: // Tiny Abomination in a Jar
@@ -7960,6 +7971,9 @@ bool Unit::HandleAuraProc(Unit* pVictim, uint32 damage, Aura * triggeredByAura, 
                     if (pVictim->HasAura(53601))
                     {
                         int32 bp0 = CalculatePctN(int32(damage / 12), SpellMgr::CalculateSpellEffectAmount(dummySpell, 2));
+                        // Item - Paladin T9 Holy 4P Bonus
+                        if (AuraEffect const* aurEff = GetAuraEffect(67191, 0))
+                            AddPctN(bp0, aurEff->GetAmount());
                         CastCustomSpell(pVictim, 66922, &bp0, NULL, NULL, true);
                         return true;
                     }
@@ -8032,7 +8046,7 @@ bool Unit::HandleAuraProc(Unit* pVictim, uint32 damage, Aura * triggeredByAura, 
                         return false;
 
                     int32 bp0 = int32(CalculatePctN(GetCreateMana(), SpellMgr::CalculateSpellEffectAmount(spInfo, 0)));
-                    CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(0), GetGUID());
+                    CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(EFFECT_0), GetGUID());
                     return true;
                 }
             }
@@ -8055,7 +8069,7 @@ bool Unit::HandleAuraProc(Unit* pVictim, uint32 damage, Aura * triggeredByAura, 
                     // can't proc from death rune use
                     if (rune == RUNE_DEATH)
                         return false;
-                    AuraEffect* aurEff = triggeredByAura->GetEffect(0);
+                    AuraEffect* aurEff = triggeredByAura->GetEffect(EFFECT_0);
                     if (!aurEff)
                         return false;
                     // Reset amplitude - set death rune remove timer to 30s
@@ -10958,7 +10972,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         // Improved Faerie Fire
                         if (pVictim->HasAuraState(AURA_STATE_FAERIE_FIRE))
                             if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 109, 0))
-                                crit_chance+=aurEff->GetAmount();
+                                crit_chance += aurEff->GetAmount();
 
                         // cumulative effect - don't break
 
@@ -10968,7 +10982,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             // Improved Insect Swarm
                             if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1771, 0))
                                 if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002, 0, 0))
-                                    crit_chance+=aurEff->GetAmount();
+                                    crit_chance += aurEff->GetAmount();
                            break;
                         }
                     break;
@@ -10982,9 +10996,8 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         if (spellProto->SpellFamilyFlags[0] & 0x40000000)
                         {
                             // Sacred Shield
-                            AuraEffect const* aura = pVictim->GetAuraEffect(58597, 1);
-                            if (aura && aura->GetCasterGUID() == GetGUID())
-                                crit_chance+=aura->GetAmount();
+                            if (AuraEffect const* aura = pVictim->GetAuraEffect(58597, 1, GetGUID()))
+                                crit_chance += aura->GetAmount();
                             break;
                         }
                         // Exorcism
@@ -11857,7 +11870,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
             case 6427: case 6428:                           // Dirty Deeds
                 if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                 {
-                    AuraEffect* eff0 = (*i)->GetBase()->GetEffect(0);
+                    AuraEffect* eff0 = (*i)->GetBase()->GetEffect(EFFECT_0);
                     if (!eff0 || (*i)->GetEffIndex() != 1)
                     {
                         sLog->outError("Spell structure of DD (%u) changed.", (*i)->GetId());

@@ -3852,7 +3852,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45641: // Fire Bloom
         case 55665: // Life Drain - Sapphiron (H)
         case 28796: // Poison Bolt Volly - Faerlina
-        case 5484:  // Howl Of Terror (Warlock)
             spellInfo->MaxAffectedTargets = 5;
             ++count;
             break;
@@ -3918,10 +3917,6 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
             spellInfo->EffectMiscValue[0] |= 1;
-            ++count;
-            break;
-        case 52025: // Cleansing Totem Effect
-            spellInfo->EffectDieSides[1] = 1;
             ++count;
             break;
         case 51904: // Summon Ghouls On Scarlet Crusade (core does not know the triggered spell is summon spell)
@@ -4209,7 +4204,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
             ++count;
             break;
-        case 70588: // Suppression
         case 70602: // Corruption
             spellInfo->AttributesEx |= SPELL_ATTR1_STACK_FOR_DIFF_CASTERS;
             ++count;
@@ -4260,9 +4254,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Starfall Target Selection
                 if (spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
-                // Starfall AOE Damage
-                else if (spellInfo->SpellFamilyFlags[2] & 0x800000)
-                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
                 // Roar
                 else if (spellInfo->SpellFamilyFlags[0] & 0x8)
                     mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
