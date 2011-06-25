@@ -735,10 +735,10 @@ public:
 
 };
 
-class achievement_brann_sparklin_news : public AchievementCriteriaScript
+class achievement_brann_spankin_new : public AchievementCriteriaScript
 {
     public:
-        achievement_brann_sparklin_news() : AchievementCriteriaScript("achievement_brann_sparklin_news")
+        achievement_brann_spankin_new() : AchievementCriteriaScript("achievement_brann_spankin_new")
         {
         }
 
@@ -756,5 +756,5 @@ void AddSC_halls_of_stone()
 {
     new npc_brann_hos();
     new mob_tribuna_controller();
-    new achievement_brann_sparklin_news();
+    new achievement_brann_spankin_new();
 }
