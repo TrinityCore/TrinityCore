@@ -32,9 +32,16 @@ enum Spells
     SPELL_EXPLODE_GHOUL                         = 52480,
     H_SPELL_EXPLODE_GHOUL                       = 58825,
     SPELL_SHADOW_BOLT                           = 57725,
-    H_SPELL_SHADOW_BOLT                         = 58828,
+    H_SPELL_SHADOW_BOLT                         = 58827,
     SPELL_STEAL_FLESH                           = 52708,
+    SPELL_STEAL_FLESH_VICTIM                    = 52711,
+    SPELL_STEAL_FLESH_SELF                      = 52712,
     SPELL_SUMMON_GHOULS                         = 52451
+};
+
+enum Entry
+{
+    NPC_GHOUL_MINION                            = 27733
 };
 
 enum Yells
@@ -70,7 +77,7 @@ public:
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)
-                DoScriptText(SAY_SPAWN, me);
+                DoScriptText(SAY_SPAWN,me);
         }
 
         uint32 uiCurseFleshTimer;
@@ -83,11 +90,11 @@ public:
 
         void Reset()
         {
-             uiCurseFleshTimer = 30000;  //30s DBM
-             uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
-             uiShadowBoltTimer = urand(8000, 12000); // approx 10s
-             uiStealFleshTimer = 12345;
-             uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
+             uiCurseFleshTimer = 10000;
+             uiExplodeGhoulTimer = 50000;
+             uiShadowBoltTimer = urand(8000, 12000);
+             uiStealFleshTimer = 15000;
+             uiSummonGhoulsTimer = urand(15000, 20000);
 
              if (pInstance)
                  pInstance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
@@ -101,31 +108,45 @@ public:
                  pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
         }
 
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell) 
+        {
+            if (spell->Id == SPELL_STEAL_FLESH)
+            {
+                DoCast(pTarget, SPELL_STEAL_FLESH_VICTIM, true);
+                DoCast(me, SPELL_STEAL_FLESH_SELF, true);
+            }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
                 return;
 
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
             //Curse of twisted flesh timer
-            if (uiCurseFleshTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
-                uiCurseFleshTimer = 37000;
-            } else uiCurseFleshTimer -= diff;
+            if(IsHeroic())
+                if (uiCurseFleshTimer <= diff)
+                {
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                        DoCast(pTarget, SPELL_CURSE_OF_TWISTED_FLESH);
+                    uiCurseFleshTimer = 25000;
+                } else uiCurseFleshTimer -= diff;
 
             //Shadow bolt timer
             if (uiShadowBoltTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_SHADOW_BOLT);
-                uiShadowBoltTimer = urand(8000, 12000);
+                uiShadowBoltTimer = urand(8000,12000);
             } else uiShadowBoltTimer -= diff;
 
             //Steal Flesh timer
             if (uiStealFleshTimer <= diff)
             {
-                DoScriptText(RAND(SAY_STEAL_FLESH_1, SAY_STEAL_FLESH_2, SAY_STEAL_FLESH_3), me);
+                DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), me);
                 if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(random_pTarget, SPELL_STEAL_FLESH);
                 uiStealFleshTimer = 10000;
@@ -134,11 +155,20 @@ public:
             //Summon ghouls timer
             if (uiSummonGhoulsTimer <= diff)
             {
-                DoScriptText(RAND(SAY_SUMMON_GHOULS_1, SAY_SUMMON_GHOULS_2), me);
+                 DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), me);
                 if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
+	
+                     DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
                 uiSummonGhoulsTimer = 10000;
+
             } else uiSummonGhoulsTimer -= diff;
+
+            if (uiExplodeGhoulTimer <= diff)
+            {
+                DoScriptText(RAND(SAY_EXPLODE_GHOUL_1, SAY_EXPLODE_GHOUL_2), me);
+                DoCast(DUNGEON_MODE(SPELL_EXPLODE_GHOUL, H_SPELL_EXPLODE_GHOUL));
+                uiExplodeGhoulTimer = urand(6000, 8000);
+            } else uiExplodeGhoulTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -149,6 +179,11 @@ public:
 
             if (pInstance)
                 pInstance->SetData(DATA_SALRAMM_EVENT, DONE);
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            summon->SetCorpseDelay(0);  //instant despawn corpse (needed?)
         }
 
         void KilledUnit(Unit* victim)

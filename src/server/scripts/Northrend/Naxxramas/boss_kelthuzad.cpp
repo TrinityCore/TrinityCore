@@ -28,18 +28,6 @@ EndScriptData */
 
 enum Yells
 {
-    //when shappiron dies. dialog between kel and lich king (in this order)
-    SAY_SAPP_DIALOG1                                       = -1533084, //not used
-    SAY_SAPP_DIALOG2_LICH                                  = -1533085, //not used
-    SAY_SAPP_DIALOG3                                       = -1533086, //not used
-    SAY_SAPP_DIALOG4_LICH                                  = -1533087, //not used
-    SAY_SAPP_DIALOG5                                       = -1533088, //not used
-    SAY_CAT_DIED                                           = -1533089, //when cat dies, not used
-    //when each of the 4 wing bosses dies
-    SAY_TAUNT1                                             = -1533090, //not used
-    SAY_TAUNT2                                             = -1533091, //not used
-    SAY_TAUNT3                                             = -1533092, //not used
-    SAY_TAUNT4                                             = -1533093, //not used
     SAY_SUMMON_MINIONS                                     = -1533105, //start of phase 1
     SAY_AGGRO_1                                            = -1533094, //start of phase 2
     SAY_AGGRO_2                                            = -1533095,
@@ -230,6 +218,12 @@ const Position PosWastes[MAX_WASTES] =
     {3695.66f, -5164.63f, 143.674f, 1.54416f},
 };
 
+enum Achievements
+{
+    ACHIEVEMENT_THE_UNDYING_10 = 2187,
+    ACHIEVEMENT_THE_IMMORTAL_25 = 2186
+};
+
 //Soul Weavers
 #define MAX_WEAVERS                             7
 const Position PosWeavers[MAX_WEAVERS] =
@@ -264,6 +258,7 @@ public:
         boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD), spawns(c)
         {
             uiFaction = me->getFaction();
+		    me->setActive(true);
         }
 
         uint32 Phase;
@@ -278,6 +273,9 @@ public:
 
         uint64 PortalsGUID[4];
         uint64 KTTriggerGUID;
+		bool checkKelthuzadcatAlive;
+		uint64 uiKelthuzadcat;
+		uint64 uiKelthuzade;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
@@ -323,11 +321,13 @@ public:
             Phase = 0;
             nAbomination = 0;
             nWeaver = 0;
+
+            SetImmuneToDeathGrip();
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -342,6 +342,9 @@ public:
                     pPlayer->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
             }
             chained.clear();
+
+            if (instance && instance->GetData(DATA_PLAYER_DEATHS) == 0)
+                instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_THE_UNDYING_10,ACHIEVEMENT_THE_IMMORTAL_25));
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -359,8 +362,8 @@ public:
             DoScriptText(SAY_SUMMON_MINIONS, me);
             Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
-            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
+            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 7);
+            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 7);
             events.ScheduleEvent(EVENT_TRIGGER, 5000);
             events.ScheduleEvent(EVENT_WASTE, 15000);
             events.ScheduleEvent(EVENT_ABOMIN, 30000);
@@ -391,13 +394,13 @@ public:
                     switch(eventId)
                     {
                         case EVENT_WASTE:
-                            DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
-                            events.RepeatEvent(urand(2000, 5000));
+                            DoSummon(NPC_WASTE, Pos[RAND(0,3,6,9)]);
+                            events.RepeatEvent(urand(2000,5000));
                             break;
                         case EVENT_ABOMIN:
                             if (nAbomination < 8)
                             {
-                                DoSummon(NPC_ABOMINATION, Pos[RAND(1, 4, 7, 10)]);
+                                DoSummon(NPC_ABOMINATION, Pos[RAND(1,4,7,10)]);
                                 nAbomination++;
                                 events.RepeatEvent(20000);
                             }
@@ -407,7 +410,7 @@ public:
                         case EVENT_WEAVER:
                             if (nWeaver < 8)
                             {
-                                DoSummon(NPC_WEAVER, Pos[RAND(0, 3, 6, 9)]);
+                                DoSummon(NPC_WEAVER, Pos[RAND(0,3,6,9)]);
                                 nWeaver++;
                                 events.RepeatEvent(25000);
                             }
@@ -421,19 +424,19 @@ public:
                             break;
                         case EVENT_PHASE:
                             events.Reset();
-                            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+                            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
                             spawns.DespawnAll();
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                             me->CastStop();
 
                             DoStartMovement(me->getVictim());
-                            events.ScheduleEvent(EVENT_BOLT, urand(5000, 10000));
+                            events.ScheduleEvent(EVENT_BOLT, urand(5000,10000));
                             events.ScheduleEvent(EVENT_NOVA, 15000);
-                            events.ScheduleEvent(EVENT_DETONATE, urand(30000, 40000));
-                            events.ScheduleEvent(EVENT_FISSURE, urand(10000, 30000));
-                            events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
+                            events.ScheduleEvent(EVENT_DETONATE, urand(30000,40000));
+                            events.ScheduleEvent(EVENT_FISSURE, urand(10000,30000));
+                            events.ScheduleEvent(EVENT_BLAST, urand(60000,120000));
                             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                                events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
+                                events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
                             Phase = 2;
                             break;
                         default:
@@ -465,12 +468,12 @@ public:
                         }
                     }
                 }
-                else if (nGuardiansOfIcecrownCount < RAID_MODE(2, 4))
+                else if (nGuardiansOfIcecrownCount < RAID_MODE(2,4))
                 {
                     if (uiGuardiansOfIcecrownTimer <= diff)
                     {
                         // TODO : Add missing text
-                        if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
+                        if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2,5,8,11)]))
                             pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
                         ++nGuardiansOfIcecrownCount;
                         uiGuardiansOfIcecrownTimer = 5000;
@@ -486,16 +489,22 @@ public:
                     switch(eventId)
                     {
                         case EVENT_BOLT:
-                            DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
-                            events.RepeatEvent(urand(5000, 10000));
+                            if(!me->IsNonMeleeSpellCasted(false))
+                            {
+                                DoCastVictim(RAID_MODE(SPELL_FROST_BOLT,H_SPELL_FROST_BOLT));
+                                events.RepeatEvent(urand(3000,5000));
+                            }else events.RepeatEvent(1000);
                             break;
                         case EVENT_NOVA:
-                            DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE, H_SPELL_FROST_BOLT_AOE));
-                            events.RepeatEvent(urand(15000, 30000));
+                            if(!me->IsNonMeleeSpellCasted(false))
+                            {
+                                DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE,H_SPELL_FROST_BOLT_AOE));
+                                events.RepeatEvent(urand(15000,30000));
+                            }else events.RepeatEvent(1000);
                             break;
                         case EVENT_CHAIN:
                         {
-                            uint32 count = urand(1, 3);
+                            uint32 count = urand(1,3);
                             for (uint8 i = 1; i <= count; i++)
                             {
                                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
@@ -509,8 +518,8 @@ public:
                                 }
                             }
                             if (!chained.empty())
-                                DoScriptText(RAND(SAY_CHAIN_1, SAY_CHAIN_2), me);
-                            events.RepeatEvent(urand(100000, 180000));
+                                DoScriptText(RAND(SAY_CHAIN_1,SAY_CHAIN_2), me);
+                            events.RepeatEvent(urand(100000,180000));
                             break;
                         }
                         case EVENT_CHAINED_SPELL:
@@ -535,7 +544,7 @@ public:
                                         switch(player->getClass())
                                         {
                                             case CLASS_DRUID:
-                                                if (urand(0, 1))
+                                                if (urand(0,1))
                                                     player->CastSpell(pTarget, SPELL_MOONFIRE, false);
                                                 else
                                                     player->CastSpell(me, SPELL_LIFEBLOOM, false);
@@ -553,19 +562,19 @@ public:
                                                 player->CastSpell(pTarget, RAND(SPELL_BLADESTORM, SPELL_CLEAVE), false);
                                                 break;
                                             case CLASS_PALADIN:
-                                                if (urand(0, 1))
+                                                if (urand(0,1))
                                                     player->CastSpell(pTarget, SPELL_HAMMER_OF_JUSTICE, false);
                                                 else
                                                     player->CastSpell(me, SPELL_HOLY_SHOCK, false);
                                                 break;
                                             case CLASS_PRIEST:
-                                                if (urand(0, 1))
+                                                if (urand(0,1))
                                                     player->CastSpell(pTarget, SPELL_VAMPIRIC_TOUCH, false);
                                                 else
                                                     player->CastSpell(me, SPELL_RENEW, false);
                                                 break;
                                             case CLASS_SHAMAN:
-                                                if (urand(0, 1))
+                                                if (urand(0,1))
                                                     player->CastSpell(pTarget, SPELL_EARTH_SHOCK, false);
                                                 else
                                                     player->CastSpell(me, SPELL_HEALING_WAVE, false);
@@ -574,7 +583,7 @@ public:
                                                 player->CastSpell(pTarget, RAND(SPELL_HEMORRHAGE, SPELL_MUTILATE), false);
                                                 break;
                                             case CLASS_DEATH_KNIGHT:
-                                                if (urand(0, 1))
+                                                if (urand(0,1))
                                                     player->CastSpell(pTarget, SPELL_PLAGUE_STRIKE, true);
                                                 else
                                                     player->CastSpell(pTarget, SPELL_HOWLING_BLAST, true);
@@ -594,38 +603,47 @@ public:
                         }
                         case EVENT_DETONATE:
                         {
-                            std::vector<Unit*> unitList;
-                            std::list<HostileReference*> *threatList = &me->getThreatManager().getThreatList();
-                            for (std::list<HostileReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                            if(!me->IsNonMeleeSpellCasted(false))
                             {
-                                if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
-                                    && (*itr)->getTarget()->getPowerType() == POWER_MANA
-                                    && (*itr)->getTarget()->GetPower(POWER_MANA))
-                                    unitList.push_back((*itr)->getTarget());
-                            }
+                                std::vector<Unit*> unitList;
+                                std::list<HostileReference*> *threatList = &me->getThreatManager().getThreatList();
+                                for (std::list<HostileReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                                {
+                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
+                                        && (*itr)->getTarget()->getPowerType() == POWER_MANA
+                                        && (*itr)->getTarget()->GetPower(POWER_MANA))
+                                        unitList.push_back((*itr)->getTarget());
+                                }
 
-                            if (!unitList.empty())
-                            {
-                                std::vector<Unit*>::const_iterator itr = unitList.begin();
-                                advance(itr, rand()%unitList.size());
-                                DoCast(*itr, SPELL_MANA_DETONATION);
-                                DoScriptText(RAND(SAY_SPECIAL_1, SAY_SPECIAL_2, SAY_SPECIAL_3), me);
-                            }
+                                if (!unitList.empty())
+                                {
+                                    std::vector<Unit*>::const_iterator itr = unitList.begin();
+                                    advance(itr, rand()%unitList.size());
+                                    DoCast(*itr, SPELL_MANA_DETONATION);
+                                    DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2,SAY_SPECIAL_3), me);
+                                }
 
-                            events.RepeatEvent(urand(20000, 50000));
+                                events.RepeatEvent(urand(20000,50000));
+                            } else events.RepeatEvent(1000);
                             break;
                         }
                         case EVENT_FISSURE:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if(!me->IsNonMeleeSpellCasted(false))
+                            {
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                                 DoCast(pTarget, SPELL_SHADOW_FISURE);
-                            events.RepeatEvent(urand(10000, 45000));
+                            events.RepeatEvent(urand(10000,45000));
+                            }else events.RepeatEvent(1000);
                             break;
                         case EVENT_BLAST:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
-                                DoCast(pTarget, SPELL_FROST_BLAST);
-                            if (rand()%2)
-                                DoScriptText(SAY_FROST_BLAST, me);
-                            events.RepeatEvent(urand(30000, 90000));
+                            if(!me->IsNonMeleeSpellCasted(false))
+                            {
+                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1,0), 0, true))
+                                    DoCast(pTarget, SPELL_FROST_BLAST);
+                                if (rand()%2)
+                                    DoScriptText(SAY_FROST_BLAST, me);
+                                events.RepeatEvent(urand(30000,90000));
+                            }else events.RepeatEvent(1000);
                             break;
                         default:
                             events.PopEvent();
@@ -656,7 +674,7 @@ public:
             return false;
 
         InstanceScript* pInstance = pPlayer->GetInstanceScript();
-        if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
+        if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetData(BOSS_KELTHUZAD) == DONE)
             return false;
 
         Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetData64(DATA_KELTHUZAD)));
@@ -680,8 +698,9 @@ public:
                 if (Creature* sum = trigger->SummonCreature(NPC_ABOMINATION, PosAbominations[i]))
                 {
                     pKelthuzadAI->spawns.Summon(sum);
-                    sum->GetMotionMaster()->MoveRandom(9.0f);
-                    sum->SetReactState(REACT_DEFENSIVE);
+                    sum->GetMotionMaster()->MoveRandom(3.0f);
+                    //sum->SetReactState(REACT_DEFENSIVE);
+                    sum->setFaction(16); //prevent "chain" aggro
                 }
             }
             for (uint8 i = 0; i <= MAX_WASTES; ++i)
@@ -689,8 +708,9 @@ public:
                 if (Creature* sum = trigger->SummonCreature(NPC_WASTE, PosWastes[i]))
                 {
                     pKelthuzadAI->spawns.Summon(sum);
-                    sum->GetMotionMaster()->MoveRandom(5.0f);
-                    sum->SetReactState(REACT_DEFENSIVE);
+                    sum->GetMotionMaster()->MoveRandom(2.0f);
+                    //sum->SetReactState(REACT_DEFENSIVE);
+                    sum->setFaction(16);
                 }
             }
             for (uint8 i = 0; i <= MAX_WEAVERS; ++i)
@@ -698,19 +718,119 @@ public:
                 if (Creature* sum = trigger->SummonCreature(NPC_WEAVER, PosWeavers[i]))
                 {
                     pKelthuzadAI->spawns.Summon(sum);
-                    sum->GetMotionMaster()->MoveRandom(9.0f);
-                    sum->SetReactState(REACT_DEFENSIVE);
+                    sum->GetMotionMaster()->MoveRandom(3.0f);
+                    //sum->SetReactState(REACT_DEFENSIVE);
+                    sum->setFaction(16);
                 }
             }
         }
-
         return true;
     }
+};
 
+enum eTrashSpells
+{
+    SPELL_DARK_BLAST            = 28458,
+
+    SPELL_FRENZY                = 28468,
+    SPELL_MORTAL_WOUND          = 28467,
+
+    SPELL_WAILS_OF_SOUL         = 28460
+};
+
+class mob_naxxramas_kelthuzad_trash : public CreatureScript
+{
+public:
+    mob_naxxramas_kelthuzad_trash() : CreatureScript("mob_naxxramas_kelthuzad_trash") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        switch(pCreature->GetEntry())
+        {
+            case 16427: return new mob_soldier_of_frozen_wasteAI (pCreature);
+            case 16428: return new mob_unstoppable_abominationAI (pCreature);
+            case 16429: return new mob_soul_weaverAI (pCreature);
+            default: return NULL;
+        }
+    }
+
+    struct mob_soldier_of_frozen_wasteAI : ScriptedAI 
+    {
+        mob_soldier_of_frozen_wasteAI(Creature *c) : ScriptedAI(c){}
+
+        void Reset(){}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoCast(me,SPELL_DARK_BLAST,true);
+        }
+        
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() )
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    struct mob_unstoppable_abominationAI : ScriptedAI 
+    {
+        mob_unstoppable_abominationAI(Creature *c) : ScriptedAI(c){}
+
+        uint32 uiMortalWound_Timer;
+
+        void Reset()
+        {
+            uiMortalWound_Timer = urand(5000,10000);
+        }
+        void EnterCombat(Unit* /*who*/)
+        {
+        }
+        
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() )
+                return;
+            
+            if(uiMortalWound_Timer <= diff)
+            {
+                DoCast(me->getVictim(),SPELL_MORTAL_WOUND);
+                uiMortalWound_Timer = urand(5000,10000);
+            }else uiMortalWound_Timer -= diff;
+
+            if(HealthBelowPct(30))
+            {
+                if(!me->HasAuraEffect(SPELL_FRENZY,0))
+                    DoCast(me,SPELL_FRENZY);
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    struct mob_soul_weaverAI : ScriptedAI 
+    {
+        mob_soul_weaverAI(Creature *c) : ScriptedAI(c){}
+
+        void Reset(){}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoCast(me,SPELL_WAILS_OF_SOUL,true);
+        }
+        
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() )
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
     new at_kelthuzad_center();
+    new mob_naxxramas_kelthuzad_trash();
 }

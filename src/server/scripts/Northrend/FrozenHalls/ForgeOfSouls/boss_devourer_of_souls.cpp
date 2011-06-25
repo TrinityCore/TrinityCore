@@ -125,6 +125,16 @@ class boss_devourer_of_souls : public CreatureScript
         {
             boss_devourer_of_soulsAI(Creature *creature) : BossAI(creature, DATA_DEVOURER_EVENT)
             {
+            // make 6892 interruptable
+            SpellEntry* tempSpell;
+            tempSpell = GET_SPELL(SPELL_PHANTOM_BLAST);
+            if (tempSpell)
+                tempSpell->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+            // make 70322 interruptable
+            SpellEntry* tempSpell2;
+            tempSpell2 = GET_SPELL(H_SPELL_PHANTOM_BLAST);
+            if (tempSpell2)
+                tempSpell2->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
             }
 
             void InitializeAI()

@@ -117,7 +117,7 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
+            boss_ignis_AI(Creature* creature) : BossAI(creature, TYPE_IGNIS), _vehicle(me->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }
@@ -284,7 +284,7 @@ class boss_ignis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetUlduarAI<boss_ignis_AI>(creature);
+            return new boss_ignis_AI(creature);
         }
 };
 
@@ -310,7 +310,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(TYPE_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
@@ -351,7 +351,7 @@ class npc_iron_construct : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetUlduarAI<npc_iron_constructAI>(creature);
+            return new npc_iron_constructAI(creature);
         }
 };
 
@@ -417,7 +417,7 @@ class npc_scorch_ground : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetUlduarAI<npc_scorch_groundAI>(creature);
+            return new npc_scorch_groundAI(creature);
         }
 };
 

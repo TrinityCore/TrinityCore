@@ -29,5 +29,15 @@
 #define TYPE_RAND_VENDOR_1  8
 #define TYPE_RAND_VENDOR_2  9
 
+#define DATA_TIMERSTART     10
+#define DATA_GAUNTLET       11
+#define DATA_TIMERDELETE    12
+
+#define DATA_CHEST_NAL_LOOT   13
+#define DATA_CHEST_AKI_LOOT   14
+#define DATA_CHEST_JAN_LOOT   15
+#define DATA_CHEST_HAL_LOOT   16
+
+
 #endif
 

@@ -503,7 +503,7 @@ public:
             if (me->IsWithinDistInMap(who, 50.0f))
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED || QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE)
+                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED) == QUEST_STATUS_INCOMPLETE || who->ToPlayer()->GetQuestStatus(QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE )
                         PlayerGUID = who->GetGUID();
             }
         }
@@ -536,6 +536,112 @@ public:
 };
 
 /*######
+## mob_aether_ray
+######*/
+
+class mob_wrangled_aether_ray : public CreatureScript
+{
+public:
+    mob_wrangled_aether_ray() : CreatureScript("mob_wrangled_aether_ray") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_wrangled_aether_rayAI(pCreature);
+    }
+
+    struct mob_wrangled_aether_rayAI : public ScriptedAI
+    {
+        mob_wrangled_aether_rayAI(Creature *c) : ScriptedAI(c) { owner = 0; }
+
+        uint64 owner;
+
+        void Reset(){}
+        void EnterCombat(Unit *who) { }
+        void UpdateAI(const uint32 diff)
+        {
+            if(me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+            {
+                Unit* ownerlink = me->GetUnit((*me),me->GetOwnerGUID() );
+                if(ownerlink)
+                    me->GetMotionMaster()->MoveFollow(ownerlink,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+            }
+        }
+
+    };
+};
+
+#define EMOTE_READY         "appears ready to be wrangled."
+
+class mob_aether_ray : public CreatureScript
+{
+public:
+    mob_aether_ray() : CreatureScript("mob_aether_ray") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_aether_rayAI(pCreature);
+    }
+
+    struct mob_aether_rayAI : public ScriptedAI
+    {
+        mob_aether_rayAI(Creature *c) : ScriptedAI(c) { }
+
+        bool isready;
+        uint64 wranglerGUID;
+
+        void Reset()
+        {
+            isready = false;
+            wranglerGUID = 0;
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            Player* wrangler = me->GetPlayer(*summon,wranglerGUID);
+            if(wrangler)
+            {
+                //summon->CastSpell(wrangler,40926,true);
+
+                //summon->SetOwnerGUID(wrangler->GetGUID());
+                wrangler->KilledMonsterCredit(summon->GetEntry(),summon->GetGUID());
+                me->DealDamage(me,me->GetHealth());
+                me->RemoveCorpse();
+
+                //summon->CastSpell(wrangler,40926,true);
+                //wrangler->CastSpell(summon,40926,true);
+            }
+        }
+
+        void EnterCombat(Unit *who) { }
+        void DamageTaken(Unit *done_by, uint32 &damage)
+        {
+            if(!isready)
+                if(me->GetHealth() - damage > 0 && me->GetHealth() - damage < (me->GetMaxHealth() * 0.3))
+                {
+                    //DoTextEmote(EMOTE_READY,NULL);
+                    isready = true;
+                }
+        }
+
+        void SpellHit(Unit* target, const SpellEntry* spell)
+        {
+            if(isready)
+            {
+                if(target->GetTypeId() == TYPEID_PLAYER )
+                {
+                    if(spell->Id == 40856)
+                    {
+                        //DoCast(target,40917);
+                        //DoCast(target,40907);
+                        wranglerGUID = target->GetGUID();
+                        DoSpawnCreature(23343,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 20000);
+                    }
+                }
+            }
+        }
+    };
+};
+/*######
 ## AddSC
 ######*/
 
@@ -549,4 +655,6 @@ void AddSC_blades_edge_mountains()
     new go_legion_obelisk();
     new npc_bloodmaul_brutebane();
     new npc_ogre_brute();
+    new mob_aether_ray();
+    new mob_wrangled_aether_ray();
 }

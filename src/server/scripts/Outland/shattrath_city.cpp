@@ -451,25 +451,76 @@ public:
 
             switch(Step)
             {
-            case 0:{ me->SetInFront(pPlayer);
-                Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
-                if (Creepjack)
-                    Creepjack->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
-                if (Malone)
-                    Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
-            case 1: DoScriptText(SAY_1, me, pPlayer); return 3000;
-            case 2: DoScriptText(SAY_2, me, pPlayer); return 5000;
-            case 3: DoScriptText(SAY_3, me, pPlayer); return 2000;
-            case 4: DoScriptText(SAY_4, me, pPlayer); return 2000;
-            case 5: DoScriptText(SAY_5, me, pPlayer); return 2000;
-            case 6: Attack = true; return 2000;
-            default: return 0;
+                case 0:
+                {
+                    me->SetInFront(pPlayer);
+                    Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
+                    if (Creepjack)
+                        Creepjack->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
+                    if (Malone)
+                        Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    return 2000;
+                }
+                case 1:
+                    DoScriptText(SAY_1, me, pPlayer);
+                    return 3000;
+                case 2:
+                    DoScriptText(SAY_2, me, pPlayer);
+                    return 5000;
+                case 3:
+                    DoScriptText(SAY_3, me, pPlayer);
+                    return 2000;
+                case 4:
+                    DoScriptText(SAY_4, me, pPlayer);
+                    return 2000;
+                case 5:
+                    DoScriptText(SAY_5, me, pPlayer);
+                    return 2000;
+                case 6:
+                    Attack = true;
+                    return 2000;
+                default:
+                    return 0;
             }
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
+
+        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        {
+            if (damage >= me->GetHealth() && !Done)
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
+                me->RemoveAllAuras();
+                damage = me->GetHealth() - 1;
+
+                Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
+                if (Creepjack)
+                {
+                    CAST_CRE(Creepjack)->AI()->EnterEvadeMode();
+                    Creepjack->setFaction(1194);
+                    Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+                Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
+                if (Malone)
+                {
+                    CAST_CRE(Malone)->AI()->EnterEvadeMode();
+                    Malone->setFaction(1194);
+                    Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+                me->setFaction(1194);
+                Done = true;
+                DoScriptText(SAY_GIVEUP, me, NULL);
+                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+                if (pPlayer)
+                    CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WBI, me);
+
+                EnterEvadeMode();
+            }
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -482,63 +533,38 @@ public:
             if (Attack)
             {
                 Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+
                 me->setFaction(14);
+                me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (pPlayer)
+
+                if (!pPlayer || !me->canAttack(pPlayer))
                 {
-                Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
+                    EnterEvadeMode();
+                    return;
+                }
+
+                Creature* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
                 if (Creepjack)
                 {
-                    Creepjack->Attack(pPlayer, true);
+                    Creepjack->AI()->AttackStart(pPlayer);
                     Creepjack->setFaction(14);
-                    Creepjack->GetMotionMaster()->MoveChase(pPlayer);
                     Creepjack->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
-                Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
+                Creature* Malone = me->FindNearestCreature(NPC_MALONE, 20);
                 if (Malone)
                 {
-                    Malone->Attack(pPlayer, true);
+                    Malone->AI()->AttackStart(pPlayer);
                     Malone->setFaction(14);
-                    Malone->GetMotionMaster()->MoveChase(pPlayer);
                     Malone->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
-                    DoStartMovement(pPlayer);
-                    AttackStart(pPlayer);
-                }
+                AttackStart(pPlayer);
                 Attack = false;
             }
 
-            if (HealthBelowPct(5) && !Done)
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->RemoveAllAuras();
+            if (!UpdateVictim())
+                return;
 
-                Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
-                if (Creepjack)
-                {
-                    CAST_CRE(Creepjack)->AI()->EnterEvadeMode();
-                    Creepjack->setFaction(1194);
-                    Creepjack->GetMotionMaster()->MoveTargetedHome();
-                    Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
-                if (Malone)
-                {
-                    CAST_CRE(Malone)->AI()->EnterEvadeMode();
-                    Malone->setFaction(1194);
-                    Malone->GetMotionMaster()->MoveTargetedHome();
-                    Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                me->setFaction(1194);
-                Done = true;
-                DoScriptText(SAY_GIVEUP, me, NULL);
-                me->DeleteThreatList();
-                me->CombatStop();
-                me->GetMotionMaster()->MoveTargetedHome();
-                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                if (pPlayer)
-                    CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WBI, me);
-            }
             DoMeleeAttackIfReady();
         }
     };

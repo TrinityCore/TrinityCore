@@ -92,9 +92,11 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             boss_grand_warlock_nethekurseAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 pInstance = pCreature->GetInstanceScript();
+                HeroicMode = pCreature->GetMap()->IsHeroic();
             }
 
             InstanceScript* pInstance;
+            bool HeroicMode;
 
             bool IntroOnce;
             bool IsIntroEvent;
@@ -232,7 +234,6 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     return;
 
                 pInstance->SetData(TYPE_NETHEKURSE, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_NETHEKURSE_DOOR), true);
             }
 
             void UpdateAI(const uint32 diff)

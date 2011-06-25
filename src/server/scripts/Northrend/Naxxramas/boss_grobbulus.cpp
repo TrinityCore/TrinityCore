@@ -24,7 +24,8 @@
 #define SPELL_MUTATING_INJECTION    28169
 #define SPELL_SLIME_SPRAY           RAID_MODE(28157, 54364)
 #define SPELL_BERSERK               26662
-#define SPELL_POISON_CLOUD_ADD      59116
+#define SPELL_POISON_CLOUD_ADD      28158  // not correct spell, correct spells: 28158, 54362 have no visuals
+#define SPELL_SLIME_STREAM          28137
 
 #define EVENT_BERSERK   1
 #define EVENT_CLOUD     2
@@ -50,13 +51,28 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_POISON_CLOUD_ADD, true);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        uint32 uiSlimeStreamTimer;
+
+        void Reset()
+        {
+            _Reset();
+            uiSlimeStreamTimer = 3*IN_MILLISECONDS;
+            SetImmuneToDeathGrip();
+        }
+
+        void EnterCombat(Unit* who)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_CLOUD, 15000);
             events.ScheduleEvent(EVENT_INJECT, 20000);
             events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000); //not sure
-            events.ScheduleEvent(EVENT_BERSERK, 12*60000);
+            events.ScheduleEvent(EVENT_BERSERK, RAID_MODE(12*60000,9*60000));
+        }
+
+        void EnterEvadeMode()
+        {
+            _EnterEvadeMode();
+            Reset();
         }
 
         void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
@@ -75,26 +91,47 @@ public:
 
             events.Update(diff);
 
+            if (!me->IsWithinMeleeRange(me->getVictim()))
+            {
+                if (uiSlimeStreamTimer <= diff)
+                {
+                    DoCast(SPELL_SLIME_STREAM);
+                    uiSlimeStreamTimer = 3*IN_MILLISECONDS;
+                }
+                else uiSlimeStreamTimer -= diff;
+            }
+            else uiSlimeStreamTimer = 3*IN_MILLISECONDS;
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
                 {
                     case EVENT_CLOUD:
-                        DoCastAOE(SPELL_POISON_CLOUD);
-                        events.ScheduleEvent(EVENT_CLOUD, 15000);
+                        if(!me->IsNonMeleeSpellCasted(false))
+                        {
+                            DoCastAOE(SPELL_POISON_CLOUD);
+                            events.ScheduleEvent(EVENT_CLOUD, 15000);
+                        }
                         return;
                     case EVENT_BERSERK:
-                        DoCastAOE(SPELL_BERSERK);
+                        if(!me->IsNonMeleeSpellCasted(false))
+                            DoCastAOE(SPELL_BERSERK);
                         return;
                     case EVENT_SPRAY:
-                        DoCastAOE(SPELL_SLIME_SPRAY);
-                        events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
+                        if(!me->IsNonMeleeSpellCasted(false))
+                        {
+                            DoCastAOE(SPELL_SLIME_SPRAY);
+                            events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
+                        }
                         return;
                     case EVENT_INJECT:
+                        if(!me->IsNonMeleeSpellCasted(false))
+                        {
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             if (!pTarget->HasAura(SPELL_MUTATING_INJECTION))
                                 DoCast(pTarget, SPELL_MUTATING_INJECTION);
                         events.ScheduleEvent(EVENT_INJECT, 8000 + uint32(120 * me->GetHealthPct()));
+                        }
                         return;
                 }
             }
@@ -123,18 +160,29 @@ public:
         }
 
         uint32 Cloud_Timer;
+        bool cloud_casted;
 
         void Reset()
         {
             Cloud_Timer = 1000;
+            cloud_casted = false;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->setFaction(14);
         }
 
         void UpdateAI(const uint32 diff)
         {
             if (Cloud_Timer <= diff)
             {
-                DoCast(me, SPELL_POISON_CLOUD_ADD);
+                if(!me->HasAura(SPELL_POISON_CLOUD_ADD))
+                    if(!cloud_casted)
+                    {
+                        DoCast(me, SPELL_POISON_CLOUD_ADD);
+                        cloud_casted = true;
+                    }
+                    else
+                        me->DealDamage(me,me->GetHealth());
+
                 Cloud_Timer = 10000;
             } else Cloud_Timer -= diff;
         }

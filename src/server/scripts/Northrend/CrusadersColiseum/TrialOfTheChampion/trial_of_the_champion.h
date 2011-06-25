@@ -29,13 +29,15 @@ enum eData
     DATA_LESSER_CHAMPIONS_DEFEATED,
     DATA_START,
     DATA_IN_POSITION,
-    DATA_ARGENT_SOLDIER_DEFEATED
+    DATA_ARGENT_SOLDIER_DEFEATED,
+    DATA_TEAM_IN_INSTANCE
 };
 
 enum Data64
 {
     DATA_ANNOUNCER,
     DATA_MAIN_GATE,
+    DATA_MAIN_GATE1,
 
     DATA_GRAND_CHAMPION_VEHICLE_1,
     DATA_GRAND_CHAMPION_VEHICLE_2,
@@ -62,6 +64,20 @@ enum eNpcs
     NPC_JAELYNE                 = 34657,
     NPC_LANA                    = 34703,
 
+    // Faction champions horde
+    NPC_ORGRIMAR_CHAMPION       = 35314,
+    NPC_SILVERMOON_CHAMPION     = 35326,
+    NPC_THUNDER_CHAMPION        = 35325,
+    NPC_TROLL_CHAMPION          = 35323,
+    NPC_UNDERCITY_CHAMPION      = 35327,
+
+    // Faction champions alliance
+    NPC_STORMWIND_CHAMPION      = 35328,
+    NPC_GNOMERAGN_CHAMPION      = 35331,
+    NPC_EXODAR_CHAMPION         = 35330,
+    NPC_DRNASSUS_CHAMPION       = 35332,
+    NPC_IRONFORGE_CHAMPION      = 35329,    
+
     NPC_EADRIC                  = 35119,
     NPC_PALETRESS               = 34928,
 
@@ -73,23 +89,56 @@ enum eNpcs
 
     NPC_RISEN_JAEREN            = 35545,
     NPC_RISEN_ARELAS            = 35564,
-
+    
+    // Announcer Start Event
     NPC_JAEREN                  = 35004,
-    NPC_ARELAS                  = 35005
+    NPC_ARELAS                  = 35005,
+    
+    // Announcer
+    NPC_JAEREN_AN               = 35591,
+    NPC_ARELAS_AN               = 35592,
+
+    // Memory
+    MEMORY_ALGALON              = 35052,
+    MEMORY_ARCHIMONDE           = 35041,
+    MEMORY_CHROMAGGUS           = 35033,
+    MEMORY_CYANIGOSA            = 35046,
+    MEMORY_DELRISSA             = 35043,
+    MEMORY_ECK                  = 35047,
+    MEMORY_ENTROPIUS            = 35044,
+    MEMORY_GRUUL                = 35039,
+    MEMORY_HAKKAR               = 35034,
+    MEMORY_HEIGAN               = 35049,
+    MEMORY_HEROD                = 35030,
+    MEMORY_HOGGER               = 34942,
+    MEMORY_IGNIS                = 35050,
+    MEMORY_ILLIDAN              = 35042,
+    MEMORY_INGVAR               = 35045,
+    MEMORY_KALITHRESH           = 35037,
+    MEMORY_LUCIFRON             = 35031,
+    MEMORY_MALCHEZAAR           = 35038,
+    MEMORY_MUTANUS              = 35029,
+    MEMORY_ONYXIA               = 35048,
+    MEMORY_THUNDERAAN           = 35032,
+    MEMORY_VANCLEEF             = 35028,
+    MEMORY_VASHJ                = 35040,
+    MEMORY_VEKNILASH            = 35036,
+    MEMORY_VEZAX                = 35051
 };
 
 enum eGameObjects
 {
     GO_MAIN_GATE                = 195647,
+    GO_MAIN_GATE1               = 195650,
 
     GO_CHAMPIONS_LOOT           = 195709,
-    GO_CHAMPIONS_LOOT_H            = 195710,
+    GO_CHAMPIONS_LOOT_H         = 195710,
 
     GO_EADRIC_LOOT              = 195374,
     GO_EADRIC_LOOT_H            = 195375,
 
     GO_PALETRESS_LOOT           = 195323,
-    GO_PALETRESS_LOOT_H            = 195324
+    GO_PALETRESS_LOOT_H         = 195324
 };
 
 enum eVehicles

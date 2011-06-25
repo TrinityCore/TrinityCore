@@ -60,6 +60,12 @@ public:
         boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
+
+            // make 55098 interruptable
+            SpellEntry* tempSpell;
+            tempSpell = GET_SPELL(SPELL_TRANSFORMATION);
+            if (tempSpell)
+                tempSpell->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
         }
 
         InstanceScript* pInstance;

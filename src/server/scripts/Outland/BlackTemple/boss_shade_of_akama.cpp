@@ -114,25 +114,31 @@ class mob_ashtongue_channeler : public CreatureScript
 public:
     mob_ashtongue_channeler() : CreatureScript("mob_ashtongue_channeler") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature *_Creature) const
     {
-        return new mob_ashtongue_channelerAI (pCreature);
+        return new mob_ashtongue_channelerAI (_Creature);
     }
 
     struct mob_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) 
+        {
+            ShadeGUID = 0;
+            SetImmuneToPushPullEffects(true);
+        }
 
         uint64 ShadeGUID;
 
-        void Reset() {}
-        void JustDied(Unit* /*killer*/);
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/) {}
+        void Reset() 
+        {
+            me->setActive(true);
+        }
+        void JustDied(Unit* killer);
+        void EnterCombat(Unit* who) {}
+        void AttackStart(Unit* who) {}
+        void MoveInLineOfSight(Unit* who) {}
+        void UpdateAI(const uint32 diff) {}
     };
-
 };
 
 class mob_ashtongue_sorcerer : public CreatureScript
@@ -140,14 +146,18 @@ class mob_ashtongue_sorcerer : public CreatureScript
 public:
     mob_ashtongue_sorcerer() : CreatureScript("mob_ashtongue_sorcerer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature *_Creature) const
     {
-        return new mob_ashtongue_sorcererAI (pCreature);
+        return new mob_ashtongue_sorcererAI (_Creature);
     }
 
     struct mob_ashtongue_sorcererAI : public ScriptedAI
     {
-        mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) 
+        {
+            ShadeGUID = 0;
+            SetImmuneToPushPullEffects(true);
+        }
 
         uint64 ShadeGUID;
         uint32 CheckTimer;
@@ -157,23 +167,24 @@ public:
         {
             StartBanishing = false;
             CheckTimer = 5000;
+            me->setActive(true);
         }
 
-        void JustDied(Unit* /*killer*/);
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void JustDied(Unit* killer);
+        void EnterCombat(Unit* who) {}
+        void AttackStart(Unit* who) {}
+        void MoveInLineOfSight(Unit* who) {}
         void UpdateAI(const uint32 diff)
         {
-            if (StartBanishing)
+            if(StartBanishing)
                 return;
 
-            if (CheckTimer <= diff)
+            if(CheckTimer < diff)
             {
                 Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-                if (Shade && Shade->isAlive() && me->isAlive())
+                if(Shade && Shade->isAlive() && me->isAlive())
                 {
-                    if (me->IsWithinDist(Shade, 20, false))
+                    if(me->GetDistance2d(Shade) < 20)
                     {
                         me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveIdle();
@@ -184,10 +195,9 @@ public:
                     }
                 }
                 CheckTimer = 2000;
-            } else CheckTimer -= diff;
+            }else CheckTimer -= diff;
         }
     };
-
 };
 
 class boss_shade_of_akama : public CreatureScript
@@ -195,9 +205,9 @@ class boss_shade_of_akama : public CreatureScript
 public:
     boss_shade_of_akama() : CreatureScript("boss_shade_of_akama") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature *_Creature) const
     {
-        return new boss_shade_of_akamaAI (pCreature);
+        return new boss_shade_of_akamaAI (_Creature);
     }
 
     struct boss_shade_of_akamaAI : public ScriptedAI
@@ -223,18 +233,20 @@ public:
         uint32 ReduceHealthTimer;
         uint32 SummonTimer;
         uint32 ResetTimer;
-        uint32 DefenderTimer;                                   // They are on a flat 15 second timer, independant of the other summon Creature timer.
+        uint32 DefenderTimer;                                   // They are on a flat 15 second timer, independant of the other summon creature timer.
 
         bool IsBanished;
         bool HasKilledAkama;
         bool reseting;
         bool GridSearcherSucceeded;
         bool HasKilledAkamaAndReseting;
+        bool StartCombat;
         SummonList summons;
 
         void Reset()
         {
             reseting = true;
+            StartCombat = false;
             HasKilledAkamaAndReseting = false;
 
             GridSearcherSucceeded = false;
@@ -242,10 +254,10 @@ public:
             Sorcerers.clear();
             summons.DespawnAll();//despawn all adds
 
-            if (Creature* Akama = Unit::GetCreature(*me, AkamaGUID))
+            if(Creature* Akama = Unit::GetCreature(*me, AkamaGUID))
             {
                 Akama->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);//turn gossip on so players can restart the event
-                if (Akama->isDead())
+                if(Akama->isDead())
                 {
                     Akama->Respawn();//respawn akama if dead
                     Akama->AI()->EnterEvadeMode();
@@ -269,35 +281,37 @@ public:
             //me->GetMotionMaster()->MoveIdle();
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
 
-            if (pInstance)
+            if(pInstance && me->isAlive())
                 pInstance->SetData(DATA_SHADEOFAKAMAEVENT, NOT_STARTED);
 
             reseting = false;
+
+            me->setActive(true);
         }
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* killer)
         {
             summons.DespawnAll();
         }
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature *summon) 
         {
-            if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
+            if(summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature *summon) 
         {
-            if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
+            if(summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Despawn(summon);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/)
+        void MoveInLineOfSight(Unit *who)
         {
-            if (!GridSearcherSucceeded)
+            if(!GridSearcherSucceeded)
             {
                 FindChannelers();
 
                 if (!Channelers.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                    for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                     {
                         Creature* Channeler = (Unit::GetCreature(*me, *itr));
                         if (Channeler)
@@ -306,37 +320,44 @@ public:
                             {
                                 Channeler->RemoveCorpse();
                                 Channeler->Respawn();
+                                Channeler->InterruptNonMeleeSpells(true);
+                                Channeler->RemoveAurasDueToSpell(SPELL_SHADE_SOUL_CHANNEL);
                             }
 
-                            Channeler->CastSpell(me, SPELL_SHADE_SOUL_CHANNEL, true);
-                            Channeler->CastSpell(me, SPELL_SHADE_SOUL_CHANNEL_2, true);
-                            Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            GridSearcherSucceeded = true;
+                            if (Channeler->isAlive())
+                            {
+                                Channeler->CastSpell(me, SPELL_SHADE_SOUL_CHANNEL, true);
+                                Channeler->CastSpell(me, SPELL_SHADE_SOUL_CHANNEL_2, true);
+                                Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                GridSearcherSucceeded = true;
+                            }
                         }
                     }
-                } else sLog->outError("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+                }else sLog->outError("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
             }
         }
 
+        void EnterCombat(Unit* who) { }
+
         void AttackStart(Unit* who)
         {
-            if (!who || IsBanished) return;
+            if(!who || IsBanished) return;
 
-            if (who->isTargetableForAttack() && who != me)
+            if(who->isTargetableForAttack() && who != me)
                 DoStartMovement(who);
         }
 
         void IncrementDeathCount(uint64 guid = 0)               // If guid is set, will remove it from list of sorcerer
         {
-            if (reseting)
+            if(reseting)
                 return;
 
             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Increasing Death Count for Shade of Akama encounter");
             ++DeathCount;
-            me->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2);
-            if (guid)
+            me->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2, 0);
+            if(guid)
             {
-                if (Sorcerers.empty())
+                if(Sorcerers.empty())
                     sLog->outError("SD2 ERROR: Shade of Akama - attempt to remove guid " UI64FMTD " from Sorcerers list but list is already empty", guid);
                 else  Sorcerers.remove(guid);
             }
@@ -348,12 +369,12 @@ public:
             float X = SpawnLocations[random].x;
             float Y = SpawnLocations[random].y;
             // max of 6 sorcerers can be summoned
-            if ((rand()%3 == 0) && (DeathCount > 0) && (SorcererCount < 7))
+            if((rand()%3 == 0) && (DeathCount > 0) && (SorcererCount < 7))
             {
                 Creature* Sorcerer = me->SummonCreature(CREATURE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
-                if (Sorcerer)
+                if(Sorcerer)
                 {
-                    CAST_AI(mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
+                    CAST_AI(mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI,Sorcerer->AI())->ShadeGUID = me->GetGUID();
                     Sorcerer->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     Sorcerer->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Sorcerer->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
@@ -362,20 +383,27 @@ public:
                     ++SorcererCount;
                 }
             }
-            else
+            //else
+            //{
+            for(uint8 pos = 0; pos < 2; ++pos)
             {
-                for (uint8 i = 0; i < 3; ++i)
+                X = SpawnLocations[pos].x;
+                Y = SpawnLocations[pos].y;
+
+                for(uint8 i = 0; i < 3; ++i)
                 {
-                    Creature* Spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
-                    if (Spawn)
+                    Creature* Spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    if(Spawn)
                     {
                         Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                        Spawn->AI()->AttackStart(pTarget);
+                        Unit *ptarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                        Spawn->AI()->AttackStart(ptarget);
+                        DoZoneInCombat(Spawn);
                     }
                 }
             }
+            //}
         }
 
         void FindChannelers()
@@ -385,7 +413,7 @@ public:
 
             if (!ChannelerList.empty())
             {
-                for (std::list<Creature*>::const_iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
+                for (std::list<Creature*>::iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
                 {
                     CAST_AI(mob_ashtongue_channeler::mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                     Channelers.push_back((*itr)->GetGUID());
@@ -397,14 +425,14 @@ public:
 
         void SetSelectableChannelers()
         {
-            if (Channelers.empty())
+            if(Channelers.empty())
             {
                 sLog->outError("SD2 ERROR: Channeler List is empty, Shade of Akama encounter will be buggy");
                 return;
             }
 
-            for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
-                if (Creature* Channeler = (Unit::GetCreature(*me, *itr)))
+            for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                if(Creature* Channeler = (Unit::GetCreature(*me, *itr)))
                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -412,55 +440,55 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->isInCombat())
+            if(!StartCombat)
                 return;
 
-            if (IsBanished)
+            if(IsBanished)
             {
                 // Akama is set in the threatlist so when we reset, we make sure that he is not included in our check
-                if (me->getThreatManager().getThreatList().size() < 2)
+                if(me->getThreatManager().getThreatList().size() < 2)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
-                if (DefenderTimer <= diff)
+                if(DefenderTimer < diff)
                 {
                     uint32 ran = rand()%2;
                     Creature* Defender = me->SummonCreature(CREATURE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
-                    if (Defender)
+                    if(Defender)
                     {
                         Defender->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         bool move = true;
-                        if (AkamaGUID)
+                        if(AkamaGUID)
                         {
-                            if (Creature* Akama = Unit::GetCreature(*me, AkamaGUID))
+                            if(Creature* Akama = Unit::GetCreature(*me, AkamaGUID))
                             {
                                 float x, y, z;
                                 Akama->GetPosition(x, y, z);
                                 // They move towards AKama
                                 Defender->GetMotionMaster()->MovePoint(0, x, y, z);
                                 Defender->AI()->AttackStart(Akama);
-                            } else move = false;
-                        } else move = false;
-                        if (!move)
+                            }else move = false;
+                        }else move = false;
+                        if(!move)
                             Defender->GetMotionMaster()->MovePoint(0, AKAMA_X, AKAMA_Y, AKAMA_Z);
                     }
                     DefenderTimer = 15000;
-                } else DefenderTimer -= diff;
+                }else DefenderTimer -= diff;
 
-                if (SummonTimer <= diff)
+                if(SummonTimer < diff)
                 {
                     SummonCreature();
                     SummonTimer = 35000;
-                } else SummonTimer -= diff;
+                }else SummonTimer -= diff;
 
-                if (DeathCount >= 6)
+                if(DeathCount >= 6)
                 {
-                    if (AkamaGUID)
+                    if(AkamaGUID)
                     {
                         Creature* Akama = Unit::GetCreature((*me), AkamaGUID);
-                        if (Akama && Akama->isAlive())
+                        if(Akama && Akama->isAlive())
                         {
                             IsBanished = false;
                             me->GetMotionMaster()->Clear(false);
@@ -480,23 +508,23 @@ public:
             }
             else                                                // No longer banished, let's fight Akama now
             {
-                if (ReduceHealthTimer <= diff)
+                if(ReduceHealthTimer < diff)
                 {
-                    if (AkamaGUID)
+                    if(AkamaGUID)
                     {
                         Creature* Akama = Unit::GetCreature((*me), AkamaGUID);
-                        if (Akama && Akama->isAlive())
+                        if(Akama && Akama->isAlive())
                         {
                             //10 % less health every few seconds.
                             me->DealDamage(Akama, Akama->GetMaxHealth()/10, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                             ReduceHealthTimer = 12000;
                         }
                     }
-                } else ReduceHealthTimer -= diff;
+                }else ReduceHealthTimer -= diff;
 
-                if (HasKilledAkama)
+                if(HasKilledAkama)
                 {
-                    if (!HasKilledAkamaAndReseting)//do not let players kill Shade if Akama is dead and Shade is waiting for ResetTimer!! event would bug
+                    if(!HasKilledAkamaAndReseting)//do not let players kill Shade if Akama is dead and Shade is waiting for ResetTimer!! event would bug
                     {
                         HasKilledAkamaAndReseting = true;
                         me->RemoveAllAuras();
@@ -506,33 +534,32 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->GetMotionMaster()->MoveTargetedHome();
                     }
-                    if (ResetTimer <= diff)
+                    if(ResetTimer < diff)
                     {
                         EnterEvadeMode();// Reset a little while after killing Akama, evade and respawn Akama
                         return;
-                    } else ResetTimer -= diff;
+                    }else ResetTimer -= diff;
                 }
 
                 DoMeleeAttackIfReady();
             }
         }
     };
-
 };
 
-void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
+void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* killer)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-    if (Shade && Shade->isAlive())
-        CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount();
+    if(Shade && Shade->isAlive())
+        CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->IncrementDeathCount();
     else sLog->outError("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
 
-void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
+void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* killer)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-    if (Shade && Shade->isAlive())
-        CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount(me->GetGUID());
+    if(Shade && Shade->isAlive())
+        CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->IncrementDeathCount(me->GetGUID());
     else sLog->outError("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
@@ -541,32 +568,9 @@ class npc_akama_shade : public CreatureScript
 public:
     npc_akama_shade() : CreatureScript("npc_akama_shade") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    CreatureAI* GetAI(Creature *_Creature) const
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_akama_shade::npc_akamaAI, pCreature->AI())->BeginEvent(pPlayer);
-        }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        if (pPlayer->isAlive())
-        {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_akamaAI (pCreature);
+        return new npc_akamaAI (_Creature);
     }
 
     struct npc_akamaAI : public ScriptedAI
@@ -620,49 +624,62 @@ public:
             LightningBoltTimer = 10000;
             CheckTimer = 2000;
 
-            if (!EventBegun)
+            if(!EventBegun)
             {
                 me->SetUInt32Value(UNIT_NPC_FLAGS, 0);      // Database sometimes has very very strange values
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             summons.DespawnAll();
+
+            me->setActive(true);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature *summon) 
         {
-            if (summon->GetEntry() == CREATURE_BROKEN)
+            if(summon->GetEntry() == CREATURE_BROKEN)
                 summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature *summon) 
         {
-            if (summon->GetEntry() == CREATURE_BROKEN)
+            if(summon->GetEntry() == CREATURE_BROKEN)
                 summons.Despawn(summon);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void AttackStart(Unit* who) 
+        {
+
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+        }
+
+        void EnterCombat(Unit* who) {}
 
         void BeginEvent(Player* pl)
         {
-            if (!pInstance)
+            if(!pInstance)
                 return;
 
             ShadeGUID = pInstance->GetData64(DATA_SHADEOFAKAMA);
-            if (!ShadeGUID)
+            if(!ShadeGUID)
                 return;
 
             Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-            if (Shade)
+            if(Shade)
             {
+
                 pInstance->SetData(DATA_SHADEOFAKAMAEVENT, IN_PROGRESS);
                 // Prevent players from trying to restart event
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetAkamaGUID(me->GetGUID());
-                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetSelectableChannelers();
-                Shade->AddThreat(me, 1000000.0f);
+                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->SetAkamaGUID(me->GetGUID());
+                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->SetSelectableChannelers();
+                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->StartCombat = true;
                 me->CombatStart(Shade);
+                Shade->AddThreat(me, 1000000.0f);
                 Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 Shade->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                if (pl) Shade->AddThreat(pl, 1.0f);
+                if(pl) Shade->AddThreat(pl, 1.0f);
                 DoZoneInCombat(Shade);
                 EventBegun = true;
             }
@@ -670,7 +687,7 @@ public:
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (type != POINT_MOTION_TYPE)
+            if(type != POINT_MOTION_TYPE)
                 return;
 
             switch(id)
@@ -678,7 +695,7 @@ public:
             case 0: ++WayPointId; break;
 
             case 1:
-                if (Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
+                if(Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
                 {
                     me->SetUInt64Value(UNIT_FIELD_TARGET, ShadeGUID);
                     DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
@@ -689,7 +706,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* killer)
         {
             DoScriptText(SAY_DEATH, me);
             EventBegun = false;
@@ -704,14 +721,14 @@ public:
             BrokenList.clear();
             HasYelledOnce = false;
             Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-            if (Shade && Shade->isAlive())
-                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
+            if(Shade && Shade->isAlive())
+                CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->HasKilledAkama = true;
             summons.DespawnAll();
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!EventBegun)
+            if(!EventBegun)
                 return;
 
             if (HealthBelowPct(15) && !HasYelledOnce)
@@ -720,18 +737,15 @@ public:
                 HasYelledOnce = true;
             }
 
-            if (ShadeGUID && !StartCombat)
+            if(ShadeGUID && !StartCombat)
             {
                 Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-                if (Shade && Shade->isAlive())
+                if(Shade && Shade->isAlive())
                 {
-                    if (CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IsBanished)
+                    if(CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI,Shade->AI())->IsBanished)
                     {
-                        if (CastSoulRetrieveTimer <= diff)
-                        {
+                        if(!me->HasAura(SPELL_AKAMA_SOUL_CHANNEL))
                             DoCast(Shade, SPELL_AKAMA_SOUL_CHANNEL);
-                            CastSoulRetrieveTimer = 500;
-                        } else CastSoulRetrieveTimer -= diff;
                     }
                     else
                     {
@@ -741,50 +755,49 @@ public:
                 }
             }
 
-            if (ShadeHasDied && (WayPointId == 1))
+            if(ShadeHasDied && (WayPointId == 1))
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
+                if(pInstance) pInstance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
                 me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[1].x, AkamaWP[1].y, AkamaWP[1].z);
                 ++WayPointId;
             }
 
-            if (!ShadeHasDied && StartCombat)
+            if(!ShadeHasDied && StartCombat)
             {
-                if (CheckTimer <= diff)
+                if(CheckTimer < diff)
                 {
-                    if (ShadeGUID)
+                    if(ShadeGUID)
                     {
                         Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-                        if (Shade && !Shade->isAlive())
+                        if(Shade && !Shade->isAlive())
                         {
                             ShadeHasDied = true;
                             WayPointId = 0;
                             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z);
                         }
-                        if (Shade && Shade->isAlive())
+                        if(Shade && Shade->isAlive())
                         {
-                            if (Shade->getThreatManager().getThreatList().size() < 2)
+                            if(Shade->getThreatManager().getThreatList().size() < 2)
                                 Shade->AI()->EnterEvadeMode();
                         }
                     }
                     CheckTimer = 5000;
-                } else CheckTimer -= diff;
+                }else CheckTimer -= diff;
             }
 
-            if (SummonBrokenTimer && BrokenSummonIndex < 4)
+            if(SummonBrokenTimer && BrokenSummonIndex < 4)
             {
-                if (SummonBrokenTimer <= diff)
+                if(SummonBrokenTimer <= diff)
                 {
-                    for (uint8 i = 0; i < 4; ++i)
+                    for(uint8 i = 0; i < 4; ++i)
                     {
                         float x = BrokenCoords[BrokenSummonIndex].x + (i*5);
                         float y = BrokenCoords[BrokenSummonIndex].y + (1*5);
                         float z = BrokenCoords[BrokenSummonIndex].z;
                         float o = BrokenCoords[BrokenSummonIndex].o;
                         Creature* Broken = me->SummonCreature(CREATURE_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
-                        if (Broken)
+                        if(Broken)
                         {
                             float wx = BrokenWP[BrokenSummonIndex].x + (i*5);
                             float wy = BrokenWP[BrokenSummonIndex].y + (i*5);
@@ -796,12 +809,12 @@ public:
                     }
                     ++BrokenSummonIndex;
                     SummonBrokenTimer = 1000;
-                } else SummonBrokenTimer -= diff;
+                }else SummonBrokenTimer -= diff;
             }
 
-            if (SoulRetrieveTimer)
+            if(SoulRetrieveTimer)
             {
-                if (SoulRetrieveTimer <= diff)
+                if(SoulRetrieveTimer <= diff)
                 {
                     switch(EndingTalkCount)
                     {
@@ -817,13 +830,13 @@ public:
                         SoulRetrieveTimer = 25000;
                         break;
                     case 2:
-                        if (!BrokenList.empty())
+                        if(!BrokenList.empty())
                         {
                             bool Yelled = false;
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
-                                if (Creature* pUnit = Unit::GetCreature(*me, *itr))
+                            for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                                if(Creature* pUnit = Unit::GetCreature(*me, *itr))
                                 {
-                                    if (!Yelled)
+                                    if(!Yelled)
                                     {
                                         DoScriptText(SAY_BROKEN_FREE_01, pUnit);
                                         Yelled = true;
@@ -835,10 +848,10 @@ public:
                         SoulRetrieveTimer = 1500;
                         break;
                     case 3:
-                        if (!BrokenList.empty())
+                        if(!BrokenList.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
-                                if (Creature* pUnit = Unit::GetCreature(*me, *itr))
+                            for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                                if(Creature* pUnit = Unit::GetCreature(*me, *itr))
                                     // This is the incorrect spell, but can't seem to find the right one.
                                     pUnit->CastSpell(pUnit, 39656, true);
                         }
@@ -846,41 +859,61 @@ public:
                         SoulRetrieveTimer = 5000;
                         break;
                     case 4:
-                        if (!BrokenList.empty())
+                        if(!BrokenList.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
-                                if (Creature* pUnit = Unit::GetCreature((*me), *itr))
+                            for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                                if(Creature* pUnit = Unit::GetCreature((*me), *itr))
                                     pUnit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
                         }
                         SoulRetrieveTimer = 0;
                         break;
                     }
-                } else SoulRetrieveTimer -= diff;
+                }else SoulRetrieveTimer -= diff;
             }
 
-            if (!UpdateVictim())
+            if(!UpdateVictim())
                 return;
 
-            if (DestructivePoisonTimer <= diff)
+            if(DestructivePoisonTimer < diff)
             {
                 Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
                 if (Shade && Shade->isAlive())
                     DoCast(Shade, SPELL_DESTRUCTIVE_POISON);
                 DestructivePoisonTimer = 15000;
-            } else DestructivePoisonTimer -= diff;
+            }else DestructivePoisonTimer -= diff;
 
-            if (LightningBoltTimer <= diff)
+            if(LightningBoltTimer < diff)
             {
                 DoCast(me->getVictim(), SPELL_LIGHTNING_BOLT);
                 LightningBoltTimer = 10000;
-            } else LightningBoltTimer -= diff;
+            }else LightningBoltTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
 
-};
+    bool OnGossipSelect (Player *player, Creature *_Creature, uint32 sender, uint32 action )
+    {
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+        {
+            player->CLOSE_GOSSIP_MENU();
+            ((npc_akamaAI*)_Creature->AI())->BeginEvent(player);
+        }
 
+        return true;
+    }
+    bool OnGossipHello (Player *player, Creature *_Creature)
+    {
+        InstanceScript* pInstance = _Creature->GetInstanceScript();
+
+        if(pInstance && pInstance->GetData(DATA_SHADEOFAKAMAEVENT) == NOT_STARTED)
+        {
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        }
+        player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+        return true;
+    }
+};
 void AddSC_boss_shade_of_akama()
 {
     new boss_shade_of_akama();
@@ -888,3 +921,4 @@ void AddSC_boss_shade_of_akama()
     new mob_ashtongue_sorcerer();
     new npc_akama_shade();
 }
+

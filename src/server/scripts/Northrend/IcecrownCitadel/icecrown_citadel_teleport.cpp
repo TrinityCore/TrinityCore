@@ -39,7 +39,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
                 if (instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
-                if (instance->GetData(DATA_COLDFLAME_JETS) == DONE)
+                if (instance->GetData(DATA_COLDFLAME_JETS) == DONE || player->isGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
                 if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
@@ -66,7 +66,16 @@ class icecrown_citadel_teleport : public GameObjectScript
             }
 
             if (sender == GOSSIP_SENDER_ICC_PORT)
+            {
+                //Preload the Lich King's platform before teleporting player to there
+                if (action == FROZEN_THRONE_TELEPORT)
+                    player->GetMap()->LoadGrid(530.3f, -2122.67f);
                 player->CastSpell(player, spell, true);
+
+                //Give him 2 tries, just in case if player will fall through the ground
+                if (action == FROZEN_THRONE_TELEPORT)
+                    TeleportPlayerToFrozenThrone(player);
+            }
 
             return true;
         }

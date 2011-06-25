@@ -481,6 +481,7 @@ public:
         uint32 m_uiTranquilityTimer;
         uint32 m_uiBarkskinTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -490,11 +491,28 @@ public:
             m_uiBarkskinTimer = IN_MILLISECONDS;
             m_uiCommonTimer = IN_MILLISECONDS;
             SetEquipmentSlots(false, 51799, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+	    trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+	                {
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiNatureGraspTimer <= uiDiff)
             {
@@ -576,6 +594,7 @@ public:
         uint32 m_uiHeroismOrBloodlustTimer;
         uint32 m_uiHexTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -584,11 +603,28 @@ public:
             m_uiHexTimer = IN_MILLISECONDS;
             m_uiCommonTimer = IN_MILLISECONDS;
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiHeroismOrBloodlustTimer <= uiDiff)
             {
@@ -672,6 +708,7 @@ public:
         uint32 m_uiHandOfFreedomTimer;
         uint32 m_uiHammerOfJusticeTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -683,11 +720,28 @@ public:
             m_uiHammerOfJusticeTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 50771, 47079, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiBubbleTimer <= uiDiff)
             {
@@ -775,6 +829,7 @@ public:
 
         uint32 m_uiPsychicScreamTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -782,11 +837,28 @@ public:
             m_uiPsychicScreamTimer = IN_MILLISECONDS;
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiPsychicScreamTimer <= uiDiff)
             {
@@ -859,6 +931,7 @@ public:
         uint32 m_uiSilenceTimer;
         uint32 m_uiMindBlastTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -870,6 +943,7 @@ public:
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 50040, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             DoCast(me, SPELL_SHADOWFORM);
+            trinket_timer = urand(5000, 20000);
         }
 
         void EnterCombat(Unit *pWho)
@@ -880,6 +954,22 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiPsychicScreamTimer <= uiDiff)
             {
@@ -973,7 +1063,10 @@ public:
         uint32 m_uiHellfireTimer;
         uint32 m_uiUnstableAfflictionTimer;
         uint32 m_uiCommonTimer;
-        uint32 m_uiSummonPetTimer;
+        //uint32 m_uiSummonPetTimer;
+        uint32 trinket_timer;
+        uint32 pet_summon_timer;
+        bool pet_check;
 
         void Reset()
         {
@@ -984,13 +1077,46 @@ public:
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-            m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(SPELL_SUMMON_FELHUNTER);
+            //m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            //DoCast(SPELL_SUMMON_FELHUNTER);
+            trinket_timer = urand(5000, 20000);
+            pet_check = false;
+            pet_summon_timer = 1000;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+            if(pet_summon_timer <=uiDiff)
+        {
+    if(!pet_check)
+    {
+       DoCast(SPELL_SUMMON_FELHUNTER);
+       pet_check = true;
+    }
+
+          else
+          {
+             pet_summon_timer = 120000;
+                }
+        } else pet_summon_timer -= uiDiff;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiFearTimer <= uiDiff)
             {
@@ -1013,10 +1139,10 @@ public:
                 m_uiUnstableAfflictionTimer = urand(2*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             } else m_uiUnstableAfflictionTimer -= uiDiff;
 
-            if (m_uiSummonPetTimer <= uiDiff)
+            /*if (m_uiSummonPetTimer <= uiDiff)
             {
                 m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else m_uiSummonPetTimer -= uiDiff;
+            } else m_uiSummonPetTimer -= uiDiff;*/
 
             if (m_uiCommonTimer <= uiDiff)
             {
@@ -1079,6 +1205,7 @@ public:
         uint32 m_uiIceBlockTimer;
         uint32 m_uiPolymorphTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1089,11 +1216,28 @@ public:
             m_uiPolymorphTimer = urand(15*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47524, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiCounterspellTimer <= uiDiff)
             {
@@ -1185,7 +1329,10 @@ public:
         uint32 m_uiFrostTrapTimer;
         uint32 m_uiWingClipTimer;
         uint32 m_uiCommonTimer;
-        uint32 m_uiSummonPetTimer;
+        //uint32 m_uiSummonPetTimer;
+        uint32 trinket_timer;
+        uint32 pet_summon_timer;
+        bool pet_check;
 
         void Reset()
         {
@@ -1198,13 +1345,46 @@ public:
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47156, EQUIP_NO_CHANGE, 48711);
 
-            m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(SPELL_CALL_PET);
+            //m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            //DoCast(SPELL_CALL_PET);
+            trinket_timer = urand(5000, 20000);
+            pet_check = false;
+            pet_summon_timer = 1000;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+            if(pet_summon_timer <=uiDiff)
+    {
+       if(!pet_check)
+         {
+      DoCast(SPELL_CALL_PET);
+      pet_check = true;
+         }
+
+       else
+         {
+      pet_summon_timer = 120000;
+         }
+    } else pet_summon_timer -= uiDiff;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiDisengageTimer <= uiDiff)
             {
@@ -1239,10 +1419,10 @@ public:
                 m_uiWingClipTimer = urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS);
             } else m_uiWingClipTimer -= uiDiff;
 
-            if (m_uiSummonPetTimer <= uiDiff)
+            /*if (m_uiSummonPetTimer <= uiDiff)
             {
                 m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else m_uiSummonPetTimer -= uiDiff;
+            } else m_uiSummonPetTimer -= uiDiff;*/
 
             if (m_uiCommonTimer <= uiDiff)
             {
@@ -1298,6 +1478,7 @@ public:
         uint32 m_uiEntanglingRootsTimer;
         uint32 m_uiFaerieFireTimer;
         uint32 m_uiCommonTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1308,11 +1489,28 @@ public:
             m_uiFaerieFireTimer = urand(10*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 50966, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiBarkskinTimer <= uiDiff)
             {
@@ -1406,6 +1604,7 @@ public:
         uint32 m_uiOverpowerTimer;
         uint32 m_uiShatteringThrowTimer;
         uint32 m_uiDisarmTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1420,11 +1619,28 @@ public:
             m_uiShatteringThrowTimer = urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             m_uiDisarmTimer = urand(20*IN_MILLISECONDS, 80*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47427, 46964, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiBladestormTimer <= uiDiff)
             {
@@ -1518,6 +1734,7 @@ public:
         uint32 m_uiFrostStrikeTimer;
         uint32 m_uiIcyTouchTimer;
         uint32 m_uiDeathGripTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1530,11 +1747,28 @@ public:
             m_uiIcyTouchTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
             m_uiDeathGripTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47518, 51021, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiIceboundFortitudeTimer <= uiDiff)
             {
@@ -1620,6 +1854,7 @@ public:
         uint32 m_uiBlindTimer;
         uint32 m_uiCloakTimer;
         uint32 m_uiBladeFlurryTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1632,11 +1867,28 @@ public:
             m_uiCloakTimer = urand(20*IN_MILLISECONDS, 120*IN_MILLISECONDS);
             m_uiBladeFlurryTimer = urand(12*IN_MILLISECONDS, 120*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47422, 49982, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiFanOfKnivesTimer <= uiDiff)
             {
@@ -1721,6 +1973,7 @@ public:
         uint32 m_uiDeployTotemTimer;
         uint8  m_uiTotemCount;
         float  m_fTotemOldCenterX, m_fTotemOldCenterY;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1735,6 +1988,7 @@ public:
             m_fTotemOldCenterY = me->GetPositionY();
             SetEquipmentSlots(false, 51803, 48013, EQUIP_NO_CHANGE);
             Summons.DespawnAll();
+            trinket_timer = urand(5000, 20000);
         }
 
         void JustSummoned(Creature* pSummoned)
@@ -1774,6 +2028,22 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiHeroismOrBloodlustTimer <= uiDiff)
             {
@@ -1852,6 +2122,7 @@ public:
         uint32 m_uiDivineShieldTimer;
         uint32 m_uiDivineStormTimer;
         uint32 m_uiJudgementOfCommandTimer;
+        uint32 trinket_timer;
 
         void Reset()
         {
@@ -1863,6 +2134,7 @@ public:
             m_uiDivineStormTimer = 10*IN_MILLISECONDS;
             m_uiJudgementOfCommandTimer = urand(8*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            trinket_timer = urand(5000, 20000);
         }
 
         void EnterCombat(Unit *pWho)
@@ -1874,6 +2146,22 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim()) return;
+
+                if (IsHeroic())
+			{
+		if(trinket_timer <= uiDiff)
+		{
+			if (me->HasAuraType(SPELL_AURA_MOD_STUN) || me->HasAuraType(SPELL_AURA_MOD_FEAR) || me->HasAuraType(SPELL_AURA_MOD_CHARM) || me->HasAuraType(SPELL_AURA_MOD_ROOT) || me->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+			{
+			    RemoveCC();
+				trinket_timer = 120000;
+			}
+			else 
+			{
+				trinket_timer= 5000;
+			}
+		} else trinket_timer -=uiDiff;
+			}
 
             if (m_uiRepeteanceTimer <= uiDiff)
             {

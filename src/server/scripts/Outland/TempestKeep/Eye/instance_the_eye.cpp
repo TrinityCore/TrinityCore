@@ -165,7 +165,7 @@ class instance_the_eye : public InstanceMapScript
             {
                 OUT_SAVE_INST_DATA;
                 std::ostringstream stream;
-                stream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
+        stream << "T E " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
                 char* out = new char[stream.str().length() + 1];
                 strcpy(out, stream.str().c_str());
                 if (out)
@@ -184,9 +184,24 @@ class instance_the_eye : public InstanceMapScript
                     return;
                 }
                 OUT_LOAD_INST_DATA(in);
+        std::istringstream stream(in);
 
-                std::istringstream stream(in);
-                stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
+        char dataHead1, dataHead2;
+        uint32 temp_auiEncounter[MAX_ENCOUNTER];
+        memset(&temp_auiEncounter, 0, sizeof(temp_auiEncounter));
+        
+        stream >> dataHead1 >> dataHead2 >> temp_auiEncounter[0] >> temp_auiEncounter[1] >> temp_auiEncounter[2] >> temp_auiEncounter[3];
+
+        if(dataHead1 == 'T' && dataHead2 == 'E')
+        {
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                m_auiEncounter[i] = temp_auiEncounter[i];
+        }else
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                         m_auiEncounter[i] = NOT_STARTED;

@@ -660,6 +660,13 @@ public:
             m_uiTargetGUID = 0;
         }
 
+        void MoveInLineOfSight(Unit* _who)
+        {
+
+            Unit *_pWho = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0F, true, 0); 
+            AttackStart(_pWho);
+        }
+
         void EnterCombat(Unit *pWho)
         {
             m_uiTargetGUID = pWho->GetGUID();

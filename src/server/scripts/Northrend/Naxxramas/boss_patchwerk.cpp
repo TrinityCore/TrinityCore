@@ -45,10 +45,13 @@ enum Events
     EVENT_SLIME
 };
 
-enum
+enum Achievements
 {
     ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286,
 };
+
+#define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  RAID_MODE(1856, 1857)
+#define MAX_ENCOUNTER_TIME                    3 * 60 * 1000
 
 class boss_patchwerk : public CreatureScript
 {
@@ -66,12 +69,14 @@ public:
 
         bool Enraged;
 
+        uint32 EncounterTime;
+
         void Reset()
         {
             _Reset();
-
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            SetImmuneToDeathGrip();
         }
 
         void KilledUnit(Unit* /*Victim*/)
@@ -84,18 +89,73 @@ public:
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
+
+            if (EncounterTime <= MAX_ENCOUNTER_TIME)
+            {
+                AchievementEntry const *AchievMakeQuickWerkOfHim = GetAchievementStore()->LookupEntry(ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM);
+                if (AchievMakeQuickWerkOfHim)
+                {
+                    Map *pMap = me->GetMap();
+                    if (pMap && pMap->IsDungeon())
+                    {
+                        Map::PlayerList const &players = pMap->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            itr->getSource()->CompletedAchievement(AchievMakeQuickWerkOfHim);
+                    }
+                }
+            }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             Enraged = false;
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me);
+            EncounterTime = 0;
+            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me);
             events.ScheduleEvent(EVENT_HATEFUL, 1200);
             events.ScheduleEvent(EVENT_BERSERK, 360000);
-
             if (instance)
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+        }
+
+        Unit* GetHatefullStrikeTarget()
+        {
+            // Get all Targets in Meleerange
+            const std::list<HostileReference *> &threatlist = me->getThreatManager().getThreatList();
+            std::list<Unit*> targetList;
+
+            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            {
+                HostileReference* ref = (*itr);
+                if (ref->getTarget() && me->IsWithinMeleeRange(ref->getTarget()))
+                    targetList.push_back(ref->getTarget());
+            }
+
+            // Get Target with most HP and not getVictim()
+            uint32 MostHP = 0;
+            Unit* pMostHPTarget = NULL;
+            uint32 counter = 0;
+
+            for(std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+            {
+                counter++;
+
+                //Only first 3 Targets in Threadlist
+                if(counter > 3)
+                    break;
+
+                Unit *pTarget = (*itr);
+                if (pTarget->isAlive() && pTarget->GetHealth() > MostHP)
+                {
+                    MostHP = pTarget->GetHealth();
+                    pMostHPTarget = pTarget;
+                }
+            }
+
+            if(pMostHPTarget)
+                return pMostHPTarget;
+            else
+                return me->getVictim();
         }
 
         void UpdateAI(const uint32 diff)
@@ -105,6 +165,8 @@ public:
 
             events.Update(diff);
 
+            EncounterTime += diff;
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
@@ -113,23 +175,35 @@ public:
                     {
                         //Cast Hateful strike on the player with the highest
                         //amount of HP within melee distance
-                        uint32 MostHP = 0;
-                        Unit* pMostHPTarget = NULL;
-                        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                        for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                        {
-                            Unit *pTarget = (*i)->getTarget();
-                            if (pTarget->isAlive() && pTarget != me->getVictim() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
-                            {
-                                MostHP = pTarget->GetHealth();
-                                pMostHPTarget = pTarget;
-                            }
-                        }
+                        //uint32 MostHP = 0;
+                        //Unit* pMostHPTarget = NULL;
+                        //uint32 counter = 1;
+                        //std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
+                        //++i;
+                        //for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                        //{
+                        //    Unit *pTarget = (*i)->getTarget();
 
-                        if (!pMostHPTarget)
-                            pMostHPTarget = me->getVictim();
+                        //    if(!me->IsWithinMeleeRange(pTarget))
+                        //        continue;
 
-                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE, H_SPELL_HATEFUL_STRIKE), true);
+                        //    counter++;
+
+                        //    if(counter > 3)
+                        //        break;
+
+                        //    if (pTarget->isAlive() && pTarget->GetHealth() > MostHP)
+                        //    {
+                        //        MostHP = pTarget->GetHealth();
+                        //        pMostHPTarget = pTarget;
+                        //    }
+                        //}
+
+                        //if (pMostHPTarget) pMostHPTarget = me->getVictim();
+                        //if (pMostHPTarget)
+
+                        if(Unit* StrikeTarget = GetHatefullStrikeTarget())
+                            DoCast(StrikeTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);
 
                         events.ScheduleEvent(EVENT_HATEFUL, 1200);
                         break;

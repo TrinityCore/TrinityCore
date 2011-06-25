@@ -2162,6 +2162,15 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
     return true;
 }
 
+void AchievementMgr::RemoveAchievement(uint32 entry)
+{
+    AchievementCriteriaEntryList const* achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByAchievement(entry);
+    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList->begin(); i!=achievementCriteriaList->end(); ++i)
+    {
+        RemoveCriteriaProgress(*i);
+    }
+}
+
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {

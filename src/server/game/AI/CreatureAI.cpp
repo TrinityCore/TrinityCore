@@ -22,6 +22,7 @@
 #include "World.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include "Group.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool /*apply*/)
@@ -103,6 +104,56 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/)
                 (*itr)->SetInCombatWith(creature);
                 creature->AddThreat(*itr, 0.0f);
             }*/
+        }
+    }
+}
+
+void CreatureAI::DoAttackerAreaInCombat(Unit* attacker, float range, Unit* pUnit)
+{
+    if (!attacker)
+        attacker = me;
+
+    if (!pUnit)
+        pUnit = me;
+
+    Map *map = pUnit->GetMap();
+
+    if (!map->IsDungeon())
+        return;
+
+    if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
+        return;
+
+    Map::PlayerList const &PlayerList = map->GetPlayers();
+    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    {
+        if (Player* i_pl = i->getSource())
+            if (i_pl->isAlive() && attacker->GetDistance(i_pl) <= range )
+            {
+                pUnit->SetInCombatWith(i_pl);
+                i_pl->SetInCombatWith(pUnit);
+                pUnit->AddThreat(i_pl, 0.0f);
+            }
+    }
+}
+
+void CreatureAI::DoAttackerGroupInCombat(Player* attacker)
+{
+    if(attacker)
+    {
+        if( Group *pGroup = attacker->GetGroup() )
+        {
+            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player *pGroupGuy = itr->getSource();
+
+                if(pGroupGuy && pGroupGuy->isAlive() && pGroupGuy->GetMapId() == me->GetMapId())
+                {
+                    me->SetInCombatWith(pGroupGuy);
+                    pGroupGuy->SetInCombatWith(me);
+                    me->AddThreat(pGroupGuy, 0.0f);
+                }
+            }
         }
     }
 }

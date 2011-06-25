@@ -18,8 +18,8 @@
 
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
-SD%Complete: 25
-SDComment: VERIFY SCRIPT
+SD%Complete: 20
+SDComment: VERIFY SCRIPT, rename Gates
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
@@ -71,6 +71,8 @@ public:
 
         /** GameObjects **/
         uint64 ForceField;                                      // Kalecgos Encounter
+        uint64 Gate[5];                                         // Rename this to be more specific after door placement is verified.
+        uint64 ForceField_Collision[2];
         uint64 KalecgosWall[2];
         uint64 FireBarrier;                                     // Felmysts Encounter
         uint64 MurusGate[2];                                    // Murus Encounter
@@ -78,11 +80,11 @@ public:
         /*** Misc ***/
         uint32 SpectralRealmTimer;
         std::vector<uint64> SpectralRealmList;
+        uint32 RepairBotState;  
 
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
             /*** Creatures ***/
             Kalecgos_Dragon         = 0;
             Kalecgos_Human          = 0;
@@ -101,11 +103,19 @@ public:
 
             /*** GameObjects ***/
             ForceField  = 0;
+            ForceField_Collision[0] = 0;
+            ForceField_Collision[1] = 0;
+
             FireBarrier = 0;
             MurusGate[0] = 0;
             MurusGate[1] = 0;
             KalecgosWall[0] = 0;
             KalecgosWall[1] = 0;
+            Gate[0]     = 0;                                    // TODO: Rename Gate[n] with gate_<boss name> for better specificity
+            Gate[1]     = 0;
+            Gate[2]     = 0;
+            Gate[3]     = 0;
+            Gate[4]     = 0;
 
             /*** Misc ***/
             SpectralRealmTimer = 5000;
@@ -129,7 +139,7 @@ public:
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* plr = itr->getSource();
-                    if (plr && !plr->HasAura(45839, 0))
+                    if (plr && !plr->HasAura(45839,0))
                             return plr;
                 }
             }
@@ -138,43 +148,62 @@ public:
             return NULL;
         }
 
+        //void HandleGameObject(uint64 guid, uint32 state)
+        //{
+        //    Player *player = GetPlayerInMap();
+
+        //    if (!player || !guid)
+        //    {
+        //        debug_log("TSCR: Sunwell Plateau: HandleGameObject fail");
+        //        return;
+        //    }
+
+        //    if (GameObject *go = GameObject::GetGameObject(*player,guid))
+        //        go->SetGoState(state);
+        //}
+
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+        switch(creature->GetEntry())
             {
-                case 24850: Kalecgos_Dragon     = creature->GetGUID(); break;
-                case 24891: Kalecgos_Human      = creature->GetGUID(); break;
-                case 24892: Sathrovarr          = creature->GetGUID(); break;
-                case 24882: Brutallus           = creature->GetGUID(); break;
-                case 24895: Madrigosa           = creature->GetGUID(); break;
-                case 25038: Felmyst             = creature->GetGUID(); break;
-                case 25166: Alythess            = creature->GetGUID(); break;
-                case 25165: Sacrolash           = creature->GetGUID(); break;
-                case 25741: Muru                = creature->GetGUID(); break;
-                case 25315: KilJaeden           = creature->GetGUID(); break;
-                case 25608: KilJaedenController = creature->GetGUID(); break;
-                case 26046: Anveena             = creature->GetGUID(); break;
-                case 25319: KalecgosKJ          = creature->GetGUID(); break;
+            case 24850: Kalecgos_Dragon     = creature->GetGUID(); break;
+            case 24891: Kalecgos_Human      = creature->GetGUID(); break;
+            case 24892: Sathrovarr          = creature->GetGUID(); break;
+            case 24882: Brutallus           = creature->GetGUID(); break;
+            case 24895: Madrigosa           = creature->GetGUID(); break;
+            case 25038: Felmyst             = creature->GetGUID(); break;
+            case 25166: Alythess            = creature->GetGUID(); break;
+            case 25165: Sacrolash           = creature->GetGUID(); break;
+            case 25741: Muru                = creature->GetGUID(); break;
+            case 25315: KilJaeden           = creature->GetGUID(); break;
+            case 25608: KilJaedenController = creature->GetGUID(); break;
+            case 26046: Anveena             = creature->GetGUID(); break;
+            case 25319: KalecgosKJ          = creature->GetGUID(); break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* pGo)
         {
-            switch(go->GetEntry())
+            switch(pGo->GetEntry())
             {
-                case 188421: ForceField     = go->GetGUID(); break;
-                case 188523: KalecgosWall[0] = go->GetGUID(); break;
-                case 188524: KalecgosWall[0] = go->GetGUID(); break;
+                case 188421: ForceField     = pGo->GetGUID(); break;
+                case 188523: KalecgosWall[0] = pGo->GetGUID(); break;
+                case 188524: KalecgosWall[0] = pGo->GetGUID(); break;
                 case 188075:
+                    FireBarrier = pGo->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0, true, go);
-                    FireBarrier = go->GetGUID();
+                        HandleGameObject(NULL, true, pGo);
+                    else
+                        HandleGameObject(FireBarrier, false);
+
                     break;
-                case 187990: MurusGate[0]   = go->GetGUID(); break;
+                case 187990: MurusGate[0]   = pGo->GetGUID(); break;
+                case 187770: Gate[1]        = pGo->GetGUID(); break;
+                case 187896: Gate[2]        = pGo->GetGUID(); break;
                 case 188118:
                     if (m_auiEncounter[4] == DONE)
-                        HandleGameObject(0, true, go);
-                    MurusGate[1]= go->GetGUID();
+                        HandleGameObject(NULL, true, pGo);
+                    MurusGate[1]= pGo->GetGUID();
                     break;
             }
         }
@@ -189,7 +218,9 @@ public:
                 case DATA_EREDAR_TWINS_EVENT: return m_auiEncounter[3];
                 case DATA_MURU_EVENT:         return m_auiEncounter[4];
                 case DATA_KILJAEDEN_EVENT:    return m_auiEncounter[5];
+                case DATA_REPAIR_BOT_STATE:   return RepairBotState; break;
             }
+
             return 0;
         }
 
@@ -215,6 +246,13 @@ public:
                     Player* Target = GetPlayerInMap();
                     return Target->GetGUID();
             }
+
+            switch(id)
+            {
+                case DATA_GO_FORECEFIELD_COLL_1: return ForceField_Collision[0]; break;
+                case DATA_GO_FORECEFIELD_COLL_2: return ForceField_Collision[1]; break;
+            }
+
             return 0;
         }
 
@@ -223,28 +261,25 @@ public:
             switch(id)
             {
                 case DATA_KALECGOS_EVENT:
-                    {
-                        if (data == NOT_STARTED || data == DONE)
-                        {
-                            HandleGameObject(ForceField, true);
-                            HandleGameObject(KalecgosWall[0], true);
-                            HandleGameObject(KalecgosWall[1], true);
-                        }
-                        else if (data == IN_PROGRESS)
-                        {
-                            HandleGameObject(ForceField, false);
-                            HandleGameObject(KalecgosWall[0], false);
-                            HandleGameObject(KalecgosWall[1], false);
-                        }
-                        m_auiEncounter[0] = data;
-                    }
+                if(data == IN_PROGRESS) HandleGameObject(ForceField, false);
+                else  HandleGameObject(ForceField, true);
+                if(m_auiEncounter[0] != DONE)
+                    m_auiEncounter[0] = data;
+                break;
+                case DATA_BRUTALLUS_EVENT:
+                if(m_auiEncounter[1] != DONE)
+                    m_auiEncounter[1] = data;
                     break;
-                case DATA_BRUTALLUS_EVENT:     m_auiEncounter[1] = data; break;
                 case DATA_FELMYST_EVENT:
                     if (data == DONE)
                         HandleGameObject(FireBarrier, true);
-                    m_auiEncounter[2] = data; break;
-                case DATA_EREDAR_TWINS_EVENT:  m_auiEncounter[3] = data; break;
+                    if(m_auiEncounter[2] != DONE)
+                        m_auiEncounter[2] = data;
+                break;
+                case DATA_EREDAR_TWINS_EVENT:
+                    if(m_auiEncounter[3] != DONE)
+                    m_auiEncounter[3] = data;
+                break;
                 case DATA_MURU_EVENT:
                     switch(data)
                     {
@@ -262,12 +297,21 @@ public:
                             break;
                     }
                     m_auiEncounter[4] = data; break;
-                case DATA_KILJAEDEN_EVENT:     m_auiEncounter[5] = data; break;
+                case DATA_KILJAEDEN_EVENT:
+                    if(m_auiEncounter[5] != DONE)
+                        m_auiEncounter[5] = data;
+                    break;
+
+                case DATA_REPAIR_BOT_STATE:
+                    RepairBotState = data;
+                    break;
             }
 
             if (data == DONE)
                 SaveToDB();
         }
+
+        void Update(uint32 diff) {}
 
         std::string GetSaveData()
         {
@@ -295,15 +339,17 @@ public:
 
             OUT_LOAD_INST_DATA(in);
             std::istringstream stream(in);
+
             stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
                 >> m_auiEncounter[4] >> m_auiEncounter[5];
+
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                     m_auiEncounter[i] = NOT_STARTED;
+
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_sunwell_plateau()

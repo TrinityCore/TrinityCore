@@ -328,7 +328,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     Creature *pCreature = (Unit::GetCreature((*me), AddGUID[i]));
                     if (!pCreature || !pCreature->isAlive())
                     {
-                        if (pCreature) pCreature->setDeathState(DEAD);
+                if (pCreature) pCreature->DisappearAndDie();
                         pCreature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
                         if (pCreature) AddGUID[i] = pCreature->GetGUID();
                     }
@@ -618,7 +618,7 @@ class boss_alyson_antille : public CreatureScript
                     DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
                 }
                 else
-                    me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
+                    me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
 
                 dispelmagic_timer = 12000;
                 } else dispelmagic_timer -= diff;*/

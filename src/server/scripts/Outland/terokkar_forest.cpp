@@ -288,10 +288,8 @@ public:
 #define QUEST_TARGET        22459
 //#define SPELL_FREE_WEBBED   38950
 
-const uint32 netherwebVictims[6] =
-{
-    18470, 16805, 21242, 18452, 22482, 21285
-};
+const uint32 netherwebVictims[6] = {18470, 16805, 21242, 18452, 22482, 21285};
+
 class mob_netherweb_victim : public CreatureScript
 {
 public:
@@ -313,25 +311,17 @@ public:
         void JustDied(Unit* Killer)
         {
             if (Killer->GetTypeId() == TYPEID_PLAYER)
-            {
                 if (CAST_PLR(Killer)->GetQuestStatus(10873) == QUEST_STATUS_INCOMPLETE)
-                {
                     if (rand()%100 < 25)
                     {
                         me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         CAST_PLR(Killer)->KilledMonsterCredit(QUEST_TARGET, 0);
+                        return;
                     }
-                    else
-                        me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
-                    if (rand()%100 < 75)
-                        me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                }
-            }
+            me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
         }
     };
-
 };
 
 /*######

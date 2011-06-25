@@ -602,7 +602,7 @@ public:
             {
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        //      summoned->SetVisibility(VISIBILITY_OFF);  //with this we cant see the armageddon visuals
+        //      summoned->SetVisible(false);  //with this we cant see the armageddon visuals
             }
             else
                 summoned->SetLevel(me->getLevel());

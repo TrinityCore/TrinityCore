@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "black_temple.h"
 
-#define MAX_ENCOUNTER      9
+#define ENCOUNTERS     9
 
 /* Black Temple encounters:
 0 - High Warlord Naj'entus event
@@ -44,24 +44,22 @@ class instance_black_temple : public InstanceMapScript
 {
 public:
     instance_black_temple() : InstanceMapScript("instance_black_temple", 564) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    
+    InstanceScript* GetInstanceScript(InstanceMap *map) const
     {
-        return new instance_black_temple_InstanceMapScript(pMap);
+       return new instance_black_temple_InstanceMapScript(map);
     }
 
     struct instance_black_temple_InstanceMapScript : public InstanceScript
     {
         instance_black_temple_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-        std::string str_data;
-
         uint64 Najentus;
         uint64 Akama;                                           // This is the Akama that starts the Illidan encounter.
         uint64 Akama_Shade;                                     // This is the Akama that starts the Shade of Akama encounter.
         uint64 ShadeOfAkama;
         uint64 Supremus;
+        uint64 Teron;
         uint64 LadyMalande;
         uint64 GathiosTheShatterer;
         uint64 HighNethermancerZerevor;
@@ -83,15 +81,21 @@ public:
         uint64 IllidanGate;
         uint64 IllidanDoor[2];
 
+        uint32 IllidanGateOpend;
+
+        uint32 Encounters[ENCOUNTERS];
+        std::string str_data;
+
         void Initialize()
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+            memset(&Encounters, 0, sizeof(Encounters));
 
             Najentus = 0;
             Akama = 0;
             Akama_Shade = 0;
             ShadeOfAkama = 0;
             Supremus = 0;
+            Teron = 0;
             LadyMalande = 0;
             GathiosTheShatterer = 0;
             HighNethermancerZerevor = 0;
@@ -113,12 +117,17 @@ public:
             IllidanGate     = 0;
             IllidanDoor[0]  = 0;
             IllidanDoor[1]  = 0;
+
+            for(uint8 i = 0; i < ENCOUNTERS; ++i)
+                Encounters[i] = NOT_STARTED;
+
+            IllidanGateOpend = NOT_STARTED;
         }
 
         bool IsEncounterInProgress() const
         {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS) return true;
+            for(uint8 i = 0; i < ENCOUNTERS; ++i)
+                if(Encounters[i] == IN_PROGRESS) return true;
 
             return false;
         }
@@ -129,7 +138,7 @@ public:
 
             if (!players.isEmpty())
             {
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     if (Player* plr = itr->getSource())
                         return plr;
@@ -149,6 +158,7 @@ public:
             case 22990:    Akama_Shade = creature->GetGUID();               break;
             case 22841:    ShadeOfAkama = creature->GetGUID();              break;
             case 22898:    Supremus = creature->GetGUID();                  break;
+            case 22871:    Teron = creature->GetGUID();                     break;
             case 22917:    IllidanStormrage = creature->GetGUID();          break;
             case 22949:    GathiosTheShatterer = creature->GetGUID();       break;
             case 22950:    HighNethermancerZerevor = creature->GetGUID();   break;
@@ -164,25 +174,27 @@ public:
             switch(go->GetEntry())
             {
             case 185483: NajentusGate = go->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-                if (m_auiEncounter[0] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[0] == DONE)HandleGameObject(NULL,true,go);break;
             case 185882: MainTempleDoors = go->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
-                if (m_auiEncounter[1] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[1] == DONE)HandleGameObject(NULL,true,go);break;
             case 185478: ShadeOfAkamaDoor = go->GetGUID();break;
             case 185480: CommonDoor = go->GetGUID();
-                if (m_auiEncounter[3] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[3] == DONE)HandleGameObject(NULL,true,go);;break;
             case 186153: TeronDoor = go->GetGUID();
-                if (m_auiEncounter[3] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[3] == DONE)HandleGameObject(NULL,true,go);;break;
             case 185892: GuurtogDoor = go->GetGUID();
-                if (m_auiEncounter[4] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[4] == DONE)HandleGameObject(NULL,true,go);break;
             case 185479: TempleDoor = go->GetGUID();
-                if (m_auiEncounter[5] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[2] == DONE && Encounters[3] == DONE && Encounters[4] == DONE && Encounters[5] == DONE)
+                    HandleGameObject(NULL,true,go);break;
             case 185482: MotherDoor = go->GetGUID();
-                if (m_auiEncounter[6] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[6] == DONE)HandleGameObject(NULL,true,go);break;
             case 185481: CouncilDoor = go->GetGUID();
-                if (m_auiEncounter[7] == DONE)HandleGameObject(0, true, go);break;
+                if(Encounters[7] == DONE)HandleGameObject(NULL,true,go);break;
             case 186152: SimpleDoor = go->GetGUID();
-                if (m_auiEncounter[7] == DONE)HandleGameObject(0, true, go);break;
-            case 185905: IllidanGate = go->GetGUID(); break; // Gate leading to Temple Summit
+                if(Encounters[7] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185905: IllidanGate = go->GetGUID();
+                if(IllidanGateOpend == DONE)HandleGameObject(NULL,true,go);break; // Gate leading to Temple Summit
             case 186261: IllidanDoor[0] = go->GetGUID(); break; // Right door at Temple Summit
             case 186262: IllidanDoor[1] = go->GetGUID(); break; // Left door at Temple Summit
             }
@@ -192,6 +204,7 @@ public:
         {
             switch(identifier)
             {
+            case DATA_TERONGOREFIEND:              return Teron;
             case DATA_HIGHWARLORDNAJENTUS:         return Najentus;
             case DATA_AKAMA:                       return Akama;
             case DATA_AKAMA_SHADE:                 return Akama_Shade;
@@ -214,30 +227,46 @@ public:
             return 0;
         }
 
+        void HandleTempleDoor()
+        {
+            if(Encounters[2] == DONE && Encounters[3] == DONE && Encounters[4] == DONE && Encounters[5] == DONE)
+                HandleGameObject(TempleDoor, true);
+        }
+
         void SetData(uint32 type, uint32 data)
         {
             switch(type)
             {
             case DATA_HIGHWARLORDNAJENTUSEVENT:
-                if (data == DONE)
+                if(data == DONE)
                 {
                     HandleGameObject(NajentusGate, true);
                 }
-                m_auiEncounter[0] = data;break;
+                if(Encounters[0] != DONE)
+                {
+                    Encounters[0] = data;
+                }
+                break;
             case DATA_SUPREMUSEVENT:
-                if (data == DONE)
+                if(data == DONE)
                 {
-                    HandleGameObject(NajentusGate, true);
+                    HandleGameObject(MainTempleDoors, true);
                 }
-                m_auiEncounter[1] = data; break;
+                if(Encounters[1] != DONE)
+                    Encounters[1] = data;
+                break;
             case DATA_SHADEOFAKAMAEVENT:
-                if (data == IN_PROGRESS)
+                if(data == IN_PROGRESS)
                 {
                     HandleGameObject(ShadeOfAkamaDoor, false);
-                } else HandleGameObject(ShadeOfAkamaDoor, true);
-                m_auiEncounter[2] = data; break;
+                }else HandleGameObject(ShadeOfAkamaDoor, true);
+                if(Encounters[2] != DONE)
+                    Encounters[2] = data;
+
+                HandleTempleDoor();
+                break;
             case DATA_TERONGOREFIENDEVENT:
-                if (data == IN_PROGRESS)
+                if(data == IN_PROGRESS)
                 {
                     HandleGameObject(TeronDoor, false);
                     HandleGameObject(CommonDoor, false);
@@ -246,27 +275,38 @@ public:
                     HandleGameObject(TeronDoor, true);
                     HandleGameObject(CommonDoor, true);
                 }
-                m_auiEncounter[3] = data; break;
+                if(Encounters[3] != DONE)
+                    Encounters[3] = data;
+
+                HandleTempleDoor();
+                break;
             case DATA_GURTOGGBLOODBOILEVENT:
-                if (data == DONE)
+                if(data == DONE)
                 {
                     HandleGameObject(GuurtogDoor, true);
                 }
-                m_auiEncounter[4] = data; break;
+                if(Encounters[4] != DONE)
+                    Encounters[4] = data;
+
+                HandleTempleDoor();
+                break;
             case DATA_RELIQUARYOFSOULSEVENT:
-                if (data == DONE)
-                {
-                    HandleGameObject(TempleDoor, true);
-                }
-                m_auiEncounter[5] = data;         break;
+                if(Encounters[5] != DONE)
+                    Encounters[5] = data;
+
+                HandleTempleDoor();
+                break;
             case DATA_MOTHERSHAHRAZEVENT:
-                if (data == DONE)
+                if(data == DONE)
                 {
                     HandleGameObject(MotherDoor, true);
                 }
-                m_auiEncounter[6] = data; break;
+                if(Encounters[6] != DONE)
+                    Encounters[6] = data; 
+
+                break;
             case DATA_ILLIDARICOUNCILEVENT:
-                if (data == IN_PROGRESS)
+                if(data == IN_PROGRESS)
                 {
                     HandleGameObject(CouncilDoor, false);
                     HandleGameObject(SimpleDoor, false);
@@ -275,8 +315,19 @@ public:
                     HandleGameObject(CouncilDoor, true);
                     HandleGameObject(SimpleDoor, true);
                 }
-                m_auiEncounter[7] = data; break;
-            case DATA_ILLIDANSTORMRAGEEVENT:      m_auiEncounter[8] = data;         break;
+                if(Encounters[7] != DONE)
+                    Encounters[7] = data;
+
+                break;
+            case DATA_ILLIDANSTORMRAGEEVENT:
+                if(Encounters[8] != DONE)
+                    Encounters[8] = data;
+
+                break;
+            case DATA_ILLIDAN_GATE_OPENED:
+                if(IllidanGateOpend != DONE)
+                    IllidanGateOpend = data;
+                break;
             }
 
             if (data == DONE)
@@ -284,10 +335,10 @@ public:
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                    << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4]
-                << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " " << m_auiEncounter[7]
-                << " " << m_auiEncounter[8];
+                saveStream << "B T " << Encounters[0] << " " << Encounters[1] << " "
+                    << Encounters[2] << " " << Encounters[3] << " " << Encounters[4]
+                << " " << Encounters[5] << " " << Encounters[6] << " " << Encounters[7]
+                << " " << Encounters[8] << " " << IllidanGateOpend;
 
                 str_data = saveStream.str();
 
@@ -300,23 +351,24 @@ public:
         {
             switch(type)
             {
-            case DATA_HIGHWARLORDNAJENTUSEVENT:         return m_auiEncounter[0];
-            case DATA_SUPREMUSEVENT:                    return m_auiEncounter[1];
-            case DATA_SHADEOFAKAMAEVENT:                return m_auiEncounter[2];
-            case DATA_TERONGOREFIENDEVENT:              return m_auiEncounter[3];
-            case DATA_GURTOGGBLOODBOILEVENT:            return m_auiEncounter[4];
-            case DATA_RELIQUARYOFSOULSEVENT:            return m_auiEncounter[5];
-            case DATA_MOTHERSHAHRAZEVENT:               return m_auiEncounter[6];
-            case DATA_ILLIDARICOUNCILEVENT:             return m_auiEncounter[7];
-            case DATA_ILLIDANSTORMRAGEEVENT:            return m_auiEncounter[8];
+            case DATA_HIGHWARLORDNAJENTUSEVENT:         return Encounters[0];
+            case DATA_SUPREMUSEVENT:                    return Encounters[1];
+            case DATA_SHADEOFAKAMAEVENT:                return Encounters[2];
+            case DATA_TERONGOREFIENDEVENT:              return Encounters[3];
+            case DATA_GURTOGGBLOODBOILEVENT:            return Encounters[4];
+            case DATA_RELIQUARYOFSOULSEVENT:            return Encounters[5];
+            case DATA_MOTHERSHAHRAZEVENT:               return Encounters[6];
+            case DATA_ILLIDARICOUNCILEVENT:             return Encounters[7];
+            case DATA_ILLIDANSTORMRAGEEVENT:            return Encounters[8];
+            case DATA_ILLIDAN_GATE_OPENED:              return IllidanGateOpend;
             }
 
             return 0;
         }
 
-       std::string GetSaveData()
+        std::string GetSaveData()
         {
-            return str_data;
+            return str_data.c_str();
         }
 
         void Load(const char* in)
@@ -327,24 +379,37 @@ public:
                 return;
             }
 
+            uint32 Temp_Encounter[ENCOUNTERS];
+            uint32 Temp_IlliGateEvent;
+            char dataHead1, dataHead2;
+
             OUT_LOAD_INST_DATA(in);
 
             std::istringstream loadStream(in);
-            loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2]
-            >> m_auiEncounter[3] >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6]
-            >> m_auiEncounter[7] >> m_auiEncounter[8];
+            loadStream >> dataHead1 >> dataHead2 >> Temp_Encounter[0] >> Temp_Encounter[1] >> Temp_Encounter[2]
+            >> Temp_Encounter[3] >> Temp_Encounter[4] >> Temp_Encounter[5] >> Temp_Encounter[6]
+            >> Temp_Encounter[7] >> Temp_Encounter[8] >> Temp_IlliGateEvent;
 
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+            if(dataHead1 == 'B' && dataHead2 == 'T')
+            {
+                for(int i = 0; i < ENCOUNTERS; i++)
+                {
+                      Encounters[i] = Temp_Encounter[i];
+                }
+                IllidanGateOpend = Temp_IlliGateEvent;
+            }
+
+            for(uint8 i = 0; i < ENCOUNTERS; ++i)
+                if (Encounters[i] == IN_PROGRESS)
+                    Encounters[i] = NOT_STARTED;
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_black_temple()
 {
     new instance_black_temple();
 }
+

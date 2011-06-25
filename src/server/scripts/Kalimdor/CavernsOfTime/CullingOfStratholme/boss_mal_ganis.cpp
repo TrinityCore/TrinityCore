@@ -102,9 +102,9 @@ public:
              bYelled2 = false;
              Phase = COMBAT;
              uiCarrionSwarmTimer = 6000;
-             uiMindBlastTimer = 11000;
+             uiMindBlastTimer = 12500;
              uiVampiricTouchTimer = urand(10000, 15000);
-             uiSleepTimer = urand(15000, 20000);
+             uiSleepTimer = urand(10000, 15000);
              uiOutroTimer = 1000;
 
              if (pInstance)
@@ -131,6 +131,9 @@ public:
                 case COMBAT:
                     //Return since we have no target
                     if (!UpdateVictim())
+                        return;
+
+                    if (me->HasUnitState(UNIT_STAT_CASTING))
                         return;
 
                     if (!bYelled && HealthBelowPct(30))
@@ -163,37 +166,37 @@ public:
                                 pInstance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
                         }
 
-                    if (uiCarrionSwarmTimer < diff)
+                    if (uiCarrionSwarmTimer <= diff)
                     {
-                        DoCastVictim(SPELL_CARRION_SWARM);
+                        DoCastVictim(DUNGEON_MODE(SPELL_CARRION_SWARM, H_SPELL_CARRION_SWARM));
                         uiCarrionSwarmTimer = 7000;
                     } else uiCarrionSwarmTimer -= diff;
 
-                    if (uiMindBlastTimer < diff)
+                    if (uiMindBlastTimer <= diff)
                     {
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_MIND_BLAST);
+                            DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
                         uiMindBlastTimer = 6000;
                     } else uiMindBlastTimer -= diff;
 
-                    if (uiVampiricTouchTimer < diff)
+                    if (uiVampiricTouchTimer <= diff)
                     {
                         DoCast(me, SPELL_VAMPIRIC_TOUCH);
-                        uiVampiricTouchTimer = 32000;
+                        uiVampiricTouchTimer = 20000;
                     } else uiVampiricTouchTimer -= diff;
 
-                    if (uiSleepTimer < diff)
+                    if (uiSleepTimer <= diff)
                     {
                         DoScriptText(RAND(SAY_SLEEP_1, SAY_SLEEP_2), me);
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_SLEEP);
-                        uiSleepTimer = urand(15000, 20000);
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                            DoCast(pTarget, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
+                        uiSleepTimer = urand(12500, 17500);
                     } else uiSleepTimer -= diff;
 
                     DoMeleeAttackIfReady();
                     break;
                 case OUTRO:
-                    if (uiOutroTimer < diff)
+                    if (uiOutroTimer <= diff)
                     {
                         switch(uiOutroStep)
                         {
@@ -248,7 +251,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
         }
     };
 

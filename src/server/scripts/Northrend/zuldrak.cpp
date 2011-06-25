@@ -81,6 +81,9 @@ public:
             DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
 
             me->setDeathState(DEAD);
+
+        if(pWho->GetTypeId() == TYPEID_PLAYER)
+            pWho->ToPlayer()->KilledMonsterCredit(NPC_RAGECLAW,RageclawGUID);
         }
 
         void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
@@ -1351,11 +1354,6 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new npc_crusade_recruitAI(creature);
-    }
-
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE) == QUEST_STATUS_INCOMPLETE)
@@ -1379,6 +1377,390 @@ public:
 
         return true;
     }
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_crusade_recruitAI(creature);
+    }
+
+};
+
+/*######
+## npc_captain_brandon_zu
+######*/
+
+#define QUEST_SOMETHING_FOR_THE_PAIN                12597
+#define QUEST_CAN_YOU_DIG_IT                        12588
+#define QUEST_HIGH_STANDARDS                        12502
+#define QUEST_D_SOMETHING_FOR_THE_PAIN              12564
+
+#define TROLL_PATROL_KILL_CREDIT                    28042
+
+class npc_captain_brandon_zu : public CreatureScript
+{
+public:
+    npc_captain_brandon_zu() : CreatureScript("npc_captain_brandon_zu") { }
+
+    bool OnQuestReward(Player *player, Creature *_Creature, Quest const *_Quest, uint32 /*item*/)
+    {
+        switch(_Quest->GetQuestId())
+        {
+        case QUEST_SOMETHING_FOR_THE_PAIN:
+        case QUEST_CAN_YOU_DIG_IT:
+        case QUEST_HIGH_STANDARDS:
+        case QUEST_D_SOMETHING_FOR_THE_PAIN:
+            player->KilledMonsterCredit(TROLL_PATROL_KILL_CREDIT,_Creature->GetGUID());
+            break;
+        }
+        return true;
+    }
+
+};
+
+/*######
+## npc_alchemist_finklestein
+######*/
+
+#define GOSSIP_START                                "I'm ready to begin. What is the first Ingredient you require?"
+#define QUEST_TROLL_PATROL_ALCHEMIST_APPRENTICE     12541
+#define ENTRY_ALCHEMIST_CREDIT                      28248
+#define SPELL_THROW_INGREDIENT                      51025
+
+static const char * Intro_sayings[6] =
+{
+    "Quickly, get me some...",
+    "Find me some...",
+    "I think it needs...",
+    "Alright, now fetch me some...",
+    "Before it thickens, we must add...",
+    "It's thickening! Quickly, get some...",
+};
+static const char * Ingredients[] =
+{
+      "Hairy Herring Heads",
+      "Icecrown Bottled Water",
+      "Knotroot",
+      "Muddy Mire Maggots",
+      "Pickled Eagle Egg",
+      "Pulverized Gargoyle Teeth",
+      "Putrid Pirate Perspiration",
+      "Seasoned Slider Cider",
+      "Speckled Guano",
+      "Spiky Spider Eggs",
+      "Withered Batwing",
+
+      "Prismatic Mojo",
+      "Raptor Claw",
+      "Amberseed",
+      //"Ancient Ectoplasm",
+      "Shrunken Dragon's Claw",
+      "Wasp's Wings",
+
+      "Abomination Guts",
+      "Blight Crystal",
+      "Chilled Serpent Mucus",
+      "Crushed Basilisk Crystals",
+      "Frozen Spider Ichor",
+      "Crystallized Hogsnot",
+      "Ghoul Drool",
+      "Trollbane"
+};
+/*
+(190480,190482,190466,190478,190467,190477,190481,190476,190470,190479,190473,190468,
+190469,190459,190464,190472,191180,191182,190462,190474,190465,190463,191181,190471)
+*/
+//1te Spell ist Debuff Castet von Finklestone *Fetch*
+//2te Spell ist eine unsichtbarer Spell vom gelootet Item (?) *Have*
+static const uint32 Ingredients_Spells[24][3] =
+{
+    {51072,51075,38396},//Hairy Herring Heads
+    {51079,51080,38398},//Icecrown Bottled Water
+    {51018,51047,38338},//Knotroot
+    {51067,51068,38386},//Muddy Mire Maggots
+    {51055,51056,38341},//Pickled Eagle Egg
+    {51064,51065,38384},//Pulverized Gargoyle Teeth
+    {51077,51078,38397},//Putrid Pirate Perspiration
+    {51062,51063,38381},//Seasoned Cider Slider
+    {51057,51058,38337},//Speckled Guano
+    {51069,51070,38393},//Spiky Spider Eggs
+    {51059,51060,38339},//Withered Batwing
+
+    {51083,51084,38343},//Prismatic Mojo
+    {51085,51086,38370},//Raptor Claw
+    {51087,51088,38340},//Amberseed
+    //{51089,51090,38335},//Ancient Ectoplasm //Nicht benutzt
+    {51091,51092,38344},//Shrunken Dragon's Claw
+    {51081,51082,38369},//Wasp's Wings
+
+    {53150,53147,39668},//Abomination Guts
+    {53158,53149,39670},//Blight Crystal
+    {51093,51094,38346},//Chilled Serpent Mucus
+    {51097,51098,38379},//Crushed Basilisk Crystals
+    {51102,51104,38345},//Frozen Spider Ichor
+    {51095,51096,38336},//Crystallized Hogsnot
+    {53153,53146,39669},//Ghoul Drool
+    {51100,51101,38342} //Trollbane
+};
+
+class npc_alchemist_finklestein : public CreatureScript
+{
+public:
+    npc_alchemist_finklestein() : CreatureScript("npc_alchemist_finklestein") { }
+
+    struct npc_alchemist_finklesteinAI : public ScriptedAI
+    {
+        npc_alchemist_finklesteinAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        uint8 m_uiPhase;                  //The current phase we are in
+        uint32 m_uiTimer;                 //Timer until phase transition
+        uint64 StarterGUID;
+        uint32 Next_Incedient;
+    
+        bool hasFound;
+        bool shortbreak;
+
+        void Reset()
+        {
+            m_uiTimer = 0;
+            m_uiPhase = 0;
+            Next_Incedient = 999;
+            hasFound = false;
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void StartTruthSerum(Player* pStarter)
+        {
+            if(!pStarter)
+                return;
+
+            hasFound = true;
+            shortbreak = true;
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            StarterGUID = pStarter->GetGUID();
+            m_uiPhase = 1;
+        }
+
+        void Next_Phase()
+        {
+            if(!hasFound)
+            {
+                if(Player *pPlayer = Unit::GetPlayer(*me,StarterGUID))
+                {
+                    //pPlayer->CastSpell(me,SPELL_THROW_INGREDIENT,false);
+                    pPlayer->RemoveAurasDueToSpell(Ingredients_Spells[Next_Incedient][0]);
+                    hasFound = true;
+                    m_uiTimer = 2000;
+                    shortbreak = true;
+                    m_uiPhase++;
+
+                    if(m_uiPhase > 6)
+                    {
+                        pPlayer->KilledMonsterCredit(ENTRY_ALCHEMIST_CREDIT,me->GetGUID());
+                        pPlayer->CompleteQuest(QUEST_TROLL_PATROL_ALCHEMIST_APPRENTICE);
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+            }
+        }
+
+        void MoveInLineOfSight(Unit *who)
+        {
+            if(hasFound)
+                return;
+
+            if(who->GetTypeId() == TYPEID_PLAYER && who->ToPlayer()->GetGUID() == StarterGUID && me->IsWithinDist(who,5))
+            {
+                if(who->ToPlayer()->HasItemCount(Ingredients_Spells[Next_Incedient][2],1))
+                {
+                    Next_Phase();
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (m_uiPhase)
+            {
+                if(Player* pPlayer = Unit::GetPlayer(*me,StarterGUID))
+                {
+                    if(pPlayer->isDead() || pPlayer->GetDistance2d(me) > 200)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                    if (m_uiTimer <= uiDiff)
+                    {
+                        if(shortbreak)
+                        {
+                            if(!hasFound)
+                            {
+                                pPlayer->FailQuest(QUEST_TROLL_PATROL_ALCHEMIST_APPRENTICE);
+                                EnterEvadeMode();
+                                return;
+                            }else
+                            {
+                                me->MonsterTextEmote(Intro_sayings[m_uiPhase-1],StarterGUID,true);
+                                shortbreak = false;
+                                m_uiTimer = 2000;
+                            }
+                        }else
+                        {
+                            uint32 New_Incedient;
+                            switch(m_uiPhase)
+                            {
+                                case 1:
+                                case 2:
+                                case 3:
+                                    do
+                                    {
+                                        New_Incedient = urand(0,10);
+                                    }while (New_Incedient == Next_Incedient);
+                                    Next_Incedient = New_Incedient;
+                                    break;
+                                case 4:
+                                case 5:
+                                    do
+                                    {
+                                        New_Incedient = urand(11,15);
+                                    }while (New_Incedient == Next_Incedient);
+                                    Next_Incedient = New_Incedient;
+                                    break;
+                                case 6:
+                                    Next_Incedient = urand(16,23);
+                                    break;
+                            }
+                            me->MonsterTextEmote(Ingredients[Next_Incedient],StarterGUID,true);
+                            if(Player* pPlayer = Unit::GetPlayer(*me,StarterGUID))
+                                me->CastSpell(pPlayer,Ingredients_Spells[Next_Incedient][0],true);
+
+                            shortbreak = true;
+                            hasFound = false;
+                            m_uiTimer = 45000;
+                        }
+                    }
+                    else m_uiTimer -= uiDiff;
+                }else 
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            }
+            //ScriptedAI::UpdateAI(uiDiff);
+
+            //if (!UpdateVictim())
+            //    return;
+        }
+    };
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_alchemist_finklesteinAI, (pCreature->AI()))->StartTruthSerum(pPlayer);
+        }
+
+        return true;
+    }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+
+        if (CAST_AI(npc_alchemist_finklesteinAI, (pCreature->AI()))->m_uiPhase == 0 && pPlayer->GetQuestStatus(QUEST_TROLL_PATROL_ALCHEMIST_APPRENTICE) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_alchemist_finklesteinAI (pCreature);
+    }
+
+};
+
+/*######
+## npc_argent_soldier_12504
+######*/
+
+#define GOSSIP_LEAVING                      "Soldier, you have new orders. You're to pull back and report to the sergeant!"
+#define QUEST_WE_ARE_LEAVING                12504
+#define ENTRY_ARGENT_SOLDIER_CREDIT         28041
+
+#define SPELL_ARGENT_SUNDER_ARMOR           50370
+
+class npc_argent_soldier_12504 : public CreatureScript
+{
+public:
+    npc_argent_soldier_12504() : CreatureScript("npc_argent_soldier_12504") { }
+
+    struct npc_argent_soldier_12504AI : public ScriptedAI
+    {
+        npc_argent_soldier_12504AI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        uint32 m_uiTimer;
+        uint32 sunder_Timer;
+
+        void Reset()
+        {
+            m_uiTimer = 10000;
+            sunder_Timer = urand(10000,15000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if(!me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            {
+                if(m_uiTimer <= diff)
+                {
+                    me->DealDamage(me, me->GetHealth());
+                    m_uiTimer = 30000;
+                }else m_uiTimer -= diff;
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            if( sunder_Timer <= diff)
+            {
+                DoCast(me->getVictim(),SPELL_ARGENT_SUNDER_ARMOR);
+                sunder_Timer = urand(10000,15000);
+            }else sunder_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+        {
+            pPlayer->KilledMonsterCredit(ENTRY_ARGENT_SOLDIER_CREDIT,pCreature->GetGUID());
+            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+        pPlayer->CLOSE_GOSSIP_MENU();
+        return true;
+    }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pPlayer->GetQuestStatus(QUEST_WE_ARE_LEAVING) == QUEST_STATUS_INCOMPLETE && !pCreature->isInCombat())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEAVING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_argent_soldier_12504AI (pCreature);
+    }
+
 };
 
 /*######
@@ -1414,19 +1796,265 @@ public:
     }
 };
 
+
+/*######
+## npc_bloodrose_datura
+######*/
+
+//TODO DB-Eintraege erstellen
+#define GOSSIP_BLOODROSE                 "Stefan told me you would demonstrate the purpose of this item."
+#define TEXT1                            "Indeed. Watch this, $R."
+#define TEXT2                            "Here, troll... a gift!"
+#define TEXT3                            "For me? Really, mon?"
+#define TEXT4                            "It....it be beautiful!"
+#define TEXT5                            "Ugh... disgusting!"
+
+#define QUEST_NEAR_MISS                  12637
+#define QUEST_CLOSE_CALL                 12638
+#define NPC_CAPTURED_DRAKKARI_SCOUT      28541
+#define NPC_WITHERED_TROLL               28519
+#define ENTRY_BLOODROSE_CREDIT           28532
+
+class npc_bloodrose_datura : public CreatureScript
+{
+public:
+    npc_bloodrose_datura() : CreatureScript("npc_bloodrose_datura") { }
+
+    struct npc_bloodrose_daturaAI : public ScriptedAI
+    {
+        npc_bloodrose_daturaAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        uint32 uiTimer;
+        uint8 uiStep;
+        bool stepping;
+
+        void Reset()
+        {
+            stepping = false;
+            uiTimer = 0;
+            uiStep = 0;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (stepping)
+            {
+                if (uiTimer < uiDiff)
+                {
+                    Creature* pScout = me->FindNearestCreature(NPC_CAPTURED_DRAKKARI_SCOUT, 10.0f);
+                    Creature* pTroll = me->FindNearestCreature(NPC_WITHERED_TROLL, 2.0f);
+
+                    if (pScout || pTroll)
+                    {
+                        switch (uiStep)
+                        {
+                            case 1:
+                                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                me->GetMotionMaster()->MovePoint(0, 5203.73f, -1317.08f, 242.767f);
+                                uiTimer = 3000;
+                                uiStep = 2;
+                                break;
+                            case 2:
+                                pScout->UpdateEntry(NPC_WITHERED_TROLL);
+                                uiTimer = 5000;
+                                uiStep = 3;
+                                break;
+                            case 3:
+                                me->DealDamage(pTroll, pTroll->GetMaxHealth());
+                                me->GetMotionMaster()->MoveTargetedHome();
+                                stepping = false;
+                                uiStep = 0;
+                                break;
+                        }
+                    } else Reset();
+
+                } else uiTimer -= uiDiff;
+            }
+        }
+    };
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if ((pPlayer->GetQuestStatus(QUEST_NEAR_MISS) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(QUEST_CLOSE_CALL) == QUEST_STATUS_INCOMPLETE))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLOODROSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        }
+        else
+            pPlayer->SEND_GOSSIP_MENU(13289, pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        npc_bloodrose_daturaAI* pAI = CAST_AI(npc_bloodrose_datura::npc_bloodrose_daturaAI, pCreature->AI());
+
+        if (!pAI)
+            return false;
+
+        if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->KilledMonsterCredit(ENTRY_BLOODROSE_CREDIT, pCreature->GetGUID());
+         
+            pAI->stepping = true;
+            pAI->uiStep = 1;
+        }
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_bloodrose_daturaAI (pCreature);
+    }
+};
+
+/*####
+## npc_nass
+####*/
+
+enum eNass
+{
+    SPELL_KICK_NASS            = 51866,
+    SPELL_NASS_KILL_CREDIT     = 51871,
+    ENTRY_WITHERED_TROLL       = 28519
+};
+
+class npc_nass : public CreatureScript
+{
+public:
+    npc_nass() : CreatureScript("npc_nass") { }
+
+    struct npc_nassAI : public ScriptedAI
+    {
+        npc_nassAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        uint64 uiTrollGUID;
+        bool collecting;
+
+        void Reset()
+        {
+            uiTrollGUID = 0;
+            collecting = false;
+        }
+
+        void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+        {
+            if (pSpell->Id == SPELL_KICK_NASS)
+            {
+                if (Creature* pTroll = me->FindNearestCreature(ENTRY_WITHERED_TROLL, 20.0f, false))
+                {
+                    if (!collecting && pTroll->getDeathState() == CORPSE)
+                    {
+                        collecting = true;
+                        uiTrollGUID = pTroll->GetGUID();
+                        me->SetReactState(REACT_PASSIVE);
+                        me->GetMotionMaster()->MovePoint(1, pTroll->GetPositionX(), pTroll->GetPositionY(), pTroll->GetPositionZ());
+                    }
+                }
+            }
+        }
+
+        void MovementInform(uint32 uiType, uint32 uiId)
+        {
+            if (uiType != POINT_MOTION_TYPE || uiId != 1)
+                return;
+
+            Creature* pTroll = me->GetCreature(*me, uiTrollGUID);
+            Player* pOwner = me->GetCharmerOrOwnerPlayerOrPlayerItself();
+
+            if (!pOwner)
+                return;
+
+            if (pTroll)
+            {
+                pTroll->RemoveCorpse();
+                DoCast(pOwner, SPELL_NASS_KILL_CREDIT);
+            }
+
+            me->GetMotionMaster()->MoveFollow(pOwner, 0.0f, 0.0f);
+            collecting = false;
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_nassAI(creature);
+    }
+};
+
+/*######
+## npc_commander_kunz
+######*/
+enum eCommanderKunz
+{
+    QUEST_PATROLL     = 12596,
+    QUEST_RUPERT_A    = 12598,
+    QUEST_RUPERT_B    = 12606,
+    SPELL_RUPERT      = 50634,
+    QUEST_GRONDEL     = 12599,
+    SPELL_GRONDEL     = 51233,
+    QUEST_FINKLESTEIN = 12557,
+    SPELL_FINKLESTEIN = 51232,
+    QUEST_BRANDON     = 12597,
+    CREDIT_BRANDON    = 28042
+};
+
+class npc_commander_kunz : public CreatureScript
+{
+public:
+    npc_commander_kunz() : CreatureScript("npc_commander_kunz") { }
+
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_PATROLL)
+        {
+            if (player->GetQuestRewardStatus(QUEST_RUPERT_A) || player->GetQuestRewardStatus(QUEST_RUPERT_B))
+                creature->CastSpell(player, SPELL_RUPERT, true);
+            if (player->GetQuestRewardStatus(QUEST_GRONDEL))
+                creature->CastSpell(player, SPELL_GRONDEL, true);
+            if (player->GetQuestRewardStatus(QUEST_FINKLESTEIN))
+                creature->CastSpell(player, SPELL_FINKLESTEIN, true);
+            if (player->GetQuestRewardStatus(QUEST_BRANDON))
+                player->KilledMonsterCredit(CREDIT_BRANDON, 0);
+        }
+
+        return true;
+    }
+};
+
 void AddSC_zuldrak()
 {
-    new npc_drakuru_shackles;
-    new npc_captured_rageclaw;
-    new npc_gymer;
-    new npc_gurgthock;
-    new npc_orinoko_tuskbreaker;
-    new npc_korrak_bloodrager;
-    new npc_yggdras;
-    new npc_stinkbeard;
-    new npc_released_offspring_harkoa;
-    new npc_crusade_recruit;
-    new npc_elemental_lord;
-    new npc_fiend_elemental;
-    new go_scourge_enclosure;
+    new npc_drakuru_shackles();
+    new npc_captured_rageclaw();
+    new npc_gymer();
+    new npc_gurgthock();
+    new npc_orinoko_tuskbreaker();
+    new npc_korrak_bloodrager();
+    new npc_yggdras();
+    new npc_stinkbeard();
+    new npc_released_offspring_harkoa();
+    new npc_crusade_recruit();
+    new npc_elemental_lord();
+    new npc_fiend_elemental();
+    new npc_captain_brandon_zu();
+    new npc_alchemist_finklestein();
+    new npc_argent_soldier_12504();
+    new go_scourge_enclosure();
+    new npc_bloodrose_datura();
+    new npc_nass();
+    new npc_commander_kunz();
 }

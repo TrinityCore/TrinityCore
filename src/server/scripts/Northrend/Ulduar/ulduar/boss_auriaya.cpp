@@ -105,7 +105,7 @@ class boss_auriaya : public CreatureScript
 
         struct boss_auriayaAI : public BossAI
         {
-            boss_auriayaAI(Creature* creature) : BossAI(creature, BOSS_AURIAYA)
+            boss_auriayaAI(Creature* creature) : BossAI(creature, TYPE_AURIAYA)
             {
             }
 
@@ -280,7 +280,7 @@ class boss_auriaya : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetUlduarAI<boss_auriayaAI>(creature);
+            return new boss_auriayaAI(creature);
         }
 };
 
@@ -304,7 +304,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         void UpdateAI(uint32 const /*diff*/)
         {
-            if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+            if (instance->GetBossState(TYPE_AURIAYA) != IN_PROGRESS)
                 me->ForcedDespawn();
         }
 
@@ -378,7 +378,7 @@ class npc_sanctum_sentry : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
             }
 
@@ -454,7 +454,7 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }
 

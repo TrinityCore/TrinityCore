@@ -62,7 +62,7 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
-    DATA_GUNSHIP_EVENT              = 2,
+    DATA_GUNSHIP_BATTLE_EVENT       = 2,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -75,6 +75,7 @@ enum DataTypes
     DATA_THE_LICH_KING              = 12,
 
     // Additional data
+    DATA_GUNSHIP_EVENT                = 52,
     DATA_SAURFANG_EVENT_NPC         = 13,
     DATA_BONED_ACHIEVEMENT          = 14,
     DATA_OOZE_DANCE_ACHIEVEMENT     = 15,
@@ -99,6 +100,24 @@ enum DataTypes
     DATA_CAPTAIN_RUPERT             = 34,
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
+
+    // Lich King Data
+    DATA_TIRION                     = 37,
+    DATA_TERENAS_FIGHTER            = 38,
+    DATA_SPIRIT_WARDEN              = 39,
+    DATA_BEEN_WAITING_ACHIEVEMENT   = 40,
+    DATA_NECK_DEEP_ACHIEVEMENT      = 41,
+
+    // Go Data
+    DATA_ICE_SHARD_1                = 42,
+    DATA_ICE_SHARD_2                = 43,
+    DATA_ICE_SHARD_3                = 44,
+    DATA_ICE_SHARD_4                = 45,
+    DATA_FROSTY_EDGE_OUTER          = 46,
+    DATA_FROSTY_EDGE_INNER          = 47,
+    DATA_EDGE_DESTROY_WARNING       = 48,
+    DATA_FROZEN_LAVAMAN             = 49,
+    DATA_LAVAMAN_PILLARS            = 50,
 };
 
 enum CreaturesIds
@@ -246,6 +265,20 @@ enum CreaturesIds
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
+    NPC_TIRION                                  = 38995,
+    NPC_ICE_SPHERE                              = 36633,
+    NPC_DRUDGE_GHOUL                            = 37695,
+    NPC_SHAMBLING_HORROR                        = 37698,
+    NPC_VALKYR                                  = 36609,
+    NPC_DEFILE                                  = 38757,
+    NPC_RAGING_SPIRIT                           = 36701,
+    NPC_TRIGGER                                 = 38667,
+    NPC_VILE_SPIRIT                             = 37799,
+    NPC_FROSTMOURNE_TRIGGER                     = 38584,
+    NPC_TERENAS_MENETHIL                        = 38579,
+    NPC_TERENAS_FIGHTER                         = 36823,
+    NPC_SPIRIT_WARDEN                           = 36824,
+    NPC_PLATFORM_DESTRUCTIBLE_EDGE_STALKER      = 22515,
 };
 
 enum GameObjectsIds
@@ -302,6 +335,10 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
+    GO_DREAMWALKER_CACHE_10N                = 201959,
+    GO_DREAMWALKER_CACHE_25N                = 202339,
+    GO_DREAMWALKER_CACHE_10H                = 202338,
+    GO_DREAMWALKER_CACHE_25H                = 202340,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
@@ -310,6 +347,17 @@ enum GameObjectsIds
     GO_ICE_WALL                             = 202396,
     GO_ICE_BLOCK                            = 201722,
     GO_SIGIL_OF_THE_FROSTWING               = 202181,
+
+    // The Lich King
+    GO_ICE_SHARD_1                          = 202141,
+    GO_ICE_SHARD_2                          = 202142,
+    GO_ICE_SHARD_3                          = 202143,
+    GO_ICE_SHARD_4                          = 202144,
+    GO_FROSTY_EDGE_OUTER                    = 202188,
+    GO_FROSTY_EDGE_INNER                    = 202189,
+    GO_EDGE_DESTROY_WARNING                 = 202190,
+    GO_FROZEN_LAVAMAN                       = 202436,
+    GO_LAVAMAN_PILLARS                      = 202437,
 };
 
 enum AchievementCriteriaIds
@@ -372,6 +420,7 @@ enum SharedActions
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
+    ACTION_BOMB_LANDED          = -368532,
 };
 
 enum WeekliesICC
@@ -438,6 +487,14 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         uint32 _triggerId;
 };
 
+extern Position const SindragosaSpawnPos;
+void UnsummonSpecificCreaturesNearby(Creature* ref, uint32 entry, float radius);
+uint32 GetPhase(const EventMap &em);
+void TeleportPlayerToFrozenThrone(Player* player);
+void LeaveOnlyPlayers(std::list<Unit*> &unitList);
+typedef std::list<Player*> TPlayerList;
+TPlayerList GetPlayersInTheMap(Map* pMap);
+TPlayerList GetAttackablePlayersInTheMap(Map* pMap);
 template<class AI>
 CreatureAI* GetIcecrownCitadelAI(Creature* creature)
 {

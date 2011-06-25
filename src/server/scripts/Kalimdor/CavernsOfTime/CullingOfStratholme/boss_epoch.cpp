@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
@@ -32,7 +33,9 @@ enum Spells
     SPELL_TIME_WARP                             = 52766, //Time slows down, reducing attack, casting and movement speed by 70% for 6 sec.
     SPELL_TIME_STOP                             = 58848, //Stops time in a 50 yard sphere for 2 sec.
     SPELL_WOUNDING_STRIKE                       = 52771, //Used only on the tank
-    H_SPELL_WOUNDING_STRIKE                     = 58830
+    H_SPELL_WOUNDING_STRIKE                     = 58830,
+    SPELL_TIME_STEP                             = 52737, //not sure
+    H_SPELL_TIME_STEP                           = 58829
 };
 
 enum Yells
@@ -65,24 +68,25 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        uint8 uiStep;
+        uint8 uiStepCount;
 
-        uint32 uiStepTimer;
         uint32 uiWoundingStrikeTimer;
         uint32 uiTimeWarpTimer;
         uint32 uiTimeStopTimer;
         uint32 uiCurseOfExertionTimer;
 
+        bool bTimeWarping;
+
         InstanceScript* pInstance;
 
         void Reset()
         {
-            uiStep = 1;
-            uiStepTimer = 26000;
-            uiCurseOfExertionTimer = 9300;
-            uiTimeWarpTimer = 25300;
-            uiTimeStopTimer = 21300;
-            uiWoundingStrikeTimer = 5300;
+            uiCurseOfExertionTimer = 5000;
+            uiTimeWarpTimer = 20000;
+            uiTimeStopTimer = 25000;
+            uiWoundingStrikeTimer = 7500;
+            bTimeWarping = false;
+            uiStepCount = 0;
 
             if (pInstance)
                 pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
@@ -102,30 +106,56 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiCurseOfExertionTimer < diff)
+            if (bTimeWarping)
+            {
+                if (uiTimeWarpTimer <= diff)
+                {
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, -5, true))
+                        DoCast(pTarget, DUNGEON_MODE(SPELL_TIME_STEP, H_SPELL_TIME_STEP));
+
+                    uiTimeWarpTimer = 500;
+                    ++uiStepCount;
+
+                    if (uiStepCount >= 6)
+                    {
+                        bTimeWarping = false;
+                        uiTimeWarpTimer = 25000;
+                    }
+
+                } else uiTimeWarpTimer -= diff;
+
+                return;
+            }
+
+            if (uiCurseOfExertionTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
-                uiCurseOfExertionTimer = 9300;
+                uiCurseOfExertionTimer = DUNGEON_MODE(15000, 10000);
             } else uiCurseOfExertionTimer -= diff;
 
-            if (uiWoundingStrikeTimer < diff)
+            if (uiWoundingStrikeTimer <= diff)
             {
-                DoCastVictim(SPELL_WOUNDING_STRIKE);
-                uiWoundingStrikeTimer = 5300;
+                DoCastVictim(DUNGEON_MODE(SPELL_WOUNDING_STRIKE, H_SPELL_WOUNDING_STRIKE));
+                uiWoundingStrikeTimer = urand(10000, 12000);
             } else uiWoundingStrikeTimer -= diff;
 
-            if (uiTimeStopTimer < diff)
+            if (IsHeroic())
             {
-                DoCastAOE(SPELL_TIME_STOP);
-                uiTimeStopTimer = 21300;
-            } else uiTimeStopTimer -= diff;
+                if (uiTimeStopTimer <= diff)
+                {
+                    DoCastAOE(SPELL_TIME_STOP);
+                    uiTimeStopTimer = urand(15000, 20000);
+                } else uiTimeStopTimer -= diff;
+            }
 
-            if (uiTimeWarpTimer < diff)
+            if (uiTimeWarpTimer <= diff)
             {
                 DoScriptText(RAND(SAY_TIME_WARP_1, SAY_TIME_WARP_2, SAY_TIME_WARP_3), me);
                 DoCastAOE(SPELL_TIME_WARP);
-                uiTimeWarpTimer = 25300;
+                uiTimeWarpTimer = 500;
+                bTimeWarping = true;
+                uiStepCount = 0;
             } else uiTimeWarpTimer -= diff;
 
             DoMeleeAttackIfReady();

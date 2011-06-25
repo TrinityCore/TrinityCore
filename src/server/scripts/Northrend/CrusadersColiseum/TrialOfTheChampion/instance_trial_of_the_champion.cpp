@@ -41,6 +41,7 @@ public:
         instance_trial_of_the_champion_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
+        uint32 TeamInInstance;
 
         uint16 uiMovementDone;
         uint16 uiGrandChampionsDeaths;
@@ -48,6 +49,7 @@ public:
 
         uint64 uiAnnouncerGUID;
         uint64 uiMainGateGUID;
+        uint64 uiMainGate1GUID;
         uint64 uiGrandChampionVehicle1GUID;
         uint64 uiGrandChampionVehicle2GUID;
         uint64 uiGrandChampionVehicle3GUID;
@@ -68,9 +70,11 @@ public:
             uiMovementDone = 0;
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
+            TeamInInstance = 0;
 
             uiAnnouncerGUID        = 0;
             uiMainGateGUID         = 0;
+            uiMainGate1GUID        = 0;
             uiGrandChampionVehicle1GUID   = 0;
             uiGrandChampionVehicle2GUID   = 0;
             uiGrandChampionVehicle3GUID   = 0;
@@ -101,7 +105,6 @@ public:
         void OnCreatureCreate(Creature* creature)
         {
             Map::PlayerList const &players = instance->GetPlayers();
-            uint32 TeamInInstance = 0;
 
             if (!players.isEmpty())
             {
@@ -111,32 +114,99 @@ public:
 
             switch(creature->GetEntry())
             {
-                // Champions
+                // Gran Champions
                 case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
                     if (TeamInInstance == HORDE)
                         creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT, ALLIANCE);
+                    break;
+                case NPC_MOKRA:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_JACOB, ALLIANCE);
                     break;
                 case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
                     if (TeamInInstance == HORDE)
                         creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT, ALLIANCE);
                     break;
+                case NPC_ERESSEA:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_AMBROSE, ALLIANCE);
+                    break;
                 case VEHICLE_RUNOK_WILDMANE_MOUNT:
                     if (TeamInInstance == HORDE)
                         creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT, ALLIANCE);
+                    break;
+                case NPC_RUNOK:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_COLOSOS, ALLIANCE);
                     break;
                 case VEHICLE_ZUL_TORE_MOUNT:
                     if (TeamInInstance == HORDE)
                         creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT, ALLIANCE);
                     break;
+                case NPC_ZULTORE:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_JAELYNE, ALLIANCE);
+                    break;
                 case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
                     if (TeamInInstance == HORDE)
                         creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT, ALLIANCE);
                     break;
+                case NPC_VISCERI:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_LANA, ALLIANCE);
+                    break;
+                // Faction champions vehicles
+                case VEHICLE_FORSAKE_WARHORSE:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(VEHICLE_IRONFORGE_RAM, ALLIANCE);
+                    break;
+                case VEHICLE_THUNDER_BLUFF_KODO:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(VEHICLE_EXODAR_ELEKK, ALLIANCE);
+                    break;                
+                case VEHICLE_ORGRIMMAR_WOLF:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(VEHICLE_STORMWIND_STEED, ALLIANCE);
+                    break;                
+                case VEHICLE_SILVERMOON_HAWKSTRIDER:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(VEHICLE_GNOMEREGAN_MECHANOSTRIDER, ALLIANCE);
+                    break;
+                case VEHICLE_DARKSPEAR_RAPTOR:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(VEHICLE_DARNASSIA_NIGHTSABER, ALLIANCE);
+                    break;
+                // Faction champios
+                case NPC_ORGRIMAR_CHAMPION:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_STORMWIND_CHAMPION, ALLIANCE);
+                    break;
+                case NPC_SILVERMOON_CHAMPION:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_GNOMERAGN_CHAMPION, ALLIANCE);
+                    break;
+                case NPC_THUNDER_CHAMPION:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_EXODAR_CHAMPION, ALLIANCE);
+                    break;
+                case NPC_TROLL_CHAMPION:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_DRNASSUS_CHAMPION, ALLIANCE);
+                    break;
+                case NPC_UNDERCITY_CHAMPION:
+                    if (TeamInInstance == HORDE)
+                        creature->UpdateEntry(NPC_IRONFORGE_CHAMPION, ALLIANCE);
+                    break;
+
                 // Coliseum Announcer || Just NPC_JAEREN must be spawned.
                 case NPC_JAEREN:
                     uiAnnouncerGUID = creature->GetGUID();
                     if (TeamInInstance == ALLIANCE)
                         creature->UpdateEntry(NPC_ARELAS, ALLIANCE);
+                    break;
+                case NPC_JAEREN_AN:
+                    if (TeamInInstance == ALLIANCE)
+                        creature->UpdateEntry(NPC_ARELAS_AN,ALLIANCE);
                     break;
                 case VEHICLE_ARGENT_WARHORSE:
                 case VEHICLE_ARGENT_BATTLEWORG:
@@ -155,6 +225,9 @@ public:
             {
                 case GO_MAIN_GATE:
                     uiMainGateGUID = go->GetGUID();
+                    break;
+                case GO_MAIN_GATE1:
+                    uiMainGate1GUID = go->GetGUID();
                     break;
                 case GO_CHAMPIONS_LOOT:
                 case GO_CHAMPIONS_LOOT_H:
@@ -185,10 +258,11 @@ public:
                     }else if (uiData == DONE)
                     {
                         ++uiGrandChampionsDeaths;
-                        if (uiGrandChampionsDeaths == 3)
+                        if (uiGrandChampionsDeaths >= 3)
                         {
                             if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             {
+                                m_auiEncounter[0] = uiData;
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
@@ -205,25 +279,42 @@ public:
                             pBoss->GetMotionMaster()->MovePoint(0, 746.88f, 618.74f, 411.06f);
                             pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pBoss->SetReactState(REACT_AGGRESSIVE);
+                            pBoss->setFaction(16);
                         }
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_E:
                     m_auiEncounter[1] = uiData;
-                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                    if (uiData == IN_PROGRESS)
                     {
-                        pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+                    for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                        if (Creature* pSummon = instance->GetCreature(*itr))
+                            pSummon->RemoveFromWorld();
+                    }else if (uiData == DONE)
+                    {
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        {
+                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f, 619.487f, 411.171f);
+                            pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
+                        }
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
                     m_auiEncounter[2] = uiData;
-                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                    if (uiData == IN_PROGRESS)
                     {
-                        pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+                        for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                            if (Creature* pSummon = instance->GetCreature(*itr))
+                                pSummon->RemoveFromWorld();
+                    }else if (uiData == DONE)
+                    {
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        {
+                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f, 619.487f, 411.171f);
+                            pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
+                        }
                     }
                     break;
             }
@@ -243,6 +334,7 @@ public:
 
                 case DATA_MOVEMENT_DONE: return uiMovementDone;
                 case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
+                case DATA_TEAM_IN_INSTANCE: return TeamInInstance;
             }
 
             return 0;
@@ -254,6 +346,7 @@ public:
             {
                 case DATA_ANNOUNCER: return uiAnnouncerGUID;
                 case DATA_MAIN_GATE: return uiMainGateGUID;
+                case DATA_MAIN_GATE1: return uiMainGate1GUID;
 
                 case DATA_GRAND_CHAMPION_1: return uiGrandChampion1GUID;
                 case DATA_GRAND_CHAMPION_2: return uiGrandChampion2GUID;

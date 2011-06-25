@@ -61,7 +61,7 @@ public:
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)
-                DoScriptText(SAY_SPAWN, me);
+                DoScriptText(SAY_SPAWN,me);
         }
 
         uint32 uiChainTimer;
@@ -72,9 +72,9 @@ public:
 
         void Reset()
         {
-            uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
-            uiDiseaseTimer = urand(2000, 4000);   //approx 3s
-            uiFrenzyTimer = urand(21000, 26000);  //made it up
+            uiChainTimer = urand(10000, 15000);
+            uiDiseaseTimer = urand(3000, 5000);
+            uiFrenzyTimer = urand(15000, 20000);
 
             if (pInstance)
                 pInstance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
@@ -96,21 +96,23 @@ public:
 
             if (uiDiseaseTimer <= diff)
             {
-                DoCastAOE(SPELL_DISEASE_EXPULSION);
-                uiDiseaseTimer = urand(1500, 4000);
+                DoCastAOE(DUNGEON_MODE(SPELL_DISEASE_EXPULSION, H_SPELL_DISEASE_EXPULSION));
+                uiDiseaseTimer = urand(3000, 5000);
             } else uiDiseaseTimer -= diff;
 
             if (uiFrenzyTimer <= diff)
             {
                 DoCast(me, SPELL_FRENZY);
-                uiFrenzyTimer = urand(21000, 26000);
+                uiFrenzyTimer = urand(17000, 20000);
             } else uiFrenzyTimer -= diff;
 
             if (uiChainTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
-                uiChainTimer = urand(2000, 4000);
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                    DoCast(pTarget, DUNGEON_MODE(SPELL_CONSTRICTING_CHAINS, H_SPELL_CONSTRICTING_CHAINS)); //anyone but the tank
+                else
+                    DoCast(me->getVictim(), DUNGEON_MODE(SPELL_CONSTRICTING_CHAINS, H_SPELL_CONSTRICTING_CHAINS));
+                uiChainTimer = urand(15000, 16000);
             } else uiChainTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -129,7 +131,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
         }
     };
 

@@ -1747,7 +1747,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                     {
                         (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
                         (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
-                        if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
+                        if (Unit* target = (*itr)->SelectNearestTarget(100.0f))
                             (*itr)->AI()->AttackStart(target);
                         break;
                     }

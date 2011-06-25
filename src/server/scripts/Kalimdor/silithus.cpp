@@ -1136,6 +1136,311 @@ public:
 
 };
 
+/*############
+## Wind Stone
+##############*/
+
+#define ENTRY_LESSER_WINDSTONE          180456
+#define ENTRY_GREATER_WINDSTONE         180466
+#define ENTRY_NORMAL_WINDSTONE          180461
+
+// Required Auras
+#define SPELL_TWILIGHT_LESSER           24746
+#define SPELL_TWILIGHT_NORMAL           24748
+#define SPELL_TWILIGHT_GREATER          24782
+
+// Summon Templar - LESSER
+#define SPELL_SUMMON_TEMPLAR_FIRE       24744
+#define ENTRY_TEMPLAR_FIRE              15209
+#define ITEM_CREST_FIRE                 20416
+#define SPELL_SUMMON_TEMPLAR_THUNDER    24756
+#define ENTRY_TEMPLAR_THUNDER           15212
+#define ITEM_CREST_THUNDER              20418
+#define SPELL_SUMMON_TEMPLAR_STONE      24758
+#define ENTRY_TEMPLAR_STONE             15307
+#define ITEM_CREST_STONE                20419
+#define SPELL_SUMMON_TEMPLAR_WATER      24760
+#define ENTRY_TEMPLAR_WATER             15211
+#define ITEM_CREST_WATER                20420
+#define SPELL_SUMMON_TEMPLAR_RANDOM     24734
+
+// Summon Duke - NORMAL
+#define SPELL_SUMMON_DUKE_FIRE          24765
+#define ENTRY_DUKE_FIRE                 15206
+#define ITEM_SIGNET_FIRE                20432
+#define SPELL_SUMMON_DUKE_THUNDER       24768
+#define ENTRY_DUKE_THUNDER              15220
+#define ITEM_SIGNET_THUNDER             20433
+#define SPELL_SUMMON_DUKE_STONE         24770
+#define ENTRY_DUKE_STONE                15208
+#define ITEM_SIGNET_STONE               20435
+#define SPELL_SUMMON_DUKE_WATER         24772
+#define ENTRY_DUKE_WATER                15207
+#define ITEM_SIGNET_WATER               20436
+#define SPELL_SUMMON_DUKE_RANDOM        24763
+
+// Summon Royal - GREATER - Delete Items and activate object ... but doesnt summon
+#define SPELL_SUMMON_ROYAL_FIRE         24786
+#define ENTRY_ROYAL_FIRE                15203
+#define ITEM_SCEPTER_FIRE               20447
+#define SPELL_SUMMON_ROYAL_THUNDER      24788
+#define ENTRY_ROYAL_THUNDER             15204
+#define ITEM_SCEPTER_THUNDER            20448
+#define SPELL_SUMMON_ROYAL_STONE        24789
+#define ENTRY_ROYAL_STONE               15205
+#define ITEM_SCEPTER_STONE              20449
+#define SPELL_SUMMON_ROYAL_WATER        24790
+#define ENTRY_ROYAL_WATER               15305
+#define ITEM_SCEPTER_WATER              20450
+#define SPELL_SUMMON_ROYAL_RANDOM       24784
+
+//Gossip Options PH again
+#define GOSSIP_SUM_TEMPLAR_RANDOM       "[PH]Summon Elemtal Templar"
+#define GOSSIP_SUM_TEMPLAR_FIRE         "[PH]Summon Templar of the Fire"
+#define GOSSIP_SUM_TEMPLAR_WATER        "[PH]Summon Templar of the Water"
+#define GOSSIP_SUM_TEMPLAR_STONE        "[PH]Summon Templar of the Stone"
+#define GOSSIP_SUM_TEMPLAR_THUNDER      "[PH]Summon Templar of the Thunder"
+
+#define GOSSIP_SUM_DUKE_RANDOM          "[PH]Summon Elemtal Duke"
+#define GOSSIP_SUM_DUKE_FIRE            "[PH]Summon Duke of the Fire"
+#define GOSSIP_SUM_DUKE_WATER           "[PH]Summon Duke of the Water"
+#define GOSSIP_SUM_DUKE_STONE           "[PH]Summon Duke of the Stone"
+#define GOSSIP_SUM_DUKE_THUNDER         "[PH]Summon Duke of the Thunder"
+
+#define GOSSIP_SUM_ROYAL_RANDOM         "[PH]Summon Elemtal Royal"
+#define GOSSIP_SUM_ROYAL_FIRE           "[PH]Summon Royal of the Fire"
+#define GOSSIP_SUM_ROYAL_WATER          "[PH]Summon Royal of the Water"
+#define GOSSIP_SUM_ROYAL_STONE          "[PH]Summon Royal of the Stone"
+#define GOSSIP_SUM_ROYAL_THUNDER        "[PH]Summon Royal of the Thunder"
+
+class go_wind_stone : public GameObjectScript
+{
+public:
+    go_wind_stone() : GameObjectScript("go_wind_stone") { }
+
+    bool IsLesserWindStone(GameObject* _GO)
+    {
+        return (_GO->GetEntry() == 180529 || _GO->GetEntry() == 180456 || _GO->GetEntry() == 180518 || _GO->GetEntry() == 180544 || _GO->GetEntry() == 180549 || _GO->GetEntry() == 180564);
+    }
+
+    bool IsNormalWindStone(GameObject* _GO)
+    {
+        return (_GO->GetEntry() == 180502 || _GO->GetEntry() == 180534 || _GO->GetEntry() == 180461 || _GO->GetEntry() == 180554);
+    }
+
+    bool IsGreaterWindStone(GameObject* _GO)
+    {
+        return (_GO->GetEntry() == 180466 || _GO->GetEntry() == 180539 || _GO->GetEntry() == 180559);
+    }
+
+    bool OnGossipHello(Player *player, GameObject* _GO)
+    {
+        if( IsLesserWindStone(_GO) && player->HasAura(SPELL_TWILIGHT_LESSER,0))
+        {
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_TEMPLAR_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            if(player->HasItemCount(ITEM_CREST_FIRE,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_TEMPLAR_FIRE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            if(player->HasItemCount(ITEM_CREST_THUNDER,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_TEMPLAR_THUNDER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            if(player->HasItemCount(ITEM_CREST_STONE,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_TEMPLAR_STONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            if(player->HasItemCount(ITEM_CREST_WATER,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_TEMPLAR_WATER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+            //--
+            player->SEND_GOSSIP_MENU(_GO->GetGOInfo()->questgiver.gossipID, _GO->GetGUID());
+        }
+        else if(IsNormalWindStone(_GO) && player->HasAura(SPELL_TWILIGHT_NORMAL,0))
+        {
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_DUKE_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+            if(player->HasItemCount(ITEM_SIGNET_FIRE,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_DUKE_FIRE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+            if(player->HasItemCount(ITEM_SIGNET_THUNDER,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_DUKE_THUNDER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+            if(player->HasItemCount(ITEM_SIGNET_STONE,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_DUKE_STONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+            if(player->HasItemCount(ITEM_SIGNET_WATER,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_DUKE_WATER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+            //--
+            player->SEND_GOSSIP_MENU(_GO->GetGOInfo()->questgiver.gossipID, _GO->GetGUID());
+        }
+        else if(IsGreaterWindStone(_GO) && player->HasAura(SPELL_TWILIGHT_GREATER,0))
+        {
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_ROYAL_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+            if(player->HasItemCount(ITEM_SCEPTER_FIRE,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_ROYAL_FIRE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 31);
+            if(player->HasItemCount(ITEM_SCEPTER_THUNDER,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_ROYAL_THUNDER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 32);
+            if(player->HasItemCount(ITEM_SCEPTER_STONE,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_ROYAL_STONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 33);
+            if(player->HasItemCount(ITEM_SCEPTER_WATER,1))
+                player->ADD_GOSSIP_ITEM(0, GOSSIP_SUM_ROYAL_WATER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 34);
+            //--
+            player->SEND_GOSSIP_MENU(_GO->GetGOInfo()->questgiver.gossipID, _GO->GetGUID());
+        }else
+        {
+            // Cast Unknown Fire Spell
+        }
+        return true;
+    }
+
+    void SummonTemplar(Player *player, uint32 typ)
+    {
+        uint32 entry = 0;
+        switch(typ)
+        {
+        case 0:
+            entry = ENTRY_TEMPLAR_FIRE;
+            break;
+        case 1:
+            entry = ENTRY_TEMPLAR_THUNDER;
+            break;
+        case 2:
+            entry = ENTRY_TEMPLAR_STONE;
+            break;
+        case 3:
+            entry = ENTRY_TEMPLAR_WATER;
+            break;
+        }
+
+        float x,y,z;
+        player->GetPosition(x,y,z);
+        Creature* temp = player->SummonCreature(entry,x,y,z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+        temp->AI()->AttackStart(player);
+    }
+
+    void SummonDuke(Player *player, uint32 typ)
+    {
+        uint32 entry = 0;
+        switch(typ)
+        {
+        case 0:
+            entry = ENTRY_DUKE_FIRE;
+            break;
+        case 1:
+            entry = ENTRY_DUKE_THUNDER;
+            break;
+        case 2:
+            entry = ENTRY_DUKE_STONE;
+            break;
+        case 3:
+            entry = ENTRY_DUKE_WATER;
+            break;
+        }
+
+        float x,y,z;
+        player->GetPosition(x,y,z);
+        Creature* temp = player->SummonCreature(entry,x,y,z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+        temp->AI()->AttackStart(player);
+    }
+
+    void SummonRoyal(Player *player, uint32 typ)
+    {
+        uint32 entry = 0;
+        switch(typ)
+        {
+        case 0:
+            entry = ENTRY_ROYAL_FIRE;
+            break;
+        case 1:
+            entry = ENTRY_ROYAL_THUNDER;
+            break;
+        case 2:
+            entry = ENTRY_ROYAL_STONE;
+            break;
+        case 3:
+            entry = ENTRY_ROYAL_WATER;
+            break;
+        }
+
+        float x,y,z;
+        player->GetPosition(x,y,z);
+        Creature* temp = player->SummonCreature(entry,x,y,z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+        temp->AI()->AttackStart(player);
+    }
+
+    void SendActionMenu_go_wind_stone(Player *player, GameObject* _GO, uint32 action)
+    {
+        switch(action)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                player->CastSpell(player,SPELL_SUMMON_TEMPLAR_RANDOM,false);
+                SummonTemplar(player,rand()%4);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 11:
+                player->CastSpell(player,SPELL_SUMMON_TEMPLAR_FIRE,false);
+                SummonTemplar(player,0);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 12:
+                player->CastSpell(player,SPELL_SUMMON_TEMPLAR_THUNDER,false);
+                SummonTemplar(player,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 13:
+                player->CastSpell(player,SPELL_SUMMON_TEMPLAR_STONE,false);
+                SummonTemplar(player,2);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 14:
+                player->CastSpell(player,SPELL_SUMMON_TEMPLAR_WATER,false);
+                SummonTemplar(player,3);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                player->CastSpell(player,SPELL_SUMMON_DUKE_RANDOM,false);
+                SummonDuke(player,rand()%4);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 21:
+                player->CastSpell(player,SPELL_SUMMON_DUKE_FIRE,false);
+                SummonDuke(player,0);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 22:
+                player->CastSpell(player,SPELL_SUMMON_DUKE_THUNDER,false);
+                SummonDuke(player,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 23:
+                player->CastSpell(player,SPELL_SUMMON_DUKE_STONE,false);
+                SummonDuke(player,2);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 24:
+                player->CastSpell(player,SPELL_SUMMON_DUKE_WATER,false);
+                SummonDuke(player,3);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                player->CastSpell(player,SPELL_SUMMON_ROYAL_RANDOM,false);
+                SummonRoyal(player,rand()%4);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 31:
+                player->CastSpell(player,SPELL_SUMMON_ROYAL_FIRE,false);
+                SummonDuke(player,0);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 32:
+                player->CastSpell(player,SPELL_SUMMON_ROYAL_THUNDER,false);
+                SummonDuke(player,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 33:
+                player->CastSpell(player,SPELL_SUMMON_ROYAL_STONE,false);
+                SummonDuke(player,2);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 34:
+                player->CastSpell(player,SPELL_SUMMON_ROYAL_WATER,false);
+                SummonDuke(player,3);
+                break;
+        }
+    }
+
+    bool OnGossipSelect(Player *player, GameObject* _GO, uint32 sender, uint32 action )
+    {
+        switch(sender)
+        {
+            case GOSSIP_SENDER_MAIN:
+                SendActionMenu_go_wind_stone(player, _GO, action);
+                player->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        return true;
+    }
+};
+
 void AddSC_silithus()
 {
     new go_crystalline_tear();
@@ -1144,4 +1449,5 @@ void AddSC_silithus()
     new mob_qiraj_war_spawn();
     new npc_highlord_demitrian();
     new npcs_rutgar_and_frankal();
+    new go_wind_stone(); //update gameobject_template set scriptname = 'go_wind_stone' where entry in (180502,180529,180534,180456,180461,180466,180518,180539,180544,180549,180554,180559,180564);
 }

@@ -66,6 +66,12 @@ public:
     {
         boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
 
+        void Reset()
+        {
+            _Reset();
+            SetImmuneToDeathGrip();
+        }
+
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%3))
@@ -86,6 +92,15 @@ public:
             _JustDied();
             DoPlaySoundToSet(me, SOUND_DEATH);
             me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
+
+            std::list<Creature*> lList;
+            me->GetCreatureListWithEntryInGrid(lList , 29912, 200);
+
+            if (!lList.size())
+                return;
+
+            for (std::list<Creature*>::const_iterator i = lList.begin(); i != lList.end(); ++i)
+                (*i)->DealDamage((*i),(*i)->GetHealth());
         }
 
         void EnterCombat(Unit* /*who*/)

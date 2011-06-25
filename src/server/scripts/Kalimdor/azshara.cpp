@@ -519,10 +519,72 @@ public:
 
 };
 
+/*####
+# npc_duke_hydraxis
+####*/
+
+#define QUEST_A_HEROES_REAWARD              7486
+#define QUEST_HANDS_OF_THE_ENEMY            6824
+#define FACTION_HYDRAXIAN_WATERLORDS        749
+
+#define OPTION_AQUAL_QUINTESSENCE           "[PH] Give me a Aqual Quintessence"
+#define SPELL_CREATE_AQUAL_QUINTESSENCE     21357
+#define ITEM_AQUAL_QUINTESSENCE             17333
+#define OPTION_ETERNAL_QUINTESSENCE         "[PH] Give me a Eternal Quintessence"
+#define SPELL_CREATE_ETERNAL_QUINTESSENCE   28439
+#define ITEM_ETERNAL_QUINTESSENCE             22754
+
+class npc_duke_hydraxis : public CreatureScript
+{
+public:
+    npc_duke_hydraxis() : CreatureScript("npc_duke_hydraxis") { }
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        if (_Creature->isQuestGiver())
+            player->PrepareQuestMenu(_Creature->GetGUID());
+
+        if( player->GetQuestStatus(QUEST_A_HEROES_REAWARD) == QUEST_STATUS_COMPLETE)
+        {
+            if(player->GetQuestStatus(QUEST_HANDS_OF_THE_ENEMY) == QUEST_STATUS_COMPLETE && player->GetQuestRewardStatus(QUEST_HANDS_OF_THE_ENEMY))
+            {
+                if(!player->HasItemCount(ITEM_ETERNAL_QUINTESSENCE ,1,true))
+                player->ADD_GOSSIP_ITEM(0,OPTION_ETERNAL_QUINTESSENCE,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+            }
+            else
+            {
+                if(!player->HasItemCount(ITEM_AQUAL_QUINTESSENCE ,1,true))
+                    player->ADD_GOSSIP_ITEM(0,OPTION_AQUAL_QUINTESSENCE,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+            }
+        }
+
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(_Creature),_Creature->GetGUID());
+        return true; 
+    }
+
+    bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+    {
+        switch(action)
+        {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            player->CLOSE_GOSSIP_MENU();
+            _Creature->CastSpell(player,SPELL_CREATE_AQUAL_QUINTESSENCE,true);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            player->CLOSE_GOSSIP_MENU();
+            _Creature->CastSpell(player,SPELL_CREATE_ETERNAL_QUINTESSENCE,true);
+            break;
+        }
+
+        return true;
+    }
+};
+
 void AddSC_azshara()
 {
     new mobs_spitelashes();
     new npc_loramus_thalipedes();
     new mob_rizzle_sprysprocket();
     new mob_depth_charge();
+    new npc_duke_hydraxis();
 }

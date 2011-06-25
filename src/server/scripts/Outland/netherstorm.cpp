@@ -98,7 +98,7 @@ public:
             add = NULL;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit * /*who*/) {}
 
         /*void SpellHit(Unit *caster, const SpellEntry *spell)
         {
@@ -421,7 +421,7 @@ public:
             isEvent = false;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit * /*who*/) { }
 
         void JustSummoned(Creature *summoned)
         {
@@ -776,13 +776,13 @@ public:
                 me->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit * who)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry * /*spell*/)
+        void SpellHit(Unit * /*caster*/, const SpellEntry * /*spell*/)
         {
             DoCast(me, SPELL_DE_MATERIALIZE);
         }
@@ -1048,6 +1048,74 @@ public:
     }
 };
 
+class spell_belmara_luminrath_frostweaver_dathric : public SpellScriptLoader
+{
+public:
+    spell_belmara_luminrath_frostweaver_dathric() : SpellScriptLoader("spell_belmara_luminrath_frostweaver_dathric") { }
+
+    class spell_belmara_luminrath_frostweaver_dathric_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_belmara_luminrath_frostweaver_dathric_SpellScript);
+
+        void AfterHitEffect()
+        {
+            if (Player* target = GetHitPlayer())
+            {
+				switch(GetSpellInfo()->Id)
+				{
+				case 34140: if(target->GetQuestStatus(10305) == QUEST_STATUS_INCOMPLETE)
+								target->CompleteQuest(10305);
+							break;
+				case 34142: if(target->GetQuestStatus(10306) == QUEST_STATUS_INCOMPLETE)
+								target->CompleteQuest(10306);
+							break;
+				case 34144: if(target->GetQuestStatus(10307) == QUEST_STATUS_INCOMPLETE)
+								target->CompleteQuest(10307);
+							break;
+				case 34141: if(target->GetQuestStatus(10182) == QUEST_STATUS_INCOMPLETE)
+								target->CompleteQuest(10182);
+							break;
+				}	
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_belmara_luminrath_frostweaver_dathric_SpellScript::AfterHitEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_belmara_luminrath_frostweaver_dathric_SpellScript();
+    }
+};
+
+class item_belmara_luminrath_frostweaver_dathric : public ItemScript
+{
+    public:
+
+        item_belmara_luminrath_frostweaver_dathric()
+            : ItemScript("item_belmara_luminrath_frostweaver_dathric")
+        {
+        }
+
+        bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+		{
+			switch(pItem->GetEntry())
+			{
+			case 28336: pPlayer->CastSpell(pPlayer,34140,false); break;
+			case 28352: pPlayer->CastSpell(pPlayer,34142,false); break;
+			case 28353: pPlayer->CastSpell(pPlayer,34144,false); break;
+			case 34144: pPlayer->CastSpell(pPlayer,34141,false); break;
+			}
+			return true;
+            
+        }
+};
+
+
+
 void AddSC_netherstorm()
 {
     new go_manaforge_control_console();
@@ -1058,4 +1126,6 @@ void AddSC_netherstorm()
     new mob_phase_hunter();
     new npc_bessy();
     new npc_maxx_a_million_escort();
+	new item_belmara_luminrath_frostweaver_dathric();
+	new spell_belmara_luminrath_frostweaver_dathric();
 }

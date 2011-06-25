@@ -19,10 +19,19 @@
 #ifndef DEF_SHATTERED_H
 #define DEF_SHATTERED_H
 
-#define TYPE_NETHEKURSE         1
-#define DATA_NETHEKURSE         2
-#define DATA_NETHEKURSE_DOOR    3
+#define TYPE_NETHEKURSE                 1
+#define DATA_NETHEKURSE                 2
+#define DATA_NETHEKURSE_DOOR_ENTRANCE   3
+#define DATA_NETHEKURSE_DOOR_EXIT       5
 
 #define TYPE_OMROGG             4
+
+#define TIMER_STATE             6
+#define EXECUTION_PHASE         7
+
+#define TIMER_NOTSTARTED        0
+#define TIMER_STARTED           1
+#define TIMER_NEXTPHASE         2
+#define TIMER_ENDED             3
 #endif
 

@@ -30,11 +30,11 @@ enum Spells
     SPELL_ENRAGE                = 26662,
 
     // Muru's spells
-    SPELL_NEGATIVE_ENERGY        = 46009, //(this trigger 46008)
-    SPELL_DARKNESS                = 45999,
+    SPELL_NEGATIVE_ENERGY         = 46009, //(this trigger 46008)
+    SPELL_DARKNESS                = 45998,//45999,
     SPELL_OPEN_ALL_PORTALS        = 46177,
-    SPELL_OPEN_PORTAL            = 45977,
-    SPELL_OPEN_PORTAL_2            = 45976,
+    SPELL_OPEN_PORTAL             = 45977,
+    SPELL_OPEN_PORTAL_2           = 45976,
     SPELL_SUMMON_BERSERKER        = 46037,
     SPELL_SUMNON_FURY_MAGE        = 46038,
     SPELL_SUMMON_VOID_SENTINEL    = 45988,
@@ -71,11 +71,24 @@ enum Spells
     SPELL_BLACKHOLE_GROW        = 46228
 };
 
+enum Muru_Creatures
+{
+    //CREATURE_DARKNESS            = 25879,
+    //CREATURE_DARK_FIENDS        = 25744,
+    //CREATURE_BERSERKER            = 25798,
+    //CREATURE_FURY_MAGE            = 25799,
+    //CREATURE_VOID_SENTINEL        = 25772,
+    //CREATURE_VOID_SPAWN            = 25824,
+    //CREATURE_BLACK_HOLE            = 25855,
+    //BOSS_MURU                    = 25741,
+    //BOSS_ENTROPIUS                = 25840
+};
+
 enum BossTimers{
-    TIMER_DARKNESS                = 0,
-    TIMER_HUMANOIDES            = 1,
-    TIMER_PHASE                    = 2,
-    TIMER_SENTINEL                = 3
+    TIMER_HUMANOIDES            = 0,
+    TIMER_PHASE                    = 1,
+    TIMER_SENTINEL                = 2,
+    TIMER_DARKNESS              =3
 };
 
 float DarkFiends[8][4] =
@@ -148,16 +161,16 @@ public:
             switch(summoned->GetEntry())
             {
                 case CREATURE_DARK_FIENDS:
-                    summoned->CastSpell(summoned, SPELL_DARKFIEND_VISUAL, false);
+                    summoned->CastSpell(summoned,SPELL_DARKFIEND_VISUAL,false);
                     break;
                 case CREATURE_DARKNESS:
                     summoned->AddUnitState(UNIT_STAT_STUNNED);
-                    float x, y, z, o;
-                    summoned->GetHomePosition(x, y, z, o);
-                    me->SummonCreature(CREATURE_DARK_FIENDS, x, y, z, o, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    float x,y,z,o;
+                    summoned->GetHomePosition(x,y,z,o);
+                    me->SummonCreature(CREATURE_DARK_FIENDS, x,y,z,o, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     break;
             }
-            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
+            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
             Summons.Summon(summoned);
         }
 
@@ -248,13 +261,23 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCastAOE(SPELL_NEGATIVE_ENERGY, false);
+        DoCastAOE(SPELL_NEGATIVE_ENERGY,true);
+        DoCastAOE(SPELL_DARKNESS,true);
 
             if (pInstance)
                 pInstance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void SpellHit(Unit* caster, const SpellEntry* spell)
+        {
+            if(spell->Id == 45996)
+            {
+                for(uint8 i = 0; i < 8; ++i)
+                    me->SummonCreature(CREATURE_DARK_FIENDS,DarkFiends[i][0],DarkFiends[i][1],DarkFiends[i][2], DarkFiends[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            }
+        }
+
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage > me->GetHealth() && Phase == 1)
             {
@@ -276,10 +299,10 @@ public:
                     me->SetVisible(false);
                     break;
                 case CREATURE_DARK_FIENDS:
-                    summoned->CastSpell(summoned, SPELL_DARKFIEND_VISUAL, false);
+                    summoned->CastSpell(summoned,SPELL_DARKFIEND_VISUAL,false);
                     break;
             }
-            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
+            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
             Summons.Summon(summoned);
         }
 
@@ -301,7 +324,8 @@ public:
                             break;
                         case DONE:
                             Phase = 4;
-                            me->DisappearAndDie();
+                            me->DealDamage(me, me->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                            me->RemoveCorpse();
                             break;
                     }
                     Timer[TIMER_PHASE] = 3000;
@@ -320,24 +344,9 @@ public:
                 {
                     switch(i)
                     {
-                        case TIMER_DARKNESS:
-                            if (!DarkFiend)
-                            {
-                                DoCastAOE(SPELL_DARKNESS, false);
-                                Timer[TIMER_DARKNESS] = 3000;
-                                DarkFiend = true;
-                            }
-                            else
-                            {
-                                DarkFiend = false;
-                                for (uint8 i = 0; i < 8; ++i)
-                                    me->SummonCreature(CREATURE_DARK_FIENDS, DarkFiends[i][0], DarkFiends[i][1], DarkFiends[i][2], DarkFiends[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                                Timer[TIMER_DARKNESS] = 42000;
-                            }
-                            break;
                         case TIMER_HUMANOIDES:
                             for (uint8 i = 0; i < 6; ++i)
-                                me->SummonCreature(uint32(Humanoides[i][0]), Humanoides[i][1], Humanoides[i][2], Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                me->SummonCreature(uint32(Humanoides[i][0]),Humanoides[i][1],Humanoides[i][2],Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
                             Timer[TIMER_HUMANOIDES] = 60000;
                             break;
                         case TIMER_PHASE:
@@ -378,9 +387,10 @@ public:
 
     struct npc_muru_portalAI : public Scripted_NoMovementAI
     {
-        npc_muru_portalAI(Creature *c) : Scripted_NoMovementAI(c), Summons(me)
+        npc_muru_portalAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
         {
             pInstance = c->GetInstanceScript();
+        c->SetFlying(true);
         }
 
         InstanceScript* pInstance;
@@ -404,6 +414,7 @@ public:
             Summons.DespawnAll();
         }
 
+    void EnterCombat(Unit* who){}
         void JustSummoned(Creature* summoned)
         {
             if (pInstance)
@@ -415,9 +426,9 @@ public:
 
         void SpellHit(Unit* /*caster*/, const SpellEntry* Spell)
         {
-            float x, y, z, o;
-            me->GetHomePosition(x, y, z, o);
-            DoTeleportTo(x, y, z);
+            float x,y,z,o;
+            me->GetHomePosition(x,y,z,o);
+            DoTeleportTo(x,y,z);
             InAction = true;
             switch(Spell->Id)
             {
@@ -462,7 +473,7 @@ public:
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature *c) : ScriptedAI(c) {}
+        npc_dark_fiendAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 WaitTimer;
         bool InAction;
@@ -475,11 +486,16 @@ public:
             me->AddUnitState(UNIT_STAT_STUNNED);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry* Spell)
+    void EnterCombat(Unit* who){}
+
+    void SpellHit(Unit* caster, const SpellEntry* Spell)
         {
             for (uint8 i = 0; i < 3; ++i)
                 if (Spell->Effect[i] == 38)
-                    me->DisappearAndDie();
+            {
+                me->DealDamage(me, me->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->RemoveCorpse();
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -503,7 +519,8 @@ public:
                     if (me->IsWithinDist(me->getVictim(), 5))
                     {
                         DoCastAOE(SPELL_DARKFIEND_AOE, false);
-                        me->DisappearAndDie();
+                    me->DealDamage(me, me->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->RemoveCorpse();
                     }
                     WaitTimer = 500;
                 }
@@ -525,7 +542,7 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature *c) : ScriptedAI(c){}
+        npc_void_sentinelAI(Creature* c) : ScriptedAI(c){}
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
@@ -535,16 +552,17 @@ public:
             PulseTimer = 3000;
             VoidBlastTimer = 45000; //is this a correct timer?
 
-            float x, y, z, o;
-            me->GetHomePosition(x, y, z, o);
-            DoTeleportTo(x, y, 71);
+            float x,y,z,o;
+            me->GetHomePosition(x,y,z,o);
+            DoTeleportTo(x,y,71);
         }
-
+        void EnterCombat(Unit* who){}
         void JustDied(Unit* /*killer*/)
         {
-            for (uint8 i = 0; i < 8; ++i)
-                me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
+        for (uint8 i = 0; i < 8; ++i){
+                me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
         }
+    }
 
         void UpdateAI(const uint32 diff)
         {
@@ -581,7 +599,7 @@ public:
 
     struct npc_blackholeAI : public ScriptedAI
     {
-        npc_blackholeAI(Creature *c) : ScriptedAI(c)
+        npc_blackholeAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -602,7 +620,7 @@ public:
             me->AddUnitState(UNIT_STAT_STUNNED);
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);
         }
-
+    void EnterCombat(Unit* who){}
         void UpdateAI(const uint32 diff)
         {
             if (SpellTimer <= diff)
@@ -629,7 +647,7 @@ public:
                         me->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
                         break;
                     case 3:
-                        SpellTimer = urand(400, 900);
+                        SpellTimer = urand(400,900);
                         NeedForAHack = 1;
                         if (Unit* Temp = me->getVictim())
                         {
@@ -641,8 +659,10 @@ public:
             } else SpellTimer -= diff;
 
             if (DespawnTimer <= diff)
-                me->DisappearAndDie();
-            else DespawnTimer -= diff;
+        {
+            me->DealDamage(me, me->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            me->RemoveCorpse();
+        }else DespawnTimer -= diff;
         }
     };
 
@@ -657,3 +677,13 @@ void AddSC_boss_muru()
     new npc_void_sentinel();
     new npc_blackhole();
 }
+/*
+UPDATE `creature_template` SET `ScriptName`='npc_void_sentinel' WHERE `entry`=25772;
+UPDATE `creature_template` SET `ScriptName`='npc_dark_fiend' WHERE `entry`=25744;
+UPDATE `creature_template` SET `ScriptName`='boss_muru' WHERE `entry`=25741;
+UPDATE `creature_template` SET `ScriptName`='boss_entropius' WHERE `entry`=25840;
+UPDATE `creature_template` SET `ScriptName`='npc_muru_portal' WHERE `entry`=25770;
+UPDATE `creature_template` SET `ScriptName`='npc_blackhole' WHERE `entry`=25855;
+
+UPDATE creature_template SET sacale = 2, flags_extra = 0 WHERE entry = 25770;
+*/
