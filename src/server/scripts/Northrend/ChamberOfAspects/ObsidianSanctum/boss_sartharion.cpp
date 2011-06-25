@@ -122,14 +122,6 @@ enum eEnums
     //using these custom points for dragons start and end
     POINT_ID_INIT                               = 100,
     POINT_ID_LAND                               = 200,
-
-    //Achievements
-    ACHIEV_TWILIGHT_ASSIST                      = 2049,
-    H_ACHIEV_TWILIGHT_ASSIST                    = 2052,
-    ACHIEV_TWILIGHT_DUO                         = 2050,
-    H_ACHIEV_TWILIGHT_DUO                       = 2053,
-    ACHIEV_TWILIGHT_ZONE                        = 2051,
-    H_ACHIEV_TWILIGHT_ZONE                      = 2054
 };
 
 #define DATA_CAN_LOOT   0
@@ -213,6 +205,8 @@ Locations TwilightEggsSarth[] =
     {3257.54f, 502.285f , 58.2077f}
 };
 
+#define TWILIGHT_ACHIEVEMENTS     1
+
 /*######
 ## Boss Sartharion
 ######*/
@@ -256,7 +250,7 @@ public:
         bool m_bHasCalledShadron;
         bool m_bHasCalledVesperon;
 
-        uint32 achievProgress;
+        uint8 drakeCount;
 
         void Reset()
         {
@@ -285,7 +279,7 @@ public:
 
             me->SetHomePosition(3246.57f, 551.263f, 58.6164f, 4.66003f);
 
-            achievProgress = 0;
+            drakeCount = 0;
 
             // Drakes respawning system
             if (pInstance)
@@ -384,20 +378,6 @@ public:
                 if (pVesperon && pVesperon->isAlive())
                     pVesperon->DisappearAndDie();
 
-                if (achievProgress == 1)
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ASSIST, H_ACHIEV_TWILIGHT_ASSIST));
-                else if (achievProgress == 2)
-                {
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ASSIST, H_ACHIEV_TWILIGHT_ASSIST));
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_DUO, H_ACHIEV_TWILIGHT_DUO));
-                }
-                else if (achievProgress == 3)
-                {
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ASSIST, H_ACHIEV_TWILIGHT_ASSIST));
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_DUO, H_ACHIEV_TWILIGHT_DUO));
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ZONE, H_ACHIEV_TWILIGHT_ZONE));
-                }
-
                 pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
             }
         }
@@ -419,13 +399,21 @@ public:
                 me->AddLootMode(LOOT_MODE_HARD_MODE_1);      // Add 1st Drake loot mode
         }
 
+        uint32 GetData(uint32 type)
+        {
+            if (type == TWILIGHT_ACHIEVEMENTS)
+                return drakeCount;
+
+            return 0;
+        }
+
         void FetchDragons()
         {
-            if(!pInstance)
+            if (!pInstance)
                 return;
 
             me->ResetLootMode();
-            achievProgress = 0;
+            drakeCount = 0;
 
             Creature* pFetchTene = Unit::GetCreature(*me, pInstance->GetData64(DATA_TENEBRON));
             Creature* pFetchShad = Unit::GetCreature(*me, pInstance->GetData64(DATA_SHADRON));
@@ -437,10 +425,10 @@ public:
             if (pFetchTene && pFetchTene->isAlive() && !pFetchTene->getVictim())
             {
                 bCanUseWill = true;
-                if(!pFetchTene->isInCombat())
+                if (!pFetchTene->isInCombat())
                 {
                     AddDrakeLootMode();
-                    achievProgress++;
+                    ++drakeCount;
                 }
                 pFetchTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
 
@@ -451,10 +439,10 @@ public:
             if (pFetchShad && pFetchShad->isAlive() && !pFetchShad->getVictim())
             {
                 bCanUseWill = true;
-                if(!pFetchShad->isInCombat())
+                if (!pFetchShad->isInCombat())
                 {
                     AddDrakeLootMode();
-                    achievProgress++;
+                    ++drakeCount;
                 }
                 pFetchShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
 
@@ -465,10 +453,10 @@ public:
             if (pFetchVesp && pFetchVesp->isAlive() && !pFetchVesp->getVictim())
             {
                 bCanUseWill = true;
-                if(!pFetchVesp->isInCombat())
+                if (!pFetchVesp->isInCombat())
                 {
                     AddDrakeLootMode();
-                    achievProgress++;
+                    ++drakeCount;
                 }
                 pFetchVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
 
@@ -1710,6 +1698,57 @@ public:
 
 };
 
+class achievement_twilight_assist : public AchievementCriteriaScript
+{
+    public:
+        achievement_twilight_assist() : AchievementCriteriaScript("achievement_twilight_assist")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* target)
+        {
+            if (Creature* Sartharion = target->ToCreature())
+                if (Sartharion->AI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 1)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_twilight_duo : public AchievementCriteriaScript
+{
+    public:
+        achievement_twilight_duo() : AchievementCriteriaScript("achievement_twilight_duo")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* target)
+        {
+            if (Creature* Sartharion = target->ToCreature())
+                if (Sartharion->AI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 2)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_twilight_zone : public AchievementCriteriaScript
+{
+    public:
+        achievement_twilight_zone() : AchievementCriteriaScript("achievement_twilight_zone")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* target)
+        {
+            if (Creature* Sartharion = target->ToCreature())
+                if (Sartharion->AI()->GetData(TWILIGHT_ACHIEVEMENTS) == 3)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_sartharion()
 {
     new boss_sartharion();
@@ -1722,4 +1761,7 @@ void AddSC_boss_sartharion()
     new npc_flame_tsunami();
     new npc_twilight_fissure();
     new mob_twilight_whelp();
+    new achievement_twilight_assist();
+    new achievement_twilight_duo();
+    new achievement_twilight_zone();
 }
