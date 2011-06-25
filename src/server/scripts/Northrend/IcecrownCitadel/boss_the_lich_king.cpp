@@ -145,6 +145,8 @@ enum eEvents
     EVENT_ENCOURAGE_PLAYER_TO_ESCAPE          = 36, //Yell "First, you must escape Frostmourne's hold or be damned as I am; trapped within this cursed blade for all eternity."
     EVENT_ASK_PLAYER_FOR_AID                  = 37, //Yell "Aid me in destroying these tortured souls! Together we will loosen Frostmourne's hold and weaken the Lich King from within!"
     EVENT_CHECK_SPIRIT_WARDEN_HEALTH          = 38,
+
+    EVENT_RESTART_COMBAT_MOVEMENT             = 39,
 };
 
 enum Spells
@@ -812,7 +814,9 @@ class boss_the_lich_king : public CreatureScript
                                 }
                                 case EVENT_SUMMON_DRUDGE_GHOULS:
                                 {
+                                    PauseForSummoning(true);
                                     DoCast(SPELL_SUMMON_DRUDGE_GHOULS);
+                                    events.ScheduleEvent(EVENT_RESTART_COMBAT_MOVEMENT, 4100, 0, PHASE_1);
                                     events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 60000, 0, PHASE_1);
                                     break;
                                 }
@@ -844,6 +848,12 @@ class boss_the_lich_king : public CreatureScript
 
                                     DoCast(target, SPELL_SUMMON_SHADOW_TRAP, true);
                                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 30000, 0, PHASE_1);
+                                    break;
+                                }
+                                case EVENT_RESTART_COMBAT_MOVEMENT:
+                                {
+                                    PauseForSummoning(false);
+                                    break;
                                 }
                             }
                             break;
@@ -961,7 +971,9 @@ class boss_the_lich_king : public CreatureScript
                                 }
                                 case EVENT_SUMMON_VILE_SPIRITS:
                                 {
+                                    PauseForSummoning(true);
                                     DoCast(me, SPELL_SUMMON_VILE_SPIRIT);
+                                    events.ScheduleEvent(EVENT_RESTART_COMBAT_MOVEMENT, 5700, 0, PHASE_5);
                                     events.ScheduleEvent(EVENT_SUMMON_VILE_SPIRITS, 30000, 0, PHASE_5);
                                     break;
                                 }
@@ -979,6 +991,11 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     DoScriptText(SAY_BERSERK, me);
                                     DoCast(me, SPELL_BERSERK2);
+                                    break;
+                                }
+                                case EVENT_RESTART_COMBAT_MOVEMENT:
+                                {
+                                    PauseForSummoning(false);
                                     break;
                                 }
                             }
@@ -1197,6 +1214,14 @@ class boss_the_lich_king : public CreatureScript
                         DoMeleeAttackIfReady();
                         break;
                 }
+            }
+
+            void PauseForSummoning(bool on)
+            {
+                SetCombatMovement(!on);
+                me->Attack(me->getVictim(), !on);
+                if(!on)
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
             }
         private:
             InstanceScript* instance;
