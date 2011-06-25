@@ -744,6 +744,9 @@ class achievement_brann_spankin_new : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Brann = target->ToCreature())
                 if (Brann->AI()->GetData(DATA_BRANN_SPARKLIN_NEWS))
                     return true;

@@ -127,12 +127,6 @@ class boss_elder_nadox : public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 id, uint32 data)
-            {
-                if (id == DATA_RESPECT_YOUR_ELDERS)
-                    respectYourElders = data ? true : false;
-            }
-
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
@@ -311,6 +305,9 @@ class achievement_respect_your_elders : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Nadox = target->ToCreature())
                 if (Nadox->AI()->GetData(DATA_RESPECT_YOUR_ELDERS))
                     return true;

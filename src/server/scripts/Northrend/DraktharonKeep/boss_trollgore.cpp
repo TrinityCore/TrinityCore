@@ -204,6 +204,9 @@ class achievement_consumption_junction : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Trollgore = target->ToCreature())
                 if (Trollgore->AI()->GetData(DATA_CONSUMPTION_JUNCTION))
                     return true;

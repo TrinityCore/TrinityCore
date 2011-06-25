@@ -327,6 +327,9 @@ class achievement_abuse_the_ooze : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Sjonnir = target->ToCreature())
                 if (Sjonnir->AI()->GetData(DATA_ABUSE_THE_OOZE) >= 5)
                     return true;

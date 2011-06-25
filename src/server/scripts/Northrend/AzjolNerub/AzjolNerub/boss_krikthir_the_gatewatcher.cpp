@@ -539,6 +539,9 @@ class achievement_watch_him_die : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             InstanceScript* instance = target->GetInstanceScript();
             Creature* Watcher[3];
             if (!instance)

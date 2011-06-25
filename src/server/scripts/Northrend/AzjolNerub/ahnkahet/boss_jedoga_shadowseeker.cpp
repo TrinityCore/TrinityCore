@@ -606,6 +606,9 @@ class achievement_volunteer_work : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Jedoga = target->ToCreature())
                 if (Jedoga->AI()->GetData(DATA_VOLUNTEER_WORK))
                     return true;
