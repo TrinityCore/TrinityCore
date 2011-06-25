@@ -970,4 +970,4 @@ void AddSC_boss_assembly_of_iron()
     new mob_rune_of_summoning();
     new mob_rune_of_power();
     new spell_shield_of_runes();
-}\ No newline at end of file
+}

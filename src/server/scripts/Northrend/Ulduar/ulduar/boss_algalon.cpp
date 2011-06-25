@@ -1509,4 +1509,4 @@ void AddSC_boss_algalon()
     new spell_algalon_black_hole();
     new spell_algalon_cosmic_smash_initial();
     new go_celestial_console();
-}\ No newline at end of file
+}
