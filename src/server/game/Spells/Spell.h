@@ -631,7 +631,7 @@ class Spell
         void AddItemTarget(Item* target, uint32 effIndex);
         void DoAllEffectOnTarget(TargetInfo *target);
         SpellMissInfo DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool scaleAura);
-        void DoTriggersOnSpellHit(Unit *unit);
+        void DoTriggersOnSpellHit(Unit *unit, uint8 effMask);
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);
         bool UpdateChanneledTargetList();
@@ -667,6 +667,11 @@ class Spell
         void CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex);
         std::list<SpellScript *> m_loadedScripts;
 
+        bool CanExecuteTriggersOnHit(uint8 effMask) const;
+        void PrepareTriggersExecutedOnHit();
+        typedef std::list< std::pair<SpellEntry const*, int32> > HitTriggerSpells;
+        HitTriggerSpells m_hitTriggerSpells;
+
         // effect helpers
         void GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0);
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *properties);
@@ -674,10 +679,6 @@ class Spell
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
-
-        //List For Triggered Spells
-        typedef std::vector< std::pair<SpellEntry const*, int32> > ChanceTriggerSpells;
-        ChanceTriggerSpells m_ChanceTriggerSpells;
 
         uint32 m_spellState;
         uint32 m_timer;
