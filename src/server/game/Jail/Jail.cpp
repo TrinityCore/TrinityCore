@@ -111,7 +111,7 @@ bool Jail::InfoKommando(ChatHandler * handler)
     time_t localtime = time(NULL);
     uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / MINUTE));
 
-    if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
+    if (min_left && min_left > (m_JailKonf.MaxDauer*MINUTE)) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
         min_left = 0;
 
     if (min_left >= MINUTE)
@@ -180,18 +180,18 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
         time_t localtime = time(NULL);
         uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
 
-        if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
+        if (min_left && min_left > (m_JailKonf.MaxDauer*MINUTE)) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
             min_left = 0;
 
         if (min_left >= MINUTE)
         {
             uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
             handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE),
-                target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit).c_str(), target->m_JailGrund.c_str());
+                target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit, GERMAN).c_str(), target->m_JailGrund.c_str());
         }
         else
             handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left,
-            target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit).c_str(), target->m_JailGrund.c_str());
+            target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit, GERMAN).c_str(), target->m_JailGrund.c_str());
 
         if (target->m_JailBans)
             handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, target->m_JailBans);
@@ -219,17 +219,17 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
         time_t localtime = time(NULL);
         uint32 min_left = uint32(floor(float(itr->second.Release - localtime) / MINUTE));
 
-        if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
+        if (min_left && min_left > (m_JailKonf.MaxDauer*MINUTE)) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
             min_left = 0;
 
         if (min_left >= MINUTE)
         {
             uint32 hours = uint32(floor(float(itr->second.Release - localtime) / HOUR));
             handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), itr->second.Times, hours, min_left-(hours*MINUTE),
-                itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time).c_str(), itr->second.Reason.c_str());
+                itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time, GERMAN).c_str(), itr->second.Reason.c_str());
         }
         else
-            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time).c_str(), itr->second.Reason.c_str());
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time, GERMAN).c_str(), itr->second.Reason.c_str());
 
         if (itr->second.BTimes)
             handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, itr->second.BTimes);
@@ -614,7 +614,7 @@ void Jail::Update()
             sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), itr->second.CharName.c_str(), itr->first));
         }
     }
-    sLog->outDebug(LOG_FILTER_NONE, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_3)), cnt, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outDebug(LOG_FILTER_NONE, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_3), cnt, GetMSTimeDiffToNow(oldMSTime)));
 }
 
 bool Jail::Init(bool reload)
@@ -667,12 +667,12 @@ bool Jail::Init(bool reload)
 
     } while (result->NextRow());
 
-    sLog->outString(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_4)), cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_4), cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime)));
 
-    if (!reload)
-        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
+    if (reload)
+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD_JAIL));
     else
-        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD));
+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DATA_LOADED));
 
     return true;
 }

@@ -212,7 +212,7 @@ uint32 TimeStringToSecs(const std::string& timestring)
     return secs;
 }
 
-std::string TimeToTimestampStr(time_t t)
+std::string TimeToTimestampStr(time_t t, TimestampModus modus)
 {
     tm* aTm = localtime(&t);
     //       YYYY   year
@@ -221,8 +221,15 @@ std::string TimeToTimestampStr(time_t t)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
+    char buf[30];
+
+    switch(modus)
+    {
+        case STANDARD: snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
+        case GERMAN: snprintf(buf, 27, "%02d.%02d.%04d %02d:%02d:%02d", aTm->tm_mday, aTm->tm_mon+1, aTm->tm_year+1900, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
+        case UNIX: snprintf(buf, 20, "%04d-%02d-%02d %02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
+        default: snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
+    }
     return std::string(buf);
 }
 

@@ -44,9 +44,16 @@ struct Tokens: public std::vector<char*>
 
 void stripLineInvisibleChars(std::string &src);
 
+enum TimestampModus
+{
+    STANDARD = 0,
+    GERMAN,
+    UNIX
+};
+
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
-std::string TimeToTimestampStr(time_t t);
+std::string TimeToTimestampStr(time_t t, TimestampModus modus = STANDARD);
 
 inline uint32 secsToTimeBitFields(time_t secs)
 {
