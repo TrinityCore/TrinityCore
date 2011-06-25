@@ -6835,16 +6835,16 @@ void ObjectMgr::LoadJailConf(void)
 		m_jailconf_warn_player  = 1;
 		m_jailconf_amnestie     = 180;
 
-		m_jailconf_ally_x       = -8673.43;
-		m_jailconf_ally_y       = 631.795;
-		m_jailconf_ally_z       = 96.9406;
-		m_jailconf_ally_o       = 2.1785;
+		m_jailconf_ally_x       = -8673.43f;
+		m_jailconf_ally_y       = 631.795f;
+		m_jailconf_ally_z       = 96.9406f;
+		m_jailconf_ally_o       = 2.1785f;
 		m_jailconf_ally_m       = 0;
 
-		m_jailconf_horde_x      = 2179.85;
-		m_jailconf_horde_y      = -4763.96;
-		m_jailconf_horde_z      = 54.911;
-		m_jailconf_horde_o      = 4.44216;
+		m_jailconf_horde_x      = 2179.85f;
+		m_jailconf_horde_y      = -4763.96f;
+		m_jailconf_horde_z      = 54.911f;
+		m_jailconf_horde_o      = 4.44216f;
 		m_jailconf_horde_m      = 1;
 
 		m_jailconf_ban          = 0;
