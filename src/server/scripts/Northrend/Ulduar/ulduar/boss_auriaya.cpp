@@ -544,6 +544,9 @@ class achievement_nine_lives : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Auriaya = target->ToCreature())
                 if (Auriaya->AI()->GetData(DATA_NINE_LIVES))
                     return true;
@@ -561,6 +564,9 @@ class achievement_crazy_cat_lady : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Auriaya = target->ToCreature())
                 if (Auriaya->AI()->GetData(DATA_CRAZY_CAT_LADY))
                     return true;

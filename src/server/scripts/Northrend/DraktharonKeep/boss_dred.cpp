@@ -283,6 +283,9 @@ class achievement_king_dred : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Dred = target->ToCreature())
                 if (Dred->AI()->GetData(DATA_KING_DRED) >= 6)
                     return true;
