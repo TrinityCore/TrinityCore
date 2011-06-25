@@ -3062,6 +3062,22 @@ LevelReq.Auction = 1
 LevelReq.Mail = 1
 
 #
+#      GMIsland.PlayersNoAccess.Enable
+#        Prevent access for players to gm island
+#        Default: 1 - Enable
+#                 0 - Disable
+
+GMIsland.PlayersNoAccess.Enable = 1
+
+#
+#      GMIsland.Ban.Enable
+#        Enable to ban players that tries to access GM Island without proper Access
+#        Default: 0 - Disable
+#                 1 - Enable
+
+GMIsland.Ban.Enable = 0
+
+#
 ###################################################################################################
 #
 #     Anticheat.Enable

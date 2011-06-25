@@ -7554,6 +7554,48 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
     }
 
+    // Prevent players from accessing GM Island
+    if (sWorld->getBoolConfig(CONFIG_GMISLAND_PLAYERS_NOACCESS_ENABLE) == true)
+    {
+        if (newZone == 876 && GetSession()->GetSecurity() == SEC_PLAYER)
+        {
+            QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `gmisland_teleport` WHERE 1");
+
+            Field* fields = result->Fetch();
+
+            if (result)
+            {
+                uint32   map           = fields[0].GetUInt32();
+                double   x             = fields[1].GetDouble();
+                double   y             = fields[2].GetDouble();
+                double   z             = fields[3].GetDouble();
+                double   orientation   = fields[4].GetDouble();
+
+                if (map == 876)
+                {
+                    sLog->outError("Player (GUID: %u) tried to access GM Island.", GetGUIDLow());
+                    sLog->outError("Error: Cannot set tele to GM Island (map: %u). Sending possible hacker to default location. (Jail Box)",map);
+                    TeleportTo(13,1.118799,0.477914,-144.708650,3.133046); // Tele to Jail Box
+                    CastSpell(this, 9454, true); // Cast GM Freeze on player
+                }
+
+                if (map != 876)
+                {
+                    sLog->outError("Player (GUID: %u) tried to access GM Island. Sending possible hacker to %u,%u,%u,%u,%u", GetGUIDLow(), map, x, y, z, orientation);
+                    TeleportTo(map,x,y,z,orientation);
+                    if (map == 13)
+                        CastSpell(this, 9454, true); // Cast GM Freeze on player
+                }
+
+                if (sWorld->getBoolConfig(CONFIG_GMISLAND_BAN_ENABLE) == true)
+                {
+                    sLog->outError("Player (GUID: %u) tried to access GM Island. Banning Player Account.", GetGUIDLow());
+                    sWorld->BanAccount(BAN_ACCOUNT, this->GetName(),secsToTimeString(TimeStringToSecs("-1"),true).c_str(),"Being on GM Island","Anticheat protection");
+                }
+            }
+        }
+    }
+
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
 
