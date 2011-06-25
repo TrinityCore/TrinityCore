@@ -157,10 +157,10 @@ public:
             }
         }
 
-        void SetData(uint32 id, uint32 data)
+        void SetGUID(uint64 const& guid, int32 id/* = 0 */)
         {
             if (id == DATA_INTENSE_COLD)
-                intenseColdList.push_back(data);
+                intenseColdList.push_back(guid);
         }
 
         void UpdateAI(const uint32 diff)
@@ -242,7 +242,7 @@ class spell_intense_cold : public SpellScriptLoader
                     return;
 
                 if (aurEff->GetBase()->GetStackAmount() >= 2)
-                    caster->ToCreature()->AI()->SetData(DATA_INTENSE_COLD, GetTarget()->GetGUID());
+                    caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
             void Register()
