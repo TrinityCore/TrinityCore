@@ -203,7 +203,7 @@ class boss_general_vezax : public CreatureScript
             void SpellHitTarget(Unit* who, SpellEntry const* spell)
             {
                 if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
-                    SetData(DATA_SHADOWDODGER, 0);
+                    shadowDodger = false;
             }
 
             void KilledUnit(Unit* /*who*/)
@@ -245,25 +245,12 @@ class boss_general_vezax : public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 id, uint32 data)
-            {
-               switch (id)
-               {
-                   case DATA_SHADOWDODGER:
-                        shadowDodger = data ? true : false;
-                        break;
-                    case DATA_SMELL_SARONITE:
-                        smellSaronite = data ? true : false;
-                        break;
-               }
-            }
-
             void DoAction(int32 const action)
             {
                 switch (action)
                 {
                     case ACTION_VAPORS_DIE:
-                        SetData(DATA_SMELL_SARONITE, 0);
+                        smellSaronite = false;
                         break;
                     case ACTION_ANIMUS_DIE:
                         me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
@@ -487,6 +474,9 @@ class achievement_shadowdodger : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Vezax = target->ToCreature())
                 if (Vezax->AI()->GetData(DATA_SHADOWDODGER))
                     return true;
@@ -504,6 +494,9 @@ class achievement_smell_saronite : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Vezax = target->ToCreature())
                 if (Vezax->AI()->GetData(DATA_SMELL_SARONITE))
                     return true;

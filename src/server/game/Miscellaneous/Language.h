@@ -831,8 +831,8 @@ enum TrinityStrings
     LANG_BG_IC_REFINERY                 = 1222,
     LANG_BG_IC_QUARRY                   = 1223,
     LANG_BG_IC_HANGAR                   = 1224,
-    LANG_BG_IC_ALLIANCE                 = 1225,
-    LANG_BG_IC_HORDE                    = 1226,
+    LANG_BG_IC_ALLIANCE                 = 1300,
+    LANG_BG_IC_HORDE                    = 1301,
 
     // FREE IDS                           1228-9999
 
