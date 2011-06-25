@@ -1131,10 +1131,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_JailDauer;         // Dauer des Knastaufenthaltes
         uint32 m_JailWarnTimer;     // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
         uint32 m_JailBans;          // Anzahl der Bannungen durch das Jail
+        uint32 m_JailZeit;          // Inhaftierungszeit
 
         std::string m_JailGrund;    // Der Grund
         std::string m_JailGMChar;   // GM-Charakter der ihn eingebuchtet hat
-        std::string m_JailZeit;     // Zeit der letzten Inhaftierung
 
         bool m_Jailed;              // Zur Zeit gerade im Knast?
 

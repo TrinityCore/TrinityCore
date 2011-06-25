@@ -186,10 +186,12 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
         if (min_left >= MINUTE)
         {
             uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
-            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE),
+                target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit).c_str(), target->m_JailGrund.c_str());
         }
         else
-            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left,
+            target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit).c_str(), target->m_JailGrund.c_str());
 
         if (target->m_JailBans)
             handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, target->m_JailBans);
@@ -223,10 +225,11 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
         if (min_left >= MINUTE)
         {
             uint32 hours = uint32(floor(float(itr->second.Release - localtime) / HOUR));
-            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), itr->second.Times, hours, min_left-(hours*MINUTE), itr->second.GMChar.c_str(), itr->second.Time.c_str(), itr->second.Reason.c_str());
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), itr->second.Times, hours, min_left-(hours*MINUTE),
+                itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time).c_str(), itr->second.Reason.c_str());
         }
         else
-            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), itr->second.Time.c_str(), itr->second.Reason.c_str());
+            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time).c_str(), itr->second.Reason.c_str());
 
         if (itr->second.BTimes)
             handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, itr->second.BTimes);
@@ -310,24 +313,16 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
     }
 
     uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
-    std::string timestamp;
     std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
-
-    QueryResult result = CharacterDatabase.Query("SELECT CURRENT_TIMESTAMP");
-    if (result)
-    {
-        Field * fields = result->Fetch();
-        timestamp = fields[0].GetString();
-    }
 
     if (Player * chr = sObjectMgr->GetPlayer(GUID_LOPART(GUID)))
     {   // Ohne Klammern springt er zum Ende, wenn chr == NULL ist!!!
-        if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, timestamp, announce))
+        if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, announce))
             return true;
     }
     else
     {
-        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, timestamp, announce))
+        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, announce))
             return true;
     }
     return false;
@@ -660,7 +655,7 @@ bool Jail::Init(bool reload)
         JES.Times       = fields[4].GetUInt32();
         JES.GMAcc       = fields[5].GetUInt32();
         JES.GMChar      = fields[6].GetString();
-        JES.Time        = fields[7].GetString();
+        JES.Time        = fields[7].GetUInt32();
         JES.Duration    = fields[8].GetUInt32();
         JES.BTimes      = fields[9].GetUInt32();
         JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName.c_str());
@@ -705,7 +700,7 @@ void Jail::SendeWarnung(Player * pPlayer)
     }
 }
 
-bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
+bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce)
 {
     time_t localtime = time(NULL);
     uint32 release = uint32(localtime + (jailtime * HOUR));
@@ -753,7 +748,7 @@ bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, 
     return true;
 }
 
-bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
+bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce)
 {
     time_t localtime = time(NULL);
     uint32 release = uint32(localtime + (jailtime * HOUR));
@@ -765,8 +760,8 @@ bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, u
     {
         ++times;
 
-        CharacterDatabase.PExecute("INSERT INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s','%s',%u)",
-            guid, cname.c_str(), release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), timestamp.c_str(), jailtime);
+        CharacterDatabase.PExecute("INSERT INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s',%u,%u)",
+            guid, cname.c_str(), release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), localtime, jailtime);
 
         JES.BTimes = 0;
         JES.CharName = cname;
@@ -774,7 +769,7 @@ bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, u
         JES.GMAcc = handler->GetSession()->GetAccountId();
         JES.GMChar = handler->GetSession()->GetPlayerName();
         JES.Reason = jailreason;
-        JES.Time = timestamp;
+        JES.Time = uint32(localtime);
         JES.Times = times;
         JES.Release = release;
 
@@ -784,14 +779,14 @@ bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, u
     {
         times = ++itr->second.Times;
 
-        CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`lasttime`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
-            release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), timestamp.c_str(), jailtime, guid);
+        CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`lasttime`=%u,`duration`=%u WHERE `guid`=%u LIMIT 1",
+            release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), localtime, jailtime, guid);
 
         itr->second.Release = release;
         itr->second.Reason = jailreason;
         itr->second.GMAcc = handler->GetSession()->GetAccountId();
         itr->second.GMChar = handler->GetSession()->GetPlayerName();
-        itr->second.Time = timestamp;
+        itr->second.Time = uint32(localtime);
         itr->second.Duration = jailtime;
     }
     handler->PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);

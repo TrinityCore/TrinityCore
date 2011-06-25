@@ -1218,8 +1218,8 @@ void Player::JailDatenLaden()
 // Jail Daten speichern
 void Player::JailDatenSpeichern()
 {
-    CharacterDatabase.PExecute("REPLACE INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`,`btimes`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s','%s',%u,%u)",
-        GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailZeit.c_str(), m_JailDauer, m_JailBans);
+    CharacterDatabase.PExecute("REPLACE INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`,`btimes`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s',%u,%u,%u)",
+        GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailZeit, m_JailDauer, m_JailBans);
 
     JailEintragStruktur JES;
 

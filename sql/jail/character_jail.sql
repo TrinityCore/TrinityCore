@@ -9,7 +9,7 @@ CREATE TABLE `jail` (
   `times` int(11) unsigned NOT NULL COMMENT 'Anzahl der Inhaftierungen',
   `gmacc` int(11) unsigned NOT NULL COMMENT 'Verantwortlicher GM-Account',
   `gmchar` varchar(13) NOT NULL COMMENT 'Verantwortlicher GM-Char',
-  `lasttime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Letzte Inhaftierungszeit',
+  `lasttime` int(11) unsigned NOT NULL COMMENT 'Letzte Inhaftierungszeit',
   `duration` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Dauer der Inhaftierung',
   `btimes` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Anzahl der Bannungen durch das Jail.',
   PRIMARY KEY (`guid`)
@@ -43,4 +43,4 @@ CREATE TABLE `jail_conf` (
 
 INSERT INTO `jail_conf` (`max_jails`,`max_duration`,`min_reason`,`warn_player`,`ally_x`,`ally_y`,`ally_z`,`ally_o`,`ally_m`,
 `horde_x`,`horde_y`,`horde_z`,`horde_o`,`horde_m`,`del_char`,`ban_acc`,`ban_duration`,`radius`,`enabled`) VALUES
-(3,672,30,1,31.7282,135.794,-40.0508,4.73516,35,2179.85,-4763.96,54.911,4.44216,1,0,1,168,10,1);
+(3,672,30,1,31.7282,135.794,-40.0508,4.73516,35,2179.85,-4763.96,54.911,4.44216,1,0,1,168,15,1);

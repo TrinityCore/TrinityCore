@@ -34,11 +34,11 @@ struct JailEintragStruktur
     uint32 BTimes;          // Anzahl der Bannungen des Accounts, aufgrund von diesem Char
     uint32 Duration;        // Dauer der Inhaftierung
     uint32 GMAcc;           // Account des GM
+    uint32 Time;            // Inhaftierungszeit
 
     std::string CharName;   // Charaktername des Häftlings
     std::string GMChar;     // Charaktername des GM
     std::string Reason;     // Grund der Inhaftierung
-    std::string Time;       // Zeitstempel der Inhaftierung
 
     uint32 account;         // Nicht im Jailtable vorhanden - dient nur zu internen Zwecken!
 };
@@ -56,8 +56,8 @@ private:
     JailMap             m_JailMap;  // UNORDERED_MAP aller Jaileinträge
 
     bool SendeInaktiv(ChatHandler * handler);
-    bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
-    bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
+    bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
+    bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
     void BannAccount(uint32 acc_id, uint32 guid, Player * chr = NULL);
     char const * fmtstring(char const * format, ...);
 
