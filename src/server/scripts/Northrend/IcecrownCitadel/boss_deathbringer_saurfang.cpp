@@ -744,7 +744,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             InstanceScript* instance = creature->GetInstanceScript();
             if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Let it begin...", 631, -ACTION_START_EVENT);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We are ready to go, High Overlord. The Lich King must fall!", 631, -ACTION_START_EVENT);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             }
 
@@ -1222,41 +1222,6 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
         }
 };
 
-class MarkOfTheFallenChampionCheck
-{
-    public:
-        bool operator() (Unit* unit)
-        {
-            return !unit->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-        }
-};
-
-class spell_deathbringer_mark_of_the_fallen_champion : public SpellScriptLoader
-{
-    public:
-        spell_deathbringer_mark_of_the_fallen_champion() : SpellScriptLoader("spell_deathbringer_mark_of_the_fallen_champion") { }
-
-        class spell_deathbringer_mark_of_the_fallen_champion_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_deathbringer_mark_of_the_fallen_champion_SpellScript);
-
-            void FilterTargets(std::list<Unit*>& unitList)
-            {
-                unitList.remove_if(MarkOfTheFallenChampionCheck());
-            }
-
-            void Register()
-            {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_mark_of_the_fallen_champion_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_deathbringer_mark_of_the_fallen_champion_SpellScript();
-        }
-};
-
 class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
 {
     public:
@@ -1285,6 +1250,5 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_rune_of_blood();
     new spell_deathbringer_blood_nova();
     new spell_deathbringer_blood_nova_targeting();
-    new spell_deathbringer_mark_of_the_fallen_champion();
     new achievement_ive_gone_and_made_a_mess();
 }
