@@ -32,6 +32,7 @@ enum Spells
     SPELL_INTENSE_COLD                            = 48094,
     SPELL_INTENSE_COLD_TRIGGERED                  = 48095
 };
+
 enum Yells
 {
     //Yell
@@ -41,13 +42,11 @@ enum Yells
     SAY_DEATH                                     = -1576043,
     SAY_CRYSTAL_NOVA                              = -1576044
 };
-enum Achievements
-{
-    ACHIEV_INTENSE_COLD                           = 2036
-};
+
 enum Misc
 {
-    DATA_CONTAINMENT_SPHERES                      = 3
+    DATA_INTENSE_COLD                             = 1,
+    DATA_CONTAINMENT_SPHERES                      = 3,
 };
 
 class boss_keristrasza : public CreatureScript
@@ -69,15 +68,13 @@ public:
 
         InstanceScript* pInstance;
 
+        std::list<uint64> intenseColdList;
+        uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
         uint32 uiCrystalfireBreathTimer;
         uint32 uiCrystalChainsCrystalizeTimer;
         uint32 uiTailSweepTimer;
+        bool intenseCold;
         bool bEnrage;
-
-        uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
-
-        uint32 uiCheckIntenseColdTimer;
-        bool bMoreThanTwoIntenseCold; // needed for achievement: Intense Cold(2036)
 
         void Reset()
         {
@@ -86,8 +83,8 @@ public:
             uiTailSweepTimer = 5*IN_MILLISECONDS;
             bEnrage = false;
 
-            uiCheckIntenseColdTimer = 2*IN_MILLISECONDS;
-            bMoreThanTwoIntenseCold = false;
+            intenseCold = true;
+            intenseColdList.clear();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
@@ -111,11 +108,7 @@ public:
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
-            {
-                if (IsHeroic() && !bMoreThanTwoIntenseCold)
-                    pInstance->DoCompleteAchievement(ACHIEV_INTENSE_COLD);
                 pInstance->SetData(DATA_KERISTRASZA_EVENT, DONE);
-            }
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -164,29 +157,16 @@ public:
             }
         }
 
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == DATA_INTENSE_COLD)
+                intenseColdList.push_back(data);
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
-
-            if (uiCheckIntenseColdTimer < diff && !bMoreThanTwoIntenseCold)
-            {
-                std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
-                {
-                    Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER)
-                        continue;
-
-                    Aura *AuraIntenseCold = pTarget->GetAura(SPELL_INTENSE_COLD_TRIGGERED);
-                    if (AuraIntenseCold && AuraIntenseCold->GetStackAmount() > 2)
-                    {
-                        bMoreThanTwoIntenseCold = true;
-                        break;
-                    }
-                }
-                uiCheckIntenseColdTimer = 2*IN_MILLISECONDS;
-            } else uiCheckIntenseColdTimer -= diff;
 
             if (!bEnrage && HealthBelowPct(25))
             {
@@ -246,8 +226,62 @@ public:
 
 };
 
+class spell_intense_cold : public SpellScriptLoader
+{
+    public:
+        spell_intense_cold() : SpellScriptLoader("spell_intense_cold") { }
+
+        class spell_intense_cold_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_intense_cold_AuraScript);
+
+            void HandlePeriodicTick(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (aurEff->GetBase()->GetStackAmount() >= 2)
+                    caster->ToCreature()->AI()->SetData(DATA_INTENSE_COLD, GetTarget()->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_intense_cold_AuraScript();
+        }
+};
+
+class achievement_intense_cold : public AchievementCriteriaScript
+{
+    public:
+        achievement_intense_cold() : AchievementCriteriaScript("achievement_intense_cold")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* target)
+        {
+            std::list<uint64> intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
+            if (intenseColdList.empty())
+                return true;
+
+            for (std::list<uint64>::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
+                if (player->GetGUID() != *itr)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_keristrasza()
 {
     new boss_keristrasza();
     new containment_sphere();
+    new achievement_intense_cold();
+    new spell_intense_cold();
 }
