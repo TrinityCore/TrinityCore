@@ -57,7 +57,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (73780,'spell_lich_king_infection'),
 (73781,'spell_lich_king_infection'),
 (74361,'spell_lich_king_valkyr_summon'),
-(68981,'spell_lich_king_winter'),
+(72259,'spell_lich_king_winter'),
 (74273,'spell_lich_king_winter'),
 (74274,'spell_lich_king_winter'),
 (74275,'spell_lich_king_winter'),
