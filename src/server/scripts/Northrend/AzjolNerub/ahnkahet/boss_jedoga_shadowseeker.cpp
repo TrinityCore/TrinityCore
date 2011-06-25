@@ -63,6 +63,9 @@ const Position JedogaPosition[2] =
     {372.330994f, -705.278015f, -16.179716f, 5.427970f}
 };
 
+#define ACTION_INITIAND_KILLED                    1
+#define DATA_VOLUNTEER_WORK                       2
+
 class boss_jedoga_shadowseeker : public CreatureScript
 {
 public:
@@ -89,7 +92,7 @@ public:
         bool bOnGround;
         bool bOpFerokFail;
         bool bCanDown;
-
+        bool volunteerWork;
         bool bFirstTime;
 
         void Reset()
@@ -104,6 +107,7 @@ public:
             bOpFerokFail = false;
             bOnGround = false;
             bCanDown = false;
+            volunteerWork = true;
 
             if (pInstance)
             {
@@ -150,6 +154,20 @@ public:
             DoScriptText(TEXT_DEATH, me);
             if (pInstance)
                 pInstance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, DONE);
+        }
+
+        void DoAction(int32 const action)
+        {
+            if (action == ACTION_INITIAND_KILLED)
+                volunteerWork = false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_VOLUNTEER_WORK)
+                return volunteerWork ? 1 : 0;
+
+            return 0;
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -374,43 +392,53 @@ public:
 
         void JustDied(Unit* Killer)
         {
-            if (!Killer || !pInstance) return;
+            if (!Killer || !pInstance)
+                return;
 
             if (bWalking)
             {
-                Creature* boss = me->GetMap()->GetCreature(pInstance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
-                if (boss && !CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok) CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_JEDOGA_SHADOWSEEKER)))
+                {
+                    if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
+                        CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
 
-                if (Killer->GetTypeId() == TYPEID_PLAYER) pInstance->SetData(DATA_INITIAND_KILLED, 1);
+                    boss->AI()->DoAction(ACTION_INITIAND_KILLED);
+                }
+
                 pInstance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
 
                 bWalking = false;
             }
-            if (Killer->GetTypeId() == TYPEID_PLAYER) pInstance->SetData64(DATA_PL_JEDOGA_TARGET, Killer->GetGUID());
+            if (Killer->GetTypeId() == TYPEID_PLAYER)
+                pInstance->SetData64(DATA_PL_JEDOGA_TARGET, Killer->GetGUID());
         }
 
         void EnterCombat(Unit* who)
         {
-            if ((pInstance && pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who) return;
+            if ((pInstance && pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
+                return;
         }
 
         void AttackStart(Unit* victim)
         {
-            if ((pInstance && pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !victim) return;
+            if ((pInstance && pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !victim)
+                return;
 
             ScriptedAI::AttackStart(victim);
         }
 
         void MoveInLineOfSight(Unit* who)
         {
-            if ((pInstance && pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who) return;
+            if ((pInstance && pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
+                return;
 
             ScriptedAI::MoveInLineOfSight(who);
         }
 
         void MovementInform(uint32 uiType, uint32 uiPointId)
         {
-            if (uiType != POINT_MOTION_TYPE || !pInstance) return;
+            if (uiType != POINT_MOTION_TYPE || !pInstance)
+                return;
 
             switch(uiPointId)
             {
@@ -569,9 +597,30 @@ public:
     }
 };
 
+class achievement_volunteer_work : public AchievementCriteriaScript
+{
+    public:
+        achievement_volunteer_work() : AchievementCriteriaScript("achievement_volunteer_work")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Jedoga = target->ToCreature())
+                if (Jedoga->AI()->GetData(DATA_VOLUNTEER_WORK))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_jedoga_shadowseeker()
 {
-    new boss_jedoga_shadowseeker;
-    new mob_jedoga_initiand;
-    new npc_jedogas_aufseher_trigger;
+    new boss_jedoga_shadowseeker();
+    new mob_jedoga_initiand();
+    new npc_jedogas_aufseher_trigger();
+    new achievement_volunteer_work();
 }

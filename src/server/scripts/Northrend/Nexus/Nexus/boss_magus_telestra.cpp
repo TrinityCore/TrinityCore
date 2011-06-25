@@ -346,6 +346,9 @@ class achievement_split_personality : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Telestra = target->ToCreature())
                 if (Telestra->AI()->GetData(DATA_SPLIT_PERSONALITY) == 2)
                     return true;

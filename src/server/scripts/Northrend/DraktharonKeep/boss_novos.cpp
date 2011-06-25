@@ -352,6 +352,9 @@ class achievement_oh_novos : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Novos = target->ToCreature())
                 if (Novos->AI()->GetData(DATA_OH_NOVOS))
                     return true;

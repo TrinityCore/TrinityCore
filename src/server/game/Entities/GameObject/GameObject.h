@@ -774,7 +774,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         uint64 GetRotation() const { return m_rotation; }
         virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
-        GameObjectAI* AI() const { return (GameObjectAI*)m_AI; }
+        GameObjectAI* AI() const { return m_AI; }
 
         std::string GetAIName() const;
     protected:

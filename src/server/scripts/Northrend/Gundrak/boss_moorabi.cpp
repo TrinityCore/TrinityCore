@@ -179,6 +179,9 @@ class achievement_less_rabi : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Moorabi = target->ToCreature())
                 if (Moorabi->AI()->GetData(DATA_LESS_RABI))
                     return true;
