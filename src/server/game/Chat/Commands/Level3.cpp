@@ -66,6 +66,14 @@
 
 #include "AuctionHouseBot.h"
 
+//TrinityJail reload commands Edited by LordPsyan
+	bool ChatHandler::HandleJailReloadCommand(const char* arg)
+{
+    sObjectMgr->LoadJailConf();
+    SendSysMessage(LANG_JAIL_RELOAD);
+    return true;
+}
+
 bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
 {
     uint32 ahMapID = 0;

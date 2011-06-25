@@ -345,7 +345,11 @@ ChatCommand * ChatHandler::getCommandTable()
         { "pet",            SEC_GAMEMASTER,     false, NULL,                                           "", petCommandTable },
         { "ticket",         SEC_MODERATOR,      false,  NULL,                                          "", ticketCommandTable },
         { "ahbotoptions",   SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleAHBotOptionsCommand>,        "", NULL },
-
+	     // Jail by WarHead Edited by LordPsyan
+        { "jail",           SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleJailCommand>,                "", NULL },
+        { "jailinfo",       SEC_PLAYER,         false, OldHandler<&ChatHandler::HandleJailInfoCommand>,            "", NULL },
+        { "unjail",         SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleUnJailCommand>,              "", NULL },
+        { "jailreload",     SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleJailReloadCommand>,          "", NULL },
         { "aura",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleAuraCommand>,                "", NULL },
         { "unaura",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleUnAuraCommand>,              "", NULL },
         { "nameannounce",   SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleNameAnnounceCommand>,        "", NULL },
