@@ -154,13 +154,7 @@ public:
         void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
         {
             if (summoned->GetEntry() == CREATURE_VOID_SENTRY)
-                SetData(DATA_VOID_DANCE, 0);
-        }
-
-        void SetData(uint32 id, uint32 data)
-        {
-            if (id == DATA_VOID_DANCE)
-                voidDance = data ? true : false;
+                voidDance = false;
         }
 
         uint32 GetData(uint32 type)
@@ -217,6 +211,9 @@ class achievement_void_dance : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Zuramat = target->ToCreature())
                 if (Zuramat->AI()->GetData(DATA_VOID_DANCE))
                     return true;

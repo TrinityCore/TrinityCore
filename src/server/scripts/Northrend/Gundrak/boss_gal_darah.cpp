@@ -293,6 +293,9 @@ class achievement_share_the_love : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* GalDarah = target->ToCreature())
                 if (GalDarah->AI()->GetData(DATA_SHARE_THE_LOVE) >= 5)
                     return true;

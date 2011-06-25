@@ -375,6 +375,9 @@ class achievement_three_faced : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Devourer = target->ToCreature())
                 if (Devourer->AI()->GetData(DATA_THREE_FACED))
                     return true;
