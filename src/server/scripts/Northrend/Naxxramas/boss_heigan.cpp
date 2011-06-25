@@ -216,6 +216,9 @@ class achievement_safety_dance : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Heigan = target->ToCreature())
                 if (Heigan->AI()->GetData(DATA_SAFETY_DANCE))
                     return true;

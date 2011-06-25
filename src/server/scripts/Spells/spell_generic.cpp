@@ -623,42 +623,6 @@ class spell_gen_animal_blood : public SpellScriptLoader
         }
 };
 
-class spell_gen_shroud_of_death : public SpellScriptLoader
-{
-    public:
-        spell_gen_shroud_of_death() : SpellScriptLoader("spell_gen_shroud_of_death") { }
-
-        class spell_gen_shroud_of_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_shroud_of_death_AuraScript);
-
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-                target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-            }
-
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
-                target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_shroud_of_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_shroud_of_death_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_shroud_of_death_AuraScript();
-        }
-};
-
 enum DivineStormSpell
 {
     SPELL_DIVINE_STORM  = 53385,
@@ -1161,6 +1125,35 @@ class spell_gen_magic_rooster : public SpellScriptLoader
         }
 };
 
+class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
+{
+public:
+    spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
+
+    class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
+
+        SpellCastResult CheckRequirement()
+        {
+            if (!GetCastItem())
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_allow_cast_from_item_only_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1176,7 +1169,6 @@ void AddSC_generic_spell_scripts()
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
-    new spell_gen_shroud_of_death();
     new spell_gen_divine_storm_cd_reset();
     new spell_gen_parachute_ic();
     new spell_gen_gunship_portal();
@@ -1188,4 +1180,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_turkey_marker();
     new spell_gen_lifeblood();
     new spell_gen_magic_rooster();
+    new spell_gen_allow_cast_from_item_only();
 }

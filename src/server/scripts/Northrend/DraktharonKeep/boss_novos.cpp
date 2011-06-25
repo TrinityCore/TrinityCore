@@ -31,6 +31,7 @@ enum Spells
     H_SPELL_WRATH_OF_MISERY                       = 59856,
     SPELL_SUMMON_MINIONS                          = 59910 //Summons an army of Fetid Troll Corpses to assist the caster.
 };
+
 //not in db
 enum Yells
 {
@@ -41,6 +42,7 @@ enum Yells
     SAY_REUBBLE_1                                 = -1600004,
     SAY_REUBBLE_2                                 = -1600005
 };
+
 enum Creatures
 {
     CREATURE_RISEN_SHADOWCASTER                   = 27600,
@@ -48,16 +50,16 @@ enum Creatures
     CREATURE_HULKING_CORPSE                       = 27597,
     CREATURE_CRYSTAL_HANDLER                      = 26627
 };
+
 enum CombatPhase
 {
     IDLE,
     PHASE_1,
     PHASE_2
 };
-enum Achievements
-{
-    ACHIEV_OH_NOVOS                               = 2057
-};
+
+#define ACTION_MINION_REACHED                     1
+#define DATA_OH_NOVOS                             2
 
 static Position AddSpawnPoint = { -379.20f, -816.76f, 59.70f, 0.0f };
 static Position CrystalHandlerSpawnPoint = { -326.626343f, -709.956604f, 27.813314f, 0.0f };
@@ -79,7 +81,7 @@ public:
         uint32 uiCrystalHandlerTimer;
         uint8 crystalHandlerAmount;
 
-        bool bAchiev;
+        bool ohNovos;
 
         SummonList lSummons;
 
@@ -93,7 +95,7 @@ public:
         {
             Phase = IDLE;
             luiCrystals.clear();
-            bAchiev = true;
+            ohNovos = true;
             me->CastStop();
             lSummons.DespawnAll();
             crystalHandlerAmount = 0;
@@ -108,10 +110,8 @@ public:
             if (pInstance)
             {
                 pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
-                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_1));
-                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_2));
-                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_3));
-                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_4));
+                for (uint8 n = 0; n < 4; ++n)
+                    luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_1 + n));
                 for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
                     if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
@@ -182,12 +182,7 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
             if (pInstance)
-            {
                 pInstance->SetData(DATA_NOVOS_EVENT, DONE);
-
-                if (IsHeroic() && bAchiev)
-                    pInstance->DoCompleteAchievement(ACHIEV_OH_NOVOS);
-            }
             lSummons.DespawnAll();
         }
 
@@ -204,6 +199,20 @@ public:
                 crystalHandlerAmount++;
 
             lSummons.Summon(summon);
+        }
+
+        void DoAction(int32 const action)
+        {
+            if (action == ACTION_MINION_REACHED)
+                ohNovos = false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_OH_NOVOS)
+                return ohNovos ? 1 : 0;
+
+            return 0;
         }
 
         void RemoveCrystal()
@@ -319,10 +328,10 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id !=0)
                 return;
-            if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* Novos = ObjectAccessor::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             {
-                CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->bAchiev = false;
-                if (Unit *pTarget = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
+                Novos->AI()->DoAction(ACTION_MINION_REACHED);
+                if (Unit *pTarget = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())
                     AttackStart(pTarget);
             }
         }
@@ -334,9 +343,30 @@ public:
     }
 };
 
+class achievement_oh_novos : public AchievementCriteriaScript
+{
+    public:
+        achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Novos = target->ToCreature())
+                if (Novos->AI()->GetData(DATA_OH_NOVOS))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_novos()
 {
-    new boss_novos;
-    new mob_crystal_handler;
-    new mob_novos_minion;
+    new boss_novos();
+    new mob_crystal_handler();
+    new mob_novos_minion();
+    new achievement_oh_novos();
 }

@@ -386,7 +386,7 @@ class Spell
 
         typedef std::set<Aura*> UsedSpellMods;
 
-        Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false);
+        Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false, bool castedClientside = false);
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
@@ -684,6 +684,7 @@ class Spell
         uint32 m_timer;
 
         bool m_IsTriggeredSpell;
+        bool m_castedClientside;
 
         // if need this can be replaced by Aura copy
         // we can't store original aura link to prevent access to deleted auras
