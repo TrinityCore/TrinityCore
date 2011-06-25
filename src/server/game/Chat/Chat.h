@@ -131,6 +131,7 @@ class ChatHandler
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
 
+        bool HandleAHBotOptionsCommand(const char * args);
         bool HandleNameAnnounceCommand(const char* args);
         bool HandleGMNameAnnounceCommand(const char* args);
         bool HandleGMAnnounceCommand(const char* args);
