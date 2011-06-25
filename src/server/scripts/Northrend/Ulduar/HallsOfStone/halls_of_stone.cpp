@@ -110,7 +110,9 @@ enum Spells
     H_SPELL_DARK_MATTER                 = 59868,
     //Abedneum
     SPELL_SEARING_GAZE                  = 51136,
-    H_SPELL_SEARING_GAZE                = 59867
+    H_SPELL_SEARING_GAZE                = 59867,
+
+    SPELL_REWARD_ACHIEVEMENT            = 59046,
 };
 
 enum Quests
@@ -118,13 +120,9 @@ enum Quests
     QUEST_HALLS_OF_STONE                = 13207
 };
 
-enum Achievements
-{
-    ACHIEV_BRANN_SPANKIN_NEW            = 2154
-};
-
 #define GOSSIP_ITEM_START               "Brann, it would be our honor!"
 #define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
+#define DATA_BRANN_SPARKLIN_NEWS        1
 
 static Position SpawnLocations[]=
 {
@@ -184,7 +182,7 @@ public:
         }
 
         void UpdateFacesList()
-       {
+        {
             /*GetCreatureListWithEntryInGrid(lKaddrakGUIDList, me, CREATURE_KADDRAK, 50.0f);
             if (!lKaddrakGUIDList.empty())
             {
@@ -315,7 +313,7 @@ public:
 
         bool bIsBattle;
         bool bIsLowHP;
-        bool bHasBeenDamaged;
+        bool brannSparklinNews;
 
         void Reset()
         {
@@ -323,10 +321,10 @@ public:
             {
                 bIsLowHP = false;
                 bIsBattle = false;
-                bHasBeenDamaged = false;
                 uiStep = 0;
                 uiPhaseTimer = 0;
                 uiControllerGUID = 0;
+                brannSparklinNews = true;
 
                 DespawnDwarf();
 
@@ -425,8 +423,16 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/)
         {
-            if (!bHasBeenDamaged)
-                bHasBeenDamaged = true;
+            if (brannSparklinNews)
+                brannSparklinNews = false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_BRANN_SPARKLIN_NEWS)
+                return brannSparklinNews ? 1 : 0;
+
+            return 0;
         }
 
         void UpdateEscortAI(const uint32 uiDiff)
@@ -590,17 +596,8 @@ public:
                     case 29:
                         DoScriptText(SAY_EVENT_END_02, me);
                         if (pInstance)
-                        {
                             pInstance->SetData(DATA_BRANN_EVENT, DONE);
-
-                            // Achievement criteria is with spell 59046 which does not exist.
-                            // There is thus no way it can be given by casting the spell on the players.
-                            pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 59046);
-
-                            if (!bHasBeenDamaged)
-                                pInstance->DoCompleteAchievement(ACHIEV_BRANN_SPANKIN_NEW);
-                        }
-
+                        me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
                         JumpToNextStep(5500);
                         break;
                     case 30:
@@ -738,8 +735,29 @@ public:
 
 };
 
+class achievement_brann_spankin_new : public AchievementCriteriaScript
+{
+    public:
+        achievement_brann_spankin_new() : AchievementCriteriaScript("achievement_brann_spankin_new")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Brann = target->ToCreature())
+                if (Brann->AI()->GetData(DATA_BRANN_SPARKLIN_NEWS))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_halls_of_stone()
 {
     new npc_brann_hos();
     new mob_tribuna_controller();
+    new achievement_brann_spankin_new();
 }

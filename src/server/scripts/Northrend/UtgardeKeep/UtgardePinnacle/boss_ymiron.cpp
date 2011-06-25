@@ -194,13 +194,7 @@ public:
         void SpellHitTarget(Unit* who, SpellEntry const* spell)
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
-                SetData(DATA_KINGS_BANE, 0);
-        }
-
-        void SetData(uint32 id, uint32 data)
-        {
-            if (id == DATA_KINGS_BANE)
-                kingsBane = data ? true : false;
+                kingsBane = false;
         }
 
         uint32 GetData(uint32 type)
@@ -406,6 +400,9 @@ class achievement_kings_bane : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Ymiron = target->ToCreature())
                 if (Ymiron->AI()->GetData(DATA_KINGS_BANE))
                     return true;
