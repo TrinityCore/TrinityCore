@@ -426,6 +426,22 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                         damage = unitTarget->CountPctFromMaxHealth(50);
                         break;
                     }
+					// Bone Storm
+                    case 69075:
+                    case 70834:
+                    case 70835:
+                    case 70836:
+                    {
+                        float distance = m_caster->GetDistance(unitTarget);
+                        float radius = 12.0f;
+                        if(distance > radius)
+                            return;
+                        if(distance < 1)
+                           distance = 1;
+                        int32 bp0 = m_spellInfo->EffectBasePoints[0];
+                        int32 damage = int32(bp0 / (distance / radius));
+                        break;
+                    }
                     case 29142: // Eyesore Blaster
                     case 35139: // Throw Boom's Doom
                     case 55269: // Deathly Stare
@@ -4371,6 +4387,74 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         }
 
                     }
+                    return;
+                }
+				                 //Gastric bloat
+                case 72219:
+                case 72551:
+                case 72552:
+                case 72553:
+                {
+                    if(!unitTarget)
+                        return;
+                    uint32 spellId = 0;
+                    uint32 auraId = 0;
+                    switch (m_spellInfo->Id)
+                    {
+                        case 72219: spellId = 72227; auraId = 72219; break;
+                        case 72551: spellId = 72228; auraId = 72551; break;
+                        case 72552: spellId = 72229; auraId = 72552; break;
+                        case 72553: spellId = 72230; auraId = 72553; break;
+                    }
+                    if(Aura* GastricAur = unitTarget->GetAura(auraId))
+                    {
+                        if (GastricAur->GetStackAmount() > 9)
+                        {
+                            unitTarget->RemoveAurasDueToSpell(auraId);
+                            unitTarget->CastSpell(unitTarget, spellId, true);  //cast gastric explosion
+                        }
+                    }
+                    return;
+                }
+                case 69200:                                 // Raging Spirit
+                {
+                    if (!unitTarget)
+                        return;
+                    unitTarget->CastSpell(unitTarget, 69201, true);
+                    return;
+                }
+                case 71446:                                 // Twilight Bloodbolt 10N
+                case 71478:                                 // Twilight Bloodbolt 25N
+                case 71479:                                 // Twilight Bloodbolt 10H
+                case 71480:                                 // Twilight Bloodbolt 25H
+                {
+                    if (!unitTarget)
+                        return;
+                    uint32 spellId = 71447;
+                    switch (m_spellInfo->Id)
+                    {
+                        case 71478: spellId = 71481; break;
+                        case 71479: spellId = 71482; break;
+                        case 71480: spellId = 71483; break;
+                    }
+                    unitTarget->CastSpell(unitTarget, spellId, true);
+                    return;
+                }
+                case 71899:                                 // Bloodbolt Whirl 10N
+                case 71900:                                 // Bloodbolt Whirl 25N
+                case 71901:                                 // Bloodbolt Whirl 10H
+                case 71902:                                 // Bloodbolt Whirl 25H
+                {
+                    if (!unitTarget)
+                        return;
+                    uint32 spellId = 71446;
+                    switch (m_spellInfo->Id)
+                    {
+                        case 71900: spellId = 71478; break;
+                        case 71901: spellId = 71479; break;
+                        case 71902: spellId = 71480; break;
+                    }
+                    m_caster->CastSpell(unitTarget, spellId, true);
                     return;
                 }
                 case 45204: // Clone Me!

@@ -2422,6 +2422,15 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             case TARGET_UNIT_CONE_ENEMY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
             case TARGET_UNIT_AREA_PATH:
+                //Stinky's aura has 0 radius, but should apply to everyone in his line of sight
+                 if ((m_spellInfo->Id == 71805 || m_spellInfo->Id == 71161 || m_spellInfo->Id == 71160) && cur == TARGET_UNIT_AREA_ENEMY_DST)
+                    radius = 200.0f;
+                //Lich King's Defile. Actual targets are filtered through custom SpellScript.
+                else if (m_spellInfo->Id == 72754 || m_spellInfo->Id == 73708 || m_spellInfo->Id == 73709 || m_spellInfo->Id == 73710)
+                    radius = 200.0f;
+                //Lich King's Fury of the Frostmourne and Play Movie
+                else if (m_spellInfo->Id == 72350 || m_spellInfo->Id == 73159)
+                    radius = 200.0f;
                 radius = GetSpellRadius(m_spellInfo, i, false);
                 targetType = SPELL_TARGETS_ENEMY;
                 break;
@@ -2485,6 +2494,13 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     // TODO: move these to sql
                     switch (m_spellInfo->Id)
                     {
+                        //Icecrown Citadel: Highlord Tirion Fordring's Mass Resurrection
+                        //Requires players to have at least friendly reputation with Argent Crusade
+                        case 72429:
+                        {
+                            SearchAreaTarget(unitList, 300.0f, pushType, SPELL_TARGETS_ALLY);
+                            break;
+                        }
                         case 46584: // Raise Dead
                         {
                             if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())

@@ -1671,7 +1671,7 @@ if (m_jail_amnestie == true && sObjectMgr->m_jailconf_amnestie > 0)
 
     GetAchievementMgr().UpdateTimedAchievements(p_time);
 
-    if (HasUnitState(UNIT_STAT_MELEE_ATTACKING) && !HasUnitState(UNIT_STAT_CASTING))
+    if (HasUnitState(UNIT_STAT_MELEE_ATTACKING) && CanAttackWhileCasting())
     {
         if (Unit *pVictim = getVictim())
         {

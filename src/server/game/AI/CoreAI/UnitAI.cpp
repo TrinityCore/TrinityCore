@@ -23,6 +23,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "CreatureAIImpl.h"
+#include "Spell.h"
 
 void UnitAI::AttackStart(Unit* victim)
 {
@@ -38,7 +39,7 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if (me->HasUnitState(UNIT_STAT_CASTING))
+    if (!me->CanAttackWhileCasting())
         return;
 
     //Make sure our attack is ready and we aren't currently casting before checking distance

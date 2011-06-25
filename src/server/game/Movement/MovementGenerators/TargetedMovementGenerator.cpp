@@ -185,7 +185,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         return true;
 
     // prevent movement while casting spells with cast time or channel time
-    if (owner.HasUnitState(UNIT_STAT_CASTING))
+    if (!owner.CanMoveWhileCasting())
     {
         if (!owner.IsStopped())
             owner.StopMoving();
