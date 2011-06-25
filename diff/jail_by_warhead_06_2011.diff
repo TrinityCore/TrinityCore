@@ -1626,18 +1626,10 @@ index 0000000..01a1db0
 +    new jail_commandscript();
 +}
 diff --git a/src/server/worldserver/CMakeLists.txt b/src/server/worldserver/CMakeLists.txt
-index cdd9b04..a5ecb17 100644
+index 82f612e..a5ecb17 100644
 --- a/src/server/worldserver/CMakeLists.txt
 +++ b/src/server/worldserver/CMakeLists.txt
-@@ -75,7 +75,6 @@ include_directories(
-   ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
-   ${CMAKE_SOURCE_DIR}/src/server/game/AI/SmartScripts
-   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
--  ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse/AuctionHouseBot
-   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
-   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds/Zones
-   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
-@@ -109,6 +108,7 @@ include_directories(
+@@ -108,6 +108,7 @@ include_directories(
    ${CMAKE_SOURCE_DIR}/src/server/game/Groups
    ${CMAKE_SOURCE_DIR}/src/server/game/Guilds
    ${CMAKE_SOURCE_DIR}/src/server/game/Instances
