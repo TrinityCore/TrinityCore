@@ -1,6 +1,6 @@
 diff --git a/sql/jail/character_jail.sql b/sql/jail/character_jail.sql
 new file mode 100644
-index 0000000..dd87f5b
+index 0000000..37b9488
 --- /dev/null
 +++ b/sql/jail/character_jail.sql
 @@ -0,0 +1,46 @@
@@ -15,7 +15,7 @@ index 0000000..dd87f5b
 +  `times` int(11) unsigned NOT NULL COMMENT 'Anzahl der Inhaftierungen',
 +  `gmacc` int(11) unsigned NOT NULL COMMENT 'Verantwortlicher GM-Account',
 +  `gmchar` varchar(13) NOT NULL COMMENT 'Verantwortlicher GM-Char',
-+  `lasttime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Letzte Inhaftierungszeit',
++  `lasttime` int(11) unsigned NOT NULL COMMENT 'Letzte Inhaftierungszeit',
 +  `duration` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Dauer der Inhaftierung',
 +  `btimes` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Anzahl der Bannungen durch das Jail.',
 +  PRIMARY KEY (`guid`)
@@ -71,10 +71,10 @@ index 0000000..a304db7
 +('jail delete',     3, 'Syntax: .jail delete\nWie reset, aber löscht auch Jails mit Bannungen!\nDie Bannung wird dadurch auch gelöscht!');
 diff --git a/sql/jail/world_string_jail.sql b/sql/jail/world_string_jail.sql
 new file mode 100644
-index 0000000..7e54e14
+index 0000000..b4842dc
 --- /dev/null
 +++ b/sql/jail/world_string_jail.sql
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,53 @@
 +﻿SET NAMES utf8;
 +
 +DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12100 AND 12199;
@@ -124,6 +124,7 @@ index 0000000..7e54e14
 +(12142, 'Jail: No arrests found.','Jail: Keine Inhaftierungen gefunden.'),
 +(12143, 'Jail: %u arrests (%u are active) within %u ms loaded.','Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.'),
 +(12144, 'ERROR! STRING TO LONG!','FEHLER! STRING ZU LANG!'),
++(12145, 'Jail: Jail data loaded.','Jail: Die Knastdaten wurden geladen.'),
 +(12197, 'The Jail is now active.', 'Das Jail ist nun aktiv.'),
 +(12198, 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'),
 +(12199, 'The Jail is not active!', 'Das Jail ist nicht aktiv!');
@@ -156,7 +157,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 1c3bc04..10961e8 100755
+index 1c3bc04..fc9b438 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -219,8 +220,8 @@ index 1c3bc04..10961e8 100755
 +// Jail Daten speichern
 +void Player::JailDatenSpeichern()
 +{
-+    CharacterDatabase.PExecute("REPLACE INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`,`btimes`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s','%s',%u,%u)",
-+        GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailZeit.c_str(), m_JailDauer, m_JailBans);
++    CharacterDatabase.PExecute("REPLACE INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`,`btimes`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s',%u,%u,%u)",
++        GetGUIDLow(), GetName(), m_JailRelease, m_JailGrund.c_str(), m_JailAnzahl, m_JailGMAcc, m_JailGMChar.c_str(), m_JailZeit, m_JailDauer, m_JailBans);
 +
 +    JailEintragStruktur JES;
 +
@@ -310,7 +311,7 @@ index 1c3bc04..10961e8 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 725c3fb..ffef200 100755
+index 725c3fb..861afbc 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -330,10 +331,10 @@ index 725c3fb..ffef200 100755
 +        uint32 m_JailDauer;         // Dauer des Knastaufenthaltes
 +        uint32 m_JailWarnTimer;     // Timer damit die Warnungen vom Jail nicht wärend eines Ladebildschirms gesendet werden!
 +        uint32 m_JailBans;          // Anzahl der Bannungen durch das Jail
++        uint32 m_JailZeit;          // Inhaftierungszeit
 +
 +        std::string m_JailGrund;    // Der Grund
 +        std::string m_JailGMChar;   // GM-Charakter der ihn eingebuchtet hat
-+        std::string m_JailZeit;     // Zeit der letzten Inhaftierung
 +
 +        bool m_Jailed;              // Zur Zeit gerade im Knast?
 +
@@ -345,10 +346,10 @@ index 725c3fb..ffef200 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..db437e1
+index 0000000..f409af4
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,875 @@
+@@ -0,0 +1,870 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include "Jail.h"
@@ -462,7 +463,7 @@ index 0000000..db437e1
 +    time_t localtime = time(NULL);
 +    uint32 min_left = uint32(floor(float(chr->m_JailRelease - localtime) / MINUTE));
 +
-+    if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
++    if (min_left && min_left > (m_JailKonf.MaxDauer*MINUTE)) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
 +        min_left = 0;
 +
 +    if (min_left >= MINUTE)
@@ -531,16 +532,18 @@ index 0000000..db437e1
 +        time_t localtime = time(NULL);
 +        uint32 min_left = uint32(floor(float(target->m_JailRelease - localtime) / MINUTE));
 +
-+        if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
++        if (min_left && min_left > (m_JailKonf.MaxDauer*MINUTE)) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
 +            min_left = 0;
 +
 +        if (min_left >= MINUTE)
 +        {
 +            uint32 hours = uint32(floor(float(target->m_JailRelease - localtime) / HOUR));
-+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE), target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), target->m_JailAnzahl, hours, min_left-(hours*MINUTE),
++                target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit, GERMAN).c_str(), target->m_JailGrund.c_str());
 +        }
 +        else
-+            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left, target->m_JailGMChar.c_str(), target->m_JailZeit.c_str(), target->m_JailGrund.c_str());
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), target->m_JailAnzahl, min_left,
++            target->m_JailGMChar.c_str(), TimeToTimestampStr(target->m_JailZeit, GERMAN).c_str(), target->m_JailGrund.c_str());
 +
 +        if (target->m_JailBans)
 +            handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, target->m_JailBans);
@@ -568,16 +571,17 @@ index 0000000..db437e1
 +        time_t localtime = time(NULL);
 +        uint32 min_left = uint32(floor(float(itr->second.Release - localtime) / MINUTE));
 +
-+        if (min_left && min_left > m_JailKonf.MaxDauer) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
++        if (min_left && min_left > (m_JailKonf.MaxDauer*MINUTE)) // Es kann sonst zu "merkwürdigen" Ausgaben kommen. ;)
 +            min_left = 0;
 +
 +        if (min_left >= MINUTE)
 +        {
 +            uint32 hours = uint32(floor(float(itr->second.Release - localtime) / HOUR));
-+            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), itr->second.Times, hours, min_left-(hours*MINUTE), itr->second.GMChar.c_str(), itr->second.Time.c_str(), itr->second.Reason.c_str());
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO_H, target_name.c_str(), itr->second.Times, hours, min_left-(hours*MINUTE),
++                itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time, GERMAN).c_str(), itr->second.Reason.c_str());
 +        }
 +        else
-+            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), itr->second.Time.c_str(), itr->second.Reason.c_str());
++            handler->PSendSysMessage(LANG_JAIL_GM_INFO, target_name.c_str(), itr->second.Times, min_left, itr->second.GMChar.c_str(), TimeToTimestampStr(itr->second.Time, GERMAN).c_str(), itr->second.Reason.c_str());
 +
 +        if (itr->second.BTimes)
 +            handler->PSendSysMessage(LANG_JAIL_GM_INFO_ONLY_BANS, itr->second.BTimes);
@@ -661,24 +665,16 @@ index 0000000..db437e1
 +    }
 +
 +    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
-+    std::string timestamp;
 +    std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
-+
-+    QueryResult result = CharacterDatabase.Query("SELECT CURRENT_TIMESTAMP");
-+    if (result)
-+    {
-+        Field * fields = result->Fetch();
-+        timestamp = fields[0].GetString();
-+    }
 +
 +    if (Player * chr = sObjectMgr->GetPlayer(GUID_LOPART(GUID)))
 +    {   // Ohne Klammern springt er zum Ende, wenn chr == NULL ist!!!
-+        if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, timestamp, announce))
++        if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, announce))
 +            return true;
 +    }
 +    else
 +    {
-+        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, timestamp, announce))
++        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, announce))
 +            return true;
 +    }
 +    return false;
@@ -970,7 +966,7 @@ index 0000000..db437e1
 +            sWorld->SendServerMessage(SERVER_MSG_STRING, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CHAR_FREE), itr->second.CharName.c_str(), itr->first));
 +        }
 +    }
-+    sLog->outDebug(LOG_FILTER_NONE, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_3)), cnt, GetMSTimeDiffToNow(oldMSTime));
++    sLog->outDebug(LOG_FILTER_NONE, fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_3), cnt, GetMSTimeDiffToNow(oldMSTime)));
 +}
 +
 +bool Jail::Init(bool reload)
@@ -1011,7 +1007,7 @@ index 0000000..db437e1
 +        JES.Times       = fields[4].GetUInt32();
 +        JES.GMAcc       = fields[5].GetUInt32();
 +        JES.GMChar      = fields[6].GetString();
-+        JES.Time        = fields[7].GetString();
++        JES.Time        = fields[7].GetUInt32();
 +        JES.Duration    = fields[8].GetUInt32();
 +        JES.BTimes      = fields[9].GetUInt32();
 +        JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName.c_str());
@@ -1023,12 +1019,12 @@ index 0000000..db437e1
 +
 +    } while (result->NextRow());
 +
-+    sLog->outString(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_4)), cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime));
++    sLog->outString(fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_INIT_4), cnt, cntaktiv, GetMSTimeDiffToNow(oldMSTime)));
 +
-+    if (!reload)
-+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
++    if (reload)
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD_JAIL));
 +    else
-+        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_RELOAD));
++        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DATA_LOADED));
 +
 +    return true;
 +}
@@ -1056,7 +1052,7 @@ index 0000000..db437e1
 +    }
 +}
 +
-+bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
++bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce)
 +{
 +    time_t localtime = time(NULL);
 +    uint32 release = uint32(localtime + (jailtime * HOUR));
@@ -1104,7 +1100,7 @@ index 0000000..db437e1
 +    return true;
 +}
 +
-+bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce)
++bool Jail::Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce)
 +{
 +    time_t localtime = time(NULL);
 +    uint32 release = uint32(localtime + (jailtime * HOUR));
@@ -1116,8 +1112,8 @@ index 0000000..db437e1
 +    {
 +        ++times;
 +
-+        CharacterDatabase.PExecute("INSERT INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s','%s',%u)",
-+            guid, cname.c_str(), release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), timestamp.c_str(), jailtime);
++        CharacterDatabase.PExecute("INSERT INTO `jail` (`guid`,`char`,`release`,`reason`,`times`,`gmacc`,`gmchar`,`lasttime`,`duration`) VALUES (%u,'%s',%u,'%s',%u,%u,'%s',%u,%u)",
++            guid, cname.c_str(), release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), localtime, jailtime);
 +
 +        JES.BTimes = 0;
 +        JES.CharName = cname;
@@ -1125,7 +1121,7 @@ index 0000000..db437e1
 +        JES.GMAcc = handler->GetSession()->GetAccountId();
 +        JES.GMChar = handler->GetSession()->GetPlayerName();
 +        JES.Reason = jailreason;
-+        JES.Time = timestamp;
++        JES.Time = uint32(localtime);
 +        JES.Times = times;
 +        JES.Release = release;
 +
@@ -1135,14 +1131,14 @@ index 0000000..db437e1
 +    {
 +        times = ++itr->second.Times;
 +
-+        CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`lasttime`='%s',`duration`=%u WHERE `guid`=%u LIMIT 1",
-+            release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), timestamp.c_str(), jailtime, guid);
++        CharacterDatabase.PExecute("UPDATE `jail` SET `release`=%u,`reason`='%s',`times`=%u,`gmacc`=%u,`gmchar`='%s',`lasttime`=%u,`duration`=%u WHERE `guid`=%u LIMIT 1",
++            release, jailreason.c_str(), times, handler->GetSession()->GetAccountId(), handler->GetSession()->GetPlayerName(), localtime, jailtime, guid);
 +
 +        itr->second.Release = release;
 +        itr->second.Reason = jailreason;
 +        itr->second.GMAcc = handler->GetSession()->GetAccountId();
 +        itr->second.GMChar = handler->GetSession()->GetPlayerName();
-+        itr->second.Time = timestamp;
++        itr->second.Time = uint32(localtime);
 +        itr->second.Duration = jailtime;
 +    }
 +    handler->PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);
@@ -1226,7 +1222,7 @@ index 0000000..db437e1
 +}
 diff --git a/src/server/game/Jail/Jail.h b/src/server/game/Jail/Jail.h
 new file mode 100644
-index 0000000..56d3048
+index 0000000..d0b5c7f
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.h
 @@ -0,0 +1,101 @@
@@ -1268,11 +1264,11 @@ index 0000000..56d3048
 +    uint32 BTimes;          // Anzahl der Bannungen des Accounts, aufgrund von diesem Char
 +    uint32 Duration;        // Dauer der Inhaftierung
 +    uint32 GMAcc;           // Account des GM
++    uint32 Time;            // Inhaftierungszeit
 +
 +    std::string CharName;   // Charaktername des Häftlings
 +    std::string GMChar;     // Charaktername des GM
 +    std::string Reason;     // Grund der Inhaftierung
-+    std::string Time;       // Zeitstempel der Inhaftierung
 +
 +    uint32 account;         // Nicht im Jailtable vorhanden - dient nur zu internen Zwecken!
 +};
@@ -1290,8 +1286,8 @@ index 0000000..56d3048
 +    JailMap             m_JailMap;  // UNORDERED_MAP aller Jaileinträge
 +
 +    bool SendeInaktiv(ChatHandler * handler);
-+    bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
-+    bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string timestamp, std::string announce);
++    bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
++    bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
 +    void BannAccount(uint32 acc_id, uint32 guid, Player * chr = NULL);
 +    char const * fmtstring(char const * format, ...);
 +
@@ -1332,7 +1328,7 @@ index 0000000..56d3048
 +
 +#endif
 diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
-index bd2c34a..0d7d40b 100755
+index bd2c34a..bd65697 100755
 --- a/src/server/game/Miscellaneous/Language.h
 +++ b/src/server/game/Miscellaneous/Language.h
 @@ -1,4 +1,5 @@
@@ -1341,7 +1337,7 @@ index bd2c34a..0d7d40b 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1048,9 +1049,59 @@ enum TrinityStrings
+@@ -1048,9 +1049,60 @@ enum TrinityStrings
      LANG_AUTO_BROADCAST                 = 11000,
      LANG_INVALID_REALMID                = 11001,
  
@@ -1396,6 +1392,7 @@ index bd2c34a..0d7d40b 100755
 +    LANG_JAIL_INIT_3            = 12142,
 +    LANG_JAIL_INIT_4            = 12143,
 +    LANG_JAIL_FMTSTR            = 12144,
++    LANG_JAIL_DATA_LOADED       = 12145,
 +    LANG_JAIL_ENABLED           = 12197,
 +    LANG_JAIL_DISABLED          = 12198,
 +    LANG_JAIL_NOT_ACTIVE        = 12199
@@ -1625,6 +1622,59 @@ index 0000000..01a1db0
 +{
 +    new jail_commandscript();
 +}
+diff --git a/src/server/shared/Utilities/Util.cpp b/src/server/shared/Utilities/Util.cpp
+index 3cea21f..a565009 100755
+--- a/src/server/shared/Utilities/Util.cpp
++++ b/src/server/shared/Utilities/Util.cpp
+@@ -208,7 +208,7 @@ uint32 TimeStringToSecs(const std::string& timestring)
+     return secs;
+ }
+ 
+-std::string TimeToTimestampStr(time_t t)
++std::string TimeToTimestampStr(time_t t, TimestampModus modus)
+ {
+     tm* aTm = localtime(&t);
+     //       YYYY   year
+@@ -217,8 +217,15 @@ std::string TimeToTimestampStr(time_t t)
+     //       HH     hour (2 digits 00-23)
+     //       MM     minutes (2 digits 00-59)
+     //       SS     seconds (2 digits 00-59)
+-    char buf[20];
+-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
++    char buf[30];
++
++    switch(modus)
++    {
++        case STANDARD: snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
++        case GERMAN: snprintf(buf, 27, "%02d.%02d.%04d %02d:%02d:%02d", aTm->tm_mday, aTm->tm_mon+1, aTm->tm_year+1900, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
++        case UNIX: snprintf(buf, 20, "%04d-%02d-%02d %02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
++        default: snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec); break;
++    }
+     return std::string(buf);
+ }
+ 
+diff --git a/src/server/shared/Utilities/Util.h b/src/server/shared/Utilities/Util.h
+index 5ace48e..7fe9be2 100755
+--- a/src/server/shared/Utilities/Util.h
++++ b/src/server/shared/Utilities/Util.h
+@@ -44,9 +44,16 @@ struct Tokens: public std::vector<char*>
+ 
+ void stripLineInvisibleChars(std::string &src);
+ 
++enum TimestampModus
++{
++    STANDARD = 0,
++    GERMAN,
++    UNIX
++};
++
+ std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
+ uint32 TimeStringToSecs(const std::string& timestring);
+-std::string TimeToTimestampStr(time_t t);
++std::string TimeToTimestampStr(time_t t, TimestampModus modus = STANDARD);
+ 
+ inline uint32 secsToTimeBitFields(time_t secs)
+ {
 diff --git a/src/server/worldserver/CMakeLists.txt b/src/server/worldserver/CMakeLists.txt
 index 82f612e..a5ecb17 100644
 --- a/src/server/worldserver/CMakeLists.txt
