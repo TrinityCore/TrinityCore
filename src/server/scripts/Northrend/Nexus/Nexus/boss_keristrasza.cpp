@@ -266,15 +266,16 @@ class achievement_intense_cold : public AchievementCriteriaScript
 
         bool OnCheck(Player* player, Unit* target)
         {
+            if (!target)
+                return false;
+
             std::list<uint64> intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
-            if (intenseColdList.empty())
-                return true;
+            if (!intenseColdList.empty())
+                for (std::list<uint64>::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
+                    if (player->GetGUID() == *itr)
+                        return false;
 
-            for (std::list<uint64>::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
-                if (player->GetGUID() != *itr)
-                    return true;
-
-            return false;
+            return true;
         }
 };
 
