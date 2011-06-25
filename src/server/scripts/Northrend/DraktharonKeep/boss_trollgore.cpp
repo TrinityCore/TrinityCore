@@ -34,6 +34,7 @@ enum Spells
     H_SPELL_CONSUME                               = 59803,
     H_SPELL_CONSUME_AURA                          = 59805,
 };
+
 enum Yells
 {
     SAY_AGGRO                                     = -1600006,
@@ -42,15 +43,14 @@ enum Yells
     SAY_EXPLODE                                   = -1600009,
     SAY_DEATH                                     = -1600010
 };
-enum Achievements
-{
-    ACHIEV_CONSUMPTION_JUNCTION                   = 2151
-};
+
 enum Creatures
 {
     NPC_DRAKKARI_INVADER_1                        = 27753,
     NPC_DRAKKARI_INVADER_2                        = 27709
 };
+
+#define DATA_CONSUMPTION_JUNCTION                 1
 
 Position AddSpawnPoint = { -260.493011f, -622.968018f, 26.605301f, 3.036870f };
 
@@ -73,7 +73,7 @@ public:
         uint32 uiExplodeCorpseTimer;
         uint32 uiSpawnTimer;
 
-        bool bAchiev;
+        bool consumptionJunction;
 
         SummonList lSummons;
 
@@ -88,7 +88,7 @@ public:
             uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
             uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
 
-            bAchiev = IsHeroic();
+            consumptionJunction = true;
 
             lSummons.DespawnAll();
 
@@ -127,11 +127,11 @@ public:
                 uiConsumeTimer = 15*IN_MILLISECONDS;
             } else uiConsumeTimer -= diff;
 
-            if (bAchiev)
+            if (consumptionJunction)
             {
-                Aura *pConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
-                if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
-                    bAchiev = false;
+                Aura* ConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
+                if (ConsumeAura && ConsumeAura->GetStackAmount() > 9)
+                    consumptionJunction = false;
             }
 
             if (uiCrushTimer <= diff)
@@ -163,11 +163,15 @@ public:
             lSummons.DespawnAll();
 
             if (pInstance)
-            {
-                if (bAchiev)
-                    pInstance->DoCompleteAchievement(ACHIEV_CONSUMPTION_JUNCTION);
                 pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
-            }
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_CONSUMPTION_JUNCTION)
+                return consumptionJunction ? 1 : 0;
+
+            return 0;
         }
 
         void KilledUnit(Unit* victim)
@@ -191,7 +195,25 @@ public:
     }
 };
 
+class achievement_consumption_junction : public AchievementCriteriaScript
+{
+    public:
+        achievement_consumption_junction() : AchievementCriteriaScript("achievement_consumption_junction")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (Creature* Trollgore = target->ToCreature())
+                if (Trollgore->AI()->GetData(DATA_CONSUMPTION_JUNCTION))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_trollgore()
 {
-    new boss_trollgore;
+    new boss_trollgore();
+    new achievement_consumption_junction();
 }
