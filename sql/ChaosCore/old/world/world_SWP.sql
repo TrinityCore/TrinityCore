@@ -1,0 +1,30 @@
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25367;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25363;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25371;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25370;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25369;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25867;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25368;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25507;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25372;
+
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25484;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25506;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25483;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25373;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25486;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25837;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25485;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25508;
+
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25593;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25599;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25595;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25592;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25948;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25597;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25591;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25509;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25851;
+update creature_template set scriptname = 'mob_sunwell_plateau_tash' where entry = 25598;
+update creature_template set scriptname = 'mob_volatile_felfire_fiend' where entry=25598;
