@@ -19401,6 +19401,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 70803, 0x00,   8, 0x003E0000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 4P Bonus
 ( 70805, 0x00,   8, 0x00000000, 0x00020000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 2P Bonus
 ( 70807, 0x00,  11, 0x00000000, 0x00000000, 0x00000010, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Restoration 2P Bonus
+( 70817, 0x00,  11, 0x00000000, 0x00001000, 0x00000000, 0x00010000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Elemental 4P Bonus
 ( 70830, 0x00,  11, 0x00000000, 0x00020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Enhancement 2P Bonus
 ( 70841, 0x00,   5, 0x00000004, 0x00000100, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Warlock T10 4P Bonus
 ( 70844, 0x00,   4, 0x00000100, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Warrior T10 Protection 4P Bonus
