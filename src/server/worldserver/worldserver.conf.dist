@@ -147,7 +147,7 @@ BindIP = "0.0.0.0"
 #    UseProcessors
 #        Description: Processors mask for Windows based multi-processor systems.
 #        Default:     0  - (Selected by OS)
-#                     1+ - (Bit mask value of selected processors)
+#                     1 - (Bit mask value of selected processors)
 
 UseProcessors = 0
 
@@ -174,7 +174,7 @@ Compression = 1
 #          Important: If you want to block players and only allow Mods, GMs or Admins to join the
 #                     server, use the DB field "realmd.realmlist.allowedSecurityLevel".
 #            Default: 100 - (Enabled)
-#                     1+  - (Enabled)
+#                     1  - (Enabled)
 #                     0   - (Disabled, No limit)
 
 PlayerLimit = 100
@@ -191,7 +191,7 @@ SaveRespawnTimeImmediately = 1
 #    MaxOverspeedPings
 #        Description: Maximum overspeed ping count before character is disconnected.
 #        Default:     2  - (Enabled, Minimum value)
-#                     3+ - (Enabled, More checks before kick)
+#                     3 - (Enabled, More checks before kick)
 #                     0  - (Disabled)
 
 MaxOverspeedPings = 2
@@ -253,7 +253,7 @@ PlayerSaveInterval = 900000
 #    PlayerSave.Stats.MinLevel
 #        Description: Minimum level for saving character stats in the database for external usage.
 #        Default:     0  - (Disabled, Do not save character stats)
-#                     1+ - (Enabled, Level beyond which character stats are saved)
+#                     1 - (Enabled, Level beyond which character stats are saved)
 
 PlayerSave.Stats.MinLevel = 0
 
@@ -312,8 +312,8 @@ DetectPosCollision = 1
 
 #
 #    TargetPosRecalculateRange
-#        Description: Max distance from movement target point (+moving unit size) and targeted
-#                     object (+size) after that new target movement point calculated.
+#        Description: Max distance from movement target point (moving unit size) and targeted
+#                     object (size) after that new target movement point calculated.
 #        Range:       0.5-5.0
 #        Default:     1.5
 #                     0.5 - (Minimum, Contact Range, More sensitive reaction to target movement)
@@ -325,7 +325,7 @@ TargetPosRecalculateRange = 1.5
 #    UpdateUptimeInterval
 #        Description: Update realm uptime period (in minutes).
 #        Default:     10 - (10 minutes)
-#                     1+
+#                     1
 
 UpdateUptimeInterval = 10
 
@@ -334,7 +334,7 @@ UpdateUptimeInterval = 10
 #        Description: Time (in minutes) for the WUPDATE_CLEANDB timer that clears the `logs` table
 #                     of old entries.
 #        Default:     10 - (10 minutes)
-#                     1+
+#                     1
 
 LogDB.Opt.ClearInterval = 10
 
@@ -350,7 +350,7 @@ LogDB.Opt.ClearTime = 1209600
 #    MaxCoreStuckTime
 #        Description: Time (in seconds) before the server is forced to crash if it is frozen.
 #        Default:     0   - (Disabled)
-#                     10+ - (Enabled, Recommended 10+)
+#                     10 - (Enabled, Recommended 10)
 
 MaxCoreStuckTime = 0
 
@@ -448,7 +448,7 @@ LogFileLevel = 0
 #                          categories.
 #                   2 - Anything related to pets.
 #                   4 - Anything related to vehicles. 
-#                   8 - Anything related to C++ AI, instance scripts, etc.
+#                   8 - Anything related to C AI, instance scripts, etc.
 #                  16 - Anything related to DB AI, such as SAI, EAI, CreatureAI
 #                  32 - Anything related to DB map scripts
 #                  64 - Anything related to network input/output,
@@ -842,7 +842,7 @@ RealmZone = 1
 #                         Note: Client needs to have the appropriate fonts installed which support
 #                         the charset. For non-official localization, custom fonts need to be
 #                         placed in clientdir/Fonts.
-#                     3 - (Enabled, Basic Latin characters + server timezone specific)
+#                     3 - (Enabled, Basic Latin characters  server timezone specific)
 
 StrictPlayerNames = 0
 
@@ -856,7 +856,7 @@ StrictPlayerNames = 0
 #                         Note: Client needs to have the appropriate fonts installed which support
 #                         the charset. For non-official localization, custom fonts need to be
 #                         placed in clientdir/Fonts.
-#                     3 - (Enabled, Basic Latin characters + server timezone specific)
+#                     3 - (Enabled, Basic Latin characters  server timezone specific)
 
 StrictCharterNames = 0
 
@@ -870,7 +870,7 @@ StrictCharterNames = 0
 #                         Note: Client needs to have the appropriate fonts installed which support
 #                         the charset. For non-official localization, custom fonts need to be
 #                         placed in clientdir/Fonts.
-#                     3 - (Enabled, Basic Latin characters + server timezone specific)
+#                     3 - (Enabled, Basic Latin characters  server timezone specific)
 
 StrictPetNames = 0
 
@@ -952,7 +952,7 @@ CharacterCreating.Disabled = 0
 #
 #    CharacterCreating.Disabled.RaceMask
 #        Description: Mask of races which cannot be created by players.
-#        Example:     1536 - (1024 + 512, Blood Elf and Draenei races are disabled)
+#        Example:     1536 - (1024  512, Blood Elf and Draenei races are disabled)
 #        Default:     0    - (Enabled, All races are allowed)
 #                     1    - (Disabled, Human)
 #                     2    - (Disabled, Orc)
@@ -970,7 +970,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #
 #    CharacterCreating.Disabled.ClassMask
 #        Description: Mask of classes which cannot be created by players.
-#        Example:     288 - (32 + 256, Death Knight and Warlock classes are disabled)
+#        Example:     288 - (32  256, Death Knight and Warlock classes are disabled)
 #        Default:     0    - (Enabled, All classes are allowed)
 #                     1    - (Disabled, Warrior)
 #                     2    - (Disabled, Paladin)
@@ -2268,8 +2268,8 @@ DurabilityLossChance.Block = 0.05
 #                           Level 11-19 characters will be affected for 1 minute,
 #                           Level 20-MaxPlayerLevel characters will be affected for 10 minutes)
 #         Default:    11               - (Enabled, See Example)
-#                     MaxPlayerLevel+1 - (Disabled)
-#                     -10              - (Enabled, Level 1+ characters have 10 minute duration)
+#                     MaxPlayerLevel1 - (Disabled)
+#                     -10              - (Enabled, Level 1 characters have 10 minute duration)
 
 Death.SicknessLevel = 11
 
@@ -2888,7 +2888,7 @@ CharDelete.Method = 0
 #    CharDelete.MinLevel
 #        Description: Required level to use the unlinking method if enabled.
 #        Default:     0  - (Same method for every level)
-#                     1+ - (Only characters with the specified level will use the unlinking method)
+#                     1 - (Only characters with the specified level will use the unlinking method)
 
 CharDelete.MinLevel = 0
 
@@ -2937,7 +2937,7 @@ PlayerStart.MapsExplored = 0
 #    HonorPointsAfterDuel
 #        Description: Amount of honor points the duel winner will get after a duel.
 #        Default:     0  - (Disabled)
-#                     1+ - (Enabled)
+#                     1 - (Enabled)
 
 HonorPointsAfterDuel = 0
 
@@ -3063,8 +3063,42 @@ LevelReq.Mail = 1
 
 #
 ###################################################################################################
+#
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
-#######################################################################
+Anticheat.Enable = 1
+
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+
+Anticheat.DetectionsEnabled = 31
+
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+
+Anticheat.MaxReportsForDailyReport = 70
+
+#
+###################################################################################################
 #   OutdoorPvP.Wintergrasp.Enabled
 #       Determines whether the Wintergrasp battle is enabled or not.
 #        Default: 0 = Disable
