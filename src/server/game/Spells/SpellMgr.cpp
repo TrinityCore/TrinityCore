@@ -4266,12 +4266,9 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectRadiusIndex[0] = 12;   // 100yd
             ++count;
             break;
-        case 72385: // Boiling Blood (Deathbringer Saurfang)
-        case 72441: // Boiling Blood (Deathbringer Saurfang)
-        case 72442: // Boiling Blood (Deathbringer Saurfang)
-        case 72443: // Boiling Blood (Deathbringer Saurfang)
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-            spellInfo->EffectImplicitTargetB[0] = 0;
+        case 72723: // Resistant Skin (Deathbringer Saurfang adds)
+            // this spell initially granted Shadow damage immunity, however it was removed but the data was left in client
+            spellInfo->Effect[2] = 0;
             ++count;
             break;
         case 70460: // Coldflame Jets (Traps after Saurfang)
@@ -4333,8 +4330,9 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = 0;
             ++count;
             break;
+        case 72706: // Achievement Check (Valithria Dreamwalker)
         case 71357: // Order Whelp
-            spellInfo->EffectRadiusIndex[0] = 22;
+            spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
             ++count;
             break;
         case 70598: // Sindragosa's Fury
