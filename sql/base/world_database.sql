@@ -674,6 +674,7 @@ INSERT INTO `command` VALUES
 ('reload spell_linked_spell',3,'Usage: .reload spell_linked_spell\r\nReloads the spell_linked_spell DB table.'),
 ('reload spell_loot_template',3,'Syntax: .reload spell_loot_template\nReload spell_loot_template table.'),
 ('reload spell_pet_auras',3,'Syntax: .reload spell_pet_auras\nReload spell_pet_auras table.'),
+('reload spell_proc',3,'Syntax: .reload spell_proc\nReload spell_proc table.'),
 ('reload spell_proc_event',3,'Syntax: .reload spell_proc_event\nReload spell_proc_event table.'),
 ('reload spell_required',3,'Syntax: .reload spell_required\nReload spell_required table.'),
 ('reload spell_scripts',3,'Syntax: .reload spell_scripts\nReload spell_scripts table.'),
@@ -18331,6 +18332,33 @@ INSERT INTO `spell_pet_auras` VALUES (19028,0,0,25228),
 (23825,0,17252,35706);
 /*!40000 ALTER TABLE `spell_pet_auras` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `spell_proc`
+--
+
+DROP TABLE IF EXISTS `spell_proc`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spell_proc` (
+  `spellId` mediumint(8) NOT NULL DEFAULT '0',
+  `schoolMask` tinyint(4) NOT NULL DEFAULT '0',
+  `spellFamilyName` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `spellFamilyMask0` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellFamilyMask1` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellFamilyMask2` int(10) unsigned NOT NULL DEFAULT '0',
+  `typeMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellTypeMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellPhaseMask` int(10) NOT NULL DEFAULT '0',
+  `hitMask` int(10) NOT NULL DEFAULT '0',
+  `attributesMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `ratePerMinute` float NOT NULL DEFAULT '0',
+  `chance` float NOT NULL DEFAULT '0',
+  `cooldown` float unsigned NOT NULL DEFAULT '0',
+  `charges` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spellId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `spell_proc_event`
