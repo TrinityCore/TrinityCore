@@ -450,7 +450,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             // select at range only
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true);
                             if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true);    // noone? select melee
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);    // noone? select melee
                             if (target)
                                 DoCast(target, SPELL_BLOOD_NOVA_TRIGGER);
                             events.ScheduleEvent(EVENT_BLOOD_NOVA, urand(20000, 25000), 0, PHASE_COMBAT);
@@ -461,8 +461,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20000, 25000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BOILING_BLOOD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -BOILING_BLOOD_HELPER))
-                                DoCast(target, SPELL_BOILING_BLOOD);
+                            DoCast(me, SPELL_BOILING_BLOOD);
                             events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15000, 20000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BERSERK:
@@ -1222,6 +1221,42 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
         }
 };
 
+class spell_deathbringer_boiling_blood : public SpellScriptLoader
+{
+    public:
+        spell_deathbringer_boiling_blood() : SpellScriptLoader("spell_deathbringer_boiling_blood") { }
+
+        class spell_deathbringer_boiling_blood_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_deathbringer_boiling_blood_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove(GetCaster()->getVictim());
+                std::list<Unit*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, unitList.size() - 1));
+                Unit* target = *itr;
+                unitList.clear();
+                unitList.push_back(target);
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_deathbringer_boiling_blood_SpellScript();
+        }
+};
+
 class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
 {
     public:
@@ -1250,5 +1285,6 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_rune_of_blood();
     new spell_deathbringer_blood_nova();
     new spell_deathbringer_blood_nova_targeting();
+    new spell_deathbringer_boiling_blood();
     new achievement_ive_gone_and_made_a_mess();
 }
