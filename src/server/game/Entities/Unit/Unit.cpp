@@ -5788,6 +5788,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
             switch(dummySpell->Id)
             {
+                case 70752:
+            {
+                triggered_spell_id = 70753;            
+                break;
+            }
                 // Glyph of Polymorph
                 case 56375:
                 {
