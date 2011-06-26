@@ -326,6 +326,7 @@ class spell_dru_berserk : public SpellScriptLoader
         class spell_dru_berserk_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_berserk_AuraScript);
+
             void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
@@ -339,9 +340,35 @@ class spell_dru_berserk : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript *GetAuraScript() const
         {
             return new spell_dru_berserk_AuraScript();
+        }
+};
+
+class spell_dru_starfall_aoe : public SpellScriptLoader
+{
+    public:
+        spell_dru_starfall_aoe() : SpellScriptLoader("spell_dru_starfall_aoe") { }
+
+        class spell_dru_starfall_aoe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_starfall_aoe_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove(GetTargetUnit());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_dru_starfall_aoe_SpellScript();
         }
 };
 
@@ -354,4 +381,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_clearcasting();
     new spell_dru_berserk();
+    new spell_dru_starfall_aoe();
 }

@@ -75,7 +75,7 @@ void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
             GUID_LOPART(guid)
         );
 
-    m_nameQueryCallbacks.insert(lFutureResult);
+    _nameQueryCallbacks.insert(lFutureResult);
 
 // CharacterDatabase.AsyncPQuery(&WorldSession::SendNameQueryOpcodeFromDBCallBack, GetAccountId(),
 }

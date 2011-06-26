@@ -32,7 +32,6 @@ enum Spells
     SPELL_STAMPEDE                                = 55218,
     SPELL_WHIRLING_SLASH                          = 55250,
     H_SPELL_WHIRLING_SLASH                        = 59824,
-    SPELL_ECK_RESIDUE                             = 55817
 };
 
 //Yells
@@ -50,12 +49,6 @@ enum Yells
     SAY_TRANSFORM_2                               = -1604009
 };
 
-enum Achievements
-{
-    ACHIEV_WHAT_THE_ECK                           = 1864,
-    ACHIEV_SHARE_THE_LOVE                         = 2152
-};
-
 enum Displays
 {
     DISPLAY_RHINO                                 = 26265,
@@ -67,6 +60,8 @@ enum CombatPhase
     TROLL,
     RHINO
 };
+
+#define DATA_SHARE_THE_LOVE                       1
 
 class boss_gal_darah : public CreatureScript
 {
@@ -92,7 +87,8 @@ public:
         uint32 uiImpalingChargeTimer;
         uint32 uiStompTimer;
         uint32 uiTransformationTimer;
-        std::set<uint64> lImpaledPlayers;
+        std::list<uint64> impaledList;
+        uint8 shareTheLove;
 
         CombatPhase Phase;
 
@@ -113,7 +109,8 @@ public:
             uiTransformationTimer = 9*IN_MILLISECONDS;
             uiPhaseCounter = 0;
 
-            lImpaledPlayers.clear();
+            impaledList.clear();
+            shareTheLove = 0;
 
             bStartOfTransformation = true;
 
@@ -135,7 +132,6 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -235,7 +231,7 @@ public:
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
                                 DoCast(pTarget, SPELL_IMPALING_CHARGE);
-                                lImpaledPlayers.insert(pTarget->GetGUID());
+                                CheckAchievement(pTarget->GetGUID());
                             }
                             uiImpalingChargeTimer = 31*IN_MILLISECONDS;
                             ++uiPhaseCounter;
@@ -247,29 +243,34 @@ public:
             DoMeleeAttackIfReady();
         }
 
+        // 5 UNIQUE party members
+        void CheckAchievement(uint64 guid)
+        {
+            bool playerExists = false;
+            for (std::list<uint64>::iterator itr = impaledList.begin(); itr != impaledList.end(); ++itr)
+                if (guid != *itr)
+                    playerExists = true;
+
+            if (playerExists)
+                ++shareTheLove;
+
+            impaledList.push_back(guid);
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_SHARE_THE_LOVE)
+                return shareTheLove;
+
+            return 0;
+        }
+
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
-            {
-                if (IsHeroic())
-                {
-                    if (lImpaledPlayers.size() == 5)
-                        pInstance->DoCompleteAchievement(ACHIEV_SHARE_THE_LOVE);
-
-                    AchievementEntry const *achievWhatTheEck = GetAchievementStore()->LookupEntry(ACHIEV_WHAT_THE_ECK);
-                    if (achievWhatTheEck)
-                    {
-                        Map::PlayerList const &players = pInstance->instance->GetPlayers();
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            if (itr->getSource()->HasAura(SPELL_ECK_RESIDUE))
-                                itr->getSource()->CompletedAchievement(achievWhatTheEck);
-                    }
-                }
-
                 pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
-            }
         }
 
         void KilledUnit(Unit* victim)
@@ -283,7 +284,28 @@ public:
 
 };
 
+class achievement_share_the_love : public AchievementCriteriaScript
+{
+    public:
+        achievement_share_the_love() : AchievementCriteriaScript("achievement_share_the_love")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* GalDarah = target->ToCreature())
+                if (GalDarah->AI()->GetData(DATA_SHARE_THE_LOVE) >= 5)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_gal_darah()
 {
     new boss_gal_darah();
+    new achievement_share_the_love();
 }

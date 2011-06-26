@@ -943,7 +943,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 /*outfitId*/)
+bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 {
     //FIXME: outfitId not used in player creating
     // TODO: need more checks against packet modifications
@@ -952,9 +952,9 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
 
     Object::_Create(guidlow, 0, HIGHGUID_PLAYER);
 
-    m_name = name;
+    m_name = createInfo->Name;
 
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(race, class_);
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
     if (!info)
     {
         sLog->outError("Player have incorrect race/class pair. Can't be loaded.");
@@ -966,10 +966,10 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
 
     Relocate(info->positionX, info->positionY, info->positionZ, info->orientation);
 
-    ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(class_);
+    ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(createInfo->Class);
     if (!cEntry)
     {
-        sLog->outError("Class %u not found in DBC (Wrong DBC files?)", class_);
+        sLog->outError("Class %u not found in DBC (Wrong DBC files?)", createInfo->Class);
         return false;
     }
 
@@ -980,15 +980,15 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
     SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
 
-    setFactionForRace(race);
+    setFactionForRace(createInfo->Race);
 
-    if (!IsValidGender(gender))
+    if (!IsValidGender(createInfo->Gender))
     {
-        sLog->outError("Player has invalid gender (%hu), can't be loaded.", gender);
+        sLog->outError("Player has invalid gender (%hu), can't be loaded.", createInfo->Gender);
         return false;
     }
 
-    uint32 RaceClassGender = (race) | (class_ << 8) | (gender << 16);
+    uint32 RaceClassGender = (createInfo->Race) | (createInfo->Class << 8) | (createInfo->Gender << 16);
 
     SetUInt32Value(UNIT_FIELD_BYTES_0, (RaceClassGender | (powertype << 24)));
     InitDisplayIds();
@@ -1004,9 +1004,9 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
                                                             // -1 is default value
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
 
-    SetUInt32Value(PLAYER_BYTES, (skin | (face << 8) | (hairStyle << 16) | (hairColor << 24)));
-    SetUInt32Value(PLAYER_BYTES_2, (facialHair | (0x00 << 8) | (0x00 << 16) | (0x02 << 24)));
-    SetByteValue(PLAYER_BYTES_3, 0, gender);
+    SetUInt32Value(PLAYER_BYTES, (createInfo->Skin | (createInfo->Face << 8) | (createInfo->HairStyle << 16) | (createInfo->HairColor << 24)));
+    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHair | (0x00 << 8) | (0x00 << 16) | (0x02 << 24)));
+    SetByteValue(PLAYER_BYTES_3, 0, createInfo->Gender);
     SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
     SetUInt32Value(PLAYER_GUILDID, 0);
@@ -1498,12 +1498,17 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
 {
     uint32 oldDrunkenState = Player::GetDrunkenstateByValue(m_drunk);
 
-    if (!newDrunkenValue && !HasAuraType(SPELL_AURA_MOD_FAKE_INEBRIATE))
-        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
-    else
-        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
+    // select drunk percent or total SPELL_AURA_MOD_FAKE_INEBRIATE amount, whichever is higher for visibility updates
+    int32 drunkPercent = newDrunkenValue * 100 / 0xFFFF;
+    drunkPercent = std::max(drunkPercent, GetTotalAuraModifier(SPELL_AURA_MOD_FAKE_INEBRIATE));
 
-    m_invisibilityDetect.AddValue(INVISIBILITY_DRUNK, int32(newDrunkenValue - m_drunk) / 256);
+    if (drunkPercent)
+    {
+        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
+        m_invisibilityDetect.SetValue(INVISIBILITY_DRUNK, drunkPercent);
+    }
+    else if (!HasAuraType(SPELL_AURA_MOD_FAKE_INEBRIATE) && !newDrunkenValue)
+        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
 
     m_drunk = newDrunkenValue;
     SetUInt32Value(PLAYER_BYTES_3, (GetUInt32Value(PLAYER_BYTES_3) & 0xFFFF0001) | (m_drunk & 0xFFFE));
@@ -4523,7 +4528,7 @@ bool Player::resetTalents(bool no_cost)
             if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellEntry for valid trigger spells
                     if (_spellEntry->EffectTriggerSpell[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->EffectTriggerSpell[i], true); // and remove any spells that the talent teaches
+                        removeSpell(_spellEntry->EffectTriggerSpell[i]); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             if (plrTalent != m_talents[m_activeSpec]->end())
@@ -14309,7 +14314,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             }
 
             menu->GetGossipMenu().AddMenuItem(itr->second.OptionIndex, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionIndex, itr->second.ActionMenuId, itr->second.ActionPoiId, itr->second.ActionScriptId);
+            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionIndex, itr->second.ActionMenuId, itr->second.ActionPoiId);
         }
     }
 }
@@ -14398,13 +14403,6 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             if (menuItemData->GossipActionPoi)
                 PlayerTalkClass->SendPointOfInterest(menuItemData->GossipActionPoi);
 
-            if (menuItemData->GossipActionScript)
-            {
-                if (source->GetTypeId() == TYPEID_UNIT)
-                    GetMap()->ScriptsStart(sGossipScripts, menuItemData->GossipActionScript, this, source);
-                else if (source->GetTypeId() == TYPEID_GAMEOBJECT)
-                    GetMap()->ScriptsStart(sGossipScripts, menuItemData->GossipActionScript, source, this);
-            }
             break;
         }
         case GOSSIP_OPTION_OUTDOORPVP:
@@ -15662,31 +15660,42 @@ bool Player::GiveQuestSourceItem(Quest const *pQuest)
     return true;
 }
 
-bool Player::TakeQuestSourceItem(uint32 quest_id, bool msg)
+bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
 {
-    Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
-    if (qInfo)
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    if (quest)
     {
-        uint32 srcitem = qInfo->GetSrcItemId();
-        if (srcitem > 0)
+        uint32 srcItemId = quest->GetSrcItemId();
+        ItemTemplate const* item = sObjectMgr->GetItemTemplate(srcItemId);
+        bool destroyItem = true;
+
+        if (srcItemId > 0)
         {
-            uint32 count = qInfo->GetSrcItemCount();
+            uint32 count = quest->GetSrcItemCount();
             if (count <= 0)
                 count = 1;
 
-            // exist one case when destroy source quest item not possible:
-            // non un-equippable item (equipped non-empty bag, for example)
-            InventoryResult res = CanUnequipItems(srcitem, count);
+            // exist two cases when destroy source quest item not possible:
+            // a) non un-equippable item (equipped non-empty bag, for example)
+            // b) when quest is started from an item and item also is needed in
+            // the end as ReqItemId
+            InventoryResult res = CanUnequipItems(srcItemId, count);
             if (res != EQUIP_ERR_OK)
             {
                 if (msg)
-                    SendEquipError(res, NULL, NULL, srcitem);
+                    SendEquipError(res, NULL, NULL, srcItemId);
                 return false;
             }
 
-            DestroyItemCount(srcitem, count, true, true);
+            for (uint8 n = 0; n < QUEST_ITEM_OBJECTIVES_COUNT; ++n)
+                if (item->StartQuest == questId && srcItemId == quest->ReqItemId[n])
+                    destroyItem = false;
+
+            if (destroyItem)
+                DestroyItemCount(srcItemId, count, true, true);
         }
     }
+
     return true;
 }
 
@@ -20080,7 +20089,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 }
 
 // Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId)
+void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
 {
     if (!spell || spell->m_appliedMods.empty())
         return;
@@ -20097,6 +20106,9 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId)
 
             // Restore only specific owner aura mods
             if (ownerAuraId && (ownerAuraId != mod->ownerAura->GetSpellProto()->Id))
+                continue;
+
+            if (aura && mod->ownerAura != aura)
                 continue;
 
             // check if mod affected this spell
@@ -20122,6 +20134,13 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId)
             //ASSERT (mod->ownerAura->GetCharges() <= mod->charges);
         }
     }
+}
+
+void Player::RestoreAllSpellMods(uint32 ownerAuraId, Aura* aura)
+{
+    for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
+        if (m_currentSpells[i])
+            RestoreSpellMods(m_currentSpells[i], ownerAuraId, aura);
 }
 
 void Player::RemoveSpellMods(Spell* spell)
@@ -24842,7 +24861,7 @@ void Player::ActivateSpec(uint8 spec)
             if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellEntry for valid trigger spells
                     if (_spellEntry->EffectTriggerSpell[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->EffectTriggerSpell[i], true); // and remove any spells that the talent teaches
+                        removeSpell(_spellEntry->EffectTriggerSpell[i]); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             //PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             //if (plrTalent != m_talents[m_activeSpec]->end())

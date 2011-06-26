@@ -152,8 +152,8 @@ public:
 
     bool OnUse(Player *pPlayer, Item *pItem, SpellCastTargets const& targets)
     {
-        if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT &&
-            targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578))
+        if (targets.GetUnitTarget() && targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT &&
+            targets.GetUnitTarget()->GetEntry() == 20748 && !targets.GetUnitTarget()->HasAura(32578))
             return false;
 
         pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);

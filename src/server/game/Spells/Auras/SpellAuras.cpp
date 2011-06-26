@@ -747,7 +747,7 @@ void Aura::SetCharges(uint8 charges)
 uint8 Aura::CalcMaxCharges(Unit* caster) const
 {
     uint8 maxProcCharges = m_spellProto->procCharges;
-    
+
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, maxProcCharges);
@@ -780,7 +780,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
 {
     m_stackAmount = stackAmount;
     Unit* caster = GetCaster();
-    
+
     std::list<AuraApplication*> applications;
     GetApplicationList(applications);
 
@@ -826,6 +826,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (refresh)
     {
+        RefreshSpellMods();
         RefreshTimers();
 
         // reset charges
@@ -833,6 +834,13 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     }
     SetNeedClientUpdateForTargets();
     return false;
+}
+
+void Aura::RefreshSpellMods()
+{
+    for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+        if (Player * player = appIter->second->GetTarget()->ToPlayer())
+            player->RestoreAllSpellMods(0, this);
 }
 
 bool Aura::IsPassive() const
@@ -1075,7 +1083,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 44544: // Fingers of Frost
                     {
                         // See if we already have the indicator aura. If not, create one.
-                        if (Aura *aur = target->GetAura(74396))
+                        if (Aura* aur = target->GetAura(74396))
                         {
                             // Aura already there. Refresh duration and set original charges
                             aur->SetCharges(2);
@@ -1551,13 +1559,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     else
                         target->RemoveAurasDueToSpell(64364, GetCasterGUID());
                     break;
-                case 31842:
-                    if (caster->HasAura(70755))
+                case 31842: // Divine Illumination
+                    // Item - Paladin T10 Holy 2P Bonus
+                    if (target->HasAura(70755))
                     {
                         if (apply)
-                            caster->CastSpell(caster, 71166, true);
+                            target->CastSpell(target, 71166, true);
                         else
-                            caster->RemoveAurasDueToSpell(71166);
+                            target->RemoveAurasDueToSpell(71166);
                     }
                     break;
             }
@@ -2040,7 +2049,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
                         targetList.push_back(GetUnitOwner());
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
-                        if (Unit *owner = GetUnitOwner()->GetCharmerOrOwner())
+                        if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
                             if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
                                 targetList.push_back(owner);
                         break;

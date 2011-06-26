@@ -446,10 +446,7 @@ class DatabaseWorkerPool
             if (!to || !from || !length)
                 return 0;
 
-            T* t = GetFreeConnection();
-            unsigned long ret = mysql_real_escape_string(t->GetHandle(), to, from, length);
-            t->Unlock();
-            return ret;
+            return mysql_real_escape_string(m_connections[IDX_SYNCH][0]->GetHandle(), to, from, length);
         }
 
         void Enqueue(SQLOperation* op)

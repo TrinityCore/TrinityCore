@@ -493,10 +493,10 @@ class boss_the_lich_king : public CreatureScript
             {
                 BossAI::JustDied(killer);
 
-                if(instance->GetData(DATA_BEEN_WAITING_ACHIEVEMENT) == DONE)
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10,ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25));
-                if(instance->GetData(DATA_NECK_DEEP_ACHIEVEMENT) == DONE)
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_NECK_DEEP_IN_VILE_10,ACHIEV_NECK_DEEP_IN_VILE_25));
+               // if(instance->GetData(DATA_BEEN_WAITING_ACHIEVEMENT) == DONE)
+               //     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10,ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25));
+               // if(instance->GetData(DATA_NECK_DEEP_ACHIEVEMENT) == DONE)
+               //     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_NECK_DEEP_IN_VILE_10,ACHIEV_NECK_DEEP_IN_VILE_25));
                 Cleanup();
                 DoCast(SPELL_PLAY_MOVIE);
                 if(Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
@@ -2071,12 +2071,12 @@ class spell_lich_king_defile : public SpellScriptLoader
                 m_radius = 8.0f + m_hitCount;
                 //Find targest
                 std::list<Unit *> targets;
-                Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck checker(caster, caster, m_radius); 
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, m_radius); 
 
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck> searcher(caster, targets, checker);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, targets, checker);
 
-                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
                 CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);

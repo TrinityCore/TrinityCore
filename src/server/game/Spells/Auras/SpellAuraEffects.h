@@ -1,9 +1,25 @@
+/*
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TRINITY_SPELLAURAEFFECTS_H
 #define TRINITY_SPELLAURAEFFECTS_H
 
 class Unit;
-class DynamicObject;
 class AuraEffect;
 class Aura;
 
@@ -65,11 +81,7 @@ class AuraEffect
         bool IsAffectedOnSpell(SpellEntry const *spell) const;
 
         void SendTickImmune(Unit* target, Unit *caster) const;
-
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
-        void PeriodicDummyTick(Unit* target, Unit* caster) const;
-        void TriggerSpell(Unit* target, Unit* caster) const;
-        void TriggerSpellWithValue(Unit* target, Unit* caster) const;
 
         void CleanupTriggeredSpells(Unit* target);
 
@@ -95,7 +107,7 @@ class AuraEffect
         bool IsPeriodicTickCrit(Unit* target, Unit const* caster) const;
 
     public:
-        // aura effect handlers
+        // aura effect apply/remove handlers
         void HandleNULL(AuraApplication const* /*aurApp*/, uint8 /*mode*/, bool /*apply*/) const
         {
             // not implemented
@@ -259,9 +271,22 @@ class AuraEffect
         void HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
+        // aura effect periodic tick handlers
+        void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
+        void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
 };
 
 namespace Trinity

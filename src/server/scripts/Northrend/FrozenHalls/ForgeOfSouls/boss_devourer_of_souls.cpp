@@ -55,7 +55,6 @@ enum Spells
     H_SPELL_PHANTOM_BLAST                         = 70322,
     SPELL_MIRRORED_SOUL                           = 69051,
     SPELL_WELL_OF_SOULS                           = 68820,
-    SPELL_WELL_OF_SOULS_VIS                       = 68854,
     SPELL_UNLEASHED_SOULS                         = 68939,
     SPELL_WAILING_SOULS_STARTING                  = 68912,  // Initial spell cast at begining of wailing souls phase
     SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
@@ -78,7 +77,6 @@ enum Events
 
 enum eEnum
 {
-    ACHIEV_THREE_FACED          = 4523,
     DISPLAY_ANGER               = 30148,
     DISPLAY_SORROW              = 30149,
     DISPLAY_DESIRE              = 30150,
@@ -116,6 +114,8 @@ struct outroPosition
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
+#define DATA_THREE_FACED        1
+
 class boss_devourer_of_souls : public CreatureScript
 {
     public:
@@ -142,8 +142,9 @@ class boss_devourer_of_souls : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 events.Reset();
+                summons.DespawnAll();
 
-                threeFaceAchievement = true;
+                threeFaced = true;
                 mirroredSoulTarget = 0;
 
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
@@ -206,14 +207,13 @@ class boss_devourer_of_souls : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                summons.DespawnAll();
+
                 Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
 
                 DoScriptText(RAND(SAY_FACE_SORROW_DEATH, SAY_FACE_DESIRE_DEATH), me);
 
                 instance->SetData(DATA_DEVOURER_EVENT, DONE);
-
-                if (threeFaceAchievement && IsHeroic())
-                    instance->DoCompleteAchievement(ACHIEV_THREE_FACED);
 
                 int32 entryIndex;
                 if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
@@ -237,7 +237,15 @@ class boss_devourer_of_souls : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, const SpellEntry *spell)
             {
                 if (spell->Id == H_SPELL_PHANTOM_BLAST)
-                    threeFaceAchievement = false;
+                    threeFaced = false;
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                if (type == DATA_THREE_FACED)
+                    return threeFaced;
+
+                return 0;
             }
 
             void UpdateAI(const uint32 diff)
@@ -342,7 +350,7 @@ class boss_devourer_of_souls : public CreatureScript
             }
 
         private:
-            bool threeFaceAchievement;
+            bool threeFaced;
 
             // wailing soul event
             float beamAngle;
@@ -358,7 +366,28 @@ class boss_devourer_of_souls : public CreatureScript
         }
 };
 
+class achievement_three_faced : public AchievementCriteriaScript
+{
+    public:
+        achievement_three_faced() : AchievementCriteriaScript("achievement_three_faced")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Devourer = target->ToCreature())
+                if (Devourer->AI()->GetData(DATA_THREE_FACED))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_devourer_of_souls()
 {
     new boss_devourer_of_souls();
+    new achievement_three_faced();
 }

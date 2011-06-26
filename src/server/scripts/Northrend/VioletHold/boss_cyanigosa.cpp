@@ -159,7 +159,28 @@ public:
 
 };
 
+class achievement_defenseless : public AchievementCriteriaScript
+{
+    public:
+        achievement_defenseless() : AchievementCriteriaScript("achievement_defenseless")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            InstanceScript* instance = target->GetInstanceScript();
+            if (!instance)
+                return false;
+
+            if (!instance->GetData(DATA_DEFENSELESS))
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_boss_cyanigosa()
 {
     new boss_cyanigosa();
+    new achievement_defenseless();
 }

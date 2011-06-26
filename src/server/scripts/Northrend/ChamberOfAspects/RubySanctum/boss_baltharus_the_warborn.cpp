@@ -190,7 +190,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 24000, 0, PHASE_COMBAT); 
+                            events.ScheduleEvent(EVENT_CLEAVE, 24000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_BLADE_TEMPEST:
                             DoCast(me, SPELL_BLADE_TEMPEST);

@@ -1389,6 +1389,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Spell Proc Event conditions...");
     sSpellMgr->LoadSpellProcEvents();
 
+    sLog->outString("Loading Spell Proc conditions and data...");
+    sSpellMgr->LoadSpellProcs();
+
     sLog->outString("Loading Spell Bonus Data...");
     sSpellMgr->LoadSpellBonusess();
 
@@ -1619,8 +1622,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
-
-    sObjectMgr->LoadGossipScripts();                             // must be before gossip menu options
 
     sLog->outString("Loading Gossip menu...");
     sObjectMgr->LoadGossipMenu();

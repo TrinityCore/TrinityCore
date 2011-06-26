@@ -32,7 +32,7 @@ enum Spells
     SPELL_SUMMON_MANA_FIEND_1   = 25681, // TARGET_DEST_CASTER_FRONT
     SPELL_SUMMON_MANA_FIEND_2   = 25682, // TARGET_DEST_CASTER_LEFT
     SPELL_SUMMON_MANA_FIEND_3   = 25683, // TARGET_DEST_CASTER_RIGHT
-    SPELL_ENERGIZE              = 25685 
+    SPELL_ENERGIZE              = 25685
 };
 
 enum Events
@@ -167,7 +167,7 @@ class boss_moam : public CreatureScript
                             break;
                     }
                 }
- 
+
                 DoMeleeAttackIfReady();
             }
         private:

@@ -410,7 +410,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK0                             = 0x00000001, //  0
     SPELL_ATTR4_UNK1                             = 0x00000002, //  1 proc on finishing move?
     SPELL_ATTR4_UNK2                             = 0x00000004, //  2
-    SPELL_ATTR4_CANT_PROC_FROM_SELFCAST          = 0x00000008, //  3
+    SPELL_ATTR4_UNK3                             = 0x00000008, //  3
     SPELL_ATTR4_UNK4                             = 0x00000010, //  4 This will no longer cause guards to attack on use??
     SPELL_ATTR4_UNK5                             = 0x00000020, //  5
     SPELL_ATTR4_NOT_STEALABLE                    = 0x00000040, //  6 although such auras might be dispellable, they cannot be stolen
@@ -423,8 +423,8 @@ enum SpellAttr4
     SPELL_ATTR4_UNK13                            = 0x00002000, // 13
     SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS        = 0x00004000, // 14 doesn't break auras by damage from these spells
     SPELL_ATTR4_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR4_NOT_USABLE_IN_ARENA              = 0x00010000, // 16 not usable in arena
-    SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17 usable in arena
+    SPELL_ATTR4_NOT_USABLE_IN_ARENA              = 0x00010000, // 16
+    SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17
     SPELL_ATTR4_UNK18                            = 0x00040000, // 18
     SPELL_ATTR4_UNK19                            = 0x00080000, // 19
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // 20 supersedes message "More powerful spell applied" for self casts.
@@ -2782,28 +2782,26 @@ enum DiminishingReturnsType
 // Diminishing Return Groups
 enum DiminishingGroup
 {
-    // Common Groups
-    DIMINISHING_NONE = 0,
-    DIMINISHING_CONTROL_STUN,                               // Player Controlled stuns
-    DIMINISHING_TRIGGER_STUN,                               // By aura proced stuns, usualy chance on hit talents
-    DIMINISHING_CONTROL_ROOT,                               // Immobilizing effects from casted spells
-    DIMINISHING_TRIGGER_ROOT,                               // Immobilizing effects from triggered spells like Frostbite
-    DIMINISHING_CHARM,
-    DIMINISHING_POLYMORPH,              // Also: Gouge, Sap, Repentance, Hungering Cold
-    DIMINISHING_KNOCKOUT,               // Sap, Knockout mechanics
-    DIMINISHING_FEAR_BLIND,             // Intimidating Shout, Howl of Terror, Blind
-    // Warlock Specific
-    DIMINISHING_DEATHCOIL,                                  // Death Coil Diminish only with another Death Coil
-    // Druid Specific
-    DIMINISHING_CYCLONE,                                    // From 2.3.0
-    // Shared Class Specific
-    DIMINISHING_CHEAPSHOT_POUNCE,
-    DIMINISHING_DISARM,                                     // From 2.3.0
-    DIMINISHING_SILENCE,                                    // From 2.3.0
-    DIMINISHING_FREEZE_SLEEP,                               // Hunter's Freezing Trap
-    DIMINISHING_BANISH,
-    DIMINISHING_TAUNT,
-    DIMINISHING_LIMITONLY               // Don't Diminish, but limit duration to 10s
+    DIMINISHING_NONE                = 0,
+    DIMINISHING_BANISH              = 1,
+    DIMINISHING_CHARGE              = 2,
+    DIMINISHING_OPENING_STUN        = 3, // Cheap Shot and Pounce
+    DIMINISHING_CONTROLLED_STUN     = 4,
+    DIMINISHING_CONTROLLED_ROOT     = 5,
+    DIMINISHING_CYCLONE             = 6,
+    DIMINISHING_DISARM              = 7,
+    DIMINISHING_DISORIENT           = 8, // Several spells where name cant be generalized.
+    DIMINISHING_ENTRAPMENT          = 9,
+    DIMINISHING_FEAR                = 10,
+    DIMINISHING_HORROR              = 11,
+    DIMINISHING_MIND_CONTROL        = 12,
+    DIMINISHING_ROOT                = 13,
+    DIMINISHING_STUN                = 14,
+    DIMINISHING_SCATTER_SHOT        = 15,
+    DIMINISHING_SILENCE             = 16,
+    DIMINISHING_SLEEP               = 17,
+    DIMINISHING_TAUNT               = 18,
+    DIMINISHING_LIMITONLY           = 19  // No diminishing return, but duration limited to 10 seconds
 };
 
 enum SummonCategory

@@ -192,8 +192,8 @@ class npc_flash_freeze : public CreatureScript
                 if (!UpdateVictim() || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->getVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
-                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS) 
-                    me->DespawnOrUnsummon(); 
+                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
 
                 if (checkDespawnTimer <= diff)
                 {
@@ -644,10 +644,10 @@ class npc_hodir_priest : public CreatureScript
             }
 
             void JustDied(Unit* /*who*/)
- 	        {
+             {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-  	        }
+              }
 
         private:
             InstanceScript* instance;
@@ -706,10 +706,10 @@ class npc_hodir_shaman : public CreatureScript
             }
 
             void JustDied(Unit* /*who*/)
- 	        {
+             {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-  	        }
+              }
 
         private:
             InstanceScript* instance;
@@ -767,10 +767,10 @@ class npc_hodir_druid : public CreatureScript
             }
 
             void JustDied(Unit* /*who*/)
- 	        {
+             {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-  	        }
+              }
 
         private:
             InstanceScript* instance;
@@ -847,10 +847,10 @@ class npc_hodir_mage : public CreatureScript
             }
 
             void JustDied(Unit* /*who*/)
- 	        {
-  	            if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+             {
+                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-  	        }
+              }
 
         private:
             InstanceScript* instance;

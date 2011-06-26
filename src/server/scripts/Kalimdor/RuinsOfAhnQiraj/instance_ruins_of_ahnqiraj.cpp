@@ -66,7 +66,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(bossId, state))
                     return false;
-  
+
                 return true;
             }
 

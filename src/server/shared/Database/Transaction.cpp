@@ -50,7 +50,7 @@ void Transaction::Append(PreparedStatement* stmt)
 void Transaction::Cleanup()
 {
     // This might be called by explicit calls to Cleanup or by the auto-destructor
-    if (_cleanedUp) 
+    if (_cleanedUp)
         return;
 
     while (!m_queries.empty())

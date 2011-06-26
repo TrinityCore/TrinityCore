@@ -325,7 +325,16 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
                     {
                         // Send next quest
                         if (Quest const* nextquest = _player->GetNextQuest(guid , pQuest))
+                        {
+                            if (nextquest->IsAutoAccept() && _player->CanAddQuest(nextquest, true))
+                            {
+                                _player->AddQuest(nextquest, pObject);
+                                if (_player->CanCompleteQuest(nextquest->GetQuestId()))
+                                    _player->CompleteQuest(nextquest->GetQuestId());
+                            }
+
                             _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextquest, guid, true);
+                        }
 
                         (pObject->ToCreature())->AI()->sQuestReward(_player, pQuest, reward);
                     }
@@ -335,7 +344,17 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
                     {
                         // Send next quest
                         if (Quest const* nextquest = _player->GetNextQuest(guid , pQuest))
+                        {
+                            if (nextquest->IsAutoAccept() && _player->CanAddQuest(nextquest, true))
+                            {
+                                _player->AddQuest(nextquest, pObject);
+                                if (_player->CanCompleteQuest(nextquest->GetQuestId()))
+                                    _player->CompleteQuest(nextquest->GetQuestId());
+                            }
+
                             _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextquest, guid, true);
+                        }
+
                         pObject->ToGameObject()->AI()->QuestReward(_player, pQuest, reward);
                     }
                     break;

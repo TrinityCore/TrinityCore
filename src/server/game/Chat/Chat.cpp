@@ -226,10 +226,9 @@ ChatCommand * ChatHandler::getCommandTable()
 
     static ChatCommand petCommandTable[] =
     {
-        { "create",         SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandleCreatePetCommand>,             "", NULL },
-        { "learn",          SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandlePetLearnCommand>,              "", NULL },
-        { "unlearn",        SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandlePetUnlearnCommand>,            "", NULL },
-        { "tp",             SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandlePetTpCommand>,                 "", NULL },
+        { "create",         SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandleCreatePetCommand>,           "", NULL },
+        { "learn",          SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandlePetLearnCommand>,            "", NULL },
+        { "unlearn",        SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandlePetUnlearnCommand>,          "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 

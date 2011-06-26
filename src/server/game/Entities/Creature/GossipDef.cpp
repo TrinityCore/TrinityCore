@@ -68,13 +68,12 @@ void GossipMenu::AddMenuItem(int32 menuItemId, uint8 icon, std::string const& me
     menuItem.BoxMoney        = boxMoney;
 }
 
-void GossipMenu::AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi, uint32 gossipActionScript)
+void GossipMenu::AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi)
 {
     GossipMenuItemData& itemData = _menuItemData[menuItemId];
 
     itemData.GossipActionMenuId  = gossipActionMenuId;
     itemData.GossipActionPoi     = gossipActionPoi;
-    itemData.GossipActionScript  = gossipActionScript;
 }
 
 uint32 GossipMenu::GetMenuItemSender(uint32 menuItemId) const
