@@ -462,6 +462,7 @@ class boss_the_lich_king : public CreatureScript
                 uiEndingTimer = 1000;
                 uiTirionGUID = 0;
                 isSwitching = false;
+                imSummoning = false;
                 events.Reset();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_BERSERK, 900000, PHASE_1);
@@ -1211,7 +1212,8 @@ class boss_the_lich_king : public CreatureScript
                     case PHASE_1:
                     case PHASE_3:
                     case PHASE_5:
-                        DoMeleeAttackIfReady();
+                        if(!imSummoning)
+                            DoMeleeAttackIfReady();
                         break;
                 }
             }
@@ -1219,7 +1221,7 @@ class boss_the_lich_king : public CreatureScript
             void PauseForSummoning(bool on)
             {
                 SetCombatMovement(!on);
-                me->Attack(me->getVictim(), !on);
+                imSummoning = on;
                 if(!on)
                     me->GetMotionMaster()->MoveChase(me->getVictim());
             }
@@ -1242,6 +1244,7 @@ class boss_the_lich_king : public CreatureScript
             uint32 uiSummonSpiritTimer;
             uint64 uiTirionGUID;
             bool isSwitching;
+            bool imSummoning;
             SummonList summons;
             EventMap events;
         };
