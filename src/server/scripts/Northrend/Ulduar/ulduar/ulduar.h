@@ -157,22 +157,40 @@ enum UlduarTowerEvents
     EVENT_TOWER_OF_LIFE_DESTROYED                = 21030,
 };
 
-enum UlduarAchievementCriteria
+enum UlduarAchievementCriteriaIds
 {
-    ACHIEVEMENT_UNBROKEN_10                              = 10044, // Leviathan
-    ACHIEVEMENT_UNBROKEN_25                              = 10045,
-    ACHIEVEMENT_CRITERIA_SHUTOUT_10                      = 10054,
-    ACHIEVEMENT_CRITERIA_SHUTOUT_25                      = 10055,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_10         = 10046,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_10           = 10047,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_10      = 10048,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_25         = 10049,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_25           = 10050,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_25      = 10051,
-    ACHIEVEMENT_CRITERIA_HOT_POCKET_10                   = 10430, // Ignis
-    ACHIEVEMENT_CRITERIA_HOT_POCKET_25                   = 10431,
-    ACHIEVEMENT_CRITERIA_QUICK_SHAVE_10                  = 10062, // Razorscale
-    ACHIEVEMENT_CRITERIA_QUICK_SHAVE_25                  = 10063,
+    // Flame Leviathan
+    CRITERIA_UNBROKEN_10                                 = 10044,
+    CRITERIA_UNBROKEN_25                                 = 10045,
+    CRITERIA_SHUTOUT_10                                  = 10054,
+    CRITERIA_SHUTOUT_25                                  = 10055,
+    CRITERIA_3_CAR_GARAGE_CHOPPER_10                     = 10046,
+    CRITERIA_3_CAR_GARAGE_SIEGE_10                       = 10047,
+    CRITERIA_3_CAR_GARAGE_DEMOLISHER_10                  = 10048,
+    CRITERIA_3_CAR_GARAGE_CHOPPER_25                     = 10049,
+    CRITERIA_3_CAR_GARAGE_SIEGE_25                       = 10050,
+    CRITERIA_3_CAR_GARAGE_DEMOLISHER_25                  = 10051,
+
+    // Ignis
+    CRITERIA_HOT_POCKET_10                               = 10430,
+    CRITERIA_HOT_POCKET_25                               = 10431,
+
+    // Razorscale
+    CRITERIA_QUICK_SHAVE_10                              = 10062,
+    CRITERIA_QUICK_SHAVE_25                              = 10063,
+
+    // Freya
+    CRITERIA_KNOCK_ON_WOOD_10                            = 10447,
+    CRITERIA_KNOCK_ON_WOOD_25                            = 10459,
+    CRITERIA_KNOCK_KNOCK_ON_WOOD_10                      = 10448,
+    CRITERIA_KNOCK_KNOCK_ON_WOOD_25                      = 10460,
+    CRITERIA_KNOCK_KNOCK_KNOCK_ON_WOOD_10                = 10449,
+    CRITERIA_KNOCK_KNOCK_KNOCK_ON_WOOD_25                = 10461,
+};
+
+enum UlduarAchievementData
+{
+    DATA_KNOCK_ON_WOOD_ACHIEVEMENTS                      = 1,
 };
 
 template<class AI>
