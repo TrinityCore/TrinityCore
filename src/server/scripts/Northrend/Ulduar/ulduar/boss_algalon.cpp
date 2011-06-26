@@ -174,20 +174,20 @@ static const float OutroPos[3] = {1632.050049f, -319.36499f, GroundZ};
 static const float BrannOutro[3] = {1632.050049f, -294.36499f, GroundZ};
 
 //Brann
-float WPs[9][3] =
+float WPs_ulduar[9][3] =
 {
     //pos_x             pos_y       pos_z
-    {1661.567261f, -155.395126f, 427.261810f}, // Spawning Position (needs sniff, this one's wrong :)
+    {1661.567261f, -155.395126f, 427.261810f},
     {1633.316650f, -176.056778f, 427.286011f},
     {1633.187744f, -190.987228f, 427.378632f},
     {1632.005371f, -214.134232f, 418.470459f},
     {1631.882324f, -228.378708f, 418.082733f},
     {1634.257446f, -230.407898f, 417.336182f},
     {1635.767700f, -266.664459f, 417.321991f},
-    {1630.990845f, -266.863434f, 417.321991f}, //"Summons" Algalon
-    {1632.005371f, -214.134232f, 418.470459f}, //Despawn.
-
+    {1630.990845f, -266.863434f, 417.321991f},
+    {1632.005371f, -214.134232f, 418.470459f}
 };
+
 /*Todo:
 -Correct Summon Positions for Collapsing stars and living constellations.
 -Achievements.
@@ -1209,7 +1209,7 @@ class mob_brann_algalon : public CreatureScript
                 {
                     if (ContinueWP)
                     {
-                        me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
+                        me->GetMotionMaster()->MovePoint(CurrWP, WPs_ulduar[CurrWP][0], WPs_ulduar[CurrWP][1], WPs_ulduar[CurrWP][2]);
                         ContinueWP = false;
                     }
                 }
@@ -1300,7 +1300,7 @@ class go_celestial_console : public GameObjectScript
 			uint32 item = uint32(go->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 45796 : 45798);
 			if (player->HasItemCount(item, 1))
 			{
-				if (Creature* Brann = go->SummonCreature(NPC_BRANN_ALGALON, WPs[0][0],WPs[0][1], WPs[0][2])) 
+				if (Creature* Brann = go->SummonCreature(NPC_BRANN_ALGALON, WPs_ulduar[0][0],WPs_ulduar[0][1], WPs_ulduar[0][2])) 
 				{
 					go->SetFlag(GAMEOBJECT_FLAGS,  GO_FLAG_UNK1);
 					Brann->AI()->DoAction(ACTION_BRANN_INTRO);
