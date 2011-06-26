@@ -159,20 +159,6 @@ enum Yells
     SAY_OVERLOAD_3                              = -1603075,
 };
 
-enum AchievementData
-{
-    ACHIEV_10_NUKED_FROM_ORBIT                  = 2915,
-    ACHIEV_25_NUKED_FROM_ORBIT                  = 2917,
-    ACHIEV_10_ORBITAL_BOMBARDMENT               = 2913,
-    ACHIEV_25_ORBITAL_BOMBARDMENT               = 2918,
-    ACHIEV_10_ORBITAL_DEVASTATION               = 2914,
-    ACHIEV_25_ORBITAL_DEVASTATION               = 2916,
-    ACHIEV_10_ORBIT_UARY                        = 3056,
-    ACHIEV_25_ORBIT_UARY                        = 3057,
-    ACHIEV_10_SIEGE_OF_ULDUAR                   = 2886,
-    ACHIEV_25_SIEGE_OF_ULDUAR                   = 2887,
-};
-
 enum actions
 {
     ACTION_TOWER_OF_STORM_DESTROYED             = 1,
@@ -212,6 +198,9 @@ Position const PosDemolisher[5] =
     {-756.01f, -219.23f, 430.50f, 2.369f},
     {-798.01f, -227.24f, 429.84f, 1.446f},
 };
+
+
+#define DATA_ORBIT_ACHIEVEMENTS         1
 
 class boss_flame_leviathan : public CreatureScript
 {
@@ -345,21 +334,6 @@ class boss_flame_leviathan : public CreatureScript
                 char fText[128];
                 sprintf(fText, "DEBUG >> %u LootRecipient: %s", isAllowed, me->GetLootRecipient() ? me->GetLootRecipient()->GetName() : "not found");
                 me->MonsterYell(fText, LANG_UNIVERSAL, 0);
-
-                if (ActiveTowers)
-                {
-                    switch (ActiveTowersCount)
-                    {
-                        case 4:
-                            instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
-                        case 3:
-                            instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
-                        case 2:
-                            instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
-                        case 1:
-                            instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
-                    }
-                }
             }
 
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
@@ -393,6 +367,8 @@ class boss_flame_leviathan : public CreatureScript
                         return Shutout ? 1 : 0;
                     case DATA_UNBROKEN:
                         return Unbroken ? 1 : 0;
+                    case DATA_ORBIT_ACHIEVEMENTS:
+                        return ActiveTowersCount;
                     default:
                         break;
                 }
@@ -876,14 +852,14 @@ class npc_liquid_pyrite : public CreatureScript
         }
 };
 
-class spell_pool_of_tar : public CreatureScript
+class npc_pool_of_tar : public CreatureScript
 {
     public:
-        spell_pool_of_tar() : CreatureScript("spell_pool_of_tar") { }
+        npc_pool_of_tar() : CreatureScript("npc_pool_of_tar") { }
 
-        struct spell_pool_of_tarAI : public ScriptedAI
+        struct npc_pool_of_tarAI : public ScriptedAI
         {
-            spell_pool_of_tarAI(Creature* creature) : ScriptedAI(creature)
+            npc_pool_of_tarAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
@@ -909,7 +885,7 @@ class spell_pool_of_tar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new spell_pool_of_tarAI(creature);
+            return new npc_pool_of_tarAI(creature);
         }
 };
 
@@ -1644,6 +1620,78 @@ class spell_flame_leviathan_flames : public SpellScriptLoader
         }
 };
 
+class achievement_orbital_bombardment : public AchievementCriteriaScript
+{
+    public:
+        achievement_orbital_bombardment() : AchievementCriteriaScript("achievement_orbital_bombardment") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Leviathan = target->ToCreature())
+                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) >= 1)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_orbital_devastation : public AchievementCriteriaScript
+{
+    public:
+        achievement_orbital_devastation() : AchievementCriteriaScript("achievement_orbital_devastation") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Leviathan = target->ToCreature())
+                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) >= 2)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_nuked_from_orbit : public AchievementCriteriaScript
+{
+    public:
+        achievement_nuked_from_orbit() : AchievementCriteriaScript("achievement_nuked_from_orbit") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Leviathan = target->ToCreature())
+                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) >= 3)
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_orbit_uary : public AchievementCriteriaScript
+{
+    public:
+        achievement_orbit_uary() : AchievementCriteriaScript("achievement_orbit_uary") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Leviathan = target->ToCreature())
+                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) == 4)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1660,6 +1708,7 @@ void AddSC_boss_flame_leviathan()
     new npc_freyas_ward();
     new npc_freya_ward_summon();
     new npc_lorekeeper();
+    new npc_pool_of_tar();
     // new npc_brann_bronzebeard();
     new go_ulduar_tower();
     new at_RX_214_repair_o_matic_station();
@@ -1668,7 +1717,10 @@ void AddSC_boss_flame_leviathan()
     new achievement_three_car_garage_siege();
     new achievement_shutout();
     new achievement_unbroken();
-    new spell_pool_of_tar();
+    new achievement_orbital_bombardment();
+    new achievement_orbital_devastation();
+    new achievement_nuked_from_orbit();
+    new achievement_orbit_uary();
     new spell_anti_air_rocket();
     new spell_pursued();
     new spell_flame_leviathan_flames();

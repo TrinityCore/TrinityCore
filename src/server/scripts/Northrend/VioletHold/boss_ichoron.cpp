@@ -404,6 +404,9 @@ class achievement_dehydration : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Ichoron = target->ToCreature())
                 if (Ichoron->AI()->GetData(DATA_DEHYDRATION))
                     return true;

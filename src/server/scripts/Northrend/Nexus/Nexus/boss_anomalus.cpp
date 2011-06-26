@@ -263,6 +263,9 @@ class achievement_chaos_theory : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
+            if (!target)
+                return false;
+
             if (Creature* Anomalus = target->ToCreature())
                 if (Anomalus->AI()->GetData(DATA_CHAOS_THEORY))
                     return true;

@@ -7293,6 +7293,26 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     return false;
                 }
+                // Item - Shaman T10 Elemental 4P Bonus
+                case 70817:
+                {
+                    // try to find spell Flame Shock on the target
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0x0, 0x0, GetGUID()))
+                    {
+                        Aura* flameShock  = aurEff->GetBase();
+                        int32 maxDuration = flameShock->GetMaxDuration();
+                        int32 newDuration = flameShock->GetDuration() + 2 * aurEff->GetAmplitude();
+
+                        flameShock->SetDuration(newDuration);
+                        // is it blizzlike to change max duration for FS?
+                        if (newDuration > maxDuration)
+                            flameShock->SetMaxDuration(newDuration);
+
+                        return true;
+                    }
+                    // if not found Flame Shock
+                    return false;
+                }
                 case 63280: // Glyph of Totem of Wrath
                 {
                     if (procSpell->SpellIconID != 2019)
@@ -8739,6 +8759,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Deathbringer Saurfang - Rune of Blood
         case 72408:
             // can proc only if target is marked with rune
+            // this should be handled by targetAuraSpell, but because 72408 is not passive
+            // one failed proc will remove the entire aura
             if (!pVictim->HasAura(72410))
                 return false;
             break;
@@ -8746,6 +8768,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 72176:
             basepoints0 = 3;
             break;
+        // Deathbringer Saurfang - Mark of the Fallen Champion
+        case 72256:
+            // this should be handled by targetAuraSpell, but because 72408 is not passive
+            // one failed proc will remove the entire aura
+            CastSpell(NULL, trigger_spell_id, true, NULL, triggeredByAura);
+            return true;
         case 15337: // Improved Spirit Tap (Rank 1)
         case 15338: // Improved Spirit Tap (Rank 2)
         {
@@ -8843,7 +8871,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         }
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending
-        case 39647: // Curse of Mending
+        case 39703: // Curse of Mending
         case 29494: // Temptation
         case 20233: // Improved Lay on Hands (cast on target)
         {

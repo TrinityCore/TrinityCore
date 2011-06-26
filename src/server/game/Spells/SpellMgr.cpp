@@ -3770,8 +3770,6 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
         case 27820: // Mana Detonation
-        //case 28062: case 39090:             // Positive/Negative Charge
-        //case 28085: case 39093:
         case 69782: // Ooze Flood
         case 69796: // Ooze Flood
         case 69798: // Ooze Flood
@@ -4144,12 +4142,9 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectRadiusIndex[0] = 12;   // 100yd
             ++count;
             break;
-        case 72385: // Boiling Blood (Deathbringer Saurfang)
-        case 72441: // Boiling Blood (Deathbringer Saurfang)
-        case 72442: // Boiling Blood (Deathbringer Saurfang)
-        case 72443: // Boiling Blood (Deathbringer Saurfang)
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-            spellInfo->EffectImplicitTargetB[0] = 0;
+        case 72723: // Resistant Skin (Deathbringer Saurfang adds)
+            // this spell initially granted Shadow damage immunity, however it was removed but the data was left in client
+            spellInfo->Effect[2] = 0;
             ++count;
             break;
         case 70460: // Coldflame Jets (Traps after Saurfang)
@@ -4211,8 +4206,9 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = 0;
             ++count;
             break;
+        case 72706: // Achievement Check (Valithria Dreamwalker)
         case 71357: // Order Whelp
-            spellInfo->EffectRadiusIndex[0] = 22;
+            spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
             ++count;
             break;
         case 70598: // Sindragosa's Fury
@@ -4247,14 +4243,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Roar
                 else if (spellInfo->SpellFamilyFlags[0] & 0x8)
                     mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
-                else
-                    break;
-                ++count;
-                break;
-                // Do not allow Deadly throw and Slice and Dice to proc twice
-            case SPELLFAMILY_ROGUE:
-                if (spellInfo->SpellFamilyFlags[1] & 0x1 || spellInfo->SpellFamilyFlags[0] & 0x40000)
-                    spellInfo->AttributesEx4 |= SPELL_ATTR4_CANT_PROC_FROM_SELFCAST;
                 else
                     break;
                 ++count;

@@ -698,7 +698,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                         }
                         break;
-                    case DATA_GUNSHIP_BATTLE_EVENT:
+                    /*case DATA_GUNSHIP_BATTLE_EVENT:
                         switch(state)
                         {
                             case DONE:
@@ -706,7 +706,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             case NOT_STARTED:
                                 break;
                         }
-                        break;
+                        break;*/
                     case DATA_FESTERGUT:
                         if (state == DONE)
                         {

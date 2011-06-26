@@ -1544,7 +1544,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_defense_turret
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_overload_device' WHERE `entry`=33143;
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_defense_cannon' WHERE `entry`=33139;
 UPDATE `creature_template` SET `ScriptName`='npc_colossus' WHERE `entry`=33237;
-UPDATE `creature_template` SET `ScriptName`='spell_pool_of_tar' WHERE `entry`=33090;
+UPDATE `creature_template` SET `ScriptName`='npc_pool_of_tar' WHERE `entry`=33090;
 UPDATE `creature_template` SET `ScriptName`='boss_ignis' WHERE `entry`=33118;
 UPDATE `creature_template` SET `ScriptName`='npc_iron_construct' WHERE `entry`=33121;
 UPDATE `creature_template` SET `ScriptName`='npc_scorch_ground' WHERE `entry`=33221;
@@ -2048,10 +2048,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72440, 'spell_deathbringer_blood_nova'),
 ( 72378, 'spell_deathbringer_blood_nova_targeting'),
 ( 73058, 'spell_deathbringer_blood_nova_targeting'),
-( 72255, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72444, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72445, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72446, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72385, 'spell_deathbringer_boiling_blood'),
+( 72441, 'spell_deathbringer_boiling_blood'),
+( 72442, 'spell_deathbringer_boiling_blood'),
+( 72443, 'spell_deathbringer_boiling_blood'),
 ( 72155, 'spell_icc_harvest_blight_specimen'),
 ( 72162, 'spell_icc_harvest_blight_specimen'),
 ( 71123, 'spell_stinky_precious_decimate'),
