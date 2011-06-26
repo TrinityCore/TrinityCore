@@ -311,6 +311,11 @@ inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
     return !IsSpellHaveEffect(spellProto, SPELL_EFFECT_APPLY_AURA);
 }
 
+inline bool IsMultiSlotAura(SpellEntry const* spellProto)
+{
+    return IsPassiveSpell(spellProto) || spellProto->Id == 44413;
+}
+
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
 {
     return spellInfo->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
@@ -723,7 +728,7 @@ enum ProcFlagsSpellPhase
 
 enum ProcFlagsHit
 {
-    PROC_HIT_NONE                = 0x0000000, // no value - PROC_HIT_NORMAL | PROC_HIT_CRITICAL for TAKEN proc type, PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB
+    PROC_HIT_NONE                = 0x0000000, // no value - PROC_HIT_NORMAL | PROC_HIT_CRITICAL for TAKEN proc type, PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB for DONE
     PROC_HIT_NORMAL              = 0x0000001, // non-critical hits
     PROC_HIT_CRITICAL            = 0x0000002,
     PROC_HIT_MISS                = 0x0000004,
@@ -769,8 +774,8 @@ struct SpellProcEntry
     uint32      spellTypeMask;                              // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
     uint32      spellPhaseMask;                             // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
     uint32      hitMask;                                    // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
-    uint32      attributesMask;
-    float       ratePerMinute;                              // if nonzero - chance to proc is equal to value * weapon speed / 60
+    uint32      attributesMask;                             // bitmask, see ProcAttributes
+    float       ratePerMinute;                              // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
     float       chance;                                     // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if perMinuteRate set
     float       cooldown;                                   // if nonzero - cooldown in secs for aura proc, applied to aura
     uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite

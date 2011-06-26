@@ -3117,7 +3117,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
         casterGUID = caster->GetGUID();
 
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
-    if (!IsPassiveSpell(newAura) && newAura->Id != 44413)
+    if (!IsMultiSlotAura(newAura))
     {
         // check if cast item changed
         uint64 castItemGUID = 0;

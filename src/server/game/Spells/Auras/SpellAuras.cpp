@@ -960,7 +960,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 {
     Unit* target = aurApp->GetTarget();
     AuraRemoveMode removeMode = aurApp->GetRemoveMode();
-    // spell_area table
+    // handle spell_area table
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAuraMapBounds(GetId());
     if (saBounds.first != saBounds.second)
     {
@@ -980,21 +980,69 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
         }
     }
-    // mods at aura apply
-    if (apply)
+
+    // handle spell_linked_spell table
+    uint32 customAttr = sSpellMgr->GetSpellCustomAttr(GetId());
+    if (!onReapply)
     {
-        // Apply linked auras (On first aura apply)
-        if (sSpellMgr->GetSpellCustomAttr(GetId()) & SPELL_ATTR0_CU_LINK_AURA)
+        // apply linked auras
+        if (apply)
         {
-            if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
-                for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
+            {
+                std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA);
+                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 {
                     if (*itr < 0)
                         target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), true);
                     else if (caster)
                         caster->AddAura(*itr, target);
                 }
+            }
         }
+        else
+        {
+            // remove linked auras
+            if (customAttr & SPELL_ATTR0_CU_LINK_REMOVE)
+            {
+                std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(-(int32)GetId());
+                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                {
+                    if (*itr < 0)
+                        target->RemoveAurasDueToSpell(-(*itr));
+                    else if (removeMode != AURA_REMOVE_BY_DEATH)
+                        target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
+                }
+            }
+            if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
+            {
+                std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA);
+                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                {
+                    if (*itr < 0)
+                        target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), false);
+                    else
+                        target->RemoveAura(*itr, GetCasterGUID(), 0, removeMode);
+                }
+            }
+        }
+    }
+    else if (apply)
+    {
+        // modify stack amount of linked auras
+        if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
+        {
+            std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA);
+            for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                if (*itr > 0)
+                    if (Aura* triggeredAura = target->GetAura(*itr, GetCasterGUID()))
+                        triggeredAura->ModStackAmount(GetStackAmount() - triggeredAura->GetStackAmount());
+        }
+    }
+
+    // mods at aura apply
+    if (apply)
+    {
         switch (GetSpellProto()->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -1201,35 +1249,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     // mods at aura remove
     else
     {
-        // Remove Linked Auras
-        if (!onReapply && removeMode != AURA_REMOVE_BY_DEATH)
-        {
-            if (uint32 customAttr = sSpellMgr->GetSpellCustomAttr(GetId()))
-            {
-                if (customAttr & SPELL_ATTR0_CU_LINK_REMOVE)
-                {
-                    if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(-(int32)GetId()))
-                        for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                        {
-                            if (*itr < 0)
-                                target->RemoveAurasDueToSpell(-(*itr));
-                            else if (removeMode != AURA_REMOVE_BY_DEFAULT)
-                                target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
-                        }
-                }
-                if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
-                {
-                    if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
-                        for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                        {
-                            if (*itr < 0)
-                                target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), false);
-                            else
-                                target->RemoveAurasDueToSpell(*itr);
-                        }
-                }
-            }
-        }
         switch(GetSpellProto()->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
