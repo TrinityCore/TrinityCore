@@ -1,1 +1,1 @@
-UPDATE creature_template SET unit_flags=8 WHERE entry=36609 LIMIT 1;
+UPDATE creature_template SET unit_flags=512 WHERE entry IN (36609,39120,39121,39122);
