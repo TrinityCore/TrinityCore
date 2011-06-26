@@ -1,0 +1,1 @@
+UPDATE creature_template SET unit_flags=8 WHERE entry=36609 LIMIT 1;
