@@ -588,7 +588,7 @@ class boss_muradin_bronzebeard : public CreatureScript
                 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            if ( pPlayer->GetTeamId() == TEAM_ALLIANCE)
+            if ( pPlayer->GetTeamId() == TEAM_HORDE)
                 return false;
 
             InstanceScript* pInstance = pCreature->GetInstanceScript();
@@ -845,7 +845,7 @@ class boss_high_overlord_varok_saurfang : public CreatureScript
                 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            if ( pPlayer->GetTeamId() == TEAM_HORDE)
+            if ( pPlayer->GetTeamId() == TEAM_ALLIANCE)
                 return false;
 
             InstanceScript* pInstance = pCreature->GetInstanceScript();
