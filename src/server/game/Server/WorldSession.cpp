@@ -760,6 +760,30 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     // it will freeze clients that receive this player's movement info.
     if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT))
         mi->flags &= ~MOVEMENTFLAG_ROOT;
+
+    // Cannot hover and jump at the same time
+    if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
+        mi->flags &= ~MOVEMENTFLAG_JUMPING;
+
+    // Cannot ascend and descend at the same time
+    if (mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING))
+        mi->flags &= ~(MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+
+    // Cannot move left and right at the same time
+    if (mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT))
+        mi->flags &= ~(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+
+    // Cannot strafe left and right at the same time
+    if (mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
+        mi->flags &= ~(MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+
+    // Cannot pitch up and down at the same time
+    if (mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN))
+        mi->flags &= ~(MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+
+    // Cannot move forwards and backwards at the same time
+    if (mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD))
+        mi->flags &= ~(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket *data, MovementInfo *mi)
