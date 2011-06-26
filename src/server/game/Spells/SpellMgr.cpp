@@ -1338,46 +1338,6 @@ void SpellMgr::LoadSpellProcEvents()
     sLog->outString();
 }
 
-void SpellMgr::LoadSpellBonusess()
-{
-    uint32 oldMSTime = getMSTime();
-
-    mSpellBonusMap.clear();                             // need for reload case
-    uint32 count = 0;
-    //                                                0      1             2          3         4
-    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
-    if (!result)
-    {
-        sLog->outString(">> Loaded %u spell bonus data", count);
-        sLog->outString();
-        return;
-    }
-
-    do
-    {
-        Field *fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-
-        const SpellEntry *spell = sSpellStore.LookupEntry(entry);
-        if (!spell)
-        {
-            sLog->outErrorDb("Spell %u listed in `spell_bonus_data` does not exist", entry);
-            continue;
-        }
-
-        SpellBonusEntry& sbe = mSpellBonusMap[entry];
-        sbe.direct_damage = fields[1].GetFloat();
-        sbe.dot_damage    = fields[2].GetFloat();
-        sbe.ap_bonus      = fields[3].GetFloat();
-        sbe.ap_dot_bonus   = fields[4].GetFloat();
-
-        ++count;
-    } while (result->NextRow());
-
-    sLog->outString(">> Loaded %u extra spell bonus data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const* procSpell, uint32 procFlags, uint32 procExtra, bool active)
 {
     // No extra req need
@@ -1505,6 +1465,187 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             return true;
     }
     return false;
+}
+
+void SpellMgr::LoadSpellProcs()
+{
+    uint32 oldMSTime = getMSTime();
+
+    mSpellProcMap.clear();                             // need for reload case
+
+    uint32 count = 0;
+
+    //                                               0        1           2                3                 4                 5                 6         7              8               9        10              11             12      13        14
+    QueryResult result = WorldDatabase.Query("SELECT spellId, schoolMask, spellFamilyName, spellFamilyMask0, spellFamilyMask1, spellFamilyMask2, typeMask, spellTypeMask, spellPhaseMask, hitMask, attributesMask, ratePerMinute, chance, cooldown, charges FROM spell_proc");
+    if (!result)
+    {
+        sLog->outString(">> Loaded %u spell proc conditions and data", count);
+        sLog->outString();
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        int32 spellId = fields[0].GetInt32();
+
+        bool allRanks = false;
+        if (spellId <=0)
+        {
+            allRanks = true;
+            spellId = -spellId;
+        }
+
+        SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellId);
+        if (!spellEntry)
+        {
+            sLog->outErrorDb("Spell %u listed in `spell_proc` does not exist", spellId);
+            continue;
+        }
+
+        if (allRanks)
+        {
+            if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
+            {
+                sLog->outErrorDb("Spell %u listed in `spell_proc` is not first rank of spell.", fields[0].GetInt32());
+                continue;
+            }
+        }
+
+        SpellProcEntry baseProcEntry;
+
+        baseProcEntry.schoolMask      = fields[1].GetUInt32();
+        baseProcEntry.spellFamilyName = fields[2].GetUInt32();
+        baseProcEntry.spellFamilyMask[0] = fields[3].GetUInt32();
+        baseProcEntry.spellFamilyMask[1] = fields[4].GetUInt32();
+        baseProcEntry.spellFamilyMask[2] = fields[5].GetUInt32();
+        baseProcEntry.typeMask        = fields[6].GetUInt32();
+        baseProcEntry.spellTypeMask   = fields[7].GetUInt32();
+        baseProcEntry.spellPhaseMask  = fields[8].GetUInt32();
+        baseProcEntry.hitMask         = fields[9].GetUInt32();
+        baseProcEntry.attributesMask  = fields[10].GetUInt32();
+        baseProcEntry.ratePerMinute   = fields[11].GetFloat();
+        baseProcEntry.chance          = fields[12].GetFloat();
+        baseProcEntry.cooldown        = fields[13].GetFloat();
+        baseProcEntry.charges         = fields[14].GetUInt32();
+
+        while(true)
+        {
+            if (mSpellProcMap.find(spellId) != mSpellProcMap.end())
+            {
+                sLog->outErrorDb("Spell %u listed in `spell_proc` has duplicate entry in the table", spellId);
+                break;
+            }
+            SpellProcEntry procEntry = SpellProcEntry(baseProcEntry);
+
+            // take defaults from dbcs
+            if (!procEntry.typeMask)
+                procEntry.typeMask = spellEntry->procFlags;
+            if (!procEntry.charges)
+                procEntry.charges = spellEntry->procCharges;
+            if (!procEntry.chance && !procEntry.ratePerMinute)
+                procEntry.chance = float(spellEntry->procChance);
+
+            // validate data
+            if (procEntry.schoolMask & ~SPELL_SCHOOL_MASK_ALL)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has wrong `schoolMask` set: %u", spellId, procEntry.schoolMask);
+            if (procEntry.spellFamilyName && (procEntry.spellFamilyName < 3 || procEntry.spellFamilyName > 17 || procEntry.spellFamilyName == 14 || procEntry.spellFamilyName == 16))
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has wrong `spellFamilyName` set: %u", spellId, procEntry.spellFamilyName);
+            if (procEntry.chance < 0)
+            {
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has negative value in `chance` field", spellId);
+                procEntry.chance = 0;
+            }
+            if (procEntry.ratePerMinute < 0)
+            {
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has negative value in `ratePerMinute` field", spellId);
+                procEntry.ratePerMinute = 0;
+            }
+            if (procEntry.cooldown < 0)
+            {
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has negative value in `cooldown` field", spellId);
+                procEntry.cooldown = 0;
+            }
+            if (procEntry.chance == 0 && procEntry.ratePerMinute == 0)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u doesn't have `chance` and `ratePerMinute` values defined, proc will not be triggered", spellId);
+            if (procEntry.charges > 99)
+            {
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has too big value in `charges` field", spellId);
+                procEntry.charges = 99;
+            }
+            if (!procEntry.typeMask)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u doesn't have `typeMask` value defined, proc will not be triggered", spellId);
+            if (procEntry.spellTypeMask & ~PROC_SPELL_PHASE_MASK_ALL)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has wrong `spellTypeMask` set: %u", spellId, procEntry.spellTypeMask);
+            if (procEntry.spellTypeMask && !(procEntry.typeMask & SPELL_PROC_FLAG_MASK))
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has `spellTypeMask` value defined, but it won't be used for defined `typeMask` value", spellId);
+            if (!procEntry.spellPhaseMask && procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u doesn't have `spellPhaseMask` value defined, but it's required for defined `typeMask` value, proc will not be triggered", spellId);
+            if (procEntry.spellPhaseMask & ~PROC_SPELL_PHASE_MASK_ALL)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has wrong `spellPhaseMask` set: %u", spellId, procEntry.spellPhaseMask);
+            if (procEntry.spellPhaseMask && !(procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK))
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has `spellPhaseMask` value defined, but it won't be used for defined `typeMask` value", spellId);
+            if (procEntry.hitMask & ~PROC_HIT_MASK_ALL)
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has wrong `hitMask` set: %u", spellId, procEntry.hitMask);
+            if (procEntry.hitMask && !(procEntry.typeMask & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.typeMask & DONE_HIT_PROC_FLAG_MASK && (!procEntry.spellPhaseMask || procEntry.spellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
+                sLog->outErrorDb("`spell_proc` table entry for spellId %u has `hitMask` value defined, but it won't be used for defined `typeMask` and `spellPhaseMask` values", spellId);
+
+            mSpellProcMap[spellId] = procEntry;
+
+            if (allRanks)
+            {
+                spellId = sSpellMgr->GetNextSpellInChain(spellId);
+                spellEntry = sSpellStore.LookupEntry(spellId);
+            }
+            else
+                break;
+        }
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outString(">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
+void SpellMgr::LoadSpellBonusess()
+{
+    uint32 oldMSTime = getMSTime();
+
+    mSpellBonusMap.clear();                             // need for reload case
+    uint32 count = 0;
+    //                                                0      1             2          3         4
+    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
+    if (!result)
+    {
+        sLog->outString(">> Loaded %u spell bonus data", count);
+        sLog->outString();
+        return;
+    }
+
+    do
+    {
+        Field *fields = result->Fetch();
+        uint32 entry = fields[0].GetUInt32();
+
+        const SpellEntry *spell = sSpellStore.LookupEntry(entry);
+        if (!spell)
+        {
+            sLog->outErrorDb("Spell %u listed in `spell_bonus_data` does not exist", entry);
+            continue;
+        }
+
+        SpellBonusEntry& sbe = mSpellBonusMap[entry];
+        sbe.direct_damage = fields[1].GetFloat();
+        sbe.dot_damage    = fields[2].GetFloat();
+        sbe.ap_bonus      = fields[3].GetFloat();
+        sbe.ap_dot_bonus   = fields[4].GetFloat();
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outString(">> Loaded %u extra spell bonus data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
 }
 
 void SpellMgr::LoadSpellGroups()

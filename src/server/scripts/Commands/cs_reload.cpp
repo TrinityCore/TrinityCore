@@ -144,6 +144,7 @@ public:
             { "spell_linked_spell",           SEC_ADMINISTRATOR, true,  &HandleReloadSpellLinkedSpellCommand,           "", NULL },
             { "spell_pet_auras",              SEC_ADMINISTRATOR, true,  &HandleReloadSpellPetAurasCommand,              "", NULL },
             { "spell_proc_event",             SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcEventCommand,             "", NULL },
+            { "spell_proc",                   SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcsCommand,             "", NULL },
             { "spell_scripts",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellScriptsCommand,               "", NULL },
             { "spell_target_position",        SEC_ADMINISTRATOR, true,  &HandleReloadSpellTargetPositionCommand,        "", NULL },
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
@@ -284,6 +285,7 @@ public:
         HandleReloadSpellLearnSpellCommand(handler, "a");
         HandleReloadSpellLinkedSpellCommand(handler, "a");
         HandleReloadSpellProcEventCommand(handler, "a");
+        HandleReloadSpellProcsCommand(handler, "a");
         HandleReloadSpellBonusesCommand(handler, "a");
         HandleReloadSpellTargetPositionCommand(handler, "a");
         HandleReloadSpellThreatsCommand(handler, "a");
@@ -849,6 +851,14 @@ public:
         sLog->outString("Re-Loading Spell Proc Event conditions...");
         sSpellMgr->LoadSpellProcEvents();
         handler->SendGlobalGMSysMessage("DB table `spell_proc_event` (spell proc trigger requirements) reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadSpellProcsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        sLog->outString("Re-Loading Spell Proc conditions and data...");
+        sSpellMgr->LoadSpellProcs();
+        handler->SendGlobalGMSysMessage("DB table `spell_proc` (spell proc conditions and data) reloaded.");
         return true;
     }
 
