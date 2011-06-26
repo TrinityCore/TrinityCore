@@ -1154,6 +1154,65 @@ public:
     }
 };
 
+enum Launch
+{
+    SPELL_LAUNCH_NO_FALLING_DAMAGE = 66251
+};
+
+class spell_gen_launch : public SpellScriptLoader
+{
+    public:
+        spell_gen_launch() : SpellScriptLoader("spell_gen_launch") {}
+
+        class spell_gen_launch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_launch_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                SpellEntry const* const spell = GetSpellInfo();
+
+                if (Player* player = GetHitPlayer())
+                {
+                    player->CastSpell(player,spell->EffectTriggerSpell[1],true); // changes the player's seat
+                    player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE,player); // prevents falling damage
+                }
+            }
+
+            void Launch()
+            {
+                WorldLocation const* const position = GetTargetDest();
+
+                if (Player* player = GetHitPlayer())
+                {
+                    player->ExitVehicle();
+
+                    // A better research is needed
+                    // There is no spell for this, the following calculation was based on void Spell::CalculateJumpSpeeds
+
+                    float speedZ = 10.0f;
+                    float dist = position->GetExactDist2d(player->GetPositionX(),player->GetPositionY());
+                    float speedXY = dist;
+
+                    player->GetMotionMaster()->MoveJump(position->GetPositionX(),position->GetPositionY(),position->GetPositionZ(),speedXY,speedZ);
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_gen_launch_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+                AfterHit += SpellHitFn(spell_gen_launch_SpellScript::Launch);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_launch_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1181,4 +1240,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_lifeblood();
     new spell_gen_magic_rooster();
     new spell_gen_allow_cast_from_item_only();
+    new spell_gen_launch();
 }
