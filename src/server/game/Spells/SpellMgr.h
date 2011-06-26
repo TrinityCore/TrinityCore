@@ -553,45 +553,45 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
 {
-   PROC_FLAG_NONE                            = 0x00000000,
+    PROC_FLAG_NONE                            = 0x00000000,
 
-   PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor - not sure about this flag
-   PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
+    PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor - not sure about this flag
+    PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
-   PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack
-   PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK         = 0x00000008,    // 03 Taken melee auto attack
+    PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack
+    PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK         = 0x00000008,    // 03 Taken melee auto attack
 
-   PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS      = 0x00000010,    // 04 Done attack by Spell that has dmg class melee
-   PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS     = 0x00000020,    // 05 Taken attack by Spell that has dmg class melee
+    PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS      = 0x00000010,    // 04 Done attack by Spell that has dmg class melee
+    PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS     = 0x00000020,    // 05 Taken attack by Spell that has dmg class melee
 
-   PROC_FLAG_DONE_RANGED_AUTO_ATTACK         = 0x00000040,    // 06 Done ranged auto attack
-   PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK        = 0x00000080,    // 07 Taken ranged auto attack
+    PROC_FLAG_DONE_RANGED_AUTO_ATTACK         = 0x00000040,    // 06 Done ranged auto attack
+    PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK        = 0x00000080,    // 07 Taken ranged auto attack
 
-   PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS     = 0x00000100,    // 08 Done attack by Spell that has dmg class ranged
-   PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS    = 0x00000200,    // 09 Taken attack by Spell that has dmg class ranged
+    PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS     = 0x00000100,    // 08 Done attack by Spell that has dmg class ranged
+    PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS    = 0x00000200,    // 09 Taken attack by Spell that has dmg class ranged
 
-   PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS   = 0x00000400,    // 10 Done positive spell that has dmg class none
-   PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS  = 0x00000800,    // 11 Taken positive spell that has dmg class none
+    PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS   = 0x00000400,    // 10 Done positive spell that has dmg class none
+    PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS  = 0x00000800,    // 11 Taken positive spell that has dmg class none
 
-   PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG   = 0x00001000,    // 12 Done negative spell that has dmg class none
-   PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG  = 0x00002000,    // 13 Taken negative spell that has dmg class none
+    PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG   = 0x00001000,    // 12 Done negative spell that has dmg class none
+    PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG  = 0x00002000,    // 13 Taken negative spell that has dmg class none
 
-   PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  = 0x00004000,    // 14 Done positive spell that has dmg class magic
-   PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS = 0x00008000,    // 15 Taken positive spell that has dmg class magic
+    PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  = 0x00004000,    // 14 Done positive spell that has dmg class magic
+    PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS = 0x00008000,    // 15 Taken positive spell that has dmg class magic
 
-   PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG  = 0x00010000,    // 16 Done negative spell that has dmg class magic
-   PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG = 0x00020000,    // 17 Taken negative spell that has dmg class magic
+    PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG  = 0x00010000,    // 16 Done negative spell that has dmg class magic
+    PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG = 0x00020000,    // 17 Taken negative spell that has dmg class magic
 
-   PROC_FLAG_DONE_PERIODIC                   = 0x00040000,    // 18 Successful do periodic (damage / healing)
-   PROC_FLAG_TAKEN_PERIODIC                  = 0x00080000,    // 19 Taken spell periodic (damage / healing)
+    PROC_FLAG_DONE_PERIODIC                   = 0x00040000,    // 18 Successful do periodic (damage / healing)
+    PROC_FLAG_TAKEN_PERIODIC                  = 0x00080000,    // 19 Taken spell periodic (damage / healing)
 
-   PROC_FLAG_TAKEN_DAMAGE                    = 0x00100000,    // 20 Taken any damage
-   PROC_FLAG_DONE_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
+    PROC_FLAG_TAKEN_DAMAGE                    = 0x00100000,    // 20 Taken any damage
+    PROC_FLAG_DONE_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
 
-   PROC_FLAG_DONE_MAINHAND_ATTACK            = 0x00400000,    // 22 Done main-hand melee attacks (spell and autoattack)
-   PROC_FLAG_DONE_OFFHAND_ATTACK             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
+    PROC_FLAG_DONE_MAINHAND_ATTACK            = 0x00400000,    // 22 Done main-hand melee attacks (spell and autoattack)
+    PROC_FLAG_DONE_OFFHAND_ATTACK             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
 
-   PROC_FLAG_DEATH                           = 0x01000000     // 24 Died in any way
+    PROC_FLAG_DEATH                           = 0x01000000     // 24 Died in any way
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK      | \
@@ -603,35 +603,98 @@ enum ProcFlags
                                   PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | \
                                   PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS)
 
-enum ProcFlagsEx
-{
-   PROC_EX_NONE                = 0x0000000,                 // If none can tigger on Hit/Crit only (passive spells MUST defined by SpellFamily flag)
-   PROC_EX_NORMAL_HIT          = 0x0000001,                 // If set only from normal hit (only damage spells)
-   PROC_EX_CRITICAL_HIT        = 0x0000002,
-   PROC_EX_MISS                = 0x0000004,
-   PROC_EX_RESIST              = 0x0000008,
-   PROC_EX_DODGE               = 0x0000010,
-   PROC_EX_PARRY               = 0x0000020,
-   PROC_EX_BLOCK               = 0x0000040,
-   PROC_EX_EVADE               = 0x0000080,
-   PROC_EX_IMMUNE              = 0x0000100,
-   PROC_EX_DEFLECT             = 0x0000200,
-   PROC_EX_ABSORB              = 0x0000400,
-   PROC_EX_REFLECT             = 0x0000800,
-   PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
-   PROC_EX_FULL_BLOCK          = 0x0002000,                 // block al attack damage
-   PROC_EX_RESERVED2           = 0x0004000,
-   PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // Spell mustn't do damage/heal to proc
-   PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
-   PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not implemented yet)
-   PROC_EX_ONLY_ACTIVE_SPELL   = 0x0040000,                 // Spell has to do damage/heal to proc
+// flag masks
+#define AUTO_ATTACK_PROC_FLAG_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK     | \
+                                  PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK      | \
+                                  PROC_FLAG_DONE_RANGED_AUTO_ATTACK      | \
+                                  PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK)
 
-   // Flags for internal use - do not use these in db!
-   PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
-   PROC_EX_INTERNAL_DOT        = 0x1000000,
-   PROC_EX_INTERNAL_HOT        = 0x2000000,
-   PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,
-   PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000
+#define MELEE_PROC_FLAG_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK           | \
+                                  PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK      | \
+                                  PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS   | \
+                                  PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS  | \
+                                  PROC_FLAG_DONE_MAINHAND_ATTACK         | \
+                                  PROC_FLAG_DONE_OFFHAND_ATTACK)
+
+#define RANGED_PROC_FLAG_MASK (PROC_FLAG_DONE_RANGED_AUTO_ATTACK         | \
+                                  PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK     | \
+                                  PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS  | \
+                                  PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS)
+
+#define SPELL_PROC_FLAG_MASK (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS  | \
+                                  PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS  | \
+                                  PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS  | \
+                                  PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS | \
+                                  PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS  | \
+                                  PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS | \
+                                  PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG  | \
+                                  PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG | \
+                                  PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  | \
+                                  PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS | \
+                                  PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG  | \
+                                  PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG)
+
+#define SPELL_CAST_PROC_FLAG_MASK (SPELL_PROC_FLAG_MASK | \
+                                  PROC_FLAG_DONE_TRAP_ACTIVATION | \
+                                  RANGED_PROC_FLAG_MASK)
+
+#define PERIODIC_PROC_FLAG_MASK (PROC_FLAG_DONE_PERIODIC | \
+                                  PROC_FLAG_TAKEN_PERIODIC)
+
+#define DONE_HIT_PROC_FLAG_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK | \
+                                  PROC_FLAG_DONE_RANGED_AUTO_ATTACK  | \
+                                  PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | \
+                                  PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS  | \
+                                  PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS  | \
+                                  PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG  | \
+                                  PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  | \
+                                  PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | \
+                                  PROC_FLAG_DONE_PERIODIC | \
+                                  PROC_FLAG_DONE_MAINHAND_ATTACK | \
+                                  PROC_FLAG_DONE_OFFHAND_ATTACK )
+
+#define TAKEN_HIT_PROC_FLAG_MASK (PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK | \
+                                  PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK  | \
+                                  PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS | \
+                                  PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS  | \
+                                  PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS  | \
+                                  PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG  | \
+                                  PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS  | \
+                                  PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | \
+                                  PROC_FLAG_TAKEN_PERIODIC | \
+                                  PROC_FLAG_TAKEN_DAMAGE)
+
+#define REQ_SPELL_PHASE_PROC_FLAG_MASK (SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK)
+
+enum ProcFlagsExLegacy
+{
+    PROC_EX_NONE                = 0x0000000,                 // If none can tigger on Hit/Crit only (passive spells MUST defined by SpellFamily flag)
+    PROC_EX_NORMAL_HIT          = 0x0000001,                 // If set only from normal hit (only damage spells)
+    PROC_EX_CRITICAL_HIT        = 0x0000002,
+    PROC_EX_MISS                = 0x0000004,
+    PROC_EX_RESIST              = 0x0000008,
+    PROC_EX_DODGE               = 0x0000010,
+    PROC_EX_PARRY               = 0x0000020,
+    PROC_EX_BLOCK               = 0x0000040,
+    PROC_EX_EVADE               = 0x0000080,
+    PROC_EX_IMMUNE              = 0x0000100,
+    PROC_EX_DEFLECT             = 0x0000200,
+    PROC_EX_ABSORB              = 0x0000400,
+    PROC_EX_REFLECT             = 0x0000800,
+    PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
+    PROC_EX_FULL_BLOCK          = 0x0002000,                 // block al attack damage
+    PROC_EX_RESERVED2           = 0x0004000,
+    PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // Spell mustn't do damage/heal to proc
+    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
+    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not implemented yet)
+    PROC_EX_ONLY_ACTIVE_SPELL   = 0x0040000,                 // Spell has to do damage/heal to proc
+
+    // Flags for internal use - do not use these in db!
+    PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
+    PROC_EX_INTERNAL_DOT        = 0x1000000,
+    PROC_EX_INTERNAL_HOT        = 0x2000000,
+    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,
+    PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000
 };
 
 #define AURA_SPELL_PROC_EX_MASK \
@@ -639,6 +702,49 @@ enum ProcFlagsEx
     PROC_EX_RESIST | PROC_EX_DODGE | PROC_EX_PARRY | PROC_EX_BLOCK | \
     PROC_EX_EVADE | PROC_EX_IMMUNE | PROC_EX_DEFLECT | \
     PROC_EX_ABSORB | PROC_EX_REFLECT | PROC_EX_INTERRUPT)
+
+enum ProcFlagsSpellType
+{
+    PROC_SPELL_TYPE_NONE              = 0x0000000,
+    PROC_SPELL_TYPE_DAMAGE            = 0x0000001, // damage type of spell
+    PROC_SPELL_TYPE_HEAL              = 0x0000002, // heal type of spell
+    PROC_SPELL_TYPE_NO_DMG_HEAL       = 0x0000004, // other spells
+    PROC_SPELL_TYPE_MASK_ALL          = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_HEAL | PROC_SPELL_TYPE_NO_DMG_HEAL
+};
+
+enum ProcFlagsSpellPhase
+{
+    PROC_SPELL_PHASE_NONE             = 0x0000000,
+    PROC_SPELL_PHASE_CAST             = 0x0000001,
+    PROC_SPELL_PHASE_HIT              = 0x0000002,
+    PROC_SPELL_PHASE_FINISH           = 0x0000004,
+    PROC_SPELL_PHASE_MASK_ALL         = PROC_SPELL_PHASE_CAST | PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH
+};
+
+enum ProcFlagsHit
+{
+    PROC_HIT_NONE                = 0x0000000, // no value - PROC_HIT_NORMAL | PROC_HIT_CRITICAL for TAKEN proc type, PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB
+    PROC_HIT_NORMAL              = 0x0000001, // non-critical hits
+    PROC_HIT_CRITICAL            = 0x0000002,
+    PROC_HIT_MISS                = 0x0000004,
+    PROC_HIT_FULL_RESIST         = 0x0000008,
+    PROC_HIT_DODGE               = 0x0000010,
+    PROC_HIT_PARRY               = 0x0000020,
+    PROC_HIT_BLOCK               = 0x0000040, // partial or full block
+    PROC_HIT_EVADE               = 0x0000080,
+    PROC_HIT_IMMUNE              = 0x0000100,
+    PROC_HIT_DEFLECT             = 0x0000200,
+    PROC_HIT_ABSORB              = 0x0000400, // partial or full absorb
+    PROC_HIT_REFLECT             = 0x0000800,
+    PROC_HIT_INTERRUPT           = 0x0001000, // (not used atm)
+    PROC_HIT_FULL_BLOCK          = 0x0002000,
+    PROC_HIT_MASK_ALL = 0x2FFF,
+};
+
+enum ProcAttributes
+{
+    PROC_ATTR_REQ_EXP_OR_HONOR   = 0x0000010,
+};
 
 struct SpellProcEventEntry
 {
@@ -652,15 +758,25 @@ struct SpellProcEventEntry
     uint32      cooldown;                                   // hidden cooldown used for some spell proc events, applied to _triggered_spell_
 };
 
-struct SpellBonusEntry
+typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
+
+struct SpellProcEntry
 {
-    float  direct_damage;
-    float  dot_damage;
-    float  ap_bonus;
-    float  ap_dot_bonus;
+    uint32      schoolMask;                                 // if nonzero - bitmask for matching proc condition based on spell's school
+    uint32      spellFamilyName;                            // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
+    flag96      spellFamilyMask;                            // if nonzero - bitmask for matching proc condition based on candidate spell's SpellFamilyFlags
+    uint32      typeMask;                                   // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
+    uint32      spellTypeMask;                              // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
+    uint32      spellPhaseMask;                             // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
+    uint32      hitMask;                                    // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32      attributesMask;
+    float       ratePerMinute;                              // if nonzero - chance to proc is equal to value * weapon speed / 60
+    float       chance;                                     // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if perMinuteRate set
+    float       cooldown;                                   // if nonzero - cooldown in secs for aura proc, applied to aura
+    uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
-typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
+typedef UNORDERED_MAP<uint32, SpellProcEntry> SpellProcMap;
 
 struct SpellEnchantProcEntry
 {
@@ -670,6 +786,15 @@ struct SpellEnchantProcEntry
 };
 
 typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
+
+struct SpellBonusEntry
+{
+    float  direct_damage;
+    float  dot_damage;
+    float  ap_bonus;
+    float  ap_dot_bonus;
+};
+
 typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
 enum SpellGroup
@@ -1405,6 +1530,7 @@ class SpellMgr
         void LoadSpellLearnSpells();
         void LoadSpellGroups();
         void LoadSpellProcEvents();
+        void LoadSpellProcs();
         void LoadSpellBonusess();
         void LoadSpellTargetPositions();
         void LoadSpellThreats();
@@ -1433,6 +1559,7 @@ class SpellMgr
         SpellGroupSpellMap mSpellGroupSpell;
         SpellThreatMap     mSpellThreatMap;
         SpellProcEventMap  mSpellProcEventMap;
+        SpellProcMap  mSpellProcMap;
         SpellBonusMap      mSpellBonusMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
