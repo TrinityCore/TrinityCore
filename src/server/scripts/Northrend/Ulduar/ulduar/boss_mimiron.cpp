@@ -110,6 +110,7 @@ enum Events
     EVENT_HEAT_WAVE,
     EVENT_HAND_PULSE,
     EVENT_FROST_BOMB,
+    EVENT_FLAME_SUPPRESSANT_VX001,
 
     // Aerial Command Unit
     EVENT_PLASMA_BALL,
@@ -1102,6 +1103,7 @@ public:
             {
                 DoCast(me, SPELL_EMERGENCY_MODE);
                 events.ScheduleEvent(EVENT_FROST_BOMB, 15000);
+                events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX001, 10000);
             }
 
             events.ScheduleEvent(EVENT_RAPID_BURST, 2500, 0, PHASE_VX001_SOLO);
@@ -1269,6 +1271,10 @@ public:
                         case EVENT_FROST_BOMB:
                             me->SummonCreature(NPC_FROST_BOMB, SummonPos[rand()%9], TEMPSUMMON_TIMED_DESPAWN, 11000);
                             events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
+                            break;
+                        case EVENT_FLAME_SUPPRESSANT_VX001:
+                            DoCastAOE(SPELL_FLAME_SUPPRESSANT_VX001);
+                            events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_VX001, 10000);
                             break;
                     }
                 }
@@ -1593,164 +1599,167 @@ public:
 
 class npc_magnetic_core : public CreatureScript
 {
-public:
-    npc_magnetic_core() : CreatureScript("npc_magnetic_core") { }
+    public:
+        npc_magnetic_core() : CreatureScript("npc_magnetic_core") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_magnetic_coreAI(creature);
-    }
-
-    struct npc_magnetic_coreAI : public Scripted_NoMovementAI
-    {
-        npc_magnetic_coreAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        struct npc_magnetic_coreAI : public Scripted_NoMovementAI
         {
-            DoCast(SPELL_MAGNETIC_CORE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            me->ForcedDespawn(21000);
-            if (Creature* AerialUnit = me->FindNearestCreature(NPC_AERIAL_COMMAND_UNIT, 20, true))
-                AerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
+            npc_magnetic_coreAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+                DoCast(SPELL_MAGNETIC_CORE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->ForcedDespawn(21000);
+                if (Creature* AerialUnit = me->FindNearestCreature(NPC_AERIAL_COMMAND_UNIT, 20, true))
+                    AerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_magnetic_coreAI(creature);
         }
-    };
 };
 
 class npc_assault_bot : public CreatureScript
 {
-public:
-    npc_assault_bot() : CreatureScript("npc_assault_bot") { }
+    public:
+        npc_assault_bot() : CreatureScript("npc_assault_bot") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_assault_botAI(creature);
-    }
-
-    struct npc_assault_botAI : public ScriptedAI
-    {
-        npc_assault_botAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_assault_botAI : public ScriptedAI
         {
-            pInstance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-        uint32 uiFieldTimer;
-
-        void Reset()
-        {
-            uiFieldTimer = urand(4000, 6000);
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiFieldTimer <= uiDiff)
+            npc_assault_botAI(Creature* creature) : ScriptedAI(creature)
             {
-                DoCastVictim(SPELL_MAGNETIC_FIELD);
-                uiFieldTimer = urand(15000, 20000);
+                _instance = creature->GetInstanceScript();
             }
-            else uiFieldTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
-        }
+            void Reset()
+            {
+                _fieldTimer = urand(4000, 6000);
+            }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry* spell)
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (_fieldTimer <= diff)
+                {
+                    DoCastVictim(SPELL_MAGNETIC_FIELD);
+                    _fieldTimer = urand(15000, 20000);
+                }
+                else _fieldTimer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            {
+                // Achievement Not-So-Friendly Fire
+                if (spell->Id == 63041 && _instance)
+                    _instance->DoCompleteAchievement(ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE);
+            }
+
+        private:
+            InstanceScript* _instance;
+            uint32 _fieldTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            // Achievement Not-So-Friendly Fire
-            if (spell->Id == 63041 && pInstance)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE);
+            return new npc_assault_botAI(creature);
         }
-    };
 };
 
 class npc_emergency_bot : public CreatureScript
 {
-public:
-    npc_emergency_bot() : CreatureScript("npc_emergency_bot") { }
+    public:
+        npc_emergency_bot() : CreatureScript("npc_emergency_bot") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_emergency_botAI(creature);
-    }
-
-    struct npc_emergency_botAI : public ScriptedAI
-    {
-        npc_emergency_botAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_emergency_botAI : public ScriptedAI
         {
-            me->setFaction(14);
-            SetImmuneToPushPullEffects(true);
-            me->SetReactState(REACT_PASSIVE);
-            me->GetMotionMaster()->MoveRandom(15);
-            SprayTimer = 5000;
-        }
-
-        uint32 SprayTimer;
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (SprayTimer <= uiDiff)
+            npc_emergency_botAI(Creature* creature) : ScriptedAI(creature)
             {
-                DoCast(SPELL_WATER_SPRAY);
-                SprayTimer = 10000;
+                me->setFaction(14);
+                SetImmuneToPushPullEffects(true);
+                me->SetReactState(REACT_PASSIVE);
+                me->GetMotionMaster()->MoveRandom(15);
+                _sprayTimer = 5000;
             }
-            else SprayTimer -= uiDiff;
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_sprayTimer <= diff)
+                {
+                    DoCast(SPELL_WATER_SPRAY);
+                    _sprayTimer = 10000;
+                }
+                else _sprayTimer -= diff;
+            }
+
+        private:
+            uint32 _sprayTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_emergency_botAI(creature);
         }
-    };
 };
 
 class npc_mimiron_bomb_bot : public CreatureScript
 {
-public:
-    npc_mimiron_bomb_bot() : CreatureScript("npc_mimiron_bomb_bot") { }
+    public:
+        npc_mimiron_bomb_bot() : CreatureScript("npc_mimiron_bomb_bot") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_mimiron_bomb_botAI(creature);
-    }
-
-    struct mob_mimiron_bomb_botAI : public ScriptedAI
-    {
-        mob_mimiron_bomb_botAI(Creature* creature) : ScriptedAI(creature) { }
-
-        Unit* SelectPlayerTargetInRange(float range)
+        struct mob_mimiron_bomb_botAI : public ScriptedAI
         {
-            Player* target = NULL;
-            Trinity::AnyPlayerInObjectRangeCheck u_check(me, range);
-            Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, target, u_check);
-            me->VisitNearbyObject(range, searcher);
-            return target;
-        }
+            mob_mimiron_bomb_botAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool despawn;
-
-        void Reset()
-        {
-            despawn = false;
-            if (Unit* target = SelectPlayerTargetInRange(500.0f))
+            Unit* SelectPlayerTargetInRange(float range)
             {
-                me->AddThreat(target, 999999.0f);
-                AttackStart(target);
+                Player* target = NULL;
+                Trinity::AnyPlayerInObjectRangeCheck u_check(me, range);
+                Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, target, u_check);
+                me->VisitNearbyObject(range, searcher);
+                return target;
             }
-        }
 
-        void JustDied(Unit * /*killer*/)
-        {
-            DoCast(me, SPELL_BOMB_BOT, true);
-        }
-
-        void UpdateAI(const uint32 /*diff*/)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (!despawn && me->IsWithinMeleeRange(me->getVictim()))
+            void Reset()
             {
-                despawn = true;
+                _despawn = false;
+                if (Unit* target = SelectPlayerTargetInRange(500.0f))
+                {
+                    me->AddThreat(target, 999999.0f);
+                    AttackStart(target);
+                }
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
                 DoCast(me, SPELL_BOMB_BOT, true);
-                me->ForcedDespawn(500);
             }
+
+            void UpdateAI(uint32 const /*diff*/)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (!_despawn && me->IsWithinMeleeRange(me->getVictim()))
+                {
+                    _despawn = true;
+                    DoCast(me, SPELL_BOMB_BOT, true);
+                    me->ForcedDespawn(500);
+                }
+            }
+
+        private:
+            bool _despawn;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_mimiron_bomb_botAI(creature);
         }
-    };
 };
 
 /*---------------------------------------------*
@@ -1781,133 +1790,136 @@ public:
 
 class npc_mimiron_flame_trigger : public CreatureScript
 {
-public:
-    npc_mimiron_flame_trigger() : CreatureScript("npc_mimiron_flame_trigger") { }
+    public:
+        npc_mimiron_flame_trigger() : CreatureScript("npc_mimiron_flame_trigger") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_mimiron_flame_triggerAI(creature);
-    }
-
-    struct npc_mimiron_flame_triggerAI : public ScriptedAI
-    {
-        npc_mimiron_flame_triggerAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_mimiron_flame_triggerAI : public ScriptedAI
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            DoCast(me, SPELL_FLAME, true);
-            FlameTimer = 8000;
-        }
-
-        uint32 FlameTimer;
-
-        void SpellHit(Unit * /*caster*/, const SpellEntry* spell)
-        {
-            switch (spell->Id)
+            npc_mimiron_flame_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
-                case SPELL_FLAME_SUPPRESSANT:
-                case SPELL_FLAME_SUPPRESSANT_VX001:
-                case SPELL_FROST_BOMB_EXPLOSION_10:
-                case SPELL_FROST_BOMB_EXPLOSION_25:
-                case SPELL_WATER_SPRAY:
-                    FlameTimer = 1000;
-                    me->ForcedDespawn(500);
-                    break;
-                default:
-                    break;
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                DoCast(me, SPELL_FLAME, true);
+                _flameTimer = 8000;
             }
-        }
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (FlameTimer <= diff)
+            void SpellHit(Unit * /*caster*/, const SpellEntry* spell)
             {
-                me->SummonCreature(NPC_FLAME_SPREAD, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                FlameTimer = 8000;
+                switch (spell->Id)
+                {
+                    case SPELL_FLAME_SUPPRESSANT:
+                    case SPELL_FLAME_SUPPRESSANT_VX001:
+                    case SPELL_FROST_BOMB_EXPLOSION_10:
+                    case SPELL_FROST_BOMB_EXPLOSION_25:
+                    case SPELL_WATER_SPRAY:
+                        _flameTimer = 1000;
+                        me->ForcedDespawn(500);
+                        break;
+                    default:
+                        break;
+                }
             }
-            else FlameTimer -= diff;
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_flameTimer <= diff)
+                {
+                    me->SummonCreature(NPC_FLAME_SPREAD, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                    _flameTimer = 8000;
+                }
+                else _flameTimer -= diff;
+            }
+
+        private:
+            uint32 _flameTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_mimiron_flame_triggerAI(creature);
         }
-    };
 };
 
 class npc_mimiron_flame_spread : public CreatureScript
 {
-public:
-    npc_mimiron_flame_spread() : CreatureScript("npc_mimiron_flame_spread") { }
+    public:
+        npc_mimiron_flame_spread() : CreatureScript("npc_mimiron_flame_spread") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_mimiron_flame_spreadAI(creature);
-    }
-
-    struct npc_mimiron_flame_spreadAI : public ScriptedAI
-    {
-        npc_mimiron_flame_spreadAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_mimiron_flame_spreadAI : public ScriptedAI
         {
-            _instance = creature->GetInstanceScript();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE);
-            me->SetReactState(REACT_PASSIVE);
-            DoCast(me, SPELL_FLAME, true);
-        }
-
-        InstanceScript* _instance;
-
-        void SpellHit(Unit * /*caster*/, const SpellEntry* spell)
-        {
-            switch (spell->Id)
+            npc_mimiron_flame_spreadAI(Creature* creature) : ScriptedAI(creature)
             {
-                case SPELL_FLAME_SUPPRESSANT:
-                case SPELL_FLAME_SUPPRESSANT_VX001:
-                case SPELL_FROST_BOMB_EXPLOSION_10:
-                case SPELL_FROST_BOMB_EXPLOSION_25:
-                case SPELL_WATER_SPRAY:
-                    me->ForcedDespawn(500);
-                    break;
-                default:
-                    break;
+                _instance = creature->GetInstanceScript();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE);
+                me->SetReactState(REACT_PASSIVE);
+                DoCast(me, SPELL_FLAME, true);
             }
-        }
 
-        void UpdateAI(const uint32 uiDiff)
+            void SpellHit(Unit * /*caster*/, const SpellEntry* spell)
+            {
+                switch (spell->Id)
+                {
+                    case SPELL_FLAME_SUPPRESSANT:
+                    case SPELL_FLAME_SUPPRESSANT_VX001:
+                    case SPELL_FROST_BOMB_EXPLOSION_10:
+                    case SPELL_FROST_BOMB_EXPLOSION_25:
+                    case SPELL_WATER_SPRAY:
+                        me->ForcedDespawn(500);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const /*diff*/)
+            {
+                if (_instance && _instance->GetBossState(TYPE_MIMIRON) != IN_PROGRESS)
+                    me->ForcedDespawn();
+            }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            if (_instance && _instance->GetBossState(TYPE_MIMIRON) != IN_PROGRESS)
-                me->ForcedDespawn();
+            return new npc_mimiron_flame_spreadAI(creature);
         }
-    };
 };
 
 class npc_frost_bomb : public CreatureScript
 {
-public:
-    npc_frost_bomb() : CreatureScript("npc_frost_bomb") { }
+    public:
+        npc_frost_bomb() : CreatureScript("npc_frost_bomb") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_frost_bombAI(creature);
-    }
-
-    struct npc_frost_bombAI : public Scripted_NoMovementAI
-    {
-        npc_frost_bombAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        struct npc_frost_bombAI : public Scripted_NoMovementAI
         {
-            me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            DoCast(me, SPELL_FROST_BOMB, true);
-            FrostTimer = 10000;
-        }
-
-        uint32 FrostTimer;
-        
-        void UpdateAI(const uint32 diff)
-        {
-            if (FrostTimer <= diff)
+            npc_frost_bombAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                DoCast(me, RAID_MODE(SPELL_FROST_BOMB_EXPLOSION_10, SPELL_FROST_BOMB_EXPLOSION_25), true);
-                FrostTimer = 10000;
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                DoCast(me, SPELL_FROST_BOMB, true);
+                _frostTimer = 10000;
             }
-            else FrostTimer -= diff;
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_frostTimer <= diff)
+                {
+                    DoCast(me, RAID_MODE(SPELL_FROST_BOMB_EXPLOSION_10, SPELL_FROST_BOMB_EXPLOSION_25), true);
+                    _frostTimer = 10000;
+                }
+                else _frostTimer -= diff;
+            }
+
+        private:
+            uint32 _frostTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_frost_bombAI(creature);
         }
-    };
 };
 
 /*
