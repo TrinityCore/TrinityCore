@@ -178,8 +178,13 @@ void Vehicle::ApplyAllImmunities()
     // Different immunities for vehicles goes below
     switch (GetVehicleInfo()->m_ID)
     {
-        case 160:
+        case 160: //Isle of conquest turret
+        case 244: //Wintergrasp turret
             _me->SetControlled(true, UNIT_STAT_ROOT);
+            //me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            //me->SetSpeed(MOVE_TURN_RATE, 0.7f);
+            //me->SetSpeed(MOVE_PITCH_RATE, 0.7f);
+            //me->m_movementInfo.flags2=59;
             _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
             break;
         default:
@@ -462,6 +467,20 @@ void Vehicle::Dismiss()
     _me->DestroyForNearbyPlayers();
     _me->CombatStop();
     _me->AddObjectToRemoveList();
+}
+
+void Vehicle::TeleportVehicle(float x, float y, float z, float ang)
+{
+    vehiclePlayers.clear();
+    for(int8 i = 0; i < 8; i++)
+        if (Unit* player = GetPassenger(i))
+            vehiclePlayers.insert(player->GetGUID());
+
+    RemoveAllPassengers(); // this can unlink Guns from Siege Engines
+    _me->NearTeleportTo(x, y, z, ang);
+    for (GuidSet::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
+        if(Unit* plr = sObjectAccessor->FindUnit(*itr))
+                plr->NearTeleportTo(x, y, z, ang);
 }
 
 void Vehicle::InitMovementInfoForBase()

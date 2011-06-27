@@ -18,6 +18,7 @@
 #include "InstanceScript.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
+#include "GameObjectAI.h"
 #include "Chat.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
