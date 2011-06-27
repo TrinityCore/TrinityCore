@@ -3237,13 +3237,15 @@ enum eEvents
                         case EVENT_DESTROY_SOUL:
                         {
                             //Player failed to help Terenas to defeat Spirit Warden within 60 seconds - kill Player forcibly
-                            events.Reset();
-                            Player *player = me->FindNearestPlayer(80.0f, true);
-                            player->CastSpell(player, SPELL_DESTROY_SOUL, true);
                             if (Creature *lichKing = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(DATA_THE_LICH_KING)))
                                 DoCast(lichKing, IsHeroic() ? SPELL_HARVESTED_SOUL_HEROIC : SPELL_HARVESTED_SOUL_NORMAL, true);
-                            TeleportPlayerToFrozenThrone(player);
-                            player->RemoveAurasDueToSpell(SPELL_IN_FROSTMOURNE_ROOM);
+
+                            if (Player *player = me->FindNearestPlayer(80.0f, true))
+                            {
+                                player->CastSpell(player, SPELL_DESTROY_SOUL, true);
+                                TeleportPlayerToFrozenThrone(player);
+                                player->RemoveAurasDueToSpell(SPELL_IN_FROSTMOURNE_ROOM);
+                            }
                             events.Reset();
                             break;
                         }
