@@ -1434,8 +1434,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                                         0     1   2      3           4            5         6            7           8            9            10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //          11            12        13        14           15           16        17          18          19                 20                  21                   22
-        "currentwaypoint, curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags "
+    //          11            12        13        14           15           16        17          18          19                 20                  21
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1494,15 +1494,14 @@ void ObjectMgr::LoadCreatures()
         data.currentwaypoint= fields[11].GetUInt32();
         data.curhealth      = fields[12].GetUInt32();
         data.curmana        = fields[13].GetUInt32();
-        data.is_dead        = fields[14].GetBool();
-        data.movementType   = fields[15].GetUInt8();
-        data.spawnMask      = fields[16].GetUInt8();
-        data.phaseMask      = fields[17].GetUInt16();
-        int16 gameEvent     = fields[18].GetInt16();
-        uint32 PoolId       = fields[19].GetUInt32();
-        data.npcflag        = fields[20].GetUInt32();
-        data.unit_flags     = fields[21].GetUInt32();
-        data.dynamicflags   = fields[22].GetUInt32();
+        data.movementType   = fields[14].GetUInt8();
+        data.spawnMask      = fields[15].GetUInt8();
+        data.phaseMask      = fields[16].GetUInt16();
+        int16 gameEvent     = fields[17].GetInt16();
+        uint32 PoolId       = fields[18].GetUInt32();
+        data.npcflag        = fields[19].GetUInt32();
+        data.unit_flags     = fields[20].GetUInt32();
+        data.dynamicflags   = fields[21].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1724,7 +1723,6 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.currentwaypoint = 0;
     data.curhealth = stats->GenerateHealth(cInfo);
     data.curmana = stats->GenerateMana(cInfo);
-    data.is_dead = false;
     data.movementType = cInfo->MovementType;
     data.spawnMask = 1;
     data.phaseMask = PHASEMASK_NORMAL;
