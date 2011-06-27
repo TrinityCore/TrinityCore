@@ -35,14 +35,6 @@ enum eEnums
     MOVIE_ID_ARTHAS_DEATH                 = 16
 };
 
-enum eAchievements
-{
-    ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10 = 4601,
-    ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25 = 4621,
-    ACHIEV_NECK_DEEP_IN_VILE_10                 = 4581,
-    ACHIEV_NECK_DEEP_IN_VILE_25                 = 4622,
-};
-
 enum Yells
 {
     SAY_INTRO_1_KING         = -1810001,
@@ -443,8 +435,8 @@ class boss_the_lich_king : public CreatureScript
                 if (uiStage > 1)
                     return;
 
-                instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, NOT_STARTED);
-                instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, DONE);
+                instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, uint32(false));
+                instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, uint32(true));
 
                 uiEndingTimer = 1000;
                 uiStage = 1;
@@ -496,10 +488,6 @@ class boss_the_lich_king : public CreatureScript
             {
                 BossAI::JustDied(killer);
 
-               // if(instance->GetData(DATA_BEEN_WAITING_ACHIEVEMENT) == DONE)
-               //     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10,ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25));
-               // if(instance->GetData(DATA_NECK_DEEP_ACHIEVEMENT) == DONE)
-               //     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_NECK_DEEP_IN_VILE_10,ACHIEV_NECK_DEEP_IN_VILE_25));
                 Cleanup();
                 DoCast(SPELL_PLAY_MOVIE);
                 if(Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
@@ -1970,7 +1958,7 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
                     return;
                 if(GetStackAmount() >= 30)
                     if (InstanceScript *_instance = target->GetInstanceScript())
-                        _instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, DONE);
+                        _instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, uint32(true));
                 CellPair p(Trinity::ComputeCellPair(target->GetPositionX(), target->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
@@ -2474,7 +2462,7 @@ class spell_vile_spirit_distance_check : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_SPIRIT_BURST, true);
 
                     if (InstanceScript* _instance = caster->GetInstanceScript())
-                        _instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, FAIL);
+                        _instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, uint32(false));
                     caster->GetAI()->DoAction(ACTION_DESPAWN);
                 }
             }

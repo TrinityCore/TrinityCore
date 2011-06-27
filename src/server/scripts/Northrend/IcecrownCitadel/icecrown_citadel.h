@@ -361,6 +361,16 @@ enum GameObjectsIds
 
 enum AchievementCriteriaIds
 {
+    // Lich King
+    CRITERIA_WAITING_A_LONG_TIME_25N    = 13244,
+    CRITERIA_WAITING_A_LONG_TIME_25H    = 13245,
+    CRITERIA_WAITING_A_LONG_TIME_10N    = 13246,
+    CRITERIA_WAITING_A_LONG_TIME_10H    = 13247,
+    CRITERIA_NECK_DEEP_IN_VILE_10N      = 12823,
+    CRITERIA_NECK_DEEP_IN_VILE_10H      = 13163,
+    CRITERIA_NECK_DEEP_IN_VILE_25H      = 13164,
+    CRITERIA_NECK_DEEP_IN_VILE_25N      = 13243,
+
     // Lord Marrowgar
     CRITERIA_BONED_10N                  = 12775,
     CRITERIA_BONED_25N                  = 12962,

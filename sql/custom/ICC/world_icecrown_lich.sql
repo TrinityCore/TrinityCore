@@ -89,6 +89,27 @@ DELETE FROM `spell_scripts` WHERE id = 72429 AND command = 15;
 INSERT INTO `spell_scripts` VALUE
 ('72429','0','3','15','72423','0','0','0','0','0','0');
 
+-- Achievements
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (12823, 13163, 13164, 13243, 13244, 13245, 13246, 13247);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(12823,12,0,0,''),
+(12823,18,0,0,''),
+(13243,12,1,0,''),
+(13243,18,0,0,''),
+(13163,12,2,0,''),
+(13163,18,0,0,''),
+(13164,12,3,0,''),
+(13164,18,0,0,''),
+(13244,12,1,0,''),
+(13244,18,0,0,''),
+(13245,12,3,0,''),
+(13245,18,0,0,''),
+(13246,12,0,0,''),
+(13246,18,0,0,''),
+(13247,12,2,0,''),
+(13247,18,0,0,'');
+
 -- Teleports
 DELETE FROM `npc_text` WHERE `id` BETWEEN 800000 AND 800006;
 INSERT INTO `npc_text` (`id`, `text0_0`) VALUES
