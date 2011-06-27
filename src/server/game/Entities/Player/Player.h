@@ -2378,8 +2378,8 @@ class Player : public Unit, public GridObject<Player>
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;
         // Battleground Group System
-        void SetBattlegroundRaid(Group* group, int8 subgroup = -1);
-        void RemoveFromBattlegroundRaid();
+        void SetBattlegroundOrBattlefieldRaid(Group *group, int8 subgroup = -1);
+        void RemoveFromBattlegroundOrBattlefieldRaid();
         Group * GetOriginalGroup() { return m_originalGroup.getTarget(); }
         GroupReference& GetOriginalGroupRef() { return m_originalGroup; }
         uint8 GetOriginalSubGroup() const { return m_originalGroup.getSubGroup(); }

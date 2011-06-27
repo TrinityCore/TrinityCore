@@ -1388,6 +1388,57 @@ AllowTickets = 1
 DungeonFinder.Enable = 0
 
 #
+#     Wintergrasp.Enable
+#         Description: Enable the Wintergrasp battlefield.
+#         Default:     0 - (Disabled)
+#                      1 - (Enabled, Experimental as of still being in development)
+
+Wintergrasp.Enable = 0
+
+#
+#     Wintergrasp.PlayerMax
+#         Description: Maximum number of players allowed in Wintergrasp.
+#         Default:     100
+
+Wintergrasp.PlayerMax = 100
+
+#
+#     Wintergrasp.PlayerMin
+#         Description: Minimum number of players required for Wintergrasp.
+#         Default:     0
+
+Wintergrasp.PlayerMin = 0
+
+#
+#     Wintergrasp.PlayerMinLvl
+#         Description: Required character level for the Wintergrasp battle.
+#         Default:     77
+
+Wintergrasp.PlayerMinLvl = 77
+
+#
+#     Wintergrasp.BattleTimer
+#         Description: Time (in minutes) for the Wintergrasp battle to last.
+#         Default:     30
+
+Wintergrasp.BattleTimer = 30
+
+#
+#     Wintergrasp.NoBattleTimer
+#         Description: Time (in minutes) between Wintergrasp battles.
+#         Default:     150
+
+Wintergrasp.NoBattleTimer = 150
+
+#
+#     Wintergrasp.CrashRestartTimer
+#         Description: Time (in minutes) to delay the restart of Wintergrasp if the world server
+#                      crashed during a running battle.
+#         Default:     10
+
+Wintergrasp.CrashRestartTimer = 10
+
+#
 #   DBC.EnforceItemAttributes
 #        Description: Disallow overriding item attributes stored in DBC files with values from the
 #                     database.
