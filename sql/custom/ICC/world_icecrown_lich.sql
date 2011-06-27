@@ -143,6 +143,12 @@ INSERT INTO script_texts (npc_entry,entry,content_default,content_loc1,content_l
 (36597,-1810031, 'You gnats actually hurt me! Perhaps I''ve toyed with you long enough, now taste the vengeance of the grave!',null,null,null,null,null,null,null,null,17359,1,0,0,''),
 (36597,-1810032, 'The Lich King begins to cast Defile',null,null,null,null,null,null,null,null,0,3,0,0,'');
 
+DELETE FROM script_texts WHERE entry <= -1810035 AND entry >= -1810037;
+INSERT INTO script_texts (npc_entry,entry,content_default,content_loc1,content_loc2,content_loc3,content_loc4,content_loc5,content_loc6,content_loc7,content_loc8,sound,type,language,emote,comment)VALUES
+(36823,-1810035, 'You have come to bring Arthas to justice? To see the Lich King destroyed?',null,null,null,null,null,null,null,'Вы пришли, чтобы вершить суд над Артасам, чтобы уничтожить Короля Лича?',17394,1,0,0,''),
+(36823,-1810036, 'First, you must escape Frostmourne''s hold or be damned as I am, trapped within this cursed blade for all eternity.',null,null,null,null,null,null,null,'Вы не должны оказаться во власти Ледяной Скорби, иначе как и я будете на век порабощены этим проклятым клинком.',17395,1,0,0,''),
+(36823,-1810037, 'Aid me in destroying these tortured souls! Together we will loosen Frostmourne''s hold and weaken the Lich King from within!',null,null,null,null,null,null,null,'Помогите мне уничтожить эти истерзанные души. Вместе мы вытянем силу из Ледяной Скорби и ослабим Короля Лича!',17396,1,0,0,'');
+
 # Locales Сохраним для потомков =), т.к. пока creature_texts локали любит(((
 # Леди
 

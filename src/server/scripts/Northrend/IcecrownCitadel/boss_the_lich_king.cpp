@@ -76,6 +76,9 @@ enum Yells
     SAY_BROKEN_ARENA         = -1810030,
     SAY_10_PERCENT           = -1810031,
     SAY_EMOTE_DEFILE         = -1810032,
+    SAY_GREET_PLAYER         = -1810035,
+    SAY_PLAYER_TO_ESCAPE     = -1810036,
+    SAY_ASK_PLAYER_FOR_AID   = -1810037,
 };
 enum ePhases
 {
@@ -3330,19 +3333,19 @@ enum eEvents
                     {
                         case EVENT_GREET_PLAYER:
                         {
-                            me->MonsterYell("You have come to bring Arthas to justice? To see the Lich King destroyed?", LANG_UNIVERSAL, 0);
+                            DoScriptText(SAY_GREET_PLAYER, me);
                             events.ScheduleEvent(EVENT_ENCOURAGE_PLAYER_TO_ESCAPE, 10000);
                             break;
                         }
                         case EVENT_ENCOURAGE_PLAYER_TO_ESCAPE:
                         {
-                            me->MonsterYell("First, you must escape Frostmourne's hold or be damned as I am; trapped within this cursed blade for all eternity.", LANG_UNIVERSAL, 0);
+                            DoScriptText(SAY_PLAYER_TO_ESCAPE, me);
                             events.ScheduleEvent(EVENT_ASK_PLAYER_FOR_AID, 10000);
                             break;
                         }
                         case EVENT_ASK_PLAYER_FOR_AID:
                         {
-                            me->MonsterYell("Aid me in destroying these tortured souls! Together we will loosen Frostmourne's hold and weaken the Lich King from within!", LANG_UNIVERSAL, 0);
+                            DoScriptText(SAY_ASK_PLAYER_FOR_AID, me);
                             break;
                         }
                         case EVENT_CHECK_SPIRIT_WARDEN_HEALTH:
