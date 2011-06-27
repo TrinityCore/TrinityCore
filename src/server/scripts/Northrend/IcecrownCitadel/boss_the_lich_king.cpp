@@ -322,8 +322,8 @@ struct Position MovePos[]=
 struct Position FrostmourneRoom[] = 
 {
     {520.0f, -2524.0f, 1051.0f, 0.0f}, //Place where player is teleported to
-    {495.0f, -2546.0f, 1051.0f, 1.5708f}, //Home position of the Spirit Warden
-    {495.0f, -2502.0f, 1051.0f, 4.7124f}, //Home position of Terenas Menethil
+    {539.1f, -2513.0f, 1042.6f, 2.8f}, //Home position of the Spirit Warden
+    {508.4f, -2506.2f, 1042.6f, 6.0f}, //Home position of Terenas Menethil
 };
 
 Player* SelectRandomPlayerFromList(TPlayerList& players)
