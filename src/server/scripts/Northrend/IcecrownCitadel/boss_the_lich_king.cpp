@@ -2904,7 +2904,7 @@ public:
 
         void Reset()
         {
-            //events.ScheduleEvent(EVENT_MOVE_FORWARD, 2000);
+            events.ScheduleEvent(EVENT_MOVE_FORWARD, 2000);
             SetCombatMovement(false);
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -2964,30 +2964,30 @@ public:
                         }
                         break;
                     }
-        //            case EVENT_MOVE_FORWARD:
-        //            {
-        //                if (Unit *pVictim = ObjectAccessor::GetUnit(*me, m_victimGuid))
-        //                    if (pVictim->isAlive() && pVictim->isTargetableForAttack())
-        //                    {
-        //                        me->SetFacingToObject(pVictim);
-        //                        pVictim->GetPosition(&m_victimPos);
-        //                        me->GetPosition(&m_newPos);
-        //                        me->MovePosition(m_newPos, 0.20f, 0.0f);
-        //                        me->SetPosition(m_newPos);
-        //                    }
-        //                    else
-        //                    {
-        //                        if (Player *newVictim = SelectRandomPlayerInTheMap(me->GetMap()))
-        //                        {
-        //                            m_victimGuid = newVictim->GetGUID();
-        //                            AttackStart(newVictim);
-        //                            me->CastSpell(newVictim, SPELL_ICE_PULSE, true);
-        //                        }
-        //                        else
-        //                            me->DespawnOrUnsummon();
-        //                    }
-        //                events.ScheduleEvent(EVENT_MOVE_FORWARD, 100);
-        //            }
+                    case EVENT_MOVE_FORWARD:
+                    {
+                        if (Unit *pVictim = ObjectAccessor::GetUnit(*me, m_victimGuid))
+                            if (pVictim->isAlive() && pVictim->isTargetableForAttack())
+                            {
+                                me->SetFacingToObject(pVictim);
+                                pVictim->GetPosition(&m_victimPos);
+                                me->GetPosition(&m_newPos);
+                                me->MovePosition(m_newPos, 0.20f, 0.0f);
+                                me->SetPosition(m_newPos);
+                            }
+                            else
+                            {
+                                if (Player *newVictim = SelectRandomPlayerInTheMap(me->GetMap()))
+                                {
+                                    m_victimGuid = newVictim->GetGUID();
+                                    AttackStart(newVictim);
+                                    me->CastSpell(newVictim, SPELL_ICE_PULSE, true);
+                                }
+                                else
+                                    me->DespawnOrUnsummon();
+                            }
+                        events.ScheduleEvent(EVENT_MOVE_FORWARD, 100);
+                    }
                     default:
                         break;
                 }
