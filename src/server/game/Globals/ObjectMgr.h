@@ -836,6 +836,11 @@ class ObjectMgr
             return &mCreatureQuestRelations;
         }
 
+        QuestRelations* GetCreatureQuestInvolvedRelation()
+        {
+            return &mCreatureQuestInvolvedRelations;
+        }
+
         QuestRelationBounds GetCreatureQuestRelationBounds(uint32 creature_entry)
         {
             return mCreatureQuestRelations.equal_range(creature_entry);

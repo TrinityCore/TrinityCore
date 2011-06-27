@@ -753,6 +753,14 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
     return tmpscript->GetAI(creature);
 }
 
+GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
+{
+    ASSERT(gameobject);
+        
+    GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
+    return tmpscript->GetAI(gameobject);
+}
+
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 {
     ASSERT(creature);
