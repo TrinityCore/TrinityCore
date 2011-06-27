@@ -1235,7 +1235,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 switch (GetId())
                 {
                     case 66668:
-                        factor = 0.01;
+                        factor = 0.01f;
                         baseItemLevel = 205;
                         break;
                     default:
