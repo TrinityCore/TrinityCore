@@ -95,16 +95,8 @@ struct VehicleAccessory
     uint32 SummonTime;
 };
 
-struct VehicleScalingInfo
-{
-    uint32 ID;
-    float baseItemLevel;
-    float scalingFactor;
-};
-
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
-typedef std::map<uint32, VehicleScalingInfo> VehicleScalingMap;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle

@@ -1213,6 +1213,58 @@ class spell_gen_launch : public SpellScriptLoader
         }
 };
 
+class spell_gen_vehicle_scaling : public SpellScriptLoader
+{
+    public:
+        spell_gen_vehicle_scaling() : SpellScriptLoader("spell_gen_vehicle_scaling") { }
+        
+        class spell_gen_vehicle_scaling_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_vehicle_scaling_AuraScript);
+                
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster || !caster->ToPlayer())
+                    return;
+
+                float factor;
+                uint16 baseItemLevel;
+                        
+                // TODO: Reserach coeffs for different vehicles
+                switch (GetId())
+                {
+                    case 66668:
+                        factor = 0.01;
+                        baseItemLevel = 205;
+                        break;
+                    default:
+                        factor = 0.01f;
+                        baseItemLevel = 170;
+                        break;
+                }
+                        
+                float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+                if (avgILvl < baseItemLevel)
+                    return;
+                        
+                amount = 100 - uint16(100.0f * avgILvl / baseItemLevel);
+            }
+                
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+            }
+        };
+                
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_vehicle_scaling_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1241,4 +1293,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_magic_rooster();
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_launch();
+    new spell_gen_vehicle_scaling();
 }
