@@ -63,19 +63,14 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_13:
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
+        {
+            if (Creature* cr = HashMapHolder<Creature>::Find(itr->second))
             {
-                if (Creature* cr = HashMapHolder<Creature>::Find(itr->second))
-                {
-                    if (cr->isAlive())
-                        ++cnt;
-                }
-                else if (CreatureData const* cd = sObjectMgr->GetCreatureData(GUID_LOPART(itr->second)))
-                {
-                    if (!cd->is_dead)
-                        ++cnt;
-                }
+                if (cr->isAlive())
+                    ++cnt;
             }
-            break;
+        }
+        break;
         default:
             break;
         }

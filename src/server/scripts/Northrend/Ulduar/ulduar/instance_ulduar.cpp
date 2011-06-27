@@ -212,23 +212,6 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_KOLOGARN:
                         KologarnGUID = creature->GetGUID();
                         break;
-                    case NPC_KOLOGARN_BRIDGE:
-                        // The below hacks are courtesy of the grid/visibilitysystem
-                        if (GetBossState(BOSS_KOLOGARN) == DONE)
-                        {
-                            creature->SetDeadByDefault(true);
-                            creature->setDeathState(CORPSE);
-                            creature->DestroyForNearbyPlayers();
-                            creature->UpdateObjectVisibility(true);
-                        }
-                        else
-                        {
-                            creature->SetDeadByDefault(false);
-                            creature->setDeathState(CORPSE);
-                            creature->RemoveCorpse(true);
-                        }
-                        break;
-
                     case NPC_AURIAYA:
                         AuriayaGUID = creature->GetGUID();
                         break;
