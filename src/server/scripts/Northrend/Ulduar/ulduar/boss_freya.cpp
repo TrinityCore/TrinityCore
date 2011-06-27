@@ -341,9 +341,8 @@ class boss_freya : public CreatureScript
                     me->setFaction(35);
                     me->DeleteThreatList();
                     me->CombatStop(true);
-                    me->ForcedDespawn(7500);
-                    if (elderCount)
-                        me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+                    me->DespawnOrUnsummon(7500);
+                    me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 
                     Creature* Elder[3];
                     for (uint8 n = 0; n < 3; ++n)
