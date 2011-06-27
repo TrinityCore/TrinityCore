@@ -27886,30 +27886,6 @@ LOCK TABLES `vehicle_accessory` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `vehicle_scaling_info`
---
-
-DROP TABLE IF EXISTS `vehicle_scaling_info`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vehicle_scaling_info` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
-  `baseItemLevel` float NOT NULL default '0',
-  `scalingFactor` float NOT NULL default '0',
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vehicle_scaling_info`
---
-
-LOCK TABLES `vehicle_scaling_info` WRITE;
-/*!40000 ALTER TABLE `vehicle_scaling_info` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vehicle_scaling_info` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `version`
 --
 
