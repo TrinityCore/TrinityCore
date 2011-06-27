@@ -2935,48 +2935,6 @@ void ObjectMgr::LoadVehicleAccessories()
     sLog->outString();
 }
 
-void ObjectMgr::LoadVehicleScaling()
-{
-    uint32 oldMSTime = getMSTime();
-
-    m_VehicleScalingMap.clear();                           // needed for reload case
-
-    uint32 count = 0;
-
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `baseItemLevel`, `scalingFactor` FROM `vehicle_scaling_info`");
-
-    if (!result)
-    {
-        sLog->outString(">> Loaded 0 vehicle scaling entries. DB table `vehicle_scaling_info` is empty.");
-        sLog->outString();
-        return;
-    }
-
-    do
-    {
-        Field *fields = result->Fetch();
-
-        uint32 vehicleEntry       = fields[0].GetUInt32();
-        float baseItemLevel       = fields[1].GetFloat();
-        float scalingFactor       = fields[2].GetFloat();
-
-        if (!sVehicleStore.LookupEntry(vehicleEntry))
-        {
-            sLog->outErrorDb("Table `vehicle_scaling_info`: vehicle entry %u does not exist.", vehicleEntry);
-            continue;
-        }
-
-        m_VehicleScalingMap[vehicleEntry].ID = vehicleEntry;
-        m_VehicleScalingMap[vehicleEntry].baseItemLevel = baseItemLevel;
-        m_VehicleScalingMap[vehicleEntry].scalingFactor = scalingFactor;
-
-        ++count;
-    } while (result->NextRow());
-
-    sLog->outString(">> Loaded %u vehicle scaling entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
 void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();
