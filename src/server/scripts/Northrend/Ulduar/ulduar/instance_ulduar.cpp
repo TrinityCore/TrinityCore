@@ -376,6 +376,29 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
+            void OnCreatureDeath(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_CORRUPTED_SERVITOR:
+                    case NPC_MISGUIDED_NYMPH:
+                    case NPC_GUARDIAN_LASHER:
+                    case NPC_FOREST_SWARMER:
+                    case NPC_MANGROVE_ENT:
+                    case NPC_IRONROOT_LASHER:
+                    case NPC_NATURES_BLADE:
+                    case NPC_GUARDIAN_OF_LIFE:
+                        if (!conSpeedAtory)
+                        {
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_CON_SPEED_ATORY);
+                            conSpeedAtory = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void ProcessEvent(GameObject* /*gameObject*/, uint32 eventId)
             {
                 // Flame Leviathan's Tower Event triggers
@@ -442,7 +465,7 @@ class instance_ulduar : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                                if (GetData(DATA_HODIR_RARE_CACHE) == 1)
+                                if (GetData(DATA_HODIR_RARE_CACHE))
                                     HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                             if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
                                 HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
@@ -482,16 +505,13 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case DATA_HODIR_RARE_CACHE:
                         HodirRareCacheData = data;
-                        break;
-                    case DATA_KNOCK_ON_WOOD_ACHIEVEMENTS:
-                        elderCount = data;
-                        break;
-                    case DATA_CON_SPEED_ATORY_ACHIEVEMENT:
-                        if (!conSpeedAtory)
+                        if (!HodirRareCacheData)
                         {
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_CON_SPEED_ATORY);
-                            conSpeedAtory = true;
+                            if (Creature* Hodir = instance->GetCreature(HodirGUID))
+                                if (GameObject* gameObject = instance->GetGameObject(HodirRareCacheGUID))
+                                    Hodir->RemoveGameObject(gameObject, false);
                         }
+                        break;
                     default:
                         break;
                 }
@@ -590,33 +610,13 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case TYPE_COLOSSUS:
                         return Encounter[type];
-                        break;
                     case DATA_HODIR_RARE_CACHE:
                         return HodirRareCacheData;
-                        break;
-                }
-
-                return 0;
-            }
-
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*player*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
-            {
-                switch (criteriaId)
-                {
-                    case CRITERIA_KNOCK_ON_WOOD_10:
-                    case CRITERIA_KNOCK_ON_WOOD_25:
-                        return elderCount >= 1;
-                    case CRITERIA_KNOCK_KNOCK_ON_WOOD_10:
-                    case CRITERIA_KNOCK_KNOCK_ON_WOOD_25:
-                        return elderCount >= 2;
-                    case CRITERIA_KNOCK_KNOCK_KNOCK_ON_WOOD_10:
-                    case CRITERIA_KNOCK_KNOCK_KNOCK_ON_WOOD_25:
-                        return elderCount == 3;
                     default:
                         break;
                 }
 
-                return false;
+                return 0;
             }
 
             std::string GetSaveData()
