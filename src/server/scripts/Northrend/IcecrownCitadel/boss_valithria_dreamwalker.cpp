@@ -355,6 +355,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _over75PercentTalkDone = true;
                     Talk(SAY_VALITHRIA_75_PERCENT);
                 }
+                else if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED)
+                    if (Creature* archmage = me->FindNearestCreature(NPC_RISEN_ARCHMAGE, 30.0f))
+                        archmage->AI()->DoZoneInCombat();   // call EnterCombat on one of them, that will make it all start
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)

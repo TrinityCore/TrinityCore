@@ -1927,6 +1927,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
+( 66218, 'spell_gen_launch'),
 ( 39228, 'spell_gen_absorb0_hitlimit1'),
 ( 60218, 'spell_gen_absorb0_hitlimit1'),
 (  6962, 'spell_gen_pet_summoned'),
@@ -2048,10 +2049,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72440, 'spell_deathbringer_blood_nova'),
 ( 72378, 'spell_deathbringer_blood_nova_targeting'),
 ( 73058, 'spell_deathbringer_blood_nova_targeting'),
-( 72255, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72444, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72445, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72446, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72385, 'spell_deathbringer_boiling_blood'),
+( 72441, 'spell_deathbringer_boiling_blood'),
+( 72442, 'spell_deathbringer_boiling_blood'),
+( 72443, 'spell_deathbringer_boiling_blood'),
 ( 72155, 'spell_icc_harvest_blight_specimen'),
 ( 72162, 'spell_icc_harvest_blight_specimen'),
 ( 71123, 'spell_stinky_precious_decimate'),
