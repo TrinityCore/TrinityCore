@@ -4872,6 +4872,16 @@ void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
     SendMessageToSet(&data, true);
 }
 
+void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
+{
+    WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
+    data << uint64(GetGUID());
+    data << uint64(target->GetGUID());
+    data << uint32(spellId);
+    data << uint8(0); // bool - log format: 0-default, 1-debug
+    SendMessageToSet(&data, true);
+}
+
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
     WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
