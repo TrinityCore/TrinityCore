@@ -13,7 +13,7 @@
 -- Wintergrasp coreside texts
 DELETE FROM trinity_string WHERE entry BETWEEN 12050 AND 12072;
 INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`)VALUES
-(12050, '%s has been captured by %s ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(12050, '%s has been captured by %s ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 (12051, '%s is under attack by %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (12052, 'The Broken Temple siege workshop', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (12053, 'Eastspark siege workshop', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
