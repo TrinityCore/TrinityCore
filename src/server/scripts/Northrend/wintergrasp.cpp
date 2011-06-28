@@ -38,6 +38,19 @@ enum eWGqueuenpctext
     WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507,
 };
 
+enum eWGdata
+{
+    // engineer spells
+    SPELL_BUILD_CATAPULT                = 56663,
+    SPELL_BUILD_DEMOLISHER              = 56575,
+    SPELL_BUILD_SIEGE_ENGINE            = 61408,
+    SPELL_BUILD_SIEGE_ENGINE2           = 56661, // does it's really needed here?
+    SPELL_ACTIVATE_ROBOTIC_ARMS         = 49899,
+
+    // teleporter spells
+    SPELL_VEHICLE_TELEPORT              = 49759,
+}
+
 class npc_demolisher_engineerer : public CreatureScript
 {
   public:
@@ -45,12 +58,12 @@ class npc_demolisher_engineerer : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player * pPlayer, Creature * pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(1);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(1);
 
         if (!BfWG)
             return true;
@@ -74,11 +87,11 @@ class npc_demolisher_engineerer : public CreatureScript
         return true;
     }
 
-    bool OnGossipSelect(Player * pPlayer, Creature * pCreature, uint32 /*uiSender */ , uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender */ , uint32 uiAction)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(1);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(1);
 
         if (!BfWG)
             return true;
@@ -89,19 +102,19 @@ class npc_demolisher_engineerer : public CreatureScript
             switch (uiAction - GOSSIP_ACTION_INFO_DEF)
             {
                 case 0:
-                    pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, pCreature->GetGUID());
+                    pPlayer->CastSpell(pPlayer, SPELL_BUILD_CATAPULT, false, NULL, NULL, pCreature->GetGUID());
                     break;
                 case 1:
-                    pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID());
+                    pPlayer->CastSpell(pPlayer, SPELL_BUILD_DEMOLISHER, false, NULL, NULL, pCreature->GetGUID());
                     break;
                 case 2:
-                    pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId()? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID());
+                    pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? SPELL_BUILD_SIEGE_ENGINE : SPELL_BUILD_SIEGE_ENGINE2, false, NULL, NULL, pCreature->GetGUID());
                     break;
             }
             //spell 49899 Emote : 406 from sniff
             //INSERT INTO `spell_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('49899', '0', '1', '406', '0', '0', '0', '0', '0', '0');
-            if (Creature * creature = pCreature->FindNearestCreature(27852, 30.0f, true))
-                creature->CastSpell(creature, 49899, true);
+            if (Creature* creature = pCreature->FindNearestCreature(27852, 30.0f, true))
+                creature->CastSpell(creature, SPELL_ACTIVATE_ROBOTIC_ARMS, true);
         }
         return true;
     }
@@ -114,12 +127,12 @@ class npc_wg_spiritguide : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player * pPlayer, Creature * pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
         {
             GraveYardVect gy = BfWG->GetGraveYardVect();
@@ -137,11 +150,11 @@ class npc_wg_spiritguide : public CreatureScript
         return true;
     }
 
-    bool OnGossipSelect(Player * pPlayer, Creature * /*pCreature */ , uint32 /*uiSender */ , uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature */ , uint32 /*uiSender */ , uint32 uiAction)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
         {
             GraveYardVect gy = BfWG->GetGraveYardVect();
@@ -149,7 +162,7 @@ class npc_wg_spiritguide : public CreatureScript
             {
                 if (uiAction - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == pPlayer->GetTeamId())
                 {
-                    const WorldSafeLocsEntry *ws = sWorldSafeLocsStore.LookupEntry(gy[i]->GetGraveYardId());
+                    WorldSafeLocsEntry const* ws = sWorldSafeLocsStore.LookupEntry(gy[i]->GetGraveYardId());
                     pPlayer->TeleportTo(ws->map_id, ws->x, ws->y, ws->z, 0);
                 }
             }
@@ -165,12 +178,12 @@ class npc_wg_dalaran_queue : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player * pPlayer, Creature * pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
         {
 
@@ -186,22 +199,22 @@ class npc_wg_dalaran_queue : public CreatureScript
                 if (uiTime < 15 * MINUTE)
                 {
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    pPlayer->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam()? WG_NPCQUEUE_TEXT_H_QUEUE : WG_NPCQUEUE_TEXT_A_QUEUE, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_QUEUE : WG_NPCQUEUE_TEXT_A_QUEUE, pCreature->GetGUID());
                 }
                 else
                 {
-                    pPlayer->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam()? WG_NPCQUEUE_TEXT_H_NOWAR : WG_NPCQUEUE_TEXT_A_NOWAR, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_NOWAR : WG_NPCQUEUE_TEXT_A_NOWAR, pCreature->GetGUID());
                 }
             }
         }
         return true;
     }
 
-    bool OnGossipSelect(Player * pPlayer, Creature * /*pCreature */ , uint32 /*uiSender */ , uint32 /*uiAction */ )
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature */ , uint32 /*uiSender */ , uint32 /*uiAction */ )
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
         {
             if (BfWG->IsWarTime())
@@ -221,8 +234,6 @@ class npc_wg_dalaran_queue : public CreatureScript
 
 const uint32 Vehicules[4] = { 32627, 28312, 28094, 27881 };
 
-#define SPELL_VEHICLE_TELEPORT          49759
-
 class go_wintergrasp_teleporter : public GameObjectScript
 {
   public:
@@ -232,7 +243,7 @@ class go_wintergrasp_teleporter : public GameObjectScript
 
     struct go_wintergrasp_teleporterAI : public GameObjectAI
     {
-        go_wintergrasp_teleporterAI(GameObject * g) : GameObjectAI(g)
+        go_wintergrasp_teleporterAI(GameObject* g) : GameObjectAI(g)
         {
             uiCheckTimer = 1000;
         }
@@ -242,19 +253,19 @@ class go_wintergrasp_teleporter : public GameObjectScript
             if (uiCheckTimer <= diff)
             {
                 for (uint8 i = 0; i < 4; i++)
-                    if (Creature * pVehicle = go->FindNearestCreature(Vehicules[i], 3.0f, true))
+                    if (Creature* pVehicle = go->FindNearestCreature(Vehicules[i], 3.0f, true))
                         if (!pVehicle->HasAura(SPELL_VEHICLE_TELEPORT))
                         {
                             if (pVehicle->GetVehicle())
                             {
-                                if (Unit * player = pVehicle->GetVehicle()->GetPassenger(0))
+                                if (Unit* player = pVehicle->GetVehicle()->GetPassenger(0))
                                 {
                                     uint32 gofaction = go->GetUInt32Value(GAMEOBJECT_FACTION);
                                     uint32 plfaction = player->getFaction();
                                     if (gofaction == plfaction)
                                     {
                                         pVehicle->CastSpell(pVehicle, SPELL_VEHICLE_TELEPORT, true);
-                                        if (Creature * TargetTeleport = pVehicle->FindNearestCreature(23472, 100.0f, true))
+                                        if (Creature* TargetTeleport = pVehicle->FindNearestCreature(23472, 100.0f, true))
                                         {
                                             float x, y, z, o;
                                             TargetTeleport->GetPosition(x, y, z, o);
@@ -270,10 +281,10 @@ class go_wintergrasp_teleporter : public GameObjectScript
                 uiCheckTimer -= diff;
         }
       private:
-        uint32 uiCheckTimer;
+          uint32 uiCheckTimer;
     };
 
-    GameObjectAI *GetAI(GameObject * go) const
+    GameObjectAI *GetAI(GameObject* go) const
     {
         return new go_wintergrasp_teleporterAI(go);
     }
@@ -286,12 +297,12 @@ class npc_wintergrasp_quest_giver : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player * pPlayer, Creature * pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        BattlefieldWG *BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        BattlefieldWG* BfWG = (BattlefieldWG *) sBattlefieldMgr.GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
         {
             if (pCreature->isQuestGiver())
@@ -322,7 +333,7 @@ class npc_wintergrasp_quest_giver : public CreatureScript
 
                     switch (quest_id)
                     {
-                            // Horde attacker
+                        // Horde attacker
                         case 13193:
                         case 13202:
                         case 13180:
@@ -339,7 +350,7 @@ class npc_wintergrasp_quest_giver : public CreatureScript
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
-                            // Horde defender
+                        // Horde defender
                         case 13199:
                         case 13192:
                         case 13178:
@@ -357,7 +368,7 @@ class npc_wintergrasp_quest_giver : public CreatureScript
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
-                            // Alliance attacker
+                        // Alliance attacker
                         case 13196:
                         case 13198:
                         case 13179:
@@ -373,7 +384,7 @@ class npc_wintergrasp_quest_giver : public CreatureScript
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
-                            // Alliance defender
+                        // Alliance defender
                         case 13154:
                         case 13153:
                         case 13177:
