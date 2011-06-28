@@ -280,13 +280,12 @@ UPDATE `gossip_menu_option` SET `action_script_id`=990401 WHERE `menu_id` IN (99
 UPDATE `gossip_menu_option` SET `action_script_id`=990402 WHERE `menu_id` IN (9904) AND `id`=2;
 UPDATE `gossip_menu_option` SET `action_script_id`=990403 WHERE `menu_id` IN (9923) AND `id`=2;
 -- Add create vehicle Spells to gossip scripts
--- already done by engineer's script
-/*DELETE FROM `gossip_scripts` WHERE `id` IN (990400,990401,990402);
+DELETE FROM `gossip_scripts` WHERE `id` IN (990400,990401,990402);
 INSERT INTO `gossip_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`) VALUES
 (990400,0,33,0,0),(990400,0,15,56663,1),
 (990401,0,33,0,0),(990401,0,15,56575,1),
 (990402,0,33,0,0),(990402,0,15,61408,1),
-(990403,0,33,0,0),(990403,0,15,56661,1);*/
+(990403,0,33,0,0),(990403,0,15,56661,1);
 
 -- NPC talk text insert from sniff
 DELETE FROM `creature_text` WHERE `entry`=15214 AND `groupid` BETWEEN 0 AND 30;
@@ -336,3 +335,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (31108,0,0, 'Stop the Horde from retrieving the embers, $n. We cannot risk them having the advantage when the battle resumes!',0,7,100,0,0,0, 'Siege Master Stouthandle'),
 (31109,0,0, 'Destroy their foul machines of war, $n!',0,7,100,0,0,0, 'Senior Demolitionist Legoso'),
 (34924,0,0, 'The gates have been breached! Defend the keep!',1,0,100,0,0,0, 'High Commander Halford Wyrmbane');
+
+
+
+ 
