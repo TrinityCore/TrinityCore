@@ -132,6 +132,12 @@ enum WB_ACHIEVEMENTS
 // *INDENT-ON*
 };
 
+enum eWGWorldStates
+{
+    BATTLEFIELD_WG_WORLD_STATE_ACTIVE             = 3801,
+    BATTLEFIELD_WG_WORLD_STATE_DEFENDER             = 3802,
+    BATTLEFIELD_WG_WORLD_STATE_ATTACKER             = 3803,
+};
 /*#########################
 *####### Graveyards ######*
 #########################*/
@@ -703,7 +709,7 @@ const BfWGTurretPos WGTurret[WG_MAX_TURRET] = {
 #define WG_MAX_KEEP_NPC 39
 const BfWGObjectPosition WGKeepNPC[WG_MAX_KEEP_NPC] = {
     // X          Y            Z           O         horde                          alliance
-    // North East 
+    // North East
     { 5326.203125f, 2660.026367f, 409.100891f, 2.543383f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Roaming Guard
     { 5298.430176f, 2738.760010f, 409.316010f, 3.971740f, BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER, BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH }, // Vieron Plumembrase
     { 5335.310059f, 2764.110107f, 409.274994f, 4.834560f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard

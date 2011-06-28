@@ -66,15 +66,16 @@ bool BattlefieldWG::SetupBattlefield()
     SetGraveyardNumber(BATTLEFIELD_WG_GY_MAX);
 
     // Load from db
-    if ((sWorld->getWorldState(3801) == 0) && (sWorld->getWorldState(3802) == 0) && (sWorld->getWorldState(ClockWorldState[0]) == 0))
+    if ((sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) == 0) && (sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) == 0)
+            && (sWorld->getWorldState(ClockWorldState[0]) == 0))
     {
-        sWorld->setWorldState(3801, false);
-        sWorld->setWorldState(3802, urand(0, 1));
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, false);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER, urand(0, 1));
         sWorld->setWorldState(ClockWorldState[0], m_NoWarBattleTime);
     }
 
-    m_BattlefieldActive = sWorld->getWorldState(3801);
-    m_DefenderTeam = TeamId(sWorld->getWorldState(3802));
+    m_BattlefieldActive = sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE);
+    m_DefenderTeam = TeamId(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER));
 
     m_Timer = sWorld->getWorldState(ClockWorldState[0]);
     if (m_BattlefieldActive)
@@ -111,7 +112,7 @@ bool BattlefieldWG::SetupBattlefield()
         // Create PvPCapturePoint
         if (WGWorkShopDataBase[i].type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
         {
-            ws->ChangeControl(GetAttackerTeam(), true);     // Update control of this point 
+            ws->ChangeControl(GetAttackerTeam(), true);     // Update control of this point
             // Create Object
             BfCapturePointWG *workshop = new BfCapturePointWG(this, GetAttackerTeam());
             // Spawn gameobject associate (see in OnGameObjectCreate, of OutdoorPvP for see association)
@@ -211,8 +212,8 @@ bool BattlefieldWG::Update(uint32 diff)
     bool m_return = Battlefield::Update(diff);
     if (m_saveTimer <= diff)
     {
-        sWorld->setWorldState(3801, m_BattlefieldActive);
-        sWorld->setWorldState(3802, m_DefenderTeam);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, m_BattlefieldActive);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER, m_DefenderTeam);
         sWorld->setWorldState(ClockWorldState[0], m_Timer);
         m_saveTimer = 60 * IN_MILLISECONDS;
     }
@@ -892,9 +893,9 @@ WorldPacket BattlefieldWG::BuildInitWorldStates()
     data << uint32(0);
     data << uint16(4 + 2 + 4 + BuildingsInZone.size() + WorkShopList.size());
 
-    data << uint32(3803) << uint32(GetAttackerTeam());
-    data << uint32(3802) << uint32(GetDefenderTeam());
-    data << uint32(3801) << uint32(IsWarTime()? 0 : 1);
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) << uint32(IsWarTime()? 0 : 1);
     data << uint32(3710) << uint32(IsWarTime()? 1 : 0);
 
     for (uint32 i = 0; i < 2; ++i)
