@@ -1349,9 +1349,6 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
 
-    sLog->outString("Loading Vehicle scaling information...");
-    sObjectMgr->LoadVehicleScaling();
-
     sLog->outString("Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
 
