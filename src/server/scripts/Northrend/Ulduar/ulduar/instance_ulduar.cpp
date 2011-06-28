@@ -21,6 +21,12 @@
 #include "ObjectMgr.h"
 #include "ulduar.h"
 
+static DoorData const doorData[] =
+{
+    { GO_LEVIATHAN_DOOR, TYPE_LEVIATHAN, DOOR_TYPE_ROOM, BOUNDARY_S    },
+    { 0,                 0,              DOOR_TYPE_ROOM, BOUNDARY_NONE },
+};
+
 class instance_ulduar : public InstanceMapScript
 {
 public:
@@ -546,8 +552,7 @@ public:
                     uiFreyaChestGUID = go->GetGUID();
                     break;
                 case GO_LEVIATHAN_DOOR:
-                    go->setActive(true);
-                    uiLeviathanDoorGUIDList.push_back(go->GetGUID());
+                    AddDoor(go, true);
                     break;
                 case GO_LEVIATHAN_GATE:
                     uiLeviathanGateGUID = go->GetGUID();
@@ -732,17 +737,10 @@ public:
             switch (type)
             {
                 case TYPE_LEVIATHAN:
-                    for (std::list<uint64>::iterator i = uiLeviathanDoorGUIDList.begin(); i != uiLeviathanDoorGUIDList.end(); i++)
-                    {
-                        if (GameObject* obj = instance->GetGameObject(*i))
-                            obj->SetGoState(state == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE );
-                    }
-
-                    if (state == DONE)
-                        HandleGameObject(uiXT002DoorGUID, true);
-                    break;
                 case TYPE_IGNIS:
                 case TYPE_RAZORSCALE:
+                case TYPE_AURIAYA:
+                    break;
                 case TYPE_XT002:
                     HandleGameObject(uiXT002DoorGUID, state != IN_PROGRESS);
                     break;
@@ -750,8 +748,6 @@ public:
                     HandleGameObject(IronCouncilEntranceGUID, state != IN_PROGRESS);
                     if (state == DONE)
                         HandleGameObject(ArchivumDoorGUID, true);
-                    break;
-                case TYPE_AURIAYA:
                     break;
                 case TYPE_MIMIRON:
                     for (std::list<uint64>::iterator i = uiMimironDoorGUIDList.begin(); i != uiMimironDoorGUIDList.end(); i++)
@@ -785,7 +781,7 @@ public:
                         HandleGameObject(uiHodirStoneDoorGUID, true);
 
                         if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                            if (GetData(DATA_HODIR_RARE_CHEST) == 1)
+                            if (GetData(DATA_HODIR_RARE_CHEST))
                                 HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                         if (GameObject* go = instance->GetGameObject(uiHodirChestGUID))
                             go->SetRespawnTime(go->GetRespawnDelay());
@@ -881,6 +877,12 @@ public:
                     break;
                 case DATA_HODIR_RARE_CHEST:
                     HodirRareCacheData = data;
+                        if (!HodirRareCacheData)
+                        {
+                            if (Creature* Hodir = instance->GetCreature(uiHodirGUID))
+                                if (GameObject* gameObject = instance->GetGameObject(HodirRareCacheGUID))
+                                    Hodir->RemoveGameObject(gameObject, false);
+                        }
                     break;
                 case DATA_ALGALON_INTRO:
                     AlgalonIntroDone = data;
