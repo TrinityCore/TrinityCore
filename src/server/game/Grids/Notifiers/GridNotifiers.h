@@ -498,7 +498,7 @@ namespace Trinity
             bool operator()(Creature* u)
             {
                 if (i_funit->GetTypeId() != TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
-                    u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
+                    u->getDeathState() != CORPSE || u->isInFlight() ||
                     (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
@@ -525,7 +525,7 @@ namespace Trinity
             }
             bool operator()(Creature* u)
             {
-                if (u->getDeathState() != CORPSE || u->isInFlight() || u->isDeadByDefault() ||
+                if (u->getDeathState() != CORPSE || u->isInFlight() ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()) ||
                     (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) != 0)
                     return false;

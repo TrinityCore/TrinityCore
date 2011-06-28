@@ -316,8 +316,12 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
-    Battleground *bg = _player->GetBattleground();
+    Battleground* bg = _player->GetBattleground();
     if (!bg)
+        return;
+
+    // Prevent players from sending BuildPvpLogDataPacket in an arena except for when sent in BattleGround::EndBattleGround.
+    if (bg->isArena())
         return;
 
     WorldPacket data;
