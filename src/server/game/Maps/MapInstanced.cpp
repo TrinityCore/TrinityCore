@@ -73,14 +73,6 @@ void MapInstanced::Update(const uint32& t)
     }
 }
 
-void MapInstanced::DelayedUpdate(const uint32 diff)
-{
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        i->second->DelayedUpdate(diff);
-
-    Map::DelayedUpdate(diff); // this may be removed
-}
-
 /*
 void MapInstanced::RelocationNotify()
 {

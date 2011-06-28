@@ -383,7 +383,6 @@ class Map : public GridRefManager<NGridType>
 
         void AddObjectToRemoveList(WorldObject *obj);
         void AddObjectToSwitchList(WorldObject *obj, bool on);
-        virtual void DelayedUpdate(const uint32 diff);
 
         void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
         void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair);

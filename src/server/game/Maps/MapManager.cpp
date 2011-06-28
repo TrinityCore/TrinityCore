@@ -274,9 +274,6 @@ void MapManager::Update(uint32 diff)
     if (m_updater.activated())
         m_updater.wait();
 
-    for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
-
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(uint32(i_timer.GetCurrent()));

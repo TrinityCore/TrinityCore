@@ -34,7 +34,6 @@ class MapInstanced : public Map
 
         // functions overwrite Map versions
         void Update(const uint32&);
-        void DelayedUpdate(const uint32 diff);
         //void RelocationNotify();
         void UnloadAll();
         bool CanEnter(Player* player);
