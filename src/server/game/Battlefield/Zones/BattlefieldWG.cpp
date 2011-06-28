@@ -66,15 +66,16 @@ bool BattlefieldWG::SetupBattlefield()
     SetGraveyardNumber(BATTLEFIELD_WG_GY_MAX);
 
     // Load from db
-    if ((sWorld->getWorldState(3801) == 0) && (sWorld->getWorldState(3802) == 0) && (sWorld->getWorldState(ClockWorldState[0]) == 0))
+    if ((sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) == 0) && (sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) == 0)
+            && (sWorld->getWorldState(ClockWorldState[0]) == 0))
     {
-        sWorld->setWorldState(3801, false);
-        sWorld->setWorldState(3802, urand(0, 1));
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, false);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER, urand(0, 1));
         sWorld->setWorldState(ClockWorldState[0], m_NoWarBattleTime);
     }
 
-    m_BattlefieldActive = sWorld->getWorldState(3801);
-    m_DefenderTeam = TeamId(sWorld->getWorldState(3802));
+    m_BattlefieldActive = sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE);
+    m_DefenderTeam = TeamId(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER));
 
     m_Timer = sWorld->getWorldState(ClockWorldState[0]);
     if (m_BattlefieldActive)
@@ -111,7 +112,7 @@ bool BattlefieldWG::SetupBattlefield()
         // Create PvPCapturePoint
         if (WGWorkShopDataBase[i].type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
         {
-            ws->ChangeControl(GetAttackerTeam(), true);     // Update control of this point 
+            ws->ChangeControl(GetAttackerTeam(), true);     // Update control of this point
             // Create Object
             BfCapturePointWG *workshop = new BfCapturePointWG(this, GetAttackerTeam());
             // Spawn gameobject associate (see in OnGameObjectCreate, of OutdoorPvP for see association)
@@ -211,8 +212,8 @@ bool BattlefieldWG::Update(uint32 diff)
     bool m_return = Battlefield::Update(diff);
     if (m_saveTimer <= diff)
     {
-        sWorld->setWorldState(3801, m_BattlefieldActive);
-        sWorld->setWorldState(3802, m_DefenderTeam);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, m_BattlefieldActive);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER, m_DefenderTeam);
         sWorld->setWorldState(ClockWorldState[0], m_Timer);
         m_saveTimer = 60 * IN_MILLISECONDS;
     }
@@ -481,10 +482,7 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
                 player->RewardHonor(NULL, 1, WinHonor);
                 RewardMarkOfHonor(player, 2);
             }
-            if (player->GetTeamId() == TEAM_HORDE)
-                IncrementQuest(player, 13183, true);
-            else
-                IncrementQuest(player, 13181, true);
+            IncrementQuest(player, WGQuest[killer->GetTeamId()][1], true);
             // Send Wintergrasp victory achievement
             DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG, player);
             // Award achievement for succeeding in Wintergrasp in 10 minutes or less
@@ -892,18 +890,18 @@ WorldPacket BattlefieldWG::BuildInitWorldStates()
     data << uint32(0);
     data << uint16(4 + 2 + 4 + BuildingsInZone.size() + WorkShopList.size());
 
-    data << uint32(3803) << uint32(GetAttackerTeam());
-    data << uint32(3802) << uint32(GetDefenderTeam());
-    data << uint32(3801) << uint32(IsWarTime()? 0 : 1);
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) << uint32(IsWarTime()? 0 : 1);
     data << uint32(3710) << uint32(IsWarTime()? 1 : 0);
 
     for (uint32 i = 0; i < 2; ++i)
         data << ClockWorldState[i] << uint32(time(NULL) + (m_Timer / 1000));
 
-    data << uint32(3490) << uint32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
-    data << uint32(3491) << GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H);
-    data << uint32(3680) << uint32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
-    data << uint32(3681) << GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A);
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H) << uint32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H) << GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H);
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A) << uint32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A) << GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A);
 
     for (GameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
     {
@@ -938,12 +936,7 @@ void BattlefieldWG::BrokenWallOrTower(TeamId team)
         for (GuidSet::const_iterator p_itr = m_PlayersInWar[GetAttackerTeam()].begin(); p_itr != m_PlayersInWar[GetAttackerTeam()].end(); ++p_itr)
         {
             if (Player* player = sObjectMgr->GetPlayer((*p_itr)))
-            {
-                if (player->GetTeamId() == TEAM_ALLIANCE)
-                    IncrementQuest(player, 13222);
-                else
-                    IncrementQuest(player, 13223);
-            }
+                IncrementQuest(player, WGQuest[killer->GetTeamId()][2], true);
         }
     }
 }
@@ -967,10 +960,7 @@ void BattlefieldWG::AddBrokenTower(TeamId team)
             if (Player* player = sObjectMgr->GetPlayer((*itr)))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
-                if (player->GetTeamId() == TEAM_HORDE)
-                    IncrementQuest(player, 13539, true);
-                else
-                    IncrementQuest(player, 13538, true);
+                IncrementQuest(player, WGQuest[killer->GetTeamId()][3], true);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
             }
         // If the threw south tower is destroy
@@ -1042,10 +1032,10 @@ void BattlefieldWG::AddDamagedTower(TeamId team)
 // Update vehicle count WorldState to player
 void BattlefieldWG::UpdateVehicleCountWG()
 {
-    SendUpdateWorldState(3490, GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
-    SendUpdateWorldState(3491, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H));
-    SendUpdateWorldState(3680, GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
-    SendUpdateWorldState(3681, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H, GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A, GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A));
 }
 
 void BattlefieldWG::UpdateTenacity()
