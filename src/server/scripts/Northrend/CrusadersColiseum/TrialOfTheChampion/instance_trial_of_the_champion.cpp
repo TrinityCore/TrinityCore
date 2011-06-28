@@ -26,6 +26,13 @@ EndScriptData */
 
 #define MAX_ENCOUNTER  4
 
+enum eEnums
+{
+    SAY_START                               = -1999927,
+    SAY_START11                             = -1999953,
+    SAY_START_9                             = -1999950
+};
+
 class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
@@ -46,6 +53,8 @@ public:
         uint16 uiMovementDone;
         uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
+		uint8 uiAgroDone;
+        uint8 uiAggroDone;
 
         uint64 uiAnnouncerGUID;
         uint64 uiMainGateGUID;
@@ -262,6 +271,7 @@ public:
                         {
                             if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             {
+                                pAnnouncer->AI()->SetData(DATA_RESET,0);
                                 m_auiEncounter[0] = uiData;
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -298,6 +308,21 @@ public:
                             pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
                         }
+                    }
+                    break;
+                case DATA_AGGRO_DONE:
+                    uiAgroDone = uiData;
+                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                    {                                     
+                        DoScriptText(SAY_START11, pAnnouncer);
+                        pAnnouncer->SetVisible(false);                  
+                    }
+                    break;
+                case DATA_AGRO_DONE:
+                    uiAggroDone = uiData;
+                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                    {  
+                        pAnnouncer->SetVisible(false);                          
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:

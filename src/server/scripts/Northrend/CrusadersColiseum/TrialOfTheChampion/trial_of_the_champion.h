@@ -30,7 +30,10 @@ enum eData
     DATA_START,
     DATA_IN_POSITION,
     DATA_ARGENT_SOLDIER_DEFEATED,
-    DATA_TEAM_IN_INSTANCE
+    DATA_TEAM_IN_INSTANCE,
+    DATA_RESET,
+    DATA_AGGRO_DONE,
+    DATA_AGRO_DONE
 };
 
 enum Data64
@@ -170,7 +173,7 @@ enum eVehicles
 
     VEHICLE_ARGENT_WARHORSE                         = 35644,
     VEHICLE_ARGENT_BATTLEWORG                       = 36558,
-
+    VEHICLE_GR                                      = 35492, 
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
 
