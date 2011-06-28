@@ -289,7 +289,7 @@ void Battlefield::InvitePlayerToWar(Player *plr)
 
 void Battlefield::InitStalker(uint32 entry, float x, float y, float z, float o)
 {
-    if (Creature* creature = SpawnCreature(entry, x, y, z, o, TEAM_NEUTRAL))
+    if (Creature * creature = SpawnCreature(entry, x, y, z, o, TEAM_NEUTRAL))
         StalkerGuid = creature->GetGUID();
     else
         sLog->outError("Battlefield::InitStalker: could not spawn Stalker (Creature entry %u), zone messeges will be un-available", entry);
@@ -507,7 +507,7 @@ void Battlefield::RegisterZone(uint32 zoneId)
     sBattlefieldMgr.AddZone(zoneId, this);
 }
 
-void Battlefield::HideNpc(Creature *p_Creature)
+void Battlefield::HideNpc(Creature * p_Creature)
 {
     p_Creature->CombatStop();
     p_Creature->SetReactState(REACT_PASSIVE);
@@ -517,7 +517,7 @@ void Battlefield::HideNpc(Creature *p_Creature)
     p_Creature->SetVisible(false);
 }
 
-void Battlefield::ShowNpc(Creature *p_Creature, bool p_Aggressive)
+void Battlefield::ShowNpc(Creature * p_Creature, bool p_Aggressive)
 {
     p_Creature->SetPhaseMask(1, true);
     p_Creature->SetVisible(true);
@@ -730,7 +730,7 @@ BfGraveYard::BfGraveYard(Battlefield *Bf)
 void BfGraveYard::Init(uint32 horde_entry, uint32 alliance_entry, float x, float y, float z, float o, TeamId startcontrol, uint32 gy)
 {
     m_ControlTeam = startcontrol;
-    if (Creature* cre = m_Bf->SpawnCreature(horde_entry, x, y, z, o, TEAM_HORDE))
+    if (Creature * cre = m_Bf->SpawnCreature(horde_entry, x, y, z, o, TEAM_HORDE))
     {
         m_SpiritGuide[TEAM_HORDE] = cre;
         m_SpiritGuide[TEAM_HORDE]->SetReactState(REACT_PASSIVE);
@@ -740,7 +740,7 @@ void BfGraveYard::Init(uint32 horde_entry, uint32 alliance_entry, float x, float
     else
         sLog->outError("BfGraveYard::Init can't spawn horde spiritguide %u", horde_entry);
 
-    if (Creature* cre = m_Bf->SpawnCreature(alliance_entry, x, y, z, o, TEAM_ALLIANCE))
+    if (Creature * cre = m_Bf->SpawnCreature(alliance_entry, x, y, z, o, TEAM_ALLIANCE))
     {
         m_SpiritGuide[TEAM_ALLIANCE] = cre;
         m_SpiritGuide[TEAM_ALLIANCE]->SetReactState(REACT_PASSIVE);
@@ -896,12 +896,12 @@ Creature *Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
 GameObject *Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z, float o)
 {
     //Get map object
-    Map* map = const_cast < Map * >(sMapMgr->CreateBaseMap(571));
+    Map *map = const_cast < Map * >(sMapMgr->CreateBaseMap(571));
     if (!map)
         return 0;
 
     //Create gameobject
-    GameObject* go = new GameObject;
+    GameObject *go = new GameObject;
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
     {
         sLog->outErrorDb("Gameobject template %u not found in database! Battleground not created!", entry);
