@@ -220,8 +220,8 @@ enum FreyaEvents
 
 #define WAVE_TIME                                60000 // Normal wave is one minute
 #define TIME_DIFFERENCE                          10000 // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
-#define DATA_KNOCK_ON_WOOD                       1
-#define DATA_GETTING_BACK_TO_NATURE              2
+#define DATA_GETTING_BACK_TO_NATURE              1
+#define DATA_KNOCK_ON_WOOD                       2
 
 class npc_iron_roots : public CreatureScript
 {
@@ -342,9 +342,8 @@ class boss_freya : public CreatureScript
                     me->setFaction(35);
                     me->DeleteThreatList();
                     me->CombatStop(true);
-                    me->ForcedDespawn(7500);
-                    if (elderCount)
-                        me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+                    me->DespawnOrUnsummon(7500);
+                    me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 
                     Creature* Elder[3];
                     for (uint8 n = 0; n < 3; ++n)
@@ -415,10 +414,10 @@ class boss_freya : public CreatureScript
             {
                 switch (type)
                 {
-                    case DATA_KNOCK_ON_WOOD:
-                        return elderCount;
                     case DATA_GETTING_BACK_TO_NATURE:
                         return attunedToNature;
+                    case DATA_KNOCK_ON_WOOD:
+                        return elderCount;
                 }
 
                 return 0;
@@ -1611,66 +1610,6 @@ class spell_freya_iron_roots : public SpellScriptLoader
         }
 };
 
-class achievement_knock_on_wood : public AchievementCriteriaScript
-{
-    public:
-        achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood")
-        {
-        }
-
-        bool OnCheck(Player* /*player*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Freya = target->ToCreature())
-                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 1)
-                    return true;
-
-            return false;
-        }
-};
-
-class achievement_knock_knock_on_wood : public AchievementCriteriaScript
-{
-    public:
-        achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood")
-        {
-        }
-
-        bool OnCheck(Player* /*player*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Freya = target->ToCreature())
-                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 2)
-                    return true;
-
-            return false;
-        }
-};
-
-class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
-{
-    public:
-        achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood")
-        {
-        }
-
-        bool OnCheck(Player* /*player*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Freya = target->ToCreature())
-                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) == 3)
-                    return true;
-
-            return false;
-        }
-};
-
 class achievement_getting_back_to_nature : public AchievementCriteriaScript
 {
     public:
@@ -1689,6 +1628,66 @@ class achievement_getting_back_to_nature : public AchievementCriteriaScript
 
             return false;
         }
+};
+
+class achievement_knock_on_wood : public AchievementCriteriaScript
+{
+   public:
+       achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood")
+       {
+       }
+
+       bool OnCheck(Player* /*player*/, Unit* target)
+       {
+           if (!target)
+               return false;
+
+           if (Creature* Freya = target->ToCreature())
+               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 1)
+                   return true;
+
+           return false;
+       }
+};
+
+class achievement_knock_knock_on_wood : public AchievementCriteriaScript
+{
+   public:
+       achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood")
+       {
+       }
+
+       bool OnCheck(Player* /*player*/, Unit* target)
+       {
+           if (!target)
+               return false;
+
+           if (Creature* Freya = target->ToCreature())
+               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 2)
+                   return true;
+
+           return false;
+       }
+};
+
+class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
+{
+   public:
+       achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood")
+       {
+       }
+
+       bool OnCheck(Player* /*player*/, Unit* target)
+       {
+           if (!target)
+               return false;
+
+           if (Creature* Freya = target->ToCreature())
+               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) == 3)
+                   return true;
+
+           return false;
+       }
 };
 
 void AddSC_boss_freya()
@@ -1710,8 +1709,8 @@ void AddSC_boss_freya()
     new npc_iron_roots();
     new spell_freya_attuned_to_nature_dose_reduction();
     new spell_freya_iron_roots();
+    new achievement_getting_back_to_nature();
     new achievement_knock_on_wood();
     new achievement_knock_knock_on_wood();
     new achievement_knock_knock_knock_on_wood();
-    new achievement_getting_back_to_nature();
 }

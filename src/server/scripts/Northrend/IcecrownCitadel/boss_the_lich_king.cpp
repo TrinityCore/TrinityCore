@@ -2926,10 +2926,10 @@ class spell_lich_king_defile : public SpellScriptLoader
                 m_radius = 8.0f + m_hitCount;
                 //Find targest
                 std::list<Unit *> targets;
-                Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck checker(caster, caster, m_radius); 
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck> searcher(caster, targets, checker);
-                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+                Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck checker(caster, caster, m_radius); 
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> searcher(caster, targets, checker);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
                 CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;

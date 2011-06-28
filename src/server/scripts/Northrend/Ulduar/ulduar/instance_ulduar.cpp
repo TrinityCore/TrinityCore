@@ -108,6 +108,7 @@ public:
         uint64 uiElderIronbranchGUID;
         uint64 uiElderStonebarkGUID;
         uint64 uiFreyaChestGUID;
+        bool conSpeedAtory;
 
         // Vezax
         uint64 uiWayToYoggGUID;
@@ -213,6 +214,7 @@ public:
             uiAlgalonKillCount        = 0;
             uiAlgalonCountdown        = 62;
             uiCountdownTimer          = 1*MINUTE*IN_MILLISECONDS;
+            conSpeedAtory             = false;
 
             memset(uiEncounter, 0, sizeof(uiEncounter));
             memset(uiAssemblyGUIDs, 0, sizeof(uiAssemblyGUIDs));
@@ -397,7 +399,6 @@ public:
                         if (!XTToyPileGUIDs[i])
                             XTToyPileGUIDs[i] = creature->GetGUID();
                     break;
-
                 // Assembly of Iron
                 case NPC_STEELBREAKER:
                     uiAssemblyGUIDs[0] = creature->GetGUID();
@@ -408,32 +409,13 @@ public:
                 case NPC_BRUNDIR:
                     uiAssemblyGUIDs[2] = creature->GetGUID();
                     break;
-
                 // Kologarn
                 case NPC_KOLOGARN:
                     uiKologarnGUID = creature->GetGUID();
                     break;
-                case NPC_KOLOGARN_BRIDGE:
-                    // The below hacks are courtesy of the grid/visibilitysystem
-                    if (GetBossState(TYPE_KOLOGARN) == DONE)
-                    {
-                        creature->SetDeadByDefault(true);
-                        creature->setDeathState(CORPSE);
-                        creature->DestroyForNearbyPlayers();
-                        creature->UpdateObjectVisibility(true);
-                    }
-                    else
-                    {
-                        creature->SetDeadByDefault(false);
-                        creature->setDeathState(CORPSE);
-                        creature->RemoveCorpse(true);
-                    }
-                    break;
-
                 case NPC_AURIAYA:
                     uiAuriayaGUID = creature->GetGUID();
                     break;
-
                 // Mimiron
                 case NPC_MIMIRON:
                     uiMimironGUID = creature->GetGUID();
@@ -453,7 +435,6 @@ public:
                 case NPC_HODIR:
                     uiHodirGUID = creature->GetGUID();
                     break;
-
                 // Thorim
                 case NPC_THORIM:
                     uiThorimGUID = creature->GetGUID();
@@ -464,7 +445,6 @@ public:
                 case NPC_RUNE_GIANT:
                     uiRuneGiantGUID = creature->GetGUID();
                     break;
-
                 // Freya
                 case NPC_FREYA:
                     uiFreyaGUID = creature->GetGUID();
@@ -481,11 +461,9 @@ public:
                     uiElderStonebarkGUID = creature->GetGUID();
                     creature->setActive(true);
                     break;
-
                 case NPC_VEZAX:
                     uiVezaxGUID = creature->GetGUID();
                     break;
-
                 // Yogg-Saron
                 case NPC_YOGGSARON:
                     uiYoggSaronGUID = creature->GetGUID();
@@ -493,7 +471,6 @@ public:
                 case NPC_SARA:
                     uiSaraGUID = creature->GetGUID();
                     break;
-
                 case NPC_ALGALON:
                     uiAlgalonGUID = creature->GetGUID();
                     if (AlgalonIntroDone && !SignalTimerMinutes)
@@ -691,7 +668,29 @@ public:
             }
         }
 
-        
+            void OnCreatureDeath(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_CORRUPTED_SERVITOR:
+                    case NPC_MISGUIDED_NYMPH:
+                    case NPC_GUARDIAN_LASHER:
+                    case NPC_FOREST_SWARMER:
+                    case NPC_MANGROVE_ENT:
+                    case NPC_IRONROOT_LASHER:
+                    case NPC_NATURES_BLADE:
+                    case NPC_GUARDIAN_OF_LIFE:
+                        if (!conSpeedAtory)
+                        {
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_CON_SPEED_ATORY);
+                            conSpeedAtory = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+      
         void ProcessEvent(GameObject* /*go*/, uint32 eventId)
         {
             // Flame Leviathan's Tower Event triggers

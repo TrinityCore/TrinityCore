@@ -17,6 +17,7 @@
 
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
+#define CRITERIA_CON_SPEED_ATORY                 21597
 
 enum UlduarTypes
 {
@@ -148,6 +149,16 @@ enum UlduarNPCs
     NPC_BATTLE_PRIEST_GINA      = 33330,
     NPC_FIELD_MEDIC_PENNY       = 32897,
     NPC_FIELD_MEDIC_JESSI       = 33326,
+
+    // Freya's trash NPCs
+    NPC_CORRUPTED_SERVITOR      = 33354,
+    NPC_MISGUIDED_NYMPH         = 33355,
+    NPC_GUARDIAN_LASHER         = 33430,
+    NPC_FOREST_SWARMER          = 33431,
+    NPC_MANGROVE_ENT            = 33525,
+    NPC_IRONROOT_LASHER         = 33526,
+    NPC_NATURES_BLADE           = 33527,
+    NPC_GUARDIAN_OF_LIFE        = 33528,
 };
 
 enum UlduarGameObjects
@@ -310,6 +321,12 @@ enum UlduarWorldStates
     WORLDSTATE_ALGALON_TIMER    = 4131
 };
 
+enum UlduarAchievementData
+ {	
+    DATA_KNOCK_ON_WOOD_ACHIEVEMENTS              = 1,
+    DATA_CON_SPEED_ATORY_ACHIEVEMENT             = 2,
+ };
+
 enum UlduarSharedActions
 {
     ACTION_ALGALON_ASCEND      = -123460 //Wipe Raid, don't respawn
@@ -328,4 +345,4 @@ class PlayerOrPetCheck
         }
 };
 
-#endif\ No newline at end of file
+#endif

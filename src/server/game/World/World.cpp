@@ -1354,6 +1354,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Spell Proc Event conditions...");
     sSpellMgr->LoadSpellProcEvents();
 
+    sLog->outString("Loading Spell Proc conditions and data...");
+    sSpellMgr->LoadSpellProcs();
+
     sLog->outString("Loading Spell Bonus Data...");
     sSpellMgr->LoadSpellBonusess();
 
@@ -1392,9 +1395,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
-
-    sLog->outString("Loading Vehicle scaling information...");
-    sObjectMgr->LoadVehicleScaling();
 
     sLog->outString("Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();

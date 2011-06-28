@@ -53,18 +53,17 @@ EndScriptData */
 // Passive
 #define SPELL_KOLOGARN_REDUCE_PARRY 64651
 #define SPELL_KOLOGARN_PACIFY       63726
-#define SPELL_KOLOGARN_UNK_0        65219 // Not found in DBC
+#define SPELL_KOLOGARN_UNK_0        65219   // Not found in DBC
 
-#define SPELL_BERSERK               47008 // guess
+#define SPELL_BERSERK           47008 // guess
 
-#define NPC_RUBBLE_STALKER          33809
-#define NPC_ARM_SWEEP_STALKER       33661
+#define NPC_RUBBLE_STALKER      33809
+#define NPC_ARM_SWEEP_STALKER   33661
 
 #define EMOTE_EYEBEAM           "Kologarn focusing his eyes on you"
 #define EMOTE_LEFT              "The Left Arm has regrown!"
 #define EMOTE_RIGHT             "The Right Arm has regrown!"
 #define EMOTE_STONE             "Kologarn casts Stone Grip!"
-
 enum Events
 {
     EVENT_NONE = 0,
@@ -94,20 +93,15 @@ enum Yells
     SAY_BERSERK                                 = -1603238,
 };
 
-enum
+enum Achievemments
 {
-    ACHIEV_DISARMED_START_EVENT                 = 21687,
+    ACHIEV_DISARMED_START_EVENT                   = 21687,
 };
 
 class boss_kologarn : public CreatureScript
 {
     public:
         boss_kologarn() : CreatureScript("boss_kologarn") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_kologarnAI(creature);
-        }
 
         struct boss_kologarnAI : public BossAI
         {
@@ -122,7 +116,6 @@ class boss_kologarn : public CreatureScript
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
                 Reset();
-
                 // should be triggered on caster?
                 SpellEntry* tempSpell;
                 tempSpell = GET_SPELL(SPELL_STONE_SHOUT);
@@ -151,34 +144,28 @@ class boss_kologarn : public CreatureScript
                         arm->ToCreature()->SetInCombatWithZone();
 
                 _EnterCombat();
-                me->SetReactState(REACT_AGGRESSIVE);
             }
 
             void Reset()
             {
                 _Reset();
-
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 eyebeamTarget = 0;
-                me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void JustDied(Unit * /*victim*/)
+            void JustDied(Unit* /*victim*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 DoCast(SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
-
-                for (uint8 i = 0; i < 2; ++i)
-                    if (Unit* arm = vehicle->GetPassenger(i))
-                        arm->ExitVehicle();
-
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
             }
 
             void KilledUnit(Unit* /*who*/)
             {
-                if (!(rand()%3))
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
@@ -227,8 +214,7 @@ class boss_kologarn : public CreatureScript
                     if (!right && !left)
                         events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
 
-                    if (instance)
-                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
                 }
                 else
                 {
@@ -237,41 +223,7 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            // try to get ranged target, not too far away
-            Unit* GetEyeBeamTarget()
-            {
-                Map* map = me->GetMap();
-                if (map && map->IsDungeon())
-                {
-                    std::list<Player*> PlayerList;
-                    Map::PlayerList const& Players = map->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                    {
-                        if (Player* player = itr->getSource())
-                        {
-                            if (player->isDead() || player->HasAura(SPELL_STONE_GRIP_DOT) || player->isGameMaster())
-                                continue;
-
-                            float Distance = player->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                            if (Distance < 20.0f || Distance > 60.0f)
-                                continue;
-
-                            PlayerList.push_back(player);
-                        }
-                    }
-
-                    if (PlayerList.empty())
-                        return NULL;
-
-                    std::list<Player*>::const_iterator itr = PlayerList.begin();
-                    std::advance(itr, urand(0, PlayerList.size() - 1));
-                    return *itr;
-                }
-                else
-                    return NULL;
-            }
-
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature *summon)
             {
                 switch (summon->GetEntry())
                 {
@@ -283,7 +235,6 @@ class boss_kologarn : public CreatureScript
                         break;
                     case NPC_RUBBLE:
                         summons.push_back(summon->GetGUID());
-                        summon->SetInCombatWithZone();
                         // absence of break intended
                     default:
                         return;
@@ -307,7 +258,7 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -327,10 +278,7 @@ class boss_kologarn : public CreatureScript
                         break;
                     case EVENT_SWEEP:
                         if (left)
-                        {
-                            DoCast(SPELL_ARM_SWEEP);
-                            DoScriptText(SAY_SHOCKWAVE, me);
-                        }
+                            DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
                         events.RepeatEvent(25000);
                         break;
                     case EVENT_SMASH:
@@ -338,7 +286,7 @@ class boss_kologarn : public CreatureScript
                             DoCastVictim(SPELL_TWO_ARM_SMASH);
                         else if (left || right)
                             DoCastVictim(SPELL_ONE_ARM_SMASH);
-                        events.RepeatEvent(urand(8000, 10000));
+                        events.RepeatEvent(15000);
                         break;
                     case EVENT_STONE_SHOUT:
                         DoCast(SPELL_STONE_SHOUT);
@@ -351,14 +299,16 @@ class boss_kologarn : public CreatureScript
                         break;
                     case EVENT_RESPAWN_LEFT_ARM:
                     {
-                        RespawnArm(NPC_LEFT_ARM);
+                        if (Creature* arm = Unit::GetCreature(*me, instance->GetData64(DATA_LEFT_ARM)))
+                            RespawnArm(arm->ToCreature());
                         me->MonsterTextEmote(EMOTE_LEFT, 0, true);
                         events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);
                         break;
                     }
                     case EVENT_RESPAWN_RIGHT_ARM:
                     {
-                        RespawnArm(NPC_RIGHT_ARM);
+                        if (Creature* arm = Unit::GetCreature(*me, instance->GetData64(DATA_RIGHT_ARM)))
+                            RespawnArm(arm->ToCreature());
                         me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
                         events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
                         break;
@@ -384,13 +334,9 @@ class boss_kologarn : public CreatureScript
 						events.RepeatEvent(urand(15000, 25000));
 						break;
                     case EVENT_FOCUSED_EYEBEAM:
-                        Unit* eyebeamTargetUnit = GetEyeBeamTarget();
-                        if (!eyebeamTargetUnit)
-                            eyebeamTargetUnit = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true, -SPELL_STONE_GRIP_DOT);
-                        if (eyebeamTargetUnit)
+                        if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
                         {
                             eyebeamTarget = eyebeamTargetUnit->GetGUID();
-                            me->MonsterWhisper(EMOTE_EYEBEAM, eyebeamTarget, true);
                             DoCast(SPELL_SUMMON_FOCUSED_EYEBEAM);
                         }
                         events.RepeatEvent(urand(15000, 35000));
@@ -400,50 +346,21 @@ class boss_kologarn : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void RespawnArm(uint32 entry)
+            void RespawnArm(Creature* arm)
             {
-                // no way to get arms by guid as they got unsummoned in Unit::_ExitVehicle. temporary spawn them here
-                if (Creature* arm = me->SummonCreature(entry, *me))
-                {
-                    arm->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
-                    int32 seatId = entry == NPC_LEFT_ARM ? 0 : 1;
-                    arm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, seatId+1, me, true);
-                    arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
-                }
+                if (!arm->isAlive())
+                    arm->Respawn();
+
+                int32 seatId = arm->GetEntry() == NPC_LEFT_ARM ? 0 : 1;
+                arm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, seatId+1, me, true);
+                arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
             }
         };
-};
 
-class npc_kologarn_arm : public CreatureScript
-{
-public:
-    npc_kologarn_arm() : CreatureScript("npc_kologarn_arm") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_kologarn_armAI(creature);
-    }
-
-    struct npc_kologarn_armAI : public ScriptedAI
-    {
-        npc_kologarn_armAI(Creature* c) : ScriptedAI(c) { }
-
-        void Reset()
+        CreatureAI* GetAI(Creature* creature) const
         {
-            me->SetReactState(REACT_DEFENSIVE);
+            return new boss_kologarnAI(creature);
         }
-
-        void EnterCombat(Unit* who)
-        {
-            me->SetReactState(REACT_AGGRESSIVE);
-
-            Creature* kologarn = me->GetVehicleCreatureBase();
-            if (kologarn && !kologarn->isInCombat())
-                kologarn->AI()->AttackStart(who);
-        }
-        
-        void UpdateAI(uint32 const diff) { }
-    };
 };
 
 class spell_ulduar_rubble_summon : public SpellScriptLoader
@@ -483,14 +400,14 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 class StoneGripTargetSelector : public std::unary_function<Unit *, bool>
 {
     public:
-        StoneGripTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
+        StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) {}
 
-        bool operator() (Unit* pTarget)
+        bool operator() (Unit* target)
         {
-            if (pTarget == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
                 return true;
 
-            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
             return false;
@@ -544,13 +461,12 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
             void HandleForceCast(SpellEffIndex i)
             {
-                Player * plr = GetHitPlayer();
+                Player* plr = GetHitPlayer();
                 if (!plr)
                     return;
 
-                // Don't send m_originalCasterGUID param here or underlying AuraEffect::HandleAuraControlVehicle will fail on caster == target
-                plr->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);
-                PreventHitEffect(i);
+                plr->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
+                PreventHitEffect(i);                                                                   // AureEffect::HandleAuraControlVehicle will fail on caster == target
             }
 
             void Register()
@@ -582,11 +498,8 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* target = GetHitPlayer();
-                if (!target)
-                    return;
-
-                if (!target->GetVehicle())
+                Unit* target = GetHitUnit();
+                if (!target || !target->GetVehicle())
                     return;
 
                 switch (target->GetMap()->GetDifficulty())
@@ -616,29 +529,38 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
 class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 {
-public:
-    spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
+    public:
+        spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
 
-    class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_ulduar_squeezed_lifeless_SpellScript);
-
-        void MoveCorpse()
+        class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
         {
-            GetHitUnit()->ExitVehicle();
-            GetHitUnit()->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 449.0f, 10, 10);
-        }
+            PrepareSpellScript(spell_ulduar_squeezed_lifeless_SpellScript);
 
-        void Register()
+            void HandleInstaKill(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
+                    return;
+
+                Position pos;
+                pos.m_positionX = 1756.25f + irand(-3, 3);
+                pos.m_positionY = -8.3f + irand(-3, 3);
+                pos.m_positionZ = 448.8f;
+                pos.m_orientation = M_PI;
+                GetHitPlayer()->DestroyForNearbyPlayers();
+                GetHitPlayer()->ExitVehicle(&pos);
+                GetHitPlayer()->UpdateObjectVisibility(false);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ulduar_squeezed_lifeless_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterHit += SpellHitFn(spell_ulduar_squeezed_lifeless_SpellScript::MoveCorpse);
+            return new spell_ulduar_squeezed_lifeless_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_ulduar_squeezed_lifeless_SpellScript();
-    }
 };
 
 class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
@@ -660,10 +582,10 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
                 if (!GetOwner()->ToCreature())
                     return;
 
-                if (Vehicle* vehicle = GetOwner()->ToCreature()->GetVehicleKit())
-                    for (uint8 i = 0; i < 3; ++i)
-                        if (Unit* passenger = vehicle->GetPassenger(i))
-                            passenger->ExitVehicle();
+                uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_NORMAL ? 33809 : 33942);
+                Creature* rubbleStalker = GetOwner()->FindNearestCreature(rubbleStalkerEntry, 200.0f, true);
+                if (rubbleStalker)
+                    rubbleStalker->CastSpell(rubbleStalker, SPELL_STONE_GRIP_CANCEL, true);
             }
 
             void Register()
@@ -704,13 +626,13 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                 if (GetOwner()->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                Player* pCaster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
-                if (!pCaster || !pCaster->IsOnVehicle(GetOwner()->ToUnit()))
+                Player* caster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
+                if (!caster || !caster->IsOnVehicle(GetOwner()->ToUnit()))
                     return;
 
-                pCaster->RemoveAurasDueToSpell(GetId());
-                pCaster->ExitVehicle();
-                pCaster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
+                caster->RemoveAurasDueToSpell(GetId());
+                caster->ExitVehicle();
+                caster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
                 PreventDefaultAction();
             }
 
@@ -756,8 +678,6 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
-    new npc_kologarn_arm();
-
     new spell_ulduar_rubble_summon();
     new spell_ulduar_squeezed_lifeless();
     new spell_ulduar_cancel_stone_grip();
