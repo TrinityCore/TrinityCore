@@ -3179,7 +3179,7 @@ void AuraEffect::HandleCharmConvert(AuraApplication const* aurApp, uint8 mode, b
  */
 void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
