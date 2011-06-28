@@ -11,7 +11,7 @@
 -- 'You have reached Rank 2: First Lieutenant' Sent to player by raid leader
 
 -- Wintergrasp coreside texts
-DELETE FROM trinity_string WHERE entry BETWEEN 12050 AND 12072;
+DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12050 AND 12072;
 INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`)VALUES
 (12050, '%s has been captured by %s ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (12051, '%s is under attack by %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -38,7 +38,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (12072, 'The Wintergrasp fortress has been captured by %s !', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- Wintergrasp script texts
-DELETE FROM `script_texts` WHERE entry BETWEEN -1850500 AND -1850507;
+DELETE FROM `script_texts` WHERE entry BETWEEN -1850507 AND -1850500;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`)VALUES
 (0, -1850500, 'Guide me to the Fortress Graveyard.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''),
 (0, -1850501, 'Guide me to the Sunken Ring Graveyard.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''),
