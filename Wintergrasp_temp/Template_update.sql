@@ -10,9 +10,9 @@ UPDATE `gameobject_template` SET `faction`=114 WHERE `entry` IN (193096,193097,1
                                                                  193128,193129,193130,193131,193132,193133,193134,193135,193136,193137,193138,193139,193140,193141,193142,193143,193144,193145,
 																 193146,193147,193148,193149,193150,193151,193152,193153,193154,193155,193156,193157,193158,193159,193160,193161,193162,193163,
 																 193164,193165); -- nameless GOs
-																 
+
 UPDATE `creature_template` SET `exp`=0 WHERE `entry`=31841; -- Taunka Spirit Guide
-UPDATE `creature_template` SET `exp`= WHERE `entry`=31842; -- Dwarven Spirit Guide
+UPDATE `creature_template` SET `exp`=0 WHERE `entry`=31842; -- Dwarven Spirit Guide
 UPDATE `creature_template` SET `exp`=0 WHERE `entry`=31052; -- Bowyer Randolph
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|768 WHERE `entry`=39172; -- Marshal Magruder
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=30488; -- Travis Day
@@ -74,14 +74,3 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 (39173,29261,0,1,0, NULL), -- Champion Ros'slai
 (30740,0,0,257,375, NULL); -- Valiance Expedition Champion
 
--- Wintergrasp creature addon cleanups
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN 131258 AND 131322;
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN 131326 AND 131328;
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN 131350 AND 131353;
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN 131376 AND 131380;
-DELETE FROM `creature_addon` WHERE `guid`=131392;
-DELETE FROM `creature_addon` WHERE `guid`=131437;
-DELETE FROM `creature_addon` WHERE `guid`=131458;
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN 131631 AND 131634;
-DELETE FROM `creature_addon` WHERE `guid`=131706;
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN 131727 AND 131731;
