@@ -1221,7 +1221,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
         class spell_gen_vehicle_scaling_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_gen_vehicle_scaling_AuraScript);
-                
+
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 Unit* caster = GetCaster();
@@ -1235,20 +1235,20 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 switch (GetId())
                 {
                     case 66668:
-                        factor = 0.01f;
+                        factor = 1.0f;
                         baseItemLevel = 205;
                         break;
                     default:
-                        factor = 0.01f;
+                        factor = 1.0f;
                         baseItemLevel = 170;
                         break;
                 }
                         
                 float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
                 if (avgILvl < baseItemLevel)
-                    return;
+                    return;                     // TODO: Research possibility of scaling down
                         
-                amount = 100 - uint16(100.0f * avgILvl / baseItemLevel);
+                amount = uint16((avgILvl - baseItemLevel) * factor);
             }
                 
             void Register()
@@ -1258,7 +1258,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
             }
         };
-                
+ 
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_vehicle_scaling_AuraScript();
