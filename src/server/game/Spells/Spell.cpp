@@ -4797,7 +4797,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
             }
 
-            if (!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
+            if (!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !(m_customAttr & SPELL_ATTR0_CU_IGNORE_LOS) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
 
         }
@@ -6596,7 +6596,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
                 caster = m_caster;
             if (target->GetEntry() == 5925)
                 return true;
-            if (target != m_caster && !target->IsWithinLOSInMap(caster))
+            if (target != m_caster && !(m_customAttr & SPELL_ATTR0_CU_IGNORE_LOS) &&!target->IsWithinLOSInMap(caster))
                 return false;
             break;
     }

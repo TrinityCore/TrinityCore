@@ -1099,6 +1099,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_WARLOCK:
                 switch(GetId())
                 {
+	             case 6358: // Seduction
+	                 if (!caster)
+	                   break;
+	                 if (Unit *owner = caster->GetOwner())
+	                   if (owner->HasAura(56250)) // Glyph of Succubus
+	                     {
+	                     		target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
+	                                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+	                                target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+	                     }
+	                   break;
                     case 48020: // Demonic Circle
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             if (GameObject* obj = target->GetGameObject(48018))
@@ -1320,7 +1331,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     {
                         if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
-                    }D                    break;
+                    }
+					break;
                 }
                 // Improved Fear
                 if (GetSpellProto()->SpellFamilyFlags[1] & 0x00000400)
@@ -1702,8 +1714,47 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         caster->RemoveAurasDueToSpell(100001);
                 }
             }
+	            // Health Funnel
+	            else if (GetSpellProto()->SpellFamilyFlags[0] & 0x01000000 && target != caster)
+	            {
+	                // Improved Health Funnel
+	                AuraEffect * aurEff = caster->GetAuraEffectOfRankedSpell(18703, 0);
+	                if (apply && aurEff)
+	                {
+	                    uint32 spell = sSpellMgr->GetSpellWithRank(60955, sSpellMgr->GetSpellRank(aurEff->GetId()));
+	                    target->CastSpell(target, spell, true, 0, 0, caster->GetGUID());
+	                }
+	                else
+	                {
+	                    target->RemoveAurasDueToSpell(60955);
+	                    target->RemoveAurasDueToSpell(60956);
+	                }
+	            }
             break;
     }
+	
+	    if (IsPassiveSpell(GetSpellProto()) && !GetCastItemGUID())
+	        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+	        {
+	            if (m_effects[i] && m_effects[i]->GetAuraType() == SPELL_AURA_MECHANIC_DURATION_MOD)
+	            {
+	                uint32 spell_immune;
+	                switch(m_effects[i]->GetMiscValue())
+	                {
+	                    case 5:  spell_immune = 55357; break;
+	                    case 7: 
+                         case 11: spell_immune = 55378; break;
+	                    case 9:  spell_immune = 55366; break;
+	                    case 12: spell_immune = 55358; break;
+	                    default: break;
+	                }
+	                if (spell_immune)
+	                {
+	                    if (apply) target->RemoveAurasDueToSpell(spell_immune);
+	                    target->ApplySpellImmune(0, IMMUNITY_ID, spell_immune, apply);
+	                }
+	            }
+	        }
 }
 
 bool Aura::CanBeAppliedOn(Unit* target)

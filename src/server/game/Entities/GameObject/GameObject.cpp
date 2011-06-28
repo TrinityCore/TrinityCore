@@ -452,6 +452,10 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
+                        // Player traps should activate PvP mode
+	                   if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+	                            owner->CombatStart(ok, false);
+
 						// allow to use scripts
                         if (ok->GetTypeId() == TYPEID_PLAYER)
                             if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
