@@ -49,7 +49,7 @@ enum eWGdata
 
     // teleporter spells
     SPELL_VEHICLE_TELEPORT              = 49759,
-};
+}
 
 class npc_demolisher_engineerer : public CreatureScript
 {
