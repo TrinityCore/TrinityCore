@@ -35,7 +35,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (12069, 'The southern tower', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (12070, 'The eastern tower', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (12071, 'The western tower', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(12072, 'The Wintergrasp fortress has been captured by %s !', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(12072, 'The Wintergrasp fortress has been captured by %s !', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- Wintergrasp script texts
 DELETE FROM `script_texts` WHERE entry BETWEEN -1850500 AND -1850507;
@@ -71,7 +71,7 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_demolisher_engineerer' WHERE `
 
 -- 58730 Restricted Flight Area (Wintergrasp Eject)
 DELETE FROM `spell_area` WHERE `spell`=58730;
-INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`)VALUES
+INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`) VALUES
 (58730,4581,0,0,0,0,0,2,1),
 (58730,4539,0,0,0,0,0,2,1),
 (58730,4197,0,0,0,0,0,2,1),
@@ -86,7 +86,7 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`que
 
 -- 57940 Essence of Wintergrasp
 DELETE FROM `spell_area` WHERE `spell`=57940;
-INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`)VALUES
+INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`) VALUES
 (57940,65,0,0,0,0,0,2,1),
 (57940,66,0,0,0,0,0,2,1),
 (57940,67,0,0,0,0,0,2,1),
@@ -115,7 +115,7 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`que
 (57940,4603,0,0,0,0,0,2,1);
 
 -- Wintergrasp Cannons (Spell 51421 : Fire Cannon)
-UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`spell1`=51421 WHERE `entry`=28366; -- *** WRONG ****
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735 WHERE `entry`=28366; -- *** WRONG ****
 UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1732 WHERE `entry` IN (30499,30740, 28319); -- Alliance
 UPDATE `creature_template` SET `faction_A`=1735,`faction_H`=1735 WHERE `entry` IN (30400,30739, 32629); -- Horde
 
@@ -170,13 +170,13 @@ UPDATE `quest_template` SET `ExclusiveGroup`=13198 WHERE `entry` IN (13198, 1315
 UPDATE `creature_template` SET `ScriptName`= 'npc_wintergrasp_quest_giver' WHERE `entry` IN (31054, 31052, 31091, 31036, 31101, 31107, 31053, 31051, 31153, 31151, 31102, 31106);
 
 -- Wintergrasp Catapult speed adjustments
-UPDATE `creature_template` SET `speed_walk`=2.8,`speed_run`=1.6 WHERE `entry`=27881;
+UPDATE `creature_template` SET `speed_walk`=2.8,`speed_run`=1.71429 WHERE `entry`=27881;
 
 -- Add Missing Horde Spirt Healer options Wintergrasp
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=10129 AND `id` IN (2,4);
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`action_script_id`,`box_coded`,`box_money`,`box_text`) VALUES
-(10129,2,0, 'Guide me to the Broken Temple Graveyard.',1,1,0,0,0,0,0, ''),
-(10129,4,0, 'Guide me to the Eastspark Graveyard.',1,1,0,0,0,0,0, '');
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
+(10129,2,0, 'Guide me to the Broken Temple Graveyard.',1,1,0,0,0,0, ''),
+(10129,4,0, 'Guide me to the Eastspark Graveyard.',1,1,0,0,0,0, '');
 
 -- Add Spell Target position for Wintergrasp Graveyard spells
 DELETE FROM `spell_target_position` WHERE `id` IN (59760,59762,59763,59765,59766,59767,59769);
@@ -189,8 +189,9 @@ INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`targ
 (59767,571,4314.648,2408.522,392.642,6.268125), -- Teleport: Eastspark Factory Graveyard "area 4612"
 (59769,571,5140.790,2179.120,390.950,1.972220); -- Teleport: Alliance Landing Zone
 
--- Add scripts to Wintergrasp spirit guide gossip 
-UPDATE `gossip_menu_option` SET `action_script_id`=1012800 WHERE `menu_id` IN (10128,10129) AND `id`=0;
+-- Add scripts to Wintergrasp spirit guide gossip
+-- should be scripted by SAI or cpp script
+/*UPDATE `gossip_menu_option` SET `action_script_id`=1012800 WHERE `menu_id` IN (10128,10129) AND `id`=0;
 UPDATE `gossip_menu_option` SET `action_script_id`=1012801 WHERE `menu_id` IN (10128,10129) AND `id`=1;
 UPDATE `gossip_menu_option` SET `action_script_id`=1012802 WHERE `menu_id` IN (10128,10129) AND `id`=2;
 UPDATE `gossip_menu_option` SET `action_script_id`=1012803 WHERE `menu_id` IN (10128,10129) AND `id`=3;
@@ -207,7 +208,7 @@ INSERT INTO `gossip_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`) VAL
 (1012803,0,33,0,0),(1012803,0,15,59766,1),
 (1012804,0,33,0,0),(1012804,0,15,59767,1),
 (1012805,0,33,0,0),(1012805,0,15,59769,1),
-(1012806,0,33,0,0),(1012806,0,15,59765,1);
+(1012806,0,33,0,0),(1012806,0,15,59765,1);*/
 
 -- Taunka Spirit Guide SAI
 SET @ENTRY := 31841;
@@ -241,10 +242,10 @@ UPDATE `creature_template` SET `gossip_menu_id`=9904 WHERE `entry`=30400;
 UPDATE `creature_template` SET `gossip_menu_id`=10229 WHERE `entry`=31091;
 -- Creature Gossip_menu_option Update from sniff
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (9904);
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`action_script_id`,`box_coded`,`box_money`,`box_text`) VALUES
-(9904,0,0, 'I would like to build a catapult.',1,1,0,0,0,0,0, ''),
-(9904,1,0, 'I would like to build a demolisher.',1,1,0,0,0,0,0, ''),
-(9904,2,0, 'I would like to build a siege engine.',1,1,0,0,0,0,0, '');
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
+(9904,0,0, 'I would like to build a catapult.',1,1,0,0,0,0, ''),
+(9904,1,0, 'I would like to build a demolisher.',1,1,0,0,0,0, ''),
+(9904,2,0, 'I would like to build a siege engine.',1,1,0,0,0,0, '');
 -- Add gossip_menu condition for 9904 Horde
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=9904;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`) VALUES
@@ -275,13 +276,14 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,9923,2,0,1,55629,0); -- Must have reached Rank 2: First Lieutenant
 
 -- Add scripts to Wintergrasp engineers
-UPDATE `gossip_menu_option` SET `action_script_id`=990400 WHERE `menu_id` IN (9904,9923) AND `id`=0;
+-- already done by engineer's script
+/*UPDATE `gossip_menu_option` SET `action_script_id`=990400 WHERE `menu_id` IN (9904,9923) AND `id`=0;
 UPDATE `gossip_menu_option` SET `action_script_id`=990401 WHERE `menu_id` IN (9904,9923) AND `id`=1;
 UPDATE `gossip_menu_option` SET `action_script_id`=990402 WHERE `menu_id` IN (9904) AND `id`=2;
 UPDATE `gossip_menu_option` SET `action_script_id`=990403 WHERE `menu_id` IN (9923) AND `id`=2;
+
 -- Add create vehicle Spells to gossip scripts
--- already done by engineer's script
-/*DELETE FROM `gossip_scripts` WHERE `id` IN (990400,990401,990402);
+DELETE FROM `gossip_scripts` WHERE `id` IN (990400,990401,990402);
 INSERT INTO `gossip_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`) VALUES
 (990400,0,33,0,0),(990400,0,15,56663,1),
 (990401,0,33,0,0),(990401,0,15,56575,1),
