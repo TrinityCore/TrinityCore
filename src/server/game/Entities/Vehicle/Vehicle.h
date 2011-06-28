@@ -79,9 +79,9 @@ enum VehicleSpells
 
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(0) {}
-    VehicleSeatEntry const *seatInfo;
-    uint64 passenger;
+    explicit VehicleSeat(VehicleSeatEntry const *seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
+    VehicleSeatEntry const *SeatInfo;
+    uint64 Passenger;
 };
 
 struct VehicleAccessory
@@ -95,16 +95,8 @@ struct VehicleAccessory
     uint32 SummonTime;
 };
 
-struct VehicleScalingInfo
-{
-    uint32 ID;
-    float baseItemLevel;
-    float scalingFactor;
-};
-
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
-typedef std::map<uint32, VehicleScalingInfo> VehicleScalingMap;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle
@@ -122,9 +114,9 @@ class Vehicle
         void InstallAllAccessories(bool evading);
         void ApplyAllImmunities();
 
-        Unit* GetBase() const { return me; }
-        VehicleEntry const* GetVehicleInfo() const { return m_vehicleInfo; }
-        uint32 const& GetCreatureEntry() const { return m_creatureEntry; }
+        Unit* GetBase() const { return _me; }
+        VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
+        uint32 const& GetCreatureEntry() const { return _creatureEntry; }
 
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
@@ -137,9 +129,9 @@ class Vehicle
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
-        bool IsVehicleInUse() { return m_Seats.begin() != m_Seats.end(); }
+        bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
 
-        SeatMap m_Seats;
+        SeatMap Seats;
 
     protected:
         uint16 GetExtraMovementFlagsForBase() const;
@@ -148,14 +140,11 @@ class Vehicle
     private:
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
-
-    protected:
-        Unit* me;
-        VehicleEntry const* m_vehicleInfo;
-        uint32 m_usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
-        uint32 m_bonusHP;
-        uint32 m_creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
-
         void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);
+
+        Unit* _me;
+        VehicleEntry const* _vehicleInfo;
+        uint32 _usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
+        uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
 };
 #endif
