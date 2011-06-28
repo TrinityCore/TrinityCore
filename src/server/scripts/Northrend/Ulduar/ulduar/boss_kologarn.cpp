@@ -85,7 +85,7 @@ enum Yells
     SAY_BERSERK                                 = -1603238,
 };
 
-enum
+enum Achievemments
 {
     ACHIEV_DISARMED_START_EVENT                   = 21687,
 };
@@ -95,14 +95,9 @@ class boss_kologarn : public CreatureScript
     public:
         boss_kologarn() : CreatureScript("boss_kologarn") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
-        {
-            return GetUlduarAI<boss_kologarnAI>(pCreature);
-        }
-
         struct boss_kologarnAI : public BossAI
         {
-            boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
+            boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN), vehicle(creature->GetVehicleKit()),
                 left(false), right(false)
             {
                 ASSERT(vehicle);
@@ -115,7 +110,7 @@ class boss_kologarn : public CreatureScript
                 Reset();
             }
 
-            Vehicle *vehicle;
+            Vehicle* vehicle;
             bool left, right;
             uint64 eyebeamTarget;
 
@@ -140,7 +135,7 @@ class boss_kologarn : public CreatureScript
             void Reset()
             {
                 _Reset();
-
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 eyebeamTarget = 0;
             }
 
@@ -149,7 +144,8 @@ class boss_kologarn : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
                 DoCast(SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
-
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
             }
 
@@ -204,8 +200,7 @@ class boss_kologarn : public CreatureScript
                     if (!right && !left)
                         events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
 
-                    if (instance)
-                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
                 }
                 else
                 {
@@ -234,7 +229,6 @@ class boss_kologarn : public CreatureScript
                 summon->CastSpell(summon, SPELL_FOCUSED_EYEBEAM_PERIODIC, true);
                 summon->CastSpell(summon, SPELL_FOCUSED_EYEBEAM_VISUAL, true);
                 summon->SetReactState(REACT_PASSIVE);
-                summon->SetFlag(UNIT_FIELD_ATTACK_POWER, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 // One of the above spells is a channeled spell, we need to clear this unit state for MoveChase to work
                 summon->ClearUnitState(UNIT_STAT_CASTING);
 
@@ -249,7 +243,7 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -289,14 +283,14 @@ class boss_kologarn : public CreatureScript
                         break;
                     case EVENT_RESPAWN_LEFT_ARM:
                     {
-                        if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_LEFT_ARM) : 0))
+                        if (Creature* arm = Unit::GetCreature(*me, instance->GetData64(DATA_LEFT_ARM)))
                             RespawnArm(arm->ToCreature());
                         events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);
                         break;
                     }
                     case EVENT_RESPAWN_RIGHT_ARM:
                     {
-                        if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_RIGHT_ARM) : 0))
+                        if (Creature* arm = Unit::GetCreature(*me, instance->GetData64(DATA_RIGHT_ARM)))
                             RespawnArm(arm->ToCreature());
                         events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
                         break;
@@ -312,8 +306,7 @@ class boss_kologarn : public CreatureScript
                     }
                     break;
                     case EVENT_FOCUSED_EYEBEAM:
-                        Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true);
-                        if (eyebeamTargetUnit)
+                        if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
                         {
                             eyebeamTarget = eyebeamTargetUnit->GetGUID();
                             DoCast(SPELL_SUMMON_FOCUSED_EYEBEAM);
@@ -335,6 +328,11 @@ class boss_kologarn : public CreatureScript
                 arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
             }
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetUlduarAI<boss_kologarnAI>(creature);
+        }
 };
 
 class spell_ulduar_rubble_summon : public SpellScriptLoader
@@ -374,14 +372,14 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 class StoneGripTargetSelector : public std::unary_function<Unit *, bool>
 {
     public:
-        StoneGripTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
+        StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) {}
 
-        bool operator() (Unit* pTarget)
+        bool operator() (Unit* target)
         {
-            if (pTarget == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
                 return true;
 
-            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
             return false;
@@ -472,11 +470,8 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* target = this->GetHitPlayer();
-                if (!target)
-                    return;
-
-                if (!target->GetVehicle())
+                Unit* target = GetHitUnit();
+                if (!target || !target->GetVehicle())
                     return;
 
                 switch (target->GetMap()->GetDifficulty())
@@ -506,38 +501,38 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
 class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 {
-public:
-    spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
+    public:
+        spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
 
-    class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_ulduar_squeezed_lifeless_SpellScript);
-
-        void HandleInstaKill(SpellEffIndex /*effIndex*/)
+        class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
         {
-            if (!GetHitPlayer()->GetVehicle())
-                return;
+            PrepareSpellScript(spell_ulduar_squeezed_lifeless_SpellScript);
 
-            Position pos;
-            pos.m_positionX = 1756.25f + irand(-3, 3);
-            pos.m_positionY = -8.3f + irand(-3, 3);
-            pos.m_positionZ = 448.8f;
-            pos.m_orientation = M_PI;
-            GetHitPlayer()->DestroyForNearbyPlayers();
-            GetHitPlayer()->ExitVehicle(&pos);
-            GetHitPlayer()->UpdateObjectVisibility(false);
-        }
+            void HandleInstaKill(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
+                    return;
 
-        void Register()
+                Position pos;
+                pos.m_positionX = 1756.25f + irand(-3, 3);
+                pos.m_positionY = -8.3f + irand(-3, 3);
+                pos.m_positionZ = 448.8f;
+                pos.m_orientation = M_PI;
+                GetHitPlayer()->DestroyForNearbyPlayers();
+                GetHitPlayer()->ExitVehicle(&pos);
+                GetHitPlayer()->UpdateObjectVisibility(false);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ulduar_squeezed_lifeless_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffect += SpellEffectFn(spell_ulduar_squeezed_lifeless_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+            return new spell_ulduar_squeezed_lifeless_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_ulduar_squeezed_lifeless_SpellScript();
-    }
 };
 
 class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
@@ -588,8 +583,8 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
             void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* pOwner = GetOwner()->ToPlayer())
-                    pOwner->RemoveAurasDueToSpell(aurEff->GetAmount());
+                if (Player* owner = GetOwner()->ToPlayer())
+                    owner->RemoveAurasDueToSpell(aurEff->GetAmount());
             }
 
             void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
@@ -600,13 +595,13 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                 if (GetOwner()->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                Player* pCaster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
-                if (!pCaster || !pCaster->IsOnVehicle(GetOwner()->ToUnit()))
+                Player* caster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
+                if (!caster || !caster->IsOnVehicle(GetOwner()->ToUnit()))
                     return;
 
-                pCaster->RemoveAurasDueToSpell(GetId());
-                pCaster->ExitVehicle();
-                pCaster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
+                caster->RemoveAurasDueToSpell(GetId());
+                caster->ExitVehicle();
+                caster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
                 PreventDefaultAction();
             }
 
@@ -652,7 +647,6 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
-
     new spell_ulduar_rubble_summon();
     new spell_ulduar_squeezed_lifeless();
     new spell_ulduar_cancel_stone_grip();
