@@ -482,10 +482,7 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
                 player->RewardHonor(NULL, 1, WinHonor);
                 RewardMarkOfHonor(player, 2);
             }
-            if (player->GetTeamId() == TEAM_HORDE)
-                IncrementQuest(player, 13183, true);
-            else
-                IncrementQuest(player, 13181, true);
+            IncrementQuest(player, WGQuest[killer->GetTeamId()][1], true);
             // Send Wintergrasp victory achievement
             DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG, player);
             // Award achievement for succeeding in Wintergrasp in 10 minutes or less
@@ -939,12 +936,7 @@ void BattlefieldWG::BrokenWallOrTower(TeamId team)
         for (GuidSet::const_iterator p_itr = m_PlayersInWar[GetAttackerTeam()].begin(); p_itr != m_PlayersInWar[GetAttackerTeam()].end(); ++p_itr)
         {
             if (Player* player = sObjectMgr->GetPlayer((*p_itr)))
-            {
-                if (player->GetTeamId() == TEAM_ALLIANCE)
-                    IncrementQuest(player, 13222);
-                else
-                    IncrementQuest(player, 13223);
-            }
+            	IncrementQuest(player, WGQuest[killer->GetTeamId()][2], true);
         }
     }
 }
@@ -968,10 +960,7 @@ void BattlefieldWG::AddBrokenTower(TeamId team)
             if (Player* player = sObjectMgr->GetPlayer((*itr)))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
-                if (player->GetTeamId() == TEAM_HORDE)
-                    IncrementQuest(player, 13539, true);
-                else
-                    IncrementQuest(player, 13538, true);
+                IncrementQuest(player, WGQuest[killer->GetTeamId()][3], true);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
             }
         // If the threw south tower is destroy
@@ -1043,10 +1032,10 @@ void BattlefieldWG::AddDamagedTower(TeamId team)
 // Update vehicle count WorldState to player
 void BattlefieldWG::UpdateVehicleCountWG()
 {
-    SendUpdateWorldState(3490, GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
-    SendUpdateWorldState(3491, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H));
-    SendUpdateWorldState(3680, GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
-    SendUpdateWorldState(3681, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H, GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A, GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
+    SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A));
 }
 
 void BattlefieldWG::UpdateTenacity()
