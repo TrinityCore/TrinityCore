@@ -57,10 +57,14 @@ if(NOT rev_info)
   message(STATUS "WARNING - Continuing, but the hash will be set to 'Archive'")
   set(rev_hash_str "Archive")
   set(rev_hash "0")
+  set(rev_id_str "0")
+  set(rev_id "0")
 else()
   # Extract revision and hash from git
   string(REGEX REPLACE init-|[0-9]+-g "" rev_hash_str ${rev_info})
   string(REGEX REPLACE [+]+ "" rev_hash ${rev_hash_str})
+  string(REGEX REPLACE init-|-g[^+]+ "" rev_id_str ${rev_info})
+  string(REGEX REPLACE [+]+ "" rev_id ${rev_id_str})
 endif()
 
 # Its not set during initial run
@@ -69,11 +73,11 @@ if(NOT BUILDDIR)
 endif()
 
 # Create the actual revision.h file from the above params
-if(NOT "${rev_hash_cached}" MATCHES "${rev_hash_str}")
+if(NOT "${rev_id_cached}" MATCHES "${rev_id_str}")
   configure_file(
     "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
     "${BUILDDIR}/revision.h"
     @ONLY
   )
-  set(rev_hash_cached "${rev_hash_str}" CACHE INTERNAL "Cached commit-hash")
+  set(rev_id_cached "${rev_id_str}" CACHE INTERNAL "Cached revision ID")
 endif()
