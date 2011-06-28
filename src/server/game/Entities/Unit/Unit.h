@@ -643,7 +643,7 @@ enum MovementFlags
     MOVEMENTFLAG_WALKING               = 0x00000100,               // Walking
     MOVEMENTFLAG_ONTRANSPORT           = 0x00000200,               // Used for flying on some creatures
     MOVEMENTFLAG_LEVITATING            = 0x00000400,
-    MOVEMENTFLAG_ROOT                  = 0x00000800,
+    MOVEMENTFLAG_ROOT                  = 0x00000800,               // Must not be set along with MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT -> client freeze
     MOVEMENTFLAG_JUMPING               = 0x00001000,
     MOVEMENTFLAG_FALLING               = 0x00002000,               // damage dealt on that type of falling
     MOVEMENTFLAG_PENDING_STOP          = 0x00004000,

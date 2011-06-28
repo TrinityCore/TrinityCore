@@ -562,7 +562,6 @@ INSERT INTO `command` VALUES
 ('npc move',2,'Syntax: .npc move [#creature_guid]\r\n\r\nMove the targeted creature spawn point to your coordinates.'),
 ('npc playemote',3,'Syntax: .npc playemote #emoteid\r\n\r\nMake the selected creature emote with an emote of id #emoteid.'),
 ('npc say',1,'Syntax: .npc say $message\nMake selected creature say specified message.'),
-('npc set deathstate',2,'Syntax: .npc set deathstate on/off\r\n\r\nSet default death state (dead/alive) for npc at spawn.'),
 ('npc set link',2,'Syntax: .npc set link $creatureGUID\r\n\r\nLinks respawn of selected creature to the condition that $creatureGUID defined is alive.'),
 ('npc set model',2,'Syntax: .npc set model #displayid\r\n\r\nChange the model id of the selected creature to #displayid.'),
 ('npc set movetype',2,'Syntax: .npc set movetype [#creature_guid] stay/random/way [NODEL]\r\n\r\nSet for creature pointed by #creature_guid (or selected if #creature_guid not provided) movement type and move it to respawn position (if creature alive). Any existing waypoints for creature will be removed from the database if you do not use NODEL. If the creature is dead then movement type will applied at creature respawn.\r\nMake sure you use NODEL, if you want to keep the waypoints.'),
@@ -822,7 +821,6 @@ CREATE TABLE `creature` (
   `currentwaypoint` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `curhealth` int(10) unsigned NOT NULL DEFAULT '1',
   `curmana` int(10) unsigned NOT NULL DEFAULT '0',
-  `DeathState` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `MovementType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `npcflag` int(10) unsigned NOT NULL DEFAULT '0',
   `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
@@ -27883,30 +27881,6 @@ AVG_ROW_LENGTH=0;
 LOCK TABLES `vehicle_accessory` WRITE;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vehicle_scaling_info`
---
-
-DROP TABLE IF EXISTS `vehicle_scaling_info`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vehicle_scaling_info` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
-  `baseItemLevel` float NOT NULL default '0',
-  `scalingFactor` float NOT NULL default '0',
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vehicle_scaling_info`
---
-
-LOCK TABLES `vehicle_scaling_info` WRITE;
-/*!40000 ALTER TABLE `vehicle_scaling_info` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vehicle_scaling_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
