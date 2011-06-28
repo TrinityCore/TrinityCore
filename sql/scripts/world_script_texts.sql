@@ -32,7 +32,7 @@ CREATE TABLE `script_texts` (
 --
 DELETE FROM `script_texts` WHERE entry BETWEEN -1999925 AND -1000000;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
-   (0,-1000000,'<TrinityScript Text Entry Missing!>',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'DEFAULT_TEXT'),
+   (0,-1000000,'You have been sentenced to death for crimes against the Dark Iron nation!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'grimtotem YELL_FIRST'),
    (0,-1000001,'%s goes into a killing frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY_KILL'),
    (0,-1000002,'%s goes into a frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY'),
    (0,-1000003,'%s becomes enraged!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_ENRAGED'),
