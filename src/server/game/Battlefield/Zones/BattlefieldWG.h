@@ -19,10 +19,11 @@
 #ifndef BATTLEFIELD_WG_
 #define BATTLEFIELD_WG_
 
-#include "Battlefield.h"
-#include "Group.h"
+#include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include "World.h"
+#include "Group.h"
+#include "Battlefield.h"
 
 const uint32 VehNumWorldState[2] = { 3680, 3490 };
 const uint32 MaxVehNumWorldState[2] = { 3681, 3491 };
@@ -46,50 +47,52 @@ typedef std::set<Group *> GroupSet;
 enum eWGItem
 {
 // *INDENT-OFF*
-    WG_MARK_OF_HONOR                             = 43589,
+    WG_MARK_OF_HONOR                            = 43589,
 // *INDENT-ON*
 };
 
 enum eWGSpell
 {
 // *INDENT-OFF*
-    // Wartime auras
-    SPELL_RECRUIT                                = 37795,
-    SPELL_CORPORAL                               = 33280,
-    SPELL_LIEUTENANT                             = 55629,
-    SPELL_TENACITY                               = 58549,
-    SPELL_TENACITY_VEHICLE                       = 59911,
-    SPELL_TOWER_CONTROL                          = 62064,
-    SPELL_SPIRITUAL_IMMUNITY                     = 58729,
-    SPELL_GREAT_HONOR                            = 58555,
-    SPELL_GREATER_HONOR                          = 58556,
-    SPELL_GREATEST_HONOR                         = 58557,
-    SPELL_ALLIANCE_FLAG                          = 14268,
-    SPELL_HORDE_FLAG                             = 14267,
+    // AWartime auras
+    SPELL_RECRUIT                               = 37795,
+    SPELL_CORPORAL                              = 33280,
+    SPELL_LIEUTENANT                            = 55629,
+    SPELL_TENACITY                              = 58549,
+    SPELL_TENACITY_VEHICLE                      = 59911,
+    SPELL_TOWER_CONTROL                         = 62064,
+    SPELL_SPIRITUAL_IMMUNITY                    = 58729,
+    SPELL_GREAT_HONOR                           = 58555,
+    SPELL_GREATER_HONOR                         = 58556,
+    SPELL_GREATEST_HONOR                        = 58557,
+    SPELL_ALLIANCE_FLAG                         = 14268,
+    SPELL_HORDE_FLAG                            = 14267,
 
     // Reward spells
-    SPELL_VICTORY_REWARD                         = 56902,
-    SPELL_DEFEAT_REWARD                          = 58494,
-    SPELL_DAMAGED_TOWER                          = 59135,
-    SPELL_DESTROYED_TOWER                        = 59136,
-    SPELL_DAMAGED_BUILDING                       = 59201,
-    SPELL_INTACT_BUILDING                        = 59203,
+    SPELL_VICTORY_REWARD                        = 56902,
+    SPELL_DEFEAT_REWARD                         = 58494,
+    SPELL_DAMAGED_TOWER                         = 59135,
+    SPELL_DESTROYED_TOWER                       = 59136,
+    SPELL_DAMAGED_BUILDING                      = 59201,
+    SPELL_INTACT_BUILDING                       = 59203,
 
-    SPELL_TELEPORT_BRIDGE                        = 59096,
-    SPELL_TELEPORT_FORTRESS                      = 60035,
+    SPELL_TELEPORT_BRIDGE                       = 59096,
+    SPELL_TELEPORT_FORTRESS                     = 60035,
 
-    SPELL_TELEPORT_DALARAN                       = 53360,
-    SPELL_VICTORY_AURA                           = 60044,
+    SPELL_TELEPORT_DALARAN                      = 53360,
+    SPELL_VICTORY_AURA                          = 60044,
 
     // Other spells
-    SPELL_WINTERGRASP_WATER                      = 36444,
+    SPELL_WINTERGRASP_WATER                     = 36444,
+    SPELL_ESSENCE_OF_WINTERGRASP                = 58045,
+    SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA    = 58730,
 
     // Phasing spells
-    SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT  = 56617,// ADDS PHASE 32
-    SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT     = 56618,// ADDS PHASE 16
+    SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT    = 56618,// ADDS PHASE 16
+    SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT = 56617,// ADDS PHASE 32
 
-    SPELL_HORDE_CONTROL_PHASE_SHIFT              = 55773,// ADDS PHASE 64
-    SPELL_ALLIANCE_CONTROL_PHASE_SHIFT           = 55774,// ADDS PHASE 128
+    SPELL_HORDE_CONTROL_PHASE_SHIFT             = 55773,// ADDS PHASE 64
+    SPELL_ALLIANCE_CONTROL_PHASE_SHIFT          = 55774,// ADDS PHASE 128
 
 // *INDENT-ON*
 };
@@ -195,6 +198,9 @@ enum eWGNpc
     BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE     = 31108,
     BATTLEFIELD_WG_NPC_ANCHORITE_TESSA              = 31054,
     BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO  = 31109,
+
+    NPC_TAUNKA_SPIRIT_GUIDE                         = 31841,    // Horde spirit guide for Wintergrasp
+    NPC_DWARVEN_SPIRIT_GUIDE                        = 31842,    // Alliance spirit guide for Wintergrasp
 // *INDENT-ON*
 };
 
@@ -374,13 +380,13 @@ class BattlefieldWG : public Battlefield
         /// Say if player can click or not on orb (last door broken)
         bool CanClickOnOrb()
         {
-            return m_bCanClickOnOrb;
+            return m_CanClickOnOrb;
         }
 
         /// Define if player can click or not on orb (if last door broken)
         void AllowToClickOnOrb(bool allow)
         {
-            m_bCanClickOnOrb = allow;
+            m_CanClickOnOrb = allow;
         }
 
         void RewardMarkOfHonor(Player *plr, uint32 count);
@@ -399,8 +405,8 @@ class BattlefieldWG : public Battlefield
         void ProcessEvent(GameObject *obj, uint32 eventId);
 
     protected:
-        bool m_bCanClickOnOrb;
-        GameObject *m_relic;
+        bool m_CanClickOnOrb;
+        GameObject* m_relic;
         GameObjectBuilding BuildingsInZone;
         GuidSet KeepCreature[2];
         GuidSet OutsideCreature[2];
@@ -1746,15 +1752,15 @@ struct BfWGGameObjectBuilding
 // Structure for the 6 workshop
 struct BfWGWorkShopData
 {
-    BattlefieldWG *m_WG;        // Object du joug
-    GameObject *m_Build;
+    BattlefieldWG* m_WG;                                    // Object du joug
+    GameObject* m_Build;
     uint32 m_Type;
-    uint32 m_State;             // For worldstate
+    uint32 m_State;                                         // For worldstate
     uint32 m_WorldState;
-    uint32 m_TeamControl;       // Team witch control the workshop
-    GuidSet m_CreatureOnPoint[2];       // Contain all Creature associate to this point
-    GameObjectSet m_GameObjectOnPoint[2];       // Contain all Gameobject associate to this point
-    uint32 m_NameId;            // Id of trinity_string witch contain name of this node, using for alert message
+    uint32 m_TeamControl;                                   // Team witch control the workshop
+    GuidSet m_CreatureOnPoint[2];                           // Contain all Creature associate to this point
+    GameObjectSet m_GameObjectOnPoint[2];                   // Contain all Gameobject associate to this point
+    uint32 m_NameId;                                        // Id of trinity_string witch contain name of this node, using for alert message
 
     BfWGWorkShopData(BattlefieldWG * WG)
     {

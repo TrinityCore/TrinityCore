@@ -37,7 +37,7 @@ Battlefield::Battlefield()
 {
     m_Timer = 0;
     m_enable = true;
-    m_WarTime = false;
+    m_BattlefieldActive = false;
     m_DefenderTeam = TEAM_NEUTRAL;
 
     m_TypeId = 0;
@@ -313,7 +313,7 @@ void Battlefield::KickPlayerFromBf(uint64 guid)
 
 void Battlefield::StartBattle()
 {
-    if (m_WarTime)
+    if (m_BattlefieldActive)
         return;
 
     for (int team = 0; team < BG_TEAMS_COUNT; team++)
@@ -323,7 +323,7 @@ void Battlefield::StartBattle()
     }
 
     m_Timer = m_BattleTime;
-    m_WarTime = true;
+    m_BattlefieldActive = true;
 
     InvitePlayerInZoneToWar();
     InvitePlayerInQueueToWar();
@@ -335,7 +335,7 @@ void Battlefield::StartBattle()
 
 void Battlefield::EndBattle(bool endbytimer)
 {
-    m_WarTime = false;
+    m_BattlefieldActive = false;
 
     m_StartGrouping = false;
 

@@ -24,6 +24,7 @@
 #include "ZoneScript.h"
 #include "WorldPacket.h"
 #include "GameObject.h"
+#include "Battleground.h"
 
 enum BattlefieldTypes
 {
@@ -215,7 +216,7 @@ class Battlefield:public ZoneScript
     void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
     /// Return true if battle is start, false if battle is not started
-    bool IsWarTime() { return m_WarTime; }
+    bool IsWarTime() { return m_BattlefieldActive; }
 
     /// Enable or Disable battlefield
     void SetEnable(bool enable) { m_enable = enable; }
@@ -304,7 +305,7 @@ class Battlefield:public ZoneScript
     virtual void SendInitWorldStatesToAll() {};
 
     /// Return if we can use mount in battlefield
-    bool CanFlyIn() { return !m_WarTime; }  // Used for check if we can use flying mount or not
+    bool CanFlyIn() { return !m_BattlefieldActive; }  // Used for check if we can use flying mount or not
     bool IncrementQuest(Player * player, uint32 quest, bool complete = false);
     void SendAreaSpiritHealerQueryOpcode(Player * pl, const uint64 & guid);
 
@@ -330,7 +331,7 @@ protected:
     uint64 StalkerGuid;
     uint32 m_Timer;                                         // Global timer for event
     bool m_enable;
-    bool m_WarTime;
+    bool m_BattlefieldActive;
     TeamId m_DefenderTeam;
 
     // the map of the objectives belonging to this outdoorpvp
