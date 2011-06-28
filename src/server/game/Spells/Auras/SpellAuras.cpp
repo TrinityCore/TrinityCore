@@ -1320,10 +1320,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     {
                         if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
-                    }
+                    }D                    break;
                 }
                 // Improved Fear
-                else if (GetSpellProto()->SpellFamilyFlags[1] & 0x00000400)
+                if (GetSpellProto()->SpellFamilyFlags[1] & 0x00000400)
                 {
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
                     {
@@ -1338,6 +1338,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (spellId)
                             caster->CastSpell(target, spellId, true);
                     }
+                    break;
                 }
                 switch(GetId())
                 {
@@ -1349,6 +1350,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->RemoveGameObject(GetId(), true);
                         target->RemoveAura(62388);
                     break;
+                    default:
+                       break;
                 }
                 break;
             case SPELLFAMILY_PRIEST:
@@ -1450,9 +1453,25 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
                 break;
             case SPELLFAMILY_PALADIN:
-                // Remove the immunity shield marker on Forbearance removal if AW marker is not present
-                if (GetId() == 25771 && target->HasAura(61988) && !target->HasAura(61987))
-                    target->RemoveAura(61988);
+                switch (GetId())
+                {                   
+                    case 25771: // Remove the immunity shield marker on Forbearance removal if AW marker is not present
+                        if (target->HasAura(61988) && !target->HasAura(61987))
+                            target->RemoveAura(61988);
+                        break;
+                    case 199997: // Divine Storm Helper (SERVERSIDE)
+                    {
+                        int32 damage = aurApp->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+
+                        if (!damage)
+                            break;
+
+                        caster->CastCustomSpell(target, 54171, &damage, NULL, NULL, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North

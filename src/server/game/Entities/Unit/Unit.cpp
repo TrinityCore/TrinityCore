@@ -6972,6 +6972,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = triggerAmount * damage / 300;
                     break;
                 }
+                case 199997: // Divine Storm Helper (SERVERSIDE)
+                {
+                    if (pVictim == this)
+                        return false;
+
+                    triggeredByAura->SetAmount(triggeredByAura->GetAmount() + damage);
+                    return true;
+                    break;
+                }
                 case 71406: // Tiny Abomination in a Jar
                 case 71545: // Tiny Abomination in a Jar (Heroic)
                 {
