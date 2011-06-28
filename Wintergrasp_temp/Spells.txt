@@ -10,6 +10,11 @@ Spell 37795 "Recruit" Gained when joining WG battle
 
 Spell 74411 "Battleground - Dampening"  Gained when joining WG battle
 
+Spell 61409 "Build Siege Vehicle (Force)" is cast by npc 30400 "Goblin Mechanic <Demolisher Engineer>" on player
+Spell 56664 "Build Catapult (Force)" is cast by npc 30499 "Gnomish Engineer <Demolisher Engineer>" on player
+Spell 56662 "Build Siege Vehicle (Force)" is cast by npc 30499 "Gnomish Engineer <Demolisher Engineer>" on player
+
+Spell 50398 "Riding Trainer Advertisement" is cast by npc 30869 "Arzo Safeflight <Flight Master>" on self
 
 Wintergrasp Vehicle On spawn entries: 28312,27881,28094,32627
 set x,y,z,o to nearest trigger entry: 23472
