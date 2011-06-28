@@ -38,7 +38,7 @@
 
 enum TODESGEWEIHTER_WAECHTER_POS
 {
-    TODESGEWEIHTER_WAECHTER_Y_FALLE_1 = 2137, // guid 200987 - x,y -194.007f,2137.95f 
+    TODESGEWEIHTER_WAECHTER_Y_FALLE_1 = 2137, // guid 200987 - x,y -194.007f,2137.95f
     TODESGEWEIHTER_WAECHTER_Y_FALLE_2 = 2290, // guid 201043 - x,y -193.786f,2290.22f
     TODESGEWEIHTER_WAECHTER_Y_FALLE_3 = 2242, // guid 201130 - x,y -300.354f,2242.18f
     TODESGEWEIHTER_WAECHTER_Y_FALLE_4 = 2182  // guid 201108 - x,y -300.566,2182.6f
@@ -275,9 +275,12 @@ public:
                     me->m_CasterDefaultMaxCombatRange = 44;
                     break;
                 case TODESGEWEIHTER_WAECHTER:
-                    me->StopMoving();
-                    me->GetMotionMaster()->MoveIdle();
-                    me->AddAura(TODESGEWEIHTER_WAECHTER_STEINGESTALT, me);
+                    if (me->GetMap()->IsDungeon())
+                    {
+                        me->StopMoving();
+                        me->GetMotionMaster()->MoveIdle();
+                        me->AddAura(TODESGEWEIHTER_WAECHTER_STEINGESTALT, me);
+                    }
                     break;
             }
         }
