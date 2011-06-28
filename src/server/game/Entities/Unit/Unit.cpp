@@ -3781,7 +3781,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             }
 
             bool stealCharge = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
-            int32 dur = std::min(2*MINUTE*IN_MILLISECONDS, aura->GetDuration());
+            int32 dur = std::min(2 * MINUTE * IN_MILLISECONDS, aura->GetDuration());
 
             if (Aura* newAura = stealer->GetAura(aura->GetId(), aura->GetCasterGUID()))
             {
@@ -6293,16 +6293,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         uint32 CountMax = GetSpellMaxDuration(AurEff->GetSpellProto());
 
                         // add possible auras' and Glyph of Shred's max duration
-                        CountMax += 3 * triggerAmount * 1000;       // Glyph of Shred               -> +6 seconds
-                        CountMax += HasAura(54818) ? 4 * 1000 : 0;  // Glyph of Rip                 -> +4 seconds
-                        CountMax += HasAura(60141) ? 4 * 1000 : 0;  // Rip Duration/Lacerate Damage -> +4 seconds
+                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Shred               -> +6 seconds
+                        CountMax += HasAura(54818) ? 4 * IN_MILLISECONDS : 0; // Glyph of Rip                 -> +4 seconds
+                        CountMax += HasAura(60141) ? 4 * IN_MILLISECONDS : 0; // Rip Duration/Lacerate Damage -> +4 seconds
 
                         // if min < max -> that means caster didn't cast 3 shred yet
                         // so set Rip's duration and max duration
                         if (CountMin < CountMax)
                         {
-                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * 1000);
-                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * 1000);
+                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * IN_MILLISECONDS);
+                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * IN_MILLISECONDS);
                             return true;
                         }
                     }
