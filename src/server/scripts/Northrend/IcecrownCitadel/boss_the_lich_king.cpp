@@ -596,10 +596,15 @@ class boss_the_lich_king : public CreatureScript
                 {
                     case NPC_RAGING_SPIRIT:
                         summoned->CastSpell(summoned, SPELL_NECROTIC_PLAGUE_IMMUNITY, true);
-                        if (Unit *target = summoned->SelectNearbyTarget())
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         {
                             target->CastSpell(summoned, SPELL_RAGING_VISUAL, true);
                             summoned->AI()->AttackStart(target);
+
+                            // Hack Fix: If we cloned a non player unit, the model would be wrong
+                            // so set it to a generic one
+                            if(target->GetTypeId() != TYPEID_PLAYER)
+                                target->SetDisplayId(278);
                         }
                         break;
                     case NPC_DEFILE:
