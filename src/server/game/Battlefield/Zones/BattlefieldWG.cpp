@@ -482,7 +482,7 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
                 player->RewardHonor(NULL, 1, WinHonor);
                 RewardMarkOfHonor(player, 2);
             }
-            IncrementQuest(player, WGQuest[killer->GetTeamId()][1], true);
+            IncrementQuest(player, WGQuest[player->GetTeamId()][1], true);
             // Send Wintergrasp victory achievement
             DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG, player);
             // Award achievement for succeeding in Wintergrasp in 10 minutes or less
@@ -712,7 +712,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
                     {
                         if (Player* player = sObjectAccessor->FindPlayer(*p_itr))
                             if (player->GetDistance2d(killer) < 40)
-                                IncrementQuest(player, IncrementQuest(killer, WGQuest[killer->GetTeamId()][0]));
+                                IncrementQuest(player, WGQuest[player->GetTeamId()][0]);
                     }
                 }
             }
@@ -936,7 +936,7 @@ void BattlefieldWG::BrokenWallOrTower(TeamId team)
         for (GuidSet::const_iterator p_itr = m_PlayersInWar[GetAttackerTeam()].begin(); p_itr != m_PlayersInWar[GetAttackerTeam()].end(); ++p_itr)
         {
             if (Player* player = sObjectMgr->GetPlayer((*p_itr)))
-                IncrementQuest(player, WGQuest[killer->GetTeamId()][2], true);
+                IncrementQuest(player, WGQuest[player->GetTeamId()][2], true);
         }
     }
 }
@@ -960,7 +960,7 @@ void BattlefieldWG::AddBrokenTower(TeamId team)
             if (Player* player = sObjectMgr->GetPlayer((*itr)))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
-                IncrementQuest(player, WGQuest[killer->GetTeamId()][3], true);
+                IncrementQuest(player, WGQuest[player->GetTeamId()][3], true);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
             }
         // If the threw south tower is destroy
