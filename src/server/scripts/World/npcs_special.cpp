@@ -50,7 +50,6 @@ EndContentData */
 #include "ReputationMgr.h"
 #include "Config.h"
 
-// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // Feuerrufer 60000
 // ------------------------------------------------------------------------------------------------------------
@@ -197,7 +196,7 @@ uint32 FirecallerJokes[FirecallerJokesCnt] =
 };
 
 // To find all pet items...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='2' AND `spellid_2`!='0';
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0;
 
 #define FirecallerPresentsCnt   148
 uint32 FirecallerPresents[FirecallerPresentsCnt][2] =
@@ -476,7 +475,6 @@ public:
     }
 };
 
-// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // Flugmeister sowie Add Skripte - http://de.wowhead.com/npcs?filter=cr=21;crs=1;crv=0#0+1
 // ------------------------------------------------------------------------------------------------------------
@@ -892,13 +890,12 @@ public:
     }
 };
 
-// Copyright 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // UWoM's GM-Pimper 60001
 // ------------------------------------------------------------------------------------------------------------
 
 // To find all mount items...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0';
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0;
 
 #define HordeFactionCnt 16
 uint32 HordeFaction[HordeFactionCnt] = {530,729,1052,76,911,510,1067,941,1124,1064,947,81,922,68,1085,889};
@@ -910,7 +907,7 @@ uint32 AllyFaction[AllyFactionCnt] = {1037,69,930,1068,54,946,47,978,890,730,72,
 uint32 WorldFaction[WorldFactionCnt] = {1106,529,1012,87,21,910,609,942,909,577,1104,369,92,749,989,1090,1098,1011,93,1015,1038,470,349,1031,1077,809,970,70,932,933,1073,1105,990,934,935,1119,967,1091,59,576,270,1156,1094};
 
 // To find all Horde mounts...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0' AND `AllowableRace`='690';
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=690;
 
 #define HordeMountsCnt  92
 uint32 HordeMounts[HordeMountsCnt][2] =
@@ -925,7 +922,7 @@ uint32 HordeMounts[HordeMountsCnt][2] =
 };
 
 // To find all Ally mounts...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0' AND `AllowableRace`='1101';
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=1101;
 
 #define AllyMountsCnt   94
 uint32 AllyMounts[AllyMountsCnt][2] =
@@ -940,12 +937,11 @@ uint32 AllyMounts[AllyMountsCnt][2] =
 };
 
 // To find all mounts for both sides...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0' AND `AllowableRace`='-1';
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=-1;
 
 #define BothSideMountsCnt   83
 uint32 BothSideMounts[BothSideMountsCnt][2] =
 {
-    // {44557,60975} STILL CRASHES THE CLIENT ???
     {13325,17458},{13335,17481},{19029,23509},{19030,23510},{19872,24242},{19902,24252},{21176,26656},{21218,25953},{21321,26054},{21323,26056},{21324,26055},{30480,36702},{30609,37015},{32314,39798},{32316,39801},
     {32317,39800},{32318,39802},{32319,39803},{32458,40192},{32768,41252},{32857,41513},{32858,41514},{32859,41515},{32860,41516},{32861,41517},{32862,41518},{33224,42776},{33809,43688},{33976,43899},{33977,43900},
     {33999,43927},{34092,44744},{35225,46197},{35226,46199},{35513,46628},{37676,49193},{37719,49322},{37828,49379},{38576,51412},{43516,58615},{43951,59569},{43952,59567},{43953,59568},{43954,59571},{43955,59570},
@@ -1531,7 +1527,6 @@ public:
     }
 };
 
-// Copyright 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // UWoM's User-Pimper 60002
 // ------------------------------------------------------------------------------------------------------------
@@ -2210,7 +2205,6 @@ public:
     }
 };
 
-// Copyright 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 // ------------------------------------------------------------------------------------------------------------
 // Hati 60003
 // ------------------------------------------------------------------------------------------------------------
@@ -2221,7 +2215,6 @@ enum HATI_ENUM
     SOUND_SLAY2             = 11178,
     SOUND_SLAY3             = 11183,
 
-    SPELL_LUFT_LUFT_RAKETE  = 52254,
     SPELL_DURCHBOHREN       = 58666
 };
 
@@ -2232,30 +2225,16 @@ public:
 
     struct npc_hatiAI : public ScriptedAI
     {
-        npc_hatiAI(Creature *c) : ScriptedAI(c) {}
+        npc_hatiAI(Creature * c) : ScriptedAI(c) {}
 
-        uint32 lufttimer,
-            bohrentimer;
+        uint32 bohrentimer;
 
         void Reset()
         {
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-
-            me->SetSpeed(MOVE_WALK,         1.50f, true);
-            me->SetSpeed(MOVE_RUN,          1.50f, true);
-            me->SetSpeed(MOVE_RUN_BACK,     1.50f, true);
-            me->SetSpeed(MOVE_SWIM,         1.50f, true);
-            me->SetSpeed(MOVE_SWIM_BACK,    1.50f, true);
-            me->SetSpeed(MOVE_TURN_RATE,    1.50f, true);
-            me->SetSpeed(MOVE_FLIGHT,       1.50f, true);
-            me->SetSpeed(MOVE_FLIGHT_BACK,  1.50f, true);
-
-            bohrentimer = urand(1000,2000);
-            lufttimer = urand(3000,4000);
+            bohrentimer = urand(5000,10000);
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit * /*Victim*/)
         {
             switch(urand(0,2))
             {
@@ -2263,6 +2242,24 @@ public:
                 case 1: DoPlaySoundToSet(me, SOUND_SLAY2); break;
                 case 2: DoPlaySoundToSet(me, SOUND_SLAY3); break;
             }
+        }
+
+        void MoveInLineOfSight(Unit * who)
+        {
+            if (!who)
+                return;
+
+            Unit * pTarget = who;
+
+            // Keine NPCs angreifen, die nicht zu einem Spieler gehören!
+            if (who->GetTypeId() == TYPEID_UNIT && !who->GetOwner())
+                return;
+
+            if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
+                    return;
+
+            ScriptedAI::MoveInLineOfSight(pTarget);
         }
 
         void EnterCombat(Unit * /*who*/)
@@ -2279,18 +2276,10 @@ public:
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
-            if (lufttimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_LUFT_LUFT_RAKETE);
-                lufttimer = urand(3000,4000);
-            }
-            else
-                lufttimer -= diff;
-
             if (bohrentimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_DURCHBOHREN);
-                bohrentimer = urand(3000,4000);
+                bohrentimer = urand(5000,10000);
             }
             else
                 bohrentimer -= diff;
@@ -2299,7 +2288,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI * GetAI(Creature * creature) const
     {
         return new npc_hatiAI(creature);
     }
