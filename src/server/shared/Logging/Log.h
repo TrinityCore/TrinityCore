@@ -120,6 +120,7 @@ class Log
         void outCrash( const char * err, ... )                  ATTR_PRINTF(2, 3);
         void outBasic( const char * str, ... )                  ATTR_PRINTF(2, 3);
         void outDetail( const char * str, ... )                 ATTR_PRINTF(2, 3);
+        void outSQLDev( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outDebug(DebugLogFilters f, const char* str, ...)  ATTR_PRINTF(3, 4);
         void outStaticDebug( const char * str, ... )            ATTR_PRINTF(2, 3);
         void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2, 3);
@@ -161,6 +162,7 @@ class Log
         FILE* chatLogfile;
         FILE* arenaLogFile;
         FILE* sqlLogFile;
+        FILE* sqlDevLogFile;
 
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;
