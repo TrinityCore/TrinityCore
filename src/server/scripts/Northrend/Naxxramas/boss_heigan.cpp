@@ -69,13 +69,7 @@ public:
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
             if (who->GetTypeId() == TYPEID_PLAYER)
-                DoAction(ACTION_SAFETY_DANCE_FAIL);
-        }
-
-        void DoAction(int32 const action)
-        {
-            if (action == ACTION_SAFETY_DANCE_FAIL)
-                SetData(DATA_SAFETY_DANCE, 0);
+                safetyDance = false;
         }
 
         void SetData(uint32 id, uint32 data)
@@ -186,13 +180,13 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster)
+                if (!caster || !GetHitPlayer())
                     return;
 
-                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
+                if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
-                            Heigan->AI()->DoAction(ACTION_SAFETY_DANCE_FAIL);
+                            Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 
             void Register()
