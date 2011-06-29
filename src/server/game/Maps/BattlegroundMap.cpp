@@ -150,13 +150,17 @@ void BattlegroundMap::ProcessPreparation(uint32 const& diff)
 void BattlegroundMap::ProcessInProgress(uint32 const& diff)
 {
     ASSERT(EndTimer);
-    if (EndTimer <= diff)
+    if (EndTimer <= diff || (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
         // This method will be overridden by inherited classes
         // and it will define the winner of the battleground
         EndBattleground();
         _status = STATUS_WAIT_LEAVE;
     else
+    {
         EndTimer -= diff;
+        if (_prematureCountdownTimer)
+            _prematureCountdownTimer -= diff;
+    }
     break;
 }
 
@@ -164,7 +168,10 @@ void BattlegroundMap::ProcessEnded(uint32 const& diff)
 {
     ASSERT(_postEndTimer);
     if (_postEndTimer <= diff)
+    {
         RemoveAllPlayers();
+        DestroyBattleground();
+    }    
     else
         _postEndTimer -= diff;
 }
@@ -221,7 +228,10 @@ void BattlegroundMap::OnPlayerJoin(Player* player)
     ASSERT(_status != STATUS_WAIT_LEAVE);
 
     player->InstanceValid = true;
-    ++_participantCount[player->GetBGTeam();
+    ++_participantCount[player->GetBGTeam()];
+
+    if (AreTeamsInBalance())
+        _prematureCountdownTimer = 0;
 }
 
 void BattlegroundMap::OnPlayerExit(Player* player)
