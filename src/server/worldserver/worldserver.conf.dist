@@ -593,6 +593,14 @@ ArenaLogFile = ""
 ArenaLog.ExtendedInfo = 0
 
 #
+#    SQLDeveloperLogFile
+#        Description: Log file for core-generated SQL queries/dumps
+#        Example:     "SQLDev.log"    - (Enabled)
+#        Default:      ""             - (Disabled)
+
+SQLDeveloperLogFile = ""
+
+#
 #    SQLDriverLogFile
 #        Description: Log file for SQL driver events.
 #        Example:     "SQLDriver.log" - (Enabled)
