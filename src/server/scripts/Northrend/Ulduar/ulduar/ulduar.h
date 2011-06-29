@@ -169,7 +169,11 @@ enum UlduarTowerEvents
     EVENT_TOWER_OF_LIFE_DESTROYED                = 21030,
 };
 
-#define CRITERIA_CON_SPEED_ATORY                 21597
+enum UlduarAchievementCriteriaIds
+{
+    CRITERIA_CON_SPEED_ATORY                     = 21597,
+    CRITERIA_DISARMED                            = 21687,
+};
 
 template<class AI>
 CreatureAI* GetUlduarAI(Creature* creature)
