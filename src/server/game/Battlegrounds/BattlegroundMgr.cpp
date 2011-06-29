@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 
 #include "ArenaTeam.h"
+#include "BattlegroundTemplate.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
@@ -670,17 +671,16 @@ uint32 BattlegroundMgr::CreateBattleground(BattlegroundTypeId bgTypeId, bool IsA
     return bgTypeId;
 }
 
-void BattlegroundMgr::CreateInitialBattlegrounds()
+void BattlegroundMgr::LoadBattlegroundTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    float AStartLoc[4];
-    float HStartLoc[4];
-    uint32 MaxPlayersPerTeam, MinPlayersPerTeam, MinLvl, MaxLvl, start1, start2;
+    Position startLocation[BG_TEAMS_COUNT];
+    uint32 maxPlayersPerTeam, minPlayersPerTeam, minLvl, maxLvl;
     uint8 selectionWeight;
-    BattlemasterListEntry const *bl;
+    
     WorldSafeLocsEntry const *start;
-    bool IsArena;
+    bool isArena;
     uint32 scriptId = 0;
 
     //                                                       0   1                 2                 3      4      5                6              7             8           9      10
@@ -697,99 +697,83 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
-        uint32 bgTypeID_ = fields[0].GetUInt32();
-        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeID_, NULL))
+        BattlegroundTypeId bgTypeId = BattlegroundTypeId(fields[0].GetUInt32());
+
+        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeId, NULL))
             continue;
 
         // can be overwrite by values from DB
-        bl = sBattlemasterListStore.LookupEntry(bgTypeID_);
+        BattlemasterListEntry const *bl = sBattlemasterListStore.LookupEntry(uint32(bgTypeId));
         if (!bl)
         {
-            sLog->outError("Battleground ID %u not found in BattlemasterList.dbc. Battleground not created.", bgTypeID_);
+            sLog->outError("Battleground ID %u not found in BattlemasterList.dbc. Battleground not created.", bgTypeId);
             continue;
         }
 
-        BattlegroundTypeId bgTypeID = BattlegroundTypeId(bgTypeID_);
+        isArena = (bl->type == TYPE_ARENA);
+        minPlayersPerTeam = fields[1].GetUInt32();
+        maxPlayersPerTeam = fields[2].GetUInt32();
+        minLvl = fields[3].GetUInt32();
+        maxLvl = fields[4].GetUInt32();
 
-        IsArena = (bl->type == TYPE_ARENA);
-        MinPlayersPerTeam = fields[1].GetUInt32();
-        MaxPlayersPerTeam = fields[2].GetUInt32();
-        MinLvl = fields[3].GetUInt32();
-        MaxLvl = fields[4].GetUInt32();
         //check values from DB
-        if (MaxPlayersPerTeam == 0 || MinPlayersPerTeam == 0 || MinPlayersPerTeam > MaxPlayersPerTeam)
+        if (maxPlayersPerTeam == 0 || minPlayersPerTeam == 0 || minPlayersPerTeam > maxPlayersPerTeam)
         {
-            MinPlayersPerTeam = 0;                          // by default now expected strong full bg requirement
-            MaxPlayersPerTeam = 40;
+            minPlayersPerTeam = 0;                          // by default now expected strong full bg requirement
+            maxPlayersPerTeam = 40;
         }
-        if (MinLvl == 0 || MaxLvl == 0 || MinLvl > MaxLvl)
+
+        if (minLvl == 0 || maxLvl == 0 || minLvl > maxLvl)
         {
             //TO-DO: FIX ME
-            MinLvl = 0;//bl->minlvl;
-            MaxLvl = 80;//bl->maxlvl;
+            minLvl = 0;//bl->minlvl;
+            maxLvl = 80;//bl->maxlvl;
         }
 
-        start1 = fields[5].GetUInt32();
+        uint32 startId = fields[5].GetUInt32();
 
-        start = sWorldSafeLocsStore.LookupEntry(start1);
-        if (start)
-        {
-            AStartLoc[0] = start->x;
-            AStartLoc[1] = start->y;
-            AStartLoc[2] = start->z;
-            AStartLoc[3] = fields[6].GetFloat();
-        }
-        else if (bgTypeID == BATTLEGROUND_AA || bgTypeID == BATTLEGROUND_RB)
-        {
-            AStartLoc[0] = 0;
-            AStartLoc[1] = 0;
-            AStartLoc[2] = 0;
-            AStartLoc[3] = fields[6].GetFloat();
-        }
+        if (WorldSafeLocsEntry const* startLocationEntry = sWorldSafeLocsStore.LookupEntry(startId))
+            startLocation[BG_TEAM_ALLIANCE].Relocate(start->x, start->y, start->z, fields[6].GetFloat());
+        else if (bgTypeId == BATTLEGROUND_AA || bgTypeId == BATTLEGROUND_RB)
+            startLocation[BG_TEAM_ALLIANCE].Relocate(0.0f, 0.0f, 0.0f, fields[6].GetFloat());
         else
         {
-            sLog->outErrorDb("Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.", bgTypeID, start1);
+            sLog->outErrorDb("Table `battleground_template` for id %u has non-existed WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.", bgTypeId, start1);
             continue;
         }
 
-        start2 = fields[7].GetUInt32();
+        startId = fields[7].GetUInt32();
 
-        start = sWorldSafeLocsStore.LookupEntry(start2);
-        if (start)
-        {
-            HStartLoc[0] = start->x;
-            HStartLoc[1] = start->y;
-            HStartLoc[2] = start->z;
-            HStartLoc[3] = fields[8].GetFloat();
-        }
-        else if (bgTypeID == BATTLEGROUND_AA || bgTypeID == BATTLEGROUND_RB)
-        {
-            HStartLoc[0] = 0;
-            HStartLoc[1] = 0;
-            HStartLoc[2] = 0;
-            HStartLoc[3] = fields[8].GetFloat();
-        }
+        if (WorldSafeLocsEntry const* startLocationEntry = sWorldSafeLocsStore.LookupEntry(start2))
+            startLocation[BG_TEAM_HORDE].Relocate(start->x, start->y, start->z, fields[6].GetFloat());
+        else if (bgTypeId == BATTLEGROUND_AA || bgTypeId == BATTLEGROUND_RB)
+            startLocation[BG_TEAM_HORDE].Relocate(0.0f, 0.0f, 0.0f, fields[6].GetFloat());
         else
         {
-            sLog->outErrorDb("Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.", bgTypeID, start2);
+            sLog->outErrorDb("Table `battleground_template` for id %u has non-existed WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.", bgTypeId, start2);
             continue;
         }
 
-        selectionWeight = fields[9].GetUInt8();
-        scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
-        //sLog->outDetail("Creating battleground %s, %u-%u", bl->name[sWorld->GetDBClang()], MinLvl, MaxLvl);
-        if (!CreateBattleground(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld->GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3], scriptId))
-            continue;
+        BattlegroundTemplate bgTemplate;
+        bgTemplate.Id = bgTypeId;
+        bgTemplate.MinPlayersPerTeam = minPlayersPerTeam;
+        bgTemplate.MaxPlayersPerTeam = maxPlayersPerTeam;
+        bgTemplate.MinLevel = minLvl;
+        bgTemplate.MaxLevel = maxLvl;
+        *bgTemplate.StartLocation = *startLocation;
+        bgTemplate.Weight = fields[9].GetUInt8();
+        bgTemplate.ScriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
+        _battlegroundTemplates[bgTypeId] = bgTemplate;        
 
-        if (IsArena)
+        if (isArena)
         {
-            if (bgTypeID != BATTLEGROUND_AA)
-                m_ArenaSelectionWeights[bgTypeID] = selectionWeight;
+            if (bgTypeId != BATTLEGROUND_AA)
+                m_ArenaSelectionWeights[bgTypeId] = selectionWeight;
         }
-        else if (bgTypeID != BATTLEGROUND_RB)
-            m_BGSelectionWeights[bgTypeID] = selectionWeight;
+        else if (bgTypeId != BATTLEGROUND_RB)
+            m_BGSelectionWeights[bgTypeId] = selectionWeight;
         ++count;
     }
     while (result->NextRow());

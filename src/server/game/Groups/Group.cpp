@@ -333,7 +333,7 @@ bool Group::AddMember(Player* player)
         // if the same group invites the player back, cancel the homebind timer
         InstanceGroupBind *bind = GetBoundInstance(player);
         if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
-            player->m_InstanceValid = true;
+            player->InstanceValid = true;
     }
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
@@ -1730,7 +1730,7 @@ void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
 void Group::_homebindIfInstance(Player* player)
 {
     if (player && !player->isGameMaster() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
-        player->m_InstanceValid = false;
+        player->InstanceValid = false;
 }
 
 void Group::BroadcastGroupUpdate(void)
