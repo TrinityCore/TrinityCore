@@ -4,9 +4,9 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 ('2710388', '193070', '631', '15', '1', '520', '-2524', '1038.42', '4.47344', '0', '0', '0.786348', '-0.617784', '300', '255', '1');
 
 DELETE FROM `creature` WHERE `id` in (36823, 36824); 
-INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('36823', '631', '15', '1', '0', '0', '495', '-2502', '1050', '5.49385', '300', '0', '0', '315000', '59910', '0', '0', '0', '0', '0'),
-('36824', '631', '15', '1', '0', '0', '495', '-2546', '1050.23', '1.72709', '300', '0', '0', '252000', '0', '0', '0', '0', '0', '0');
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+('250250', '36823', '631', '15', '1', '0', '0', '495', '-2502', '1050', '5.49385', '300', '0', '0', '315000', '59910', '0', '0', '0', '0', '0'),
+('250251', '36824', '631', '15', '1', '0', '0', '495', '-2546', '1050.23', '1.72709', '300', '0', '0', '252000', '0', '0', '0', '0', '0', '0');
 
 -- GameObject
 -- test platform destruction
@@ -34,9 +34,6 @@ UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` 
 UPDATE `creature_template` SET `unit_flags` = 0, `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (15214,36633, 39305, 39306, 39307);
 UPDATE `creature_template` SET `mechanic_immune_mask` = 12582928 WHERE `entry` IN (36609, 39120, 39121, 39122);
-
--- fix ice throne teleport falldown 
-UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (37534, 37533);
 
 -- Spell
 -- Linked spell
@@ -92,6 +89,27 @@ DELETE FROM `spell_scripts` WHERE id = 72429 AND command = 15;
 INSERT INTO `spell_scripts` VALUE
 ('72429','0','3','15','72423','0','0','0','0','0','0');
 
+-- Achievements
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (12823, 13163, 13164, 13243, 13244, 13245, 13246, 13247);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(12823,12,0,0,''),
+(12823,18,0,0,''),
+(13243,12,1,0,''),
+(13243,18,0,0,''),
+(13163,12,2,0,''),
+(13163,18,0,0,''),
+(13164,12,3,0,''),
+(13164,18,0,0,''),
+(13244,12,1,0,''),
+(13244,18,0,0,''),
+(13245,12,3,0,''),
+(13245,18,0,0,''),
+(13246,12,0,0,''),
+(13246,18,0,0,''),
+(13247,12,2,0,''),
+(13247,18,0,0,'');
+
 -- Teleports
 DELETE FROM `npc_text` WHERE `id` BETWEEN 800000 AND 800006;
 INSERT INTO `npc_text` (`id`, `text0_0`) VALUES
@@ -145,6 +163,12 @@ INSERT INTO script_texts (npc_entry,entry,content_default,content_loc1,content_l
 (36597,-1810030, 'Watch as the world around you collapses!',null,null,null,null,null,null,null,null,17370,1,0,0,''),
 (36597,-1810031, 'You gnats actually hurt me! Perhaps I''ve toyed with you long enough, now taste the vengeance of the grave!',null,null,null,null,null,null,null,null,17359,1,0,0,''),
 (36597,-1810032, 'The Lich King begins to cast Defile',null,null,null,null,null,null,null,null,0,3,0,0,'');
+
+DELETE FROM script_texts WHERE entry <= -1810035 AND entry >= -1810037;
+INSERT INTO script_texts (npc_entry,entry,content_default,content_loc1,content_loc2,content_loc3,content_loc4,content_loc5,content_loc6,content_loc7,content_loc8,sound,type,language,emote,comment)VALUES
+(36823,-1810035, 'You have come to bring Arthas to justice? To see the Lich King destroyed?',null,null,null,null,null,null,null,'Вы пришли, чтобы вершить суд над Артасом? Что бы уничтожить Короля-лича?',17394,1,0,0,''),
+(36823,-1810036, 'First, you must escape Frostmourne''s hold or be damned as I am, trapped within this cursed blade for all eternity.',null,null,null,null,null,null,null,'Вы не должны оказаться во власти Ледяной Скорби. Иначе, как и я, будете навек порабощены этим проклятым клинком!',17395,1,0,0,''),
+(36823,-1810037, 'Aid me in destroying these tortured souls! Together we will loosen Frostmourne''s hold and weaken the Lich King from within!',null,null,null,null,null,null,null,'Помогите мне уничтожить эти истерзанные души! Вместе мы вытянем силу из Ледяной Скорби и ослабим Короля-лича!',17396,1,0,0,'');
 
 # Locales Сохраним для потомков =), т.к. пока creature_texts локали любит(((
 # Леди
