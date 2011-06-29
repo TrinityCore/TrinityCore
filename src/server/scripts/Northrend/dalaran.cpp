@@ -36,8 +36,8 @@ enum SpellsAndTexts
 {
     SPELL_EINDRINGLING_A    = 54028,
     SPELL_EINDRINGLING_H    = 54029,
-    TEXT_A                  = -1000099,
-    TEXT_H                  = -1000098,
+    TEXT_A                  = -1010001,
+    TEXT_H                  = -1010000,
 };
 
 class npc_mageguard_dalaran : public CreatureScript
