@@ -6454,9 +6454,12 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     target->SendPeriodicAuraLog(&pInfo);
 
     int32 gainAmount = int32(drainedAmount * gainMultiplier);
-    int32 gainedAmount = caster->ModifyPower(powerType, gainAmount);
-    if (gainedAmount)
+    int32 gainedAmount = 0;
+    if (gainAmount)
+    {
+        gainedAmount = caster->ModifyPower(powerType, gainAmount);
         target->AddThreat(caster, float(gainedAmount) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
+    }
 
     // spell-specific code
     switch(GetId())
