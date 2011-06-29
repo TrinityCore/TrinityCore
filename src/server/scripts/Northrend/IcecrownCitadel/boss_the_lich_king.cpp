@@ -35,14 +35,6 @@ enum eEnums
     MOVIE_ID_ARTHAS_DEATH                 = 16
 };
 
-enum eAchievements
-{
-    ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10 = 4601,
-    ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25 = 4621,
-    ACHIEV_NECK_DEEP_IN_VILE_10                 = 4581,
-    ACHIEV_NECK_DEEP_IN_VILE_25                 = 4622,
-};
-
 enum Yells
 {
     SAY_INTRO_1_KING         = -1810001,
@@ -76,6 +68,9 @@ enum Yells
     SAY_BROKEN_ARENA         = -1810030,
     SAY_10_PERCENT           = -1810031,
     SAY_EMOTE_DEFILE         = -1810032,
+    SAY_GREET_PLAYER         = -1810035,
+    SAY_PLAYER_TO_ESCAPE     = -1810036,
+    SAY_ASK_PLAYER_FOR_AID   = -1810037,
 };
 enum ePhases
 {
@@ -440,8 +435,8 @@ class boss_the_lich_king : public CreatureScript
                 if (uiStage > 1)
                     return;
 
-                instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, NOT_STARTED);
-                instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, DONE);
+                instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, uint32(false));
+                instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, uint32(true));
 
                 uiEndingTimer = 1000;
                 uiStage = 1;
@@ -493,10 +488,6 @@ class boss_the_lich_king : public CreatureScript
             {
                 BossAI::JustDied(killer);
 
-                if(instance->GetData(DATA_BEEN_WAITING_ACHIEVEMENT) == DONE)
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10,ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25));
-                if(instance->GetData(DATA_NECK_DEEP_ACHIEVEMENT) == DONE)
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_NECK_DEEP_IN_VILE_10,ACHIEV_NECK_DEEP_IN_VILE_25));
                 Cleanup();
                 DoCast(SPELL_PLAY_MOVIE);
                 if(Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
@@ -1967,7 +1958,7 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
                     return;
                 if(GetStackAmount() >= 30)
                     if (InstanceScript *_instance = target->GetInstanceScript())
-                        _instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, DONE);
+                        _instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, uint32(true));
                 CellPair p(Trinity::ComputeCellPair(target->GetPositionX(), target->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
@@ -2071,12 +2062,12 @@ class spell_lich_king_defile : public SpellScriptLoader
                 m_radius = 8.0f + m_hitCount;
                 //Find targest
                 std::list<Unit *> targets;
-                Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck checker(caster, caster, m_radius); 
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, m_radius); 
 
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck> searcher(caster, targets, checker);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, targets, checker);
 
-                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
                 CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);
@@ -2471,7 +2462,7 @@ class spell_vile_spirit_distance_check : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_SPIRIT_BURST, true);
 
                     if (InstanceScript* _instance = caster->GetInstanceScript())
-                        _instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, FAIL);
+                        _instance->SetData(DATA_NECK_DEEP_ACHIEVEMENT, uint32(false));
                     caster->GetAI()->DoAction(ACTION_DESPAWN);
                 }
             }
@@ -2901,7 +2892,7 @@ public:
 
         void Reset()
         {
-            //events.ScheduleEvent(EVENT_MOVE_FORWARD, 2000);
+            events.ScheduleEvent(EVENT_MOVE_FORWARD, 2000);
             SetCombatMovement(false);
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -2961,30 +2952,30 @@ public:
                         }
                         break;
                     }
-        //            case EVENT_MOVE_FORWARD:
-        //            {
-        //                if (Unit *pVictim = ObjectAccessor::GetUnit(*me, m_victimGuid))
-        //                    if (pVictim->isAlive() && pVictim->isTargetableForAttack())
-        //                    {
-        //                        me->SetFacingToObject(pVictim);
-        //                        pVictim->GetPosition(&m_victimPos);
-        //                        me->GetPosition(&m_newPos);
-        //                        me->MovePosition(m_newPos, 0.20f, 0.0f);
-        //                        me->SetPosition(m_newPos);
-        //                    }
-        //                    else
-        //                    {
-        //                        if (Player *newVictim = SelectRandomPlayerInTheMap(me->GetMap()))
-        //                        {
-        //                            m_victimGuid = newVictim->GetGUID();
-        //                            AttackStart(newVictim);
-        //                            me->CastSpell(newVictim, SPELL_ICE_PULSE, true);
-        //                        }
-        //                        else
-        //                            me->DespawnOrUnsummon();
-        //                    }
-        //                events.ScheduleEvent(EVENT_MOVE_FORWARD, 100);
-        //            }
+                    case EVENT_MOVE_FORWARD:
+                    {
+                        if (Unit *pVictim = ObjectAccessor::GetUnit(*me, m_victimGuid))
+                            if (pVictim->isAlive() && pVictim->isTargetableForAttack())
+                            {
+                                me->SetFacingToObject(pVictim);
+                                pVictim->GetPosition(&m_victimPos);
+                                me->GetPosition(&m_newPos);
+                                me->MovePosition(m_newPos, 0.20f, 0.0f);
+                                me->SetPosition(m_newPos);
+                            }
+                            else
+                            {
+                                if (Player *newVictim = SelectRandomPlayerInTheMap(me->GetMap()))
+                                {
+                                    m_victimGuid = newVictim->GetGUID();
+                                    AttackStart(newVictim);
+                                    me->CastSpell(newVictim, SPELL_ICE_PULSE, true);
+                                }
+                                else
+                                    me->DespawnOrUnsummon();
+                            }
+                        events.ScheduleEvent(EVENT_MOVE_FORWARD, 100);
+                    }
                     default:
                         break;
                 }
@@ -3234,13 +3225,15 @@ enum eEvents
                         case EVENT_DESTROY_SOUL:
                         {
                             //Player failed to help Terenas to defeat Spirit Warden within 60 seconds - kill Player forcibly
-                            events.Reset();
-                            Player *player = me->FindNearestPlayer(80.0f, true);
-                            player->CastSpell(player, SPELL_DESTROY_SOUL, true);
                             if (Creature *lichKing = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(DATA_THE_LICH_KING)))
                                 DoCast(lichKing, IsHeroic() ? SPELL_HARVESTED_SOUL_HEROIC : SPELL_HARVESTED_SOUL_NORMAL, true);
-                            TeleportPlayerToFrozenThrone(player);
-                            player->RemoveAurasDueToSpell(SPELL_IN_FROSTMOURNE_ROOM);
+
+                            if (Player *player = me->FindNearestPlayer(80.0f, true))
+                            {
+                                player->CastSpell(player, SPELL_DESTROY_SOUL, true);
+                                TeleportPlayerToFrozenThrone(player);
+                                player->RemoveAurasDueToSpell(SPELL_IN_FROSTMOURNE_ROOM);
+                            }
                             events.Reset();
                             break;
                         }
@@ -3330,19 +3323,19 @@ enum eEvents
                     {
                         case EVENT_GREET_PLAYER:
                         {
-                            me->MonsterYell("You have come to bring Arthas to justice? To see the Lich King destroyed?", LANG_UNIVERSAL, 0);
+                            DoScriptText(SAY_GREET_PLAYER, me);
                             events.ScheduleEvent(EVENT_ENCOURAGE_PLAYER_TO_ESCAPE, 10000);
                             break;
                         }
                         case EVENT_ENCOURAGE_PLAYER_TO_ESCAPE:
                         {
-                            me->MonsterYell("First, you must escape Frostmourne's hold or be damned as I am; trapped within this cursed blade for all eternity.", LANG_UNIVERSAL, 0);
+                            DoScriptText(SAY_PLAYER_TO_ESCAPE, me);
                             events.ScheduleEvent(EVENT_ASK_PLAYER_FOR_AID, 10000);
                             break;
                         }
                         case EVENT_ASK_PLAYER_FOR_AID:
                         {
-                            me->MonsterYell("Aid me in destroying these tortured souls! Together we will loosen Frostmourne's hold and weaken the Lich King from within!", LANG_UNIVERSAL, 0);
+                            DoScriptText(SAY_ASK_PLAYER_FOR_AID, me);
                             break;
                         }
                         case EVENT_CHECK_SPIRIT_WARDEN_HEALTH:
