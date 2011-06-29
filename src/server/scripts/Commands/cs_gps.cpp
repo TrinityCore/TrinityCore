@@ -22,6 +22,7 @@ Comment: GPS/WPGPS commands
 Category: commandscripts
 EndScriptData */
 
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "Chat.h"
 
