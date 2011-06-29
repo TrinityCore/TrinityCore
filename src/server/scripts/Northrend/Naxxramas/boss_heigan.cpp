@@ -67,6 +67,7 @@ public:
 
         uint32 eruptSection;
         bool eruptDirection;
+		bool safetyDance;
         Phases phase;
 
         void Reset()
@@ -75,10 +76,26 @@ public:
             SetImmuneToDeathGrip();
         }
 
-        void KilledUnit(Unit* /*Victim*/)
+        void KilledUnit(Unit* who)
         {
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                safetyDance = false;
+        }
+
+		        void SetData(uint32 id, uint32 data)
+        {
+            if (id == DATA_SAFETY_DANCE)
+                safetyDance = data ? true : false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_SAFETY_DANCE)
+                return safetyDance ? 1 : 0;
+
+            return 0;
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -210,13 +227,13 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster)
+                if (!caster || !GetHitPlayer())
                     return;
 
-                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
+                if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_HEIGAN)))
-                            Heigan->AI()->DoAction(ACTION_SAFETY_DANCE_FAIL);
+                            Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 
             void Register()

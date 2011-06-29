@@ -17,7 +17,12 @@
 
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
-#define CRITERIA_CON_SPEED_ATORY                 21597
+
+enum UlduarAchievementCriteriaIds
+{	
+    CRITERIA_CON_SPEED_ATORY                     = 21597,
+    CRITERIA_DISARMED                            = 21687,	
+};
 
 enum UlduarTypes
 {
