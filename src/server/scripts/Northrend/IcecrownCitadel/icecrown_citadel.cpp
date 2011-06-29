@@ -312,6 +312,10 @@ public:
                 case SINISTRER_BLUTRITTER:
                     DoCast(SINISTRER_ERZMAGIER_ESSENZ_ENTZIEHEN);
                     break;
+                case TODESGEWEIHTER_WAECHTER:
+                    if (!me->GetMap()->IsDungeon())
+                        me->RemoveAurasDueToSpell(TODESGEWEIHTER_WAECHTER_STEINGESTALT);
+                    break;
             }
         }
 
