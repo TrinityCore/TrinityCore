@@ -331,7 +331,27 @@ public:
             }
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        // Für NPCs die auch Outdoor genutzt werden sollen!
+        void MoveInLineOfSight(Unit * who)
+        {
+            if (!who)
+                return;
+
+            if (!me->GetMap()->IsDungeon())
+            {
+                Unit * pTarget = who;
+                // Keine NPCs angreifen, die nicht zu einem Spieler gehören!
+                if (who->GetTypeId() == TYPEID_UNIT && !who->GetOwner())
+                    return;
+
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
+                        return;
+            }
+            ScriptedAI::MoveInLineOfSight(who);
+        }
+
+        void DamageTaken(Unit * pDoneBy, uint32 & uiDamage)
         {
             switch(me->GetEntry())
             {
