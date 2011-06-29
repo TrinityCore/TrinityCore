@@ -129,12 +129,12 @@ public:
 
 enum GrimstoneTexts
 {
-    SCRIPT_TEXT1                                           = -1000000,
-    SCRIPT_TEXT2                                           = -1000001,
-    SCRIPT_TEXT3                                           = -1000002,
-    SCRIPT_TEXT4                                           = -1000003,
-    SCRIPT_TEXT5                                           = -1000004,
-    SCRIPT_TEXT6                                           = -1000005
+    SCRIPT_TEXT1 = -1230003,
+    SCRIPT_TEXT2 = -1230004,
+    SCRIPT_TEXT3 = -1230005,
+    SCRIPT_TEXT4 = -1230006,
+    SCRIPT_TEXT5 = -1230007,
+    SCRIPT_TEXT6 = -1230008
 };
 
 //TODO: implement quest part of event (different end boss)
