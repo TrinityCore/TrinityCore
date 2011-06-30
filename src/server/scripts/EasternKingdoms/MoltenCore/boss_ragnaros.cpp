@@ -83,18 +83,36 @@ class boss_ragnaros_outdoor : public CreatureScript
             boss_ragnaros_outdoorAI(Creature *pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
             {
                 _introState = 0;
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void Reset()
             {
-                BossAI::Reset();
-                _emergeTimer = 90000;
+                _emergeTimer = 15000;
                 _hasYelledMagmaBurst = false;
                 _hasSubmergedOnce = false;
                 _isBanished = false;
+
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                me->SetReactState(REACT_AGGRESSIVE);
+
+                BossAI::Reset();
+            }
+
+            void MoveInLineOfSight(Unit * who)
+            {
+                if (!who)
+                    return;
+
+                Unit * pTarget = who;
+                // Keine NPCs angreifen, die nicht zu einem Spieler gehören!
+                if (who->GetTypeId() == TYPEID_UNIT && !who->GetOwner())
+                    return;
+
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
+                        return;
+
+                BossAI::MoveInLineOfSight(who);
             }
 
             void EnterCombat(Unit* victim)
@@ -106,86 +124,44 @@ class boss_ragnaros_outdoor : public CreatureScript
                 events.ScheduleEvent(EVENT_LAVA_BURST, 10000);
                 events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3000);
                 events.ScheduleEvent(EVENT_MAGMA_BLAST, 2000);
-                events.ScheduleEvent(EVENT_SUBMERGE, 180000);
+                events.ScheduleEvent(EVENT_SUBMERGE, 45000);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit * victim)
             {
-                if (urand(0, 99 < 25))
-                    DoScriptText(SAY_KILL, me);
+                if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+                    if (urand(0, 4) == 2)
+                        DoScriptText(SAY_KILL, me);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (_introState != 2)
+                if (!_introState)
                 {
-                    if (!_introState)
-                    {
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        events.ScheduleEvent(EVENT_INTRO_1, 4000);
-                        events.ScheduleEvent(EVENT_INTRO_2, 23000);
-                        events.ScheduleEvent(EVENT_INTRO_3, 42000);
-                        events.ScheduleEvent(EVENT_INTRO_4, 43000);
-                        events.ScheduleEvent(EVENT_INTRO_5, 53000);
-                        _introState = 1;
-                    }
-
-                    events.Update(diff);
-
-                    while (uint32 eventId = events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                        case EVENT_INTRO_1:
-                            DoScriptText(SAY_ARRIVAL1_RAG, me);
-                            break;
-                        case EVENT_INTRO_2:
-                            DoScriptText(SAY_ARRIVAL3_RAG, me);
-                            break;
-                        case EVENT_INTRO_3:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
-                            break;
-                        case EVENT_INTRO_4:
-                            DoScriptText(SAY_ARRIVAL5_RAG, me);
-                            if (instance)
-                                if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
-                                    me->Kill(executus);
-                            break;
-                        case EVENT_INTRO_5:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            _introState = 2;
-                            break;
-                        default:
-                            break;
-                        }
-                    }
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    _introState = 1;
                 }
                 else
                 {
-                    if (instance)
+                    if (_isBanished && _emergeTimer <= diff)
                     {
-                        if (_isBanished && ((_emergeTimer <= diff) || (instance->GetData(DATA_RAGNAROS_ADDS)) > 8))
-                        {
-                            //Become unbanished again
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->setFaction(14);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                AttackStart(target);
-                            instance->SetData(DATA_RAGNAROS_ADDS, 0);
-
-                            //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
-                            _isBanished = false;
-                        }
-                        else if (_isBanished)
-                        {
-                            _emergeTimer -= diff;
-                            //Do nothing while banished
-                            return;
-                        }
+                        //Become unbanished again
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->setFaction(14);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            AttackStart(target);
+                        //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
+                        _isBanished = false;
+                    }
+                    else if (_isBanished)
+                    {
+                        _emergeTimer -= diff;
+                        //Do nothing while banished
+                        return;
                     }
 
                     //Return since we have no target
@@ -200,7 +176,7 @@ class boss_ragnaros_outdoor : public CreatureScript
                         {
                             case EVENT_ERUPTION:
                                 DoCastVictim(SPELL_ERRUPTION);
-                                events.ScheduleEvent(EVENT_ERUPTION, urand(20000, 45000));
+                                events.ScheduleEvent(EVENT_ERUPTION, urand(20000, 30000));
                                 break;
                             case EVENT_WRATH_OF_RAGNAROS:
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
@@ -237,22 +213,21 @@ class boss_ragnaros_outdoor : public CreatureScript
                                 break;
                             case EVENT_SUBMERGE:
                             {
-                                if (instance && !_isBanished)
+                                if (!_isBanished)
                                 {
                                     //Creature spawning and ragnaros becomming unattackable
                                     //is not very well supported in the core //no it really isnt
                                     //so added normaly spawning and banish workaround and attack again after 90 secs.
                                     me->AttackStop();
-                                    DoResetThreat();
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);
+                                    DoResetThreat();
                                     //Root self
                                     //DoCast(me, 23973);
                                     me->setFaction(35);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
                                     me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
-                                    instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
                                     if (!_hasSubmergedOnce)
                                     {
@@ -268,7 +243,6 @@ class boss_ragnaros_outdoor : public CreatureScript
                                         _isBanished = true;
                                         //DoCast(me, SPELL_RAGSUBMERGE);
                                         _emergeTimer = 90000;
-
                                     }
                                     else
                                     {
@@ -281,21 +255,19 @@ class boss_ragnaros_outdoor : public CreatureScript
 
                                         _isBanished = true;
                                         //DoCast(me, SPELL_RAGSUBMERGE);
-                                        _emergeTimer = 90000;
+                                        _emergeTimer = 15000;
                                     }
                                 }
-                                events.ScheduleEvent(EVENT_SUBMERGE, 180000);
+                                events.ScheduleEvent(EVENT_SUBMERGE, 45000);
                                 break;
                             }
                             default:
                                 break;
                         }
                     }
-
                     DoMeleeAttackIfReady();
                 }
             }
-
         private:
             uint32 _emergeTimer;
             uint8 _introState;
