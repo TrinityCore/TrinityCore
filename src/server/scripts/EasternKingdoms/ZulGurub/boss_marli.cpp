@@ -92,7 +92,7 @@ class boss_marli : public CreatureScript
             {
                 DoScriptText(SAY_DEATH, me);
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_MARLI, DONE);
+                    m_pInstance->SetData(DATA_MARLI, DONE);
             }
 
             void UpdateAI(const uint32 diff)

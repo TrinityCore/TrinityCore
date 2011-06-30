@@ -258,7 +258,7 @@ class boss_mandokir : public CreatureScript
                     {
                         if (m_pInstance)
                         {
-                            if (m_pInstance->GetData(TYPE_OHGAN) == DONE)
+                            if (m_pInstance->GetData(DATA_OHGAN) == DONE)
                             {
                                 if (!RaptorDead)
                                 {
@@ -312,7 +312,7 @@ class mob_ohgan : public CreatureScript
             void JustDied(Unit* /*Killer*/)
             {
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_OHGAN, DONE);
+                    m_pInstance->SetData(DATA_OHGAN, DONE);
             }
 
             void UpdateAI (const uint32 diff)
