@@ -17,7 +17,8 @@
  */
 
 #include "Player.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
+#include "BattlegroundScore.h"
 #include "BattlegroundIC.h"
 #include "Language.h"
 #include "WorldPacket.h"
@@ -213,7 +214,7 @@ void BattlegroundIC::Update(uint32 diff)
 
                 float cords[4] = {banner->GetPositionX(), banner->GetPositionY(), banner->GetPositionZ(), banner->GetOrientation() };
 
-                DelObject(nodePoint[i].gameobject_type);
+                DeleteObject(nodePoint[i].gameobject_type);
                 AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
                 GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FACTION, nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);
@@ -288,13 +289,13 @@ bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
     return count == NODE_TYPE_WORKSHOP;
 }
 
-void BattlegroundIC::AddPlayer(Player *plr)
+void BattlegroundIC::OnPlayerJoin(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    BattlegroundMap::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in constructor
     BattlegroundICScore* sc = new BattlegroundICScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    ScoreMap[plr->GetGUIDLow()] = sc;
 
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (plr->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         plr->CastSpell(plr, SPELL_QUARRY, true);
@@ -320,12 +321,11 @@ void BattlegroundIC::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 
 void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    std::map<uint64, BattlegroundScore*>::iterator itr = m_PlayerScores.find(Source->GetGUID());
-
-    if (itr == m_PlayerScores.end())                         // player not found...
+    BattlegroundScoreMap::const_iterator itr = ScoreMap.find(Source->GetGUIDLow());
+    if (itr == ScoreMap.end())                         // player not found...
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_BASES_ASSAULTED:
             ((BattlegroundICScore*)itr->second)->BasesAssaulted += value;
@@ -334,7 +334,7 @@ void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
             ((BattlegroundICScore*)itr->second)->BasesDefended += value;
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+            BattlegroundMap::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }
@@ -522,7 +522,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
 
                 if (nodePoint[i].nodeType != NODE_TYPE_REFINERY && nodePoint[i].nodeType != NODE_TYPE_QUARRY)
                     if (m_BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1+(nodePoint[i].nodeType)-2])
-                        DelCreature(BG_IC_NPC_SPIRIT_GUIDE_1+(nodePoint[i].nodeType)-2);
+                        DeleteCreature(BG_IC_NPC_SPIRIT_GUIDE_1+(nodePoint[i].nodeType)-2);
 
                 UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
 
@@ -547,15 +547,15 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
 
             float cords[4] = {banner->GetPositionX(), banner->GetPositionY(), banner->GetPositionZ(), banner->GetOrientation() };
 
-            DelObject(nodePoint[i].gameobject_type);
+            DeleteObject(nodePoint[i].gameobject_type);
             AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
             GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FACTION, nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);
 
             if (nodePoint[i].nodeType == NODE_TYPE_WORKSHOP)
             {
-                DelObject(BG_IC_GO_SEAFORIUM_BOMBS_1);
-                DelObject(BG_IC_GO_SEAFORIUM_BOMBS_2);
+                DeleteObject(BG_IC_GO_SEAFORIUM_BOMBS_1);
+                DeleteObject(BG_IC_GO_SEAFORIUM_BOMBS_2);
             }
 
             UpdateNodeWorldState(&nodePoint[i]);
@@ -620,7 +620,7 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* nodePoint)
             (nodePoint->faction == TEAM_ALLIANCE ? gunshipHorde : gunshipAlliance)->BuildStopMovePacket(GetBgMap());
 
         for (uint8 u = BG_IC_GO_HANGAR_TELEPORTER_1; u < BG_IC_GO_HANGAR_TELEPORTER_3; u++)
-            DelObject(u);
+            DeleteObject(u);
     }
 }
 
@@ -681,7 +681,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 if (Vehicle* vehicleGlaive = glaiveThrower->GetVehicleKit())
                 {
                     if (!vehicleGlaive->GetPassenger(0))
-                        DelCreature(i);
+                        DeleteCreature(i);
                 }
             }
         }
@@ -693,7 +693,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 if (Vehicle* vehicleGlaive = catapult->GetVehicleKit())
                 {
                     if (!vehicleGlaive->GetPassenger(0))
-                        DelCreature(i);
+                        DeleteCreature(i);
                 }
             }
         }
@@ -744,7 +744,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                         {
                             // is IsVehicleInUse working as expected?
                             if (!vehicleDemolisher->IsVehicleInUse())
-                                DelCreature(i);
+                                DeleteCreature(i);
                         }
                     }
                 }
@@ -772,7 +772,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                     {
                         // is VehicleInUse working as expected ?
                         if (!vehicleSiege->IsVehicleInUse())
-                            DelCreature(enemySiege);
+                            DeleteCreature(enemySiege);
                     }
                 }
 

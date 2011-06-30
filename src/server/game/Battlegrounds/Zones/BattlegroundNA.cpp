@@ -65,7 +65,7 @@ void BattlegroundNA::StartingEventOpenDoors()
 
 void BattlegroundNA::AddPlayer(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in constructor
     BattlegroundNAScore* sc = new BattlegroundNAScore;
 

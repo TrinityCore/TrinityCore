@@ -44,7 +44,7 @@ void BattlegroundAA::StartingEventOpenDoors()
 
 void BattlegroundAA::AddPlayer(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in constructor
     BattlegroundAAScore* sc = new BattlegroundAAScore;
 

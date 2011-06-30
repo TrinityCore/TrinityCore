@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
-class Battleground;
+#include "ArenaMap.h"
 
 enum BattlegroundRVObjectTypes
 {
@@ -95,9 +95,12 @@ enum BattlegroundRVData
     BG_RV_WORLD_STATE                            = 0xe1a,
 };
 
+class BattlegroundRV;
+
 class BattlegroundRVScore : public BattlegroundScore
 {
-    public:
+    friend class BattlegroundRV;
+    protected:
         BattlegroundRVScore() {};
         virtual ~BattlegroundRVScore() {};
 };
@@ -114,7 +117,7 @@ class BattlegroundRV : public ArenaMap
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
         virtual void Reset();

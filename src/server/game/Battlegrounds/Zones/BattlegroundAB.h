@@ -18,6 +18,8 @@
 #ifndef __BATTLEGROUNDAB_H
 #define __BATTLEGROUNDAB_H
 
+#include "BattlegroundScore.h"
+
 class Battleground;
 
 enum BG_AB_WorldStates
@@ -230,11 +232,22 @@ struct BG_AB_BannerTimer
     uint8       teamIndex;
 };
 
+class BattlegroundAB;
+
 class BattlegroundABScore : public BattlegroundScore
 {
-    public:
-        BattlegroundABScore(): BasesAssaulted(0), BasesDefended(0) {};
+    friend class BattlegroundAB;
+    protected:
+        BattlegroundABScore(): BattlegroundScore(), BasesAssaulted(0), BasesDefended(0) {};
         virtual ~BattlegroundABScore() {};
+
+        void AppendToPacket(WorldPacket* data)
+        {
+            *data << GetMemberCount<BattlegroundABScore>();
+            *data << BasesAssaulted;
+            *data << BasesDefended;
+        }
+
         uint32 BasesAssaulted;
         uint32 BasesDefended;
 };
@@ -252,7 +265,7 @@ class BattlegroundAB : public BattlegroundMap
         void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
         void Update(uint32 diff);
-        void AddPlayer(Player *plr);
+        void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
         void RemovePlayer(Player *plr, uint64 guid, uint32 team);

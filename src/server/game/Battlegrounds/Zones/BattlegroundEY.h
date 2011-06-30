@@ -20,8 +20,8 @@
 #define __BATTLEGROUNDEY_H
 
 #include "Language.h"
-
-class Battleground;
+#include "BattlegroundMap.h"
+#include "BattlegroundScore.h"
 
 #define BG_EY_FLAG_RESPAWN_TIME         (8*IN_MILLISECONDS) //8 seconds
 #define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILLISECONDS)  //2 seconds
@@ -318,11 +318,21 @@ const BattlegroundEYCapturingPointStruct m_CapturingPointTypes[EY_POINTS_MAX] =
     BattlegroundEYCapturingPointStruct(BG_EY_OBJECT_N_BANNER_MAGE_TOWER_CENTER, BG_EY_OBJECT_A_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_A_M_TOWER, BG_EY_OBJECT_H_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_H_M_TOWER, EY_GRAVEYARD_MAGE_TOWER)
 };
 
+class BattlegroundEY;
+
 class BattlegroundEYScore : public BattlegroundScore
 {
-    public:
-        BattlegroundEYScore () : FlagCaptures(0) {};
+    friend class BattlegroundEY;
+    protected:
+        BattlegroundEYScore () : BattlegroundScore(), FlagCaptures(0) {};
         virtual ~BattlegroundEYScore() {};
+
+        void AppendToPacket(WorldPacket* data)
+        {
+            *data << GetMemberCount<BattlegroundEYScore>();
+            *data << FlagCaptures;
+        }
+
         uint32 FlagCaptures;
 };
 
@@ -340,7 +350,7 @@ class BattlegroundEY : public BattlegroundMap
         void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 

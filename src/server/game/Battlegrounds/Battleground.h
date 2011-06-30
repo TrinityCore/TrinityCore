@@ -529,7 +529,7 @@ class Battleground
         // Death related
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        virtual void AddPlayer(Player* plr);                // must be implemented in BG subclass
+        virtual void OnPlayerJoin(Player* plr);                // must be implemented in BG subclass
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
@@ -547,8 +547,8 @@ class Battleground
         void SpawnBGObject(uint32 type, uint32 respawntime);
         bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
-        bool DelCreature(uint32 type);
-        bool DelObject(uint32 type);
+        bool DeleteCreature(uint32 type);
+        bool DeleteObject(uint32 type);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
         int32 GetObjectType(const uint64& guid);
 

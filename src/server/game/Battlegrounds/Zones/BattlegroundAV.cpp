@@ -19,8 +19,10 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundAV.h"
+#include "BattlegroundScore.h"
+
 #include "Miscellaneous/Formulas.h"
 #include "GameObject.h"
 #include "Miscellaneous/Language.h"
@@ -74,7 +76,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         RewardReputationToTeam(729, BG_AV_REP_BOSS, HORDE);
         RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), HORDE);
         EndBattleground(HORDE);
-        DelCreature(AV_CPLACE_TRIGGER17);
+        DeleteCreature(AV_CPLACE_TRIGGER17);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_BOSS][0])
     {
@@ -82,7 +84,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         RewardReputationToTeam(730, BG_AV_REP_BOSS, ALLIANCE);
         RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), ALLIANCE);
         EndBattleground(ALLIANCE);
-        DelCreature(AV_CPLACE_TRIGGER19);
+        DeleteCreature(AV_CPLACE_TRIGGER19);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN][0])
     {
@@ -101,7 +103,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
         if (creature)
             YellToAll(creature, GetTrinityString(LANG_BG_AV_A_CAPTAIN_DEAD), LANG_UNIVERSAL);
-        DelCreature(AV_CPLACE_TRIGGER16);
+        DeleteCreature(AV_CPLACE_TRIGGER16);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN][0])
     {
@@ -120,7 +122,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
         if (creature)
             YellToAll(creature, GetTrinityString(LANG_BG_AV_H_CAPTAIN_DEAD), LANG_UNIVERSAL);
-        DelCreature(AV_CPLACE_TRIGGER18);
+        DeleteCreature(AV_CPLACE_TRIGGER18);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4][0] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4][0] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4][0])
         ChangeMineOwner(AV_NORTH_MINE, killer->GetTeam());
@@ -419,12 +421,13 @@ void BattlegroundAV::StartingEventOpenDoors()
     DoorOpen(BG_AV_OBJECT_DOOR_A);
 }
 
-void BattlegroundAV::AddPlayer(Player *plr)
+void BattlegroundAV::OnPlayerJoin(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    BattlegroundMap::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in constructor
     BattlegroundAVScore* sc = new BattlegroundAVScore;
-    m_PlayerScores[plr->GetGUID()] = sc;
+    ScoreMap[plr->GetGUIDLow()] = sc;
+
     if (m_MaxLevel == 0)
         m_MaxLevel=(plr->getLevel()%10 == 0)? plr->getLevel() : (plr->getLevel()-(plr->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
 
@@ -526,11 +529,11 @@ void BattlegroundAV::HandleAreaTrigger(Player *Source, uint32 Trigger)
 void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
 
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found...
+    BattlegroundScoreMap::iterator itr = ScoreMap.find(Source->GetGUIDLow());
+    if (itr == ScoreMap.end())                         // player not found...
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_GRAVEYARDS_ASSAULTED:
             ((BattlegroundAVScore*)itr->second)->GraveyardsAssaulted += value;
@@ -551,14 +554,8 @@ void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
         case SCORE_MINES_CAPTURED:
             ((BattlegroundAVScore*)itr->second)->MinesCaptured += value;
             break;
-        case SCORE_LEADERS_KILLED:
-            ((BattlegroundAVScore*)itr->second)->LeadersKilled += value;
-            break;
-        case SCORE_SECONDARY_OBJECTIVES:
-            ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += value;
-            break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+            BattlegroundMap::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }
@@ -580,7 +577,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
         uint8 tmp = node-BG_AV_NODES_DUNBALDAR_SOUTH;
         //despawn marshal
         if (m_BgCreatures[AV_CPLACE_A_MARSHAL_SOUTH + tmp])
-            DelCreature(AV_CPLACE_A_MARSHAL_SOUTH + tmp);
+            DeleteCreature(AV_CPLACE_A_MARSHAL_SOUTH + tmp);
         else
             sLog->outError("BG_AV: playerdestroyedpoint: marshal %i doesn't exist", AV_CPLACE_A_MARSHAL_SOUTH + tmp);
         //spawn destroyed aura
@@ -644,10 +641,10 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
         if (mine == AV_SOUTH_MINE)
             for (uint16 i=AV_CPLACE_MINE_S_S_MIN; i <= AV_CPLACE_MINE_S_S_MAX; i++)
                 if (m_BgCreatures[i])
-                    DelCreature(i); //TODO just set the respawntime to 999999
+                    DeleteCreature(i); //TODO just set the respawntime to 999999
         for (uint16 i=((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_1_MIN:AV_CPLACE_MINE_S_1_MIN); i <= ((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_3:AV_CPLACE_MINE_S_3); i++)
             if (m_BgCreatures[i])
-                DelCreature(i); //TODO here also
+                DeleteCreature(i); //TODO here also
     }
     SendMineWorldStates(mine);
 
@@ -745,7 +742,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
         //spiritguide
         if (m_BgCreatures[node])
-            DelCreature(node);
+            DeleteCreature(node);
         if (!AddSpiritGuide(node, BG_AV_CreaturePos[node][0], BG_AV_CreaturePos[node][1], BG_AV_CreaturePos[node][2], BG_AV_CreaturePos[node][3], owner))
             sLog->outError("AV: couldn't spawn spiritguide at node %i", node);
 
@@ -766,7 +763,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
     {
         if (owner != ALLIANCE && owner != HORDE)//node can be neutral, remove trigger
         {
-            DelCreature(node + 302);
+            DeleteCreature(node + 302);
             return;
         }
         trigger->setFaction(owner == ALLIANCE ? 84 : 83);
@@ -778,14 +775,14 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     for (uint8 i=0; i<4; i++)
         if (m_BgCreatures[c_place+i])
-            DelCreature(c_place+i);
+            DeleteCreature(c_place+i);
     //spiritguide
     if (!IsTower(node) && m_BgCreatures[node])
-        DelCreature(node);
+        DeleteCreature(node);
 
     //remove bonus honor aura trigger creature when node is lost
     if (node < BG_AV_NODES_MAX)//fail safe
-        DelCreature(node + 302);//NULL checks are in DelCreature! 0-302 spirit guides
+        DeleteCreature(node + 302);//NULL checks are in DeleteCreature! 0-302 spirit guides
 }
 
 BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
@@ -1481,7 +1478,7 @@ void BattlegroundAV::ResetBGSubclass()
     m_Mine_Timer=AV_MINE_TICK_TIMER;
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
         if (m_BgCreatures[i])
-            DelCreature(i);
+            DeleteCreature(i);
 
 }
 

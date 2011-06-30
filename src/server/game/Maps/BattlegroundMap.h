@@ -18,6 +18,8 @@
 #ifndef TRINITY_BATTLEGROUND_MAP_H
 #define TRINITY_BATTLEGROUND_MAP_H
 
+#include "BattlegroundTemplate.h"
+
 enum BattlegroundStartTimeIntervals
 {
     BG_START_DELAY_2M               = 120000,               // ms (2 minutes)
@@ -36,7 +38,7 @@ enum BattlegroundStartingEventsIds
     BG_STARTING_EVENT_COUNT     = 4,
 };
 
-class BattlegroundTemplate;
+class BattlegroundScore;
 
 class BattlegroundMap : public Map
 {
@@ -52,6 +54,10 @@ class BattlegroundMap : public Map
         void SetUnload();
 
     protected:
+        // Typedefs here
+        typedef std::map<uint32, BattlegroundScore*> BattlegroundScoreMap;
+
+    protected:
         uint32 GetMaxPlayers() const { return _template.MaxPlayersPerTeam * 2; }
         uint32 GetMinPlayers() const { return _template.MinPlayersPerTeam * 2; }
         uint32 GetMinLevel() const { return _template.MinLevel; }
@@ -62,10 +68,21 @@ class BattlegroundMap : public Map
     protected:
         virtual void InitializeTextIds() {};    // Initializes text IDs that are used in the battleground at any possible phase.
         virtual void InitializePreparationDelayTimes(); // Initializes preparation delay timers.
-        void InitializePreparationDelayTimer();
+        
         virtual void StartBattleground() {};    // Initializes EndTimer and other bg-specific variables.
         virtual void EndBattleground() {};      // Contains rules on which team wins.
         virtual void DestroyBattleground() {};  // Contains battleground specific cleanup method calls.
+
+        virtual void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool addHonor = true);
+
+        // Entity management - GameObject
+        GameObject* AddObject(uint32 type, uint32 entry, Position* pos, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
+        void SpawnObject(uint32 type, uint32 respawntime);  // Spawns an already added gameobject
+        bool DeleteObject(uint32 type); // Deletes an object with specified type designation 
+
+        // Entity management - Creature
+        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, Position* pos, uint32 respawntime = 0); // Adds and spawns creatures to map
+        bool DeleteCreature(uint32 type);
 
         // Hooks called after Map methods
         virtual void OnPlayerJoin(Player* player);  // Initialize battleground specific variables.
@@ -75,23 +92,17 @@ class BattlegroundMap : public Map
         uint32 PreparationPhaseTextIds[BG_STARTING_EVENT_COUNT];   // Must be initialized for each battleground
         uint32 PreparationDelayTimers[BG_STARTING_EVENT_COUNT];  //
 
+        BattlegroundScoreMap ScoreMap;             // Player scores
+
     private:
         // Private initializers, non overridable 
         void InitVisibilityDistance();  // Overwritten from class Map
+        void InitializePreparationDelayTimer();
 
         // Private processing methods
         void ProcessPreparation(uint32 const& diff);
         void ProcessInProgress(uint32 const& diff);
         void ProcessEnded(uint32 const& diff);
-
-        // Private entity management - GameObject
-        GameObject* AddObject(uint32 type, uint32 entry, Position* pos, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
-        void SpawnObject(uint32 type, uint32 respawntime);  // Spawns an already added gameobject
-        bool DeleteObject(uint32 type); // Deletes an object with specified type designation 
-
-        // Private entity management - Creature
-        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, Position* pos, uint32 respawntime = 0); // Adds and spawns creatures to map
-        bool DeleteCreature(uint32 type);
 
         void RemoveAllPlayers();
 
@@ -109,6 +120,7 @@ class BattlegroundMap : public Map
 
         uint16 _participantCount[BG_TEAMS_COUNT];   // Players actually in the battleground
         uint16 _invitedCount[BG_TEAMS_COUNT];       // Players invited to join the battleground
+        
 
         std::vector<uint64> _objectGUIDsByType;    // Stores object guids per enum-defined arbitrary type
 };

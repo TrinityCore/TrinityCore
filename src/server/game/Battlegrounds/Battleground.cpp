@@ -211,11 +211,11 @@ Battleground::~Battleground()
     // (this is done automatically in mapmanager update, when the instance is reset after the reset time)
     uint32 size = uint32(m_BgCreatures.size());
     for (uint32 i = 0; i < size; ++i)
-        DelCreature(i);
+        DeleteCreature(i);
 
     size = uint32(m_BgObjects.size());
     for (uint32 i = 0; i < size; ++i)
-        DelObject(i);
+        DeleteObject(i);
 
     sBattlegroundMgr->RemoveBattleground(GetInstanceID(), GetTypeID());
     // unload map
@@ -1041,7 +1041,7 @@ void Battleground::StartBattleground()
         sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
 
-void Battleground::AddPlayer(Player* plr)
+void Battleground::OnPlayerJoin(Player* plr)
 {
     // remove afk from player
     if (plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
@@ -1518,7 +1518,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
     return  pCreature;
 }
 
-bool Battleground::DelCreature(uint32 type)
+bool Battleground::DeleteCreature(uint32 type)
 {
     if (!m_BgCreatures[type])
         return true;
@@ -1530,13 +1530,13 @@ bool Battleground::DelCreature(uint32 type)
         return true;
     }
 
-    sLog->outError("Battleground::DelCreature: creature (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+    sLog->outError("Battleground::DeleteCreature: creature (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
         type, GUID_LOPART(m_BgCreatures[type]), m_MapId, m_InstanceID);
     m_BgCreatures[type] = 0;
     return false;
 }
 
-bool Battleground::DelObject(uint32 type)
+bool Battleground::DeleteObject(uint32 type)
 {
     if (!m_BgObjects[type])
         return true;
@@ -1548,7 +1548,7 @@ bool Battleground::DelObject(uint32 type)
         m_BgObjects[type] = 0;
         return true;
     }
-    sLog->outError("Battleground::DelObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+    sLog->outError("Battleground::DeleteObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
         type, GUID_LOPART(m_BgObjects[type]), m_MapId, m_InstanceID);
     m_BgObjects[type] = 0;
     return false;

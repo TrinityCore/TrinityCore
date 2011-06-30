@@ -20,7 +20,8 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "BattlegroundMgr.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
+#include "BattlegroundScore.h"
 #include "BattlegroundEY.h"
 #include "Creature.h"
 #include "Language.h"
@@ -327,15 +328,15 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
     }
 }
 
-void BattlegroundEY::AddPlayer(Player *plr)
+void BattlegroundEY::OnPlayerJoin(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    BattlegroundMap::OnPlayerJoin(plr);
+
     //create score and add it to map
     BattlegroundEYScore* sc = new BattlegroundEYScore;
+    ScoreMap[plr->GetGUIDLow()] = sc;
 
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(plr->GetGUID());
-
-    m_PlayerScores[plr->GetGUID()] = sc;
 }
 
 void BattlegroundEY::RemovePlayer(Player *plr, uint64 guid, uint32 /*team*/)
@@ -691,7 +692,7 @@ void BattlegroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
 
     //remove bonus honor aura trigger creature when node is lost
      if (Point < EY_POINTS_MAX)
-         DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
+         DeleteCreature(Point + 6);//NULL checks are in DeleteCreature! 0-5 spirit guides
 }
 
 void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
@@ -731,7 +732,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
         SendMessageToAll(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, Source);
 
     if (m_BgCreatures[Point])
-        DelCreature(Point);
+        DeleteCreature(Point);
 
     WorldSafeLocsEntry const *sg = NULL;
     sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveYardId);
@@ -802,18 +803,18 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType
 
 void BattlegroundEY::UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found
+    BattlegroundScoreMap::const_iterator itr = ScoreMap.find(Source->GetGUIDLow());
+    if (itr == ScoreMap.end())                         // player not found
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
             ((BattlegroundEYScore*)itr->second)->FlagCaptures += value;
             Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+            BattlegroundMap::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }

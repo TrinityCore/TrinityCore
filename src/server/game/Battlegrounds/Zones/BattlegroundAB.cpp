@@ -20,7 +20,7 @@
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundAB.h"
 #include "Creature.h"
 #include "Language.h"
@@ -42,8 +42,6 @@ uint32 BG_AB_ReputationScoreTicks[BG_HONOR_MODE_NUM] = {
 BattlegroundAB::BattlegroundAB()
 {
     m_BuffChange = true;
-    m_BgObjects.resize(BG_AB_OBJECT_MAX);
-    m_BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
 }
 
 BattlegroundAB::~BattlegroundAB()
@@ -52,7 +50,7 @@ BattlegroundAB::~BattlegroundAB()
 
 void BattlegroundAB::Update(uint32 diff)
 {
-    Battleground::Update(diff);
+    BattlegroundMap::Update(diff);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
@@ -201,13 +199,13 @@ void BattlegroundAB::StartingEventOpenDoors()
     DoorOpen(BG_AB_OBJECT_GATE_H);
 }
 
-void BattlegroundAB::AddPlayer(Player *plr)
+void BattlegroundAB::OnPlayerJoin(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in the constructor
     BattlegroundABScore* sc = new BattlegroundABScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    ScoreMap[plr->GetGUIDLow()] = sc;
 }
 
 void BattlegroundAB::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
@@ -397,7 +395,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
 
     //remove bonus honor aura trigger creature when node is lost
     if (node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
-        DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
+        DeleteCreature(node+7);//NULL checks are in DeleteCreature! 0-6 spirit guides
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
     std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
@@ -419,7 +417,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
     }
 
     if (m_BgCreatures[node])
-        DelCreature(node);
+        DeleteCreature(node);
 
     // buff object isn't despawned
 }
@@ -620,7 +618,7 @@ void BattlegroundAB::Reset()
 
     for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers
         if (m_BgCreatures[i])
-            DelCreature(i);
+            DeleteCreature(i);
 }
 
 void BattlegroundAB::EndBattleground(uint32 winner)
@@ -678,11 +676,11 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
 
 void BattlegroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found...
+    BattlegroundScoreMap::iterator itr = ScoreMap.find(Source->GetGUIDLow());
+    if (itr == ScoreMap.end())                         // player not found...
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_BASES_ASSAULTED:
             ((BattlegroundABScore*)itr->second)->BasesAssaulted += value;
@@ -693,7 +691,7 @@ void BattlegroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
             Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+            BattlegroundMap::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }

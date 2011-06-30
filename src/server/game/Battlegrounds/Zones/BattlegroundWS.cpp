@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundWS.h"
 #include "Creature.h"
 #include "GameObject.h"
@@ -199,13 +199,14 @@ void BattlegroundWS::StartingEventOpenDoors()
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
 }
 
-void BattlegroundWS::AddPlayer(Player *plr)
+void BattlegroundWS::OnPlayerJoin(Player *plr)
 {
-    Battleground::AddPlayer(plr);
+    BattlegroundMap::OnPlayerJoin(plr);
+
     //create score and add it to map, default values are set in constructor
     BattlegroundWGScore* sc = new BattlegroundWGScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    ScoreMap[plr->GetGUIDLow()] = sc;
 }
 
 void BattlegroundWS::RespawnFlag(uint32 Team, bool captured)
@@ -754,12 +755,11 @@ void BattlegroundWS::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundWS::UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor)
 {
-
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found
+    BattlegroundScoreMap::iterator itr = ScoreMap.find(Source->GetGUIDLow());
+    if (itr == ScoreMap.end())                         // player not found
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
             ((BattlegroundWGScore*)itr->second)->FlagCaptures += value;
@@ -770,7 +770,7 @@ void BattlegroundWS::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
             Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_RETURN_FLAG);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+            BattlegroundMap::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }
