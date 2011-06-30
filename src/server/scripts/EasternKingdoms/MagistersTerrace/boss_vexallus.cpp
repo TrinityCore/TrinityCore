@@ -71,7 +71,7 @@ public:
 
     struct boss_vexallusAI : public ScriptedAI
     {
-        boss_vexallusAI(Creature *c) : ScriptedAI(c)
+        boss_vexallusAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -115,9 +115,9 @@ public:
                 pInstance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (Unit *temp = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->GetMotionMaster()->MoveFollow(temp, 0, 0);
 
             //spells are SUMMON_TYPE_GUARDIAN, so using setOwner should be ok
@@ -163,7 +163,7 @@ public:
 
                 if (ChainLightningTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
 
                     ChainLightningTimer = 8000;
@@ -171,7 +171,7 @@ public:
 
                 if (ArcaneShockTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (pTarget)
                         DoCast(pTarget, SPELL_ARCANE_SHOCK);
 
@@ -206,13 +206,13 @@ public:
 
     struct mob_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature *c) : ScriptedAI(c) {}
+        mob_pure_energyAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
 
         void JustDied(Unit* slayer)
         {
-            if (Unit *temp = me->GetOwner())
+            if (Unit* temp = me->GetOwner())
             {
                 if (temp && temp->isAlive())
                     slayer->CastSpell(slayer, SPELL_ENERGY_FEEDBACK, true, 0, 0, temp->GetGUID());

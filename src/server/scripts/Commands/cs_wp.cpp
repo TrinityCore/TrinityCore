@@ -569,7 +569,7 @@ public:
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp move, PathID: |r|cff00ffff%u|r", pathid);
 
-            Player *chr = handler->GetSession()->GetPlayer();
+            Player* chr = handler->GetSession()->GetPlayer();
             Map *map = chr->GetMap();
             {
                 // wpCreature
@@ -776,7 +776,7 @@ public:
 
                 uint32 id = VISUAL_WAYPOINT;
 
-                Player *chr = handler->GetSession()->GetPlayer();
+                Player* chr = handler->GetSession()->GetPlayer();
                 Map *map = chr->GetMap();
                 float o = chr->GetOrientation();
 
@@ -827,7 +827,7 @@ public:
             float z         = fields[2].GetFloat();
             uint32 id = VISUAL_WAYPOINT;
 
-            Player *chr = handler->GetSession()->GetPlayer();
+            Player* chr = handler->GetSession()->GetPlayer();
             float o = chr->GetOrientation();
             Map *map = chr->GetMap();
 
@@ -875,7 +875,7 @@ public:
             float z         = fields[2].GetFloat();
             uint32 id = VISUAL_WAYPOINT;
 
-            Player *chr = handler->GetSession()->GetPlayer();
+            Player* chr = handler->GetSession()->GetPlayer();
             float o = chr->GetOrientation();
             Map *map = chr->GetMap();
 

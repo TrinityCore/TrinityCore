@@ -161,7 +161,7 @@ public:
         return false;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_injured_rainspeaker_oracleAI(creature);
     }
@@ -323,7 +323,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_bushwhackerAI(creature);
     }
@@ -428,7 +428,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_engineer_heliceAI(creature);
     }
@@ -587,7 +587,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new npc_jungle_punch_targetAI(pCreature);
     }
@@ -624,13 +624,13 @@ class npc_adventurous_dwarf : public CreatureScript
 public:
     npc_adventurous_dwarf() : CreatureScript("npc_adventurous_dwarf") { }
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         DoScriptText(SAY_DWARF_OUCH, pCreature);
         return NULL;
     }
 
-    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_12634) != QUEST_STATUS_INCOMPLETE)
             return false;
@@ -648,7 +648,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player *pPlayer, Creature *pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         uint32 spellId = 0;

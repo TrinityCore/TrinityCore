@@ -116,8 +116,8 @@ class OutdoorPvPHP : public OutdoorPvP
 
         bool SetupOutdoorPvP();
 
-        void HandlePlayerEnterZone(Player *plr, uint32 zone);
-        void HandlePlayerLeaveZone(Player *plr, uint32 zone);
+        void HandlePlayerEnterZone(Player* plr, uint32 zone);
+        void HandlePlayerLeaveZone(Player* plr, uint32 zone);
 
         bool Update(uint32 diff);
 

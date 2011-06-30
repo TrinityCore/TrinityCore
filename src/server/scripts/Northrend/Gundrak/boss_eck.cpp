@@ -41,7 +41,7 @@ public:
 
     struct boss_eckAI : public ScriptedAI
     {
-        boss_eckAI(Creature *c) : ScriptedAI(c)
+        boss_eckAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -145,7 +145,7 @@ public:
 
     struct npc_ruins_dwellerAI : public ScriptedAI
     {
-        npc_ruins_dwellerAI(Creature *c) : ScriptedAI(c)
+        npc_ruins_dwellerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }

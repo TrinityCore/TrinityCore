@@ -114,7 +114,7 @@ class mob_iceborn_protodrake : public CreatureScript
 
         struct mob_iceborn_protodrakeAI: public ScriptedAI
         {
-            mob_iceborn_protodrakeAI(Creature *creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
+            mob_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }

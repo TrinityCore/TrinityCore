@@ -188,7 +188,7 @@ class boss_xt002 : public CreatureScript
 
         struct boss_xt002_AI : public BossAI
         {
-            boss_xt002_AI(Creature *pCreature) : BossAI(pCreature, BOSS_XT002)
+            boss_xt002_AI(Creature* pCreature) : BossAI(pCreature, BOSS_XT002)
             {
             }
 

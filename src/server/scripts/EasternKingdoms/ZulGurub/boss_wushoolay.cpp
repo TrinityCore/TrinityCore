@@ -40,7 +40,7 @@ class boss_wushoolay : public CreatureScript
 
         struct boss_wushoolayAI : public ScriptedAI
         {
-            boss_wushoolayAI(Creature *c) : ScriptedAI(c) {}
+            boss_wushoolayAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 LightningCloud_Timer;
             uint32 LightningWave_Timer;
@@ -70,7 +70,7 @@ class boss_wushoolay : public CreatureScript
                 //LightningWave_Timer
                 if (LightningWave_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget) DoCast(pTarget, SPELL_LIGHTNINGWAVE);
 

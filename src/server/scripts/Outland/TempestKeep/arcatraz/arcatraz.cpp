@@ -310,7 +310,7 @@ class npc_warden_mellichar : public CreatureScript
 
             void AttackStart(Unit* /*who*/) {}
 
-            void MoveInLineOfSight(Unit *who)
+            void MoveInLineOfSight(Unit* who)
             {
                 if (IsRunning)
                     return;

@@ -49,7 +49,7 @@ public:
 
     struct boss_kriAI : public ScriptedAI
     {
-        boss_kriAI(Creature *c) : ScriptedAI(c)
+        boss_kriAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -146,7 +146,7 @@ public:
 
     struct boss_vemAI : public ScriptedAI
     {
-        boss_vemAI(Creature *c) : ScriptedAI(c)
+        boss_vemAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -193,7 +193,7 @@ public:
             //Charge_Timer
             if (Charge_Timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                 {
@@ -239,7 +239,7 @@ public:
 
     struct boss_yaujAI : public ScriptedAI
     {
-        boss_yaujAI(Creature *c) : ScriptedAI(c)
+        boss_yaujAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -273,7 +273,7 @@ public:
 
             for (uint8 i = 0; i < 10; ++i)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 Creature* Summoned = me->SummonCreature(15621, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
                 if (Summoned && pTarget)
                     Summoned->AI()->AttackStart(pTarget);
@@ -303,8 +303,8 @@ public:
             {
                 if (pInstance)
                 {
-                    Unit *pKri = Unit::GetUnit((*me), pInstance->GetData64(DATA_KRI));
-                    Unit *pVem = Unit::GetUnit((*me), pInstance->GetData64(DATA_VEM));
+                    Unit* pKri = Unit::GetUnit((*me), pInstance->GetData64(DATA_KRI));
+                    Unit* pVem = Unit::GetUnit((*me), pInstance->GetData64(DATA_VEM));
 
                     switch (urand(0, 2))
                     {

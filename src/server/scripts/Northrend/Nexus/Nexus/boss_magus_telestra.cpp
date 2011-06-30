@@ -184,14 +184,14 @@ public:
                         break;
                     }
                 }
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     Summoned->AI()->AttackStart(pTarget);
                 return Summoned->GetGUID();
             }
             return 0;
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             if (summon->isAlive())
                 return;
@@ -303,7 +303,7 @@ public:
 
             if (uiIceNovaTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_ICE_NOVA, false);
                     uiCooldown = 1500;
@@ -313,7 +313,7 @@ public:
 
             if (uiGravityWellTimer <= diff)
             {
-                if (Unit *pTarget = me->getVictim())
+                if (Unit* pTarget = me->getVictim())
                 {
                     DoCast(pTarget, SPELL_GRAVITY_WELL);
                     uiCooldown = 6*IN_MILLISECONDS;
@@ -323,7 +323,7 @@ public:
 
             if (uiFireBombTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FIREBOMB, false);
                     uiCooldown = 2*IN_MILLISECONDS;

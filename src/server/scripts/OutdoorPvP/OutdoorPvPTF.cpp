@@ -100,7 +100,7 @@ void OPvPCapturePointTF::UpdateTowerState()
     m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].a), uint32(bool(m_TowerState & TF_TOWERSTATE_A)));
 }
 
-bool OPvPCapturePointTF::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointTF::HandlePlayerEnter(Player* plr)
 {
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
@@ -113,7 +113,7 @@ bool OPvPCapturePointTF::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OPvPCapturePointTF::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointTF::HandlePlayerLeave(Player* plr)
 {
     plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(plr);

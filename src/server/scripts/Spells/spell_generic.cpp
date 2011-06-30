@@ -647,7 +647,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Player *caster = GetCaster()->ToPlayer())
+                if (Player* caster = GetCaster()->ToPlayer())
                     if (caster->HasSpellCooldown(SPELL_DIVINE_STORM))
                         caster->RemoveSpellCooldown(SPELL_DIVINE_STORM, true);
             }

@@ -174,9 +174,9 @@ public:
                {
                     if (pGo)
                     {
-                        if (Creature *trigger = pGo->SummonTrigger(pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 1))
+                        if (Creature* trigger = pGo->SummonTrigger(pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 1))
                         {
-                            //visual effects are not working! ¬¬
+                            //visual effects are not working!
                             trigger->CastSpell(trigger, 11542, true);
                             trigger->CastSpell(trigger, 35470, true);
                         }

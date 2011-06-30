@@ -90,7 +90,7 @@ public:
             UnkorUnfriendly_Timer = 60000;
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->HealthBelowPctDamaged(30, damage))
@@ -99,7 +99,7 @@ public:
                 {
                     for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
-                        Player *pGroupie = itr->getSource();
+                        Player* pGroupie = itr->getSource();
                         if (pGroupie &&
                             pGroupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
                             pGroupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
@@ -169,12 +169,12 @@ public:
 
     struct mob_infested_root_walkerAI : public ScriptedAI
     {
-        mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
+        mob_infested_root_walkerAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->GetHealth() <= damage)
@@ -202,7 +202,7 @@ public:
     struct npc_skywingAI : public npc_escortAI
     {
     public:
-        npc_skywingAI(Creature *c) : npc_escortAI(c) {}
+        npc_skywingAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
@@ -220,7 +220,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -264,12 +264,12 @@ public:
 
     struct mob_rotting_forest_ragerAI : public ScriptedAI
     {
-        mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
+        mob_rotting_forest_ragerAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->GetHealth() <= damage)
@@ -304,7 +304,7 @@ public:
 
     struct mob_netherweb_victimAI : public ScriptedAI
     {
-        mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
+        mob_netherweb_victimAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
@@ -667,7 +667,7 @@ public:
 
     struct npc_akunoAI : public npc_escortAI
     {
-        npc_akunoAI(Creature *c) : npc_escortAI(c) {}
+        npc_akunoAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {

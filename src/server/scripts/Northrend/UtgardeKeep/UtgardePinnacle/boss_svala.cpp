@@ -96,7 +96,7 @@ public:
 
     struct boss_svalaAI : public ScriptedAI
     {
-        boss_svalaAI(Creature *c) : ScriptedAI(c)
+        boss_svalaAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -133,7 +133,7 @@ public:
                 Phase = INTRO;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                if (Creature *pArthas = me->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* pArthas = me->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                     pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
@@ -151,7 +151,7 @@ public:
 
             if (uiIntroTimer <= diff)
             {
-                Creature *pArthas = Unit::GetCreature(*me, uiArthasGUID);
+                Creature* pArthas = Unit::GetCreature(*me, uiArthasGUID);
                 if (!pArthas)
                     return;
 
@@ -219,7 +219,7 @@ public:
 
     struct mob_ritual_channelerAI : public Scripted_NoMovementAI
     {
-        mob_ritual_channelerAI(Creature *c) :Scripted_NoMovementAI(c)
+        mob_ritual_channelerAI(Creature* c) :Scripted_NoMovementAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -235,7 +235,7 @@ public:
         void DoAction(const int32 /*action*/)
         {
             if (pInstance)
-                if (Unit *pVictim = me->GetUnit(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
+                if (Unit* pVictim = me->GetUnit(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
                     DoCast(pVictim, SPELL_PARALYZE);
         }
 
@@ -258,7 +258,7 @@ public:
 
     struct boss_svala_sorrowgraveAI : public ScriptedAI
     {
-        boss_svala_sorrowgraveAI(Creature *c) : ScriptedAI(c), summons(c)
+        boss_svala_sorrowgraveAI(Creature* c) : ScriptedAI(c), summons(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -307,12 +307,12 @@ public:
                 pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             summons.Despawn(summon);
         }

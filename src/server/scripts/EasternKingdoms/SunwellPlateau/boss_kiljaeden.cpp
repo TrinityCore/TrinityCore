@@ -661,7 +661,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 float x, y, z;
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 for (uint8 z = 0; z < 6; ++z)
                 {
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
@@ -842,7 +842,7 @@ public:
                             TimerIsDeactivated[TIMER_ORBS_EMPOWER] = true;
                             break;
                         case TIMER_ARMAGEDDON: //Phase 4
-                            Unit *pTarget = NULL;
+                            Unit* pTarget = NULL;
                             for (uint8 z = 0; z < 6; ++z)
                             {
                                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);

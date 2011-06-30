@@ -51,7 +51,7 @@ public:
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature *c) : ScriptedAI(c) {}
+        npc_converted_sentryAI(Creature* c) : ScriptedAI(c) {}
 
         bool Credit;
         uint32 Timer;

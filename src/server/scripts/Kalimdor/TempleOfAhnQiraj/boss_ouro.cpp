@@ -45,7 +45,7 @@ public:
 
     struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature *c) : ScriptedAI(c) {}
+        boss_ouroAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Sweep_Timer;
         uint32 SandBlast_Timer;
@@ -111,7 +111,7 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (pTarget)

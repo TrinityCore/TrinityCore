@@ -150,7 +150,7 @@ public:
 
     struct boss_doomrelAI : public ScriptedAI
     {
-        boss_doomrelAI(Creature *c) : ScriptedAI(c)
+        boss_doomrelAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -222,7 +222,7 @@ public:
             //Immolate_Timer
             if (Immolate_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_IMMOLATE);
 
                 Immolate_Timer = 25000;

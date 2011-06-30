@@ -182,7 +182,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit *who)
+            void MoveInLineOfSight(Unit* who)
             {
                 if (!IntroOnce && me->IsWithinDistInMap(who, 50.0f))
                     {
@@ -208,7 +208,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
             }
 
-            void JustSummoned(Creature *summoned)
+            void JustSummoned(Creature* summoned)
             {
                 summoned->setFaction(16);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -277,7 +277,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 {
                     if (ShadowFissure_Timer <= diff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SHADOW_FISSURE);
                         ShadowFissure_Timer = urand(7500, 15000);
                     }
@@ -286,7 +286,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
                     if (DeathCoil_Timer <= diff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_DEATH_COIL);
                         DeathCoil_Timer = urand(15000, 20000);
                     }
@@ -342,7 +342,7 @@ class mob_fel_orc_convert : public CreatureScript
                 {
                     if (pInstance->GetData64(DATA_NETHEKURSE))
                     {
-                        Creature *pKurse = Unit::GetCreature(*me, pInstance->GetData64(DATA_NETHEKURSE));
+                        Creature* pKurse = Unit::GetCreature(*me, pInstance->GetData64(DATA_NETHEKURSE));
                         if (pKurse && me->IsWithinDist(pKurse, 45.0f))
                         {
                             CAST_AI(boss_grand_warlock_nethekurse::boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonAggro();
@@ -363,7 +363,7 @@ class mob_fel_orc_convert : public CreatureScript
                     if (pInstance->GetData(TYPE_NETHEKURSE) != IN_PROGRESS)
                         return;
                     if (pInstance->GetData64(DATA_NETHEKURSE))
-                        if (Creature *pKurse = Unit::GetCreature(*me, pInstance->GetData64(DATA_NETHEKURSE)))
+                        if (Creature* pKurse = Unit::GetCreature(*me, pInstance->GetData64(DATA_NETHEKURSE)))
                             CAST_AI(boss_grand_warlock_nethekurse::boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonDeath();
                 }
             }
