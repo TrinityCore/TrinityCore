@@ -24,9 +24,7 @@
 
 /*
  * TODO:
- * - Fix timers (research)
- * - Fix SAI for the summoned parasitic trigger
- * - Generic cleanups
+ * - Fix timers (research some more)
  */
 
 enum Texts
@@ -51,7 +49,7 @@ enum Spells
 
     SPELL_PARASITIC_SERPENT         = 23865,
     SPELL_SUMMON_PARASITIC_SERPENT  = 23866,
-    SPELL_PARASITIC_SERPENT_TRIGGER = 23868,
+    SPELL_PARASITIC_SERPENT_TRIGGER = 23867,
 
     // used when swapping event-stages
     SPELL_VENOXIS_TRANSFORM         = 23849,    // 50% health - shapechange to cobra
@@ -110,6 +108,7 @@ class boss_venoxis : public CreatureScript
 
                 // remove all spells and auras from previous attempts
                 me->RemoveAllAuras();
+                me->SetReactState(REACT_PASSIVE);
 
                 // set some internally used variables to their defaults
                 _inMeleeRange = 0;
@@ -121,6 +120,8 @@ class boss_venoxis : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                me->SetReactState(REACT_AGGRESSIVE);
+
                 instance->SetBossState(DATA_VENOXIS, IN_PROGRESS);
 
                 // Always running events
@@ -137,23 +138,6 @@ class boss_venoxis : public CreatureScript
 
                 // Set zone in combat
                 DoZoneInCombat();
-            }
-
-            void JustSummoned(Creature* summon)
-            {
-                summons.Summon(summon);
-                switch (summon->GetEntry())
-                {
-                    case NPC_PARASITIC_SERPENT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            summon->CastSpell(target, SPELL_PARASITIC_SERPENT_TRIGGER, true);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->isInCombat())
-                    DoZoneInCombat(summon);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -249,15 +233,14 @@ class boss_venoxis : public CreatureScript
                             events.ScheduleEvent(EVENT_VENOM_SPIT, urand(5000,15000), 0, PHASE_TWO);
                             break;
                         case EVENT_POISON_CLOUD:
-                            DoCast(me->getVictim(), SPELL_POISON_CLOUD);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(target, SPELL_POISON_CLOUD);
                             events.ScheduleEvent(EVENT_POISON_CLOUD, urand(15000,20000), 0, PHASE_TWO);
                             break;
                         case EVENT_PARASITIC_SERPENT:
-                            // currently disabled, needs SAI
-                            /*
-                            DoCast(me, SPELL_SUMMON_PARASITIC_SERPENT);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(target, SPELL_SUMMON_PARASITIC_SERPENT);
                             events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 15000, 0, PHASE_TWO);
-                            */
                             break;
                         case EVENT_FRENZY:
                             // frenzy at 20% health
