@@ -434,7 +434,7 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
 {
     //cause at HandleBattlegroundJoinOpcode the clients sends the instanceid he gets from
     //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
-    Battleground* bg = GetBattlegroundTemplate(bgTypeId);
+    Battleground* bg = GetBattleground(bgTypeId);
     if (!bg)
         return NULL;
 
@@ -469,7 +469,7 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundTy
     return ((itr != m_Battlegrounds[bgTypeId].end()) ? itr->second : NULL);
 }
 
-Battleground* BattlegroundMgr::GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
+Battleground* BattlegroundMgr::GetBattleground(BattlegroundTypeId bgTypeId)
 {
     //map is sorted and we can be sure that lowest instance id has only BG template
     return m_Battlegrounds[bgTypeId].empty() ? NULL : m_Battlegrounds[bgTypeId].begin()->second;
@@ -501,7 +501,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     // get the template BG
-    Battleground *bg_template = GetBattlegroundTemplate(bgTypeId);
+    Battleground *bg_template = GetBattleground(bgTypeId);
     BattlegroundSelectionWeightMap *selectionWeights = NULL;
 
     if (!bg_template)
@@ -545,7 +545,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
                 break;
             }
         }
-        bg_template = GetBattlegroundTemplate(bgTypeId);
+        bg_template = GetBattleground(bgTypeId);
         if (!bg_template)
         {
             sLog->outError("Battleground: CreateNewBattleground - bg template not found for %u", bgTypeId);
@@ -846,7 +846,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
         size_t count_pos = data->wpos();
         *data << uint32(0);                                 // number of bg instances
 
-        if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId))
+        if (Battleground* bgTemplate = sBattlegroundMgr->GetBattleground(bgTypeId))
         {
             // expected bracket entry
             if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), plr->getLevel()))
@@ -1010,7 +1010,7 @@ void BattlegroundMgr::SetHolidayWeekends(uint32 mask)
 {
     for (uint32 bgtype = 1; bgtype < MAX_BATTLEGROUND_TYPE_ID; ++bgtype)
     {
-        if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(bgtype)))
+        if (Battleground* bg = GetBattleground(BattlegroundTypeId(bgtype)))
         {
             bg->SetHoliday(mask & (1 << bgtype));
         }

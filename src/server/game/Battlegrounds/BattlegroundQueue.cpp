@@ -195,7 +195,7 @@ GroupQueueInfo * BattlegroundQueue::AddGroup(Player *leader, Group* grp, Battleg
         //announce to world, this code needs mutex
         if (!isRated && !isPremade && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
         {
-            if (Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(ginfo->BgTypeId))
+            if (Battleground* bg = sBattlegroundMgr->GetBattleground(ginfo->BgTypeId))
             {
                 char const* bgName = bg->GetName();
                 uint32 MinPlayers = bg->GetMinPlayersPerTeam();
@@ -390,7 +390,7 @@ void BattlegroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
         // first send removal information
         if (Player *plr2 = sObjectMgr->GetPlayer(group->Players.begin()->first))
         {
-            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(group->BgTypeId);
+            Battleground* bg = sBattlegroundMgr->GetBattleground(group->BgTypeId);
             BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(group->BgTypeId, group->ArenaType);
             uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
             plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
@@ -777,7 +777,7 @@ void BattlegroundQueue::Update(BattlegroundTypeId bgTypeId, BattlegroundBracketI
 
     // finished iterating through the bgs with free slots, maybe we need to create a new bg
 
-    Battleground* bg_template = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    Battleground* bg_template = sBattlegroundMgr->GetBattleground(bgTypeId);
     if (!bg_template)
     {
         sLog->outError("Battleground: Update: bg template not found for %u", bgTypeId);

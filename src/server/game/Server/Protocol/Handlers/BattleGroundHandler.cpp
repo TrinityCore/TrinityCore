@@ -115,7 +115,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
         bg = sBattlegroundMgr->GetBattlegroundThroughClientInstance(instanceId, bgTypeId);
 
     if (!bg)
-        bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+        bg = sBattlegroundMgr->GetBattleground(bgTypeId);
     if (!bg)
         return;
 
@@ -401,7 +401,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
 
     // bg template might and must be used in case of leaving queue, when instance is not created yet
     if (!bg && action == 0)
-        bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+        bg = sBattlegroundMgr->GetBattleground(bgTypeId);
     if (!bg)
     {
         sLog->outError("BattlegroundHandler: bg_template not found for type id %u.", bgTypeId);
@@ -569,7 +569,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recv_data*/)
         }
         else
         {
-            bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+            bg = sBattlegroundMgr->GetBattleground(bgTypeId);
             if (!bg)
                 continue;
 
@@ -671,7 +671,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     }
 
     //check existance
-    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
+    Battleground* bg = sBattlegroundMgr->GetBattleground(BATTLEGROUND_AA);
     if (!bg)
     {
         sLog->outError("Battleground: template bg (all arenas) not found");

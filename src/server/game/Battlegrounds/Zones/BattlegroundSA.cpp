@@ -26,10 +26,6 @@
 
 BattlegroundSA::BattlegroundSA()
 {
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_SA_START_TWO_MINUTES;
-    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_SA_START_ONE_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_SA_START_HALF_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_SA_HAS_BEGUN;
     m_BgObjects.resize(BG_SA_MAXOBJ);
     m_BgCreatures.resize(BG_SA_MAXNPC + BG_SA_MAX_GY);
     TimerEnabled = false;
@@ -927,3 +923,10 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
     }
 }
 
+void BattlegroundSA::InitializeTextIds()
+{
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_SA_START_TWO_MINUTES;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_SECOND] = LANG_BG_SA_START_ONE_MINUTE;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_SA_START_HALF_MINUTE;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_SA_HAS_BEGUN;
+}

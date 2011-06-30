@@ -239,13 +239,17 @@ class BattlegroundABScore : public BattlegroundScore
         uint32 BasesDefended;
 };
 
-class BattlegroundAB : public Battleground
+class BattlegroundMap;
+
+class BattlegroundAB : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
     public:
         BattlegroundAB();
         ~BattlegroundAB();
+
+        void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
         void Update(uint32 diff);
         void AddPlayer(Player *plr);

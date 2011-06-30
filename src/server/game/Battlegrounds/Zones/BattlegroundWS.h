@@ -155,7 +155,9 @@ class BattlegroundWGScore : public BattlegroundScore
         uint32 FlagReturns;
 };
 
-class BattlegroundWS : public Battleground
+class BattlegroundMap;
+
+class BattlegroundWS : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 

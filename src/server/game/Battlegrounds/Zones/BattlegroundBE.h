@@ -48,7 +48,7 @@ class BattlegroundBEScore : public BattlegroundScore
         virtual ~BattlegroundBEScore() {};
 };
 
-class BattlegroundBE : public Battleground
+class BattlegroundBE : public ArenaMap
 {
     friend class BattlegroundMgr;
 

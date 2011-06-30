@@ -23,11 +23,14 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
-BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, uint8 spawnMode)
-    : Map(id, expiry, instanceId, spawnMode, parent)
+BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, uint8 spawnMode, BattlegroundTemplate* bgTemplate)
+    : Map(id, expiry, instanceId, spawnMode, parent),
+    _template(bgTemplate),
+    _preparationPhase(BG_STARTING_EVENT_FIRST)
 {
-    _preparationTimer = BG_START_DELAY_2M - BG_START_DELAY_1M;
-    _preparationPhase = BG_STARTING_EVENT_FIRST;
+    InitializeTextIds();
+    InitializePreparationDelayTimes();  // Subclasses define timers or choose default
+    InitializePreparationDelayTimer();  // Assign value to the current timer
 }
 
 BattlegroundMap::~BattlegroundMap()
@@ -39,6 +42,20 @@ void BattlegroundMap::InitVisibilityDistance()
     // Initialize visibility distance for BG/Arenas
     _visibleDistance = World::GetMaxVisibleDistanceInBGArenas();
     _visibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
+}
+
+void BattlegroundMap::InitializePreparationDelayTimes()
+{
+    // Default values for battlegrounds. Arena maps have different ones.
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_1M;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_30S;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
+}
+
+void BattlegroundMap::InitializePreparationDelayTimer()
+{
+    _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_FIRST] - PreparationDelayTimers[BG_STARTING_EVENT_SECOND];
 }
 
 bool BattlegroundMap::CanEnter(Player* player)
@@ -129,15 +146,15 @@ void BattlegroundMap::ProcessPreparation(uint32 const& diff)
     switch (_preparationPhase)
     {
         case BG_STARTING_EVENT_FIRST:
-            _preparationTimer = BG_START_DELAY_1M - BG_START_DELAY_30S;
+            _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_SECOND] - PreparationDelayTimers[BG_STARTING_EVENT_THIRD];
             _preparationPhase = BG_STARTING_EVENT_SECOND;
             break;
         case BG_STARTING_EVENT_SECOND:
-            _preparationTimer = BG_START_DELAY_30S - BG_START_DELAY_15S;
+            _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_THIRD] - PreparationDelayTimers[BG_STARTING_EVENT_FOURTH];
             _preparationPhase = BG_STARTING_EVENT_THIRD;
             break;
         case BG_STARTING_EVENT_THIRD:
-            _preparationTimer = BG_START_DELAY_15S - BG_START_DELAY_NONE;
+            _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_FOURTH];
             _preparationPhase = BG_STARTING_EVENT_FOURTH;
             break;
         case BG_STARTING_EVENT_FOURTH:
@@ -151,10 +168,12 @@ void BattlegroundMap::ProcessInProgress(uint32 const& diff)
 {
     ASSERT(EndTimer);
     if (EndTimer <= diff || (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
+    {
         // This method will be overridden by inherited classes
         // and it will define the winner of the battleground
         EndBattleground();
         _status = STATUS_WAIT_LEAVE;
+    }
     else
     {
         EndTimer -= diff;
@@ -251,3 +270,6 @@ bool BattlegroundMap::AreTeamsInBalance() const
     return !(_participantCount[BG_TEAM_HORDE] < _template.MinPlayersPerTeam ||
              _participantCount[BG_TEAM_ALLIANCE] < _template.MinPlayersPerTeam);
 }
+
+
+

@@ -51,11 +51,6 @@ BattlegroundWS::BattlegroundWS()
 {
     m_BgObjects.resize(BG_WS_OBJECT_MAX);
     m_BgCreatures.resize(BG_CREATURES_MAX_WS);
-
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
-    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 }
 
 BattlegroundWS::~BattlegroundWS()
@@ -844,3 +839,10 @@ void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
 
 }
 
+void BattlegroundWS::InitializeTextIds()
+{
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
+}

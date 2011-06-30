@@ -1532,7 +1532,9 @@ class BattlegroundAVScore : public BattlegroundScore
         uint32 SecondaryObjectives;
 };
 
-class BattlegroundAV : public Battleground
+class BattlegroundMap;
+
+class BattlegroundAV : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
@@ -1540,6 +1542,8 @@ class BattlegroundAV : public Battleground
         BattlegroundAV();
         ~BattlegroundAV();
         void Update(uint32 diff);
+
+        void InitializeTextIds();       // Initializes text IDs that are used in the battleground at any possible phase.
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);

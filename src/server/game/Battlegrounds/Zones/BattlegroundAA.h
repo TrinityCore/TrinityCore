@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDAA_H
 #define __BATTLEGROUNDAA_H
 
-class Battleground;
+class BattlegroundMap;
 
 class BattlegroundAAScore : public BattlegroundScore
 {
@@ -28,7 +28,7 @@ class BattlegroundAAScore : public BattlegroundScore
         //TODO fix me
 };
 
-class BattlegroundAA : public Battleground
+class BattlegroundAA : public ArenaMap
 {
     friend class BattlegroundMgr;
 

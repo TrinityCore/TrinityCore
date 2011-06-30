@@ -407,8 +407,10 @@ struct BG_SA_RoundScore
     uint32 time;
 };
 
+class BattlegroundMap;
+
 /// Class for manage Strand of Ancient battleground
-class BattlegroundSA : public Battleground
+class BattlegroundSA : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
@@ -417,6 +419,8 @@ class BattlegroundSA : public Battleground
         BattlegroundSA();
         /// Destructor
         ~BattlegroundSA();
+
+        void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
         /**
          * \brief Called every time for update battle data

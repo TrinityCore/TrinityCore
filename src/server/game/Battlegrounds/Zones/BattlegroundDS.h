@@ -57,7 +57,7 @@ class BattlegroundDSScore : public BattlegroundScore
         //TODO fix me
 };
 
-class BattlegroundDS : public Battleground
+class BattlegroundDS : public ArenaMap
 {
     friend class BattlegroundMgr;
 

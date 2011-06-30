@@ -36,6 +36,8 @@ enum BattlegroundStartingEventsIds
     BG_STARTING_EVENT_COUNT     = 4,
 };
 
+class BattlegroundTemplate;
+
 class BattlegroundMap : public Map
 {
     public:
@@ -57,6 +59,8 @@ class BattlegroundMap : public Map
 
     protected:
         virtual void InitializeTextIds() {};    // Initializes text IDs that are used in the battleground at any possible phase.
+        virtual void InitializePreparationDelayTimes(); // Initializes preparation delay timers.
+        void InitializePreparationDelayTimer();
         virtual void StartBattleground() {};    // Initializes EndTimer and other bg-specific variables.
         virtual void EndBattleground() {};      // Contains rules on which team wins.
         virtual void DestroyBattleground() {};  // Contains battleground specific cleanup method calls.
@@ -65,8 +69,9 @@ class BattlegroundMap : public Map
         virtual void OnPlayerJoin(Player* player);  // Initialize battleground specific variables.
         virtual void OnPlayerExit(Player* player);  // Remove battleground specific auras etc.
         
-        virtual uint32 EndTimer = 0;        // Battleground specific time limit. Must be overwritten in subclass.
-        virtual uint32 PreparationPhaseTextIds[BG_STARTING_EVENT_COUNT] = {0,0,0,0};   // Must be initialized for each battleground
+        uint32 EndTimer;        // Battleground specific time limit. Must be overwritten in subclass.
+        uint32 PreparationPhaseTextIds[BG_STARTING_EVENT_COUNT];   // Must be initialized for each battleground
+        uint32 PreparationDelayTimers[BG_STARTING_EVENT_COUNT];  //
 
     private:
         void InitVisibilityDistance();  // Overwritten from class Map

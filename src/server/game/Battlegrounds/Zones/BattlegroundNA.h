@@ -49,7 +49,9 @@ class BattlegroundNAScore : public BattlegroundScore
         //TODO fix me
 };
 
-class BattlegroundNA : public Battleground
+class ArenaMap;
+
+class BattlegroundNA : public ArenaMap
 {
     friend class BattlegroundMgr;
 

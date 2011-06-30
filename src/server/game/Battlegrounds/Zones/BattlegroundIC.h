@@ -855,7 +855,9 @@ class BattlegroundICScore : public BattlegroundScore
         uint32 BasesDefended;
 };
 
-class BattlegroundIC : public Battleground
+class BattlegroundMap;
+
+class BattlegroundIC : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
@@ -863,6 +865,9 @@ class BattlegroundIC : public Battleground
         BattlegroundIC();
         ~BattlegroundIC();
         void Update(uint32 diff);
+
+        void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
+
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);

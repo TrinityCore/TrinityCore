@@ -21821,7 +21821,7 @@ bool Player::InArena() const
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    Battleground *bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    Battleground *bg = sBattlegroundMgr->GetBattleground(bgTypeId);
     if (!bg)
         return false;
 

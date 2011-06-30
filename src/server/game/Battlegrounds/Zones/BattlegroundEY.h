@@ -326,7 +326,9 @@ class BattlegroundEYScore : public BattlegroundScore
         uint32 FlagCaptures;
 };
 
-class BattlegroundEY : public Battleground
+class BattlegroundMap;
+
+class BattlegroundEY : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
@@ -334,6 +336,8 @@ class BattlegroundEY : public Battleground
         BattlegroundEY();
         ~BattlegroundEY();
         void Update(uint32 diff);
+
+        void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
