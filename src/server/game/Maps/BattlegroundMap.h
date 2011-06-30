@@ -52,10 +52,12 @@ class BattlegroundMap : public Map
         void SetUnload();
 
     protected:
-        uint32 GetMaxPlayers() const        { return _template.MaxPlayersPerTeam * 2; }
-        uint32 GetMinPlayers() const        { return _template.MinPlayersPerTeam * 2; }
-        uint32 GetMinLevel() const          { return _template.MinLevel; }
-        uint32 GetMaxLevel() const          { return _template.MaxLevel; }
+        uint32 GetMaxPlayers() const { return _template.MaxPlayersPerTeam * 2; }
+        uint32 GetMinPlayers() const { return _template.MinPlayersPerTeam * 2; }
+        uint32 GetMinLevel() const { return _template.MinLevel; }
+        uint32 GetMaxLevel() const { return _template.MaxLevel; }
+
+        uint32 GetStatus() const { return _status; }
 
     protected:
         virtual void InitializeTextIds() {};    // Initializes text IDs that are used in the battleground at any possible phase.
@@ -74,11 +76,22 @@ class BattlegroundMap : public Map
         uint32 PreparationDelayTimers[BG_STARTING_EVENT_COUNT];  //
 
     private:
+        // Private initializers, non overridable 
         void InitVisibilityDistance();  // Overwritten from class Map
 
+        // Private processing methods
         void ProcessPreparation(uint32 const& diff);
         void ProcessInProgress(uint32 const& diff);
         void ProcessEnded(uint32 const& diff);
+
+        // Private entity management - GameObject
+        GameObject* AddObject(uint32 type, uint32 entry, Position* pos, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
+        void SpawnObject(uint32 type, uint32 respawntime);  // Spawns an already added gameobject
+        bool DeleteObject(uint32 type); // Deletes an object with specified type designation 
+
+        // Private entity management - Creature
+        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, Position* pos, uint32 respawntime = 0); // Adds and spawns creatures to map
+        bool DeleteCreature(uint32 type);
 
         void RemoveAllPlayers();
 
@@ -96,6 +109,8 @@ class BattlegroundMap : public Map
 
         uint16 _participantCount[BG_TEAMS_COUNT];   // Players actually in the battleground
         uint16 _invitedCount[BG_TEAMS_COUNT];       // Players invited to join the battleground
+
+        std::vector<uint64> _objectGUIDsByType;    // Stores object guids per enum-defined arbitrary type
 };
 
 #endif
