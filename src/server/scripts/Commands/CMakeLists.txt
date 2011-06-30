@@ -57,7 +57,7 @@ set(scripts_STAT_SRCS
 #  Commands/cs_die.cpp
 #  Commands/cs_revive.cpp
 #  Commands/cs_dismount.cpp
-#  Commands/cs_gps.cpp
+  Commands/cs_gps.cpp
 #  Commands/cs_guid.cpp
 #  Commands/cs_help.cpp
 #  Commands/cs_itemmove.cpp
