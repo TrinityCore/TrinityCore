@@ -1238,6 +1238,9 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
             void FilterTargets(std::list<Unit*>& unitList)
             {
                 unitList.remove(GetCaster()->getVictim());
+                if (unitList.empty())
+                    return;
+
                 std::list<Unit*>::iterator itr = unitList.begin();
                 std::advance(itr, urand(0, unitList.size() - 1));
                 Unit* target = *itr;
