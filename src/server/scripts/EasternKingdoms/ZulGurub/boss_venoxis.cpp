@@ -16,182 +16,285 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Venoxis
-SD%Complete: 100
-SDComment:
-SDCategory: Zul'Gurub
-EndScriptData */
-
-#include "ScriptPCH.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
 #include "zulgurub.h"
 
-#define SAY_TRANSFORM       -1309000
-#define SAY_DEATH           -1309001
+/*
+ * TODO:
+ * - Fix timers (research)
+ * - Fix SAI for the summoned parasitic trigger
+ * - Generic cleanups
+ */
 
-#define SPELL_HOLY_FIRE     23860
-#define SPELL_HOLY_WRATH    28883                           //Not sure if this or 23979
-#define SPELL_VENOMSPIT     23862
-#define SPELL_HOLY_NOVA     23858
-#define SPELL_POISON_CLOUD  23861
-#define SPELL_SNAKE_FORM    23849
-#define SPELL_RENEW         23895
-#define SPELL_BERSERK       23537
-#define SPELL_DISPELL       23859
+enum Texts
+{
+    SAY_VENOXIS_TRANSFORM           = 1,        // Let the coils of hate unfurl!
+    SAY_VENOXIS_DEATH               = 2,        // Ssserenity.. at lassst!
+};
+
+enum Spells
+{
+    // troll form
+    SPELL_THRASH                    = 3391,
+    SPELL_DISPEL_MAGIC              = 23859,
+    SPELL_RENEW                     = 23895,
+    SPELL_HOLY_NOVA                 = 23858,
+    SPELL_HOLY_FIRE                 = 23860,
+    SPELL_HOLY_WRATH                = 23979,
+
+    // snake form
+    SPELL_POISON_CLOUD              = 23861,
+    SPELL_VENOM_SPIT                = 23862,
+
+    SPELL_PARASITIC_SERPENT         = 23865,
+    SPELL_SUMMON_PARASITIC_SERPENT  = 23866,
+    SPELL_PARASITIC_SERPENT_TRIGGER = 23868,
+
+    // used when swapping event-stages
+    SPELL_VENOXIS_TRANSFORM         = 23849,    // 50% health - shapechange to cobra
+    SPELL_FRENZY                    = 8269,     // 20% health - frenzy
+};
+
+enum NPCs
+{
+    NPC_PARASITIC_SERPENT           = 14884,
+};
+
+enum Events
+{
+    // troll form
+    EVENT_THRASH                    = 1,
+    EVENT_DISPEL_MAGIC              = 2,
+    EVENT_RENEW                     = 3,
+    EVENT_HOLY_NOVA                 = 4,
+    EVENT_HOLY_FIRE                 = 5,
+    EVENT_HOLY_WRATH                = 6,
+
+    // phase-changing
+    EVENT_TRANSFORM                 = 7,
+
+    // snake form events
+    EVENT_POISON_CLOUD              = 8,
+    EVENT_VENOM_SPIT                = 9,
+    EVENT_PARASITIC_SERPENT         = 10,
+    EVENT_FRENZY                    = 11,
+};
+
+enum Phases
+{
+    PHASE_ONE                       = 1,    // troll form
+    PHASE_TWO                       = 2,    // snake form
+};
 
 class boss_venoxis : public CreatureScript
 {
     public:
+        boss_venoxis() : CreatureScript("boss_venoxis") {}
 
-        boss_venoxis()
-            : CreatureScript("boss_venoxis")
+        struct boss_venoxisAI : public BossAI
         {
-        }
-
-        struct boss_venoxisAI : public ScriptedAI
-        {
-            boss_venoxisAI(Creature* c) : ScriptedAI(c)
+            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS)
             {
-                m_pInstance = c->GetInstanceScript();
             }
-
-            InstanceScript *m_pInstance;
-
-            uint32 HolyFire_Timer;
-            uint32 HolyWrath_Timer;
-            uint32 VenomSpit_Timer;
-            uint32 Renew_Timer;
-            uint32 PoisonCloud_Timer;
-            uint32 HolyNova_Timer;
-            uint32 Dispell_Timer;
-            uint32 TargetInRange;
-
-            bool PhaseTwo;
-            bool InBerserk;
 
             void Reset()
             {
-                HolyFire_Timer = 10000;
-                HolyWrath_Timer = 60500;
-                VenomSpit_Timer = 5500;
-                Renew_Timer = 30500;
-                PoisonCloud_Timer = 2000;
-                HolyNova_Timer = 5000;
-                Dispell_Timer = 35000;
-                TargetInRange = 0;
+                events.Reset();
+                summons.DespawnAll();
 
-                PhaseTwo = false;
-                InBerserk= false;
+                // make sure this boss is properly reset
+                instance->SetBossState(DATA_VENOXIS, NOT_STARTED);
+
+                // remove all spells and auras from previous attempts
+                me->RemoveAllAuras();
+
+                // set some internally used variables to their defaults
+                _inMeleeRange = 0;
+                _transformed = false;
+                _frenzied = false;
+
+                events.SetPhase(PHASE_ONE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                instance->SetBossState(DATA_VENOXIS, IN_PROGRESS);
+
+                // Always running events
+                events.ScheduleEvent(EVENT_THRASH, 5000);
+
+                // Phase one events (regular form)
+                events.ScheduleEvent(EVENT_HOLY_NOVA, 5000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DISPEL_MAGIC, 35000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_HOLY_FIRE, 10000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_RENEW, 30000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_HOLY_WRATH, 60000, 0, PHASE_ONE);
+
+                events.SetPhase(PHASE_ONE);
+
+                // Set zone in combat
+                DoZoneInCombat();
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustSummoned(Creature* summon)
             {
-                DoScriptText(SAY_DEATH, me);
-                if (m_pInstance)
-                    m_pInstance->SetData(TYPE_VENOXIS, DONE);
+                summons.Summon(summon);
+                switch (summon->GetEntry())
+                {
+                    case NPC_PARASITIC_SERPENT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            summon->CastSpell(target, SPELL_PARASITIC_SERPENT_TRIGGER, true);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (me->isInCombat())
+                    DoZoneInCombat(summon);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            {
+                // check if venoxis is ready to transform
+                if (!_transformed && !HealthAbovePct(50))
+                {
+                    _transformed = true;
+                    // schedule the event that changes our phase
+                    events.ScheduleEvent(EVENT_TRANSFORM, 100);
+                }
+                // we're losing health, bad, go frenzy
+                else if (!_frenzied && !HealthAbovePct(20))
+                {
+                    _frenzied = true;
+                    events.ScheduleEvent(EVENT_FRENZY, 100);
+                }
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                Talk(SAY_VENOXIS_DEATH);
+                // venoxis is dead, mark him as such for the instance
+                instance->SetBossState(DATA_VENOXIS, DONE);
+                me->RemoveAllAuras();
             }
 
             void UpdateAI(const uint32 diff)
             {
-                  if (!UpdateVictim())
+                if (!UpdateVictim())
                     return;
 
-                    if (HealthAbovePct(50))
-                    {
-                        if (Dispell_Timer <= diff)
-                        {
-                            DoCast(me, SPELL_DISPELL);
-                            Dispell_Timer = 15000 + rand()%15000;
-                        } else Dispell_Timer -= diff;
+                events.Update(diff);
 
-                        if (Renew_Timer <= diff)
-                        {
+                // return back to main code if we're still casting
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        // thrash is available in all phases
+                        case EVENT_THRASH:
+                            DoCast(me, SPELL_THRASH, true);
+                            events.ScheduleEvent(EVENT_THRASH, urand(10000,20000));
+                            break;
+
+                        // troll form spells and actions (first part)
+                        case EVENT_DISPEL_MAGIC:
+                            DoCast(me, SPELL_DISPEL_MAGIC);
+                            events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000,20000), 0, PHASE_ONE);
+                            break;
+                        case EVENT_RENEW:
                             DoCast(me, SPELL_RENEW);
-                            Renew_Timer = 20000 + rand()%10000;
-                        } else Renew_Timer -= diff;
+                            events.ScheduleEvent(EVENT_RENEW, urand(25000,30000), 0, PHASE_ONE);
+                            break;
+                        case EVENT_HOLY_NOVA:
+                            _inMeleeRange = 0;
 
-                        if (HolyWrath_Timer <= diff)
-                        {
-                            DoCast(me->getVictim(), SPELL_HOLY_WRATH);
-                            HolyWrath_Timer = 15000 + rand()%10000;
-                        } else HolyWrath_Timer -= diff;
-
-                        if (HolyNova_Timer <= diff)
-                        {
-                            TargetInRange = 0;
-                            for (uint8 i = 0; i < 10; ++i)
+                            for (uint8 i = 0; i < 10 ; ++i)
                             {
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
-                                    if (me->IsWithinMeleeRange(pTarget))
-                                        ++TargetInRange;
+                                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
+                                    // check if target is within melee-distance
+                                    if (me->IsWithinMeleeRange(target))
+                                        ++_inMeleeRange;
                             }
 
-                            if (TargetInRange > 1)
-                            {
+                            // trigger spellcast only if we have 3 or more targets to affect
+                            if (_inMeleeRange >= 3)
                                 DoCast(me->getVictim(), SPELL_HOLY_NOVA);
-                                HolyNova_Timer = 1000;
-                            }
-                            else
-                            {
-                                HolyNova_Timer = 2000;
-                            }
 
-                        } else HolyNova_Timer -= diff;
+                            events.ScheduleEvent(EVENT_HOLY_NOVA, urand(45000,75000), 0, PHASE_ONE);
+                            break;
+                        case EVENT_HOLY_FIRE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(target, SPELL_HOLY_FIRE);
+                            events.ScheduleEvent(EVENT_HOLY_FIRE, urand(45000,60000), 0, PHASE_ONE);
+                            break;
+                        case EVENT_HOLY_WRATH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(target, SPELL_HOLY_WRATH);
+                            events.ScheduleEvent(EVENT_HOLY_WRATH, urand(45000,60000), 0, PHASE_ONE);
+                            break;
 
-                        if (HolyFire_Timer < diff && TargetInRange < 3)
-                        {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(pTarget, SPELL_HOLY_FIRE);
+                        //
+                        // snake form spells and actions
+                        //
 
-                            HolyFire_Timer = 8000;
-                        } else HolyFire_Timer -= diff;
-                    }
-                    else
-                    {
-                        if (!PhaseTwo)
-                        {
-                            DoScriptText(SAY_TRANSFORM, me);
-                            me->InterruptNonMeleeSpells(false);
-                            DoCast(me, SPELL_SNAKE_FORM);
-                            me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
-                            const CreatureTemplate *cinfo = me->GetCreatureInfo();
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 25)));
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 25)));
-                            me->UpdateDamagePhysical(BASE_ATTACK);
-                            DoResetThreat();
-                            PhaseTwo = true;
-                        }
-
-                        if (PhaseTwo && PoisonCloud_Timer <= diff)
-                        {
+                        case EVENT_VENOM_SPIT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(target, SPELL_VENOM_SPIT);
+                            events.ScheduleEvent(EVENT_VENOM_SPIT, urand(5000,15000), 0, PHASE_TWO);
+                            break;
+                        case EVENT_POISON_CLOUD:
                             DoCast(me->getVictim(), SPELL_POISON_CLOUD);
-                            PoisonCloud_Timer = 15000;
-                        }PoisonCloud_Timer -=diff;
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(15000,20000), 0, PHASE_TWO);
+                            break;
+                        case EVENT_PARASITIC_SERPENT:
+                            // currently disabled, needs SAI
+                            /*
+                            DoCast(me, SPELL_SUMMON_PARASITIC_SERPENT);
+                            events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 15000, 0, PHASE_TWO);
+                            */
+                            break;
+                        case EVENT_FRENZY:
+                            // frenzy at 20% health
+                            DoCast(me, SPELL_FRENZY, true);
+                            break;
 
-                        if (PhaseTwo && VenomSpit_Timer <= diff)
-                        {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(pTarget, SPELL_VENOMSPIT);
+                        //
+                        // shape and phase-changing
+                        //
 
-                            VenomSpit_Timer = 15000 + rand()%5000;
-                        } else VenomSpit_Timer -= diff;
+                        case EVENT_TRANSFORM:
+                            // shapeshift at 50% health
+                            DoCast(me, SPELL_VENOXIS_TRANSFORM);
+                            Talk(SAY_VENOXIS_TRANSFORM);
+                            DoResetThreat();
 
-                        if (PhaseTwo && HealthBelowPct(11))
-                        {
-                            if (!InBerserk)
-                            {
-                                me->InterruptNonMeleeSpells(false);
-                                DoCast(me, SPELL_BERSERK);
-                                InBerserk = true;
-                            }
-                        }
+                            // phase two events (snakeform)
+                            events.ScheduleEvent(EVENT_VENOM_SPIT, 5000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, 10000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 30000, 0, PHASE_TWO);
+
+                            // transformed, start phase two
+                            events.SetPhase(PHASE_TWO);
+
+                            break;
+                        default:
+                            break;
                     }
-                    DoMeleeAttackIfReady();
+                }
+
+                DoMeleeAttackIfReady();
             }
+
+        private:
+            uint8 _inMeleeRange;
+            bool _transformed;
+            bool _frenzied;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -204,4 +307,3 @@ void AddSC_boss_venoxis()
 {
     new boss_venoxis();
 }
-
