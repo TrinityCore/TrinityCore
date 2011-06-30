@@ -217,7 +217,7 @@ public:
 
     struct mob_illidari_councilAI : public ScriptedAI
     {
-        mob_illidari_councilAI(Creature *c) : ScriptedAI(c)
+        mob_illidari_councilAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
@@ -275,7 +275,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void StartEvent(Unit *pTarget)
+        void StartEvent(Unit* pTarget)
         {
             if (!pInstance)
                 return;
@@ -475,7 +475,7 @@ public:
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
     {
-        boss_gathios_the_shattererAI(Creature *c) : boss_illidari_councilAI(c) {}
+        boss_gathios_the_shattererAI(Creature* c) : boss_illidari_councilAI(c) {}
 
         uint32 ConsecrationTimer;
         uint32 HammerOfJusticeTimer;
@@ -557,7 +557,7 @@ public:
 
             if (HammerOfJusticeTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     // is in ~10-40 yd range
                     if (me->IsInRange(pTarget, 10.0f, 40.0f, false))
@@ -602,7 +602,7 @@ public:
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
     {
-        boss_high_nethermancer_zerevorAI(Creature *c) : boss_illidari_councilAI(c) {}
+        boss_high_nethermancer_zerevorAI(Creature* c) : boss_illidari_councilAI(c) {}
 
         uint32 BlizzardTimer;
         uint32 FlamestrikeTimer;
@@ -670,7 +670,7 @@ public:
 
             if (BlizzardTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
@@ -681,7 +681,7 @@ public:
 
             if (FlamestrikeTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
@@ -706,7 +706,7 @@ public:
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
     {
-        boss_lady_malandeAI(Creature *c) : boss_illidari_councilAI(c) {}
+        boss_lady_malandeAI(Creature* c) : boss_illidari_councilAI(c) {}
 
         uint32 EmpoweredSmiteTimer;
         uint32 CircleOfHealingTimer;
@@ -738,7 +738,7 @@ public:
 
             if (EmpoweredSmiteTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
@@ -753,7 +753,7 @@ public:
 
             if (DivineWrathTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
@@ -784,7 +784,7 @@ public:
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
     {
-        boss_veras_darkshadowAI(Creature *c) : boss_illidari_councilAI(c) {}
+        boss_veras_darkshadowAI(Creature* c) : boss_illidari_councilAI(c) {}
 
         uint64 EnvenomTargetGUID;
 
@@ -838,7 +838,7 @@ public:
 
                 if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         VanishTimer = 30000;
                         AppearEnvenomTimer= 28000;
@@ -858,7 +858,7 @@ public:
             {
                 if (VanishTimer <= diff)                          // Become attackable and poison current target
                 {
-                    Unit *pTarget = me->getVictim();
+                    Unit* pTarget = me->getVictim();
                     DoCast(pTarget, SPELL_DEADLY_POISON);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoResetThreat();

@@ -716,7 +716,7 @@ public:
 
     struct npc_overlord_morghorAI : public ScriptedAI
     {
-        npc_overlord_morghorAI(Creature *c) : ScriptedAI(c) {}
+        npc_overlord_morghorAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 PlayerGUID;
         uint64 IllidanGUID;
@@ -1298,7 +1298,7 @@ public:
                 switch(slayer->GetTypeId())
                 {
                     case TYPEID_UNIT:
-                        if (Unit *owner = slayer->GetOwner())
+                        if (Unit* owner = slayer->GetOwner())
                             if (owner->GetTypeId() == TYPEID_PLAYER)
                                 CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
                         break;
@@ -1541,7 +1541,7 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         if (pTarget->GetTypeId() == TYPEID_PLAYER)
                         {
@@ -1735,7 +1735,7 @@ public:
 
     struct npc_enraged_spiritAI : public ScriptedAI
     {
-        npc_enraged_spiritAI(Creature *c) : ScriptedAI(c) {}
+        npc_enraged_spiritAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()   { }
 

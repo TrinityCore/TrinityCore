@@ -75,7 +75,7 @@ public:
 
     struct boss_gal_darahAI : public ScriptedAI
     {
-        boss_gal_darahAI(Creature *c) : ScriptedAI(c)
+        boss_gal_darahAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }

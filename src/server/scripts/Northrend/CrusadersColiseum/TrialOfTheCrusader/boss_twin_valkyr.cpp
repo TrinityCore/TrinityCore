@@ -390,7 +390,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (IsHeroic() && m_uiTouchTimer <= uiDiff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
                 me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, pTarget, false);
             m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         }
@@ -578,7 +578,7 @@ class mob_essence_of_twin : public CreatureScript
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
-    mob_unleashed_ballAI(Creature *pCreature) : ScriptedAI(pCreature)
+    mob_unleashed_ballAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
     }
@@ -630,20 +630,20 @@ class mob_unleashed_dark : public CreatureScript
 public:
     mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new mob_unleashed_darkAI(pCreature);
     }
 
     struct mob_unleashed_darkAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_darkAI(Creature *pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_darkAI(Creature* pCreature) : mob_unleashed_ballAI(pCreature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit *pTarget = me->SelectNearestTarget(2.0f))
+                if (Unit* pTarget = me->SelectNearestTarget(2.0f))
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
@@ -663,20 +663,20 @@ class mob_unleashed_light : public CreatureScript
 public:
     mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new mob_unleashed_lightAI(pCreature);
     }
 
     struct mob_unleashed_lightAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_lightAI(Creature *pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_lightAI(Creature* pCreature) : mob_unleashed_ballAI(pCreature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit *pTarget = me->SelectNearestTarget(2.0f))
+                if (Unit* pTarget = me->SelectNearestTarget(2.0f))
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);

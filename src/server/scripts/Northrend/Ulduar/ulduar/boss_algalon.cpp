@@ -81,7 +81,7 @@ public:
 
     struct boss_algalonAI : public ScriptedAI
     {
-        boss_algalonAI(Creature *c) : ScriptedAI(c)
+        boss_algalonAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             Summon = false; // not in reset. intro speech done only once.
@@ -340,7 +340,7 @@ public:
 
     struct mob_collapsing_starAI : public ScriptedAI
     {
-        mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
+        mob_collapsing_starAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
         }

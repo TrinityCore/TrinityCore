@@ -62,7 +62,7 @@ public:
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) {}
 
         bool Enraged;
 
@@ -118,7 +118,7 @@ public:
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
-                            Unit *pTarget = (*i)->getTarget();
+                            Unit* pTarget = (*i)->getTarget();
                             if (pTarget->isAlive() && pTarget != me->getVictim() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
                             {
                                 MostHP = pTarget->GetHealth();

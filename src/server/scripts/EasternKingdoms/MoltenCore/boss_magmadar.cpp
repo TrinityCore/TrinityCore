@@ -55,7 +55,7 @@ class boss_magmadar : public CreatureScript
 
         struct boss_magmadarAI : public BossAI
         {
-            boss_magmadarAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAGMADAR)
+            boss_magmadarAI(Creature* pCreature) : BossAI(pCreature, BOSS_MAGMADAR)
             {
             }
 

@@ -59,8 +59,8 @@ class OutdoorPvPSI : public OutdoorPvP
 
         bool SetupOutdoorPvP();
 
-        void HandlePlayerEnterZone(Player *plr, uint32 zone);
-        void HandlePlayerLeaveZone(Player *plr, uint32 zone);
+        void HandlePlayerEnterZone(Player* plr, uint32 zone);
+        void HandlePlayerLeaveZone(Player* plr, uint32 zone);
 
         bool Update(uint32 diff);
 
@@ -72,7 +72,7 @@ class OutdoorPvPSI : public OutdoorPvP
 
         bool HandleDropFlag(Player* plr, uint32 spellId);
 
-        bool HandleCustomSpell(Player* plr, uint32 spellId, GameObject *go);
+        bool HandleCustomSpell(Player* plr, uint32 spellId, GameObject* go);
 
         void UpdateWorldState();
 

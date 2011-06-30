@@ -267,7 +267,7 @@ public:
             //dosen't work at all
             if (uiShieldBreakerTimer <= uiDiff)
             {
-                Vehicle *pVehicle = me->GetVehicleKit();
+                Vehicle* pVehicle = me->GetVehicleKit();
                 if (!pVehicle)
                     return;
 

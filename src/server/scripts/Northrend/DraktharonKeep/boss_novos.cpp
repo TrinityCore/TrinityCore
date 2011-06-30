@@ -72,7 +72,7 @@ public:
 
     struct boss_novosAI : public Scripted_NoMovementAI
     {
-        boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
+        boss_novosAI(Creature* c) : Scripted_NoMovementAI(c), lSummons(me)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -131,7 +131,7 @@ public:
             {
                 for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
-                    if (GameObject *pTemp = pInstance->instance->GetGameObject(*itr))
+                    if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
                         pTemp->SetGoState(GO_STATE_ACTIVE);
                 }
                 pInstance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
@@ -148,7 +148,7 @@ public:
                 case PHASE_1:
                     if (uiTimer <= diff)
                     {
-                        Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE, CREATURE_HULKING_CORPSE, CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
+                        Creature* pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE, CREATURE_HULKING_CORPSE, CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                         pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                         //If spell is casted stops casting arcane field so no spell casting
                         //DoCast(me, SPELL_SUMMON_MINIONS);
@@ -159,7 +159,7 @@ public:
                         if (uiCrystalHandlerTimer <= diff)
                         {
                             DoScriptText(SAY_NECRO_ADD, me);
-                            Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
+                            Creature* pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                             pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                             uiCrystalHandlerTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                         } else uiCrystalHandlerTimer -= diff;
@@ -168,7 +168,7 @@ public:
                 case PHASE_2:
                     if (uiTimer <= diff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY),
                                                          RAND(H_SPELL_ARCANE_BLAST, H_SPELL_BLIZZARD, H_SPELL_FROSTBOLT, H_SPELL_WRATH_OF_MISERY)));
                         uiTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
@@ -193,7 +193,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_CRYSTAL_HANDLER)
                 crystalHandlerAmount++;
@@ -220,7 +220,7 @@ public:
             if (!luiCrystals.empty())
             {
                 if (pInstance)
-                    if (GameObject *pTemp = pInstance->instance->GetGameObject(luiCrystals.back()))
+                    if (GameObject* pTemp = pInstance->instance->GetGameObject(luiCrystals.back()))
                         pTemp->SetGoState(GO_STATE_READY);
                 luiCrystals.pop_back();
             }
@@ -241,7 +241,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_novosAI(creature);
     }
@@ -260,7 +260,7 @@ public:
 
     struct mob_crystal_handlerAI : public ScriptedAI
     {
-        mob_crystal_handlerAI(Creature *c) : ScriptedAI(c)
+        mob_crystal_handlerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -298,13 +298,13 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id != 0)
                 return;
-            if (Creature *pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-                if (Unit *pTarget = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
+            if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+                if (Unit* pTarget = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
                     AttackStart(pTarget);
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_crystal_handlerAI(creature);
     }
@@ -317,7 +317,7 @@ public:
 
     struct mob_novos_minionAI : public ScriptedAI
     {
-        mob_novos_minionAI(Creature *c) : ScriptedAI(c)
+        mob_novos_minionAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -331,13 +331,13 @@ public:
             if (Creature* Novos = ObjectAccessor::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             {
                 Novos->AI()->DoAction(ACTION_MINION_REACHED);
-                if (Unit *pTarget = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())
+                if (Unit* pTarget = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())
                     AttackStart(pTarget);
             }
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_novos_minionAI(creature);
     }

@@ -51,7 +51,7 @@ public:
 
     struct boss_maiden_of_virtueAI : public ScriptedAI
     {
-        boss_maiden_of_virtueAI(Creature *c) : ScriptedAI(c) {}
+        boss_maiden_of_virtueAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Repentance_Timer;
         uint32 Holyfire_Timer;
@@ -115,7 +115,7 @@ public:
 
             if (Holyfire_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_HOLYFIRE);
 
                     Holyfire_Timer = urand(8000, 23000);      //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
@@ -123,7 +123,7 @@ public:
 
             if (Holywrath_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_HOLYWRATH);
 
                 Holywrath_Timer = urand(20000, 25000);        //20-30 secs sounds nice

@@ -51,7 +51,7 @@ class boss_marli : public CreatureScript
 
         struct boss_marliAI : public ScriptedAI
         {
-            boss_marliAI(Creature *c) : ScriptedAI(c)
+            boss_marliAI(Creature* c) : ScriptedAI(c)
             {
                 m_pInstance = c->GetInstanceScript();
             }
@@ -118,11 +118,11 @@ class boss_marli : public CreatureScript
                     {
                         DoScriptText(SAY_SPIDER_SPAWN, me);
 
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (!pTarget)
                             return;
 
-                        Creature *Spider = NULL;
+                        Creature* Spider = NULL;
 
                         Spider = me->SummonCreature(15041, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Spider)
@@ -142,11 +142,11 @@ class boss_marli : public CreatureScript
 
                     if (SpawnSpider_Timer <= diff)
                     {
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (!pTarget)
                             return;
 
-                        Creature *Spider = me->SummonCreature(15041, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        Creature* Spider = me->SummonCreature(15041, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Spider)
                             Spider->AI()->AttackStart(pTarget);
                         SpawnSpider_Timer = 12000 + rand()%5000;
@@ -173,7 +173,7 @@ class boss_marli : public CreatureScript
                     {
                         if (Charge_Timer <= diff)
                         {
-                            Unit *pTarget = NULL;
+                            Unit* pTarget = NULL;
                             int i = 0;
                             while (i < 3)                           // max 3 tries to get a random target with power_mana
                             {
@@ -230,7 +230,7 @@ class mob_spawn_of_marli : public CreatureScript
 
         struct mob_spawn_of_marliAI : public ScriptedAI
         {
-            mob_spawn_of_marliAI(Creature *c) : ScriptedAI(c) {}
+            mob_spawn_of_marliAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 LevelUp_Timer;
 

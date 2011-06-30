@@ -42,7 +42,7 @@ public:
 
     struct boss_ptheradrasAI : public ScriptedAI
     {
-        boss_ptheradrasAI(Creature *c) : ScriptedAI(c) {}
+        boss_ptheradrasAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Dustfield_Timer;
         uint32 Boulder_Timer;
@@ -81,7 +81,7 @@ public:
             //Boulder_Timer
             if (Boulder_Timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                     DoCast(pTarget, SPELL_BOULDER);

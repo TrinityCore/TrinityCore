@@ -90,7 +90,7 @@ public:
 
     struct boss_shahrazAI : public ScriptedAI
     {
-        boss_shahrazAI(Creature *c) : ScriptedAI(c)
+        boss_shahrazAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -190,7 +190,7 @@ public:
             //Randomly cast one beam.
             if (BeamTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (!pTarget || !pTarget->isAlive())
                     return;
 

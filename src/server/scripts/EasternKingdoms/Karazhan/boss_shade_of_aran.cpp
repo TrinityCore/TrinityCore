@@ -93,7 +93,7 @@ public:
 
     struct boss_aranAI : public ScriptedAI
     {
-        boss_aranAI(Creature *c) : ScriptedAI(c)
+        boss_aranAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -195,7 +195,7 @@ public:
             //store the threat list in a different container
             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
                 if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(pTarget);
@@ -309,7 +309,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (!pTarget)
                         return;
 
@@ -523,7 +523,7 @@ public:
 
     struct water_elementalAI : public ScriptedAI
     {
-        water_elementalAI(Creature *c) : ScriptedAI(c) {}
+        water_elementalAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CastTimer;
 

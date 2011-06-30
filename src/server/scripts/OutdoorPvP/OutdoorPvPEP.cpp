@@ -127,7 +127,7 @@ void OPvPCapturePointEP_EWT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_EWT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player* plr)
 {
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
@@ -140,7 +140,7 @@ bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OPvPCapturePointEP_EWT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_EWT::HandlePlayerLeave(Player* plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(plr);
@@ -276,7 +276,7 @@ void OPvPCapturePointEP_NPT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_NPT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player* plr)
 {
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
@@ -289,7 +289,7 @@ bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OPvPCapturePointEP_NPT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_NPT::HandlePlayerLeave(Player* plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(plr);
@@ -408,7 +408,7 @@ void OPvPCapturePointEP_CGT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_CGT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player* plr)
 {
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
@@ -421,7 +421,7 @@ bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OPvPCapturePointEP_CGT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_CGT::HandlePlayerLeave(Player* plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(plr);
@@ -547,7 +547,7 @@ void OPvPCapturePointEP_PWT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_PWT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player* plr)
 {
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
@@ -560,7 +560,7 @@ bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OPvPCapturePointEP_PWT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_PWT::HandlePlayerLeave(Player* plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(plr);
@@ -727,7 +727,7 @@ void OutdoorPvPEP::FillInitialWorldStates(WorldPacket & data)
     }
 }
 
-void OutdoorPvPEP::SendRemoveWorldStates(Player *plr)
+void OutdoorPvPEP::SendRemoveWorldStates(Player* plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_COUNT_A, 0);
     plr->SendUpdateWorldState(EP_UI_TOWER_COUNT_H, 0);

@@ -12,21 +12,22 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
+  Commands/cs_debug.cpp
+  Commands/cs_event.cpp
   Commands/cs_gm.cpp
-  Commands/cs_npc.cpp
   Commands/cs_go.cpp
+  Commands/cs_gobject.cpp
+  Commands/cs_gps.cpp
+  Commands/cs_honor.cpp
   Commands/cs_learn.cpp
   Commands/cs_modify.cpp
-  Commands/cs_debug.cpp
-  Commands/cs_tele.cpp
-#  Commands/cs_character.cpp
-  Commands/cs_event.cpp
-  Commands/cs_gobject.cpp
-  Commands/cs_honor.cpp
-  Commands/cs_wp.cpp
-  Commands/cs_titles.cpp
+  Commands/cs_npc.cpp
   Commands/cs_quest.cpp
   Commands/cs_reload.cpp
+  Commands/cs_tele.cpp
+  Commands/cs_titles.cpp
+  Commands/cs_wp.cpp
+#  Commands/cs_character.cpp
 #  Commands/cs_list.cpp
 #  Commands/cs_lookup.cpp
 #  Commands/cs_pdump.cpp
@@ -54,7 +55,6 @@ set(scripts_STAT_SRCS
 #  Commands/cs_die.cpp
 #  Commands/cs_revive.cpp
 #  Commands/cs_dismount.cpp
-  Commands/cs_gps.cpp
 #  Commands/cs_guid.cpp
 #  Commands/cs_help.cpp
 #  Commands/cs_itemmove.cpp

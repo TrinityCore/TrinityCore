@@ -177,7 +177,7 @@ public:
             HandleTerraceDoors(true);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!Intro && !Flying)
                 ScriptedAI::MoveInLineOfSight(who);
@@ -229,7 +229,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             summoned->AI()->AttackStart(me->getVictim());
         }
@@ -321,14 +321,14 @@ public:
 
                 if (CharredEarthTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_CHARRED_EARTH);
                     CharredEarthTimer = 20000;
                 } else CharredEarthTimer -= diff;
 
                 if (TailSweepTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         if (!me->HasInArc(M_PI, pTarget))
                             DoCast(pTarget, SPELL_TAIL_SWEEP);
                     TailSweepTimer = 15000;
@@ -336,7 +336,7 @@ public:
 
                 if (SearingCindersTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_SEARING_CINDERS);
                     SearingCindersTimer = 10000;
                 } else SearingCindersTimer -= diff;
@@ -378,7 +378,7 @@ public:
 
                     if (DistractingAshTimer <= diff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_DISTRACTING_ASH);
                         DistractingAshTimer = 2000; //timer wrong
                     } else DistractingAshTimer -= diff;
@@ -395,7 +395,7 @@ public:
 
                 if (FireballBarrageTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0))
                         DoCast(pTarget, SPELL_FIREBALL_BARRAGE);
                     FireballBarrageTimer = 20000;
                 } else FireballBarrageTimer -= diff;

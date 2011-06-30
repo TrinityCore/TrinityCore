@@ -46,7 +46,7 @@ public:
 
     struct boss_magistrate_barthilasAI : public ScriptedAI
     {
-        boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c) {}
+        boss_magistrate_barthilasAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 DrainingBlow_Timer;
         uint32 CrowdPummel_Timer;
@@ -68,7 +68,7 @@ public:
                 me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             //nothing to see here yet
 

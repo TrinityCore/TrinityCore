@@ -113,7 +113,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
             }
 
-            void JustSummoned(Creature *summoned)
+            void JustSummoned(Creature* summoned)
             {
                 switch(summoned->GetEntry())
                 {

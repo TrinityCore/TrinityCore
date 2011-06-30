@@ -139,7 +139,7 @@ public:
             return false;
         }
 
-        Player *chr = handler->GetSession()->GetPlayer();
+        Player* chr = handler->GetSession()->GetPlayer();
         float x = float(chr->GetPositionX());
         float y = float(chr->GetPositionY());
         float z = float(chr->GetPositionZ());
@@ -190,7 +190,7 @@ public:
         if (!charID)
             return false;
 
-        Player *chr = handler->GetSession()->GetPlayer();
+        Player* chr = handler->GetSession()->GetPlayer();
 
         char* spawntime = strtok(NULL, " ");
         uint32 spawntm = 300;
@@ -411,7 +411,7 @@ public:
         }
         else
         {
-            Player *chr = handler->GetSession()->GetPlayer();
+            Player* chr = handler->GetSession()->GetPlayer();
             o = chr->GetOrientation();
         }
 
@@ -459,7 +459,7 @@ public:
 
         if (!px)
         {
-            Player *chr = handler->GetSession()->GetPlayer();
+            Player* chr = handler->GetSession()->GetPlayer();
             obj->Relocate(chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), obj->GetOrientation());
             obj->DestroyForNearbyPlayers();
             obj->UpdateObjectVisibility();
