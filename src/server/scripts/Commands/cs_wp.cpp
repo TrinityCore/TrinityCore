@@ -434,7 +434,7 @@ public:
                 else
                 {
                     std::string arg_str_3 = arg_3;
-                    WorldDatabase.escape_string(arg_str_3);
+                    WorldDatabase.EscapeString(arg_str_3);
                     WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%s' WHERE guid='%u'",
                         arg_2, arg_str_3.c_str(), id);
                 }
@@ -619,7 +619,7 @@ public:
         {
             // show_str check for present in list of correct values, no sql injection possible
             std::string text2 = text;
-            WorldDatabase.escape_string(text2);
+            WorldDatabase.EscapeString(text2);
             WorldDatabase.PExecute("UPDATE waypoint_data SET %s='%s' WHERE id='%u' AND point='%u'",
                 show_str, text2.c_str(), pathid, point);
         }
