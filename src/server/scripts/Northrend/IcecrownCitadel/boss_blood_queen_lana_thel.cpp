@@ -402,7 +402,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             DoStopAttack();
                             me->SetReactState(REACT_PASSIVE);
                             events.DelayEvents(7000, EVENT_GROUP_NORMAL);
-                            events.CancelEventsByGCD(EVENT_GROUP_CANCELLABLE);
+                            events.CancelEventGroup(EVENT_GROUP_CANCELLABLE);
                             me->GetMotionMaster()->MovePoint(POINT_CENTER, centerPos);
                             break;
                         case EVENT_AIR_START_FLYING:
