@@ -3726,10 +3726,10 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
              uint32 item = 0;
-             for (int8 x=0;x < 3;x++)
+             for (int8 x = 0;x < 3; x++)
                  if (spellInfo->EffectItemType[x])
                      item = spellInfo->EffectItemType[x];
-             ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(item);
+             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
              if (pProto && pProto->ItemLimitCategory)
                  data << uint32(pProto->ItemLimitCategory);
              break;
@@ -5579,7 +5579,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
 SpellCastResult Spell::CheckCasterAuras() const
 {
     // spells totally immuned to caster auras (wsg flag drop, give marks etc)
-    if (m_spellInfo->AttributesEx6& SPELL_ATTR6_IGNORE_CASTER_AURAS)
+    if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_IGNORE_CASTER_AURAS)
         return SPELL_CAST_OK;
 
     uint8 school_immune = 0;
@@ -5604,17 +5604,38 @@ SpellCastResult Spell::CheckCasterAuras() const
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
 
+    bool usableInStun = m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED;
+
     // Glyph of Pain Suppression
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellIconID == 2178)
-        if (m_caster->HasAuraEffect(63248, 0))      // no SpellFamilyFlags or SpellIconID to identify this
-            mechanic_immune = 1 << MECHANIC_STUN;   // "immune" to stun only for this cast
+    // there is no other way to handle it
+    if (m_spellInfo->Id == 33206 && !m_caster->HasAura(63248))
+        usableInStun = false;
 
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
-    if (unitflag & UNIT_FLAG_STUNNED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED))
-        prevented_reason = SPELL_FAILED_STUNNED;
+    if (unitflag & UNIT_FLAG_STUNNED)
+    {
+        // spell is usable while stunned, check if caster has only mechanic stun auras, another stun types must prevent cast spell
+        if (usableInStun)
+        {
+            bool foundNotStun = false;
+            Unit::AuraEffectList const& stunAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_STUN);
+            for (Unit::AuraEffectList::const_iterator i = stunAuras.begin(); i != stunAuras.end(); ++i)
+            {
+                if (!(GetAllSpellMechanicMask((*i)->GetSpellProto()) & (1<<MECHANIC_STUN)))
+                {
+                    foundNotStun = true;
+                    break;
+                }
+            }
+            if (foundNotStun)
+                prevented_reason = SPELL_FAILED_STUNNED;
+        }
+        else
+            prevented_reason = SPELL_FAILED_STUNNED;
+    }
     else if (unitflag & UNIT_FLAG_CONFUSED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
     else if (unitflag & UNIT_FLAG_FLEEING && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_FEARED))
@@ -5634,23 +5655,24 @@ SpellCastResult Spell::CheckCasterAuras() const
             for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             {
                 Aura const* aura = itr->second->GetBase();
-                if (GetAllSpellMechanicMask(aura->GetSpellProto()) & mechanic_immune)
+                SpellEntry const* auraInfo = aura->GetSpellProto();
+                if (GetAllSpellMechanicMask(auraInfo) & mechanic_immune)
                     continue;
-                if (GetSpellSchoolMask(aura->GetSpellProto()) & school_immune)
+                if (GetSpellSchoolMask(auraInfo) & school_immune)
                     continue;
-                if ((1<<(aura->GetSpellProto()->Dispel)) & dispel_immune)
+                if ((1<<(auraInfo->Dispel)) & dispel_immune)
                     continue;
 
                 //Make a second check for spell failed so the right SPELL_FAILED message is returned.
                 //That is needed when your casting is prevented by multiple states and you are only immune to some of them.
-                for (uint8 i=0; i<MAX_SPELL_EFFECTS; ++i)
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    if (AuraEffect * part = aura->GetEffect(i))
+                    if (AuraEffect* part = aura->GetEffect(i))
                     {
-                        switch(part->GetAuraType())
+                        switch (part->GetAuraType())
                         {
                             case SPELL_AURA_MOD_STUN:
-                                if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED))
+                                if (!usableInStun || !(GetAllSpellMechanicMask(auraInfo) & (1<<MECHANIC_STUN)))
                                     return SPELL_FAILED_STUNNED;
                                 break;
                             case SPELL_AURA_MOD_CONFUSE:
