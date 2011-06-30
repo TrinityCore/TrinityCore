@@ -42,7 +42,7 @@ class boss_renataki : public CreatureScript
 
         struct boss_renatakiAI : public ScriptedAI
         {
-            boss_renatakiAI(Creature *c) : ScriptedAI(c) {}
+            boss_renatakiAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;
@@ -92,7 +92,7 @@ class boss_renataki : public CreatureScript
                 {
                     if (Ambush_Timer <= diff)
                     {
-                        Unit *pTarget = NULL;
+                        Unit* pTarget = NULL;
                         pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (pTarget)
                         {
@@ -126,7 +126,7 @@ class boss_renataki : public CreatureScript
                 {
                     if (Aggro_Timer <= diff)
                     {
-                        Unit *pTarget = NULL;
+                        Unit* pTarget = NULL;
                         pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                         if (DoGetThreat(me->getVictim()))

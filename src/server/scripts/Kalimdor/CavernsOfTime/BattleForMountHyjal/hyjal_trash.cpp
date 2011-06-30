@@ -155,7 +155,7 @@ float HordeOverrunWP[21][3]=//waypoints in the horde base used in the end in the
     {5429.91f, -2718.44f, 1493.42f}//20 end 2
 };
 
-hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
+hyjal_trashAI::hyjal_trashAI(Creature* c) : npc_escortAI(c)
 {
     pInstance = c->GetInstanceScript();
     IsEvent = false;
@@ -170,7 +170,7 @@ hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
     Reset();
 }
 
-void hyjal_trashAI::DamageTaken(Unit *done_by, uint32 &damage)
+void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
 {
     if (done_by->GetTypeId() == TYPEID_PLAYER || (done_by->GetTypeId() == TYPEID_UNIT && CAST_CRE(done_by)->isPet()))
     {
@@ -434,7 +434,7 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -475,7 +475,7 @@ public:
                     {
                         if (pInstance->GetData(DATA_ALLIANCE_RETREAT) && !pInstance->GetData(DATA_HORDE_RETREAT))
                         {
-                            Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                            Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                             if (pTarget && pTarget->isAlive())
                                 me->AddThreat(pTarget, 0.0f);
                         } else if (pInstance->GetData(DATA_ALLIANCE_RETREAT) && pInstance->GetData(DATA_HORDE_RETREAT)){
@@ -562,11 +562,11 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }else{
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -667,11 +667,11 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }else{
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -768,12 +768,12 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
+            Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
             if (pTarget && summon)
                 summon->Attack(pTarget, false);
             summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
+        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
         void WaypointReached(uint32 i)
         {
             pos = i;
@@ -781,11 +781,11 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }else{
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -897,11 +897,11 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }else{
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -998,11 +998,11 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }else{
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -1090,11 +1090,11 @@ public:
             {
                 if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }else{
-                    Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                    Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
                         me->AddThreat(pTarget, 0.0f);
                 }
@@ -1184,7 +1184,7 @@ public:
             pos = i;
             if (i == 2 && pInstance && !IsOverrun)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                 if (pTarget && pTarget->isAlive())
                 {
                     me->AddThreat(pTarget, 0.0f);
@@ -1306,7 +1306,7 @@ public:
             pos = i;
             if (i == 2 && pInstance && !IsOverrun)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                 if (pTarget && pTarget->isAlive())
                 {
                     me->AddThreat(pTarget, 0.0f);
@@ -1373,7 +1373,7 @@ public:
                 forcemove = false;
                 if (forcemove)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget)
                         me->Attack(pTarget, false);
                 }
@@ -1416,7 +1416,7 @@ public:
 
     struct alliance_riflemanAI : public Scripted_NoMovementAI
     {
-        alliance_riflemanAI(Creature *c) : Scripted_NoMovementAI(c)
+        alliance_riflemanAI(Creature* c) : Scripted_NoMovementAI(c)
         {
             Reset();
         }
@@ -1432,7 +1432,7 @@ public:
             ExplodeTimer = 5000+rand()%5000;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || me->getVictim())
                 return;

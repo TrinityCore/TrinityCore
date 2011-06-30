@@ -215,7 +215,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void UpdateTowerState();
 
-        int32 HandleOpenGo(Player *plr, uint64 guid);
+        int32 HandleOpenGo(Player* plr, uint64 guid);
 
         void SetBeaconState(uint32 controlling_team); // not good atm
 
@@ -246,8 +246,8 @@ class OutdoorPvPZM : public OutdoorPvP
 
         bool SetupOutdoorPvP();
 
-        void HandlePlayerEnterZone(Player *plr, uint32 zone);
-        void HandlePlayerLeaveZone(Player *plr, uint32 zone);
+        void HandlePlayerEnterZone(Player* plr, uint32 zone);
+        void HandlePlayerLeaveZone(Player* plr, uint32 zone);
 
         bool Update(uint32 diff);
 

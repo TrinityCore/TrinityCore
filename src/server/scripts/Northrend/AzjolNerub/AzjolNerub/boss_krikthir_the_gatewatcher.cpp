@@ -94,7 +94,7 @@ public:
 
     struct boss_krik_thirAI : public ScriptedAI
     {
-        boss_krik_thirAI(Creature *c) : ScriptedAI(c)
+        boss_krik_thirAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -199,7 +199,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_krik_thirAI(creature);
     }
@@ -212,7 +212,7 @@ public:
 
     struct npc_skittering_infectorAI : public ScriptedAI
     {
-        npc_skittering_infectorAI(Creature *c) : ScriptedAI(c) {}
+        npc_skittering_infectorAI(Creature* c) : ScriptedAI(c) {}
 
         void JustDied(Unit* /*killer*/)
         {
@@ -221,7 +221,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_skittering_infectorAI(creature);
     }
@@ -234,7 +234,7 @@ public:
 
     struct npc_anub_ar_skirmisherAI : public ScriptedAI
     {
-        npc_anub_ar_skirmisherAI(Creature *c) : ScriptedAI(c) {}
+        npc_anub_ar_skirmisherAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiChargeTimer;
         uint32 uiBackstabTimer;
@@ -272,7 +272,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_anub_ar_skirmisherAI(creature);
     }
@@ -285,7 +285,7 @@ public:
 
     struct npc_anub_ar_shadowcasterAI : public ScriptedAI
     {
-        npc_anub_ar_shadowcasterAI(Creature *c) : ScriptedAI(c) {}
+        npc_anub_ar_shadowcasterAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiShadowBoltTimer;
         uint32 uiShadowNovaTimer;
@@ -303,7 +303,7 @@ public:
 
             if (uiShadowBoltTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                      DoCast(pTarget, SPELL_SHADOW_BOLT, true);
                 uiShadowBoltTimer = 15*IN_MILLISECONDS;
             } else uiShadowBoltTimer -= diff;
@@ -318,7 +318,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_anub_ar_shadowcasterAI(creature);
     }
@@ -331,7 +331,7 @@ public:
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
-        npc_anub_ar_warriorAI(Creature *c) : ScriptedAI(c){}
+        npc_anub_ar_warriorAI(Creature* c) : ScriptedAI(c){}
 
         uint32 uiCleaveTimer;
         uint32 uiStrikeTimer;
@@ -363,7 +363,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_anub_ar_warriorAI(creature);
     }
@@ -376,7 +376,7 @@ public:
 
     struct npc_watcher_gashraAI : public ScriptedAI
     {
-        npc_watcher_gashraAI(Creature *c) : ScriptedAI(c) {}
+        npc_watcher_gashraAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -399,7 +399,7 @@ public:
 
             if (uiWebWrapTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_WEB_WRAP, true);
                 uiWebWrapTimer = 17*IN_MILLISECONDS;
             } else uiWebWrapTimer -= diff;
@@ -414,7 +414,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_watcher_gashraAI(creature);
     }
@@ -427,7 +427,7 @@ public:
 
     struct npc_watcher_narjilAI : public ScriptedAI
     {
-        npc_watcher_narjilAI(Creature *c) : ScriptedAI(c) {}
+        npc_watcher_narjilAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -447,7 +447,7 @@ public:
 
             if (uiWebWrapTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_WEB_WRAP, true);
                 uiWebWrapTimer = 15*IN_MILLISECONDS;
             } else uiWebWrapTimer -= diff;
@@ -468,7 +468,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_watcher_narjilAI(creature);
     }
@@ -481,7 +481,7 @@ public:
 
     struct npc_watcher_silthikAI : public ScriptedAI
     {
-        npc_watcher_silthikAI(Creature *c) : ScriptedAI(c) {}
+        npc_watcher_silthikAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -501,7 +501,7 @@ public:
 
             if (uiWebWrapTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_WEB_WRAP, true);
 
                 uiWebWrapTimer = 15*IN_MILLISECONDS;
@@ -524,7 +524,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_watcher_silthikAI(creature);
     }

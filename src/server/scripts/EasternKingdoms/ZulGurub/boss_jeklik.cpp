@@ -54,7 +54,7 @@ class boss_jeklik : public CreatureScript
 
         struct boss_jeklikAI : public ScriptedAI
         {
-            boss_jeklikAI(Creature *c) : ScriptedAI(c)
+            boss_jeklikAI(Creature* c) : ScriptedAI(c)
             {
                 m_pInstance = c->GetInstanceScript();
             }
@@ -113,7 +113,7 @@ class boss_jeklik : public CreatureScript
                     {
                         if (Charge_Timer <= diff)
                         {
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 DoCast(pTarget, SPELL_CHARGE);
                                 AttackStart(pTarget);
@@ -136,7 +136,7 @@ class boss_jeklik : public CreatureScript
 
                         if (SpawnBats_Timer <= diff)
                         {
-                            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                            Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                             Creature* Bat = NULL;
                             Bat = me->SummonCreature(11368, -12291.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -165,7 +165,7 @@ class boss_jeklik : public CreatureScript
                         {
                             if (PhaseTwo && ShadowWordPain_Timer <= diff)
                             {
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
                                     DoCast(pTarget, SPELL_SHADOW_WORD_PAIN);
                                     ShadowWordPain_Timer = 12000 + rand()%6000;
@@ -194,7 +194,7 @@ class boss_jeklik : public CreatureScript
 
                             if (SpawnFlyingBats_Timer <= diff)
                             {
-                                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                 if (!pTarget)
                                     return;
 
@@ -236,7 +236,7 @@ class mob_batrider : public CreatureScript
 
         struct mob_batriderAI : public ScriptedAI
         {
-            mob_batriderAI(Creature *c) : ScriptedAI(c)
+            mob_batriderAI(Creature* c) : ScriptedAI(c)
             {
                 m_pInstance = c->GetInstanceScript();
             }
@@ -264,7 +264,7 @@ class mob_batrider : public CreatureScript
                 //Bomb_Timer
                 if (Bomb_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoCast(pTarget, SPELL_BOMB);
                         Bomb_Timer = 5000;

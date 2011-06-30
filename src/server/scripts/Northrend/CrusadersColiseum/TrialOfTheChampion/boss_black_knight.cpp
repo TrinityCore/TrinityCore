@@ -195,7 +195,7 @@ public:
                         {
                             if (uiDeathRespiteTimer <= uiDiff)
                             {
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
                                     if (pTarget && pTarget->isAlive())
                                         DoCast(pTarget, SPELL_DEATH_RESPITE);
@@ -223,7 +223,7 @@ public:
                             }
                             if (uiDesecration <= uiDiff)
                             {
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
                                     if (pTarget && pTarget->isAlive())
                                         DoCast(pTarget, SPELL_DESECRATION);
@@ -293,7 +293,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_black_knightAI (pCreature);
     }

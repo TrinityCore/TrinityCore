@@ -52,7 +52,7 @@ public:
 
     struct boss_kazrogalAI : public hyjal_trashAI
     {
-        boss_kazrogalAI(Creature *c) : hyjal_trashAI(c)
+        boss_kazrogalAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             pGo = false;
@@ -116,7 +116,7 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                 if (pTarget && pTarget->isAlive())
                     me->AddThreat(pTarget, 0.0f);
             }
@@ -181,7 +181,7 @@ public:
                 std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->getPowerType() == POWER_MANA)
                     {
                         pTarget->CastSpell(pTarget, SPELL_MARK, true);//only cast on mana users

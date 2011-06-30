@@ -65,7 +65,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature *c) : NullCreatureAI(c) {}
+        molten_flameAI(Creature* c) : NullCreatureAI(c) {}
 
         void InitializeAI()
         {
@@ -91,7 +91,7 @@ public:
 
     struct boss_supremusAI : public ScriptedAI
     {
-        boss_supremusAI(Creature *c) : ScriptedAI(c), summons(me)
+        boss_supremusAI(Creature* c) : ScriptedAI(c), summons(me)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -165,13 +165,13 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature *summon) {summons.Summon(summon);}
-        void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
+        void JustSummoned(Creature* summon) {summons.Summon(summon);}
+        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
 
         Unit* CalculateHatefulStrikeTarget()
         {
             uint32 health = 0;
-            Unit *pTarget = NULL;
+            Unit* pTarget = NULL;
 
             std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
@@ -211,13 +211,13 @@ public:
                         events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
                         break;
                     case EVENT_HATEFUL_STRIKE:
-                        if (Unit *pTarget = CalculateHatefulStrikeTarget())
+                        if (Unit* pTarget = CalculateHatefulStrikeTarget())
                             DoCast(pTarget, SPELL_HATEFUL_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                         break;
                     case EVENT_SWITCH_TARGET:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                         {
                             DoResetThreat();
                             me->AddThreat(pTarget, 5000000.0f);
@@ -227,7 +227,7 @@ public:
                         break;
                     case EVENT_VOLCANO:
                     {
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
                         if (!pTarget) pTarget = me->getVictim();
                         if (pTarget)
                         {
@@ -263,7 +263,7 @@ public:
 
     struct npc_volcanoAI : public Scripted_NoMovementAI
     {
-        npc_volcanoAI(Creature *c) : Scripted_NoMovementAI(c) {}
+        npc_volcanoAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
         void Reset()
         {

@@ -115,7 +115,7 @@ public:
 
     struct boss_kalecgosAI : public ScriptedAI
     {
-        boss_kalecgosAI(Creature *c) : ScriptedAI(c)
+        boss_kalecgosAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             SathGUID = 0;
@@ -155,7 +155,7 @@ public:
                 pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
 
-            if (Creature *Sath = Unit::GetCreature(*me, SathGUID))
+            if (Creature* Sath = Unit::GetCreature(*me, SathGUID))
                 Sath->AI()->EnterEvadeMode();
 
             me->setFaction(14);
@@ -329,7 +329,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (bJustReset)//boss is invisible, don't attack
                 return;
@@ -342,7 +342,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
@@ -459,7 +459,7 @@ public:
 
         bool isEnraged; // if demon is enraged
 
-        boss_kalecAI(Creature *c) : ScriptedAI(c)
+        boss_kalecAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -477,7 +477,7 @@ public:
             isEnraged = false;
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetGUID() != SathGUID)
                 damage = 0;
@@ -578,7 +578,7 @@ public:
 
     struct boss_sathrovarrAI : public ScriptedAI
     {
-        boss_sathrovarrAI(Creature *c) : ScriptedAI(c)
+        boss_sathrovarrAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             KalecGUID = 0;
@@ -629,7 +629,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (Creature *Kalec = me->SummonCreature(MOB_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+            if (Creature* Kalec = me->SummonCreature(MOB_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
             {
                 KalecGUID = Kalec->GetGUID();
                 me->CombatStart(Kalec);
@@ -639,18 +639,18 @@ public:
             DoScriptText(SAY_SATH_AGGRO, me);
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
         }
 
-        void KilledUnit(Unit *pTarget)
+        void KilledUnit(Unit* pTarget)
         {
             if (pTarget->GetGUID() == KalecGUID)
             {
                 TeleportAllPlayersBack();
-                if (Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
+                if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                 {
                     CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->TalkTimer = 1;
                     CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = false;
@@ -666,7 +666,7 @@ public:
             DoScriptText(SAY_SATH_DEATH, me);
             me->GetMap()->CreatureRelocation(me, me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
             TeleportAllPlayersBack();
-            if (Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
+            if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
             {
                 CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->TalkTimer = 1;
                 CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = true;
@@ -715,10 +715,10 @@ public:
 
             if (CheckTimer <= diff)
             {
-                Creature *Kalec = Unit::GetCreature(*me, KalecGUID);
+                Creature* Kalec = Unit::GetCreature(*me, KalecGUID);
                 if (!Kalec || (Kalec && !Kalec->isAlive()))
                 {
-                    if (Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
+                    if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                         Kalecgos->AI()->EnterEvadeMode();
                         return;
                 }
@@ -728,7 +728,7 @@ public:
                         Kalecgos->AI()->DoAction(DO_ENRAGE);
                     DoAction(DO_ENRAGE);
                 }
-                Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID);
+                Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID);
                 if (Kalecgos)
                 {
                     if (!Kalecgos->isInCombat())
@@ -783,7 +783,7 @@ public:
 
             if (AgonyCurseTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (!pTarget) pTarget = me->getVictim();
                 DoCast(pTarget, SPELL_AGONY_CURSE);
                 AgonyCurseTimer = 20000;

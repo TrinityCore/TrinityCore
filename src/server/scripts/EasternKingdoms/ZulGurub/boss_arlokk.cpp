@@ -130,7 +130,7 @@ class boss_arlokk : public CreatureScript
 
             void DoSummonPhanters()
             {
-                if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
                     DoScriptText(SAY_FEAST_PANTHER, me, pMarkedTarget);
 
                 me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998f, -1649.6734f, 41.4800f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -139,7 +139,7 @@ class boss_arlokk : public CreatureScript
 
             void JustSummoned(Creature* pSummoned)
             {
-                if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
                     pSummoned->AI()->AttackStart(pMarkedTarget);
 
                 ++m_uiSummonCount;
@@ -162,7 +162,7 @@ class boss_arlokk : public CreatureScript
 
                     if (m_uiMark_Timer <= uiDiff)
                     {
-                        Unit *pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                         if (pMarkedTarget)
                         {

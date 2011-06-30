@@ -63,7 +63,7 @@ public:
 
     struct boss_anubrekhanAI : public BossAI
     {
-        boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
+        boss_anubrekhanAI(Creature* c) : BossAI(c, BOSS_ANUBREKHAN) {}
 
         bool hasTaunted;
 
@@ -99,7 +99,7 @@ public:
             DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit *)
+        void JustDied(Unit* )
         {
             _JustDied();
 
@@ -119,7 +119,7 @@ public:
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -129,7 +129,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             BossAI::SummonedCreatureDespawn(summon);
 
@@ -155,7 +155,7 @@ public:
                         //Cast Impale on a random target
                         //Do NOT cast it when we are afflicted by locust swarm
                         if (!me->HasAura(RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25)))
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25));
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;

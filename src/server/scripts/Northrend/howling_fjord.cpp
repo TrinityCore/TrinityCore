@@ -147,7 +147,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_Apothecary_HanesAI(creature);
     }
@@ -196,7 +196,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_plaguehound_trackerAI(creature);
     }
@@ -362,7 +362,7 @@ public:
     // TODO: make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
     struct npc_daegarnAI : public ScriptedAI
     {
-        npc_daegarnAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        npc_daegarnAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
         bool bEventInProgress;
         uint64 uiPlayerGUID;
@@ -421,7 +421,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_daegarnAI(creature);
     }

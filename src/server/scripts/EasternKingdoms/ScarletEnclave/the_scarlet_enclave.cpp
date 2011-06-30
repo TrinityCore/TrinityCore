@@ -35,7 +35,7 @@ public:
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI
     {
-        npc_valkyr_battle_maidenAI(Creature *c) : PassiveAI(c) {}
+        npc_valkyr_battle_maidenAI(Creature* c) : PassiveAI(c) {}
 
         uint32 FlyBackTimer;
         float x, y, z;
@@ -60,9 +60,9 @@ public:
         {
             if (FlyBackTimer <= diff)
             {
-                Player *plr = NULL;
+                Player* plr = NULL;
                 if (me->isSummon())
-                    if (Unit *summoner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                         if (summoner->GetTypeId() == TYPEID_PLAYER)
                             plr = CAST_PLR(summoner);
 

@@ -171,7 +171,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 if (Summoned)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Summoned->AI()->AttackStart(pTarget);
 
                     Summons.Summon(Summoned);
@@ -227,7 +227,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     if (Wrath_Timer <= diff)
                     {
                         me->InterruptNonMeleeSpells(false);
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                             DoCast(pTarget, SPELL_WRATH_OF_THE_ASTROMANCER, true);
                         Wrath_Timer = 20000+rand()%5000;
                     }
@@ -243,7 +243,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                            Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                             if (!me->HasInArc(2.5f, pTarget))
                                 pTarget = me->getVictim();
                             if (pTarget)
@@ -446,7 +446,7 @@ class mob_solarium_priest : public CreatureScript
 
                 if (healTimer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     switch (urand(0, 1))
                     {
                         case 0:

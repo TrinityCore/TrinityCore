@@ -53,7 +53,7 @@ public:
 
     struct mob_stolen_soulAI : public ScriptedAI
     {
-        mob_stolen_soulAI(Creature *c) : ScriptedAI(c) {}
+        mob_stolen_soulAI(Creature* c) : ScriptedAI(c) {}
 
         uint8 myClass;
         uint32 Class_Timer;
@@ -162,7 +162,7 @@ public:
 
     struct boss_exarch_maladaarAI : public ScriptedAI
     {
-        boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c)
+        boss_exarch_maladaarAI(Creature* c) : ScriptedAI(c)
         {
             HasTaunted = false;
         }
@@ -191,7 +191,7 @@ public:
             Avatar_summoned = false;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!HasTaunted && me->IsWithinDistInMap(who, 150.0))
             {
@@ -207,7 +207,7 @@ public:
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             if (summoned->GetEntry() == ENTRY_STOLEN_SOUL)
             {
@@ -216,7 +216,7 @@ public:
                 summoned->SetDisplayId(soulmodel);
                 summoned->setFaction(me->getFaction());
 
-                if (Unit *pTarget = Unit::GetUnit(*me, soulholder))
+                if (Unit* pTarget = Unit::GetUnit(*me, soulholder))
                 {
 
                 CAST_AI(mob_stolen_soul::mob_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
@@ -259,7 +259,7 @@ public:
 
             if (StolenSoul_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -286,7 +286,7 @@ public:
 
             if (Ribbon_of_Souls_timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
@@ -319,7 +319,7 @@ public:
 
     struct mob_avatar_of_martyredAI : public ScriptedAI
     {
-        mob_avatar_of_martyredAI(Creature *c) : ScriptedAI(c) {}
+        mob_avatar_of_martyredAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Mortal_Strike_timer;
 

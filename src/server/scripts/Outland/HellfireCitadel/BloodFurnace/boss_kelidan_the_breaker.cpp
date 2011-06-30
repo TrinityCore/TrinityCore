@@ -136,7 +136,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 }
                 for (uint8 i=0; i<5; ++i)
                 {
-                    Creature *channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
                     if (who && channeler && !channeler->isInCombat())
                         channeler->AI()->AttackStart(who);
                 }
@@ -146,7 +146,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 for (uint8 i=0; i<5; ++i)
                 {
-                    Creature *channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
                     if (channeler && channeler->isAlive())
                         return;
                 }
@@ -155,14 +155,14 @@ class boss_kelidan_the_breaker : public CreatureScript
                     me->AI()->AttackStart(killer);
             }
 
-            uint64 GetChanneled(Creature *channeler1)
+            uint64 GetChanneled(Creature* channeler1)
             {
                 SummonChannelers();
                 if (!channeler1) return 0;
                 uint8 i;
                 for (i=0; i<5; ++i)
                 {
-                    Creature *channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
                     if (channeler && channeler->GetGUID() == channeler1->GetGUID())
                         break;
                 }
@@ -173,7 +173,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 for (uint8 i=0; i<5; ++i)
                 {
-                    Creature *channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
                     if (!channeler || channeler->isDead())
                         channeler = me->SummonCreature(ENTRY_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                     if (channeler)
@@ -317,7 +317,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
+                if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                     CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
@@ -326,7 +326,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
             void JustDied(Unit* Killer)
             {
-               if (Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
+               if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                    CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(Killer);
             }
 
@@ -337,10 +337,10 @@ class mob_shadowmoon_channeler : public CreatureScript
                     if (check_Timer <= diff)
                     {
                         if (!me->IsNonMeleeSpellCasted(false))
-                            if (Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
+                            if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                             {
                                 uint64 channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
-                                if (Unit *channeled = Unit::GetUnit(*me, channeler))
+                                if (Unit* channeled = Unit::GetUnit(*me, channeler))
                                     DoCast(channeled, SPELL_CHANNELING);
                             }
                         check_Timer = 5000;
@@ -352,7 +352,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
                 if (MarkOfShadow_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_MARK_OF_SHADOW);
                     MarkOfShadow_Timer = 15000+rand()%5000;
                 }

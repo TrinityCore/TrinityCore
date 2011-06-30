@@ -68,7 +68,7 @@ public:
 
     struct mob_kilrekAI : public ScriptedAI
     {
-        mob_kilrekAI(Creature *c) : ScriptedAI(c)
+        mob_kilrekAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -140,7 +140,7 @@ public:
 
     struct mob_demon_chainAI : public ScriptedAI
     {
-        mob_demon_chainAI(Creature *c) : ScriptedAI(c) {}
+        mob_demon_chainAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 SacrificeGUID;
 
@@ -178,7 +178,7 @@ public:
 
     struct mob_fiendish_portalAI : public PassiveAI
     {
-        mob_fiendish_portalAI(Creature *c) : PassiveAI(c), summons(me){}
+        mob_fiendish_portalAI(Creature* c) : PassiveAI(c), summons(me){}
 
         SummonList summons;
 
@@ -215,7 +215,7 @@ public:
 
     struct mob_fiendish_impAI : public ScriptedAI
     {
-        mob_fiendish_impAI(Creature *c) : ScriptedAI(c) {}
+        mob_fiendish_impAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 FireboltTimer;
 
@@ -258,7 +258,7 @@ public:
 
     struct boss_terestianAI : public ScriptedAI
     {
-        boss_terestianAI(Creature *c) : ScriptedAI(c)
+        boss_terestianAI(Creature* c) : ScriptedAI(c)
         {
             for (uint8 i = 0; i < 2; ++i)
                 PortalGUID[i] = 0;
@@ -370,7 +370,7 @@ public:
 
             if (SacrificeTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
                 if (pTarget && pTarget->isAlive())
                 {
                     DoCast(pTarget, SPELL_SACRIFICE, true);
