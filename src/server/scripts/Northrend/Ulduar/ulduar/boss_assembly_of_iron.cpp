@@ -65,19 +65,19 @@ enum AssemblyEvents
 {
     // General
     EVENT_BERSERK                                = 1,
-    
+
     // Steelbreaker
     EVENT_FUSION_PUNCH                           = 2,
     EVENT_STATIC_DISRUPTION                      = 3,
     EVENT_OVERWHELMING_POWER                     = 4,
-    
+
     // Molgeim
     EVENT_RUNE_OF_POWER                          = 5,
     EVENT_SHIELD_OF_RUNES                        = 6,
     EVENT_RUNE_OF_DEATH                          = 7,
     EVENT_RUNE_OF_SUMMONING                      = 8,
     EVENT_LIGHTNING_BLAST                        = 9,
-    
+
     // Brundir
     EVENT_CHAIN_LIGHTNING                        = 10,
     EVENT_OVERLOAD                               = 11,
