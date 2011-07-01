@@ -110,7 +110,7 @@ public:
 
     struct boss_victor_nefariusAI : public ScriptedAI
     {
-        boss_victor_nefariusAI(Creature *c) : ScriptedAI(c)
+        boss_victor_nefariusAI(Creature* c) : ScriptedAI(c)
         {
             NefarianGUID = 0;
             switch (urand(0, 19))
@@ -224,7 +224,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void BeginEvent(Player *pTarget)
+        void BeginEvent(Player* pTarget)
         {
             DoScriptText(SAY_GAMESBEGIN_2, me);
 
@@ -247,7 +247,7 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             //We simply use this function to find players until we can use pMap->GetPlayers()
 
@@ -269,7 +269,7 @@ public:
                 //ShadowBoltTimer
                 if (ShadowBoltTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_SHADOWBOLT);
 
                     ShadowBoltTimer = urand(3000, 10000);
@@ -278,7 +278,7 @@ public:
                 //FearTimer
                 if (FearTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_FEAR);
 
                     FearTimer = 10000 + (rand()%10000);
@@ -290,7 +290,7 @@ public:
                     //Spawn 2 random types of creatures at the 2 locations
                     uint32 CreatureID;
                     Creature* Spawned = NULL;
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
 
                     //1 in 3 chance it will be a chromatic
                     if (urand(0, 2) == 0)

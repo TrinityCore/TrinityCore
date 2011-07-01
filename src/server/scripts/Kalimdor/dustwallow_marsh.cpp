@@ -273,14 +273,14 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new npc_theramore_guardAI(pCreature);
     }
 
     struct npc_theramore_guardAI : public ScriptedAI
     {
-        npc_theramore_guardAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        npc_theramore_guardAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
         uint32 uiYellTimer;
         uint32 uiStep;

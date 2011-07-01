@@ -107,7 +107,7 @@ public:
 
     struct npc_bartlebyAI : public ScriptedAI
     {
-        npc_bartlebyAI(Creature *c) : ScriptedAI(c)
+        npc_bartlebyAI(Creature* c) : ScriptedAI(c)
         {
             m_uiNormalFaction = c->getFaction();
         }
@@ -179,7 +179,7 @@ public:
 
     struct npc_dashel_stonefistAI : public ScriptedAI
     {
-        npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c)
+        npc_dashel_stonefistAI(Creature* c) : ScriptedAI(c)
         {
             m_uiNormalFaction = c->getFaction();
         }
@@ -328,7 +328,7 @@ public:
         {
             me->DisappearAndDie();
 
-            if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
+            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->isAlive())
                     pMarzon->DisappearAndDie();
@@ -337,7 +337,7 @@ public:
 
         void EnterCombat(Unit* pWho)
         {
-            if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
+            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->isAlive() && !pMarzon->isInCombat())
                     pMarzon->AI()->AttackStart(pWho);
@@ -356,7 +356,7 @@ public:
                     break;
                 case 16:
                     SetEscortPaused(true);
-                    if (Creature *pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+                    if (Creature* pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
                     {
                         pMarzon->GetMotionMaster()->MovePoint(0, -8408.000977f, 468.611450f, 123.759903f);
                         MarzonGUID = pMarzon->GetGUID();
@@ -411,7 +411,7 @@ public:
                             uiPhase = 0;
                             break;
                         case 5:
-                            if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
+                            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
                                 DoScriptText(SAY_MARZON_1, pMarzon);
                             uiTimer = 3000;
                             uiPhase = 6;
@@ -426,7 +426,7 @@ public:
                         case 7:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 20.0f, true))
                                 DoScriptText(SAY_TYRION_2, pTyrion);
-                            if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
+                            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
                                 pMarzon->setFaction(14);
                             me->setFaction(14);
                             uiTimer = 0;
@@ -507,10 +507,16 @@ public:
 
             if (me->isSummon())
             {
-                if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+                Unit* pSummoner = me->ToTempSummon()->GetSummoner();
+                if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->IsAIEnabled)
                 {
-                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pSummoner->GetAI())->uiTimer = 2000;
-                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pSummoner->GetAI())->uiPhase = 5;
+                    npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI *ai =
+                        CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pSummoner->GetAI());
+                    if (ai)
+                    {
+                        ai->uiTimer = 2000;
+                        ai->uiPhase = 5;
+                    }
                     //me->ChangeOrient(0.0f, pSummoner);
                 }
             }

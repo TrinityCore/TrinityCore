@@ -136,7 +136,7 @@ public:
 
     struct npc_disciple_of_naralexAI : public npc_escortAI
     {
-        npc_disciple_of_naralexAI(Creature *c) : npc_escortAI(c)
+        npc_disciple_of_naralexAI(Creature* c) : npc_escortAI(c)
         {
             pInstance = c->GetInstanceScript();
             eventTimer = 0;

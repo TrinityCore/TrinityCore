@@ -61,7 +61,7 @@ public:
 
     struct boss_zuramatAI : public ScriptedAI
     {
-        boss_zuramatAI(Creature *c) : ScriptedAI(c)
+        boss_zuramatAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -108,7 +108,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
             if (pInstance)
             {
-                if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_ZURAMAT_CELL)))
+                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_ZURAMAT_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();

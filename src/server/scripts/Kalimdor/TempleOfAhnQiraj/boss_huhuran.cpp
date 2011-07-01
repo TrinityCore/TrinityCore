@@ -47,7 +47,7 @@ public:
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature *c) : ScriptedAI(c) {}
+        boss_huhuranAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Frenzy_Timer;
         uint32 Wyvern_Timer;
@@ -95,7 +95,7 @@ public:
             // Wyvern Timer
             if (Wyvern_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_WYVERNSTING);
                 Wyvern_Timer = 15000 + rand()%17000;
             } else Wyvern_Timer -= diff;

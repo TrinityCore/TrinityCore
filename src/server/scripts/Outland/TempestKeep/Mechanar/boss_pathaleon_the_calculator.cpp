@@ -110,11 +110,11 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void JustSummoned(Creature *summon)
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
-            void SummonedCreatureDespawn(Creature *summon)
+            void SummonedCreatureDespawn(Creature* summon)
             {
                 summons.Despawn(summon);
             }
@@ -129,7 +129,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         Creature* Wraith = me->SummonCreature(21062, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         if (pTarget && Wraith)
                             Wraith->AI()->AttackStart(pTarget);
@@ -158,7 +158,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
                 if (Domination_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     {
                         DoScriptText(RAND(SAY_DOMINATION_1, SAY_DOMINATION_2), me);
                         DoCast(pTarget, SPELL_DOMINATION);
@@ -233,7 +233,7 @@ class mob_nether_wraith : public CreatureScript
 
                 if (ArcaneMissiles_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(pTarget, SPELL_ARCANE_MISSILES);
                     else
                         DoCast(me->getVictim(), SPELL_ARCANE_MISSILES);

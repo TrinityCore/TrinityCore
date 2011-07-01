@@ -57,7 +57,7 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* c) : BossAI(c, BOSS_HEIGAN) {}
 
         uint32 eruptSection;
         bool eruptDirection;

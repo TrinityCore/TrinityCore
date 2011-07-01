@@ -65,7 +65,7 @@ public:
 
     struct boss_maiden_of_griefAI : public ScriptedAI
     {
-        boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c)
+        boss_maiden_of_griefAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -97,7 +97,7 @@ public:
 
             if (pInstance)
             {
-                if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAIDEN_DOOR)))
+                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAIDEN_DOOR)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
@@ -119,7 +119,7 @@ public:
             {
                 if (PartingSorrowTimer <= diff)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (pTarget)
                         DoCast(pTarget, SPELL_PARTING_SORROW);
@@ -144,7 +144,7 @@ public:
 
             if (PillarOfWoeTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                 if (pTarget)
                     DoCast(pTarget, SPELL_PILLAR_OF_WOE_N);

@@ -74,7 +74,7 @@ public:
 
     struct mob_voidtravelerAI : public ScriptedAI
     {
-        mob_voidtravelerAI(Creature *c) : ScriptedAI(c)
+        mob_voidtravelerAI(Creature* c) : ScriptedAI(c)
         {
         }
 
@@ -100,7 +100,7 @@ public:
             }
             if (move <= diff)
             {
-                Creature *Vorpil = Unit::GetCreature(*me, VorpilGUID);
+                Creature* Vorpil = Unit::GetCreature(*me, VorpilGUID);
                 if (!Vorpil)
                 {
                     VorpilGUID = 0;
@@ -147,7 +147,7 @@ public:
 
     struct boss_grandmaster_vorpilAI : public ScriptedAI
     {
-        boss_grandmaster_vorpilAI(Creature *c) : ScriptedAI(c)
+        boss_grandmaster_vorpilAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             Intro = false;
@@ -182,7 +182,7 @@ public:
             {
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    Creature *Portal = NULL;
+                    Creature* Portal = NULL;
                     Portal = me->SummonCreature(MOB_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000);
                     if (Portal)
                     {
@@ -201,7 +201,7 @@ public:
             {
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    Unit *Portal = Unit::GetUnit((*me), PortalsGuid[i]);
+                    Unit* Portal = Unit::GetUnit((*me), PortalsGuid[i]);
                     if (Portal && Portal->isAlive())
                         Portal->DealDamage(Portal, Portal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     PortalsGuid[i] = 0;
@@ -221,7 +221,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             if (summoned && summoned->GetEntry() == MOB_VOID_TRAVELER)
                 CAST_AI(mob_voidtraveler::mob_voidtravelerAI, summoned->AI())->VorpilGUID = me->GetGUID();
@@ -250,7 +250,7 @@ public:
                 pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -274,7 +274,7 @@ public:
 
             if (IsHeroic() && banish_Timer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
                 if (pTarget)
                 {
                     DoCast(pTarget, SPELL_BANISH);
