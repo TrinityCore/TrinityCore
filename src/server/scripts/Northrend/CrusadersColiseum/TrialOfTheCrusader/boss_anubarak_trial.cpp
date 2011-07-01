@@ -195,9 +195,26 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*pWho*/)
+        void MoveInLineOfSight(Unit* pWho)
         {
-            if (!m_bIntro)
+            if (m_pInstance && m_pInstance->GetData(TYPE_VALKIRIES) != DONE)
+            {
+                Map* pMap = me->GetMap();
+                if (pMap && pMap->IsDungeon())
+                {
+                    pMap->LoadGrid(563.46f, 139.33f);
+                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+
+                    if (!PlayerList.isEmpty())
+                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            if (!i->getSource()->isGameMaster())
+                                i->getSource()->TeleportTo(649, 563.46f+urand(0, 50)-25, 139.33f+urand(0, 50)-25, 410.37f, 1.45f);
+                }
+                EnterEvadeMode();
+                return;
+            }
+
+            if (m_bIntro)
             {
                 DoScriptText(SAY_INTRO, me);
                 m_bIntro = false;
