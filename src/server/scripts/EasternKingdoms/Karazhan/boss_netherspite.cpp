@@ -63,7 +63,7 @@ class boss_netherspite : public CreatureScript
 public:
     boss_netherspite() : CreatureScript("boss_netherspite") { }
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_netherspiteAI(pCreature);
     }
@@ -141,7 +141,7 @@ public:
             pos[BLUE_PORTAL] = (r>1 ? 1: 2); // Blue Portal not on the left side (0)
 
             for (int i=0; i<3; ++i)
-                if (Creature *portal = me->SummonCreature(PortalID[i], PortalCoord[pos[i]][0], PortalCoord[pos[i]][1], PortalCoord[pos[i]][2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                if (Creature* portal = me->SummonCreature(PortalID[i], PortalCoord[pos[i]][0], PortalCoord[pos[i]][1], PortalCoord[pos[i]][2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 {
                     PortalGUID[i] = portal->GetGUID();
                     portal->AddAura(PortalVisual[i], portal);
@@ -152,9 +152,9 @@ public:
         {
             for (int i=0; i<3; ++i)
             {
-                if (Creature *portal = Unit::GetCreature(*me, PortalGUID[i]))
+                if (Creature* portal = Unit::GetCreature(*me, PortalGUID[i]))
                     portal->DisappearAndDie();
-                if (Creature *portal = Unit::GetCreature(*me, BeamerGUID[i]))
+                if (Creature* portal = Unit::GetCreature(*me, BeamerGUID[i]))
                     portal->DisappearAndDie();
                 PortalGUID[i] = 0;
                 BeamTarget[i] = 0;
@@ -164,12 +164,12 @@ public:
         void UpdatePortals() // Here we handle the beams' behavior
         {
             for (int j=0; j<3; ++j) // j = color
-                if (Creature *portal = Unit::GetCreature(*me, PortalGUID[j]))
+                if (Creature* portal = Unit::GetCreature(*me, PortalGUID[j]))
                 {
                     // the one who's been casted upon before
-                    Unit *current = Unit::GetUnit(*portal, BeamTarget[j]);
+                    Unit* current = Unit::GetUnit(*portal, BeamTarget[j]);
                     // temporary store for the best suitable beam reciever
-                    Unit *pTarget = me;
+                    Unit* pTarget = me;
 
                     if (Map* map = me->GetMap())
                     {
@@ -199,14 +199,14 @@ public:
                     {
                         BeamTarget[j] = pTarget->GetGUID();
                         // remove currently beaming portal
-                        if (Creature *beamer = Unit::GetCreature(*portal, BeamerGUID[j]))
+                        if (Creature* beamer = Unit::GetCreature(*portal, BeamerGUID[j]))
                         {
                             beamer->CastSpell(pTarget, PortalBeam[j], false);
                             beamer->DisappearAndDie();
                             BeamerGUID[j] = 0;
                         }
                         // create new one and start beaming on the target
-                        if (Creature *beamer = portal->SummonCreature(PortalID[j], portal->GetPositionX(), portal->GetPositionY(), portal->GetPositionZ(), portal->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
+                        if (Creature* beamer = portal->SummonCreature(PortalID[j], portal->GetPositionX(), portal->GetPositionY(), portal->GetPositionZ(), portal->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
                         {
                             beamer->CastSpell(pTarget, PortalBeam[j], false);
                             BeamerGUID[j] = beamer->GetGUID();
@@ -247,7 +247,7 @@ public:
 
         void HandleDoors(bool open) // Massive Door switcher
         {
-            if (GameObject *Door = GameObject::GetGameObject(*me, pInstance ? pInstance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
+            if (GameObject* Door = GameObject::GetGameObject(*me, pInstance ? pInstance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
                 Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
         }
 
@@ -314,7 +314,7 @@ public:
                 // Netherbreath
                 if (NetherbreathTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                         DoCast(pTarget, SPELL_NETHERBREATH);
                     NetherbreathTimer = urand(5000, 7000);
                 } else NetherbreathTimer -= diff;

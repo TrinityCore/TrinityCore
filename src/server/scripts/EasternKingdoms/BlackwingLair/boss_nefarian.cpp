@@ -72,7 +72,7 @@ public:
 
     struct boss_nefarianAI : public ScriptedAI
     {
-        boss_nefarianAI(Creature *c) : ScriptedAI(c) {}
+        boss_nefarianAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowFlame_Timer;
         uint32 BellowingRoar_Timer;

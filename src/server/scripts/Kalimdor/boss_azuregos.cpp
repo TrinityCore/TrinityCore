@@ -47,7 +47,7 @@ public:
 
     struct boss_azuregosAI : public ScriptedAI
     {
-        boss_azuregosAI(Creature *c) : ScriptedAI(c) {}
+        boss_azuregosAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 MarkOfFrost_Timer;
         uint32 ManaStorm_Timer;
@@ -122,7 +122,7 @@ public:
             //ManaStorm_Timer
             if (ManaStorm_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_MANASTORM);
                 ManaStorm_Timer = 7500 + rand()%5000;
             } else ManaStorm_Timer -= diff;

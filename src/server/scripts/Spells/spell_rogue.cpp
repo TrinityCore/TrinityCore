@@ -162,7 +162,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
@@ -269,11 +269,11 @@ class spell_rog_shiv : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                     caster->CastSpell(unitTarget, ROGUE_SPELL_SHIV_TRIGGERED, true);
             }
 

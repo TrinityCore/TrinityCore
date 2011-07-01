@@ -375,7 +375,7 @@ public:
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature *c) : ScriptedAI(c) {}
+        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
@@ -392,7 +392,7 @@ public:
 
         void ChargeCheck()
         {
-            Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
+            Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
             if (pTarget && (!me->IsWithinCombatRange(pTarget, FLAME_CHARGE_DISTANCE)))
             {
                 me->AddThreat(pTarget, 5000000.0f);
@@ -411,7 +411,7 @@ public:
                     Glaive->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_FLAME_ENRAGE, true);
                     DoResetThreat();
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget && pTarget->isAlive())
                     {
                         me->AddThreat(me->getVictim(), 5000000.0f);
@@ -538,7 +538,7 @@ public:
             DoZoneInCombat();
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             if (!who || Phase >= PHASE_TALK_SEQUENCE)
                 return;
@@ -549,7 +549,7 @@ public:
                 ScriptedAI::AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit *) {}
+        void MoveInLineOfSight(Unit* ) {}
 
         void JustDied(Unit* /*killer*/)
         {
@@ -581,7 +581,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
@@ -1038,7 +1038,7 @@ public:
 
                 case EVENT_PARASITIC_SHADOWFIEND:
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
                             DoCast(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
                         Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                     }
@@ -1157,7 +1157,7 @@ public:
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature *c) : ScriptedAI(c) {};
+        boss_maievAI(Creature* c) : ScriptedAI(c) {};
 
         uint64 IllidanGUID;
 
@@ -1183,7 +1183,7 @@ public:
         void EnterEvadeMode() {}
         void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -1197,7 +1197,7 @@ public:
             }
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             if (!who || Timer[EVENT_MAIEV_STEALTH])
                 return;
@@ -1271,7 +1271,7 @@ public:
         {
             if (GETCRE(Illidan, IllidanGUID))
             {
-                Unit *pTarget = Illidan->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* pTarget = Illidan->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (!pTarget || !me->IsWithinDistInMap(pTarget, 80) || Illidan->IsWithinDistInMap(pTarget, 20))
                 {
@@ -1466,7 +1466,7 @@ public:
                 Timer = 1;
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage > me->GetHealth() || done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -1886,7 +1886,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
                 summon->setDeathState(JUST_DIED);
                 return;
             }
-            Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
+            Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
             if (!pTarget || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND)
                 || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
@@ -1895,7 +1895,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         }
         break;
     case SHADOW_DEMON:
-        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
         {
             summon->AddThreat(pTarget, 5000000.0f);
             summon->AI()->AttackStart(pTarget);
@@ -2017,7 +2017,7 @@ public:
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature *c) : ScriptedAI(c) {}
+        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 IllidanGUID;
         uint32 DespawnTimer;
@@ -2039,7 +2039,7 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!Active)
                 return;
@@ -2114,7 +2114,7 @@ public:
 
     struct shadow_demonAI : public ScriptedAI
     {
-        shadow_demonAI(Creature *c) : ScriptedAI(c) {}
+        shadow_demonAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 TargetGUID;
 
@@ -2128,7 +2128,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Unit *pTarget = Unit::GetUnit((*me), TargetGUID))
+            if (Unit* pTarget = Unit::GetUnit((*me), TargetGUID))
                 pTarget->RemoveAurasDueToSpell(SPELL_PARALYZE);
         }
 
@@ -2231,7 +2231,7 @@ public:
         {
             if (!me->getVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
                     AttackStart(pTarget);
                 else
                 {

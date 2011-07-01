@@ -116,10 +116,9 @@ public:
             DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress()
         {
-            //if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
-            if (m_auiEncounter[0] == IN_PROGRESS)   // compile fix, GetData is not const
+            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;
 
             return false;

@@ -364,7 +364,7 @@ void Log::outDB(LogTypes type, const char * str)
     std::string new_str(str);
     if (new_str.empty())
         return;
-    LoginDatabase.escape_string(new_str);
+    LoginDatabase.EscapeString(new_str);
 
     LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
         "VALUES (" UI64FMTD ", %u, %u, '%s');", uint64(time(0)), realm, type, new_str.c_str());

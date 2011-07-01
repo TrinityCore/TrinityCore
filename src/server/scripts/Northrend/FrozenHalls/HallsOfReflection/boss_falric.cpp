@@ -57,7 +57,7 @@ public:
 
     struct boss_falricAI : public boss_horAI
     {
-        boss_falricAI(Creature *pCreature) : boss_horAI(pCreature) {}
+        boss_falricAI(Creature* pCreature) : boss_horAI(pCreature) {}
 
         uint8 uiHopelessnessCount;
 

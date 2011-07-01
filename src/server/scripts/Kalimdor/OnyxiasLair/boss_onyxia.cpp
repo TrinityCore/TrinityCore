@@ -201,7 +201,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature *pSummoned)
+        void JustSummoned(Creature* pSummoned)
         {
             pSummoned->SetInCombatWithZone();
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -219,7 +219,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             Summons.Despawn(summon);
         }

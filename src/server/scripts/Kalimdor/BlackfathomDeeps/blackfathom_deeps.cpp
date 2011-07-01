@@ -37,7 +37,7 @@ class go_blackfathom_altar : public GameObjectScript
 public:
     go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject* /*pGo*/)
+    bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
     {
         if (!pPlayer->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
             pPlayer->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, pPlayer);

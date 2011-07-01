@@ -249,7 +249,7 @@ public:
 
     static bool HandleDebugSendOpcodeCommand(ChatHandler* handler, const char* /*args*/)
     {
-        Unit *unit = handler->getSelectedUnit();
+        Unit* unit = handler->getSelectedUnit();
         Player* player = NULL;
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
             player = handler->GetSession()->GetPlayer();
@@ -320,7 +320,7 @@ public:
             }
             else if (type == "appgoguid")
             {
-                GameObject *obj = handler->GetNearbyGameObject();
+                GameObject* obj = handler->GetNearbyGameObject();
                 if (!obj)
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
@@ -332,7 +332,7 @@ public:
             }
             else if (type == "goguid")
             {
-                GameObject *obj = handler->GetNearbyGameObject();
+                GameObject* obj = handler->GetNearbyGameObject();
                 if (!obj)
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
@@ -392,14 +392,14 @@ public:
 
     static bool HandleDebugAreaTriggersCommand(ChatHandler* handler, const char* /*args*/)
     {
-        Player* plr = handler->GetSession()->GetPlayer();
-        if (!plr->isDebugAreaTriggers)
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player->isDebugAreaTriggers)
         {
             handler->PSendSysMessage(LANG_DEBUG_AREATRIGGER_ON);
-            plr->isDebugAreaTriggers = true;
+            player->isDebugAreaTriggers = true;
         } else {
             handler->PSendSysMessage(LANG_DEBUG_AREATRIGGER_OFF);
-            plr->isDebugAreaTriggers = false;
+            player->isDebugAreaTriggers = false;
         }
         return true;
     }
@@ -489,7 +489,7 @@ public:
                 if (i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                     continue;
 
-                if (Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 {
                     if (Bag* bag = item->ToBag())
                     {
@@ -509,7 +509,7 @@ public:
             std::vector<Item *> &updateQueue = player->GetItemUpdateQueue();
             for (size_t i = 0; i < updateQueue.size(); ++i)
             {
-                Item *item = updateQueue[i];
+                Item* item = updateQueue[i];
                 if (!item) continue;
 
                 Bag *container = item->GetContainer();
@@ -539,7 +539,7 @@ public:
                 if (i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                     continue;
 
-                Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
                 if (!item) continue;
 
                 if (item->GetSlot() != i)
@@ -651,7 +651,7 @@ public:
 
             for (size_t i = 0; i < updateQueue.size(); ++i)
             {
-                Item *item = updateQueue[i];
+                Item* item = updateQueue[i];
                 if (!item) continue;
 
                 if (item->GetOwnerGUID() != player->GetGUID())
@@ -667,7 +667,7 @@ public:
                 }
 
                 if (item->GetState() == ITEM_REMOVED) continue;
-                Item *test = player->GetItemByPos(item->GetBagSlot(), item->GetSlot());
+                Item* test = player->GetItemByPos(item->GetBagSlot(), item->GetSlot());
 
                 if (test == NULL)
                 {
@@ -784,7 +784,7 @@ public:
             handler->GetSession()->GetPlayer()->EnterVehicle(target, seatId);
         else
         {
-            Creature *passenger = NULL;
+            Creature* passenger = NULL;
             Trinity::AllCreaturesOfEntryInRange check(handler->GetSession()->GetPlayer(), entry, 20.0f);
             Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetSession()->GetPlayer(), passenger, check);
             handler->GetSession()->GetPlayer()->VisitNearbyObject(30.0f, searcher);
@@ -828,7 +828,7 @@ public:
         if (!ve)
             return false;
 
-        Creature *v = new Creature;
+        Creature* v = new Creature;
 
         Map *map = handler->GetSession()->GetPlayer()->GetMap();
 
@@ -877,7 +877,7 @@ public:
         uint32 guid = (uint32)atoi(e);
         uint32 index = (uint32)atoi(f);
 
-        Item *i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
 
         if (!i)
             return false;
@@ -908,7 +908,7 @@ public:
         uint32 index = (uint32)atoi(f);
         uint32 value = (uint32)atoi(g);
 
-        Item *i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
 
         if (!i)
             return false;
@@ -932,7 +932,7 @@ public:
 
         uint32 guid = (uint32)atoi(e);
 
-        Item *i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
 
         if (!i)
             return false;

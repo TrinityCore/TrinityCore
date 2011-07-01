@@ -49,7 +49,7 @@ public:
 
     struct boss_bloodmage_thalnosAI : public ScriptedAI
     {
-        boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {}
+        boss_bloodmage_thalnosAI(Creature* c) : ScriptedAI(c) {}
 
         bool HpYell;
         uint32 FlameShock_Timer;

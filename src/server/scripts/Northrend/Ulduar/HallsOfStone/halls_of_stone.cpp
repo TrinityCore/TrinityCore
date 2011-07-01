@@ -142,7 +142,7 @@ public:
 
     struct mob_tribuna_controllerAI : public ScriptedAI
     {
-        mob_tribuna_controllerAI(Creature *c) : ScriptedAI(c)
+        mob_tribuna_controllerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             SetCombatMovement(false);
@@ -217,7 +217,7 @@ public:
                         if (!KaddrakGUIDList.empty())
                             for (std::list<uint64>::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
                             {
-                                if (Creature *pKaddrak = Unit::GetCreature(*me, *itr))
+                                if (Creature* pKaddrak = Unit::GetCreature(*me, *itr))
                                 {
                                     if (pKaddrak->isAlive())
                                         pKaddrak->CastSpell(pTarget, DUNGEON_MODE(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
@@ -298,7 +298,7 @@ public:
 
     struct npc_brann_hosAI : public npc_escortAI
     {
-        npc_brann_hosAI(Creature *c) : npc_escortAI(c)
+        npc_brann_hosAI(Creature* c) : npc_escortAI(c)
         {
             pInstance = c->GetInstanceScript();
         }

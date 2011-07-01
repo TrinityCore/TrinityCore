@@ -86,7 +86,7 @@ public:
                         events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45*IN_MILLISECONDS);
                         break;
                     case EVENT_HEX:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_HEX);
                         events.ScheduleEvent(EVENT_HEX, 15*IN_MILLISECONDS);
                         break;

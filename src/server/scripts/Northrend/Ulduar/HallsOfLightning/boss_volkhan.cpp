@@ -81,7 +81,7 @@ public:
 
     struct boss_volkhanAI : public ScriptedAI
     {
-        boss_volkhanAI(Creature *pCreature) : ScriptedAI(pCreature)
+        boss_volkhanAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             m_pInstance = pCreature->GetInstanceScript();
         }
@@ -378,7 +378,7 @@ public:
 
     struct mob_molten_golemAI : public ScriptedAI
     {
-        mob_molten_golemAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        mob_molten_golemAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
         bool m_bIsFrozen;
 

@@ -108,7 +108,7 @@ public:
 
     struct boss_ymironAI : public ScriptedAI
     {
-        boss_ymironAI(Creature *c) : ScriptedAI(c)
+        boss_ymironAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             for (int i = 0; i < 4; ++i)

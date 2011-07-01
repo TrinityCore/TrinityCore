@@ -40,7 +40,7 @@ class boss_hazzarah : public CreatureScript
 
         struct boss_hazzarahAI : public ScriptedAI
         {
-            boss_hazzarahAI(Creature *c) : ScriptedAI(c) {}
+            boss_hazzarahAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 ManaBurn_Timer;
             uint32 Sleep_Timer;
@@ -81,14 +81,14 @@ class boss_hazzarah : public CreatureScript
                 {
                     //We will summon 3 illusions that will spawn on a random gamer and attack this gamer
                     //We will just use one model for the beginning
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     for (uint8 i = 0; i < 3; ++i)
                     {
                         pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (!pTarget)
                             return;
 
-                        Creature *Illusion = me->SummonCreature(15163, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                        Creature* Illusion = me->SummonCreature(15163, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                         if (Illusion)
                             Illusion->AI()->AttackStart(pTarget);
                     }

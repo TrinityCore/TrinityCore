@@ -43,7 +43,7 @@ public:
 
     struct boss_infinite_corruptorAI : public ScriptedAI
     {
-        boss_infinite_corruptorAI(Creature *c) : ScriptedAI(c)
+        boss_infinite_corruptorAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }

@@ -57,7 +57,7 @@ public:
 
     struct boss_marwynAI : public boss_horAI
     {
-        boss_marwynAI(Creature *pCreature) : boss_horAI(pCreature) {}
+        boss_marwynAI(Creature* pCreature) : boss_horAI(pCreature) {}
 
         void Reset()
         {

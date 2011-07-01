@@ -136,7 +136,7 @@ class boss_ick : public CreatureScript
 
         struct boss_ickAI : public BossAI
         {
-            boss_ickAI(Creature *creature) : BossAI(creature, DATA_ICK), _vehicle(creature->GetVehicleKit())
+            boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }

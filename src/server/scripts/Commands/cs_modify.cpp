@@ -440,7 +440,7 @@ public:
         }
         else if (target->ToCreature()->isPet())
         {
-            Unit *owner = target->GetOwner();
+            Unit* owner = target->GetOwner();
             if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)target)->IsPermanentPetFor(owner->ToPlayer()))
             {
                 // check online security
@@ -698,15 +698,15 @@ public:
             return false;
         }
 
-        if (target->GetTypeId()==TYPEID_PLAYER)
+        if (Player* player = target->ToPlayer())
         {
             // check online security
-            if (handler->HasLowerSecurity((Player*)target, 0))
+            if (handler->HasLowerSecurity(player, 0))
                 return false;
 
-            handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink((Player*)target).c_str());
-            if (handler->needReportToTarget((Player*)target))
-                (ChatHandler((Player*)target)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
+            handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink(player).c_str());
+            if (handler->needReportToTarget(player))
+                (ChatHandler(player)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
         }
 
         target->SetFloatValue(OBJECT_FIELD_SCALE_X, Scale);

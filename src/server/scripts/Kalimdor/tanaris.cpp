@@ -58,7 +58,7 @@ public:
 
     struct mob_aquementasAI : public ScriptedAI
     {
-        mob_aquementasAI(Creature *c) : ScriptedAI(c) {}
+        mob_aquementasAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 SendItem_Timer;
         uint32 SwitchFaction_Timer;
@@ -86,7 +86,7 @@ public:
                 !CAST_PLR(receiver)->HasItemCount(11522, 1, true))
             {
                 ItemPosCountVec dest;
-                uint8 msg = CAST_PLR(receiver)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, false);
+                uint8 msg = CAST_PLR(receiver)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
                 if (msg == EQUIP_ERR_OK)
                     CAST_PLR(receiver)->StoreNewItem(dest, 11522, 1, true);
             }
@@ -170,11 +170,11 @@ public:
 
     struct npc_custodian_of_timeAI : public npc_escortAI
     {
-        npc_custodian_of_timeAI(Creature *c) : npc_escortAI(c) {}
+        npc_custodian_of_timeAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
-            Player *pPlayer = GetPlayerForEscort();
+            Player* pPlayer = GetPlayerForEscort();
             if (!pPlayer)
                 return;
 
@@ -206,7 +206,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -426,7 +426,7 @@ public:
 
     struct npc_OOX17AI : public npc_escortAI
     {
-        npc_OOX17AI(Creature *c) : npc_escortAI(c) {}
+        npc_OOX17AI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
@@ -541,7 +541,7 @@ public:
             TortaGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit *pWho)
+        void MoveInLineOfSight(Unit* pWho)
         {
             FollowerAI::MoveInLineOfSight(pWho);
 
@@ -583,7 +583,7 @@ public:
                     {
                         m_uiPostEventTimer = 5000;
 
-                        Unit *pTorta = Unit::GetUnit(*me, TortaGUID);
+                        Unit* pTorta = Unit::GetUnit(*me, TortaGUID);
                         if (!pTorta || !pTorta->isAlive())
                         {
                             //something happened, so just complete

@@ -81,7 +81,7 @@ class boss_broggok : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature *summoned)
+            void JustSummoned(Creature* summoned)
             {
                 summoned->setFaction(16);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

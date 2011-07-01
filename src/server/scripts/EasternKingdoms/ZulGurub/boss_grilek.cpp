@@ -40,7 +40,7 @@ class boss_grilek : public CreatureScript
 
         struct boss_grilekAI : public ScriptedAI
         {
-            boss_grilekAI(Creature *c) : ScriptedAI(c) {}
+            boss_grilekAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 Avartar_Timer;
             uint32 GroundTremor_Timer;
@@ -66,7 +66,7 @@ class boss_grilek : public CreatureScript
                 {
 
                     DoCast(me, SPELL_AVARTAR);
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
 
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
 

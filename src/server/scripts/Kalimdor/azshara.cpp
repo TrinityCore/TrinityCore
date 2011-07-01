@@ -50,7 +50,7 @@ public:
 
     struct mobs_spitelashesAI : public ScriptedAI
     {
-        mobs_spitelashesAI(Creature *c) : ScriptedAI(c) {}
+        mobs_spitelashesAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 morphtimer;
         bool spellhit;
@@ -63,7 +63,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        void SpellHit(Unit* Hitter, const SpellEntry *Spellkind)
         {
             if (!spellhit &&
                 Hitter->GetTypeId() == TYPEID_PLAYER &&
@@ -296,7 +296,7 @@ public:
 
     struct mob_rizzle_sprysprocketAI : public ScriptedAI
     {
-        mob_rizzle_sprysprocketAI(Creature *c) : ScriptedAI(c) {}
+        mob_rizzle_sprysprocketAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 spellEscape_Timer;
         uint32 Teleport_Timer;
@@ -422,7 +422,7 @@ public:
             sWorld->SendServerMessage(SERVER_MSG_STRING, text, pPlayer);
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             if (!who || PlayerGUID)
                 return;
@@ -470,7 +470,7 @@ public:
 
     struct mob_depth_chargeAI : public ScriptedAI
     {
-        mob_depth_chargeAI(Creature *c) : ScriptedAI(c) {}
+        mob_depth_chargeAI(Creature* c) : ScriptedAI(c) {}
 
         bool we_must_die;
         uint32 must_die_timer;
@@ -495,7 +495,7 @@ public:
             return;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who)
                 return;

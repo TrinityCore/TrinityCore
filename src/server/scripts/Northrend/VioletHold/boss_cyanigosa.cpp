@@ -57,7 +57,7 @@ public:
 
     struct boss_cyanigosaAI : public ScriptedAI
     {
-        boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
+        boss_cyanigosaAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -111,7 +111,7 @@ public:
 
             if (uiBlizzardTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_BLIZZARD);
                 uiBlizzardTimer = 15000;
             } else uiBlizzardTimer -= diff;
