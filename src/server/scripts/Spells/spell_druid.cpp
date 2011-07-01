@@ -270,7 +270,6 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
-<<<<<<< HEAD
 // 50334 Berserk
 class spell_dru_berserk : public SpellScriptLoader
 {
@@ -297,7 +296,8 @@ public:
     {
         return new spell_dru_berserk_AuraScript();
     }
-=======
+};
+
 class spell_dru_starfall_aoe : public SpellScriptLoader
 {
     public:
@@ -322,7 +322,6 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
         {
             return new spell_dru_starfall_aoe_SpellScript();
         }
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 };
 
 void AddSC_druid_spell_scripts()
@@ -332,9 +331,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_primal_tenacity();
     new spell_dru_savage_defense();
     new spell_dru_t10_restoration_4p_bonus();
-<<<<<<< HEAD
     new spell_dru_berserk();
-=======
     new spell_dru_starfall_aoe();
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 }

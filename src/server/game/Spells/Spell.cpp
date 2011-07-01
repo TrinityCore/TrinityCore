@@ -2230,30 +2230,12 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             }
 
             Position pos;
-<<<<<<< HEAD
-            switch (cur)
-            {
-                case TARGET_DEST_CASTER_FRONT_LEAP:
-                case TARGET_DEST_CASTER_FRONT_LEFT:
-                case TARGET_DEST_CASTER_BACK_LEFT:
-                case TARGET_DEST_CASTER_BACK_RIGHT:
-                case TARGET_DEST_CASTER_FRONT_RIGHT:
-                    m_caster->GetFirstCollisionPosition(pos, dist, angle);
-                    break;
-                default:
-                    m_caster->GetNearPosition(pos, dist, angle);
-                    break;
-            }
-            m_targets.setDst(*m_caster);
-            m_targets.modDst(pos);
-=======
             if (cur == TARGET_DEST_CASTER_FRONT_LEAP)
                 m_caster->GetFirstCollisionPosition(pos, dist, angle);
             else
                 m_caster->GetNearPosition(pos, dist, angle);
             m_targets.SetDst(*m_caster);
             m_targets.ModDst(pos);
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
             break;
         }
 
@@ -2268,14 +2250,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             if (cur == TARGET_DST_TARGET_ENEMY || cur == TARGET_DEST_TARGET_ANY)
             {
-<<<<<<< HEAD
-                Position pos;
-                target->GetPosition(&pos);
-                m_targets.setDst(*target);
-                m_targets.modDst(pos);
-=======
                 m_targets.SetDst(*target);
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                 break;
             }
 
@@ -2577,13 +2552,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     // TODO: move these to sql
                     switch (m_spellInfo->Id)
                     {
-                        //Icecrown Citadel: Highlord Tirion Fordring's Mass Resurrection
-                        //Requires players to have at least friendly reputation with Argent Crusade
-                        case 72429:
-                        {
-                            SearchAreaTarget(unitList, 300.0f, pushType, SPELL_TARGETS_ALLY);
-                            break;
-                        }
                         case 46584: // Raise Dead
                         {
                             if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
@@ -2840,18 +2808,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         unitList.sort(Trinity::PowerPctOrderPred((Powers)power));
                         unitList.resize(maxSize);
                     }
-                    // Replenishment: refresh existing auras
-                    if (m_spellInfo->Id == 57669)
-                        for (std::list<Unit *>::iterator itr = unitList.begin(); itr != unitList.end();)
-                            if (AuraEffect * aurEff = (*itr)->GetAuraEffect(SPELL_AURA_PERIODIC_ENERGIZE, SPELLFAMILY_GENERIC, 3184, EFFECT_0))
-                            {
-                                aurEff->SetAmount((*itr)->GetMaxPower(POWER_MANA) * 25 / 10000);
-                                aurEff->GetBase()->RefreshDuration();
-
-                                itr = unitList.erase(itr);
-                            }
-                            else
-                                ++itr;
                 }
             }
 
@@ -5060,56 +5016,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             return castResult;
     }
 
-    // Dispel check - only if the first effect is dispel
-    if (!m_IsTriggeredSpell && (m_spellInfo->Effect[EFFECT_0] == SPELL_EFFECT_DISPEL))
-        if (Unit const * target = m_targets.getUnitTarget())
-            if (!GetSpellRadius(m_spellInfo, EFFECT_0, target->IsFriendlyTo(m_caster)))
-            {
-                bool check = true;
-                uint32 dispelMask = GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[EFFECT_0]));
-
-                for (uint8 effIndex = EFFECT_1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-                {
-                    if (m_spellInfo->Effect[effIndex] == SPELL_EFFECT_DISPEL)
-                        dispelMask |= GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[effIndex]));
-                    // If there is any other effect don't check
-                    else if (m_spellInfo->Effect[effIndex])
-                    {
-                        check = false;
-                        break;
-                    }
-                }
-
-                if (check)
-                {
-                    bool failed = true;
-
-                    Unit::AuraMap const & auras = target->GetOwnedAuras();
-                    for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                    {
-                        Aura * aura = itr->second;
-                        AuraApplication * aurApp = aura->GetApplicationOfTarget(target->GetGUID());
-                        if (!aurApp)
-                            continue;
-
-                        if ((1 << aura->GetSpellProto()->Dispel) & dispelMask)
-                        {
-                            bool positive = aurApp->IsPositive() ? !(aura->GetSpellProto()->AttributesEx & SPELL_ATTR1_NEGATIVE) : false;
-
-                            // Can only dispel positive auras on enemies and negative on allies
-                            if (positive != target->IsFriendlyTo(m_caster))
-                            {
-                                failed = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (failed)
-                        return SPELL_FAILED_NOTHING_TO_DISPEL;
-                }
-            }
-
     // script hook
     castResult = CallScriptCheckCastHandlers();
     if (castResult != SPELL_CAST_OK)
@@ -5644,8 +5550,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                         // Wintergrasp Antifly check
                         if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
                         {
-                          if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime()==true)
-                          return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                            if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime())
+                                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                         }
                     }
                 }

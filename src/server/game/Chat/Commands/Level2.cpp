@@ -914,30 +914,6 @@ bool ChatHandler::HandlePetUnlearnCommand(const char *args)
     return true;
 }
 
-<<<<<<< HEAD
-bool ChatHandler::HandlePetTpCommand(const char *args)
-{
-    if (!*args)
-        return false;
-
-    Player *plr = m_session->GetPlayer();
-    Pet *pet = plr->GetPet();
-
-    if (!pet)
-    {
-        PSendSysMessage("You have no pet");
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint32 tp = atol(args);
-
-    //pet->SetTP(tp);
-
-    PSendSysMessage("Pet's tp changed to %u", tp);
-    return true;
-}
-
 bool ChatHandler::HandleWintergraspStatusCommand(const char* /*args*/)
 {
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
@@ -1083,8 +1059,6 @@ bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* /*args*/)
     return true;
 }
 
-=======
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 bool ChatHandler::HandleLookupTitleCommand(const char* args)
 {
     if (!*args)

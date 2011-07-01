@@ -22,6 +22,8 @@ enum
     TYPE_EVENT_NPC              = 102,
     TYPE_NORTHREND_BEASTS       = 103,
 
+    DATA_HEALTH_TWIN_SHARED     = 201,
+
     DATA_SNOBOLD_COUNT                   = 301,
     DATA_MISTRESS_OF_PAIN_COUNT          = 302,
     DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
@@ -205,10 +207,10 @@ enum eCreature
     NPC_HORDE_WARLOCK                   = 34450,
     NPC_HORDE_WARRIOR                   = 34453,
 
-    NPC_LIGHTBANE                       = 34497,
-    NPC_DARKBANE                        = 34496,
+    NPC_LIGHTBANE               = 34497,
+    NPC_DARKBANE                = 34496,
 
-    NPC_ANUBARAK                        = 34564,
+    NPC_ANUBARAK                = 34564,
 };
 
 enum eGameObject

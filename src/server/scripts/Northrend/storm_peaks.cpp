@@ -608,11 +608,7 @@ public:
             }
         }
 
-<<<<<<< HEAD
         void UpdateAI(const uint32 /*diff*/)
-=======
-        void MoveInLineOfSight(Unit* unit)
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
         {
             if (!me->isCharmed() && !movementStarted)
             {
@@ -714,11 +710,7 @@ public:
         }
     };
 
-<<<<<<< HEAD
-    CreatureAI* GetAI(Creature* creature) const
-=======
     CreatureAI *GetAI(Creature* creature) const
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
     {
         return new npc_brunnhildar_prisonerAI(creature);
     }

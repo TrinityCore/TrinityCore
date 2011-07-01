@@ -168,9 +168,6 @@ class npc_announcer_toc10 : public CreatureScript
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    if (Creature* icehowl = Unit::GetCreature(*player, instanceScript->GetData64(NPC_ICEHOWL)))
-                        icehowl->DespawnOrUnsummon();
-                                           
                     if (Creature* jaraxxus = Unit::GetCreature(*player, instanceScript->GetData64(NPC_JARAXXUS)))
                     {
                         jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
@@ -185,9 +182,6 @@ class npc_announcer_toc10 : public CreatureScript
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    if (Creature* jaraxxus = Unit::GetCreature(*player, instanceScript->GetData64(NPC_JARAXXUS)))
-                        jaraxxus->DespawnOrUnsummon();
-
                     if (instanceScript->GetData(TYPE_CRUSADERS) != DONE)
                     {
                         if (player->GetTeam() == ALLIANCE)

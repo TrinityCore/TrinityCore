@@ -3346,7 +3346,7 @@ bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
         return false;
 
     std::string filter = cFilter;
-    LoginDatabase.escape_string(filter);
+    LoginDatabase.EscapeString(filter);
     QueryResult result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
     if (!result)
     {

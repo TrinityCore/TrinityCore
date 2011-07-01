@@ -18296,13 +18296,8 @@ void Player::SaveToDB()
     outDebugValues();
 
     std::string sql_name = m_name;
-<<<<<<< HEAD
-    CharacterDatabase.escape_string(sql_name);
-    
-=======
     CharacterDatabase.EscapeString(sql_name);
 
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
     std::ostringstream ss;
     ss << "REPLACE INTO characters (guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
         "map, instance_id, instance_mode_mask, position_x, position_y, position_z, orientation, "

@@ -260,15 +260,7 @@ public:
             //dosen't work at all
             if (uiShieldBreakerTimer <= uiDiff)
             {
-<<<<<<< HEAD
                 if (Unit* pPassenger = vehicle->GetPassenger(SEAT_ID_0))
-=======
-                Vehicle* pVehicle = me->GetVehicleKit();
-                if (!pVehicle)
-                    return;
-
-                if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
                     if (me->GetMap()->IsDungeon() && !players.isEmpty())

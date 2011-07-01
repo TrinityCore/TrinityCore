@@ -1532,67 +1532,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
                     }
-<<<<<<< HEAD
-                }
-            }
-            else
-                damage = uint32(target->CountPctFromMaxHealth(damage));
-
-            bool crit = IsPeriodicTickCrit(target, caster);
-            if (crit)
-                damage = caster->SpellCriticalDamageBonus(m_spellProto, damage, target);
-
-            int32 dmg = damage;
-            caster->ApplyResilience(target, NULL, &dmg, crit, CR_CRIT_TAKEN_SPELL);
-            damage = dmg;
-
-            caster->CalcAbsorbResist(target, GetSpellSchoolMask(GetSpellProto()), DOT, damage, &absorb, &resist, m_spellProto);
-
-            sLog->outDetail("PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
-                GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUIDLow(), target->GetTypeId(), damage, GetId(), absorb);
-
-            caster->DealDamageMods(target, damage, &absorb);
-
-            // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-            uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
-            damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
-            if (damage)
-                procVictim|=PROC_FLAG_TAKEN_DAMAGE;
-
-            int32 overkill = damage - target->GetHealth();
-            if (overkill < 0)
-              overkill = 0;
-
-            SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit);
-            target->SendPeriodicAuraLog(&pInfo);
-
-            // Rend should not proc anything from absorbs
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR && GetSpellProto()->SpellFamilyFlags[0] & 0x20)
-                caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellProto());
-            else
-                caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage + absorb, BASE_ATTACK, GetSpellProto());
-
-            caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
-            break;
-        }
-        case SPELL_AURA_PERIODIC_LEECH:
-        {
-            if (!caster)
-                return;
-
-            if (!caster->isAlive())
-                return;
-
-            if (!target->isAlive())
-                return;
-
-            if (target->HasUnitState(UNIT_STAT_ISOLATED))
-            {
-                SendTickImmune(target, caster);
-                return;
-=======
                 break;
                 case FORM_DIREBEAR:
                 case FORM_BEAR:
@@ -1625,7 +1564,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         target->CastCustomSpell(target, 48422, &bp, NULL, NULL, true);
                     }
                 break;
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
             }
         }
     }
@@ -2134,52 +2072,8 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 // Stance mastery + Tactical mastery (both passive, and last have aura only in defense stance, but need apply at any stance switch)
                 if (target->GetTypeId() == TYPEID_PLAYER)
                 {
-<<<<<<< HEAD
-                    target->CastSpell(target, 64774, true, NULL, NULL, GetCasterGUID());
-                    target->RemoveAura(64821);
-                }
-                break;
-            case 63802: // Brain Link
-                if (caster)
-                {
-                    std::list<Unit*> unitList;
-                    target->GetRaidMember(unitList, 80);
-                    for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-                    {
-                        Unit* pUnit = *itr;
-                        if (!pUnit || pUnit == target || !pUnit->HasAura(63802))
-                            continue;
-
-                        // Afflicted targets suffer Shadow damage whenever they are more than 20 yards apart
-                        if (target->IsWithinDist(pUnit, 20))
-                            target->CastSpell(pUnit, 63804, true, 0, 0);
-                        else
-                            target->CastSpell(pUnit, 63803, true, 0, 0);
-                        return;
-                    }
-                }
-                break;
-        }
-        break;
-        case SPELLFAMILY_MAGE:
-        {
-            // Mirror Image
-            if (GetId() == 55342)
-                // Set name of summons to name of caster
-                target->CastSpell((Unit *)NULL, m_spellProto->EffectTriggerSpell[m_effIndex], true);
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch (GetSpellProto()->Id)
-            {
-                // Demonic Circle
-                case 48018:
-                    if (GameObject* obj = target->GetGameObject(GetSpellProto()->Id))
-=======
                     PlayerSpellMap const& sp_list = target->ToPlayer()->GetSpellMap();
                     for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                     {
                         if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
                         SpellEntry const* spellInfo = sSpellStore.LookupEntry(itr->first);
@@ -2256,42 +2150,6 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
             // special case (spell specific functionality)
             if (GetMiscValue() == 0)
             {
-<<<<<<< HEAD
-                // Feeding Frenzy Rank 1
-                case 53511:
-                    if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
-                        target->CastSpell(target, 60096, true, 0, this);
-                    return;
-                // Feeding Frenzy Rank 2
-                case 53512:
-                    if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
-                        target->CastSpell(target, 60097, true, 0, this);
-                    return;
-                default:
-                    break;
-            }
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-            if (GetId() == 52179) // Astral Shift
-            {
-                // Periodic need for remove visual on stun/fear/silence lost
-                if (!(target->GetUInt32Value(UNIT_FIELD_FLAGS)&(UNIT_FLAG_STUNNED|UNIT_FLAG_FLEEING|UNIT_FLAG_SILENCED)))
-                    target->RemoveAurasDueToSpell(52179);
-                break;
-            }
-            break;
-        case SPELLFAMILY_DEATHKNIGHT:
-            switch (GetId())
-            {
-                case 49016: // Hysteria
-                    if (target && target->IsFriendlyTo(caster))
-                        {
-                        uint32 damage = uint32(target->CountPctFromMaxHealth(1));
-                        target->DealDamage(target, damage, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        }
-                    break;
-=======
                 switch (GetId())
                 {
                     // Orb of Deception
@@ -2422,7 +2280,6 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     default:
                         break;
                 }
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
             }
             else
             {
@@ -3193,13 +3050,7 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-<<<<<<< HEAD
-        // remove other shapeshift before applying a new one
-        target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, 0, GetBase());
-        target->RemoveAurasDueToSpell(64904); // Hymn of Hope exploit fix
-=======
     Unit* target = aurApp->GetTarget();
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 
     target->SetControlled(apply, UNIT_STAT_STUNNED);
 }
@@ -3409,224 +3260,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
             }
         }
 
-<<<<<<< HEAD
-                        switch (target->getRace())
-                        {
-                            // Blood Elf
-                            case RACE_BLOODELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17829 : 17830);
-                                break;
-                            // Orc
-                            case RACE_ORC:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10139 : 10140);
-                                break;
-                            // Troll
-                            case RACE_TROLL:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10135 : 10134);
-                                break;
-                            // Tauren
-                            case RACE_TAUREN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10136 : 10147);
-                                break;
-                            // Undead
-                            case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10146 : 10145);
-                                break;
-                            // Draenei
-                            case RACE_DRAENEI:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17827 : 17828);
-                                break;
-                            // Dwarf
-                            case RACE_DWARF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10141 : 10142);
-                                break;
-                            // Gnome
-                            case RACE_GNOME:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10148 : 10149);
-                                break;
-                            // Human
-                            case RACE_HUMAN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10137 : 10138);
-                                break;
-                            // Night Elf
-                            case RACE_NIGHTELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10143 : 10144);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    // Murloc costume
-                    case 42365:
-                        target->SetDisplayId(21723);
-                        break;
-                    // Dread Corsair
-                    case 50517:
-                    // Corsair Costume
-                    case 51926:
-                    {
-                        if (target->GetTypeId() != TYPEID_PLAYER)
-                            return;
-
-                        switch (target->getRace())
-                        {
-                            // Blood Elf
-                            case RACE_BLOODELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25032 : 25043);
-                                break;
-                            // Orc
-                            case RACE_ORC:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25039 : 25050);
-                                break;
-                            // Troll
-                            case RACE_TROLL:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25041 : 25052);
-                                break;
-                            // Tauren
-                            case RACE_TAUREN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25040 : 25051);
-                                break;
-                            // Undead
-                            case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25042 : 25053);
-                                break;
-                            // Draenei
-                            case RACE_DRAENEI:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25033 : 25044);
-                                break;
-                            // Dwarf
-                            case RACE_DWARF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25034 : 25045);
-                                break;
-                            // Gnome
-                            case RACE_GNOME:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25035 : 25046);
-                                break;
-                            // Human
-                            case RACE_HUMAN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25037 : 25048);
-                                break;
-                            // Night Elf
-                            case RACE_NIGHTELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25038 : 25049);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    case 65528:                                 // Gossip NPC Appearance - Pirates' Day
-                    {
-                        // expecting npc's using this spell to have models with race info.
-                        uint32 race = GetCreatureModelRace(target->GetNativeDisplayId());
-
-                        // random gender, regardless of current gender
-                        switch(race)
-                        {
-                            case RACE_HUMAN:
-                                target->SetDisplayId(roll_chance_i(50) ? 25037 : 25048);
-                                break;
-                            case RACE_ORC:
-                                target->SetDisplayId(roll_chance_i(50) ? 25039 : 25050);
-                                break;
-                            case RACE_DWARF:
-                                target->SetDisplayId(roll_chance_i(50) ? 25034 : 25045);
-                                break;
-                            case RACE_NIGHTELF:
-                                target->SetDisplayId(roll_chance_i(50) ? 25038 : 25049);
-                                break;
-                            case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(roll_chance_i(50) ? 25042 : 25053);
-                                break;
-                            case RACE_TAUREN:
-                                target->SetDisplayId(roll_chance_i(50) ? 25040 : 25051);
-                                break;
-                            case RACE_GNOME:
-                                target->SetDisplayId(roll_chance_i(50) ? 25035 : 25046);
-                                break;
-                            case RACE_TROLL:
-                                target->SetDisplayId(roll_chance_i(50) ? 25041 : 25052);
-                                break;
-                            //case RACE_GOBLIN:
-                                //target->SetDisplayId(roll_chance_i(50) ? 25036 : 25047);
-                                //break;
-                            case RACE_BLOODELF:
-                                target->SetDisplayId(roll_chance_i(50) ? 25032 : 25043);
-                                break;
-                            case RACE_DRAENEI:
-                                target->SetDisplayId(roll_chance_i(50) ? 25033 : 25044);
-                                break;
-                        }
-
-                        break;
-                    }
-                    case 65529:                                 // Gossip NPC Appearance - Day of the Dead (DotD)
-                        // random, regardless of current gender
-                        target->SetDisplayId(roll_chance_i(50) ? 29203 : 29204);
-                        break;
-                    case 71450:                                 // Crown Parcel Service Uniform
-                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31002 : 31003);
-                        break;
-                    case 75531:                               // Gnomeregan Pride
-                        target->SetDisplayId(31654);
-                        break;
-                    // Pygmy Oil
-                    case 53806:
-                        target->SetDisplayId(22512);
-                        break;
-                    // Honor the Dead
-                    case 65386:
-                    case 65495:
-                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 29203 : 29204);
-                        break;
-                    // Darkspear Pride
-                    case 75532:
-                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31737 : 31738);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else
-            {
-                CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(GetMiscValue());
-                if (!ci)
-                {
-                    target->SetDisplayId(16358);              // pig pink ^_^
-                    sLog->outError("Auras: unknown creature id = %d (only need its modelid) From Spell Aura Transform in Spell ID = %d", GetMiscValue(), GetId());
-                }
-                else
-                {
-                    uint32 model_id = 0;
-
-                    if (uint32 modelid = ci->GetRandomValidModelId())
-                        model_id = modelid;                     // Will use the default model here
-
-                    // Polymorph (sheep)
-                    if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978)
-                        if (Unit* caster = GetCaster())
-                            if (caster->HasAura(52648))         // Glyph of the Penguin
-                                model_id = 26452;
-
-                    target->SetDisplayId(model_id);
-
-                    // Dragonmaw Illusion (set mount model also)
-                    if (GetId() == 42016 && target->GetMountID() && !target->GetAuraEffectsByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
-                        target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 16314);
-                }
-            }
-        }
-
-        // update active transform spell only when transform or shapeshift not set or not overwriting negative by positive case
-        if (!target->getTransForm() || !IsPositiveSpell(GetId()) || IsPositiveSpell(target->getTransForm()))
-            target->setTransForm(GetId());
-
-        // polymorph case
-        if ((mode & AURA_EFFECT_HANDLE_REAL) && target->GetTypeId() == TYPEID_PLAYER && target->IsPolymorphed())
-=======
         if (mode & AURA_EFFECT_HANDLE_REAL)
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
         {
             //Players on flying mounts must be immune to polymorph
             if (target->GetTypeId() == TYPEID_PLAYER)
@@ -5233,6 +4867,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                             break;
                         case 58600: // Restricted Flight Area
+                        case 58730: // Restricted Flight Area
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                                 target->CastSpell(target, 58601, true);
                             break;
@@ -5795,33 +5430,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
     }
 }
 
-<<<<<<< HEAD
-void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8 mode, bool apply) const
-{
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Player* target = aurApp->GetTarget()->ToPlayer();
-    if (!target)
-        return;
-
-    // we should add only physical mods here
-    if (!(GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
-        return;
-
-    if (target->HasItemFitToSpellRequirements(GetSpellProto()))
-    {
-        aurApp->GetTarget()->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, GetAmount()/100.0f, apply);
-        aurApp->GetTarget()->UpdateDamagePhysical(BASE_ATTACK);
-        aurApp->GetTarget()->UpdateDamagePhysical(OFF_ATTACK);
-        aurApp->GetTarget()->UpdateDamagePhysical(RANGED_ATTACK);
-    }
-}
-
-void AuraEffect::HandleModOffhandDamagePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
-=======
 void AuraEffect::HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -5952,27 +5561,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (!caster || !target || !target->ToCreature() || !caster->IsVehicle() || target->HasAura(54683))
                         break;
 
-<<<<<<< HEAD
-                            if (target->GetMap()->IsBattleground())
-                                target->ToPlayer()->LeaveBattleground();
-                            break;
-                        }
-                        case 42783: // Wrath of the Astromancer
-                            target->CastSpell(target, GetAmount(), true, NULL, this);
-                            break;
-                        case 46308: // Burning Winds casted only at creatures at spawn
-                            target->CastSpell(target, 47287, true, NULL, this);
-                            break;
-                        case 52172:  // Coyote Spirit Despawn Aura
-                        case 60244:  // Blood Parrot Despawn Aura
-                            target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
-                            break;
-                        case 58600: // Restricted Flight Area
-                        case 58730: // Restricted Wintergrasp Flight Area
-                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                                target->CastSpell(target, 58601, true);
-                            break;
-=======
                     if (Unit* rider = caster->GetVehicleKit()->GetPassenger(0))
                     {
                         target->CastSpell(target, 54683, true);
@@ -5983,7 +5571,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         // Credit Frost Giants
                         else if (target->GetEntry() == 29351)
                             rider->CastSpell(rider, 54893, true);
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                     }
                     break;
                 }
@@ -6103,30 +5690,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     target->CastSpell(spellTarget, 57840, true);
                     target->CastSpell(spellTarget, 57841, true);
                     break;
-<<<<<<< HEAD
-                case SPELLFAMILY_HUNTER:
-                    // Misdirection
-                    if (GetId() == 35079)
-                        caster->SetReducedThreatPercent(0, 0);
-                    break;
-                case SPELLFAMILY_DEATHKNIGHT:
-                    // Summon Gargoyle (Dismiss Gargoyle at remove)
-                    if (GetId() == 61777)
-                        target->CastSpell(target, GetAmount(), true);
-                    break;
-                case SPELLFAMILY_ROGUE:
-                {
-                    switch(GetId())
-                    {
-                        case 59628: // Tricks of the Trade
-                            caster->SetReducedThreatPercent(0, 0);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-=======
                 }
                 // Overkill
                 case 58428:
@@ -6157,7 +5720,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
                         target->CastSpell(target, 60097, true, 0, this);
                     return;
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                 default:
                     break;
             }

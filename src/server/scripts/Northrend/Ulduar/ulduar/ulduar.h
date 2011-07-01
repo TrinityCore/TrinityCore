@@ -122,7 +122,6 @@ enum UlduarNPCs
     NPC_FIELD_MEDIC_PENNY                        = 32897,
     NPC_FIELD_MEDIC_JESSI                        = 33326,
 
-<<<<<<< HEAD
     // Yogg_saron
     NPC_YS_FREYA                                 = 33410,
     NPC_YS_THORIM                                = 33413,
@@ -130,7 +129,6 @@ enum UlduarNPCs
     NPC_YS_HODIR                                 = 33411,
     NPC_YOGGSARON_BRAIN                          = 33890,			 
 
-=======
     // Freya's trash NPCs
     NPC_CORRUPTED_SERVITOR                       = 33354,
     NPC_MISGUIDED_NYMPH                          = 33355,
@@ -140,7 +138,6 @@ enum UlduarNPCs
     NPC_IRONROOT_LASHER                          = 33526,
     NPC_NATURES_BLADE                            = 33527,
     NPC_GUARDIAN_OF_LIFE                         = 33528,
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 };
 
 enum UlduarGameObjects

@@ -100,7 +100,6 @@ struct Locations
 
 static Locations SpawnLoc[]=
 {
-<<<<<<< HEAD
     //Wing 01
     {5277.409f, 1993.161f, 707.694f, 0.05f}, //27
     {5301.876f, 2041.699f, 707.694f, 4.71f}, //1
@@ -136,81 +135,6 @@ static Locations SpawnLoc[]=
     {5319.835f, 1975.177f, 707.694f, 1.62f}, //14
     {5277.445f, 2017.197f, 707.694f, 0.05f}, //26
     {5298.198f, 2037.762f, 707.694f, 4.71f}  //0
-=======
-    boss_horAI(Creature* pCreature) : ScriptedAI(pCreature), summons(pCreature)
-    {
-        pInstance = me->GetInstanceScript();
-    }
-
-    InstanceScript* pInstance;
-    EventMap events;
-    SummonList summons;
-
-    void Reset()
-    {
-        events.Reset();
-        me->SetVisible(false);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-        me->SetReactState(REACT_PASSIVE);
-    }
-
-    void DamageTaken(Unit* /*pWho*/, uint32 &uiDamage)
-    {
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            uiDamage = 0;
-    }
-
-    void DoAction(const int32 actionID)
-    {
-        switch(actionID)
-        {
-            case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
-                // Just in case. Should have been done by InstanceScript
-                me->SetVisible(true);
-
-                // Reset flags
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                me->SetReactState(REACT_AGGRESSIVE);
-
-                if (Unit* pUnit = me->SelectNearestTarget())
-                    AttackStart(pUnit);
-
-                DoZoneInCombat();
-                break;
-        }
-    }
-
-    void JustSummoned(Creature* pSummoned)
-    {
-        summons.Summon(pSummoned);
-
-        if (Unit* pUnit = pSummoned->SelectNearestTarget())
-        {
-            if (pSummoned->AI())
-                pSummoned->AI()->AttackStart(pUnit);
-            else
-            {
-                pSummoned->GetMotionMaster()->MoveChase(pUnit);
-                pSummoned->Attack(pUnit, true);
-            }
-        }
-
-        if (pSummoned->AI())
-            pSummoned->AI()->DoZoneInCombat();
-    }
-
-    void SummonedCreatureDespawn(Creature* pSummoned)
-    {
-        summons.Despawn(pSummoned);
-        if (summons.empty())
-        {
-            if (pSummoned->isAlive())
-                pInstance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
-            else
-                pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);
-        }
-    }
->>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 };
 
 #endif

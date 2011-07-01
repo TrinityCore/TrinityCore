@@ -513,7 +513,7 @@ uint8 Vehicle::GetAvailableSeatCount() const
 
 void Vehicle::Relocate(Position pos)
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", _me->GetEntry());
 
     std::set<Unit*> vehiclePlayers;
     for (int8 i = 0; i < 8; i++)
@@ -532,7 +532,7 @@ void Vehicle::Relocate(Position pos)
         }
     }
 
-    me->SetPosition(pos, true);
+    _me->SetPosition(pos, true);
     // problems, and impossible to do delayed enter
     //pPlayer->EnterVehicle(veh);
 }

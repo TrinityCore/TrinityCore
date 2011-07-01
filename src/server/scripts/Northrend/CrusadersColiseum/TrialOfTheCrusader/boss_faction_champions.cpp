@@ -69,12 +69,14 @@ public:
 
         InstanceScript* m_pInstance;
         SummonList Summons;
+        uint32 m_uiChampionsNotStarted;
         uint32 m_uiChampionsFailed;
         uint32 m_uiChampionsKilled;
         bool   m_bInProgress;
 
         void Reset()
         {
+            m_uiChampionsNotStarted = 0;
             m_uiChampionsFailed = 0;
             m_uiChampionsKilled = 0;
             m_bInProgress = false;
@@ -220,6 +222,7 @@ public:
                         case IN_PROGRESS:
                             if (!m_bInProgress)
                             {
+                                m_uiChampionsNotStarted = 0;
                                 m_uiChampionsFailed = 0;
                                 m_uiChampionsKilled = 0;
                                 m_bInProgress = true;
@@ -252,27 +255,28 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         m_pInstance = (InstanceScript *) pCreature->GetInstanceScript();
         mAIType = aitype;
-        isWipe = false;
     }
 
     InstanceScript* m_pInstance;
 
+    uint64 championControllerGUID;
     uint32 mAIType;
     uint32 ThreatTimer;
     uint32 CCTimer;
-    bool   isWipe;
 
     void Reset()
     {
+        championControllerGUID = 0;
         CCTimer = rand()%10000;
         ThreatTimer = 5000;
-        if (isWipe)
-        {
-            if (m_pInstance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                    pChampionController->AI()->SetData(TYPE_CRUSADERS, FAIL);
-            me->DespawnOrUnsummon();
-        }
+    }
+
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                pChampionController->AI()->SetData(2, FAIL);
+        me->DespawnOrUnsummon();
     }
 
     float CalculateThreat(float distance, float armor, uint32 health)
@@ -324,17 +328,16 @@ struct boss_faction_championsAI : public ScriptedAI
         if (mAIType != AI_PET)
             if (m_pInstance)
                 if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                    pChampionController->AI()->SetData(TYPE_CRUSADERS, DONE);
+                    pChampionController->AI()->SetData(2, DONE);
     }
 
     void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
-        isWipe = true;
         if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                pChampionController->AI()->SetData(TYPE_CRUSADERS, IN_PROGRESS);
+                pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* who)
@@ -982,7 +985,7 @@ public:
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
             m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(me, SPELL_SUMMON_FELHUNTER, true);
+            DoCast(SPELL_SUMMON_FELHUNTER);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -1196,7 +1199,7 @@ public:
             SetEquipmentSlots(false, 47156, EQUIP_NO_CHANGE, 48711);
 
             m_uiSummonPetTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            DoCast(me, SPELL_CALL_PET, true);
+            DoCast(SPELL_CALL_PET);
         }
 
         void UpdateAI(const uint32 uiDiff)
