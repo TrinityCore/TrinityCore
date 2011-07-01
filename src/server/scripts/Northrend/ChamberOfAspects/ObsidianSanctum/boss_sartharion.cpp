@@ -1705,7 +1705,7 @@ class achievement_twilight_assist : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -1725,7 +1725,7 @@ class achievement_twilight_duo : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -1745,7 +1745,7 @@ class achievement_twilight_zone : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target)
         {
             if (!target)
                 return false;

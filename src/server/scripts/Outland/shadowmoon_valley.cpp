@@ -264,9 +264,9 @@ public:
             {
                 if (PlayerGUID)
                 {
-                    Unit* plr = Unit::GetUnit((*me), PlayerGUID);
-                    if (plr)
-                        DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
+                    Unit* player = Unit::GetUnit((*me), PlayerGUID);
+                    if (player)
+                        DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
 
                     PlayerGUID = 0;
                 }
@@ -288,10 +288,10 @@ public:
                         Tapped = false;
                         if (PlayerGUID)
                         {
-                            Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-                            if (plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
+                            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                            if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                             {
-                                DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
+                                DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
                                 /*
                                 float x, y, z;
                                 me->GetPosition(x, y, z);
@@ -391,9 +391,9 @@ public:
                 {
                     if (PlayerGUID)
                     {
-                        Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-                        if (plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                            plr->KilledMonsterCredit(23209, 0);
+                        Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                        if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(23209, 0);
                     }
                     PoisonTimer = 0;
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -761,11 +761,11 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Unit* plr = Unit::GetUnit((*me), PlayerGUID);
+            Unit* player = Unit::GetUnit((*me), PlayerGUID);
 
             Unit* Illi = Unit::GetUnit((*me), IllidanGUID);
 
-            if (!plr || !Illi)
+            if (!player || !Illi)
             {
                 EnterEvadeMode();
                 return 0;
@@ -775,9 +775,9 @@ public:
             {
             case 0: return 0; break;
             case 1: me->GetMotionMaster()->MovePoint(0, -5104.41f, 595.297f, 85.6838f); return 9000; break;
-            case 2: DoScriptText(OVERLORD_YELL_1, me, plr); return 4500; break;
-            case 3: me->SetInFront(plr); return 3200;  break;
-            case 4: DoScriptText(OVERLORD_SAY_2, me, plr); return 2000; break;
+            case 2: DoScriptText(OVERLORD_YELL_1, me, player); return 4500; break;
+            case 3: me->SetInFront(player); return 3200;  break;
+            case 4: DoScriptText(OVERLORD_SAY_2, me, player); return 2000; break;
             case 5: Illi->SetVisible(true);
                  Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); return 350; break;
             case 6:
@@ -789,20 +789,20 @@ public:
             case 8: me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8); return 2500; break;
             case 9: DoScriptText(OVERLORD_SAY_3, me); return 6500; break;
             case 10: DoScriptText(LORD_ILLIDAN_SAY_1, Illi); return 5000;  break;
-            case 11: DoScriptText(OVERLORD_SAY_4, me, plr); return 6000; break;
+            case 11: DoScriptText(OVERLORD_SAY_4, me, player); return 6000; break;
             case 12: DoScriptText(LORD_ILLIDAN_SAY_2, Illi); return 5500; break;
             case 13: DoScriptText(LORD_ILLIDAN_SAY_3, Illi); return 4000; break;
             case 14: Illi->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 1500; break;
             case 15: DoScriptText(LORD_ILLIDAN_SAY_4, Illi); return 1500; break;
             case 16:
-                if (plr)
+                if (player)
                 {
-                    Illi->CastSpell(plr, SPELL_TWO, true);
-                    plr->RemoveAurasDueToSpell(SPELL_THREE);
-                    plr->RemoveAurasDueToSpell(SPELL_FOUR);
+                    Illi->CastSpell(player, SPELL_TWO, true);
+                    player->RemoveAurasDueToSpell(SPELL_THREE);
+                    player->RemoveAurasDueToSpell(SPELL_FOUR);
                     return 5000;
                 }else{
-                    CAST_PLR(plr)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
+                    CAST_PLR(player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
                 }
                 break;
             case 17: DoScriptText(LORD_ILLIDAN_SAY_5, Illi); return 5000; break;
@@ -821,8 +821,8 @@ public:
             case 24: me->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 5000; break;
             case 25: DoScriptText(OVERLORD_SAY_6, me); return 2000; break;
             case 26:
-                if (plr)
-                    CAST_PLR(plr)->GroupEventHappens(QUEST_LORD_ILLIDAN_STORMRAGE, me);
+                if (player)
+                    CAST_PLR(player)->GroupEventHappens(QUEST_LORD_ILLIDAN_STORMRAGE, me);
                 return 6000; break;
             case 27:
                 {
@@ -832,16 +832,16 @@ public:
                 return 500; }
      break;
             case 28:
-                plr->RemoveAurasDueToSpell(SPELL_TWO);
-                plr->RemoveAurasDueToSpell(41519);
-                plr->CastSpell(plr, SPELL_THREE, true);
-                plr->CastSpell(plr, SPELL_FOUR, true);
+                player->RemoveAurasDueToSpell(SPELL_TWO);
+                player->RemoveAurasDueToSpell(41519);
+                player->CastSpell(player, SPELL_THREE, true);
+                player->CastSpell(player, SPELL_FOUR, true);
                 return 1000; break;
             case 29:
                 {
                 Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
                 if (Yarzill)
-                    DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, plr);
+                    DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, player);
                 return 5000; }
      break;
             case 30:
@@ -855,7 +855,7 @@ public:
                 {
                 Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
                 if (Yarzill)
-                    Yarzill->CastSpell(plr, 41540, true);
+                    Yarzill->CastSpell(player, 41540, true);
                 return 1000;}
     break;
             case 32: me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f); return 5000; break;
@@ -1661,15 +1661,15 @@ class go_crystal_prison : public GameObjectScript
 public:
     go_crystal_prison() : GameObjectScript("go_crystal_prison") { }
 
-    bool OnQuestAccept(Player* plr, GameObject* /*go*/, Quest const* quest)
+    bool OnQuestAccept(Player* player, GameObject* /*go*/, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
         {
-            Creature* Illidan = plr->FindNearestCreature(22083, 50);
+            Creature* Illidan = player->FindNearestCreature(22083, 50);
 
             if (Illidan && !CAST_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted)
             {
-                CAST_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->PlayerGUID = plr->GetGUID();
+                CAST_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->PlayerGUID = player->GetGUID();
                 CAST_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->LiveCount = 0;
                 CAST_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted=true;
             }

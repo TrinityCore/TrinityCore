@@ -428,11 +428,11 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
             void HandleForceCast(SpellEffIndex i)
             {
-                Player* plr = GetHitPlayer();
-                if (!plr)
+                Player* player = GetHitPlayer();
+                if (!player)
                     return;
 
-                plr->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
+                player->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
                 PreventHitEffect(i);                                                                   // AureEffect::HandleAuraControlVehicle will fail on caster == target
             }
 

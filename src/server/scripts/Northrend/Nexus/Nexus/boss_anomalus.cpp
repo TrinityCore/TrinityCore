@@ -117,7 +117,7 @@ class boss_anomalus : public CreatureScript
                 return 0;
             }
 
-            void SummonedCreatureDies(Creature* summoned, Unit* who)
+            void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
             {
                 if (summoned->GetEntry() == MOB_CHAOTIC_RIFT)
                     chaosTheory = false;

@@ -392,14 +392,14 @@ public:
 
     static bool HandleDebugAreaTriggersCommand(ChatHandler* handler, const char* /*args*/)
     {
-        Player* plr = handler->GetSession()->GetPlayer();
-        if (!plr->isDebugAreaTriggers)
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player->isDebugAreaTriggers)
         {
             handler->PSendSysMessage(LANG_DEBUG_AREATRIGGER_ON);
-            plr->isDebugAreaTriggers = true;
+            player->isDebugAreaTriggers = true;
         } else {
             handler->PSendSysMessage(LANG_DEBUG_AREATRIGGER_OFF);
-            plr->isDebugAreaTriggers = false;
+            player->isDebugAreaTriggers = false;
         }
         return true;
     }

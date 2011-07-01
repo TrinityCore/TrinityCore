@@ -123,14 +123,14 @@ public:
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 {
-                    Player* plr = i->getSource();
-                    if (!plr || !plr->isAlive())
+                    Player* player = i->getSource();
+                    if (!player || !player->isAlive())
                         continue;
                     // Summon clone
                     if (Unit* summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
-                        plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
+                        player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // set phase
                         summon->SetPhaseMask((1<<(4+insanityHandled)), true);
                     }
