@@ -175,7 +175,7 @@ class boss_nalorakk : public CreatureScript
                     cell.Visit(pair, cSearcher, *(me->GetMap()));
                 }
 
-                if (!templist.size())
+                if (templist.empty())
                     return;
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
