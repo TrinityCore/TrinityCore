@@ -188,7 +188,7 @@ public:
             switch (i)
             {
                 case 9:
-                    if (Creature *Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 100.0f))
+                    if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 100.0f))
                         MrfloppyGUID = Mrfloppy->GetGUID();
                     break;
                 case 10:
@@ -199,45 +199,45 @@ public:
                     }
                     break;
                 case 11:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                     break;
                 case 17:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     DoScriptText(SAY_WORGRAGGRO3, me);
-                    if (Creature *RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                     {
                         RWORG->setFaction(35);
                         RWORGGUID = RWORG->GetGUID();
                     }
                     break;
                 case 18:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                     {
-                        if (Creature *RWORG = Unit::GetCreature(*me, RWORGGUID))
+                        if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                             RWORG->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
                         DoCast(Mrfloppy, SPELL_MRFLOPPY);
                     }
                     break;
                 case 19:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                     {
                         if (Mrfloppy->HasAura(SPELL_MRFLOPPY, 0))
                         {
-                            if (Creature *RWORG = Unit::GetCreature(*me, RWORGGUID))
+                            if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                                 Mrfloppy->EnterVehicle(RWORG);
                         }
                     }
                     break;
                 case 20:
-                    if (Creature *RWORG = Unit::GetCreature(*me, RWORGGUID))
+                    if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                         RWORG->HandleEmoteCommand(34);
                     break;
                 case 21:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                     {
-                        if (Creature *RWORG = Unit::GetCreature(*me, RWORGGUID))
+                        if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                         {
                             RWORG->Kill(Mrfloppy);
                             Mrfloppy->ExitVehicle();
@@ -248,11 +248,11 @@ public:
                     }
                     break;
                 case 22:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                     {
                         if (Mrfloppy->isDead())
                         {
-                            if (Creature *RWORG = Unit::GetCreature(*me, RWORGGUID))
+                            if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                                 RWORG->DisappearAndDie();
                             me->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
                             Mrfloppy->setDeathState(ALIVE);
@@ -275,7 +275,7 @@ public:
                     break;
                 case 27:
                     me->DisappearAndDie();
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                         Mrfloppy->DisappearAndDie();
                     break;
             }
@@ -325,7 +325,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_emilyAI(creature);
     }
@@ -339,7 +339,7 @@ public:
 
     struct npc_mrfloppyAI : public ScriptedAI
     {
-        npc_mrfloppyAI(Creature *c) : ScriptedAI(c) {}
+        npc_mrfloppyAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 EmilyGUID;
         uint64 RWORGGUID;
@@ -376,7 +376,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_mrfloppyAI(creature);
     }
@@ -440,7 +440,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_outhouse_bunnyAI(creature);
     }
@@ -484,7 +484,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_tallhorn_stagAI(creature);
     }
@@ -550,7 +550,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_amberpine_woodsmanAI(creature);
     }
@@ -576,7 +576,7 @@ public:
 
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
-        npc_wounded_skirmisherAI(Creature *c) : ScriptedAI(c) {}
+        npc_wounded_skirmisherAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 uiPlayerGUID;
 
@@ -594,7 +594,7 @@ public:
                 me->DespawnOrUnsummon(DespawnTimer);
         }
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
@@ -620,7 +620,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_wounded_skirmisherAI(creature);
     }
@@ -643,14 +643,14 @@ class npc_lightning_sentry : public CreatureScript
 public:
     npc_lightning_sentry() : CreatureScript("npc_lightning_sentry") { }
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new npc_lightning_sentryAI(pCreature);
     }
 
     struct npc_lightning_sentryAI : public ScriptedAI
     {
-        npc_lightning_sentryAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        npc_lightning_sentryAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
         uint32 uiChargedSentryTotem;
 
@@ -710,14 +710,14 @@ class npc_venture_co_straggler : public CreatureScript
 public:
     npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new npc_venture_co_stragglerAI(pCreature);
     }
 
     struct npc_venture_co_stragglerAI : public ScriptedAI
     {
-        npc_venture_co_stragglerAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        npc_venture_co_stragglerAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
         uint64 uiPlayerGUID;
         uint32 uiRunAwayTimer;
@@ -737,7 +737,7 @@ public:
         {
             if (uiRunAwayTimer <= uiDiff)
             {
-                if (Player *pPlayer = Unit::GetPlayer(*me, uiPlayerGUID))
+                if (Player* pPlayer = Unit::GetPlayer(*me, uiPlayerGUID))
                 {
                     switch (uiTimer)
                     {
@@ -784,7 +784,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
+        void SpellHit(Unit* pCaster, const SpellEntry *pSpell)
         {
             if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SMOKE_BOMB)
             {

@@ -447,7 +447,7 @@ LogFileLevel = 0
 #                   1 - Anything related to units that doesn't fit in other
 #                          categories.
 #                   2 - Anything related to pets.
-#                   4 - Anything related to vehicles. 
+#                   4 - Anything related to vehicles.
 #                   8 - Anything related to C++ AI, instance scripts, etc.
 #                  16 - Anything related to DB AI, such as SAI, EAI, CreatureAI
 #                  32 - Anything related to DB map scripts
@@ -467,7 +467,7 @@ LogFileLevel = 0
 #              131072 - Anything related to player loading from DB
 #                      (Player::_LoadXXX functions)
 #              262144 - Anything related to items
-#              524288 - Anything related to player skills 
+#              524288 - Anything related to player skills
 #                      (do not confuse with spells)
 #             1048576 - Anything related to loot
 #             2097152 - Anything related to guilds

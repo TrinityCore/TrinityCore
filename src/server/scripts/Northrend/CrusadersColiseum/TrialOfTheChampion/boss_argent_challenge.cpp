@@ -241,7 +241,7 @@ public:
             bHealth = false;
             bDone = false;
 
-            if (Creature *pMemory = Unit::GetCreature(*me, MemoryGUID))
+            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
                 if (pMemory->isAlive())
                     pMemory->RemoveFromWorld();
         }
@@ -323,7 +323,7 @@ public:
                             DoCast(me, SPELL_RENEW);
                             break;
                         case 1:
-                            if (Creature *pMemory = Unit::GetCreature(*me, MemoryGUID))
+                            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
                                 if (pMemory->isAlive())
                                     DoCast(pMemory, SPELL_RENEW);
                             break;

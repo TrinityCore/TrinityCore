@@ -37,7 +37,7 @@ public:
 
     struct boss_death_knight_darkreaverAI : public ScriptedAI
     {
-        boss_death_knight_darkreaverAI(Creature *c) : ScriptedAI(c) {}
+        boss_death_knight_darkreaverAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()
         {

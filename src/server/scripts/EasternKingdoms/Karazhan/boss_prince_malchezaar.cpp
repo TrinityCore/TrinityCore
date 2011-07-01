@@ -108,7 +108,7 @@ public:
 
     struct netherspite_infernalAI : public ScriptedAI
     {
-        netherspite_infernalAI(Creature *c) : ScriptedAI(c) ,
+        netherspite_infernalAI(Creature* c) : ScriptedAI(c) ,
             HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) {}
 
         uint32 HellfireTimer;
@@ -142,9 +142,9 @@ public:
             }
         }
 
-        void KilledUnit(Unit *who)
+        void KilledUnit(Unit* who)
         {
-            Unit *pMalchezaar = Unit::GetUnit(*me, malchezaar);
+            Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
             if (pMalchezaar)
                 CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
         }
@@ -160,7 +160,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetGUID() != malchezaar)
                 damage = 0;
@@ -183,7 +183,7 @@ public:
 
     struct boss_malchezaarAI : public ScriptedAI
     {
-        boss_malchezaarAI(Creature *c) : ScriptedAI(c)
+        boss_malchezaarAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -271,7 +271,7 @@ public:
         {
             //Infernal Cleanup
             for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
-                if (Unit *pInfernal = Unit::GetUnit(*me, *itr))
+                if (Unit* pInfernal = Unit::GetUnit(*me, *itr))
                     if (pInfernal->isAlive())
                     {
                         pInfernal->SetVisible(false);
@@ -285,7 +285,7 @@ public:
         {
             for (uint8 i = 0; i < 2; ++i)
             {
-                Unit *axe = Unit::GetUnit(*me, axes[i]);
+                Unit* axe = Unit::GetUnit(*me, axes[i]);
                 if (axe && axe->isAlive())
                     axe->Kill(axe);
                 axes[i] = 0;
@@ -310,7 +310,7 @@ public:
                 return;
 
             std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            std::vector<Unit *> targets;
+            std::vector<Unit* > targets;
 
             if (!t_list.size())
                 return;
@@ -319,7 +319,7 @@ public:
             std::list<HostileReference *>::const_iterator itr = t_list.begin();
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
-                if (Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     if (pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
                         targets.push_back(pTarget);
 
@@ -328,8 +328,8 @@ public:
                 targets.erase(targets.begin()+rand()%targets.size());
 
             uint32 i = 0;
-            for (std::vector<Unit *>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
-                if (Unit *pTarget = *iter)
+            for (std::vector<Unit* >::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
+                if (Unit* pTarget = *iter)
                 {
                     enfeeble_targets[i] = pTarget->GetGUID();
                     enfeeble_health[i] = pTarget->GetHealth();
@@ -343,7 +343,7 @@ public:
         {
             for (uint8 i = 0; i < 5; ++i)
             {
-                Unit *pTarget = Unit::GetUnit(*me, enfeeble_targets[i]);
+                Unit* pTarget = Unit::GetUnit(*me, enfeeble_targets[i]);
                 if (pTarget && pTarget->isAlive())
                     pTarget->SetHealth(enfeeble_health[i]);
                 enfeeble_targets[i] = 0;
@@ -365,7 +365,7 @@ public:
                 pos.Relocate(point->x, point->y, INFERNAL_Z);
             }
 
-            Creature *Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
+            Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
 
             if (Infernal)
             {
@@ -449,10 +449,10 @@ public:
 
                     DoScriptText(SAY_AXE_TOSS2, me);
 
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     for (uint8 i = 0; i < 2; ++i)
                     {
-                        Creature *axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                        Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                         if (axe)
                         {
                             axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -494,11 +494,11 @@ public:
                 {
                     AxesTargetSwitchTimer = urand(7500, 20000);
 
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Unit *axe = Unit::GetUnit(*me, axes[i]))
+                            if (Unit* axe = Unit::GetUnit(*me, axes[i]))
                             {
                                 if (axe->getVictim())
                                     DoModifyThreatPercent(axe->getVictim(), -100);
@@ -513,7 +513,7 @@ public:
 
                 if (AmplifyDamageTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_AMPLIFY_DAMAGE);
                     AmplifyDamageTimer = urand(20000, 30000);
                 } else AmplifyDamageTimer -= diff;
@@ -536,7 +536,7 @@ public:
             {
                 if (SWPainTimer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     if (phase == 1)
                         pTarget = me->getVictim();        // the tank
                     else                                          // anyone but the tank
@@ -585,7 +585,7 @@ public:
             }
         }
 
-        void Cleanup(Creature *infernal, InfernalPoint *point)
+        void Cleanup(Creature* infernal, InfernalPoint *point)
         {
             for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
                 if (*itr == infernal->GetGUID())
@@ -602,7 +602,7 @@ public:
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
-    Unit *pMalchezaar = Unit::GetUnit(*me, malchezaar);
+    Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->isAlive())
         CAST_AI(boss_malchezaar::boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(me, point);

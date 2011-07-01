@@ -101,7 +101,7 @@ public:
             m_uiFallAsleepTimer = urand(10000, 45000);
         }
 
-        void MoveInLineOfSight(Unit *pWho)
+        void MoveInLineOfSight(Unit* pWho)
         {
             FollowerAI::MoveInLineOfSight(pWho);
 

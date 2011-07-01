@@ -145,7 +145,7 @@ public:
 
     struct boss_lady_vashjAI : public ScriptedAI
     {
-        boss_lady_vashjAI (Creature *c) : ScriptedAI(c)
+        boss_lady_vashjAI (Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             Intro = false;
@@ -201,7 +201,7 @@ public:
                 JustCreated = false;
             } else CanAttack = true;
 
-            Unit *remo;
+            Unit* remo;
             for (uint8 i = 0; i < 4; ++i)
             {
                 remo = Unit::GetUnit(*me, ShieldGeneratorChannel[i]);
@@ -270,7 +270,7 @@ public:
                 AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!Intro)
             {
@@ -363,7 +363,7 @@ public:
                 {
                     //Static Charge
                     //Used on random people (only 1 person at any given time) in Phases 1 and 3, it's a debuff doing 2775 to 3225 Nature damage to the target and everybody in about 5 yards around it, every 1 seconds for 30 seconds. It can be removed by Cloak of Shadows, Iceblock, Divine Shield, etc, but not by Cleanse or Dispel Magic.
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true);
 
                     if (pTarget && !pTarget->HasAura(SPELL_STATIC_CHARGE_TRIGGER))
@@ -404,7 +404,7 @@ public:
                         me->GetMotionMaster()->Clear();
                         DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
-                        Creature *pCreature;
+                        Creature* pCreature;
                         for (uint8 i = 0; i < 4; ++i)
                         {
                             pCreature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -420,12 +420,12 @@ public:
                     //SummonSporebat_Timer
                     if (SummonSporebat_Timer <= diff)
                     {
-                        Creature *Sporebat = NULL;
+                        Creature* Sporebat = NULL;
                         Sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                         if (Sporebat)
                         {
-                            Unit *pTarget = NULL;
+                            Unit* pTarget = NULL;
                             pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                             if (pTarget)
                                 Sporebat->AI()->AttackStart(pTarget);
@@ -450,7 +450,7 @@ public:
                 if (Check_Timer <= diff)
                 {
                     bool InMeleeRange = false;
-                    Unit *pTarget;
+                    Unit* pTarget;
                     std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
@@ -478,7 +478,7 @@ public:
                 {
                     //Forked Lightning
                     //Used constantly in Phase 2, it shoots out completely randomly targeted bolts of lightning which hit everybody in a roughtly 60 degree cone in front of Vashj for 2313-2687 nature damage.
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (!pTarget)
@@ -519,7 +519,7 @@ public:
                     CoilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     if (CoilfangElite)
                     {
-                        Unit *pTarget = NULL;
+                        Unit* pTarget = NULL;
                         pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (pTarget)
                             CoilfangElite->AI()->AttackStart(pTarget);
@@ -537,7 +537,7 @@ public:
                     CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                      if (CoilfangStrider)
                     {
-                        Unit *pTarget = NULL;
+                        Unit* pTarget = NULL;
                         pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (pTarget)
                             CoilfangStrider->AI()->AttackStart(pTarget);
@@ -587,7 +587,7 @@ public:
 
     struct mob_enchanted_elementalAI : public ScriptedAI
     {
-        mob_enchanted_elementalAI(Creature *c) : ScriptedAI(c)
+        mob_enchanted_elementalAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -660,7 +660,7 @@ public:
                     if (me->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
                         DoCast(me, SPELL_SURGE);
                 }
-                if (Creature *Vashj = Unit::GetCreature(*me, VashjGUID))
+                if (Creature* Vashj = Unit::GetCreature(*me, VashjGUID))
                 {
                     if (!Vashj->isInCombat() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
                     {
@@ -689,7 +689,7 @@ public:
 
     struct mob_tainted_elementalAI : public ScriptedAI
     {
-        mob_tainted_elementalAI(Creature *c) : ScriptedAI(c)
+        mob_tainted_elementalAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -709,7 +709,7 @@ public:
         {
             if (pInstance)
             {
-                Creature *Vashj = NULL;
+                Creature* Vashj = NULL;
                 Vashj = (Unit::GetCreature((*me), pInstance->GetData64(DATA_LADYVASHJ)));
 
                 if (Vashj)
@@ -727,7 +727,7 @@ public:
             //PoisonBolt_Timer
             if (PoisonBolt_Timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (pTarget && pTarget->IsWithinDistInMap(me, 30))
@@ -764,7 +764,7 @@ public:
 
     struct mob_toxic_sporebatAI : public ScriptedAI
     {
-        mob_toxic_sporebatAI(Creature *c) : ScriptedAI(c)
+        mob_toxic_sporebatAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             EnterEvadeMode();
@@ -819,7 +819,7 @@ public:
             //toxic spores
             if (bolt_timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                 {
@@ -840,7 +840,7 @@ public:
                 if (pInstance)
                 {
                     //check if vashj is death
-                    Unit *Vashj = NULL;
+                    Unit* Vashj = NULL;
                     Vashj = Unit::GetUnit((*me), pInstance->GetData64(DATA_LADYVASHJ));
                     if (!Vashj || (Vashj && !Vashj->isAlive()) || (Vashj && CAST_AI(boss_lady_vashj::boss_lady_vashjAI, CAST_CRE(Vashj)->AI())->Phase != 3))
                     {
@@ -922,7 +922,7 @@ public:
 
     struct mob_shield_generator_channelAI : public ScriptedAI
     {
-        mob_shield_generator_channelAI(Creature *c) : ScriptedAI(c)
+        mob_shield_generator_channelAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -950,7 +950,7 @@ public:
 
             if (Check_Timer <= diff)
             {
-                Unit *Vashj = NULL;
+                Unit* Vashj = NULL;
                 Vashj = Unit::GetUnit((*me), pInstance->GetData64(DATA_LADYVASHJ));
 
                 if (Vashj && Vashj->isAlive())
@@ -984,7 +984,7 @@ public:
             return true;
         }
 
-        Creature *Vashj = NULL;
+        Creature* Vashj = NULL;
         Vashj = (Unit::GetCreature((*pPlayer), pInstance->GetData64(DATA_LADYVASHJ)));
         if (Vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->AI())->Phase == 2))
         {
@@ -1021,7 +1021,7 @@ public:
                 }
 
                 //get and remove channel
-                Unit *Channel = NULL;
+                Unit* Channel = NULL;
                 Channel = Unit::GetCreature(*Vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->AI())->ShieldGeneratorChannel[channel_identifier]);
                 if (Channel)
                 {

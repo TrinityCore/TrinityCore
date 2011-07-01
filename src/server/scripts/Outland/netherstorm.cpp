@@ -77,7 +77,7 @@ public:
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
     {
-        npc_manaforge_control_consoleAI(Creature *c) : ScriptedAI(c) {}
+        npc_manaforge_control_consoleAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Event_Timer;
         uint32 Wave_Timer;
@@ -100,7 +100,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        /*void SpellHit(Unit *caster, const SpellEntry *spell)
+        /*void SpellHit(Unit* caster, const SpellEntry *spell)
         {
             //we have no way of telling the Creature was hit by spell -> got aura applied after 10-12 seconds
             //then no way for the mobs to actually stop the shutdown as intended.
@@ -395,7 +395,7 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature *c) : ScriptedAI(c) { Reset (); }
+        npc_commander_dawnforgeAI(Creature* c) : ScriptedAI(c) { Reset (); }
 
         uint64 PlayerGUID;
         uint64 ardonisGUID;
@@ -423,7 +423,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             pathaleonGUID = summoned->GetGUID();
         }
@@ -431,8 +431,8 @@ public:
         // Emote Ardonis and Pathaleon
         void Turn_to_Pathaleons_Image()
         {
-            Creature *ardonis = Unit::GetCreature(*me, ardonisGUID);
-            Creature *pathaleon = Unit::GetCreature(*me, pathaleonGUID);
+            Creature* ardonis = Unit::GetCreature(*me, ardonisGUID);
+            Creature* pathaleon = Unit::GetCreature(*me, pathaleonGUID);
             Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
             if (!ardonis || !pathaleon || !pPlayer)
@@ -457,7 +457,7 @@ public:
         //Set them back to each other
         void Turn_to_eachother()
         {
-            if (Unit *ardonis = Unit::GetUnit(*me, ardonisGUID))
+            if (Unit* ardonis = Unit::GetUnit(*me, ardonisGUID))
             {
                 Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
@@ -514,8 +514,8 @@ public:
                 return;
             }
 
-            Unit *ardonis = Unit::GetUnit(*me, ardonisGUID);
-            Unit *pathaleon = Unit::GetUnit(*me, pathaleonGUID);
+            Unit* ardonis = Unit::GetUnit(*me, ardonisGUID);
+            Unit* pathaleon = Unit::GetUnit(*me, pathaleonGUID);
             Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
             if (!ardonis || !pPlayer)
@@ -749,14 +749,14 @@ public:
 
     struct mob_phase_hunterAI : public ScriptedAI
     {
-        mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {}
+        mob_phase_hunterAI(Creature* c) : ScriptedAI(c) {}
 
         bool Weak;
         bool Materialize;
         bool Drained;
         uint8 WeakPercent;
 
-        Player *pPlayer;
+        Player* pPlayer;
         uint64 PlayerGUID;
 
         uint32 ManaBurnTimer;
@@ -809,7 +809,7 @@ public:
 
                 for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
                 {
-                    if (Unit *pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         if (pUnit->GetCreateMana() > 0)
                             UnitsWithMana.push_back(pUnit);
@@ -826,7 +826,7 @@ public:
                     ManaBurnTimer = 3500;
             } else ManaBurnTimer -= diff;
 
-            if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
+            if (Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
             {
                 if (!Weak && HealthBelowPct(WeakPercent)
                     && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
@@ -890,7 +890,7 @@ public:
     struct npc_bessyAI : public npc_escortAI
     {
 
-        npc_bessyAI(Creature *c) : npc_escortAI(c) {}
+        npc_bessyAI(Creature* c) : npc_escortAI(c) {}
 
         void JustDied(Unit* /*killer*/)
         {

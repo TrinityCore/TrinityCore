@@ -49,7 +49,7 @@ public:
 
     struct boss_fankrissAI : public ScriptedAI
     {
-        boss_fankrissAI(Creature *c) : ScriptedAI(c) {}
+        boss_fankrissAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 MortalWound_Timer;
         uint32 SpawnHatchlings_Timer;
@@ -136,7 +136,7 @@ public:
             {
                 if (SpawnHatchlings_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     {

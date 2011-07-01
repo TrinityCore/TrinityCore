@@ -88,7 +88,7 @@ public:
     struct npc_prospector_anvilwardAI : public npc_escortAI
     {
         // CreatureAI functions
-        npc_prospector_anvilwardAI(Creature *c) : npc_escortAI(c) {}
+        npc_prospector_anvilwardAI(Creature* c) : npc_escortAI(c) {}
 
         // Pure Virtual Functions
         void WaypointReached(uint32 i)
@@ -259,7 +259,7 @@ public:
                     me->setFaction(FACTION_HOSTILE);
                     questPhase = 0;
 
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         me->AddThreat(pTarget, 5000000.0f);
                         AttackStart(pTarget);
@@ -379,7 +379,7 @@ public:
 
     struct master_kelerun_bloodmournAI : public ScriptedAI
     {
-        master_kelerun_bloodmournAI(Creature *c) : ScriptedAI(c) {}
+        master_kelerun_bloodmournAI(Creature* c) : ScriptedAI(c) {}
 
         uint8  questPhase;
         uint8  paladinPhase;
@@ -456,7 +456,7 @@ public:
             { // no player check, quest can be finished as group, so no complex PlayerGUID/group search code
 
                 for (uint8 i = 0; i < 4; ++i)
-                if (Creature *pSummoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
+                if (Creature* pSummoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
                     paladinGuid[i] = pSummoned->GetGUID();
 
                 timer = OFFSET_NEXT_ATTACK;
@@ -485,7 +485,7 @@ void npc_second_trial_paladin::npc_secondTrialAI::JustDied(Unit* Killer)
 {
     if (Killer->GetTypeId() == TYPEID_PLAYER)
     {
-        if (Creature *pSummoner = Unit::GetCreature((*me), summonerGuid))
+        if (Creature* pSummoner = Unit::GetCreature((*me), summonerGuid))
             CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, pSummoner->AI())->SecondTrialKill();
 
         // last kill quest complete for group
@@ -508,7 +508,7 @@ public:
     bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
     {
         // find spawn :: master_kelerun_bloodmourn
-        if (Creature *pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
+        if (Creature* pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
            CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, pCreature->AI())->StartEvent();
 
         return true;
@@ -563,7 +563,7 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             summoned->AI()->AttackStart(me);
             Summons.Summon(summoned);
@@ -668,7 +668,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             summoned->AI()->AttackStart(me);
         }

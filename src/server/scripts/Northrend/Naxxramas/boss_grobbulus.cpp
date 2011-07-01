@@ -45,7 +45,7 @@ public:
 
     struct boss_grobbulusAI : public BossAI
     {
-        boss_grobbulusAI(Creature *c) : BossAI(c, BOSS_GROBBULUS)
+        boss_grobbulusAI(Creature* c) : BossAI(c, BOSS_GROBBULUS)
         {
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_POISON_CLOUD_ADD, true);
         }
@@ -59,7 +59,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 12*60000);
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
         {
             if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {
@@ -91,7 +91,7 @@ public:
                         events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
                         return;
                     case EVENT_INJECT:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             if (!pTarget->HasAura(SPELL_MUTATING_INJECTION))
                                 DoCast(pTarget, SPELL_MUTATING_INJECTION);
                         events.ScheduleEvent(EVENT_INJECT, 8000 + uint32(120 * me->GetHealthPct()));

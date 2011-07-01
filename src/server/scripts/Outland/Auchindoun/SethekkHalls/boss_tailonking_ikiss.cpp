@@ -64,7 +64,7 @@ public:
 
     struct boss_talon_king_ikissAI : public ScriptedAI
     {
-        boss_talon_king_ikissAI(Creature *c) : ScriptedAI(c)
+        boss_talon_king_ikissAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -91,7 +91,7 @@ public:
             ManaShield = false;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
             {
@@ -151,7 +151,7 @@ public:
 
             if (Sheep_Timer <= diff)
             {
-                Unit *pTarget;
+                Unit* pTarget;
 
                 //second top aggro target in normal, random target in heroic correct?
                 if (IsHeroic())
@@ -184,7 +184,7 @@ public:
             {
                 DoScriptText(EMOTE_ARCANE_EXP, me);
 
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(false);

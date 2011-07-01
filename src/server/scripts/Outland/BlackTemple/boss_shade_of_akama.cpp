@@ -278,12 +278,12 @@ public:
         {
             summons.DespawnAll();
         }
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Despawn(summon);
@@ -371,7 +371,7 @@ public:
                     {
                         Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         Spawn->AI()->AttackStart(pTarget);
                     }
                 }
@@ -628,12 +628,12 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_BROKEN)
                 summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_BROKEN)
                 summons.Despawn(summon);
