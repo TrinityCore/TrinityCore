@@ -265,7 +265,7 @@ enum SpellAttr0
 {
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
     SPELL_ATTR0_REQ_AMMO                         = 0x00000002, //  1
-    SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2 on next swing
+    SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2
     SPELL_ATTR0_UNK3                             = 0x00000008, //  3 not set in 3.0.3
     SPELL_ATTR0_ABILITY                          = 0x00000010, //  4 client puts 'ability' instead of 'spell' in game strings for these spells
     SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells (recipes), will be added by client to a sublist of profession spell
@@ -273,7 +273,7 @@ enum SpellAttr0
     SPELL_ATTR0_HIDDEN_CLIENTSIDE                = 0x00000080, //  7 Spells with this attribute are not visible in spellbook or aura bar
     SPELL_ATTR0_HIDE_IN_COMBAT_LOG               = 0x00000100, //  8 This attribite controls whether spell appears in combat logs
     SPELL_ATTR0_TARGET_MAINHAND_ITEM             = 0x00000200, //  9 Client automatically selects item from mainhand slot as a cast target
-    SPELL_ATTR0_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR0_ON_NEXT_SWING_2                  = 0x00000400, // 10
     SPELL_ATTR0_UNK11                            = 0x00000800, // 11
     SPELL_ATTR0_DAYTIME_ONLY                     = 0x00001000, // 12 only useable at daytime, not set in 2.4.2
     SPELL_ATTR0_NIGHT_ONLY                       = 0x00002000, // 13 only useable at night, not set in 2.4.2
@@ -285,7 +285,7 @@ enum SpellAttr0
     SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION         = 0x00080000, // 19 spelldamage depends on caster level
     SPELL_ATTR0_STOP_ATTACK_TARGET               = 0x00100000, // 20 Stop attack after use this spell (and not begin attack if use)
     SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK     = 0x00200000, // 21 Cannot be dodged/parried/blocked
-    SPELL_ATTR0_FORCE_FACING_TARGET              = 0x00400000, // 22 Client automatically forces player to face target when casting
+    SPELL_ATTR0_CAST_TRACK_TARGET                = 0x00400000, // 22 Client automatically forces player to face target when casting
     SPELL_ATTR0_CASTABLE_WHILE_DEAD              = 0x00800000, // 23 castable while dead?
     SPELL_ATTR0_CASTABLE_WHILE_MOUNTED           = 0x01000000, // 24 castable while mounted
     SPELL_ATTR0_DISABLED_WHILE_ACTIVE            = 0x02000000, // 25 Activate and start cooldown after aura fade or remove summoned creature or go
@@ -299,9 +299,9 @@ enum SpellAttr0
 
 enum SpellAttr1
 {
-    SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 dismiss pet and not allow to summon new one?
+    SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 for spells without this flag client doesn't allow to summon pet if caster has a pet
     SPELL_ATTR1_DRAIN_ALL_POWER                  = 0x00000002, //  1 use all power (Only paladin Lay of Hands and Bunyanize)
-    SPELL_ATTR1_CHANNELED_1                      = 0x00000004, //  2
+    SPELL_ATTR1_CHANNELED_1                      = 0x00000004, //  2 clientside checked?
     SPELL_ATTR1_PUT_CASTER_IN_COMBAT             = 0x00000008, //  3 spells that cause a caster to enter a combat
     SPELL_ATTR1_UNK4                             = 0x00000010, //  4 stealth and whirlwind
     SPELL_ATTR1_NOT_BREAK_STEALTH                = 0x00000020, //  5 Not break stealth
@@ -313,7 +313,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
     SPELL_ATTR1_UNK12                            = 0x00001000, // 12
     SPELL_ATTR1_USE_RADIUS_AS_MAX_DISTANCE       = 0x00002000, // 13
-    SPELL_ATTR1_STACK_FOR_DIFF_CASTERS           = 0x00004000, // 14
+    SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // 14 Client automatically forces player to face target when channeling
     SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // 15 remove auras on immunity
     SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE      = 0x00010000, // 16 on immuniy
     SPELL_ATTR1_UNAUTOCASTABLE_BY_PET            = 0x00020000, // 17
@@ -1399,7 +1399,7 @@ enum SpellMissInfo
     SPELL_MISS_BLOCK                   = 5,
     SPELL_MISS_EVADE                   = 6,
     SPELL_MISS_IMMUNE                  = 7,
-    SPELL_MISS_IMMUNE2                 = 8,
+    SPELL_MISS_IMMUNE2                 = 8, // one of these 2 is MISS_TEMPIMMUNE
     SPELL_MISS_DEFLECT                 = 9,
     SPELL_MISS_ABSORB                  = 10,
     SPELL_MISS_REFLECT                 = 11
