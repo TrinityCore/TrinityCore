@@ -157,7 +157,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 1c3bc04..fc9b438 100755
+index 7d206bc..c5adb6e 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -286,7 +286,7 @@ index 1c3bc04..fc9b438 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17017,6 +17094,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17020,6 +17097,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -296,7 +296,7 @@ index 1c3bc04..fc9b438 100755
      return true;
  }
  
-@@ -18355,7 +18435,13 @@ void Player::SaveToDB()
+@@ -18358,7 +18438,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
@@ -311,7 +311,7 @@ index 1c3bc04..fc9b438 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 725c3fb..861afbc 100755
+index e84f4ea..975610f 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -1401,7 +1401,7 @@ index bd2c34a..bd65697 100755
  
 +#endif
 diff --git a/src/server/game/Scripting/ScriptLoader.cpp b/src/server/game/Scripting/ScriptLoader.cpp
-index 0293c35..a8fdc80 100755
+index 5149308..20bc136 100755
 --- a/src/server/game/Scripting/ScriptLoader.cpp
 +++ b/src/server/game/Scripting/ScriptLoader.cpp
 @@ -1,4 +1,5 @@
@@ -1418,7 +1418,7 @@ index 0293c35..a8fdc80 100755
  void AddSC_learn_commandscript();
  void AddSC_modify_commandscript();
  void AddSC_npc_commandscript();
-@@ -486,17 +488,17 @@ void AddSC_boss_baltharus_the_warborn();
+@@ -487,17 +489,17 @@ void AddSC_boss_baltharus_the_warborn();
  void AddSC_boss_saviana_ragefire();
  void AddSC_boss_general_zarithrian();
  
@@ -1439,7 +1439,7 @@ index 0293c35..a8fdc80 100755
  
  //outland
  void AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
-@@ -650,6 +652,7 @@ void AddCommandScripts()
+@@ -651,6 +653,7 @@ void AddCommandScripts()
      AddSC_go_commandscript();
      AddSC_gobject_commandscript();
      AddSC_honor_commandscript();
@@ -1448,7 +1448,7 @@ index 0293c35..a8fdc80 100755
      AddSC_modify_commandscript();
      AddSC_npc_commandscript();
 diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
-index 494908b..7a0c169 100755
+index 1bf6101..73cd8e4 100755
 --- a/src/server/game/World/World.cpp
 +++ b/src/server/game/World/World.cpp
 @@ -1,4 +1,5 @@
@@ -1552,7 +1552,7 @@ index de660b8..f1cecf0 100644
    ${CMAKE_SOURCE_DIR}/src/server/game/Loot
    ${CMAKE_SOURCE_DIR}/src/server/game/Mails
 diff --git a/src/server/scripts/Commands/CMakeLists.txt b/src/server/scripts/Commands/CMakeLists.txt
-index 809e782..14775f1 100644
+index 19c42ba..731b9eb 100644
 --- a/src/server/scripts/Commands/CMakeLists.txt
 +++ b/src/server/scripts/Commands/CMakeLists.txt
 @@ -1,3 +1,4 @@
@@ -1560,14 +1560,14 @@ index 809e782..14775f1 100644
  # Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  #
  # This file is free software; as a special exception the author gives
-@@ -23,6 +24,7 @@ set(scripts_STAT_SRCS
-   Commands/cs_event.cpp
+@@ -19,6 +20,7 @@ set(scripts_STAT_SRCS
    Commands/cs_gobject.cpp
+   Commands/cs_gps.cpp
    Commands/cs_honor.cpp
 +  Commands/cs_jail.cpp
-   Commands/cs_wp.cpp
-   Commands/cs_titles.cpp
-   Commands/cs_quest.cpp
+   Commands/cs_learn.cpp
+   Commands/cs_modify.cpp
+   Commands/cs_npc.cpp
 diff --git a/src/server/scripts/Commands/cs_jail.cpp b/src/server/scripts/Commands/cs_jail.cpp
 new file mode 100644
 index 0000000..01a1db0
