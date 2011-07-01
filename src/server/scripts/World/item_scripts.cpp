@@ -462,6 +462,5 @@ void AddSC_item_scripts()
     new item_petrov_cluster_bombs();
     new item_dehta_trap_smasher();
     new item_trident_of_nazjan();
-    new item_juggling_torch();
     new item_captured_frog();
 }
