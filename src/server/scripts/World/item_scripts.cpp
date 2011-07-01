@@ -423,43 +423,6 @@ public:
     }
 };
 
-/*#####
-# item_juggling_torch 34599
-#####*/
-
-class item_juggling_torch : public ItemScript
-{
-public:
-    item_juggling_torch() : ItemScript("item_juggling_torch") { }
-
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
-    {
-        Position const* pos;
-        pos = targets.GetDst();
-
-        uint32 spellId = 45638;
-        switch (urand(0, 3))
-        {
-            case 1:
-                spellId = 45792;
-                break;
-            case 2:
-                spellId = 45806;
-                break;
-            case 3:
-                spellId = 45816;
-                break;
-            default:
-                break;
-        }
-
-        player->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), spellId, true);
-        player->DestroyItemCount(item->GetEntry(), 1, true);
-        return true;
-    }
-
-};
-
 enum eCapturedFrog
 {
     QUEST_THE_PERFECT_SPIES      = 25444,
