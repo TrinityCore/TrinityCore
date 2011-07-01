@@ -525,7 +525,7 @@ public:
                     me->IsWithinDistInMap(i->getSource(), range) && i->getSource()->isAlive())
                     temp.push_back(i->getSource());
 
-            if (temp.size())
+            if (!temp.empty())
             {
                 j = temp.begin();
                 advance(j, rand()%temp.size());
