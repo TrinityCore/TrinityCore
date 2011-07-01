@@ -328,7 +328,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK26                            = 0x04000000, // 26 works correctly with [target=focus] and [target=mouseover] macros?
     SPELL_ATTR1_UNK27                            = 0x08000000, // 27
     SPELL_ATTR1_IGNORE_IMMUNITY                  = 0x10000000, // 28 removed from Chains of Ice 3.3.0
-    SPELL_ATTR1_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // 29 spell name is displayed in cast bar instead of 'channeling' text
     SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // 30 Overpower, Wolverine Bite
     SPELL_ATTR1_UNK31                            = 0x80000000  // 31
 };
