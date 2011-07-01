@@ -58,7 +58,7 @@ public:
 
     struct boss_rage_winterchillAI : public hyjal_trashAI
     {
-        boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
+        boss_rage_winterchillAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             pGo = false;
@@ -112,7 +112,7 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                 if (pTarget && pTarget->isAlive())
                     me->AddThreat(pTarget, 0.0f);
             }

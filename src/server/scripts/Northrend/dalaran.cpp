@@ -61,7 +61,7 @@ public:
 
         void AttackStart(Unit* /*pWho*/){}
 
-        void MoveInLineOfSight(Unit *pWho)
+        void MoveInLineOfSight(Unit* pWho)
         {
             if (!pWho || !pWho->IsInWorld() || pWho->GetZoneId() != 4395)
                 return;
@@ -69,7 +69,7 @@ public:
             if (!me->IsWithinDist(pWho, 65.0f, false))
                 return;
 
-            Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
+            Player* pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
 
             if (!pPlayer || pPlayer->isGameMaster() || pPlayer->IsBeingTeleported())
                 return;
@@ -108,7 +108,7 @@ public:
         void UpdateAI(const uint32 /*diff*/){}
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_mageguard_dalaranAI(creature);
     }

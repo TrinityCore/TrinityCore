@@ -52,7 +52,7 @@ class boss_baron_geddon : public CreatureScript
 
         struct boss_baron_geddonAI : public BossAI
         {
-            boss_baron_geddonAI(Creature *pCreature) : BossAI(pCreature, BOSS_BARON_GEDDON)
+            boss_baron_geddonAI(Creature* pCreature) : BossAI(pCreature, BOSS_BARON_GEDDON)
             {
             }
 

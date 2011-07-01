@@ -54,7 +54,7 @@ public:
 
     struct boss_temporusAI : public ScriptedAI
     {
-        boss_temporusAI(Creature *c) : ScriptedAI(c)
+        boss_temporusAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -92,7 +92,7 @@ public:
                 pInstance->SetData(TYPE_RIFT, SPECIAL);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)

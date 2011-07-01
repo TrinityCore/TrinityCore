@@ -231,7 +231,7 @@ class npc_arthas : public CreatureScript
 public:
     npc_arthas() : CreatureScript("npc_arthas") { }
 
-    bool OnGossipSelect(Player *pPlayer, Creature *pCreature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 action)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, pCreature->AI());
@@ -325,7 +325,7 @@ public:
 
     struct npc_arthasAI : public npc_escortAI
     {
-        npc_arthasAI(Creature *pCreature) : npc_escortAI(pCreature)
+        npc_arthasAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
             Reset();

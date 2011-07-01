@@ -388,7 +388,7 @@ public:
 
             if (BrainWipeTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_BRAIN_WIPE);
                 BrainWipeTimer = 20000;
             } else BrainWipeTimer -= diff;
@@ -869,7 +869,7 @@ public:
             {
                 if (!IsChasing)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoScriptText(SAY_WOLF_HOOD, me);
                         DoCast(pTarget, SPELL_LITTLE_RED_RIDING_HOOD, true);
@@ -886,7 +886,7 @@ public:
                 {
                     IsChasing = false;
 
-                    if (Unit *pTarget = Unit::GetUnit((*me), HoodGUID))
+                    if (Unit* pTarget = Unit::GetUnit((*me), HoodGUID))
                     {
                         HoodGUID = 0;
                         if (DoGetThreat(pTarget))
@@ -977,7 +977,7 @@ void PretendToDie(Creature* pCreature)
     pCreature->SetStandState(UNIT_STAND_STATE_DEAD);
 };
 
-void Resurrect(Creature *pTarget)
+void Resurrect(Creature* pTarget)
 {
     pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     pTarget->SetFullHealth();
@@ -1289,7 +1289,7 @@ public:
 
             if (BackwardLungeTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
                 if (pTarget && !me->HasInArc(M_PI, pTarget))
                 {
                     DoCast(pTarget, SPELL_BACKWARD_LUNGE);
@@ -1305,7 +1305,7 @@ public:
 
             if (DeadlySwatheTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_DEADLY_SWATHE);
                 DeadlySwatheTimer = urand(15000, 25000);
             } else DeadlySwatheTimer -= diff;
@@ -1410,7 +1410,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (BlindingPassionTimer <= diff)
     {
-        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             DoCast(pTarget, SPELL_BLINDING_PASSION);
         BlindingPassionTimer = urand(30000, 45000);
     } else BlindingPassionTimer -= diff;

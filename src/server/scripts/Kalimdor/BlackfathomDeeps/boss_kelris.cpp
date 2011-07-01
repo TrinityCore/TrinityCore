@@ -44,7 +44,7 @@ public:
 
     struct boss_kelrisAI : public ScriptedAI
     {
-        boss_kelrisAI(Creature *c) : ScriptedAI(c)
+        boss_kelrisAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -89,7 +89,7 @@ public:
 
             if (uiSleepTimer < diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoScriptText(SAY_SLEEP, me);
                     DoCast(pTarget, SPELL_SLEEP);

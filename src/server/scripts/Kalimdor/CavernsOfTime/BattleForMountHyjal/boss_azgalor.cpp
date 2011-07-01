@@ -55,7 +55,7 @@ public:
 
     struct boss_azgalorAI : public hyjal_trashAI
     {
-        boss_azgalorAI(Creature *c) : hyjal_trashAI(c)
+        boss_azgalorAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             pGo = false;
@@ -121,7 +121,7 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                 if (pTarget && pTarget->isAlive())
                     me->AddThreat(pTarget, 0.0f);
             }
@@ -218,7 +218,7 @@ public:
 
     struct mob_lesser_doomguardAI : public hyjal_trashAI
     {
-        mob_lesser_doomguardAI(Creature *c) : hyjal_trashAI(c)
+        mob_lesser_doomguardAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)
@@ -251,7 +251,7 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
                 AttackStart(who);

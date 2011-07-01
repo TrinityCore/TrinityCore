@@ -44,7 +44,7 @@ public:
 
     struct boss_instructormaliciaAI : public ScriptedAI
     {
-        boss_instructormaliciaAI(Creature *c) : ScriptedAI(c) {}
+        boss_instructormaliciaAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CallOfGraves_Timer;
         uint32 Corruption_Timer;
@@ -96,7 +96,7 @@ public:
             //Corruption_Timer
             if (Corruption_Timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget) DoCast(pTarget, SPELL_CORRUPTION);
 

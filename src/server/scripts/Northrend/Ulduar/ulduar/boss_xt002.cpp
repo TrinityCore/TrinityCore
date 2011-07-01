@@ -188,7 +188,7 @@ class boss_xt002 : public CreatureScript
 
         struct boss_xt002_AI : public BossAI
         {
-            boss_xt002_AI(Creature *pCreature) : BossAI(pCreature, BOSS_XT002)
+            boss_xt002_AI(Creature* pCreature) : BossAI(pCreature, BOSS_XT002)
             {
             }
 
@@ -767,10 +767,10 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* plr = GetOwner()->ToPlayer())
+                if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            plr->CastSpell(plr, SPELL_SUMMON_LIFE_SPARK, true);
+                            player->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
             }
 
             void Register()
@@ -803,10 +803,10 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* plr = GetOwner()->ToPlayer())
+                if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            plr->CastSpell(plr, SPELL_SUMMON_VOID_ZONE, true);
+                            player->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
             }
 
             void OnPeriodic(AuraEffect const* aurEff)

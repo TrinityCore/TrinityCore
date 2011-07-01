@@ -88,7 +88,7 @@ public:
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
     {
-        boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(me)
+        boss_hydross_the_unstableAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -202,7 +202,7 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             Summons.Despawn(summon);
         }
@@ -262,7 +262,7 @@ public:
                 //VileSludge_Timer
                 if (VileSludge_Timer <= diff)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget)
                         DoCast(pTarget, SPELL_VILE_SLUDGE);
 
@@ -329,7 +329,7 @@ public:
                 //WaterTomb_Timer
                 if (WaterTomb_Timer <= diff)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pTarget)
                         DoCast(pTarget, SPELL_WATER_TOMB);
 

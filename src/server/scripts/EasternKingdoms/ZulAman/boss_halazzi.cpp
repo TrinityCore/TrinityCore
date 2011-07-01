@@ -84,7 +84,7 @@ class boss_halazzi : public CreatureScript
 
         struct boss_halazziAI : public ScriptedAI
         {
-            boss_halazziAI(Creature *c) : ScriptedAI(c)
+            boss_halazziAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance = c->GetInstanceScript();
                 // need to find out what controls totem's spell cooldown
@@ -153,7 +153,7 @@ class boss_halazzi : public CreatureScript
                     EnterPhase(PHASE_HUMAN);
             }
 
-            void AttackStart(Unit *who)
+            void AttackStart(Unit* who)
             {
                 if (Phase != PHASE_MERGE) ScriptedAI::AttackStart(who);
             }
@@ -170,7 +170,7 @@ class boss_halazzi : public CreatureScript
                         me->Attack(me->getVictim(), true);
                         me->GetMotionMaster()->MoveChase(me->getVictim());
                     }
-                    if (Creature *Lynx = Unit::GetCreature(*me, LynxGUID))
+                    if (Creature* Lynx = Unit::GetCreature(*me, LynxGUID))
                         Lynx->DisappearAndDie();
                     me->SetMaxHealth(600000);
                     me->SetHealth(600000 - 150000 * TransformCount);
@@ -193,7 +193,7 @@ class boss_halazzi : public CreatureScript
                     TotemTimer = 12000;
                     break;
                 case PHASE_MERGE:
-                    if (Unit *pLynx = Unit::GetUnit(*me, LynxGUID))
+                    if (Unit* pLynx = Unit::GetUnit(*me, LynxGUID))
                     {
                         me->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_MERGE);
@@ -262,7 +262,7 @@ class boss_halazzi : public CreatureScript
 
                     if (ShockTimer <= diff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             if (pTarget->IsNonMeleeSpellCasted(false))
                                 DoCast(pTarget, SPELL_EARTHSHOCK);
@@ -280,7 +280,7 @@ class boss_halazzi : public CreatureScript
                                 EnterPhase(PHASE_MERGE);
                             else
                             {
-                                Unit *Lynx = Unit::GetUnit(*me, LynxGUID);
+                                Unit* Lynx = Unit::GetUnit(*me, LynxGUID);
                                 if (Lynx && !Lynx->HealthAbovePct(20) /*Lynx->HealthBelowPct(10)*/)
                                     EnterPhase(PHASE_MERGE);
                             }
@@ -293,7 +293,7 @@ class boss_halazzi : public CreatureScript
                 {
                     if (CheckTimer <= diff)
                     {
-                        Unit *Lynx = Unit::GetUnit(*me, LynxGUID);
+                        Unit* Lynx = Unit::GetUnit(*me, LynxGUID);
                         if (Lynx)
                         {
                             Lynx->GetMotionMaster()->MoveFollow(me, 0, 0);
@@ -357,7 +357,7 @@ class mob_halazzi_lynx : public CreatureScript
 
         struct mob_halazzi_lynxAI : public ScriptedAI
         {
-            mob_halazzi_lynxAI(Creature *c) : ScriptedAI(c) {}
+            mob_halazzi_lynxAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 FrenzyTimer;
             uint32 shredder_timer;
@@ -374,7 +374,7 @@ class mob_halazzi_lynx : public CreatureScript
                     damage = 0;
             }
 
-            void AttackStart(Unit *who)
+            void AttackStart(Unit* who)
             {
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     ScriptedAI::AttackStart(who);

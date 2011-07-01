@@ -254,7 +254,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_air_force_botsAI(creature);
     }
@@ -280,7 +280,7 @@ class npc_lunaclaw_spirit : public CreatureScript
 public:
     npc_lunaclaw_spirit() : CreatureScript("npc_lunaclaw_spirit") { }
 
-    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -319,7 +319,7 @@ public:
 
     struct npc_chicken_cluckAI : public ScriptedAI
     {
-        npc_chicken_cluckAI(Creature *c) : ScriptedAI(c) {}
+        npc_chicken_cluckAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ResetFlagTimer;
 
@@ -372,7 +372,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_chicken_cluckAI(creature);
     }
@@ -409,7 +409,7 @@ public:
 
     struct npc_dancing_flamesAI : public ScriptedAI
     {
-        npc_dancing_flamesAI(Creature *c) : ScriptedAI(c) {}
+        npc_dancing_flamesAI(Creature* c) : ScriptedAI(c) {}
 
         bool active;
         uint32 can_iteract;
@@ -472,7 +472,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_dancing_flamesAI(creature);
     }
@@ -552,7 +552,7 @@ public:
 
     struct npc_doctorAI : public ScriptedAI
     {
-        npc_doctorAI(Creature *c) : ScriptedAI(c) {}
+        npc_doctorAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 PlayerGUID;
 
@@ -680,7 +680,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_doctorAI(creature);
     }
@@ -697,7 +697,7 @@ public:
 
     struct npc_injured_patientAI : public ScriptedAI
     {
-        npc_injured_patientAI(Creature *c) : ScriptedAI(c) {}
+        npc_injured_patientAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 Doctorguid;
         Location* Coord;
@@ -737,7 +737,7 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellEntry *spell)
         {
             if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
             {
@@ -800,7 +800,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_injured_patientAI(creature);
     }
@@ -899,7 +899,7 @@ public:
 
     struct npc_garments_of_questsAI : public npc_escortAI
     {
-        npc_garments_of_questsAI(Creature *c) : npc_escortAI(c) {Reset();}
+        npc_garments_of_questsAI(Creature* c) : npc_escortAI(c) {Reset();}
 
         uint64 caster;
 
@@ -1044,7 +1044,7 @@ public:
             {
                 if (RunAwayTimer <= diff)
                 {
-                    if (Unit *pUnit = Unit::GetUnit(*me, caster))
+                    if (Unit* pUnit = Unit::GetUnit(*me, caster))
                     {
                         switch(me->GetEntry())
                         {
@@ -1068,7 +1068,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_garments_of_questsAI(creature);
     }
@@ -1087,7 +1087,7 @@ public:
 
     struct npc_guardianAI : public ScriptedAI
     {
-        npc_guardianAI(Creature *c) : ScriptedAI(c) {}
+        npc_guardianAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()
         {
@@ -1111,7 +1111,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_guardianAI(creature);
     }
@@ -1504,7 +1504,7 @@ public:
 
     struct npc_steam_tonkAI : public ScriptedAI
     {
-        npc_steam_tonkAI(Creature *c) : ScriptedAI(c) {}
+        npc_steam_tonkAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -1525,7 +1525,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_steam_tonkAI(creature);
     }
@@ -1540,7 +1540,7 @@ public:
 
     struct npc_tonk_mineAI : public ScriptedAI
     {
-        npc_tonk_mineAI(Creature *c) : ScriptedAI(c)
+        npc_tonk_mineAI(Creature* c) : ScriptedAI(c)
         {
             me->SetReactState(REACT_PASSIVE);
         }
@@ -1567,7 +1567,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_tonk_mineAI(creature);
     }
@@ -1595,7 +1595,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_brewfest_revelerAI(creature);
     }
@@ -1635,7 +1635,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_winter_revelerAI(creature);
     }
@@ -1663,7 +1663,7 @@ public:
 
     struct npc_snake_trap_serpentsAI : public ScriptedAI
     {
-        npc_snake_trap_serpentsAI(Creature *c) : ScriptedAI(c) {}
+        npc_snake_trap_serpentsAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 SpellTimer;
         bool IsViper;
@@ -1695,7 +1695,7 @@ public:
         }
 
         //Redefined for random target selection:
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
             {
@@ -1748,7 +1748,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_snake_trap_serpentsAI(creature);
     }
@@ -1771,7 +1771,7 @@ public:
 
     struct mob_mojoAI : public ScriptedAI
     {
-        mob_mojoAI(Creature *c) : ScriptedAI(c) {Reset();}
+        mob_mojoAI(Creature* c) : ScriptedAI(c) {Reset();}
         uint32 hearts;
         uint64 victimGUID;
         void Reset()
@@ -1833,7 +1833,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_mojoAI(creature);
     }
@@ -1846,7 +1846,7 @@ public:
 
     struct npc_mirror_imageAI : CasterAI
     {
-        npc_mirror_imageAI(Creature *c) : CasterAI(c) {}
+        npc_mirror_imageAI(Creature* c) : CasterAI(c) {}
 
         void InitializeAI()
         {
@@ -1868,7 +1868,7 @@ public:
             if (me->IsInEvadeMode() || !me->isAlive())
                 return;
 
-            Unit *owner = me->GetCharmerOrOwner();
+            Unit* owner = me->GetCharmerOrOwner();
 
             me->CombatStop(true);
             if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW))
@@ -1879,7 +1879,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_mirror_imageAI(creature);
     }
@@ -1892,7 +1892,7 @@ public:
 
     struct npc_ebon_gargoyleAI : CasterAI
     {
-        npc_ebon_gargoyleAI(Creature *c) : CasterAI(c) {}
+        npc_ebon_gargoyleAI(Creature* c) : CasterAI(c) {}
 
         uint32 despawnTimer;
 
@@ -1920,17 +1920,17 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             // Stop Feeding Gargoyle when it dies
-            if (Unit *owner = me->GetOwner())
+            if (Unit* owner = me->GetOwner())
                 owner->RemoveAurasDueToSpell(50514);
         }
 
         // Fly away when dismissed
-        void SpellHit(Unit *source, const SpellEntry *spell)
+        void SpellHit(Unit* source, const SpellEntry *spell)
         {
             if (spell->Id != 50515 || !me->isAlive())
                 return;
 
-            Unit *owner = me->GetOwner();
+            Unit* owner = me->GetOwner();
 
             if (!owner || owner != source)
                 return;
@@ -1971,7 +1971,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_ebon_gargoyleAI(creature);
     }
@@ -1984,7 +1984,7 @@ public:
 
     struct npc_lightwellAI : public PassiveAI
     {
-        npc_lightwellAI(Creature *c) : PassiveAI(c) {}
+        npc_lightwellAI(Creature* c) : PassiveAI(c) {}
 
         void Reset()
         {
@@ -1992,7 +1992,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_lightwellAI(creature);
     }
@@ -2117,7 +2117,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_shadowfiendAI(creature);
     }

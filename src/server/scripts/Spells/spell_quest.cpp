@@ -435,7 +435,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Item *castItem = GetCastItem();
+            Item* castItem = GetCastItem();
             if (!castItem)
                 return;
 

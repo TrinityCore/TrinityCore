@@ -81,34 +81,34 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     return true;
 }
 
-void OutdoorPvPHP::HandlePlayerEnterZone(Player* plr, uint32 zone)
+void OutdoorPvPHP::HandlePlayerEnterZone(Player* player, uint32 zone)
 {
     // add buffs
-    if (plr->GetTeam() == ALLIANCE)
+    if (player->GetTeam() == ALLIANCE)
     {
         if (m_AllianceTowersControlled >=3)
-            plr->CastSpell(plr, AllianceBuff, true);
+            player->CastSpell(player, AllianceBuff, true);
     }
     else
     {
         if (m_HordeTowersControlled >=3)
-            plr->CastSpell(plr, HordeBuff, true);
+            player->CastSpell(player, HordeBuff, true);
     }
-    OutdoorPvP::HandlePlayerEnterZone(plr, zone);
+    OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPHP::HandlePlayerLeaveZone(Player* plr, uint32 zone)
+void OutdoorPvPHP::HandlePlayerLeaveZone(Player* player, uint32 zone)
 {
     // remove buffs
-    if (plr->GetTeam() == ALLIANCE)
+    if (player->GetTeam() == ALLIANCE)
     {
-        plr->RemoveAurasDueToSpell(AllianceBuff);
+        player->RemoveAurasDueToSpell(AllianceBuff);
     }
     else
     {
-        plr->RemoveAurasDueToSpell(HordeBuff);
+        player->RemoveAurasDueToSpell(HordeBuff);
     }
-    OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
+    OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
 bool OutdoorPvPHP::Update(uint32 diff)
@@ -131,20 +131,20 @@ bool OutdoorPvPHP::Update(uint32 diff)
     return changed;
 }
 
-void OutdoorPvPHP::SendRemoveWorldStates(Player *plr)
+void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
 {
-    plr->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_A, 0);
-    plr->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_H, 0);
-    plr->SendUpdateWorldState(HP_UI_TOWER_COUNT_H, 0);
-    plr->SendUpdateWorldState(HP_UI_TOWER_COUNT_A, 0);
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, 0);
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, 0);
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_A, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_H, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_COUNT_H, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_COUNT_A, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, 0);
+    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
     for (int i = 0; i < HP_TOWER_NUM; ++i)
     {
-        plr->SendUpdateWorldState(HP_MAP_N[i], 0);
-        plr->SendUpdateWorldState(HP_MAP_A[i], 0);
-        plr->SendUpdateWorldState(HP_MAP_H[i], 0);
+        player->SendUpdateWorldState(HP_MAP_N[i], 0);
+        player->SendUpdateWorldState(HP_MAP_A[i], 0);
+        player->SendUpdateWorldState(HP_MAP_H[i], 0);
     }
 }
 
@@ -301,34 +301,34 @@ void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
     }
 }
 
-bool OPvPCapturePointHP::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointHP::HandlePlayerEnter(Player* player)
 {
-    if (OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
-        plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
+        player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
 }
 
-void OPvPCapturePointHP::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointHP::HandlePlayerLeave(Player* player)
 {
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OPvPCapturePoint::HandlePlayerLeave(plr);
+    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
+    OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
-void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit* killed)
+void OutdoorPvPHP::HandleKillImpl(Player* player, Unit* killed)
 {
     if (killed->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (plr->GetTeam() == ALLIANCE && killed->ToPlayer()->GetTeam() != ALLIANCE)
-        plr->CastSpell(plr, AlliancePlayerKillReward, true);
-    else if (plr->GetTeam() == HORDE && killed->ToPlayer()->GetTeam() != HORDE)
-        plr->CastSpell(plr, HordePlayerKillReward, true);
+    if (player->GetTeam() == ALLIANCE && killed->ToPlayer()->GetTeam() != ALLIANCE)
+        player->CastSpell(player, AlliancePlayerKillReward, true);
+    else if (player->GetTeam() == HORDE && killed->ToPlayer()->GetTeam() != HORDE)
+        player->CastSpell(player, HordePlayerKillReward, true);
 }
 
 class OutdoorPvP_hellfire_peninsula : public OutdoorPvPScript

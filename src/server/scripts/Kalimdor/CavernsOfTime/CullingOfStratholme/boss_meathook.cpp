@@ -57,7 +57,7 @@ public:
 
     struct boss_meathookAI : public ScriptedAI
     {
-        boss_meathookAI(Creature *c) : ScriptedAI(c)
+        boss_meathookAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)
@@ -108,7 +108,7 @@ public:
 
             if (uiChainTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
                 uiChainTimer = urand(2000, 4000);
             } else uiChainTimer -= diff;

@@ -67,7 +67,7 @@ public:
 
     struct boss_gurtogg_bloodboilAI : public ScriptedAI
     {
-        boss_gurtogg_bloodboilAI(Creature *c) : ScriptedAI(c)
+        boss_gurtogg_bloodboilAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -147,11 +147,11 @@ public:
             if (!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
                 return;
 
-            std::list<Unit *> targets;
+            std::list<Unit* > targets;
             std::list<HostileReference *>::const_iterator itr = m_threatlist.begin();
             for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
             {
-                Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //only on alive players
                 if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(pTarget);
@@ -166,9 +166,9 @@ public:
             /*SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
             if (spellInfo)
             {
-                for (std::list<Unit *>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                for (std::list<Unit* >::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
-                    Unit *pTarget = *itr;
+                    Unit* pTarget = *itr;
                     if (!pTarget) return;
                     for (uint32 i = 0; i<3; ++i)
                     {
@@ -228,7 +228,7 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_BEWILDERING_STRIKE);
                     float mt_threat = DoGetThreat(me->getVictim());
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                         me->AddThreat(pTarget, mt_threat);
                     BewilderingStrikeTimer = 20000;
                 } else BewilderingStrikeTimer -= diff;
@@ -277,7 +277,7 @@ public:
             {
                 if (Phase1)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget && pTarget->isAlive())
                     {
                         Phase1 = false;

@@ -52,7 +52,7 @@ class boss_jindo : public CreatureScript
 
         struct boss_jindoAI : public ScriptedAI
         {
-            boss_jindoAI(Creature *c) : ScriptedAI(c) {}
+            boss_jindoAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 BrainWashTotem_Timer;
             uint32 HealingWard_Timer;
@@ -108,11 +108,11 @@ class boss_jindo : public CreatureScript
                 //Casting the delusion curse with a shade. So shade will attack the same target with the curse.
                 if (Delusions_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoCast(pTarget, SPELL_DELUSIONSOFJINDO);
 
-                        Creature *Shade = me->SummonCreature(14986, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        Creature* Shade = me->SummonCreature(14986, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Shade)
                             Shade->AI()->AttackStart(pTarget);
                     }
@@ -123,7 +123,7 @@ class boss_jindo : public CreatureScript
                 //Teleporting a random gamer and spawning 9 skeletons that will attack this gamer
                 if (Teleport_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -132,7 +132,7 @@ class boss_jindo : public CreatureScript
                         if (DoGetThreat(me->getVictim()))
                             DoModifyThreatPercent(pTarget, -100);
 
-                        Creature *Skeletons;
+                        Creature* Skeletons;
                         Skeletons = me->SummonCreature(14826, pTarget->GetPositionX()+2, pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
                             Skeletons->AI()->AttackStart(pTarget);
@@ -187,7 +187,7 @@ class mob_healing_ward : public CreatureScript
 
         struct mob_healing_wardAI : public ScriptedAI
         {
-            mob_healing_wardAI(Creature *c) : ScriptedAI(c)
+            mob_healing_wardAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance = c->GetInstanceScript();
             }
@@ -212,7 +212,7 @@ class mob_healing_ward : public CreatureScript
                 {
                     if (pInstance)
                     {
-                        Unit *pJindo = Unit::GetUnit((*me), pInstance->GetData64(DATA_JINDO));
+                        Unit* pJindo = Unit::GetUnit((*me), pInstance->GetData64(DATA_JINDO));
                         if (pJindo)
                             DoCast(pJindo, SPELL_HEAL);
                     }
@@ -241,7 +241,7 @@ class mob_shade_of_jindo : public CreatureScript
 
         struct mob_shade_of_jindoAI : public ScriptedAI
         {
-            mob_shade_of_jindoAI(Creature *c) : ScriptedAI(c) {}
+            mob_shade_of_jindoAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 ShadowShock_Timer;
 

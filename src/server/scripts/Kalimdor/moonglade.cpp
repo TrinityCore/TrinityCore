@@ -296,7 +296,7 @@ public:
     struct npc_clintar_spiritAI : public npc_escortAI
     {
     public:
-        npc_clintar_spiritAI(Creature *c) : npc_escortAI(c) {}
+        npc_clintar_spiritAI(Creature* c) : npc_escortAI(c) {}
 
         uint32 Step;
         uint32 CurrWP;
@@ -464,7 +464,7 @@ public:
                         {
                             case 0:
                                 {
-                                Creature *mob = me->SummonCreature(ASPECT_RAVEN, ASPECT_RAVEN_SUMMON_X, ASPECT_RAVEN_SUMMON_Y, ASPECT_RAVEN_SUMMON_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                                Creature* mob = me->SummonCreature(ASPECT_RAVEN, ASPECT_RAVEN_SUMMON_X, ASPECT_RAVEN_SUMMON_Y, ASPECT_RAVEN_SUMMON_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                                 if (mob)
                                 {
                                     mob->AddThreat(me, 10000.0f);
@@ -563,7 +563,7 @@ public:
     {
         if (quest->GetQuestId() == 10965)
         {
-            Creature *clintar_spirit = pCreature->SummonCreature(CLINTAR_SPIRIT, CLINTAR_SPIRIT_SUMMON_X, CLINTAR_SPIRIT_SUMMON_Y, CLINTAR_SPIRIT_SUMMON_Z, CLINTAR_SPIRIT_SUMMON_O, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
+            Creature* clintar_spirit = pCreature->SummonCreature(CLINTAR_SPIRIT, CLINTAR_SPIRIT_SUMMON_X, CLINTAR_SPIRIT_SUMMON_Y, CLINTAR_SPIRIT_SUMMON_Z, CLINTAR_SPIRIT_SUMMON_O, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
             if (clintar_spirit)
                 CAST_AI(npc_clintar_spirit::npc_clintar_spiritAI, clintar_spirit->AI())->StartEvent(pPlayer);
         }
