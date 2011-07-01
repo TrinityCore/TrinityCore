@@ -67,29 +67,29 @@ void OutdoorPvPTF::FillInitialWorldStates(WorldPacket &data)
     }
 }
 
-void OutdoorPvPTF::SendRemoveWorldStates(Player* plr)
+void OutdoorPvPTF::SendRemoveWorldStates(Player* player)
 {
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, uint32(0));
+    player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, uint32(0));
+    player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, uint32(0));
+    player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, uint32(0));
 
-    plr->SendUpdateWorldState(TF_UI_TOWER_COUNT_H, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_TOWER_COUNT_A, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_TOWERS_CONTROLLED_DISPLAY, uint32(0));
+    player->SendUpdateWorldState(TF_UI_TOWER_COUNT_H, uint32(0));
+    player->SendUpdateWorldState(TF_UI_TOWER_COUNT_A, uint32(0));
+    player->SendUpdateWorldState(TF_UI_TOWERS_CONTROLLED_DISPLAY, uint32(0));
 
-    plr->SendUpdateWorldState(TF_UI_LOCKED_TIME_MINUTES_FIRST_DIGIT, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_LOCKED_TIME_MINUTES_SECOND_DIGIT, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_LOCKED_TIME_HOURS, uint32(0));
+    player->SendUpdateWorldState(TF_UI_LOCKED_TIME_MINUTES_FIRST_DIGIT, uint32(0));
+    player->SendUpdateWorldState(TF_UI_LOCKED_TIME_MINUTES_SECOND_DIGIT, uint32(0));
+    player->SendUpdateWorldState(TF_UI_LOCKED_TIME_HOURS, uint32(0));
 
-    plr->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_NEUTRAL, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_HORDE, uint32(0));
-    plr->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_ALLIANCE, uint32(0));
+    player->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_NEUTRAL, uint32(0));
+    player->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_HORDE, uint32(0));
+    player->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_ALLIANCE, uint32(0));
 
     for (int i = 0; i < TF_TOWER_NUM; ++i)
     {
-        plr->SendUpdateWorldState(uint32(TFTowerWorldStates[i].n), uint32(0));
-        plr->SendUpdateWorldState(uint32(TFTowerWorldStates[i].h), uint32(0));
-        plr->SendUpdateWorldState(uint32(TFTowerWorldStates[i].a), uint32(0));
+        player->SendUpdateWorldState(uint32(TFTowerWorldStates[i].n), uint32(0));
+        player->SendUpdateWorldState(uint32(TFTowerWorldStates[i].h), uint32(0));
+        player->SendUpdateWorldState(uint32(TFTowerWorldStates[i].a), uint32(0));
     }
 }
 
@@ -100,23 +100,23 @@ void OPvPCapturePointTF::UpdateTowerState()
     m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].a), uint32(bool(m_TowerState & TF_TOWERSTATE_A)));
 }
 
-bool OPvPCapturePointTF::HandlePlayerEnter(Player* plr)
+bool OPvPCapturePointTF::HandlePlayerEnter(Player* player)
 {
-    if (OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
-        plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
+        player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
 }
 
-void OPvPCapturePointTF::HandlePlayerLeave(Player* plr)
+void OPvPCapturePointTF::HandlePlayerLeave(Player* player)
 {
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 0);
-    OPvPCapturePoint::HandlePlayerLeave(plr);
+    player->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 0);
+    OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
 bool OutdoorPvPTF::Update(uint32 diff)
@@ -186,26 +186,26 @@ bool OutdoorPvPTF::Update(uint32 diff)
     return changed;
 }
 
-void OutdoorPvPTF::HandlePlayerEnterZone(Player* plr, uint32 zone)
+void OutdoorPvPTF::HandlePlayerEnterZone(Player* player, uint32 zone)
 {
-    if (plr->GetTeam() == ALLIANCE)
+    if (player->GetTeam() == ALLIANCE)
     {
         if (m_AllianceTowersControlled >= TF_TOWER_NUM)
-            plr->CastSpell(plr, TF_CAPTURE_BUFF, true);
+            player->CastSpell(player, TF_CAPTURE_BUFF, true);
     }
     else
     {
         if (m_HordeTowersControlled >= TF_TOWER_NUM)
-            plr->CastSpell(plr, TF_CAPTURE_BUFF, true);
+            player->CastSpell(player, TF_CAPTURE_BUFF, true);
     }
-    OutdoorPvP::HandlePlayerEnterZone(plr, zone);
+    OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPTF::HandlePlayerLeaveZone(Player* plr, uint32 zone)
+void OutdoorPvPTF::HandlePlayerLeaveZone(Player* player, uint32 zone)
 {
     // remove buffs
-    plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
-    OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
+    player->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
+    OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
 bool OutdoorPvPTF::SetupOutdoorPvP()
