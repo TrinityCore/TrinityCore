@@ -43,7 +43,7 @@ public:
 
     struct boss_baroness_anastariAI : public ScriptedAI
     {
-        boss_baroness_anastariAI(Creature *c) : ScriptedAI(c)
+        boss_baroness_anastariAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -111,7 +111,7 @@ public:
             //Cast
               if (rand()%100 < 65)
             {
-            Unit *pTarget = NULL;
+            Unit* pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
             if (pTarget)DoCast(pTarget, SPELL_POSSESS);
             }

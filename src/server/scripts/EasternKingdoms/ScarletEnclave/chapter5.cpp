@@ -321,7 +321,7 @@ public:
 
     struct npc_highlord_darion_mograineAI : public npc_escortAI
     {
-        npc_highlord_darion_mograineAI(Creature *pCreature) : npc_escortAI(pCreature)
+        npc_highlord_darion_mograineAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
             Reset();
         }

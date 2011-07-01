@@ -48,7 +48,7 @@ public:
 
     struct boss_drektharAI : public ScriptedAI
     {
-        boss_drektharAI(Creature *c) : ScriptedAI(c) {}
+        boss_drektharAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWhirlwindTimer;
         uint32 uiWhirlwind2Timer;
@@ -128,7 +128,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_drektharAI(creature);
     }

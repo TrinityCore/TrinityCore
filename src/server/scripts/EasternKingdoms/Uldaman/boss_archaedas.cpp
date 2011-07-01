@@ -232,7 +232,7 @@ class mob_archaedas_minions : public CreatureScript
 
         struct mob_archaedas_minionsAI : public ScriptedAI
         {
-            mob_archaedas_minionsAI(Creature *c) : ScriptedAI(c)
+            mob_archaedas_minionsAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance = me->GetInstanceScript();
             }
@@ -276,7 +276,7 @@ class mob_archaedas_minions : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit *who)
+            void MoveInLineOfSight(Unit* who)
             {
                 if (bAmIAwake)
                     ScriptedAI::MoveInLineOfSight(who);

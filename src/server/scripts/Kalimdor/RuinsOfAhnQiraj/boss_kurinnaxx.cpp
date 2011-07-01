@@ -105,7 +105,7 @@ class boss_kurinnaxx : public CreatureScript
                             break;
                     }
                 }
- 
+
                 DoMeleeAttackIfReady();
             }
             private:

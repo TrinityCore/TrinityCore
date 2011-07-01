@@ -263,7 +263,9 @@ class SpellScript : public _SpellScript
         // accessors to the "focus" targets of the spell
         // note: do not confuse these with spell hit targets
         // returns: WorldLocation which was selected as a spell destination or NULL
-        WorldLocation* GetTargetDest();
+        WorldLocation const* GetTargetDest();
+
+        void SetTargetDest(WorldLocation& loc);
 
         // returns: Unit which was selected as a spell target or NULL
         Unit* GetTargetUnit();
@@ -490,7 +492,7 @@ class AuraScript : public _SpellScript
         };
         typedef std::stack<ScriptStateStore> ScriptStateStack;
         ScriptStateStack m_scriptStates;
-        
+
     public:
         //
         // AuraScript interface

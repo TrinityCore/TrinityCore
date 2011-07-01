@@ -110,8 +110,8 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
 
             void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
-                // reduces all damage taken while Stunned in Cat Form
-                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED))
+                // reduces all damage taken while Stunned in Moonkin Form
+                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
                     absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
             }
 
@@ -155,7 +155,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
             void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // reduces all damage taken while Stunned in Cat Form
-                if ((GetTarget()->GetShapeshiftForm() == FORM_CAT) && (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED)))
+                if (GetTarget()->GetShapeshiftForm() == FORM_CAT && GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
                     absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
             }
 
@@ -270,6 +270,7 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
+<<<<<<< HEAD
 // 50334 Berserk
 class spell_dru_berserk : public SpellScriptLoader
 {
@@ -296,6 +297,32 @@ public:
     {
         return new spell_dru_berserk_AuraScript();
     }
+=======
+class spell_dru_starfall_aoe : public SpellScriptLoader
+{
+    public:
+        spell_dru_starfall_aoe() : SpellScriptLoader("spell_dru_starfall_aoe") { }
+
+        class spell_dru_starfall_aoe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_starfall_aoe_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove(GetTargetUnit());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_dru_starfall_aoe_SpellScript();
+        }
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 };
 
 void AddSC_druid_spell_scripts()
@@ -305,5 +332,9 @@ void AddSC_druid_spell_scripts()
     new spell_dru_primal_tenacity();
     new spell_dru_savage_defense();
     new spell_dru_t10_restoration_4p_bonus();
+<<<<<<< HEAD
     new spell_dru_berserk();
+=======
+    new spell_dru_starfall_aoe();
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 }

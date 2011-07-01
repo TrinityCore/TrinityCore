@@ -1100,7 +1100,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void SummonIfPossible(bool agree);
 
-        bool Create(uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId);
+        bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
         void Update(uint32 time);
 
@@ -1415,7 +1415,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestDay(Quest const* qInfo, bool msg);
         bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
         bool GiveQuestSourceItem(Quest const *pQuest);
-        bool TakeQuestSourceItem(uint32 quest_id, bool msg);
+        bool TakeQuestSourceItem(uint32 questId, bool msg);
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
@@ -1634,7 +1634,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
         void SendInitialSpells();
-        bool addSpell(uint32 spell_id, bool active, bool learning, bool dependent, bool disabled);
+        bool addSpell(uint32 spell_id, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
@@ -1694,7 +1694,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell* spell = NULL);
         template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL);
         void RemoveSpellMods(Spell* spell);
-        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId=0);
+        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = NULL);
+        void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = NULL);
         void DropModCharge(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 

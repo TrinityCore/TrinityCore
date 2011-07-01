@@ -272,10 +272,23 @@ public:
                     {
                         if (!bSummonArmy)
                         {
+<<<<<<< HEAD
                             bSummonArmy = true;
                                 me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
             				me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                             DoCast(me, SPELL_ARMY_DEAD);
+=======
+                            if (uiDeathRespiteTimer <= uiDiff)
+                            {
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                {
+                                    if (pTarget && pTarget->isAlive())
+                                        DoCast(pTarget, SPELL_DEATH_RESPITE);
+                                }
+                                uiDeathRespiteTimer = urand(15000, 16000);
+                            } else uiDeathRespiteTimer -= uiDiff;
+                            break;
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                         }
 
                         if (!bDeathArmyDone)
@@ -328,8 +341,27 @@ public:
                                 if (pTarget && pTarget->isAlive())
                                 DoCast(pTarget,SPELL_DEATH_RESPITE);
                             }
+<<<<<<< HEAD
                             uiDeathRespiteTimer = urand(15000,16000);
                         } else uiDeathRespiteTimer -= uiDiff;
+=======
+                            if (uiDesecration <= uiDiff)
+                            {
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                {
+                                    if (pTarget && pTarget->isAlive())
+                                        DoCast(pTarget, SPELL_DESECRATION);
+                                }
+                                uiDesecration = urand(15000, 16000);
+                            } else uiDesecration -= uiDiff;
+                            if (uiGhoulExplodeTimer <= uiDiff)
+                            {
+                                DoCast(me, SPELL_GHOUL_EXPLODE);
+                                uiGhoulExplodeTimer = 8000;
+                            } else uiGhoulExplodeTimer -= uiDiff;
+                            break;
+                        }
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                         break;
                     }
                     break;
@@ -414,6 +446,14 @@ public:
             }
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_black_knightAI (pCreature);
+    }
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 };
 
 

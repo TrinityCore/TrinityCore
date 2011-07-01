@@ -61,6 +61,7 @@ public:
             Reset();
        }
 
+<<<<<<< HEAD
        InstanceScript* m_pInstance;
        bool Regular;
        bool m_bIsCall;
@@ -73,6 +74,11 @@ public:
        uint32 m_uiLocNo;
        uint64 m_uiSummonGUID[16];
        uint32 m_uiCheckSummon;
+=======
+    struct boss_falricAI : public boss_horAI
+    {
+        boss_falricAI(Creature* pCreature) : boss_horAI(pCreature) {}
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
 
        uint8 SummonCount;
 

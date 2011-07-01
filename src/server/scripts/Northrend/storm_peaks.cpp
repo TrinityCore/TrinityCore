@@ -46,7 +46,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_agnetta_tyrsdottarAI(creature);
     }
@@ -222,7 +222,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_goblin_prisonerAI(creature);
     }
@@ -319,7 +319,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_victorious_challengerAI(creature);
     }
@@ -445,7 +445,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_injured_goblinAI(creature);
     }
@@ -608,7 +608,11 @@ public:
             }
         }
 
+<<<<<<< HEAD
         void UpdateAI(const uint32 /*diff*/)
+=======
+        void MoveInLineOfSight(Unit* unit)
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
         {
             if (!me->isCharmed() && !movementStarted)
             {
@@ -710,7 +714,11 @@ public:
         }
     };
 
+<<<<<<< HEAD
     CreatureAI* GetAI(Creature* creature) const
+=======
+    CreatureAI *GetAI(Creature* creature) const
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
     {
         return new npc_brunnhildar_prisonerAI(creature);
     }

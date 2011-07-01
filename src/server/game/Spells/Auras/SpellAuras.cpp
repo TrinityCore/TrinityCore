@@ -747,7 +747,7 @@ void Aura::SetCharges(uint8 charges)
 uint8 Aura::CalcMaxCharges(Unit* caster) const
 {
     uint8 maxProcCharges = m_spellProto->procCharges;
-    
+
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, maxProcCharges);
@@ -780,7 +780,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
 {
     m_stackAmount = stackAmount;
     Unit* caster = GetCaster();
-    
+
     std::list<AuraApplication*> applications;
     GetApplicationList(applications);
 
@@ -826,6 +826,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (refresh)
     {
+        RefreshSpellMods();
         RefreshTimers();
 
         // reset charges
@@ -833,6 +834,13 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     }
     SetNeedClientUpdateForTargets();
     return false;
+}
+
+void Aura::RefreshSpellMods()
+{
+    for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+        if (Player * player = appIter->second->GetTarget()->ToPlayer())
+            player->RestoreAllSpellMods(0, this);
 }
 
 bool Aura::IsPassive() const
@@ -952,7 +960,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 {
     Unit* target = aurApp->GetTarget();
     AuraRemoveMode removeMode = aurApp->GetRemoveMode();
-    // spell_area table
+    // handle spell_area table
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAuraMapBounds(GetId());
     if (saBounds.first != saBounds.second)
     {
@@ -972,21 +980,69 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
         }
     }
-    // mods at aura apply
-    if (apply)
+
+    // handle spell_linked_spell table
+    uint32 customAttr = sSpellMgr->GetSpellCustomAttr(GetId());
+    if (!onReapply)
     {
-        // Apply linked auras (On first aura apply)
-        if (sSpellMgr->GetSpellCustomAttr(GetId()) & SPELL_ATTR0_CU_LINK_AURA)
+        // apply linked auras
+        if (apply)
         {
-            if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
-                for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
+            {
+                std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA);
+                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 {
                     if (*itr < 0)
                         target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), true);
                     else if (caster)
                         caster->AddAura(*itr, target);
                 }
+            }
         }
+        else
+        {
+            // remove linked auras
+            if (customAttr & SPELL_ATTR0_CU_LINK_REMOVE)
+            {
+                std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(-(int32)GetId());
+                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                {
+                    if (*itr < 0)
+                        target->RemoveAurasDueToSpell(-(*itr));
+                    else if (removeMode != AURA_REMOVE_BY_DEATH)
+                        target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
+                }
+            }
+            if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
+            {
+                std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA);
+                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                {
+                    if (*itr < 0)
+                        target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), false);
+                    else
+                        target->RemoveAura(*itr, GetCasterGUID(), 0, removeMode);
+                }
+            }
+        }
+    }
+    else if (apply)
+    {
+        // modify stack amount of linked auras
+        if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
+        {
+            std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA);
+            for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                if (*itr > 0)
+                    if (Aura* triggeredAura = target->GetAura(*itr, GetCasterGUID()))
+                        triggeredAura->ModStackAmount(GetStackAmount() - triggeredAura->GetStackAmount());
+        }
+    }
+
+    // mods at aura apply
+    if (apply)
+    {
         switch (GetSpellProto()->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -1075,7 +1131,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 44544: // Fingers of Frost
                     {
                         // See if we already have the indicator aura. If not, create one.
-                        if (Aura *aur = target->GetAura(74396))
+                        if (Aura* aur = target->GetAura(74396))
                         {
                             // Aura already there. Refresh duration and set original charges
                             aur->SetCharges(2);
@@ -1193,35 +1249,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     // mods at aura remove
     else
     {
-        // Remove Linked Auras
-        if (!onReapply && removeMode != AURA_REMOVE_BY_DEATH)
-        {
-            if (uint32 customAttr = sSpellMgr->GetSpellCustomAttr(GetId()))
-            {
-                if (customAttr & SPELL_ATTR0_CU_LINK_REMOVE)
-                {
-                    if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(-(int32)GetId()))
-                        for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                        {
-                            if (*itr < 0)
-                                target->RemoveAurasDueToSpell(-(*itr));
-                            else if (removeMode != AURA_REMOVE_BY_DEFAULT)
-                                target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
-                        }
-                }
-                if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
-                {
-                    if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
-                        for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                        {
-                            if (*itr < 0)
-                                target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), false);
-                            else
-                                target->RemoveAurasDueToSpell(*itr);
-                        }
-                }
-            }
-        }
         switch(GetSpellProto()->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -1637,13 +1664,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     else
                         target->RemoveAurasDueToSpell(64364, GetCasterGUID());
                     break;
-                case 31842:
-                    if (caster->HasAura(70755))
+                case 31842: // Divine Illumination
+                    // Item - Paladin T10 Holy 2P Bonus
+                    if (target->HasAura(70755))
                     {
                         if (apply)
-                            caster->CastSpell(caster, 71166, true);
+                            target->CastSpell(target, 71166, true);
                         else
-                            caster->RemoveAurasDueToSpell(71166);
+                            target->RemoveAurasDueToSpell(71166);
                     }
                     break;
             }
@@ -2126,7 +2154,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
                         targetList.push_back(GetUnitOwner());
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
-                        if (Unit *owner = GetUnitOwner()->GetCharmerOrOwner())
+                        if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
                             if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
                                 targetList.push_back(owner);
                         break;

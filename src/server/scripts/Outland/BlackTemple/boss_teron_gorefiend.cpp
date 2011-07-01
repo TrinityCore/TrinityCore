@@ -63,7 +63,7 @@ public:
 
     struct mob_doom_blossomAI : public ScriptedAI
     {
-        mob_doom_blossomAI(Creature *c) : ScriptedAI(c) {}
+        mob_doom_blossomAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -148,7 +148,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || (!who->isAlive()) || (who->GetGUID() == GhostGUID))
                 return;
@@ -178,7 +178,7 @@ public:
                     targets.push_back(pUnit);
             }
             targets.sort(Trinity::ObjectDistanceOrderPred(me));
-            Unit *pTarget = targets.front();
+            Unit* pTarget = targets.front();
             if (pTarget && me->IsWithinDistInMap(pTarget, me->GetAttackDistance(pTarget)))
             {
                 DoCast(pTarget, SPELL_ATROPHY);
@@ -219,7 +219,7 @@ public:
 
     struct boss_teron_gorefiendAI : public ScriptedAI
     {
-        boss_teron_gorefiendAI(Creature *c) : ScriptedAI(c)
+        boss_teron_gorefiendAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -365,7 +365,7 @@ public:
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
                         SetThreatList(Construct);               // Use same function as Doom Blossom to set Threat List.
                         CAST_AI(mob_shadowy_construct::mob_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!pTarget)                             // someone's trying to solo.
                             pTarget = me->getVictim();
 
@@ -417,7 +417,7 @@ public:
                     Shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
                     if (Shadow)
                     {
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!pTarget)
                             pTarget = me->getVictim();
 
@@ -430,7 +430,7 @@ public:
 
             if (SummonDoomBlossomTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     float X = CalculateRandomLocation(pTarget->GetPositionX(), 20);
                     float Y = CalculateRandomLocation(pTarget->GetPositionY(), 20);
@@ -452,7 +452,7 @@ public:
 
             if (IncinerateTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!pTarget)
                     pTarget = me->getVictim();
 
@@ -466,7 +466,7 @@ public:
 
             if (CrushingShadowsTimer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget && pTarget->isAlive())
                     DoCast(pTarget, SPELL_CRUSHING_SHADOWS);
                 CrushingShadowsTimer = 10000 + rand()%16 * 1000;
@@ -475,7 +475,7 @@ public:
             /*** NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED **/
             /*if (ShadowOfDeathTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
                 if (!pTarget)
                    pTarget = me->getVictim();

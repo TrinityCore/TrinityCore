@@ -142,7 +142,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void KilledUnit(Unit *pWho)
+        void KilledUnit(Unit* pWho)
         {
             if (pWho->GetTypeId() == TYPEID_PLAYER)
             {
@@ -207,16 +207,24 @@ public:
 
             if (m_uiFelLightningTimer <= uiDiff)
             {
+<<<<<<< HEAD
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+=======
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                     DoCast(pTarget, SPELL_FEL_LIGHTING);
                 m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelLightningTimer -= uiDiff;
 
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
+<<<<<<< HEAD
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+=======
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                 {
                     DoScriptText(EMOTE_INCINERATE, me, pTarget);
                     DoScriptText(SAY_INCINERATE, me);
@@ -234,8 +242,12 @@ public:
 
             if (m_uiLegionFlameTimer <= uiDiff)
             {
+<<<<<<< HEAD
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+=======
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                 {
                     DoScriptText(EMOTE_LEGION_FLAME, me, pTarget);
                     DoCast(pTarget, SPELL_LEGION_FLAME);
@@ -245,8 +257,12 @@ public:
 
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
+<<<<<<< HEAD
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+=======
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                     DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
                 m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiTouchOfJaraxxusTimer -= uiDiff;
@@ -392,7 +408,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        /*void SpellHitTarget(Unit *pTarget, const SpellEntry *pSpell)
+        /*void SpellHitTarget(Unit* pTarget, const SpellEntry *pSpell)
         {
             if (pSpell->Id == SPELL_FEL_STREAK)
                 DoCastAOE(SPELL_FEL_INFERNO); //66517
@@ -408,7 +424,7 @@ public:
 
             if (m_uiFelStreakTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
@@ -544,18 +560,23 @@ public:
 
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
+<<<<<<< HEAD
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                {
                     DoCast(pTarget,SPELL_SPINNING_STRIKE_1);
                     DoCast(pTarget,SPELL_SPINNING_STRIKE_2);
                     pTarget->CastSpell(me, 66287, true);
                }
+=======
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    DoCast(pTarget, SPELL_SPINNING_STRIKE);
+>>>>>>> 06515b27b3a92b353b63ee98b99d8c44f24e7194
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
 
             if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     DoCast(pTarget, SPELL_MISTRESS_KISS);
                 m_uiMistressKissTimer = 30*IN_MILLISECONDS;
             } else m_uiMistressKissTimer -= uiDiff;

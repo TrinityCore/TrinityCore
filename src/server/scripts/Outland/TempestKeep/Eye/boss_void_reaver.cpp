@@ -118,9 +118,9 @@ class boss_void_reaver : public CreatureScript
                 // Arcane Orb
                 if (ArcaneOrb_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                    std::vector<Unit *> target_list;
+                    std::vector<Unit* > target_list;
                     for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
                         pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());

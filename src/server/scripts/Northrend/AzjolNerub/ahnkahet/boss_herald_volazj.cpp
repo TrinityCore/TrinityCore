@@ -102,7 +102,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -124,14 +124,14 @@ public:
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 {
-                    Player *plr = i->getSource();
-                    if (!plr || !plr->isAlive())
+                    Player* player = i->getSource();
+                    if (!player || !player->isAlive())
                         continue;
                     // Summon clone
-                    if (Unit *summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Unit* summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
-                        plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
+                        player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // set phase
                         summon->SetPhaseMask((1<<(4+insanityHandled)), true);
                     }
@@ -185,7 +185,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             Summons.Summon(summon);
         }
@@ -214,7 +214,7 @@ public:
             return spell;
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             uint32 phase= summon->GetPhaseMask();
             uint32 nextPhase = 0;
@@ -223,7 +223,7 @@ public:
             // Check if all summons in this phase killed
             for (SummonList::const_iterator iter = Summons.begin(); iter != Summons.end(); ++iter)
             {
-                if (Creature *visage = Unit::GetCreature(*me, *iter))
+                if (Creature* visage = Unit::GetCreature(*me, *iter))
                 {
                     // Not all are dead
                     if (phase == visage->GetPhaseMask())
@@ -289,7 +289,7 @@ public:
 
             if (uiShiverTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_SHIVER);
                 uiShiverTimer = 15*IN_MILLISECONDS;
             } else uiShiverTimer -= diff;
@@ -314,7 +314,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_volazjAI(creature);
     }

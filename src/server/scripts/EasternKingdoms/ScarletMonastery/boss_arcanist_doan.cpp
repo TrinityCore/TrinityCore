@@ -49,7 +49,7 @@ public:
 
     struct boss_arcanist_doanAI : public ScriptedAI
     {
-        boss_arcanist_doanAI(Creature *c) : ScriptedAI(c) {}
+        boss_arcanist_doanAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Polymorph_Timer;
         uint32 AoESilence_Timer;
@@ -101,7 +101,7 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     DoCast(pTarget, SPELL_POLYMORPH);
 
                 Polymorph_Timer = 20000;

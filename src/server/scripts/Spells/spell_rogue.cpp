@@ -128,7 +128,7 @@ public:
         void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             // reduces all damage taken while stun or fear
-            if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING))
+            if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
                 absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
         }
 
@@ -162,7 +162,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
@@ -269,11 +269,11 @@ class spell_rog_shiv : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                     caster->CastSpell(unitTarget, ROGUE_SPELL_SHIV_TRIGGERED, true);
             }
 

@@ -99,7 +99,7 @@ public:
 
     struct mob_freed_soulAI : public ScriptedAI
     {
-        mob_freed_soulAI(Creature *c) : ScriptedAI(c) {}
+        mob_freed_soulAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()
         {
@@ -133,7 +133,7 @@ public:
 
     struct mob_restless_soulAI : public ScriptedAI
     {
-        mob_restless_soulAI(Creature *c) : ScriptedAI(c) {}
+        mob_restless_soulAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 Tagger;
         uint32 Die_Timer;
@@ -148,7 +148,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellEntry *spell)
         {
             if (caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -160,7 +160,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             summoned->CastSpell(summoned, SPELL_SOUL_FREED, false);
         }
@@ -211,7 +211,7 @@ public:
 
     struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
     {
-        mobs_spectral_ghostly_citizenAI(Creature *c) : ScriptedAI(c) {}
+        mobs_spectral_ghostly_citizenAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Die_Timer;
         bool Tagged;

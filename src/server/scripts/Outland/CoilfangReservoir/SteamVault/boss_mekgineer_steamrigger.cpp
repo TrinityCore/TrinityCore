@@ -60,7 +60,7 @@ public:
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
     {
-        boss_mekgineer_steamriggerAI(Creature *c) : ScriptedAI(c)
+        boss_mekgineer_steamriggerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -137,7 +137,7 @@ public:
 
             if (Saw_Blade_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     DoCast(pTarget, SPELL_SAW_BLADE);
                 else
                     DoCast(me->getVictim(), SPELL_SAW_BLADE);
@@ -204,7 +204,7 @@ public:
 
     struct mob_steamrigger_mechanicAI : public ScriptedAI
     {
-        mob_steamrigger_mechanicAI(Creature *c) : ScriptedAI(c)
+        mob_steamrigger_mechanicAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
