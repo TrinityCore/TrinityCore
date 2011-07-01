@@ -150,7 +150,7 @@ public:
 
     struct npc_grimstoneAI : public npc_escortAI
     {
-        npc_grimstoneAI(Creature *c) : npc_escortAI(c)
+        npc_grimstoneAI(Creature* c) : npc_escortAI(c)
         {
             pInstance = c->GetInstanceScript();
             MobSpawnId = rand()%6;
@@ -263,7 +263,7 @@ public:
 
                     if (RingBossGUID)
                     {
-                        Creature *boss = Unit::GetCreature(*me, RingBossGUID);
+                        Creature* boss = Unit::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->isAlive() && boss->isDead())
                         {
                             RingBossGUID = 0;
@@ -276,7 +276,7 @@ public:
 
                     for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                     {
-                        Creature *mob = Unit::GetCreature(*me, RingMobGUID[i]);
+                        Creature* mob = Unit::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->isAlive() && mob->isDead())
                         {
                             RingMobGUID[i] = 0;
@@ -391,7 +391,7 @@ public:
 
     struct mob_phalanxAI : public ScriptedAI
     {
-        mob_phalanxAI(Creature *c) : ScriptedAI(c) {}
+        mob_phalanxAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -658,7 +658,7 @@ public:
 
     struct npc_dughal_stormwingAI : public npc_escortAI
     {
-        npc_dughal_stormwingAI(Creature *c) : npc_escortAI(c) {}
+        npc_dughal_stormwingAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
@@ -778,7 +778,7 @@ public:
 
     struct npc_marshal_windsorAI : public npc_escortAI
     {
-        npc_marshal_windsorAI(Creature *c) : npc_escortAI(c)
+        npc_marshal_windsorAI(Creature* c) : npc_escortAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -840,7 +840,7 @@ public:
 
         void Reset() {}
 
-        void JustDied(Unit *slayer)
+        void JustDied(Unit* slayer)
         {
             pInstance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_FAILED);
         }
@@ -952,7 +952,7 @@ public:
 
     struct npc_marshal_reginald_windsorAI : public npc_escortAI
     {
-        npc_marshal_reginald_windsorAI(Creature *c) : npc_escortAI(c)
+        npc_marshal_reginald_windsorAI(Creature* c) : npc_escortAI(c)
         {
         }
 
@@ -1014,7 +1014,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -1044,7 +1044,7 @@ public:
             }
         void Reset() {}
 
-        void JustDied(Unit *slayer)
+        void JustDied(Unit* slayer)
         {
             pInstance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_FAILED);
         }
@@ -1148,7 +1148,7 @@ public:
 
     struct npc_tobias_seecherAI : public npc_escortAI
     {
-        npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {}
+        npc_tobias_seecherAI(Creature* c) :npc_escortAI(c) {}
 
         void EnterCombat(Unit* who) {}
         void Reset() {}
@@ -1263,7 +1263,7 @@ public:
 
     struct npc_rocknotAI : public npc_escortAI
     {
-        npc_rocknotAI(Creature *c) : npc_escortAI(c)
+        npc_rocknotAI(Creature* c) : npc_escortAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -1337,7 +1337,7 @@ public:
                     DoGo(DATA_GO_BAR_KEG_TRAP, 0);               //doesn't work very well, leaving code here for future
                     //spell by trap has effect61, this indicate the bar go hostile
 
-                    if (Unit *tmp = Unit::GetUnit(*me, pInstance->GetData64(DATA_PHALANX)))
+                    if (Unit* tmp = Unit::GetUnit(*me, pInstance->GetData64(DATA_PHALANX)))
                         tmp->setFaction(14);
 
                     //for later, this event(s) has alot more to it.

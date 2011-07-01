@@ -62,7 +62,7 @@ public:
 
     struct boss_darkmaster_gandlingAI : public ScriptedAI
     {
-        boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c)
+        boss_darkmaster_gandlingAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -124,14 +124,14 @@ public:
             {
                 if (Teleport_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
+                    Unit* pTarget = NULL;
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (DoGetThreat(pTarget))
                             DoModifyThreatPercent(pTarget, -100);
 
-                        Creature *Summoned = NULL;
+                        Creature* Summoned = NULL;
                         switch(rand()%6)
                         {
                             case 0:

@@ -77,7 +77,7 @@ public:
 
     struct boss_dathrohan_balnazzarAI : public ScriptedAI
     {
-        boss_dathrohan_balnazzarAI(Creature *c) : ScriptedAI(c) {}
+        boss_dathrohan_balnazzarAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 m_uiCrusadersHammer_Timer;
         uint32 m_uiCrusaderStrike_Timer;
@@ -195,7 +195,7 @@ public:
                 //DeepSleep
                 if (m_uiDeepSleep_Timer <= uiDiff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_SLEEP);
 
                     m_uiDeepSleep_Timer = 15000;

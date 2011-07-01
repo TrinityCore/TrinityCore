@@ -166,7 +166,7 @@ public:
                 {
                     int32 effValue = GetEffectValue();
                     // Glyph of Mana Tide
-                    if (Unit *owner = caster->GetOwner())
+                    if (Unit* owner = caster->GetOwner())
                         if (AuraEffect *dummy = owner->GetAuraEffect(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE, 0))
                             effValue += dummy->GetAmount();
                     // Regenerate 6% of Total Mana Every 3 secs
@@ -210,7 +210,7 @@ public:
         void HandleEffectPeriodic(AuraEffect const* aurEff)
         {
             Unit* target = GetTarget();
-            if (Unit *caster = aurEff->GetBase()->GetCaster())
+            if (Unit* caster = aurEff->GetBase()->GetCaster())
                 if (AuraEffect* aur = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
                     if (roll_chance_i(aur->GetBaseAmount()))
                         target->CastSpell(target, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);

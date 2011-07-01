@@ -106,7 +106,7 @@ class boss_nazan : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void JustSummoned(Creature *summoned)
+            void JustSummoned(Creature* summoned)
             {
                 if (summoned && summoned->GetEntry() == ENTRY_LIQUID_FIRE)
                 {
@@ -117,7 +117,7 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit *pTarget, const SpellEntry* entry)
+            void SpellHitTarget(Unit* pTarget, const SpellEntry* entry)
             {
                 if (pTarget && entry->Id == uint32(SPELL_FIREBALL))
                     me->SummonCreature(ENTRY_LIQUID_FIRE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
@@ -139,7 +139,7 @@ class boss_nazan : public CreatureScript
 
                 if (flight) // phase 1 - the flight
                 {
-                    Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
+                    Creature* Vazruden = Unit::GetCreature(*me, VazrudenGUID);
                     if (Fly_Timer < diff || !(Vazruden && Vazruden->isAlive() && Vazruden->HealthAbovePct(20)))
                     {
                         flight = false;
@@ -319,7 +319,7 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 if (summoned)
                 {
-                    Creature *Nazan = Unit::GetCreature(*me, NazanGUID);
+                    Creature* Nazan = Unit::GetCreature(*me, NazanGUID);
                     if (!Nazan)
                         Nazan = me->FindNearestCreature(ENTRY_NAZAN, 5000);
                     if (Nazan)
@@ -328,7 +328,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         NazanGUID = 0;
                     }
 
-                    Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
+                    Creature* Vazruden = Unit::GetCreature(*me, VazrudenGUID);
                     if (!Vazruden)
                         Vazruden = me->FindNearestCreature(ENTRY_VAZRUDEN, 5000);
                     if (Vazruden)
@@ -424,8 +424,8 @@ class boss_vazruden_the_herald : public CreatureScript
                 default: // adds do the job now
                     if (check <= diff)
                     {
-                        Creature *Nazan = Unit::GetCreature(*me, NazanGUID);
-                        Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
+                        Creature* Nazan = Unit::GetCreature(*me, NazanGUID);
+                        Creature* Vazruden = Unit::GetCreature(*me, VazrudenGUID);
                         if ((Nazan && Nazan->isAlive()) || (Vazruden && Vazruden->isAlive()))
                         {
                             if ((Nazan && Nazan->getVictim()) || (Vazruden && Vazruden->getVictim()))
@@ -482,7 +482,7 @@ class mob_hellfire_sentry : public CreatureScript
 
             void JustDied(Unit* who)
             {
-                if (Creature *herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD, 150))
+                if (Creature* herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD, 150))
                     CAST_AI(boss_vazruden_the_herald::boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(who);
             }
 

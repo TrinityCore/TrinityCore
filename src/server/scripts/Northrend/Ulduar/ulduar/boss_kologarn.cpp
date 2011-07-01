@@ -204,7 +204,7 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature *summon)
+            void JustSummoned(Creature* summon)
             {
                 switch (summon->GetEntry())
                 {
@@ -364,7 +364,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 };
 
 // predicate function to select non main tank target
-class StoneGripTargetSelector : public std::unary_function<Unit *, bool>
+class StoneGripTargetSelector : public std::unary_function<Unit* , bool>
 {
     public:
         StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) {}
@@ -428,11 +428,11 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
             void HandleForceCast(SpellEffIndex i)
             {
-                Player* plr = GetHitPlayer();
-                if (!plr)
+                Player* player = GetHitPlayer();
+                if (!player)
                     return;
 
-                plr->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
+                player->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
                 PreventHitEffect(i);                                                                   // AureEffect::HandleAuraControlVehicle will fail on caster == target
             }
 

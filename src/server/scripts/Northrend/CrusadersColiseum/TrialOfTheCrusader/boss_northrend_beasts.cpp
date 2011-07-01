@@ -265,7 +265,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit *pWho)
+        void EnterCombat(Unit* pWho)
         {
             m_uiTargetGUID = pWho->GetGUID();
             me->TauntApply(pWho);
@@ -293,7 +293,7 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
-            if (Unit *pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+            if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (pTarget->isAlive())
                     pTarget->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
             if (m_pInstance)
@@ -329,7 +329,7 @@ public:
 
             if (m_uiFireBombTimer < uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_FIRE_BOMB);
                 m_uiFireBombTimer = 20000;
             }
@@ -337,7 +337,7 @@ public:
 
             if (m_uiBatterTimer < uiDiff)
             {
-                if (Unit *pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+                if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
                     DoCast(pTarget, SPELL_BATTER);
                 m_uiBatterTimer = 10000;
             }
@@ -345,7 +345,7 @@ public:
 
             if (m_uiHeadCrackTimer < uiDiff)
             {
-                if (Unit *pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+                if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
                     DoCast(pTarget, SPELL_HEAD_CRACK);
                 m_uiHeadCrackTimer = 35000;
             }
@@ -402,7 +402,7 @@ struct boss_jormungarAI : public ScriptedAI
         me->DespawnOrUnsummon();
     }
 
-    void KilledUnit(Unit *pWho)
+    void KilledUnit(Unit* pWho)
     {
         if (pWho->GetTypeId() == TYPEID_PLAYER)
         {
@@ -500,7 +500,7 @@ struct boss_jormungarAI : public ScriptedAI
             case 4: // Stationary
                 if (sprayTimer <= uiDiff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, spraySpell);
                     sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else sprayTimer -= uiDiff;
@@ -644,7 +644,7 @@ public:
 
     struct mob_slime_poolAI : public ScriptedAI
     {
-        mob_slime_poolAI(Creature *pCreature) : ScriptedAI(pCreature)
+        mob_slime_poolAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
         }
 
@@ -756,7 +756,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void KilledUnit(Unit *pWho)
+        void KilledUnit(Unit* pWho)
         {
             if (pWho->GetTypeId() == TYPEID_PLAYER)
             {
@@ -800,7 +800,7 @@ public:
 
                     if (m_uiArticBreathTimer <= uiDiff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_ARCTIC_BREATH);
                         m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
                     } else m_uiArticBreathTimer -= uiDiff;
@@ -825,7 +825,7 @@ public:
                     m_uiStage = 2;
                     break;
                 case 2:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
                         m_uiTrampleTargetGUID = pTarget->GetGUID();
                         me->SetUInt64Value(UNIT_FIELD_TARGET, m_uiTrampleTargetGUID);

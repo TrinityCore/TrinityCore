@@ -111,7 +111,7 @@ class boss_arlokk : public CreatureScript
             void JustReachedHome()
             {
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_ARLOKK, NOT_STARTED);
+                    m_pInstance->SetData(DATA_ARLOKK, NOT_STARTED);
 
                 //we should be summoned, so despawn
                 me->DespawnOrUnsummon();
@@ -125,12 +125,12 @@ class boss_arlokk : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_ARLOKK, DONE);
+                    m_pInstance->SetData(DATA_ARLOKK, DONE);
             }
 
             void DoSummonPhanters()
             {
-                if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
                     DoScriptText(SAY_FEAST_PANTHER, me, pMarkedTarget);
 
                 me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998f, -1649.6734f, 41.4800f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -139,7 +139,7 @@ class boss_arlokk : public CreatureScript
 
             void JustSummoned(Creature* pSummoned)
             {
-                if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
                     pSummoned->AI()->AttackStart(pMarkedTarget);
 
                 ++m_uiSummonCount;
@@ -162,7 +162,7 @@ class boss_arlokk : public CreatureScript
 
                     if (m_uiMark_Timer <= uiDiff)
                     {
-                        Unit *pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                         if (pMarkedTarget)
                         {
@@ -273,10 +273,10 @@ class go_gong_of_bethekk : public GameObjectScript
         {
             if (InstanceScript* m_pInstance = pGo->GetInstanceScript())
             {
-                if (m_pInstance->GetData(TYPE_ARLOKK) == DONE || m_pInstance->GetData(TYPE_ARLOKK) == IN_PROGRESS)
+                if (m_pInstance->GetData(DATA_ARLOKK) == DONE || m_pInstance->GetData(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
 
-                m_pInstance->SetData(TYPE_ARLOKK, IN_PROGRESS);
+                m_pInstance->SetData(DATA_ARLOKK, IN_PROGRESS);
                 return true;
             }
 
