@@ -181,8 +181,8 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
         // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* plr);
-        void HandlePlayerLeave(Player* plr);
+        bool HandlePlayerEnter(Player* player);
+        void HandlePlayerLeave(Player* player);
 
         void UpdateTowerState();
 
@@ -215,15 +215,15 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void UpdateTowerState();
 
-        int32 HandleOpenGo(Player* plr, uint64 guid);
+        int32 HandleOpenGo(Player* player, uint64 guid);
 
         void SetBeaconState(uint32 controlling_team); // not good atm
 
-        bool HandleGossipOption(Player* plr, uint64 guid, uint32 gossipid);
+        bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
 
-        bool HandleDropFlag(Player* plr, uint32 spellId);
+        bool HandleDropFlag(Player* player, uint32 spellId);
 
-        bool CanTalkTo(Player* plr, Creature* c, GossipMenuItems const& gso);
+        bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
     private:
 
@@ -246,16 +246,16 @@ class OutdoorPvPZM : public OutdoorPvP
 
         bool SetupOutdoorPvP();
 
-        void HandlePlayerEnterZone(Player* plr, uint32 zone);
-        void HandlePlayerLeaveZone(Player* plr, uint32 zone);
+        void HandlePlayerEnterZone(Player* player, uint32 zone);
+        void HandlePlayerLeaveZone(Player* player, uint32 zone);
 
         bool Update(uint32 diff);
 
         void FillInitialWorldStates(WorldPacket &data);
 
-        void SendRemoveWorldStates(Player* plr);
+        void SendRemoveWorldStates(Player* player);
 
-        void HandleKillImpl(Player* plr, Unit* killed);
+        void HandleKillImpl(Player* player, Unit* killed);
 
     private:
 

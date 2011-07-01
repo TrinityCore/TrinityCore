@@ -130,9 +130,9 @@ public:
                 PlayerGUID = caster->GetGUID();
                 if (PlayerGUID)
                 {
-                    Unit* plr = Unit::GetUnit((*me), PlayerGUID);
-                    if (plr && CAST_PLR(plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-                        DoCast(plr, 45110, true);
+                    Unit* player = Unit::GetUnit((*me), PlayerGUID);
+                    if (player && CAST_PLR(player)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
+                        DoCast(player, 45110, true);
                 }
                 DoCast(me, ENRAGE);
                 Unit* Myrmidon = me->FindNearestCreature(DM, 70);

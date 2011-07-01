@@ -698,15 +698,15 @@ public:
             return false;
         }
 
-        if (Player* plr = target->ToPlayer())
+        if (Player* player = target->ToPlayer())
         {
             // check online security
-            if (handler->HasLowerSecurity(plr, 0))
+            if (handler->HasLowerSecurity(player, 0))
                 return false;
 
-            handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink(plr).c_str());
-            if (handler->needReportToTarget(plr))
-                (ChatHandler(plr)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
+            handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink(player).c_str());
+            if (handler->needReportToTarget(player))
+                (ChatHandler(player)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
         }
 
         target->SetFloatValue(OBJECT_FIELD_SCALE_X, Scale);
