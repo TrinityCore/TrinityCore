@@ -535,7 +535,11 @@ class boss_prince_keleseth_icc : public CreatureScript
 
                     if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
                         valanar->AI()->EnterEvadeMode();
+
+                    return false;
                 }
+
+                return true;
             }
 
             void UpdateAI(uint32 const diff)
@@ -746,7 +750,11 @@ class boss_prince_taldaram_icc : public CreatureScript
 
                     if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
                         valanar->AI()->EnterEvadeMode();
+
+                    return false;
                 }
+
+                return true;
             }
 
             void UpdateAI(uint32 const diff)
@@ -976,7 +984,11 @@ class boss_prince_valanar_icc : public CreatureScript
 
                     if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_TALDARAM_GUID)))
                         taldaram->AI()->EnterEvadeMode();
+
+                    return false;
                 }
+
+                return true;
             }
 
             void UpdateAI(uint32 const diff)
