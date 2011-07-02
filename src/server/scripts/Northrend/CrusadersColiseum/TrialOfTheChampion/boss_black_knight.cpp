@@ -144,10 +144,10 @@ public:
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            SummonList.push_back(pSummon->GetGUID());
-            pSummon->AI()->AttackStart(me->getVictim());
+            SummonList.push_back(summon->GetGUID());
+            summon->AI()->AttackStart(me->getVictim());
         }
 
         void UpdateAI(const uint32 uiDiff)

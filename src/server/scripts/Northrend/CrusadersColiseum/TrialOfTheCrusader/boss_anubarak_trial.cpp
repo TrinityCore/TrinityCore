@@ -222,27 +222,27 @@ public:
                 m_pInstance->SetData(TYPE_ANUBARAK, DONE);
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
-            switch (pSummoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case NPC_BURROW:
-                    m_vBurrowGUID.push_back(pSummoned->GetGUID());
-                    pSummoned->SetReactState(REACT_PASSIVE);
-                    pSummoned->CastSpell(pSummoned, SPELL_CHURNING_GROUND, false);
+                    m_vBurrowGUID.push_back(summoned->GetGUID());
+                    summoned->SetReactState(REACT_PASSIVE);
+                    summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
                     break;
                 case NPC_SPIKE:
-                    pSummoned->CombatStart(target);
+                    summoned->CombatStart(target);
                     DoScriptText(EMOTE_SPIKE, me, target);
                     break;
             }
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            switch (pSummoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case NPC_SPIKE:
                     m_uiPursuingSpikeTimer = 2*IN_MILLISECONDS;
@@ -264,8 +264,8 @@ public:
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
             //Spawn Frost Spheres
             for (int i=0; i < 6; i++)
-                if (Unit* pSummoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                    m_aSphereGUID[i] = pSummoned->GetGUID();
+                if (Unit* summoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                    m_aSphereGUID[i] = summoned->GetGUID();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -377,8 +377,8 @@ public:
                         {
                             if (!pSphere->HasAura(SPELL_FROST_SPHERE))
                             {
-                                if (Creature* pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                                    m_aSphereGUID[i] = pSummon->GetGUID();
+                                if (Creature* summon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                                    m_aSphereGUID[i] = summon->GetGUID();
                                 break;
                             }
                         }

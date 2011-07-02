@@ -69,9 +69,9 @@ class example_escort : public CreatureScript
             uint32 m_uiDeathCoilTimer;
             uint32 m_uiChatTimer;
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                pSummoned->AI()->AttackStart(me);
+                summoned->AI()->AttackStart(me);
             }
 
             // Pure Virtual Functions (Have to be implemented)

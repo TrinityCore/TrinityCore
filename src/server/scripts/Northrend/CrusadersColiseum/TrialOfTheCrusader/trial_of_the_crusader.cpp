@@ -249,10 +249,10 @@ class boss_lich_king_toc : public CreatureScript
             {
                 m_uiUpdateTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
-                if (Creature* pSummoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 {
-                    pSummoned->CastSpell(pSummoned, 51807, false);
-                    pSummoned->SetDisplayId(11686);
+                    summoned->CastSpell(summoned, 51807, false);
+                    summoned->SetDisplayId(11686);
                 }
                 if (m_pInstance) m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -401,9 +401,9 @@ class npc_fizzlebang_toc : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(pSummoned);
+                Summons.Summon(summoned);
             }
 
             void UpdateAI(const uint32 uiDiff)

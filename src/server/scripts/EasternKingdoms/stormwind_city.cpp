@@ -478,10 +478,10 @@ public:
 
             if (me->isSummon())
             {
-                if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->isAlive() && !pSummoner->isInCombat())
-                        pSummoner->ToCreature()->AI()->AttackStart(who);
+                    if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive() && !summoner->isInCombat())
+                        summoner->ToCreature()->AI()->AttackStart(who);
                 }
             }
         }
@@ -492,10 +492,10 @@ public:
 
             if (me->isSummon())
             {
-                if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->isAlive())
-                        pSummoner->ToCreature()->DisappearAndDie();
+                    if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive())
+                        summoner->ToCreature()->DisappearAndDie();
                 }
             }
         }
@@ -507,17 +507,17 @@ public:
 
             if (me->isSummon())
             {
-                Unit* pSummoner = me->ToTempSummon()->GetSummoner();
-                if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->IsAIEnabled)
+                Unit* summoner = me->ToTempSummon()->GetSummoner();
+                if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled)
                 {
                     npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI *ai =
-                        CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pSummoner->GetAI());
+                        CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
                     if (ai)
                     {
                         ai->uiTimer = 2000;
                         ai->uiPhase = 5;
                     }
-                    //me->ChangeOrient(0.0f, pSummoner);
+                    //me->ChangeOrient(0.0f, summoner);
                 }
             }
         }

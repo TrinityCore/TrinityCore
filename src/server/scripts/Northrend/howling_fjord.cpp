@@ -383,15 +383,15 @@ public:
             SummonGladiator(NPC_FIRJUS);
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
                 if (player->isAlive())
                 {
-                    pSummon->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                    pSummon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
-                    pSummon->AI()->AttackStart(player);
+                    summon->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    summon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
+                    summon->AI()->AttackStart(player);
                     return;
                 }
             }
@@ -404,12 +404,12 @@ public:
             me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
         }
 
-        void SummonedCreatureDies(Creature* pSummoned, Unit* /*killer*/)
+        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/)
         {
             uint32 uiEntry = 0;
 
             // will eventually reset the event if something goes wrong
-            switch (pSummoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case NPC_FIRJUS:    uiEntry = NPC_JLARBORN; break;
                 case NPC_JLARBORN:  uiEntry = NPC_YOROS;    break;

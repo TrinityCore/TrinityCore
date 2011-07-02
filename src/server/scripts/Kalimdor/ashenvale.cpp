@@ -310,9 +310,9 @@ class npc_muglash : public CreatureScript
             uint32 m_uiEventTimer;
             bool m_bIsBrazierExtinguished;
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                pSummoned->AI()->AttackStart(me);
+                summoned->AI()->AttackStart(me);
             }
 
             void WaypointReached(uint32 i)

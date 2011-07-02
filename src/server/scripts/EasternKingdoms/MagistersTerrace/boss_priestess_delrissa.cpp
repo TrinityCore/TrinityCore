@@ -1032,9 +1032,9 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            m_uiPetGUID = pSummoned->GetGUID();
+            m_uiPetGUID = summoned->GetGUID();
         }
 
         void UpdateAI(const uint32 diff)

@@ -137,10 +137,10 @@ class boss_arlokk : public CreatureScript
                 me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970f, -1606.4840f, 41.2979f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
                 if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
-                    pSummoned->AI()->AttackStart(pMarkedTarget);
+                    summoned->AI()->AttackStart(pMarkedTarget);
 
                 ++m_uiSummonCount;
             }

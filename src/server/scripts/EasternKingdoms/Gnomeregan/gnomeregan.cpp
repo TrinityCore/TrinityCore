@@ -232,12 +232,12 @@ public:
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
-                    if (Creature* pSummon = Unit::GetCreature(*me, *itr))
+                    if (Creature* summon = Unit::GetCreature(*me, *itr))
                     {
-                        if (pSummon->isAlive())
-                            pSummon->DisappearAndDie();
+                        if (summon->isAlive())
+                            summon->DisappearAndDie();
                         else
-                            pSummon->RemoveCorpse();
+                            summon->RemoveCorpse();
                     }
                 }
         }
@@ -534,10 +534,10 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            SummonList.push_back(pSummon->GetGUID());
-            AggroAllPlayers(pSummon);
+            SummonList.push_back(summon->GetGUID());
+            AggroAllPlayers(summon);
         }
     };
 
@@ -565,8 +565,8 @@ public:
             if (!me->isSummon())
                 return;
 
-            if (Unit* pSummon = me->ToTempSummon()->GetSummoner())
-                CAST_CRE(pSummon)->AI()->SetData(2, 1);
+            if (Unit* summon = me->ToTempSummon()->GetSummoner())
+                CAST_CRE(summon)->AI()->SetData(2, 1);
         }
 
         void UpdateAI(const uint32 /*diff*/)

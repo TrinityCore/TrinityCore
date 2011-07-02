@@ -434,15 +434,15 @@ class boss_kaelthas : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
                 // if not phoenix, then it's one of the 7 weapons
-                if (pSummoned->GetEntry() != NPC_PHOENIX)
+                if (summoned->GetEntry() != NPC_PHOENIX)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        pSummoned->AI()->AttackStart(target);
+                        summoned->AI()->AttackStart(target);
 
-                    summons.Summon(pSummoned);
+                    summons.Summon(summoned);
                 }
             }
 

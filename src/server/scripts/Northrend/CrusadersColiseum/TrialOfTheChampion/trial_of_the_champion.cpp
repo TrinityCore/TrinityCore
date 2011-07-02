@@ -146,8 +146,8 @@ public:
                         }
 
                         for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
-                            if (Creature* pSummon = Unit::GetCreature(*me, *itr))
-                                AggroAllPlayers(pSummon);
+                            if (Creature* summon = Unit::GetCreature(*me, *itr))
+                                AggroAllPlayers(summon);
                     }else if (uiLesserChampions == 9)
                         StartGrandChampionsAttack();
 
@@ -420,8 +420,8 @@ public:
                         if (!Champion1List.empty())
                         {
                             for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
-                                if (Creature* pSummon = Unit::GetCreature(*me, *itr))
-                                    AggroAllPlayers(pSummon);
+                                if (Creature* summon = Unit::GetCreature(*me, *itr))
+                                    AggroAllPlayers(summon);
                             NextStep(0, false);
                         }
                         break;
@@ -432,18 +432,18 @@ public:
                 return;
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
             if (pInstance && pInstance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
-                pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pSummon->SetReactState(REACT_PASSIVE);
+                summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                summon->SetReactState(REACT_PASSIVE);
             }
         }
 
-        void SummonedCreatureDespawn(Creature* pSummon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
-            switch(pSummon->GetEntry())
+            switch(summon->GetEntry())
             {
                 case VEHICLE_DARNASSIA_NIGHTSABER:
                 case VEHICLE_EXODAR_ELEKK:

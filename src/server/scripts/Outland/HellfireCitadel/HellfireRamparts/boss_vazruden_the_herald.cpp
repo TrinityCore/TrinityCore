@@ -366,22 +366,22 @@ class boss_vazruden_the_herald : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                if (!pSummoned)
+                if (!summoned)
                     return;
                 Unit* victim = me->getVictim();
-                if (pSummoned->GetEntry() == ENTRY_NAZAN)
+                if (summoned->GetEntry() == ENTRY_NAZAN)
                 {
-                    CAST_AI(boss_nazan::boss_nazanAI, pSummoned->AI())->VazrudenGUID = VazrudenGUID;
-                    pSummoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    pSummoned->SetSpeed(MOVE_FLIGHT, 2.5f);
+                    CAST_AI(boss_nazan::boss_nazanAI, summoned->AI())->VazrudenGUID = VazrudenGUID;
+                    summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    summoned->SetSpeed(MOVE_FLIGHT, 2.5f);
                     if (victim)
                         AttackStartNoMove(victim);
                 }
                 else
                     if (victim)
-                        pSummoned->AI()->AttackStart(victim);
+                        summoned->AI()->AttackStart(victim);
             }
 
             void SentryDownBy(Unit* killer)

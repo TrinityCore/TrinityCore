@@ -456,8 +456,8 @@ public:
             { // no player check, quest can be finished as group, so no complex PlayerGUID/group search code
 
                 for (uint8 i = 0; i < 4; ++i)
-                if (Creature* pSummoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
-                    paladinGuid[i] = pSummoned->GetGUID();
+                if (Creature* summoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
+                    paladinGuid[i] = summoned->GetGUID();
 
                 timer = OFFSET_NEXT_ATTACK;
                 questPhase = 2;
@@ -485,8 +485,8 @@ void npc_second_trial_paladin::npc_secondTrialAI::JustDied(Unit* Killer)
 {
     if (Killer->GetTypeId() == TYPEID_PLAYER)
     {
-        if (Creature* pSummoner = Unit::GetCreature((*me), summonerGuid))
-            CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, pSummoner->AI())->SecondTrialKill();
+        if (Creature* summoner = Unit::GetCreature((*me), summonerGuid))
+            CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, summoner->AI())->SecondTrialKill();
 
         // last kill quest complete for group
         if (me->GetEntry() == CHAMPION_SUNSTRIKER)
