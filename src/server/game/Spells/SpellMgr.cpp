@@ -129,7 +129,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_TARGET_PARTY:
             case TARGET_UNIT_TARGET_PASSENGER:
             case TARGET_UNIT_TARGET_ALLY_PARTY:
-            case TARGET_UNIT_TARGET_RAID_CLASS:
+            case TARGET_UNIT_TARGET_CLASS_RAID:
             case TARGET_UNIT_CHAINHEAL:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
