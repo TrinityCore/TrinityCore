@@ -154,8 +154,8 @@ public:
         {
             Map::PlayerList const &players = instance->GetPlayers();
             if (!players.isEmpty())
-                if (Player* pPlayer = players.begin()->getSource())
-                    uiTeamInInstance = pPlayer->GetTeam();
+                if (Player* player = players.begin()->getSource())
+                    uiTeamInInstance = player->GetTeam();
 
             switch(creature->GetEntry())
             {

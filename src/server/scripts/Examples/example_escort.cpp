@@ -87,12 +87,12 @@ class example_escort : public CreatureScript
                         me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
                         break;
                     case 4:
-                        if (Player* pPlayer = GetPlayerForEscort())
+                        if (Player* player = GetPlayerForEscort())
                         {
                             //pTmpPlayer is the target of the text
-                            DoScriptText(SAY_WP_3, me, pPlayer);
+                            DoScriptText(SAY_WP_3, me, player);
                             //pTmpPlayer is the source of the text
-                            DoScriptText(SAY_WP_4, pPlayer);
+                            DoScriptText(SAY_WP_4, player);
                         }
                         break;
                 }
@@ -102,8 +102,8 @@ class example_escort : public CreatureScript
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
-                    if (Player* pPlayer = GetPlayerForEscort())
-                        DoScriptText(SAY_AGGRO1, me, pPlayer);
+                    if (Player* player = GetPlayerForEscort())
+                        DoScriptText(SAY_AGGRO1, me, player);
                 }
                 else
                     DoScriptText(SAY_AGGRO2, me);
@@ -119,15 +119,15 @@ class example_escort : public CreatureScript
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
-                    if (Player* pPlayer = GetPlayerForEscort())
+                    if (Player* player = GetPlayerForEscort())
                     {
                         // not a likely case, code here for the sake of example
                         if (pKiller == me)
                         {
-                            DoScriptText(SAY_DEATH_1, me, pPlayer);
+                            DoScriptText(SAY_DEATH_1, me, player);
                         }
                         else
-                            DoScriptText(SAY_DEATH_2, me, pPlayer);
+                            DoScriptText(SAY_DEATH_2, me, player);
                     }
                 }
                 else
@@ -183,44 +183,44 @@ class example_escort : public CreatureScript
             return new example_escortAI(creature);
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-            pPlayer->PrepareGossipMenu(creature, 0);
+            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+            player->PrepareGossipMenu(creature, 0);
 
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-            pPlayer->SendPreparedGossip(creature);
+            player->SendPreparedGossip(creature);
 
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
             npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 
             switch(uiAction)
             {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    pPlayer->CLOSE_GOSSIP_MENU();
+                    player->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(true, true, pPlayer->GetGUID());
+                        pEscortAI->Start(true, true, player->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    pPlayer->CLOSE_GOSSIP_MENU();
+                    player->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(false, false, pPlayer->GetGUID());
+                        pEscortAI->Start(false, false, player->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    pPlayer->CLOSE_GOSSIP_MENU();
+                    player->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(false, true, pPlayer->GetGUID());
+                        pEscortAI->Start(false, true, player->GetGUID());
                     break;
                 default:
                     return false;                                   // nothing defined      -> trinity core handling

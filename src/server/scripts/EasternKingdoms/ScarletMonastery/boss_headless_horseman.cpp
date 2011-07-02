@@ -830,9 +830,9 @@ class go_loosely_turned_soil : public GameObjectScript
 public:
     go_loosely_turned_soil() : GameObjectScript("go_loosely_turned_soil") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* soil)
+    bool OnGossipHello(Player* player, GameObject* soil)
     {
-        InstanceScript* pInstance = pPlayer->GetInstanceScript();
+        InstanceScript* pInstance = player->GetInstanceScript();
         if (pInstance)
         {
             if (pInstance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
@@ -846,10 +846,10 @@ public:
         }
         if (player->GetQuestStatus(11405) == QUEST_STATUS_INCOMPLETE && player->getLevel() > 64)
         { */
-            pPlayer->AreaExploredOrEventHappens(11405);
+            player->AreaExploredOrEventHappens(11405);
             if (Creature* horseman = soil->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
             {
-                CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = pPlayer->GetGUID();
+                CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
                 CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
             }
         //}

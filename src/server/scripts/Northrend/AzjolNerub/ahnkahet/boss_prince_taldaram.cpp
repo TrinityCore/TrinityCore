@@ -386,7 +386,7 @@ class prince_taldaram_sphere : public GameObjectScript
 public:
     prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         InstanceScript *pInstance = pGO->GetInstanceScript();
 

@@ -338,8 +338,8 @@ public:
             std::map<uint64, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
-                if (Player* pPlayer = Unit::GetPlayer(*me, (*itr).first))
-                    pPlayer->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                if (Player* player = Unit::GetPlayer(*me, (*itr).first))
+                    player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
             }
             chained.clear();
         }
@@ -650,16 +650,16 @@ class at_kelthuzad_center : public AreaTriggerScript
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
     {
-        if (pPlayer->isGameMaster())
+        if (player->isGameMaster())
             return false;
 
-        InstanceScript* pInstance = pPlayer->GetInstanceScript();
+        InstanceScript* pInstance = player->GetInstanceScript();
         if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, pInstance->GetData64(DATA_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -667,7 +667,7 @@ public:
         if (!pKelthuzadAI)
             return false;
 
-        pKelthuzadAI->AttackStart(pPlayer);
+        pKelthuzadAI->AttackStart(player);
         if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)

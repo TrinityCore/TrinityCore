@@ -57,21 +57,21 @@ class npc_00x09hl : public CreatureScript
 public:
     npc_00x09hl() : CreatureScript("npc_00x09hl") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_RESQUE_OOX_09)
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (pPlayer->GetTeam() == ALLIANCE)
+            if (player->GetTeam() == ALLIANCE)
                 creature->setFaction(FACTION_ESCORTEE_A);
-            else if (pPlayer->GetTeam() == HORDE)
+            else if (player->GetTeam() == HORDE)
                 creature->setFaction(FACTION_ESCORTEE_H);
 
-            DoScriptText(SAY_OOX_START, creature, pPlayer);
+            DoScriptText(SAY_OOX_START, creature, player);
 
             if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
-                pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
         }
         return true;
     }
@@ -99,8 +99,8 @@ public:
                     break;
                 case 64:
                     DoScriptText(SAY_OOX_END, me);
-                    if (Player* pPlayer = GetPlayerForEscort())
-                        pPlayer->GroupEventHappens(QUEST_RESQUE_OOX_09, me);
+                    if (Player* player = GetPlayerForEscort())
+                        player->GroupEventHappens(QUEST_RESQUE_OOX_09, me);
                     break;
             }
         }
@@ -191,7 +191,7 @@ class npc_rinji : public CreatureScript
 public:
     npc_rinji() : CreatureScript("npc_rinji") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_RINJI_TRAPPED)
         {
@@ -199,7 +199,7 @@ public:
                 pGo->UseDoorOrButton();
 
             if (npc_rinjiAI* pEscortAI = CAST_AI(npc_rinji::npc_rinjiAI, creature->AI()))
-                pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
         }
         return true;
     }
@@ -279,15 +279,15 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(uiPointId)
             {
                 case 1:
-                    DoScriptText(SAY_RIN_FREE, me, pPlayer);
+                    DoScriptText(SAY_RIN_FREE, me, player);
                     break;
                 case 7:
                     DoSpawnAmbush(true);
@@ -296,8 +296,8 @@ public:
                     DoSpawnAmbush(false);
                     break;
                 case 17:
-                    DoScriptText(SAY_RIN_COMPLETE, me, pPlayer);
-                    pPlayer->GroupEventHappens(QUEST_RINJI_TRAPPED, me);
+                    DoScriptText(SAY_RIN_COMPLETE, me, player);
+                    player->GroupEventHappens(QUEST_RINJI_TRAPPED, me);
                     SetRun();
                     m_uiPostEventCount = 1;
                     break;
@@ -315,16 +315,16 @@ public:
                     {
                         m_uiPostEventTimer = 3000;
 
-                        if (Unit* pPlayer = GetPlayerForEscort())
+                        if (Unit* player = GetPlayerForEscort())
                         {
                             switch(m_uiPostEventCount)
                             {
                                 case 1:
-                                    DoScriptText(SAY_RIN_PROGRESS_1, me, pPlayer);
+                                    DoScriptText(SAY_RIN_PROGRESS_1, me, player);
                                     ++m_uiPostEventCount;
                                     break;
                                 case 2:
-                                    DoScriptText(SAY_RIN_PROGRESS_2, me, pPlayer);
+                                    DoScriptText(SAY_RIN_PROGRESS_2, me, player);
                                     m_uiPostEventCount = 0;
                                     break;
                             }

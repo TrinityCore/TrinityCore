@@ -144,8 +144,8 @@ public:
             Map::PlayerList const &players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
-                Player* pPlayer = i->getSource();
-                pPlayer->RemoveAurasDueToSpell(GetSpellForPhaseMask(pPlayer->GetPhaseMask()));
+                Player* player = i->getSource();
+                player->RemoveAurasDueToSpell(GetSpellForPhaseMask(player->GetPhaseMask()));
             }
         }
 
@@ -244,13 +244,13 @@ public:
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (Player* pPlayer = i->getSource())
+                    if (Player* player = i->getSource())
                     {
-                        if (pPlayer->HasAura(spell))
+                        if (player->HasAura(spell))
                         {
-                            pPlayer->RemoveAurasDueToSpell(spell);
+                            player->RemoveAurasDueToSpell(spell);
                             if (spell2) // if there is still some different mask cast spell for it
-                                pPlayer->CastSpell(pPlayer, spell2, true);
+                                player->CastSpell(player, spell2, true);
                         }
                     }
                 }

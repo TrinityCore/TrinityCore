@@ -269,7 +269,7 @@ class go_gong_of_bethekk : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+        bool OnGossipHello(Player* /*player*/, GameObject* pGo)
         {
             if (InstanceScript* m_pInstance = pGo->GetInstanceScript())
             {

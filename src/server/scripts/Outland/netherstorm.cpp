@@ -307,12 +307,12 @@ class go_manaforge_control_console : public GameObjectScript
 public:
     go_manaforge_control_console() : GameObjectScript("go_manaforge_control_console") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
         if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
         {
-            pPlayer->PrepareQuestMenu(pGo->GetGUID());
-            pPlayer->SendPreparedQuest(pGo->GetGUID());
+            player->PrepareQuestMenu(pGo->GetGUID());
+            player->SendPreparedQuest(pGo->GetGUID());
         }
 
         Creature* manaforge = NULL;
@@ -320,30 +320,30 @@ public:
         switch(pGo->GetAreaId())
         {
             case 3726:                                          //b'naar
-                if ((pPlayer->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
-                    pPlayer->HasItemCount(29366, 1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_BNAAR_C_CONSOLE, 2918.95f, 4189.98f, 161.88f, 0.34f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
+                if ((player->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
+                    player->HasItemCount(29366, 1))
+                    manaforge = player->SummonCreature(ENTRY_BNAAR_C_CONSOLE, 2918.95f, 4189.98f, 161.88f, 0.34f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
                 break;
             case 3730:                                          //coruu
-                if ((pPlayer->GetQuestStatus(10321) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10330) == QUEST_STATUS_INCOMPLETE) &&
-                    pPlayer->HasItemCount(29396, 1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_CORUU_C_CONSOLE, 2426.77f, 2750.38f, 133.24f, 2.14f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
+                if ((player->GetQuestStatus(10321) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10330) == QUEST_STATUS_INCOMPLETE) &&
+                    player->HasItemCount(29396, 1))
+                    manaforge = player->SummonCreature(ENTRY_CORUU_C_CONSOLE, 2426.77f, 2750.38f, 133.24f, 2.14f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
                 break;
             case 3734:                                          //duro
-                if ((pPlayer->GetQuestStatus(10322) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10338) == QUEST_STATUS_INCOMPLETE) &&
-                    pPlayer->HasItemCount(29397, 1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_DURO_C_CONSOLE, 2976.48f, 2183.29f, 163.20f, 1.85f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
+                if ((player->GetQuestStatus(10322) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10338) == QUEST_STATUS_INCOMPLETE) &&
+                    player->HasItemCount(29397, 1))
+                    manaforge = player->SummonCreature(ENTRY_DURO_C_CONSOLE, 2976.48f, 2183.29f, 163.20f, 1.85f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
                 break;
             case 3722:                                          //ara
-                if ((pPlayer->GetQuestStatus(10323) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10365) == QUEST_STATUS_INCOMPLETE) &&
-                    pPlayer->HasItemCount(29411, 1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_ARA_C_CONSOLE, 4013.71f, 4028.76f, 192.10f, 1.25f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
+                if ((player->GetQuestStatus(10323) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10365) == QUEST_STATUS_INCOMPLETE) &&
+                    player->HasItemCount(29411, 1))
+                    manaforge = player->SummonCreature(ENTRY_ARA_C_CONSOLE, 4013.71f, 4028.76f, 192.10f, 1.25f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000);
                 break;
         }
 
         if (manaforge)
         {
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = pPlayer->GetGUID();
+            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
             CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = pGo->GetGUID();
             pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
@@ -433,9 +433,9 @@ public:
         {
             Creature* ardonis = Unit::GetCreature(*me, ardonisGUID);
             Creature* pathaleon = Unit::GetCreature(*me, pathaleonGUID);
-            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
-            if (!ardonis || !pathaleon || !pPlayer)
+            if (!ardonis || !pathaleon || !player)
                 return;
 
             //Calculate the angle to Pathaleon
@@ -444,10 +444,10 @@ public:
 
             //Turn Dawnforge and update
             me->SetOrientation(angle_dawnforge);
-            me->SendUpdateToPlayer(pPlayer);
+            me->SendUpdateToPlayer(player);
             //Turn Ardonis and update
             ardonis->SetOrientation(angle_ardonis);
-            ardonis->SendUpdateToPlayer(pPlayer);
+            ardonis->SendUpdateToPlayer(player);
 
             //Set them to kneel
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
@@ -459,9 +459,9 @@ public:
         {
             if (Unit* ardonis = Unit::GetUnit(*me, ardonisGUID))
             {
-                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+                Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
-                if (!pPlayer)
+                if (!player)
                     return;
 
                 angle_dawnforge = me->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
@@ -469,10 +469,10 @@ public:
 
                 //Turn Dawnforge and update
                 me->SetOrientation(angle_dawnforge);
-                me->SendUpdateToPlayer(pPlayer);
+                me->SendUpdateToPlayer(player);
                 //Turn Ardonis and update
                 ardonis->SetOrientation(angle_ardonis);
-                ardonis->SendUpdateToPlayer(pPlayer);
+                ardonis->SendUpdateToPlayer(player);
 
                 //Set state
                 me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -480,7 +480,7 @@ public:
             }
         }
 
-        bool CanStartEvent(Player* pPlayer)
+        bool CanStartEvent(Player* player)
         {
             if (!isEvent)
             {
@@ -489,7 +489,7 @@ public:
                     return false;
 
                 ardonisGUID = ardonis->GetGUID();
-                PlayerGUID = pPlayer->GetGUID();
+                PlayerGUID = player->GetGUID();
 
                 isEvent = true;
 
@@ -516,9 +516,9 @@ public:
 
             Unit* ardonis = Unit::GetUnit(*me, ardonisGUID);
             Unit* pathaleon = Unit::GetUnit(*me, pathaleonGUID);
-            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
-            if (!ardonis || !pPlayer)
+            if (!ardonis || !player)
             {
                 Reset();
                 return;
@@ -626,7 +626,7 @@ public:
                 //Phase 10 Dawnforge say
             case 10:
                 DoScriptText(SAY_COMMANDER_DAWNFORGE_5, me);
-                pPlayer->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
+                player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
                 Reset();
                 break;
             }
@@ -640,20 +640,20 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
     {
         //if player lost aura or not have at all, we should not try start event.
-        if (!pPlayer->HasAura(SPELL_SUNFURY_DISGUISE))
+        if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
             return false;
 
-        if (pPlayer->isAlive() && pPlayer->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
+        if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
         {
-            Creature* Dawnforge = pPlayer->FindNearestCreature(CreatureEntry[1], 30.0f);
+            Creature* Dawnforge = player->FindNearestCreature(CreatureEntry[1], 30.0f);
 
             if (!Dawnforge)
                 return false;
 
-            if (CAST_AI(npc_commander_dawnforge::npc_commander_dawnforgeAI, Dawnforge->AI())->CanStartEvent(pPlayer))
+            if (CAST_AI(npc_commander_dawnforge::npc_commander_dawnforgeAI, Dawnforge->AI())->CanStartEvent(player))
                 return true;
         }
         return false;
@@ -681,35 +681,35 @@ class npc_professor_dabiri : public CreatureScript
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
     {
         if (quest->GetQuestId() == QUEST_DIMENSIUS)
-            DoScriptText(WHISPER_DABIRI, creature, pPlayer);
+            DoScriptText(WHISPER_DABIRI, creature, player);
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            creature->CastSpell(pPlayer, SPELL_PHASE_DISTRUPTOR, false);
-            pPlayer->CLOSE_GOSSIP_MENU();
+            creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
+            player->CLOSE_GOSSIP_MENU();
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(29778, 1))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778, 1))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -756,7 +756,7 @@ public:
         bool Drained;
         uint8 WeakPercent;
 
-        Player* pPlayer;
+        Player* player;
         uint64 PlayerGUID;
 
         uint32 ManaBurnTimer;
@@ -826,10 +826,10 @@ public:
                     ManaBurnTimer = 3500;
             } else ManaBurnTimer -= diff;
 
-            if (Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
+            if (Player* player = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
             {
                 if (!Weak && HealthBelowPct(WeakPercent)
-                    && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
+                    && player->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
                 {
                     DoScriptText(EMOTE_WEAK, me);
                     Weak = true;
@@ -843,7 +843,7 @@ public:
 
                     me->SetHealth(me->CountPctFromMaxHealth(uHpPct));
                     me->LowerPlayerDamageReq(me->GetMaxHealth() - me->GetHealth());
-                    me->SetInCombatWith(pPlayer);
+                    me->SetInCombatWith(player);
                 }
             } // end: support for quest 10190
 
@@ -871,13 +871,13 @@ class npc_bessy : public CreatureScript
 public:
     npc_bessy() : CreatureScript("npc_bessy") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == Q_ALMABTRIEB)
         {
             creature->setFaction(113);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
     }
@@ -894,15 +894,15 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(Q_ALMABTRIEB);
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(Q_ALMABTRIEB);
         }
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(i)
@@ -919,13 +919,13 @@ public:
                     break;
 
                 case 12:
-                    if (pPlayer)
-                        pPlayer->GroupEventHappens(Q_ALMABTRIEB, me);
+                    if (player)
+                        player->GroupEventHappens(Q_ALMABTRIEB, me);
                     if (me->FindNearestCreature(N_THADELL, 30))
                         DoScriptText(SAY_THADELL_1, me); break;
                 case 13:
                     if (me->FindNearestCreature(N_THADELL, 30))
-                        DoScriptText(SAY_THADELL_2, me, pPlayer); break;
+                        DoScriptText(SAY_THADELL_2, me, player); break;
             }
         }
 
@@ -978,8 +978,8 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (!pPlayer)
+            Player* player = GetPlayerForEscort();
+            if (!player)
                 return;
 
             switch (i)
@@ -997,17 +997,17 @@ public:
                     }
                     break;
                 case 36: //return and quest_complete
-                    if (pPlayer)
-                        pPlayer->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
+                    if (player)
+                        player->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
                     break;
             }
         }
 
         void JustDied(Unit* /*pKiller*/)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (pPlayer)
-                pPlayer->FailQuest(QUEST_MARK_V_IS_ALIVE);
+            Player* player = GetPlayerForEscort();
+            if (player)
+                player->FailQuest(QUEST_MARK_V_IS_ALIVE);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -1034,14 +1034,14 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
         {
             if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {
                 creature->setFaction(113);
-                pEscortAI->Start(false, false, pPlayer->GetGUID());
+                pEscortAI->Start(false, false, player->GetGUID());
             }
         }
         return true;

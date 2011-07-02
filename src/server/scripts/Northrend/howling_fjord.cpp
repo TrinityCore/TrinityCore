@@ -48,11 +48,11 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
         {
-            switch (pPlayer->GetTeam())
+            switch (player->GetTeam())
             {
                 case ALLIANCE:
                     creature->setFaction(FACTION_ESCORTEE_A);
@@ -61,7 +61,7 @@ public:
                     creature->setFaction(FACTION_ESCORTEE_H);
                     break;
             }
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
     }
@@ -79,8 +79,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(QUEST_TRAIL_OF_FIRE);
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(QUEST_TRAIL_OF_FIRE);
         }
 
         void UpdateEscortAI(const uint32 diff)
@@ -99,8 +99,8 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (!pPlayer)
+            Player* player = GetPlayerForEscort();
+            if (!player)
                 return;
             switch(i)
             {
@@ -109,8 +109,8 @@ public:
                     SetRun(true);
                     break;
                 case 23:
-                    if (pPlayer)
-                        pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    if (player)
+                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     me->DespawnOrUnsummon();
                     break;
                 case 5:
@@ -225,47 +225,47 @@ class npc_razael_and_lyana : public CreatureScript
 public:
     npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
             switch (creature->GetEntry())
             {
                 case NPC_RAZAEL:
-                    if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
+                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
                     {
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL1, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL1, creature->GetGUID());
                         return true;
                     }
                 break;
                 case NPC_LYANA:
-                    if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
+                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
                     {
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA1, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA1, creature->GetGUID());
                         return true;
                     }
                 break;
             }
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL2, creature->GetGUID());
-                pPlayer->TalkedToCreature(NPC_RAZAEL, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL2, creature->GetGUID());
+                player->TalkedToCreature(NPC_RAZAEL, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA2, creature->GetGUID());
-                pPlayer->TalkedToCreature(NPC_LYANA, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA2, creature->GetGUID());
+                player->TalkedToCreature(NPC_LYANA, creature->GetGUID());
                 break;
         }
         return true;
@@ -294,28 +294,28 @@ class npc_mcgoyver : public CreatureScript
 public:
     npc_mcgoyver() : CreatureScript("npc_mcgoyver") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, creature->GetGUID());
-                pPlayer->CastSpell(pPlayer, SPELL_CREATURE_DARK_IRON_INGOTS, true);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, creature->GetGUID());
+                player->CastSpell(player, SPELL_CREATURE_DARK_IRON_INGOTS, true);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->CastSpell(pPlayer, SPELL_TAXI_EXPLORERS_LEAGUE, true);
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CastSpell(player, SPELL_TAXI_EXPLORERS_LEAGUE, true);
+                player->CLOSE_GOSSIP_MENU();
                 break;
         }
         return true;
@@ -348,12 +348,12 @@ class npc_daegarn : public CreatureScript
 public:
     npc_daegarn() : CreatureScript("npc_daegarn") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_DEFEAT_AT_RING)
         {
             if (npc_daegarnAI* pDaegarnAI = CAST_AI(npc_daegarn::npc_daegarnAI, creature->AI()))
-                pDaegarnAI->StartEvent(pPlayer->GetGUID());
+                pDaegarnAI->StartEvent(player->GetGUID());
         }
 
         return true;
@@ -385,13 +385,13 @@ public:
 
         void JustSummoned(Creature* pSummon)
         {
-            if (Player* pPlayer = me->GetPlayer(*me, uiPlayerGUID))
+            if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
-                if (pPlayer->isAlive())
+                if (player->isAlive())
                 {
                     pSummon->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pSummon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
-                    pSummon->AI()->AttackStart(pPlayer);
+                    pSummon->AI()->AttackStart(player);
                     return;
                 }
             }

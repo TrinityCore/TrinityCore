@@ -37,10 +37,10 @@ class go_blackfathom_altar : public GameObjectScript
 public:
     go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGo*/)
     {
-        if (!pPlayer->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
-            pPlayer->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, pPlayer);
+        if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
+            player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
         return true;
     }
 
@@ -51,7 +51,7 @@ class go_blackfathom_fire : public GameObjectScript
 public:
     go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
     {
         InstanceScript *pInstance = pGo->GetInstanceScript();
 
@@ -116,16 +116,16 @@ public:
 
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
-                if (Player* pPlayer = i->getSource())
+                if (Player* player = i->getSource())
                 {
-                    if (pPlayer->isGameMaster())
+                    if (player->isGameMaster())
                         continue;
 
-                    if (pPlayer->isAlive())
+                    if (player->isAlive())
                     {
-                        me->SetInCombatWith(pPlayer);
-                        pPlayer->SetInCombatWith(me);
-                        me->AddThreat(pPlayer, 0.0f);
+                        me->SetInCombatWith(player);
+                        player->SetInCombatWith(me);
+                        me->AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -201,24 +201,24 @@ class npc_morridune : public CreatureScript
 public:
     npc_morridune() : CreatureScript("npc_morridune") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->TeleportTo(1, 9952.239f, 2284.277f, 1341.394f, 1.595f);
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->TeleportTo(1, 9952.239f, 2284.277f, 1341.394f, 1.595f);
+                player->CLOSE_GOSSIP_MENU();
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MORRIDUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MORRIDUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 

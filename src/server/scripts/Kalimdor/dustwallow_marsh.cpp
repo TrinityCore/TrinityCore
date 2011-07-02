@@ -147,32 +147,32 @@ class npc_deserter_agitator : public CreatureScript
 public:
     npc_deserter_agitator() : CreatureScript("npc_deserter_agitator") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DESERTER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+        if (player->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DESERTER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
 
         if (uiAction == GOSSIP_SENDER_INFO)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
             switch (urand(0, 1))
             {
                 case 0:
                     creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     creature->setFaction(14);
-                    creature->AI()->AttackStart(pPlayer);
+                    creature->AI()->AttackStart(player);
                     break;
                 case 1:
-                    pPlayer->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
+                    player->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
                     creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     creature->SetSpeed(MOVE_RUN, creature->GetSpeedRate(MOVE_RUN), true);
                     creature->setFaction(35);
@@ -245,24 +245,24 @@ class npc_theramore_guard : public CreatureScript
 public:
     npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+        if (player->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
 
         if (uiAction == GOSSIP_SENDER_INFO)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
+            player->CLOSE_GOSSIP_MENU();
+            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
             DoScriptText(SAY_QUEST1, creature);
             creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -337,26 +337,26 @@ class npc_lady_jaina_proudmoore : public CreatureScript
 public:
     npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_SENDER_INFO)
         {
-            pPlayer->SEND_GOSSIP_MENU(7012, creature->GetGUID());
-            pPlayer->CastSpell(pPlayer, SPELL_JAINAS_AUTOGRAPH, false);
+            player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
+            player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+        if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -377,27 +377,27 @@ class npc_nat_pagle : public CreatureScript
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->GetSession()->SendListInventory(creature->GetGUID());
+            player->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (creature->isVendor() && pPlayer->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+        if (creature->isVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            pPlayer->SEND_GOSSIP_MENU(7640, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            player->SEND_GOSSIP_MENU(7640, creature->GetGUID());
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(7638, creature->GetGUID());
+            player->SEND_GOSSIP_MENU(7638, creature->GetGUID());
 
         return true;
     }
@@ -431,7 +431,7 @@ class npc_private_hendel : public CreatureScript
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
 
-    bool OnQuestAccept(Player* /*pPlayer*/, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
             creature->setFaction(FACTION_HOSTILE);
@@ -470,8 +470,8 @@ public:
             {
                 uiDamage = 0;
 
-                if (Player* pPlayer = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    pPlayer->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
+                if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
 
                 DoScriptText(EMOTE_SURRENDER, me);
                 EnterEvadeMode();
@@ -588,7 +588,7 @@ public:
         return new npc_stinkyAI(creature);
     }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
     {
          if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
          {
@@ -597,7 +597,7 @@ public:
                  creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
                  creature->SetStandState(UNIT_STAND_STATE_STAND);
                  DoScriptText(SAY_QUEST_ACCEPTED, creature);
-                 pEscortAI->Start(false, false, pPlayer->GetGUID());
+                 pEscortAI->Start(false, false, player->GetGUID());
              }
          }
          return true;
@@ -609,42 +609,42 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (!pPlayer)
+            Player* player = GetPlayerForEscort();
+            if (!player)
                 return;
 
             switch (i)
             {
             case 7:
-                DoScriptText(SAY_STAY_1, me, pPlayer);
+                DoScriptText(SAY_STAY_1, me, player);
                 break;
             case 11:
-                DoScriptText(SAY_STAY_2, me, pPlayer);
+                DoScriptText(SAY_STAY_2, me, player);
                 break;
             case 25:
-                DoScriptText(SAY_STAY_3, me, pPlayer);
+                DoScriptText(SAY_STAY_3, me, player);
                 break;
             case 26:
-                DoScriptText(SAY_STAY_4, me, pPlayer);
+                DoScriptText(SAY_STAY_4, me, player);
                 break;
             case 27:
-                DoScriptText(SAY_STAY_5, me, pPlayer);
+                DoScriptText(SAY_STAY_5, me, player);
                 break;
             case 28:
-                DoScriptText(SAY_STAY_6, me, pPlayer);
+                DoScriptText(SAY_STAY_6, me, player);
                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 break;
             case 29:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 break;
             case 37:
-                DoScriptText(SAY_QUEST_COMPLETE, me, pPlayer);
+                DoScriptText(SAY_QUEST_COMPLETE, me, player);
                 me->SetSpeed(MOVE_RUN, 1.2f, true);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                if (pPlayer && pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
-                    pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, me);
-                if (pPlayer && pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
-                    pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, me);
+                if (player && player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
+                    player->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, me);
+                if (player && player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
+                    player->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, me);
                 break;
             case 39:
                 DoScriptText(EMOTE_DISAPPEAR, me);
@@ -662,13 +662,13 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && pPlayer)
+            Player* player = GetPlayerForEscort();
+            if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
             {
-                if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
-                    pPlayer->FailQuest(QUEST_STINKYS_ESCAPE_H);
-                if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
-                    pPlayer->FailQuest(QUEST_STINKYS_ESCAPE_A);
+                if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
+                    player->FailQuest(QUEST_STINKYS_ESCAPE_H);
+                if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
+                    player->FailQuest(QUEST_STINKYS_ESCAPE_A);
             }
         }
 

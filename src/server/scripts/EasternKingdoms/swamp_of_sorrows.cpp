@@ -44,11 +44,11 @@ public:
 
     npc_galen_goodward() : CreatureScript("npc_galen_goodward") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
     {
         if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
         {
-            CAST_AI(npc_galen_goodward::npc_galen_goodwardAI, creature->AI())->Start(false, false, pPlayer->GetGUID());
+            CAST_AI(npc_galen_goodward::npc_galen_goodwardAI, creature->AI())->Start(false, false, player->GetGUID());
             creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
             DoScriptText(SAY_QUEST_ACCEPTED, creature);
         }
@@ -115,12 +115,12 @@ public:
                     pCage->ResetDoorOrButton();
                 break;
             case 20:
-                if (Player* pPlayer = GetPlayerForEscort())
+                if (Player* player = GetPlayerForEscort())
                 {
-                    me->SetFacingToObject(pPlayer);
-                    DoScriptText(SAY_QUEST_COMPLETE, me, pPlayer);
-                    DoScriptText(EMOTE_WHISPER, me, pPlayer);
-                    pPlayer->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
+                    me->SetFacingToObject(player);
+                    DoScriptText(SAY_QUEST_COMPLETE, me, player);
+                    DoScriptText(EMOTE_WHISPER, me, player);
+                    player->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
                 }
                 SetRun(true);
                 break;

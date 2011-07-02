@@ -875,8 +875,8 @@ public:
                         Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                         {
-                            if (Unit* pPlayer = itr->getSource())
-                                if (pPlayer->isAlive() && pPlayer->IsWithinDistInMap(me, 6.0f))
+                            if (Unit* player = itr->getSource())
+                                if (player->isAlive() && player->IsWithinDistInMap(me, 6.0f))
                                 {
                                     DoCastAOE(SPELL_TRAMPLE);
                                     m_uiTrampleTimer = IN_MILLISECONDS;

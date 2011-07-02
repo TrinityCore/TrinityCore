@@ -42,26 +42,26 @@ class npc_cairne_bloodhoof : public CreatureScript
 public:
     npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_SENDER_INFO)
         {
-            pPlayer->CastSpell(pPlayer, 23123, false);
-            pPlayer->SEND_GOSSIP_MENU(7014, creature->GetGUID());
+            player->CastSpell(player, 23123, false);
+            player->SEND_GOSSIP_MENU(7014, creature->GetGUID());
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+        if (player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(7013, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(7013, creature->GetGUID());
 
         return true;
     }
