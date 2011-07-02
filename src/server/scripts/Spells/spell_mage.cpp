@@ -36,8 +36,6 @@ enum MageSpells
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
-    SPELL_MAGE_DEEP_FREEZE_STUN                  = 44572,
-    SPELL_MAGE_DEEP_FREEZE_DAMAGE                = 71757,
 };
 
 class spell_mage_blast_wave : public SpellScriptLoader
@@ -332,53 +330,6 @@ public:
     }
 };
 
-class spell_mage_deep_freeze_dmg : public SpellScriptLoader
-{
-    public:
-        spell_mage_deep_freeze_dmg() : SpellScriptLoader("spell_mage_deep_freeze_dmg") { }
-
-        class spell_mage_deep_freeze_dmgSpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_deep_freeze_dmgSpellScript);
-
-            bool Validate(SpellEntry const* /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_DEEP_FREEZE_STUN))
-                    return false;
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_DEEP_FREEZE_DAMAGE))
-                    return false;
-
-                return true;
-            }
-
-            void HandleBeforeHit()
-            {
-                // If target is a player, damage should NEVER proc
-                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
-                {
-                    Unload();
-                    return;
-                }
-                // If target is immune to spell effect, proc damage
-                if (!GetHitCreature()->IsImmunedToSpellEffect(sSpellStore.LookupEntry(SPELL_MAGE_DEEP_FREEZE_STUN), 0))
-                {
-                    Unload();
-          return;
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_mage_deep_freeze_dmgSpellScript::HandleBeforeHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_deep_freeze_dmgSpellScript();
-        }
-};
-
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave;
@@ -388,5 +339,4 @@ void AddSC_mage_spell_scripts()
     new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_polymorph_cast_visual;
     new spell_mage_summon_water_elemental;
-    new spell_mage_deep_freeze_dmg();
 }

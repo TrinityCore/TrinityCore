@@ -2115,18 +2115,6 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
 {
     if (!m_spellAura || !unitTarget)
         return;
-
-  if(m_spellAura->GetId() == 44572)
-  {
-    sLog->outString("Deep Freeze catched");
-    if(unitTarget->IsImmunedToSpellEffect(m_spellInfo, 0) && unitTarget->GetTypeId() != TYPEID_PLAYER)
-    {
-      m_originalCaster->CastSpell(unitTarget, 44572, true);
-      sLog->outString("Deep Freeze switched");
-      finish();
-    }
-  }
-
     ASSERT(unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(effIndex);
 }
