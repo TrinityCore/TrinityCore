@@ -26,7 +26,7 @@ class ArenaScore : public BattlegroundScore
 {
     friend class ArenaMap;
     protected:
-        ArenaScore() : BattlegroundScore(), TeamId(0), PointsLost(0), PointsGained(0), MatchmakerRating(0) {};
+        ArenaScore(uint32 team) : BattlegroundScore(), TeamId(team) {};
         virtual ~ArenaScore() {};
         void AppendToPacket(WorldPacket* data) 
         {
@@ -37,10 +37,23 @@ class ArenaScore : public BattlegroundScore
             *data << uint32(0); // Padding
         }
 
-        uint8 TeamId;   // ALLIANCE or HORDE 
-        uint32 PointsLost;
-        uint32 PointsGained;
-        uint32 MatchmakerRating;
+        uint8 TeamId;   // TEAM_ALLIANCE or ''_HORDE 
+};
+
+struct ArenaTeamScore
+{
+    ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) {};
+
+    void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
+    {
+        RatingChange = ratingChange;
+        MatchmakerRating = matchMakerRating;
+        TeamName = teamName;
+    }
+
+    int32 RatingChange;
+    uint32 MatchmakerRating;
+    std::string TeamName;
 };
 
 #endif

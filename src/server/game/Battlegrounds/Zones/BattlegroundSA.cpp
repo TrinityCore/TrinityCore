@@ -110,8 +110,8 @@ bool BattlegroundSA::ResetObjs()
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-    GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
-    GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
+    GetObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
+    GetObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
     SpawnObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
     SpawnObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
@@ -131,11 +131,11 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
     {
         SpawnObject(i, RESPAWN_IMMEDIATELY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
+        GetObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
-    GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
-    GetBGObject(BG_SA_TITAN_RELIC)->Refresh();
+    GetObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+    GetObject(BG_SA_TITAN_RELIC)->Refresh();
 
     for (uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
@@ -175,7 +175,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+        GetObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     }
 
     for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
@@ -184,7 +184,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
+        GetObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
     for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
@@ -193,7 +193,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+        GetObject(i)->setFaction(atF);
     }
 
     //Player may enter BEFORE we set up bG - lets update his worldstates anyway...
@@ -264,7 +264,7 @@ void BattlegroundSA::StartShips()
             {
                 UpdateData data;
                 WorldPacket pkt;
-                GetBGObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
+                GetObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
                 data.BuildPacket(&pkt);
                 p->GetSession()->SendPacket(&pkt);
             }
@@ -600,7 +600,7 @@ void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroye
     if (!GateStatus[i])
         return;
 
-    if (GameObject* g = GetBGObject(i))
+    if (GameObject* g = GetObject(i))
     {
         if (g->GetGOValue()->building.health == 0)
         {
@@ -899,9 +899,9 @@ void BattlegroundSA::SendTransportInit(Player* player)
     {
         UpdateData transData;
         if (m_BgObjects[BG_SA_BOAT_ONE])
-            GetBGObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
+            GetObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
         if (m_BgObjects[BG_SA_BOAT_TWO])
-            GetBGObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
+            GetObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
         WorldPacket packet;
         transData.BuildPacket(&packet);
         player->GetSession()->SendPacket(&packet);
@@ -914,9 +914,9 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
     {
         UpdateData transData;
         if (m_BgObjects[BG_SA_BOAT_ONE])
-            GetBGObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
+            GetObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
         if (m_BgObjects[BG_SA_BOAT_TWO])
-            GetBGObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
+            GetObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket packet;
         transData.BuildPacket(&packet);
         player->GetSession()->SendPacket(&packet);

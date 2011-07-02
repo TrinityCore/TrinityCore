@@ -28,9 +28,10 @@ BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, Ma
     _template(bgTemplate),
     _preparationPhase(BG_STARTING_EVENT_FIRST)
 {
-    InitializeTextIds();
+    InitializeTextIds();                // Subclasses define textIds 
     InitializePreparationDelayTimes();  // Subclasses define timers or choose default
     InitializePreparationDelayTimer();  // Assign value to the current timer
+    InitializeObjects();                // Adds objects to storage
 }
 
 BattlegroundMap::~BattlegroundMap()
@@ -166,18 +167,18 @@ void BattlegroundMap::ProcessPreparation(uint32 const& diff)
 
 void BattlegroundMap::ProcessInProgress(uint32 const& diff)
 {
-    ASSERT(EndTimer);
-    if (EndTimer <= diff || (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
+    if ((EndTimer && EndTimer <= diff) || (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
     {
         // This method will be overridden by inherited classes
         // and it will define the winner of the battleground
-        EndBattleground();
+        EndBattleground(WINNER_NONE);
         _status = STATUS_WAIT_LEAVE;
         _postEndTimer = TIME_TO_AUTOREMOVE:
     }
     else
     {
-        EndTimer -= diff;
+        if (EndTimer)
+            EndTimer -= diff;
         if (_prematureCountdownTimer)
             _prematureCountdownTimer -= diff;
     }
@@ -263,6 +264,18 @@ void BattlegroundMap::OnPlayerExit(Player* player)
 
     if (_status == STATUS_IN_PROGRESS && !AreTeamsInBalance())
         _prematureCountdownTimer = sBattlegroundMgr->GetPrematureFinishTime();
+
+    if (_status != STATUS_WAIT_LEAVE)
+    {
+        delete PlayerScores[player->GetGUIDLow()];
+        PlayerScores.erase(player->GetGUIDLow());
+    }
+}
+
+void BattlegroundMap::OnPlayerKill(Player* victim, Player* killer)
+{
+    ASSERT(victim);
+    ASSERT(killer);
 }
 
 bool BattlegroundMap::AreTeamsInBalance() const
@@ -287,8 +300,8 @@ GameObject* BattlegroundMap::AddObject(uint32 type, uint32 entry, Position* pos,
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, this,
         PHASEMASK_NORMAL, pos->GetPositionX(), pos->GetPositionY, pos->GetPositionZ(), pos->GetOrientation(), rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
-        sLog->outError("BattlegroundMap::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
-            entry, m_MapId, m_InstanceID);
+        sLog->outError("BattlegroundMap::AddObject: cannot create gameobject (entry: %u) for BG (map: %u)!",
+            entry, GetId());
         delete go;
         return NULL;
     }
@@ -304,19 +317,24 @@ GameObject* BattlegroundMap::AddObject(uint32 type, uint32 entry, Position* pos,
     return go;
 }
 
-void BattlegroundMap::SpawnObject(uint32 type, uint32 respawntime)
+GameObject* BattlegroundMap::GetGameObject(uint32 type)
 {
     ASSERT(type < ObjectGUIDsByType.size());
 
     uint64 guid = ObjectGUIDsByType[type];
     if (!guid)
     {
-        sLog->outError("BattlegroundMap::SpawnObject: tired to spawn defined type %u, but was not found in current map. "
-                        "Are you missing an AddObject call in the Battleground initialization?", type);
-        return;
+        sLog->outError("BattlegroundMap::GetGameObject: tired to get defined type %u, but was not found in current map. "
+            "Are you missing an AddObject call in the Battleground initialization?", type);
+        return NULL;
     }
 
-    GameObject* object = GetGameObject(guid);
+    return Map::GetGameObject(guid);
+}
+
+void BattlegroundMap::SpawnObject(uint32 type, uint32 respawntime)
+{
+    GameObject* object = GetGameObject(type);
     // If it's present in ObjectGUIDsByType it MUST also be in world
     ASSERT(object);
     ASSERT(object->IsInWorld());
@@ -397,6 +415,20 @@ Creature* BattlegroundMap::AddCreature(uint32 entry, uint32 type, uint32 teamval
         creature->SetRespawnDelay(respawntime);
 
     return creature;
+}
+
+Creature* BattlegroundMap::GetCreature(uint32 type)
+{
+    ASSERT(type < ObjectGUIDsByType.size());
+
+    uint64 guid = ObjectGUIDsByType[type];
+    if (!guid)
+    {
+        sLog->outError("BattlegroundMap::GetCreature: Tried to delete creature type: %u from battleground (map: %u), but creature was not registered in this BattlegroundMap!", type, GetId());
+        return NULL;        // Already deleted or never added
+    }
+
+    return Map::GetCreature(guid);
 }
 
 bool BattlegroundMap::DeleteCreature(uint32 type)
@@ -502,7 +534,10 @@ void BattlegroundMap::BuildPVPLogDataPacket(WorldPacket& data)
 
     *data << uint32(PlayerScores.size());
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
+    {
+        *data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
         itr->second->AppendToPacket(&data);
+    }
 }
 
 void BattlegroundMap::SendPacketToAll(WorldPacket* data)

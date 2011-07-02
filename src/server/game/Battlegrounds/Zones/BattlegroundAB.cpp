@@ -201,16 +201,11 @@ void BattlegroundAB::StartingEventOpenDoors()
 
 void BattlegroundAB::OnPlayerJoin(Player *plr)
 {
-    Battleground::OnPlayerJoin(plr);
+    BattlegroundMap::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in the constructor
     BattlegroundABScore* sc = new BattlegroundABScore;
 
     PlayerScores[plr->GetGUIDLow()] = sc;
-}
-
-void BattlegroundAB::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
-{
-
 }
 
 void BattlegroundAB::HandleAreaTrigger(Player *Source, uint32 Trigger)

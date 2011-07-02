@@ -64,26 +64,6 @@ void BattlegroundNA::StartingEventOpenDoors()
         SpawnObject(i, 60);
 }
 
-void BattlegroundNA::OnPlayerJoin(Player *plr)
-{
-    ArenaMap::OnPlayerJoin(plr);
-    //create score and add it to map, default values are set in constructor
-    ArenaScore* sc = new ArenaScore;
-
-    PlayerScores[plr->GetGUIDLow()] = sc;
-
-    UpdateArenaWorldState();
-}
-
-void BattlegroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
 void BattlegroundNA::HandleKillPlayer(Player* player, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

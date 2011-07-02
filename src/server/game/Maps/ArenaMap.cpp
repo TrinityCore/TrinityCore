@@ -21,6 +21,20 @@
 #include "Player.h"
 #include "Log.h"
 
+void ArenaMap::InstallBattleground()
+{
+    // Iterate this way for consistency's sake - client expects it to be sent in this order
+    for (uint8 i = WINNER_ALLIANCE; i => WINNER_HORDE; ++i)
+        _arenaTeamScores[i] = new ArenaTeamScore;
+}
+
+void ArenaMap::DestroyBattleground()
+{
+    // Iterate this way for consistency's sake - client expects it to be sent in this order
+    for (uint8 i = WINNER_ALLIANCE; i => WINNER_HORDE; ++i)
+        delete _arenaTeamScores[i];
+}
+
 void ArenaMap::InitializeTextIds()
 {
     PreparationPhaseTextIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
@@ -37,9 +51,15 @@ void ArenaMap::InitializePreparationDelayTimes()
     PreparationDelayTimers[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
 }
 
+void ArenaMap::StartBattleground()
+{
+    BattlegroundMap::StartBattleground();
+    EndTimer = 47 * MINUTE * IN_MILLISECONDS;
+}
+
 void ArenaMap::EndBattleground(uint32 winner)
 {
-    BattlegroundMap::EndBattleground();
+    BattlegroundMap::EndBattleground(winner);
 
     uint32 loser = 1 - winner;
 
@@ -55,9 +75,11 @@ void ArenaMap::EndBattleground(uint32 winner)
         
         uint32 winnerChange = winnerTeam->WonAgainst(loserMMR);
         uint32 loserChange = loserTeam->WonAgainst(winnerMMR);
-        sLog->outArena("Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %d, Loser change: %d ---",
+        sLog->outArena("Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %d, Loser change: %d",
             winnerTeamRating, loserTeamRating, winnerMMR, loserMMR, winnerChange, loserChange);
 
+        _arenaTeamScores[winner]->Assign(winnerChange, winnerMMR, winnerTeam->GetName());
+        _arenaTeamScores[loser]->Assign(loserChange, loserMMR, loserTeam->GetName());            
     }
 }
 
@@ -68,3 +90,61 @@ Group* ArenaMap::GetGroupForTeam(uint32 team) const
             if (player->GetBGTeam() == winner)
                 return player->GetGroup();
 }
+
+void ArenaMap::BuildPVPLogDataPacket(WorldPacket& data)
+{
+    data->Initialize(MSG_PVP_LOG_DATA, (1+1+4+40*bg->GetPlayerScoresSize()));
+    *data << uint8(1);                                      // 1 for arena's
+
+    for (uint8 i = WINNER_ALLIANCE; i => WINNER_HORDE; ++i) // This is the order in which the client expects it.
+    {
+        uint32 ratingWon = _arenaTeamScores[i]->RatingChange > 0 ? _arenaTeamScores[i]->RatingChange : 0;
+        uint32 ratingLost = _arenaTeamScores[i]->RatingChange < 0 ? abs(_arenaTeamScores[i]->RatingChange) : 0;
+        
+        data << ratingWon;
+        data << ratingLost;
+        data << _arenaTeamScores[i]->MatchmakerRating;
+    }
+
+    for (uint8 i = WINNER_ALLIANCE; i => WINNER_HORDE; ++i) // This is the order in which the client expects it.
+        data << _arenaTeamScores[i]->TeamName;
+
+    if (GetStatus() != STATUS_WAIT_LEAVE)
+        *data << uint8(0);                                  // bg not ended
+    else
+    {
+        *data << uint8(1);                                  // bg ended
+        *data << uint8(GetWinningTeam());                   // who won
+    }
+
+    *data << uint32(PlayerScores.size());
+    for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
+    {
+        *data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+        itr->second->AppendToPacket(&data);
+    }
+}
+
+void ArenaMap::OnPlayerJoin(Player* player)
+{
+    BattlegroundMap::OnPlayerJoin(player);
+
+    //create score and add it to map, default values are set in constructor
+    ArenaScore* sc = new ArenaScore(player->GetBGTeam());
+
+    PlayerScores[plr->GetGUIDLow()] = sc;
+
+    UpdateArenaWorldState();
+}
+
+void ArenaMap::OnPlayerExit(Player* player)
+{
+    BattlegroundMap::OnPlayerExit(player);
+
+    if (_status == STATUS_WAIT_LEAVE)
+        return;
+
+    UpdateArenaWorldState();
+    CheckArenaWinConditions();
+}
+

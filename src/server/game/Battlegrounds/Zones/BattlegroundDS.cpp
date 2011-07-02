@@ -34,18 +34,24 @@ BattlegroundDS::~BattlegroundDS()
 
 }
 
-void BattlegroundDS::Update(uint32 diff)
+void BattlegroundDS::InitializeObjects()
 {
-    Battleground::Update(diff);
+    ObjectGUIDsByType.resize(BG_DS_OBJECT_MAX);
 
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        if (GetStartTime() >= 47*MINUTE*IN_MILLISECONDS)    // after 47 minutes without one team losing, the arena closes with no winner and no rating change
-        {
-            UpdateArenaWorldState();
-            CheckArenaAfterTimerConditions();
-        }
-    }
+    // gates
+    AddObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95f, 817.2f, 20.8096f, 3.15f, 0, 0, 0.99627f, 0.0862864f, RESPAWN_IMMEDIATELY);
+    AddObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65f, 764.913f, 20.0729f, 6.3f, 0, 0, 0.0310211f, -0.999519f, RESPAWN_IMMEDIATELY);
+    // water
+    AddObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, BUFF_RESPAWN_TIME);
+    AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, BUFF_RESPAWN_TIME);
+    // buffs
+    AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, BUFF_RESPAWN_TIME);
+    AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, BUFF_RESPAWN_TIME);
+}
+
+void BattlegroundDS::Update(uint32 const& diff)
+{
+    ArenaMap::Update(diff);
 
     if (getWaterFallTimer() < diff)
     {
@@ -87,26 +93,6 @@ void BattlegroundDS::StartingEventOpenDoors()
 
     for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
         SpawnObject(i, getWaterFallTimer());
-}
-
-void BattlegroundDS::OnPlayerJoin(Player *plr)
-{
-    ArenaMap::OnPlayerJoin(plr);
-    //create score and add it to map, default values are set in constructor
-    ArenaScore* sc = new ArenaScore;
-
-    PlayerScores[plr->GetGUIDLow()] = sc;
-
-    UpdateArenaWorldState();
-}
-
-void BattlegroundDS::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
 }
 
 void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
@@ -161,21 +147,3 @@ void BattlegroundDS::Reset()
     Battleground::Reset();
 }
 
-bool BattlegroundDS::SetupBattleground()
-{
-    // gates
-    if (!AddObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95f, 817.2f, 20.8096f, 3.15f, 0, 0, 0.99627f, 0.0862864f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65f, 764.913f, 20.0729f, 6.3f, 0, 0, 0.0310211f, -0.999519f, RESPAWN_IMMEDIATELY)
-    // water
-        || !AddObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
-        || !AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
-    // buffs
-        || !AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, 120)
-        || !AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, 120))
-    {
-        sLog->outErrorDb("BatteGroundDS: Failed to spawn some object!");
-        return false;
-    }
-
-    return true;
-}

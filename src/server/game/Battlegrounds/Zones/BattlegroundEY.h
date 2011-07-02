@@ -343,7 +343,7 @@ class BattlegroundEY : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
-    public:
+    protected:
         BattlegroundEY();
         ~BattlegroundEY();
         void Update(uint32 diff);
@@ -359,7 +359,7 @@ class BattlegroundEY : public BattlegroundMap
         uint64 GetFlagPickerGUID() const    { return _flagKeeper; }
         void SetFlagPicker(uint64 guid)     { _flagKeeper = guid; }
         bool IsFlagPickedup() const         { return _flagKeeper != 0; }
-        uint8 GetFlagState() const          { return m_FlagState; }
+        uint8 GetFlagState() const          { return _flagState; }
         void RespawnFlag(bool send_message);
         void RespawnFlagAfterDrop();
 
@@ -411,9 +411,9 @@ class BattlegroundEY : public BattlegroundMap
         uint64 _flagKeeper;                                // keepers guid
         uint64 m_DroppedFlagGUID;
         uint32 m_FlagCapturedBgObjectType;                  // type that should be despawned when flag is captured
-        uint8 m_FlagState;                                  // for checking flag state
-        int32 m_FlagsTimer;
-        int32 m_TowerCapCheckTimer;
+        uint8 _flagState;                                  // for checking flag state
+        int32 _flagsTimer;
+        int32 _towerCapCheckTimer;
 
         uint32 m_PointOwnedByTeam[EY_POINTS_MAX];
         uint8 m_PointState[EY_POINTS_MAX];

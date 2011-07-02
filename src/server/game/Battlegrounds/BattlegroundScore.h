@@ -46,7 +46,6 @@ class BattlegroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
-
 };
 
 #endif

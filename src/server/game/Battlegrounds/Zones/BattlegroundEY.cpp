@@ -50,9 +50,9 @@ BattlegroundEY::~BattlegroundEY()
 {
 }
 
-void BattlegroundEY::Update(uint32 diff)
+void BattlegroundEY::Update(uint32 const& diff)
 {
-    Battleground::Update(diff);
+    BattlegroundMap::Update(diff);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
@@ -66,22 +66,22 @@ void BattlegroundEY::Update(uint32 diff)
                 AddPoints(HORDE, BG_EY_TickPoints[m_TeamPointsCount[BG_TEAM_HORDE] - 1]);
         }
 
-        if (m_FlagState == BG_EY_FLAG_STATE_WAIT_RESPAWN || m_FlagState == BG_EY_FLAG_STATE_ON_GROUND)
+        if (_flagState == BG_EY_FLAG_STATE_WAIT_RESPAWN || _flagState == BG_EY_FLAG_STATE_ON_GROUND)
         {
-            m_FlagsTimer -= diff;
+            _flagsTimer -= diff;
 
-            if (m_FlagsTimer < 0)
+            if (_flagsTimer < 0)
             {
-                m_FlagsTimer = 0;
-                if (m_FlagState == BG_EY_FLAG_STATE_WAIT_RESPAWN)
+                _flagsTimer = 0;
+                if (_flagState == BG_EY_FLAG_STATE_WAIT_RESPAWN)
                     RespawnFlag(true);
                 else
                     RespawnFlagAfterDrop();
             }
         }
 
-        m_TowerCapCheckTimer -= diff;
-        if (m_TowerCapCheckTimer <= 0)
+        _towerCapCheckTimer -= diff;
+        if (_towerCapCheckTimer <= 0)
         {
             //check if player joined point
             /*I used this order of calls, because although we will check if one player is in gameobject's distance 2 times
@@ -91,7 +91,7 @@ void BattlegroundEY::Update(uint32 diff)
             //check if player left point
             this->CheckSomeoneLeftPoint();
             this->UpdatePointStatuses();
-            m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
+            _towerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
         }
     }
 }
@@ -138,7 +138,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
     GameObject *obj = NULL;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        obj = HashMapHolder<GameObject>::Find(m_BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+        obj = GetGameObject(BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i);
         if (obj)
         {
             uint8 j = 0;
@@ -375,22 +375,22 @@ void BattlegroundEY::HandleAreaTrigger(Player *Source, uint32 Trigger)
     {
         case TR_BLOOD_ELF_POINT:
             if (m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[BLOOD_ELF] == Source->GetTeam())
-                if (m_FlagState && GetFlagPickerGUID() == Source->GetGUID())
+                if (_flagState && GetFlagPickerGUID() == Source->GetGUID())
                     EventPlayerCapturedFlag(Source, BG_EY_OBJECT_FLAG_BLOOD_ELF);
             break;
         case TR_FEL_REAVER_POINT:
             if (m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[FEL_REAVER] == Source->GetTeam())
-                if (m_FlagState && GetFlagPickerGUID() == Source->GetGUID())
+                if (_flagState && GetFlagPickerGUID() == Source->GetGUID())
                     EventPlayerCapturedFlag(Source, BG_EY_OBJECT_FLAG_FEL_REAVER);
             break;
         case TR_MAGE_TOWER_POINT:
             if (m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[MAGE_TOWER] == Source->GetTeam())
-                if (m_FlagState && GetFlagPickerGUID() == Source->GetGUID())
+                if (_flagState && GetFlagPickerGUID() == Source->GetGUID())
                     EventPlayerCapturedFlag(Source, BG_EY_OBJECT_FLAG_MAGE_TOWER);
             break;
         case TR_DRAENEI_RUINS_POINT:
             if (m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[DRAENEI_RUINS] == Source->GetTeam())
-                if (m_FlagState && GetFlagPickerGUID() == Source->GetGUID())
+                if (_flagState && GetFlagPickerGUID() == Source->GetGUID())
                     EventPlayerCapturedFlag(Source, BG_EY_OBJECT_FLAG_DRAENEI_RUINS);
             break;
         case 4512:
@@ -518,12 +518,12 @@ void BattlegroundEY::Reset()
     m_TeamPointsCount[BG_TEAM_HORDE] = 0;
     m_HonorScoreTics[BG_TEAM_ALLIANCE] = 0;
     m_HonorScoreTics[BG_TEAM_HORDE] = 0;
-    m_FlagState = BG_EY_FLAG_STATE_ON_BASE;
+    _flagState = BG_EY_FLAG_STATE_ON_BASE;
     m_FlagCapturedBgObjectType = 0;
     _flagKeeper = 0;
     m_DroppedFlagGUID = 0;
     m_PointAddingTimer = 0;
-    m_TowerCapCheckTimer = 0;
+    _towerCapCheckTimer = 0;
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_EY_EYWeekendHonorTicks : BG_EY_NotEYWeekendHonorTicks;
 
@@ -545,7 +545,7 @@ void BattlegroundEY::RespawnFlag(bool send_message)
         SpawnObject(m_FlagCapturedBgObjectType, RESPAWN_ONE_DAY);
 
     m_FlagCapturedBgObjectType = 0;
-    m_FlagState = BG_EY_FLAG_STATE_ON_BASE;
+    _flagState = BG_EY_FLAG_STATE_ON_BASE;
     SpawnObject(BG_EY_OBJECT_FLAG_NETHERSTORM, RESPAWN_IMMEDIATELY);
 
     if (send_message)
@@ -601,8 +601,8 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player *Source)
 
     SetFlagPicker(0);
     Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
-    m_FlagState = BG_EY_FLAG_STATE_ON_GROUND;
-    m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
+    _flagState = BG_EY_FLAG_STATE_ON_GROUND;
+    _flagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     Source->CastSpell(Source, SPELL_RECENTLY_DROPPED_FLAG, true);
     Source->CastSpell(Source, BG_EY_PLAYER_DROPPED_FLAG_SPELL, true);
     //this does not work correctly :((it should remove flag carrier name)
@@ -631,9 +631,9 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target
         PlaySoundToAll(BG_EY_SOUND_FLAG_PICKED_UP_HORDE);
     }
 
-    if (m_FlagState == BG_EY_FLAG_STATE_ON_BASE)
+    if (_flagState == BG_EY_FLAG_STATE_ON_BASE)
         UpdateWorldState(NETHERSTORM_FLAG, 0);
-    m_FlagState = BG_EY_FLAG_STATE_ON_PLAYER;
+    _flagState = BG_EY_FLAG_STATE_ON_PLAYER;
 
     SpawnObject(BG_EY_OBJECT_FLAG_NETHERSTORM, RESPAWN_ONE_DAY);
     SetFlagPicker(Source->GetGUID());
@@ -768,7 +768,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType
         return;
 
     SetFlagPicker(0);
-    m_FlagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
+    _flagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
     Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
 
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
@@ -780,7 +780,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType
 
     SpawnObject(BgObjectType, RESPAWN_IMMEDIATELY);
 
-    m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
+    _flagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     m_FlagCapturedBgObjectType = BgObjectType;
 
     uint8 team_id = 0;
@@ -856,7 +856,7 @@ void BattlegroundEY::FillInitialWorldStates(WorldPacket& data)
 
     data << uint32(BLOOD_ELF_UNCONTROL)             << uint32(m_PointState[BLOOD_ELF] != EY_POINT_UNDER_CONTROL);
 
-    data << uint32(NETHERSTORM_FLAG)                << uint32(m_FlagState == BG_EY_FLAG_STATE_ON_BASE);
+    data << uint32(NETHERSTORM_FLAG)                << uint32(_flagState == BG_EY_FLAG_STATE_ON_BASE);
 
     data << uint32(0xad2) << uint32(0x1);
     data << uint32(0xad1) << uint32(0x1);

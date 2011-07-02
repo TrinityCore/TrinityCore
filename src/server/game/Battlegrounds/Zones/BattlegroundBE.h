@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDBE_H
 #define __BATTLEGROUNDBE_H
 
-class Battleground;
+#include "ArenaMap.h"
 
 enum BattlegroundBEObjectTypes
 {
@@ -48,16 +48,15 @@ class BattlegroundBE : public ArenaMap
     public:
         BattlegroundBE();
         ~BattlegroundBE();
-        void Update(uint32 diff);
+
+        void InitializeObjects();
 
         /* inherited from BattlegroundClass */
-        virtual void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleground();
+
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
