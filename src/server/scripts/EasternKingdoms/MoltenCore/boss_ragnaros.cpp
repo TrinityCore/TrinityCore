@@ -54,23 +54,28 @@ enum Spells
     SPELL_MELT_WEAPON           = 21388,
     SPELL_ELEMENTAL_FIRE        = 20564,
     SPELL_ERRUPTION             = 17731,
+
+    SPELL_ENRAGE                = 52262
 };
 
 enum Events
 {
-    EVENT_ERUPTION          = 1,
-    EVENT_WRATH_OF_RAGNAROS = 2,
-    EVENT_HAND_OF_RAGNAROS  = 3,
-    EVENT_LAVA_BURST        = 4,
-    EVENT_ELEMENTAL_FIRE    = 5,
-    EVENT_MAGMA_BLAST       = 6,
-    EVENT_SUBMERGE          = 7,
+    EVENT_ERUPTION = 1,
+    EVENT_WRATH_OF_RAGNAROS,
+    EVENT_HAND_OF_RAGNAROS,
+    EVENT_LAVA_BURST,
+    EVENT_ELEMENTAL_FIRE,
+    EVENT_MAGMA_BLAST,
+    EVENT_SUBMERGE,
 
-    EVENT_INTRO_1           = 8,
-    EVENT_INTRO_2           = 9,
-    EVENT_INTRO_3           = 10,
-    EVENT_INTRO_4           = 11,
-    EVENT_INTRO_5           = 12,
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+    EVENT_INTRO_3,
+    EVENT_INTRO_4,
+    EVENT_INTRO_5,
+
+    EVENT_ENRAGE,
+    EVENT_TOGROUND
 };
 
 class boss_ragnaros_outdoor : public CreatureScript
@@ -115,7 +120,7 @@ class boss_ragnaros_outdoor : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit * victim)
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_ERUPTION, 15000);
@@ -125,6 +130,8 @@ class boss_ragnaros_outdoor : public CreatureScript
                 events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3000);
                 events.ScheduleEvent(EVENT_MAGMA_BLAST, 2000);
                 events.ScheduleEvent(EVENT_SUBMERGE, 45000);
+                events.ScheduleEvent(EVENT_ENRAGE, 10*IN_MILLISECONDS*MINUTE);
+                events.ScheduleEvent(EVENT_TOGROUND, 1*IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit * victim)
@@ -132,6 +139,26 @@ class boss_ragnaros_outdoor : public CreatureScript
                 if (victim && victim->GetTypeId() == TYPEID_PLAYER)
                     if (urand(0, 4) == 2)
                         DoScriptText(SAY_KILL, me);
+            }
+
+            void MovementInform(uint32 type, uint32 point)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                switch (point)
+                {
+                    case 1: me->GetMotionMaster()->MoveChase(me->getVictim()); break;
+                }
+            }
+
+            void ToGround() // Es sieht einfach affig aus, wenn Ragnaros den Spielern in der Luft folgt!
+            {
+                float x, y, z;
+                me->GetPosition(x, y, z);
+                z = me->GetMap()->GetHeight(x, y, z, false);
+                me->GetMotionMaster()->MovePoint(1, x, y, z);
+                me->GetMap()->CreatureRelocation(me, x, y, z, 0);
             }
 
             void UpdateAI(const uint32 diff)
@@ -152,7 +179,7 @@ class boss_ragnaros_outdoor : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             AttackStart(target);
                         //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
                         _isBanished = false;
@@ -169,6 +196,9 @@ class boss_ragnaros_outdoor : public CreatureScript
                         return;
 
                     events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STAT_CASTING))
+                        return;
 
                     while (uint32 eventId = events.ExecuteEvent())
                     {
@@ -232,35 +262,30 @@ class boss_ragnaros_outdoor : public CreatureScript
                                     if (!_hasSubmergedOnce)
                                     {
                                         DoScriptText(SAY_REINFORCEMENTS1, me);
-
-                                        // summon 8 elementals
-                                        for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
-                                                    pSummoned->AI()->AttackStart(pTarget);
-
                                         _hasSubmergedOnce = true;
-                                        _isBanished = true;
-                                        //DoCast(me, SPELL_RAGSUBMERGE);
-                                        _emergeTimer = 90000;
                                     }
                                     else
-                                    {
                                         DoScriptText(SAY_REINFORCEMENTS2, me);
 
-                                        for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
-                                                    pSummoned->AI()->AttackStart(pTarget);
+                                    _isBanished = true;
+                                    //DoCast(me, SPELL_RAGSUBMERGE);
+                                    _emergeTimer = 20000;
 
-                                        _isBanished = true;
-                                        //DoCast(me, SPELL_RAGSUBMERGE);
-                                        _emergeTimer = 15000;
-                                    }
+                                    for (uint8 i=0; i<16; ++i)
+                                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                            if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
+                                                pSummoned->AI()->AttackStart(pTarget);
                                 }
                                 events.ScheduleEvent(EVENT_SUBMERGE, 45000);
                                 break;
                             }
+                            case EVENT_ENRAGE:
+                                DoCast(SPELL_ENRAGE);
+                                break;
+                            case EVENT_TOGROUND:
+                                ToGround();
+                                events.RescheduleEvent(EVENT_TOGROUND, 1000);
+                                break;
                             default:
                                 break;
                         }
