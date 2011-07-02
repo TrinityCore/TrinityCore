@@ -7,8 +7,6 @@ INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, positio
 INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, unit_flags, dynamicflags) VALUES
 (0, 16817, 0, 1, 1, 0, 0, -8831.18, 859.479, 98.9684, 5.92762, 300, 0, 0, 3052, 0, 0, 0, 0, 0);
 
-INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, unit_flags, dynamicflags) VALUES
-(0, 16817, 0, 1, 1, 0, 0, -8831.18, 859.479, 98.9684, 5.92762, 300, 0, 0, 3052, 0, 0, 0, 0, 0);
 
 INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, unit_flags, dynamicflags) VALUES
 (0, 15402, 530, 1, 1, 0, 463, 8719.32, -7174.39, 45.7225, 1.49643, 300, 0, 0, 328, 350, 0, 0, 0, 0);
