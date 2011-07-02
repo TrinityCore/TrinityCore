@@ -776,7 +776,7 @@ public:
                         target_list.push_back(pTarget);
                     pTarget = NULL;
                 }
-                if (target_list.size())
+                if (!target_list.empty())
                     pTarget = *(target_list.begin()+rand()%target_list.size());
 
                 me->InterruptNonMeleeSpells(false);

@@ -525,9 +525,26 @@ class boss_prince_keleseth_icc : public CreatureScript
                 }
             }
 
+            bool CheckRoom()
+            {
+                if (!CheckBoundary(me))
+                {
+                    EnterEvadeMode();
+                    if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_TALDARAM_GUID)))
+                        taldaram->AI()->EnterEvadeMode();
+
+                    if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
+                        valanar->AI()->EnterEvadeMode();
+
+                    return false;
+                }
+
+                return true;
+            }
+
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim() || !CheckRoom())
                     return;
 
                 events.Update(diff);
@@ -723,9 +740,26 @@ class boss_prince_taldaram_icc : public CreatureScript
                 }
             }
 
+            bool CheckRoom()
+            {
+                if (!CheckBoundary(me))
+                {
+                    EnterEvadeMode();
+                    if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_KELESETH_GUID)))
+                        keleseth->AI()->EnterEvadeMode();
+
+                    if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
+                        valanar->AI()->EnterEvadeMode();
+
+                    return false;
+                }
+
+                return true;
+            }
+
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim() || !CheckRoom())
                     return;
 
                 events.Update(diff);
@@ -940,9 +974,26 @@ class boss_prince_valanar_icc : public CreatureScript
                 }
             }
 
+            bool CheckRoom()
+            {
+                if (!CheckBoundary(me))
+                {
+                    EnterEvadeMode();
+                    if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_KELESETH_GUID)))
+                        keleseth->AI()->EnterEvadeMode();
+
+                    if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_TALDARAM_GUID)))
+                        taldaram->AI()->EnterEvadeMode();
+
+                    return false;
+                }
+
+                return true;
+            }
+
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim() || !CheckRoom())
                     return;
 
                 events.Update(diff);

@@ -247,7 +247,7 @@ class boss_janalai : public CreatureScript
                 }
 
                 //sLog->outError("Eggs %d at middle", templist.size());
-                if (!templist.size())
+                if (templist.empty())
                     return false;
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
