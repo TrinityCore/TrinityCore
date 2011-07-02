@@ -249,9 +249,9 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-        void SaySound(int32 textEntry, Unit* pTarget = 0)
+        void SaySound(int32 textEntry, Unit* target = 0)
         {
-            DoScriptText(textEntry, me, pTarget);
+            DoScriptText(textEntry, me, target);
             //DoCast(me, SPELL_HEAD_SPEAKS, true);
             Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
             if (speaker)
@@ -502,9 +502,9 @@ public:
             }
         }
 
-        void SaySound(int32 textEntry, Unit* pTarget = 0)
+        void SaySound(int32 textEntry, Unit* target = 0)
         {
-            DoScriptText(textEntry, me, pTarget);
+            DoScriptText(textEntry, me, target);
             laugh += 4000;
         }
 

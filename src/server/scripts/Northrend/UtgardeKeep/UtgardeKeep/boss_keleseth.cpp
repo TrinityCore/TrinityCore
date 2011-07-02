@@ -205,9 +205,9 @@ public:
 
             if (ShadowboltTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
-                if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                    me->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
+                Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
+                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    me->CastSpell(target, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
                 ShadowboltTimer = 10000;
             } else ShadowboltTimer -= diff;
 
@@ -234,14 +234,14 @@ public:
 
             if (FrostTombTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (pTarget->isAlive())
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (target->isAlive())
                     {
-                        //DoCast(pTarget, SPELL_FROST_TOMB_SUMMON, true);
-                        if (Creature* pChains = me->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                        //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
+                        if (Creature* pChains = me->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
                         {
-                            CAST_AI(mob_frost_tomb::mob_frost_tombAI, pChains->AI())->SetPrisoner(pTarget);
-                            pChains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
+                            CAST_AI(mob_frost_tomb::mob_frost_tombAI, pChains->AI())->SetPrisoner(target);
+                            pChains->CastSpell(target, SPELL_FROST_TOMB, true);
 
                             DoScriptText(SAY_FROST_TOMB, me);
                         }

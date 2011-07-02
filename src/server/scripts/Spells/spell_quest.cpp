@@ -221,9 +221,9 @@ public:
         PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript)
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = GetTarget();
-            pTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            pTarget->AddUnitState(UNIT_STAT_ROOT);
+            Unit* target = GetTarget();
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            target->AddUnitState(UNIT_STAT_ROOT);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -265,11 +265,11 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetTargetUnit())
-                if (pTarget->GetTypeId() == TYPEID_UNIT && pTarget->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
+            if (Unit* target = GetTargetUnit())
+                if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                     // Make sure nobody else is channeling the same target
-                    if (!pTarget->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                        GetCaster()->CastSpell(pTarget, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
+                    if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
+                        GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
         }
 
         void Register()
@@ -302,9 +302,9 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetTargetUnit())
-                if (pTarget->GetTypeId() == TYPEID_UNIT)
-                    pTarget->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
+            if (Unit* target = GetTargetUnit())
+                if (target->GetTypeId() == TYPEID_UNIT)
+                    target->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
         }
 
         void Register()
@@ -443,12 +443,12 @@ public:
             if (pCaster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Creature* pTarget = GetHitCreature();
-            if (!pTarget)
+            Creature* target = GetHitCreature();
+            if (!target)
                 return;
 
             uint32 spellId = 0;
-            switch (pTarget->GetEntry())
+            switch (target->GetEntry())
             {
                 case NPC_SCAVENGEBOT_004A8: spellId = SPELL_SUMMON_SCAVENGEBOT_004A8;    break;
                 case NPC_SENTRYBOT_57K:     spellId = SPELL_SUMMON_SENTRYBOT_57K;        break;
@@ -460,7 +460,7 @@ public:
             }
             pCaster->CastSpell(pCaster, spellId, true, castItem);
             pCaster->CastSpell(pCaster, SPELL_ROBOT_KILL_CREDIT, true);
-            pTarget->DespawnOrUnsummon();
+            target->DespawnOrUnsummon();
         }
 
         void Register()
@@ -706,11 +706,11 @@ public:
             Unit* pCaster = GetCaster();
             if (Player* player = pCaster->ToPlayer())
             {
-                if(Creature* pTarget = GetHitCreature())
+                if(Creature* target = GetHitCreature())
                 {
                     player->CastSpell(player, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
                     player->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
-                    pTarget->DespawnOrUnsummon();
+                    target->DespawnOrUnsummon();
                 }
             }
         }

@@ -113,10 +113,10 @@ public:
                     events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10000);
                     break;
                 case EVENT_IMPENDING_DESPAIR:
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     {
                         DoScriptText(SAY_IMPENDING_DESPAIR, me);
-                        DoCast(pTarget, SPELL_IMPENDING_DESPAIR);
+                        DoCast(target, SPELL_IMPENDING_DESPAIR);
                     }
                     events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
                     break;

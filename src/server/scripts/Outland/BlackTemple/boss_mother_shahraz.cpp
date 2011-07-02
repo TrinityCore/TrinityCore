@@ -190,8 +190,8 @@ public:
             //Randomly cast one beam.
             if (BeamTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (!pTarget || !pTarget->isAlive())
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (!target || !target->isAlive())
                     return;
 
                 BeamTimer = 9000;
@@ -199,16 +199,16 @@ public:
                 switch(CurrentBeam)
                 {
                     case 0:
-                        DoCast(pTarget, SPELL_BEAM_SINISTER);
+                        DoCast(target, SPELL_BEAM_SINISTER);
                         break;
                     case 1:
-                        DoCast(pTarget, SPELL_BEAM_VILE);
+                        DoCast(target, SPELL_BEAM_VILE);
                         break;
                     case 2:
-                        DoCast(pTarget, SPELL_BEAM_WICKED);
+                        DoCast(target, SPELL_BEAM_WICKED);
                         break;
                     case 3:
-                        DoCast(pTarget, SPELL_BEAM_SINFUL);
+                        DoCast(target, SPELL_BEAM_SINFUL);
                         break;
                 }
                 ++BeamCount;

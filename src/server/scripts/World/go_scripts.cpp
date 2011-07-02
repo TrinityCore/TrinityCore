@@ -1130,11 +1130,11 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
         {
             player->CLOSE_GOSSIP_MENU();
-            Creature* pTarget = GetClosestCreatureWithEntry(player, NPC_OUTHOUSE_BUNNY, 3.0f);
-            if (pTarget)
+            Creature* target = GetClosestCreatureWithEntry(player, NPC_OUTHOUSE_BUNNY, 3.0f);
+            if (target)
             {
-                pTarget->AI()->SetData(1, player->getGender());
-                pGO->CastSpell(pTarget, SPELL_INDISPOSED_III);
+                target->AI()->SetData(1, player->getGender());
+                pGO->CastSpell(target, SPELL_INDISPOSED_III);
             }
             pGO->CastSpell(player, SPELL_INDISPOSED);
             if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER, 1))

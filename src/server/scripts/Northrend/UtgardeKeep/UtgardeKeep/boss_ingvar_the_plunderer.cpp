@@ -242,10 +242,10 @@ public:
                     if (!me->HasUnitState(UNIT_STAT_CASTING))
                     {
                         // Spawn target for Axe
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
-                        if (pTarget)
+                        Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        if (target)
                         {
-                            me->SummonCreature(ENTRY_THROW_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
+                            me->SummonCreature(ENTRY_THROW_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
 
                             DoCast(me, SPELL_SHADOW_AXE_SUMMON);
                         }
@@ -417,12 +417,12 @@ public:
 
         void Reset()
         {
-            Unit* pTarget = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
-            if (pTarget)
+            Unit* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
+            if (target)
             {
                 DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
                 float x, y, z;
-                pTarget->GetPosition(x, y, z);
+                target->GetPosition(x, y, z);
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
             }
             uiDespawnTimer = 7000;

@@ -216,11 +216,11 @@ public:
                 summoned->SetDisplayId(soulmodel);
                 summoned->setFaction(me->getFaction());
 
-                if (Unit* pTarget = Unit::GetUnit(*me, soulholder))
+                if (Unit* target = Unit::GetUnit(*me, soulholder))
                 {
 
                 CAST_AI(mob_stolen_soul::mob_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
-                 summoned->AI()->AttackStart(pTarget);
+                 summoned->AI()->AttackStart(target);
                 }
             }
         }
@@ -259,9 +259,9 @@ public:
 
             if (StolenSoul_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (target->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (me->IsNonMeleeSpellCasted(false))
                             me->InterruptNonMeleeSpells(true);
@@ -272,11 +272,11 @@ public:
                         else
                             DoScriptText(SAY_SOUL_CLEAVE, me);
 
-                        soulmodel = pTarget->GetDisplayId();
-                        soulholder = pTarget->GetGUID();
-                        soulclass = pTarget->getClass();
+                        soulmodel = target->GetDisplayId();
+                        soulholder = target->GetGUID();
+                        soulclass = target->getClass();
 
-                        DoCast(pTarget, SPELL_STOLEN_SOUL);
+                        DoCast(target, SPELL_STOLEN_SOUL);
                         me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
                         StolenSoul_Timer = 20000 + rand()% 10000;
@@ -286,8 +286,8 @@ public:
 
             if (Ribbon_of_Souls_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_RIBBON_OF_SOULS);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
             } else Ribbon_of_Souls_timer -= diff;

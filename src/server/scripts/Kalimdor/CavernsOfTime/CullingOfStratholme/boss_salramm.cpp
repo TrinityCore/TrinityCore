@@ -117,8 +117,8 @@ public:
             //Shadow bolt timer
             if (uiShadowBoltTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHADOW_BOLT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHADOW_BOLT);
                 uiShadowBoltTimer = urand(8000, 12000);
             } else uiShadowBoltTimer -= diff;
 

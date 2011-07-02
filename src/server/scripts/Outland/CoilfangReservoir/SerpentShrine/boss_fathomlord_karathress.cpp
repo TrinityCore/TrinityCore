@@ -225,11 +225,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                     GetAdvisors();
                 }
             }
@@ -249,14 +249,14 @@ public:
             if (CataclysmicBolt_Timer <= diff)
             {
                 //select a random unit other than the main tank
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                 //if there aren't other units, cast on the tank
-                if (!pTarget)
-                    pTarget = me->getVictim();
+                if (!target)
+                    target = me->getVictim();
 
-                if (pTarget)
-                    DoCast(pTarget, SPELL_CATACLYSMIC_BOLT);
+                if (target)
+                    DoCast(target, SPELL_CATACLYSMIC_BOLT);
                 CataclysmicBolt_Timer = 10000;
             } else CataclysmicBolt_Timer -= diff;
 
@@ -381,11 +381,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -444,10 +444,10 @@ public:
                 }
                 //DoCast(me, spell_id, true);
                 Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (Pet && pTarget)
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (Pet && target)
                 {
-                    Pet->AI()->AttackStart(pTarget);
+                    Pet->AI()->AttackStart(target);
                     SummonedPet = Pet->GetGUID();
                 }
             } else Pet_Timer -= diff;
@@ -522,11 +522,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -648,11 +648,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -695,10 +695,10 @@ public:
                     Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Cyclone->setFaction(me->getFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget)
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
                     {
-                        Cyclone->AI()->AttackStart(pTarget);
+                        Cyclone->AI()->AttackStart(target);
                     }
                 }
             } else Cyclone_Timer -= diff;

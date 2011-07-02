@@ -104,8 +104,8 @@ public:
 
             if (uiCurseOfExertionTimer < diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CURSE_OF_EXERTION);
                 uiCurseOfExertionTimer = 9300;
             } else uiCurseOfExertionTimer -= diff;
 

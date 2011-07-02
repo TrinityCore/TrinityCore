@@ -142,10 +142,10 @@ public:
             }
         }
 
-        Creature* DoSummonImpaleTarget(Unit* pTarget)
+        Creature* DoSummonImpaleTarget(Unit* target)
         {
             Position targetPos;
-            pTarget->GetPosition(&targetPos);
+            target->GetPosition(&targetPos);
 
             if (TempSummon* pImpaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
             {

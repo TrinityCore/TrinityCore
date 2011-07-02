@@ -426,10 +426,10 @@ class boss_magtheridon : public CreatureScript
 
                 if (Blaze_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         float x, y, z;
-                        pTarget->GetPosition(x, y, z);
+                        target->GetPosition(x, y, z);
                         Creature* summon = me->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (summon)
                         {
@@ -460,10 +460,10 @@ class boss_magtheridon : public CreatureScript
                 {
                     if (Debris_Timer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             float x, y, z;
-                            pTarget->GetPosition(x, y, z);
+                            target->GetPosition(x, y, z);
                             Creature* summon = me->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                             if (summon)
                                 CAST_AI(mob_abyssal::mob_abyssalAI, summon->AI())->SetTrigger(1);
@@ -577,8 +577,8 @@ class mob_hellfire_channeler : public CreatureScript
 
                 if (Fear_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(pTarget, SPELL_FEAR);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        DoCast(target, SPELL_FEAR);
                     Fear_Timer = 25000 + rand()%15000;
                 }
                 else
@@ -586,8 +586,8 @@ class mob_hellfire_channeler : public CreatureScript
 
                 if (Infernal_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_BURNING_ABYSSAL, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_BURNING_ABYSSAL, true);
                     Infernal_Timer = 30000 + rand()%10000;
                 }
                 else

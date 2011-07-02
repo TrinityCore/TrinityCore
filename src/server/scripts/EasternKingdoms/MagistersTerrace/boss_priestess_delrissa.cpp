@@ -256,72 +256,72 @@ public:
             if (HealTimer <= diff)
             {
                 uint32 health = me->GetHealth();
-                Unit* pTarget = me;
+                Unit* target = me;
                 for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 {
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[i]))
                     {
                         if (pAdd->isAlive() && pAdd->GetHealth() < health)
-                            pTarget = pAdd;
+                            target = pAdd;
                     }
                 }
 
-                DoCast(pTarget, SPELL_FLASH_HEAL);
+                DoCast(target, SPELL_FLASH_HEAL);
                 HealTimer = 15000;
             } else HealTimer -= diff;
 
             if (RenewTimer <= diff)
             {
-                Unit* pTarget = me;
+                Unit* target = me;
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                         if (pAdd->isAlive())
-                            pTarget = pAdd;
+                            target = pAdd;
 
-                DoCast(pTarget, SPELL_RENEW_NORMAL);
+                DoCast(target, SPELL_RENEW_NORMAL);
                 RenewTimer = 5000;
             } else RenewTimer -= diff;
 
             if (ShieldTimer <= diff)
             {
-                Unit* pTarget = me;
+                Unit* target = me;
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                         if (pAdd->isAlive() && !pAdd->HasAura(SPELL_SHIELD))
-                            pTarget = pAdd;
+                            target = pAdd;
 
-                DoCast(pTarget, SPELL_SHIELD);
+                DoCast(target, SPELL_SHIELD);
                 ShieldTimer = 7500;
             } else ShieldTimer -= diff;
 
             if (DispelTimer <= diff)
             {
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
 
                 if (urand(0, 1))
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 else
                 {
                     if (urand(0, 1))
-                        pTarget = me;
+                        target = me;
                     else
                         if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                             if (pAdd->isAlive())
-                                pTarget = pAdd;
+                                target = pAdd;
                 }
 
-                if (pTarget)
-                    DoCast(pTarget, SPELL_DISPEL_MAGIC);
+                if (target)
+                    DoCast(target, SPELL_DISPEL_MAGIC);
 
                 DispelTimer = 12000;
             } else DispelTimer -= diff;
 
             if (SWPainTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_SW_PAIN_NORMAL);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_SW_PAIN_NORMAL);
 
                 SWPainTimer = 10000;
             } else SWPainTimer -= diff;
@@ -791,9 +791,9 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_POLYMORPH);
+                    DoCast(target, SPELL_POLYMORPH);
                     Polymorph_Timer = 20000;
                 }
             } else Polymorph_Timer -= diff;
@@ -836,10 +836,10 @@ public:
                 std::list<HostileReference*>& t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         //if in melee range
-                        if (pTarget->IsWithinDistInMap(me, 5))
+                        if (target->IsWithinDistInMap(me, 5))
                         {
                             InMeleeRange = true;
                             break;
@@ -923,10 +923,10 @@ public:
                 std::list<HostileReference*>& t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         //if in melee range
-                        if (pTarget->IsWithinDistInMap(me, ATTACK_DISTANCE))
+                        if (target->IsWithinDistInMap(me, ATTACK_DISTANCE))
                         {
                             InMeleeRange = true;
                             break;

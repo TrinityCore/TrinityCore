@@ -844,9 +844,9 @@ public:
 
                 if (uiImpaleTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_IMPALE);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                        DoCast(target, SPELL_IMPALE);
                     uiImpaleTimer = 4000;
                 } else uiImpaleTimer -= diff;
             }
@@ -922,9 +922,9 @@ public:
 
                     if (uiArcainBarrageTimer <= diff)
                 {
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                            DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_BARRAGE, H_SPELL_ARCANE_BARRAGE));
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                            DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BARRAGE, H_SPELL_ARCANE_BARRAGE));
                     uiArcainBarrageTimer = 6000;
                 } else uiArcainBarrageTimer -= diff;
             }
@@ -939,9 +939,9 @@ public:
 
                 if (uiFrostboltTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_FROSTBOLT, H_SPELL_FROSTBOLT));
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                        DoCast(target, DUNGEON_MODE(SPELL_FROSTBOLT, H_SPELL_FROSTBOLT));
                     uiFrostboltTimer = 6000;
                 } else uiFrostboltTimer -= diff;
             }
@@ -999,9 +999,9 @@ public:
             {
                 if (uiSpellLockTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_SPELL_LOCK);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                        DoCast(target, SPELL_SPELL_LOCK);
                     uiSpellLockTimer = 9000;
                 } else uiSpellLockTimer -= diff;
             }
@@ -1103,9 +1103,9 @@ public:
             {
                 if (uiTacticalBlinkTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_TACTICAL_BLINK);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true);
+                    if (target)
+                        DoCast(target, SPELL_TACTICAL_BLINK);
                         uiTacticalBlinkTimer = 6000;
                     TacticalBlinkCasted = true;
                 } else uiTacticalBlinkTimer -= diff;
@@ -1115,8 +1115,8 @@ public:
             {
                 if (uiBackstabTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0, 10, true);
-                    DoCast(pTarget, SPELL_BACKSTAB);
+                    Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 10, true);
+                    DoCast(target, SPELL_BACKSTAB);
                     TacticalBlinkCasted = false;
                     uiBackstabTimer =1300;
                 } else uiBackstabTimer -= diff;
@@ -1165,17 +1165,17 @@ public:
             {
                 if (uiArcaneBlastTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                        DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
                     uiArcaneBlastTimer = 6000;
                 } else uiArcaneBlastTimer -= diff;
 
                 if (uiSlowTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                        if (pTarget)
-                        DoCast(pTarget, SPELL_SLOW);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                        if (target)
+                        DoCast(target, SPELL_SLOW);
                     uiSlowTimer = 5000;
                 } else uiSlowTimer -= diff;
             }
@@ -1184,9 +1184,9 @@ public:
             {
                 if (uiChainsOfIceTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_CHAINS_OF_ICE);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                        DoCast(target, SPELL_CHAINS_OF_ICE);
                     uiChainsOfIceTimer = 7000;
                 } else uiChainsOfIceTimer -= diff;
 
@@ -1297,9 +1297,9 @@ public:
 
             if (uiArcaneStreamTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (pTarget)
-                    DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_STREAM, H_SPELL_ARCANE_STREAM));
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (target)
+                    DoCast(target, DUNGEON_MODE(SPELL_ARCANE_STREAM, H_SPELL_ARCANE_STREAM));
                 uiArcaneStreamTimer = urand(0, 5000)+5000;
                 uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
             } else uiArcaneStreamTimer -= diff;

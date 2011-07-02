@@ -309,19 +309,19 @@ public:
             if (uiCast)
                 return;
             uiCast = true;
-            Creature* pTarget = NULL;
+            Creature* target = NULL;
 
             switch(me->GetEntry())
             {
                 case NPC_PRIESTESS_ALORAH:
-                    pTarget = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
+                    target = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
                     break;
                 case NPC_PRIEST_GRIMMIN:
-                    pTarget = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
+                    target = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
                     break;
             }
-            if (pTarget)
-                DoCast(pTarget, SPELL_CHAIN);
+            if (target)
+                DoCast(target, SPELL_CHAIN);
 
             if (!UpdateVictim())
                 return;

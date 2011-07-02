@@ -302,7 +302,7 @@ public:
                     if (PhoenixTimer <= diff)
                     {
 
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                         uint8 random = urand(1, 2);
                         float x = KaelLocations[random][0];
@@ -313,7 +313,7 @@ public:
                         {
                             Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
                             SetThreatList(Phoenix);
-                            Phoenix->AI()->AttackStart(pTarget);
+                            Phoenix->AI()->AttackStart(target);
                         }
 
                         DoScriptText(SAY_PHOENIX, me);
@@ -323,11 +323,11 @@ public:
 
                     if (FlameStrikeTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                            DoCast(pTarget, SPELL_FLAMESTRIKE3, true);
+                            DoCast(target, SPELL_FLAMESTRIKE3, true);
                             DoScriptText(SAY_FLAMESTRIKE, me);
                         }
                         FlameStrikeTimer = urand(15000, 25000);
@@ -395,15 +395,15 @@ public:
 
                                 for (uint8 i = 0; i < 3; ++i)
                                 {
-                                    Unit* pTarget = NULL;
-                                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                    Unit* target = NULL;
+                                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                                     Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                                    if (Orb && pTarget)
+                                    if (Orb && target)
                                     {
                                         Orb->SetSpeed(MOVE_RUN, 0.5f);
-                                        Orb->AddThreat(pTarget, 1000000.0f);
-                                        Orb->AI()->AttackStart(pTarget);
+                                        Orb->AddThreat(target, 1000000.0f);
+                                        Orb->AI()->AttackStart(target);
                                     }
 
                                 }
@@ -671,11 +671,11 @@ public:
 
             if (ChangeTargetTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    me->AddThreat(pTarget, 1.0f);
-                    me->TauntApply(pTarget);
-                    AttackStart(pTarget);
+                    me->AddThreat(target, 1.0f);
+                    me->TauntApply(target);
+                    AttackStart(target);
                 }
 
                 ChangeTargetTimer = urand(5000, 15000);

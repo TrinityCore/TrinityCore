@@ -276,20 +276,20 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
     {
         if (ChargeTimer <= diff)
         {
-            Unit* pTarget = NULL;
+            Unit* target = NULL;
             std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
             std::vector<Unit* > target_list;
             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                if (pTarget && !pTarget->IsWithinDist(me, ATTACK_DISTANCE, false))
-                    target_list.push_back(pTarget);
-                pTarget = NULL;
+                target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))
+                    target_list.push_back(target);
+                target = NULL;
             }
             if (!target_list.empty())
-                pTarget = *(target_list.begin()+rand()%target_list.size());
+                target = *(target_list.begin()+rand()%target_list.size());
 
-            DoCast(pTarget, SPELL_BERSERKER_CHARGE);
+            DoCast(target, SPELL_BERSERKER_CHARGE);
             ChargeTimer = 20000;
         } else ChargeTimer -= diff;
     }

@@ -223,11 +223,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                     GetCouncil();
                 }
             }
@@ -280,12 +280,12 @@ public:
                 //Charging_Timer
                 if (Charging_Timer <= diff)
                 {
-                    Unit* pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget)
+                    Unit* target = NULL;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
                     {
-                        AttackStart(pTarget);
-                        DoCast(pTarget, SPELL_BERSERKER_C);
+                        AttackStart(target);
+                        DoCast(target, SPELL_BERSERKER_C);
                     }
                     Charging_Timer = 20000;
                 } else Charging_Timer -= diff;
@@ -383,11 +383,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -419,10 +419,10 @@ public:
             //DeathCoil Timer /need correct timer
             if (DeathCoil_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
-                    DoCast(pTarget, SPELL_DEATH_COIL);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target)
+                    DoCast(target, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
             } else DeathCoil_Timer -= diff;
 
@@ -498,11 +498,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -520,9 +520,9 @@ public:
             //GreaterPolymorph_Timer
             if (GreaterPolymorph_Timer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
-                    DoCast(pTarget, SPELL_GREATER_POLYMORPH);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target)
+                    DoCast(target, SPELL_GREATER_POLYMORPH);
 
                 GreaterPolymorph_Timer = 15000 + rand()%5000;
             } else GreaterPolymorph_Timer -= diff;
@@ -618,11 +618,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -728,11 +728,11 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && pInstance && pInstance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_MAULGAREVENT_TANK));
 
-                if (pTarget)
+                if (target)
                 {
-                    AttackStart(pTarget);
+                    AttackStart(target);
                 }
             }
 
@@ -765,22 +765,22 @@ public:
             //BlastWave_Timer
             if (BlastWave_Timer <= diff)
             {
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
                 std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                 std::vector<Unit* > target_list;
                 for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //15 yard radius minimum
-                    if (pTarget && pTarget->IsWithinDist(me, 15, false))
-                        target_list.push_back(pTarget);
-                    pTarget = NULL;
+                    if (target && target->IsWithinDist(me, 15, false))
+                        target_list.push_back(target);
+                    target = NULL;
                 }
                 if (!target_list.empty())
-                    pTarget = *(target_list.begin()+rand()%target_list.size());
+                    target = *(target_list.begin()+rand()%target_list.size());
 
                 me->InterruptNonMeleeSpells(false);
-                DoCast(pTarget, SPELL_BLAST_WAVE);
+                DoCast(target, SPELL_BLAST_WAVE);
                 BlastWave_Timer = 60000;
             } else BlastWave_Timer -= diff;
         }

@@ -259,10 +259,10 @@ public:
                     me->setFaction(FACTION_HOSTILE);
                     questPhase = 0;
 
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        me->AddThreat(pTarget, 5000000.0f);
-                        AttackStart(pTarget);
+                        me->AddThreat(target, 5000000.0f);
+                        AttackStart(target);
                     }
                 }
                 else

@@ -118,11 +118,11 @@ public:
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
-                            Unit* pTarget = (*i)->getTarget();
-                            if (pTarget->isAlive() && pTarget != me->getVictim() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
+                            Unit* target = (*i)->getTarget();
+                            if (target->isAlive() && target != me->getVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
                             {
-                                MostHP = pTarget->GetHealth();
-                                pMostHPTarget = pTarget;
+                                MostHP = target->GetHealth();
+                                pMostHPTarget = target;
                             }
                         }
 

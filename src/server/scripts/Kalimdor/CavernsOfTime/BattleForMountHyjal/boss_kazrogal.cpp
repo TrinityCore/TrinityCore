@@ -116,9 +116,9 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
-                if (pTarget && pTarget->isAlive())
-                    me->AddThreat(pTarget, 0.0f);
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                if (target && target->isAlive())
+                    me->AddThreat(target, 0.0f);
             }
         }
 
@@ -181,10 +181,10 @@ public:
                 std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->getPowerType() == POWER_MANA)
+                    Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)
                     {
-                        pTarget->CastSpell(pTarget, SPELL_MARK, true);//only cast on mana users
+                        target->CastSpell(target, SPELL_MARK, true);//only cast on mana users
                     }
                 }
                 MarkTimerBase -= 5000;

@@ -89,9 +89,9 @@ public:
             //ShadowShock_Timer
             if (ShadowShock_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget) DoCast(pTarget, SPELL_SHADOWSHOCK);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target) DoCast(target, SPELL_SHADOWSHOCK);
 
                 ShadowShock_Timer = 12000;
             } else ShadowShock_Timer -= diff;

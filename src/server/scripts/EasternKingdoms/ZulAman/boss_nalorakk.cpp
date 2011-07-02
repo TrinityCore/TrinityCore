@@ -155,7 +155,7 @@ class boss_nalorakk : public CreatureScript
                 // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  // TODO: find the correct equipment id
             }
 
-            void SendAttacker(Unit* pTarget)
+            void SendAttacker(Unit* target)
             {
                 std::list<Creature*> templist;
                 float x, y, z;
@@ -183,7 +183,7 @@ class boss_nalorakk : public CreatureScript
                     if ((*i) && me->IsWithinDistInMap((*i), 25))
                     {
                         (*i)->SetNoCallAssistance(true);
-                        (*i)->AI()->AttackStart(pTarget);
+                        (*i)->AI()->AttackStart(target);
                     }
                 }
             }
@@ -414,9 +414,9 @@ class boss_nalorakk : public CreatureScript
                     {
                         me->MonsterYell(YELL_SURGE, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_YELL_SURGE);
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_SURGE);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
+                        if (target)
+                            DoCast(target, SPELL_SURGE);
                         Surge_Timer = 15000 + rand()%5000;
                     } else Surge_Timer -= diff;
                 }

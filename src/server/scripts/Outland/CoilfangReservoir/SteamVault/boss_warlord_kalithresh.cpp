@@ -191,8 +191,8 @@ public:
             //Impale_Timer
             if (Impale_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_IMPALE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_IMPALE);
 
                 Impale_Timer = 7500+rand()%5000;
             } else Impale_Timer -= diff;

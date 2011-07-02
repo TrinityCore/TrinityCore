@@ -132,14 +132,14 @@ public:
             CheckPlayersFrostResist();
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
-                IceBlockMap::iterator itr = iceblocks.find(pTarget->GetGUID());
+                IceBlockMap::iterator itr = iceblocks.find(target->GetGUID());
                 if (itr != iceblocks.end() && !itr->second)
                 {
-                    if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                    if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                         itr->second = iceblock->GetGUID();
                 }
             }
@@ -360,14 +360,14 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (; i != me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pTarget = (*i)->getTarget();
-                if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                Unit* target = (*i)->getTarget();
+                if (target->GetTypeId() != TYPEID_PLAYER)
                     continue;
 
-                if (pTarget->HasAura(SPELL_ICEBOLT))
+                if (target->HasAura(SPELL_ICEBOLT))
                 {
-                    pTarget->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
-                    targets.push_back(pTarget);
+                    target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                    targets.push_back(target);
                     continue;
                 }
 
@@ -375,11 +375,11 @@ public:
                 {
                     if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, pTarget, 2.0f)
-                            && me->GetExactDist2d(pTarget->GetPositionX(), pTarget->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
+                        if (pGo->IsInBetween(me, target, 2.0f)
+                            && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                         {
-                            pTarget->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
-                            targets.push_back(pTarget);
+                            target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                            targets.push_back(target);
                             break;
                         }
                     }

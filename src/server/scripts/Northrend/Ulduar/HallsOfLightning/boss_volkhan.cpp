@@ -217,8 +217,8 @@ public:
             {
                 m_lGolemGUIDList.push_back(pSummoned->GetGUID());
 
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    pSummoned->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    pSummoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
                 pSummoned->CastSpell(pSummoned, DUNGEON_MODE(SPELL_HEAT_N, SPELL_HEAT_H), false, NULL, NULL, me->GetGUID());
@@ -320,11 +320,11 @@ public:
 
                 case 3:
                     // 3 - Cast Temper on the Anvil
-                    if (Unit* pTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
+                    if (Unit* target = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
                     {
                         me->SetOrientation(2.29f);
-                        DoCast(pTarget, SPELL_TEMPER, false);
-                        DoCast(pTarget, SPELL_TEMPER_DUMMY, false);
+                        DoCast(target, SPELL_TEMPER, false);
+                        DoCast(target, SPELL_TEMPER_DUMMY, false);
                     }
                     m_uiDelay_Timer = 1000;     // Delay 2 seconds before next phase can begin
                     m_uiSummonPhase = 4;        // Set Next Phase
@@ -334,11 +334,11 @@ public:
                     // 4 - Wait for delay to expire
                     if (m_uiDelay_Timer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
-                            me->SetInCombatWith(pTarget);
-                            me->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
+                            me->SetInCombatWith(target);
+                            me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
                         }
                         m_uiSummonPhase = 5;
                     }

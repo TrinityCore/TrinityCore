@@ -241,9 +241,9 @@ public:
         void SpawnEyeTentacle(float x, float y)
         {
             if (Creature* Spawned = DoSpawnCreature(MOB_EYE_TENTACLE, x, y, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 500))
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (Spawned->AI())
-                        Spawned->AI()->AttackStart(pTarget);
+                        Spawned->AI()->AttackStart(target);
         }
 
         void UpdateAI(const uint32 diff)
@@ -284,13 +284,13 @@ public:
                     if (BeamTimer <= diff)
                     {
                         //SPELL_GREEN_BEAM
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             me->InterruptNonMeleeSpells(false);
-                            DoCast(pTarget, SPELL_GREEN_BEAM);
+                            DoCast(target, SPELL_GREEN_BEAM);
 
                             //Correctly update our target
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, pTarget->GetGUID());
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, target->GetGUID());
                         }
 
                         //Beam every 3 seconds
@@ -300,15 +300,15 @@ public:
                     //ClawTentacleTimer
                     if (ClawTentacleTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             Creature* Spawned = NULL;
 
                             //Spawn claw tentacle on the random target
-                            Spawned = me->SummonCreature(MOB_CLAW_TENTACLE, *pTarget, TEMPSUMMON_CORPSE_DESPAWN, 500);
+                            Spawned = me->SummonCreature(MOB_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500);
 
                             if (Spawned && Spawned->AI())
-                                Spawned->AI()->AttackStart(pTarget);
+                                Spawned->AI()->AttackStart(target);
                         }
 
                         //One claw tentacle every 12.5 seconds
@@ -328,10 +328,10 @@ public:
                         me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
 
                         //Select random target for dark beam to start on
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             //Face our target
-                            DarkGlareAngle = me->GetAngle(pTarget);
+                            DarkGlareAngle = me->GetAngle(target);
                             DarkGlareTickTimer = 1000;
                             DarkGlareTick = 0;
                             ClockWise = RAND(true, false);
@@ -558,8 +558,8 @@ public:
             Creature* Spawned;
             Spawned = DoSpawnCreature(MOB_EYE_TENTACLE, x, y, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 500);
             if (Spawned && Spawned->AI())
-                if (Unit* pTarget = SelectRandomNotStomach())
-                    Spawned->AI()->AttackStart(pTarget);
+                if (Unit* target = SelectRandomNotStomach())
+                    Spawned->AI()->AttackStart(target);
         }
 
         Unit* SelectRandomNotStomach()
@@ -787,13 +787,13 @@ public:
                     //Stomach Enter Timer
                     if (StomachEnterTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectRandomNotStomach())
+                        if (Unit* target = SelectRandomNotStomach())
                         {
                             //Set target in stomach
-                            Stomach_Map[pTarget->GetGUID()] = true;
-                            pTarget->InterruptNonMeleeSpells(false);
-                            pTarget->CastSpell(pTarget, SPELL_MOUTH_TENTACLE, true, NULL, NULL, me->GetGUID());
-                            StomachEnterTarget = pTarget->GetGUID();
+                            Stomach_Map[target->GetGUID()] = true;
+                            target->InterruptNonMeleeSpells(false);
+                            target->CastSpell(target, SPELL_MOUTH_TENTACLE, true, NULL, NULL, me->GetGUID());
+                            StomachEnterTarget = target->GetGUID();
                             StomachEnterVisTimer = 3800;
                         }
 
@@ -820,12 +820,12 @@ public:
                     //GientClawTentacleTimer
                     if (GiantClawTentacleTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectRandomNotStomach())
+                        if (Unit* target = SelectRandomNotStomach())
                         {
                             //Spawn claw tentacle on the random target
-                            if (Creature* spawned = me->SummonCreature(MOB_GIANT_CLAW_TENTACLE, *pTarget, TEMPSUMMON_CORPSE_DESPAWN, 500))
+                            if (Creature* spawned = me->SummonCreature(MOB_GIANT_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500))
                                 if (spawned->AI())
-                                    spawned->AI()->AttackStart(pTarget);
+                                    spawned->AI()->AttackStart(target);
                         }
 
                         //One giant claw tentacle every minute
@@ -835,12 +835,12 @@ public:
                     //GiantEyeTentacleTimer
                     if (GiantEyeTentacleTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectRandomNotStomach())
+                        if (Unit* target = SelectRandomNotStomach())
                         {
                             //Spawn claw tentacle on the random target
-                            if (Creature* spawned = me->SummonCreature(MOB_GIANT_EYE_TENTACLE, *pTarget, TEMPSUMMON_CORPSE_DESPAWN, 500))
+                            if (Creature* spawned = me->SummonCreature(MOB_GIANT_EYE_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500))
                                 if (spawned->AI())
-                                    spawned->AI()->AttackStart(pTarget);
+                                    spawned->AI()->AttackStart(target);
                         }
 
                         //One giant eye tentacle every minute
@@ -988,9 +988,9 @@ public:
             //MindflayTimer
             if (MindflayTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget && !pTarget->HasAura(SPELL_DIGESTIVE_ACID))
-                    DoCast(pTarget, SPELL_MIND_FLAY);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target && !target->HasAura(SPELL_DIGESTIVE_ACID))
+                    DoCast(target, SPELL_MIND_FLAY);
 
                 //Mindflay every 10 seconds
                 MindflayTimer = 10000;
@@ -1064,16 +1064,16 @@ public:
                     //Dissapear and reappear at new position
                     me->SetVisible(false);
 
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (!pTarget)
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (!target)
                     {
                         me->Kill(me);
                         return;
                     }
 
-                    if (!pTarget->HasAura(SPELL_DIGESTIVE_ACID))
+                    if (!target->HasAura(SPELL_DIGESTIVE_ACID))
                     {
-                        me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
+                        me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                         if (Creature* pPortal = me->SummonCreature(MOB_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
                         {
                             pPortal->SetReactState(REACT_PASSIVE);
@@ -1083,7 +1083,7 @@ public:
                         GroundRuptureTimer = 500;
                         HamstringTimer = 2000;
                         EvadeTimer = 5000;
-                        AttackStart(pTarget);
+                        AttackStart(target);
                     }
 
                     me->SetVisible(true);
@@ -1176,16 +1176,16 @@ public:
                     //Dissapear and reappear at new position
                     me->SetVisible(false);
 
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (!pTarget)
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (!target)
                     {
                         me->Kill(me);
                         return;
                     }
 
-                    if (!pTarget->HasAura(SPELL_DIGESTIVE_ACID))
+                    if (!target->HasAura(SPELL_DIGESTIVE_ACID))
                     {
-                        me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
+                        me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                         if (Creature* pPortal = me->SummonCreature(MOB_GIANT_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
                         {
                             pPortal->SetReactState(REACT_PASSIVE);
@@ -1196,7 +1196,7 @@ public:
                         HamstringTimer = 2000;
                         ThrashTimer = 5000;
                         EvadeTimer = 5000;
-                        AttackStart(pTarget);
+                        AttackStart(target);
                     }
                     me->SetVisible(true);
                 } else EvadeTimer -= diff;
@@ -1281,9 +1281,9 @@ public:
             //BeamTimer
             if (BeamTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget && !pTarget->HasAura(SPELL_DIGESTIVE_ACID))
-                    DoCast(pTarget, SPELL_GREEN_BEAM);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target && !target->HasAura(SPELL_DIGESTIVE_ACID))
+                    DoCast(target, SPELL_GREEN_BEAM);
 
                 //Beam every 2 seconds
                 BeamTimer = 2100;

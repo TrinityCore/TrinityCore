@@ -132,13 +132,13 @@ public:
                 {
                     //Summon Astral Flare
                     Creature* AstralFlare = DoSpawnCreature(17096, float(rand()%37), float(rand()%37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    Unit* pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* target = NULL;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                    if (AstralFlare && pTarget)
+                    if (AstralFlare && target)
                     {
                         AstralFlare->CastSpell(AstralFlare, SPELL_ASTRAL_FLARE_PASSIVE, false);
-                        AstralFlare->AI()->AttackStart(pTarget);
+                        AstralFlare->AI()->AttackStart(target);
                     }
 
                     //Reduce Mana by 10% of max health
@@ -184,8 +184,8 @@ public:
                 else
                     HatefulBoltTimer = 15000;
 
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
-                    DoCast(pTarget, SPELL_HATEFUL_BOLT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                    DoCast(target, SPELL_HATEFUL_BOLT);
 
             } else HatefulBoltTimer -= diff;
 

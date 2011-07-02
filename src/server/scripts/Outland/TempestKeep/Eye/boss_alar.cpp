@@ -154,8 +154,8 @@ class boss_alar : public CreatureScript
             void JustSummoned(Creature* summon)
             {
                 if (summon->GetEntry() == CREATURE_EMBER_OF_ALAR)
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        summon->AI()->AttackStart(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        summon->AI()->AttackStart(target);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) {}
@@ -283,15 +283,15 @@ class boss_alar : public CreatureScript
                                 WaitTimer = 4000;
                                 return;
                             case WE_DIVE:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
                                     me->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
-                                    DoCast(pTarget, SPELL_DIVE_BOMB, true);
+                                    DoCast(target, SPELL_DIVE_BOMB, true);
                                     float dist = 3.0f;
-                                    if (me->IsWithinDist3d(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 5.0f))
+                                    if (me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f))
                                         dist = 5.0f;
                                     WaitTimer = 1000 + uint32(floor(dist / 80 * 1000.0f));
-                                    me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f);
+                                    me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f);
                                     me->StopMoving();
                                     WaitEvent = WE_LAND;
                                 }
@@ -371,9 +371,9 @@ class boss_alar : public CreatureScript
                 {
                     if (Charge_Timer <= diff)
                     {
-                        Unit* pTarget= SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_CHARGE);
+                        Unit* target= SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                        if (target)
+                            DoCast(target, SPELL_CHARGE);
                         Charge_Timer = 30000;
                     }
                     else
@@ -403,9 +403,9 @@ class boss_alar : public CreatureScript
 
                     if (FlamePatch_Timer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
                             if (Summoned)
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -436,10 +436,10 @@ class boss_alar : public CreatureScript
                     }
                     else
                     {
-                        Unit* pTarget = NULL;
-                        pTarget = me->SelectNearestTargetInAttackDistance(5);
-                        if (pTarget)
-                            me->AI()->AttackStart(pTarget);
+                        Unit* target = NULL;
+                        target = me->SelectNearestTargetInAttackDistance(5);
+                        if (target)
+                            me->AI()->AttackStart(target);
                         else
                         {
                             DoCast(me, SPELL_FLAME_BUFFET, true);

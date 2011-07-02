@@ -224,7 +224,7 @@ public:
 
         void JustSummoned(Creature* pSummoned)
         {
-            Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
             switch (pSummoned->GetEntry())
             {
                 case NPC_BURROW:
@@ -233,8 +233,8 @@ public:
                     pSummoned->CastSpell(pSummoned, SPELL_CHURNING_GROUND, false);
                     break;
                 case NPC_SPIKE:
-                    pSummoned->CombatStart(pTarget);
-                    DoScriptText(EMOTE_SPIKE, me, pTarget);
+                    pSummoned->CombatStart(target);
+                    DoScriptText(EMOTE_SPIKE, me, target);
                     break;
             }
             Summons.Summon(pSummoned);
@@ -434,8 +434,8 @@ public:
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             DoCast(me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                me->AddThreat(pTarget, 20000.0f);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                me->AddThreat(target, 20000.0f);
             if (!me->isInCombat())
                 me->DisappearAndDie();
         }
@@ -513,8 +513,8 @@ public:
             switch (actionId)
             {
                 case ACTION_SHADOW_STRIKE:
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_SHADOW_STRIKE);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SHADOW_STRIKE);
                     break;
             }
         }
@@ -677,8 +677,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
+            Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
+            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
             {
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);

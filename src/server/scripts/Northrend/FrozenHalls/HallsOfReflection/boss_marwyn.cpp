@@ -119,8 +119,8 @@ public:
                     events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
                     break;
                 case EVENT_SHARED_SUFFERING:
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(pTarget, SPELL_SHARED_SUFFERING);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        DoCast(target, SPELL_SHARED_SUFFERING);
                     events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
                     break;
             }

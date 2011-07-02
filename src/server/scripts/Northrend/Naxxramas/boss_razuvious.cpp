@@ -118,8 +118,8 @@ public:
                         events.ScheduleEvent(EVENT_SHOUT, 25000);
                         return;
                     case EVENT_KNIFE:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
-                            DoCast(pTarget, SPELL_JAGGED_KNIFE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                            DoCast(target, SPELL_JAGGED_KNIFE);
                         events.ScheduleEvent(EVENT_KNIFE, 10000);
                         return;
                     case EVENT_COMMAND:

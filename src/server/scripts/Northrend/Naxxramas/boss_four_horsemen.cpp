@@ -361,8 +361,8 @@ public:
 
                         if (caster)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
-                                DoCast(pTarget, SPELL_PRIMARY(id));
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                                DoCast(target, SPELL_PRIMARY(id));
                         }
                         else
                             DoCast(me->getVictim(), SPELL_PRIMARY(id));

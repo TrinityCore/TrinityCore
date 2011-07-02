@@ -370,15 +370,15 @@ public:
 
             if (SacrificeTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-                if (pTarget && pTarget->isAlive())
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                if (target && target->isAlive())
                 {
-                    DoCast(pTarget, SPELL_SACRIFICE, true);
-                    DoCast(pTarget, SPELL_SUMMON_DEMONCHAINS, true);
+                    DoCast(target, SPELL_SACRIFICE, true);
+                    DoCast(target, SPELL_SUMMON_DEMONCHAINS, true);
 
                     if (Creature* Chains = me->FindNearestCreature(CREATURE_DEMONCHAINS, 5000))
                     {
-                        CAST_AI(mob_demon_chain::mob_demon_chainAI, Chains->AI())->SacrificeGUID = pTarget->GetGUID();
+                        CAST_AI(mob_demon_chain::mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                         Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                         DoScriptText(RAND(SAY_SACRIFICE1, SAY_SACRIFICE2), me);
                         SacrificeTimer = 30000;

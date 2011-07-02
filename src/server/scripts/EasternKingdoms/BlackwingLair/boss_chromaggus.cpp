@@ -262,7 +262,7 @@ public:
                                 && pUnit->HasAura(SPELL_BROODAF_GREEN))
                             {
                                 //pTarget->RemoveAllAuras();
-                                //DoCast(pTarget, SPELL_CHROMATIC_MUT_1);
+                                //DoCast(target, SPELL_CHROMATIC_MUT_1);
 
                                 //Chromatic mutation is causing issues
                                 //Assuming it is caused by a lack of core support for Charm

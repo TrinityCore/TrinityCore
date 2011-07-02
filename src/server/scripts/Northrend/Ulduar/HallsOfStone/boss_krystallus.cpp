@@ -105,15 +105,15 @@ public:
 
             if (uiBoulderTossTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_BOULDER_TOSS);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_BOULDER_TOSS);
                 uiBoulderTossTimer = 9000 + rand()%6000;
             } else uiBoulderTossTimer -= diff;
 
             if (uiGroundSpikeTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_GROUND_SPIKE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_GROUND_SPIKE);
                 uiGroundSpikeTimer = 12000 + rand()%5000;
             } else uiGroundSpikeTimer -= diff;
 
@@ -157,16 +157,16 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
+        void SpellHitTarget(Unit* target, const SpellEntry* pSpell)
         {
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)
             {
                 //this spell must have custom handling in the core, dealing damage based on distance
-                pTarget->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHATTER_EFFECT, H_SPELL_SHATTER_EFFECT), true);
+                target->CastSpell(target, DUNGEON_MODE(SPELL_SHATTER_EFFECT, H_SPELL_SHATTER_EFFECT), true);
 
-                if (pTarget->HasAura(SPELL_STONED))
-                    pTarget->RemoveAurasDueToSpell(SPELL_STONED);
+                if (target->HasAura(SPELL_STONED))
+                    target->RemoveAurasDueToSpell(SPELL_STONED);
 
                 //clear this, if we are still performing
                 if (bIsSlam)

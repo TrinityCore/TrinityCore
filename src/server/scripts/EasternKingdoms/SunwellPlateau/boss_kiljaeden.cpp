@@ -661,19 +661,19 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 float x, y, z;
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
                 for (uint8 z = 0; z < 6; ++z)
                 {
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (!pTarget || !pTarget->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))break;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))break;
                 }
-                if (pTarget)
+                if (target)
                 {
-                    pTarget->GetPosition(x, y, z);
+                    target->GetPosition(x, y, z);
                     if (Creature* pSinisterReflection = me->SummonCreature(CREATURE_SINISTER_REFLECTION, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
-                        pSinisterReflection->SetDisplayId(pTarget->GetDisplayId());
-                        pSinisterReflection->AI()->AttackStart(pTarget);
+                        pSinisterReflection->SetDisplayId(target->GetDisplayId());
+                        pSinisterReflection->AI()->AttackStart(target);
                     }
                 }
             }
@@ -842,16 +842,16 @@ public:
                             TimerIsDeactivated[TIMER_ORBS_EMPOWER] = true;
                             break;
                         case TIMER_ARMAGEDDON: //Phase 4
-                            Unit* pTarget = NULL;
+                            Unit* target = NULL;
                             for (uint8 z = 0; z < 6; ++z)
                             {
-                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                if (!pTarget || !pTarget->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0)) break;
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                                if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0)) break;
                             }
-                            if (pTarget)
+                            if (target)
                             {
                                 float x, y, z;
-                                pTarget->GetPosition(x, y, z);
+                                target->GetPosition(x, y, z);
                                 me->SummonCreature(CREATURE_ARMAGEDDON_TARGET, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
                             }
                             Timer[TIMER_ARMAGEDDON] = 2000; // No, I'm not kidding

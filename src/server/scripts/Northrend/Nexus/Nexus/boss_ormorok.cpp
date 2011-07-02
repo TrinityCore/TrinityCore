@@ -181,7 +181,7 @@ public:
                 Creature* Crystalline_Tangler = me->SummonCreature(MOB_CRYSTALLINE_TANGLER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                 if (Crystalline_Tangler)
                 {
-                    Unit* pTarget = NULL;
+                    Unit* target = NULL;
                     uint8 Healer = 0;
                     for (uint8 j = 1; j <= 4; j++)
                     {
@@ -198,19 +198,19 @@ public:
                             Unit* pTemp = Unit::GetUnit((*me), (*i)->getUnitGuid());
                             if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER && pTemp->getClass() == Healer)
                             {
-                                pTarget = pTemp;
+                                target = pTemp;
                                 break;
                             }
                         }
-                        if (pTarget)
+                        if (target)
                             break;
                     }
-                    if (!pTarget)
-                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget)
+                    if (!target)
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
                     {
-                        Crystalline_Tangler->AI()->AttackStart(pTarget);
-                        Crystalline_Tangler->getThreatManager().addThreat(pTarget, 1000000000.0f);
+                        Crystalline_Tangler->AI()->AttackStart(target);
+                        Crystalline_Tangler->getThreatManager().addThreat(target, 1000000000.0f);
                     }
                 }
                 uiSummonCrystallineTanglerTimer = 17*IN_MILLISECONDS;

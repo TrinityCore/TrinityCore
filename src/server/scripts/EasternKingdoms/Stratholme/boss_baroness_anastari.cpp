@@ -111,9 +111,9 @@ public:
             //Cast
               if (rand()%100 < 65)
             {
-            Unit* pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (pTarget)DoCast(pTarget, SPELL_POSSESS);
+            Unit* target = NULL;
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (target)DoCast(target, SPELL_POSSESS);
             }
             //50 seconds until we should cast this again
             Possess_Timer = 50000;

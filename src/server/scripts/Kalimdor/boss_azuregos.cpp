@@ -122,8 +122,8 @@ public:
             //ManaStorm_Timer
             if (ManaStorm_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_MANASTORM);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_MANASTORM);
                 ManaStorm_Timer = 7500 + rand()%5000;
             } else ManaStorm_Timer -= diff;
 
