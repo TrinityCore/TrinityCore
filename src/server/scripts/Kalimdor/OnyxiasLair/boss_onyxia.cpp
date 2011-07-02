@@ -220,7 +220,7 @@ public:
             Summons.Despawn(summon);
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(SAY_KILL, me);
         }

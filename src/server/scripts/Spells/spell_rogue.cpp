@@ -227,8 +227,8 @@ public:
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* target = GetTarget();
-            Unit* pVictim = target->getVictim();
-            if (pVictim && (target->GetHealthPct() > pVictim->GetHealthPct()))
+            Unit* victim = target->getVictim();
+            if (victim && (target->GetHealthPct() > victim->GetHealthPct()))
             {
                 if (!target->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
                 {

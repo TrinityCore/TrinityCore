@@ -115,7 +115,7 @@ public:
             me->CallForHelp(VISIBLE_RANGE);
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(SAY_MO_KILL, me);
         }
@@ -273,7 +273,7 @@ public:
             DoScriptText(SAY_WH_INTRO, me);
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(SAY_WH_KILL, me);
         }
