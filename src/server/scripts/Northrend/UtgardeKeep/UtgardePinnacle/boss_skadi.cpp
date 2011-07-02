@@ -246,34 +246,34 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            switch (pSummoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case CREATURE_GRAUF:
-                    m_uiGraufGUID = pSummoned->GetGUID();
+                    m_uiGraufGUID = summoned->GetGUID();
                     break;
                 case CREATURE_YMIRJAR_WARRIOR:
                 case CREATURE_YMIRJAR_WITCH_DOCTOR:
                 case CREATURE_YMIRJAR_HARPOONER:
-                    pSummoned->setActive(true);
-                    pSummoned->SetInCombatWithZone();
+                    summoned->setActive(true);
+                    summoned->SetInCombatWithZone();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        pSummoned->AI()->AttackStart(target);
+                        summoned->AI()->AttackStart(target);
                     break;
                 case CREATURE_TRIGGER:
-                    pSummoned->CastSpell((Unit*)NULL, SPELL_FREEZING_CLOUD, true);
-                    pSummoned->DespawnOrUnsummon(10*IN_MILLISECONDS);
+                    summoned->CastSpell((Unit*)NULL, SPELL_FREEZING_CLOUD, true);
+                    summoned->DespawnOrUnsummon(10*IN_MILLISECONDS);
                     break;
             }
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == CREATURE_GRAUF)
+            if (summoned->GetEntry() == CREATURE_GRAUF)
                 m_uiGraufGUID = 0;
-            Summons.Despawn(pSummoned);
+            Summons.Despawn(summoned);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellEntry *spell)

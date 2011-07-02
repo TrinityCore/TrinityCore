@@ -205,21 +205,21 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* pSummoned)
+    void JustSummoned(Creature* summoned)
     {
-        switch (pSummoned->GetEntry())
+        switch (summoned->GetEntry())
         {
             case NPC_UNLEASHED_DARK:
             case NPC_UNLEASHED_LIGHT:
-                pSummoned->SetCorpseDelay(0);
+                summoned->SetCorpseDelay(0);
                 break;
         }
-        Summons.Summon(pSummoned);
+        Summons.Summon(summoned);
     }
 
-    void SummonedCreatureDespawn(Creature* pSummoned)
+    void SummonedCreatureDespawn(Creature* summoned)
     {
-        switch (pSummoned->GetEntry())
+        switch (summoned->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
@@ -228,7 +228,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
                 break;
         }
-        Summons.Despawn(pSummoned);
+        Summons.Despawn(summoned);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)

@@ -324,14 +324,14 @@ public:
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == CREATURE_PORTAL)
+            if (summoned->GetEntry() == CREATURE_PORTAL)
             {
-                PortalGUID[PortalsCount] = pSummoned->GetGUID();
+                PortalGUID[PortalsCount] = summoned->GetGUID();
                 ++PortalsCount;
 
-                if (pSummoned->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_FIENDISH_PORTAL_1)
+                if (summoned->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_FIENDISH_PORTAL_1)
                 {
                     DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
                     SummonedPortals = true;

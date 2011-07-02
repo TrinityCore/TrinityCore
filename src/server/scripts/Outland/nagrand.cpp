@@ -676,17 +676,17 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == NPC_MURK_BRUTE)
-                DoScriptText(SAY_MAG_NO_ESCAPE, pSummoned);
+            if (summoned->GetEntry() == NPC_MURK_BRUTE)
+                DoScriptText(SAY_MAG_NO_ESCAPE, summoned);
 
-            if (pSummoned->isTotem())
+            if (summoned->isTotem())
                 return;
 
-            pSummoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-            pSummoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-            pSummoned->AI()->AttackStart(me);
+            summoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+            summoned->AI()->AttackStart(me);
 
         }
 

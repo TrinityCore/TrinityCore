@@ -358,8 +358,8 @@ public:
                                 pInstance->SetData64(DATA_SACRIFICED_PLAYER, pSacrificeTarget->GetGUID());
 
                                 for (uint8 i = 0; i < 3; ++i)
-                                    if (Creature* pSummon = me->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                                        pSummon->AI()->DoAction(0);
+                                    if (Creature* summon = me->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                                        summon->AI()->DoAction(0);
                             }
 
                             bSacrificed = true;

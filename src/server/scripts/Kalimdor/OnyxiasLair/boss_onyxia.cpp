@@ -197,22 +197,22 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            pSummoned->SetInCombatWithZone();
+            summoned->SetInCombatWithZone();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                pSummoned->AI()->AttackStart(target);
+                summoned->AI()->AttackStart(target);
 
-            switch (pSummoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case NPC_WHELP:
                     ++m_uiSummonWhelpCount;
                     break;
                 case NPC_LAIRGUARD:
-                    pSummoned->setActive(true);
+                    summoned->setActive(true);
                     break;
             }
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
         }
 
         void SummonedCreatureDespawn(Creature* summon)

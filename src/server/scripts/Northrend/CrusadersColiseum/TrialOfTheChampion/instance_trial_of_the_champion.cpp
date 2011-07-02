@@ -180,8 +180,8 @@ public:
                     if (uiData == IN_PROGRESS)
                     {
                         for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
-                            if (Creature* pSummon = instance->GetCreature(*itr))
-                                pSummon->RemoveFromWorld();
+                            if (Creature* summon = instance->GetCreature(*itr))
+                                summon->RemoveFromWorld();
                     }else if (uiData == DONE)
                     {
                         ++uiGrandChampionsDeaths;

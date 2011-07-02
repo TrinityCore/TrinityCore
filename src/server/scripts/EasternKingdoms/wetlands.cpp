@@ -94,10 +94,10 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
             if (Player* player = GetPlayerForEscort())
-                pSummoned->AI()->AttackStart(player);
+                summoned->AI()->AttackStart(player);
         }
 
         void AttackedBy(Unit* pAttacker)

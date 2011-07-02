@@ -428,14 +428,14 @@ public:
                     switch(uiPhase)
                     {
                         case 1:
-                            if (Creature* pSummon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                SummonGUID = pSummon->GetGUID();
+                            if (Creature* summon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                SummonGUID = summon->GetGUID();
                             uiPhase = 2;
                             uiTimer = 4000;
                             break;
                          case 2:
-                            if (Creature* pSummon = Unit::GetCreature(*me, SummonGUID))
-                                pSummon->GetMotionMaster()->MoveJump(5776.319824f, -2981.005371f, 273.100037f, 10.0f, 20.0f);
+                            if (Creature* summon = Unit::GetCreature(*me, SummonGUID))
+                                summon->GetMotionMaster()->MoveJump(5776.319824f, -2981.005371f, 273.100037f, 10.0f, 20.0f);
                             uiPhase = 0;
                             SummonGUID = 0;
                             break;
@@ -445,8 +445,8 @@ public:
                             uiPhase = 4;
                             break;
                         case 4:
-                            if (Creature* pSummon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                SummonGUID = pSummon->GetGUID();
+                            if (Creature* summon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                SummonGUID = summon->GetGUID();
                             uiTimer = 3000;
                             uiPhase = 0;
                             break;
@@ -667,18 +667,18 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            switch(pSummon->GetEntry())
+            switch(summon->GetEntry())
             {
                 case NPC_WHISKER:
-                    pSummon->AI()->AttackStart(me->getVictim());
+                    summon->AI()->AttackStart(me->getVictim());
                     break;
                 case NPC_HUNGRY_PENGUIN:
                     if (Unit* pAffected = Unit::GetUnit(*me, AffectedGUID))
                     {
                         if (pAffected->isAlive())
-                            pSummon->AI()->AttackStart(pAffected);
+                            summon->AI()->AttackStart(pAffected);
                     }
                     break;
             }
@@ -869,10 +869,10 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
             {
                 std::string sText = (std::string(killer->GetName()) + " has defeated Yg.. Yggg-really big worm!");
-                pSummoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
             }
 
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -1074,10 +1074,10 @@ public:
 
             for (uint8 uiI = 0; uiI < 16 ; uiI++)
             {
-                if (Creature* pSummon = me->SummonCreature(Boss[uiBossRandom].uiAdd, AddSpawnPosition[uiI]))
+                if (Creature* summon = me->SummonCreature(Boss[uiBossRandom].uiAdd, AddSpawnPosition[uiI]))
                 {
-                    pSummon->AI()->SetData(1, uiBossRandom);
-                    SummonList.push_back(pSummon->GetGUID());
+                    summon->AI()->SetData(1, uiBossRandom);
+                    SummonList.push_back(summon->GetGUID());
                 }
             }
 
@@ -1159,8 +1159,8 @@ public:
 
             std::string sText = (std::string(killer->GetName()) + " is victorious once more!");
 
-            if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
-                pSummoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
         }
     };
 

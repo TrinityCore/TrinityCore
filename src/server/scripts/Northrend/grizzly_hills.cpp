@@ -172,12 +172,12 @@ public:
 
         bool Completed;
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 50.0f))
-                pSummoned->AI()->AttackStart(Mrfloppy);
+                summoned->AI()->AttackStart(Mrfloppy);
             else
-                pSummoned->AI()->AttackStart(me->getVictim());
+                summoned->AI()->AttackStart(me->getVictim());
         }
 
         void WaypointReached(uint32 i)

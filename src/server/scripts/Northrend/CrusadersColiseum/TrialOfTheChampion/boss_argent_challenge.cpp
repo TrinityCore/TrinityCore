@@ -346,9 +346,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            MemoryGUID = pSummon->GetGUID();
+            MemoryGUID = summon->GetGUID();
         }
     };
 

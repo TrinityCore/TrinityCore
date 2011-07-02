@@ -253,18 +253,18 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
             if (Player* player = GetPlayerForEscort())
             {
-                pSummoned->AI()->AttackStart(player);
+                summoned->AI()->AttackStart(player);
             }
 
-            if (pSummoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
-                m_uiValrothGUID = pSummoned->GetGUID();
+            if (summoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
+                m_uiValrothGUID = summoned->GetGUID();
 
-            pSummoned->AddThreat(me, 0.0f);
-            pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            summoned->AddThreat(me, 0.0f);
+            summoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
         void SummonAcolyte(uint32 uiAmount)

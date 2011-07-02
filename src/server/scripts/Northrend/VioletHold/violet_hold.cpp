@@ -656,18 +656,18 @@ public:
                 pInstance->SetData(DATA_WAVE_COUNT, pInstance->GetData(DATA_WAVE_COUNT)+1);
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            listOfMobs.Summon(pSummoned);
-            if (pSummoned)
-                pInstance->SetData64(DATA_ADD_TRASH_MOB, pSummoned->GetGUID());
+            listOfMobs.Summon(summoned);
+            if (summoned)
+                pInstance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
-        void SummonedMobDied(Creature* pSummoned)
+        void SummonedMobDied(Creature* summoned)
         {
-            listOfMobs.Despawn(pSummoned);
-            if (pSummoned)
-                pInstance->SetData64(DATA_DEL_TRASH_MOB, pSummoned->GetGUID());
+            listOfMobs.Despawn(summoned);
+            if (summoned)
+                pInstance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 
