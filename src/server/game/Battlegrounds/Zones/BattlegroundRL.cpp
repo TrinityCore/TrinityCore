@@ -34,13 +34,13 @@ BattlegroundRL::~BattlegroundRL()
 
 }
 
-void BattlegroundRL::InitializeObjects()
+void BattlegroundRL::StartingEventCloseDoors()
 {
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundRL::StartBattleground()
+void BattlegroundRL::StartingEventOpenDoors()
 {
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
