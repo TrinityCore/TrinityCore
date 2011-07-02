@@ -111,12 +111,12 @@ public:
                 DoModifyThreatPercent(me->getVictim(), -99);
 
                 //Summon 10 Illusions attacking random gamers
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
                 for (uint8 i = 0; i < 10; ++i)
                 {
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget)
-                        SummonIllusions(pTarget);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
+                        SummonIllusions(target);
                 }
                 Invisible = true;
                 Invisible_Timer = 3000;

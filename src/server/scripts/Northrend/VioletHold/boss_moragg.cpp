@@ -102,8 +102,8 @@ public:
 
             if (uiOpticLinkTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_OPTIC_LINK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_OPTIC_LINK);
                 uiOpticLinkTimer = 15000;
             } else uiOpticLinkTimer -= diff;
 

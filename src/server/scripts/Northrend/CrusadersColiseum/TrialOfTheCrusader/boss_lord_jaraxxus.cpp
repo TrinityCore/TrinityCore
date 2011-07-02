@@ -202,18 +202,18 @@ public:
 
             if (m_uiFelLightningTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                    DoCast(pTarget, SPELL_FEL_LIGHTING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    DoCast(target, SPELL_FEL_LIGHTING);
                 m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelLightningTimer -= uiDiff;
 
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    DoScriptText(EMOTE_INCINERATE, me, pTarget);
+                    DoScriptText(EMOTE_INCINERATE, me, target);
                     DoScriptText(SAY_INCINERATE, me);
-                    DoCast(pTarget, SPELL_INCINERATE_FLESH);
+                    DoCast(target, SPELL_INCINERATE_FLESH);
                 }
                 m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiIncinerateFleshTimer -= uiDiff;
@@ -226,18 +226,18 @@ public:
 
             if (m_uiLegionFlameTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    DoScriptText(EMOTE_LEGION_FLAME, me, pTarget);
-                    DoCast(pTarget, SPELL_LEGION_FLAME);
+                    DoScriptText(EMOTE_LEGION_FLAME, me, target);
+                    DoCast(target, SPELL_LEGION_FLAME);
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
 
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_TOUCH_OF_JARAXXUS);
                 m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiTouchOfJaraxxusTimer -= uiDiff;
 
@@ -382,7 +382,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        /*void SpellHitTarget(Unit* pTarget, const SpellEntry *pSpell)
+        /*void SpellHitTarget(Unit* target, const SpellEntry *pSpell)
         {
             if (pSpell->Id == SPELL_FEL_STREAK)
                 DoCastAOE(SPELL_FEL_INFERNO); //66517
@@ -398,8 +398,8 @@ public:
 
             if (m_uiFelStreakTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FEL_STREAK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
 
@@ -534,15 +534,15 @@ public:
 
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(pTarget, SPELL_SPINNING_STRIKE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    DoCast(target, SPELL_SPINNING_STRIKE);
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
 
             if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(pTarget, SPELL_MISTRESS_KISS);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    DoCast(target, SPELL_MISTRESS_KISS);
                 m_uiMistressKissTimer = 30*IN_MILLISECONDS;
             } else m_uiMistressKissTimer -= uiDiff;
 

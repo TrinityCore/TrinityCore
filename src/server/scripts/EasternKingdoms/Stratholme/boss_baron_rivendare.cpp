@@ -122,8 +122,8 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                summoned->AI()->AttackStart(pTarget);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                summoned->AI()->AttackStart(target);
         }
 
          void JustDied(Unit* /*Killer*/)

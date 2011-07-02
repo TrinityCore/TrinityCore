@@ -333,9 +333,9 @@ public:
 
                 if (uiCallFlamesTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        DoCast(pTarget, SPELL_CALL_FLAMES);
+                        DoCast(target, SPELL_CALL_FLAMES);
                         uiCallFlamesTimer = urand(8 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
                     }
                 } else uiCallFlamesTimer -= diff;
@@ -381,8 +381,8 @@ public:
                     Phase = NORMAL;
                     pSacrificeTarget = NULL;
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        me->GetMotionMaster()->MoveChase(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        me->GetMotionMaster()->MoveChase(target);
 
                     uiSacrificeTimer = 8 * IN_MILLISECONDS;
                 }

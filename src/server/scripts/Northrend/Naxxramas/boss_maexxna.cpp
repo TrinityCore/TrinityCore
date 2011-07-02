@@ -104,13 +104,13 @@ public:
                         // TODO : Add missing text
                         for (uint8 i = 0; i < RAID_MODE(1, 2); ++i)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                             {
-                                pTarget->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
+                                target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
                                 uint8 pos = rand()%MAX_POS_WRAP;
-                                pTarget->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
+                                target->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
                                 if (Creature* wrap = DoSummon(MOB_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
-                                    wrap->AI()->SetGUID(pTarget->GetGUID());
+                                    wrap->AI()->SetGUID(target->GetGUID());
                             }
                         }
                         events.ScheduleEvent(EVENT_WRAP, 40000);

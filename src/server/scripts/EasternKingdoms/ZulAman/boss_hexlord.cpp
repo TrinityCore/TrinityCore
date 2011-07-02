@@ -391,9 +391,9 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (SiphonSoul_Timer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
                     Unit* trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                    if (!pTarget || !trigger)
+                    if (!target || !trigger)
                     {
                         EnterEvadeMode();
                         return;
@@ -402,20 +402,20 @@ class boss_hexlord_malacrass : public CreatureScript
                     {
                         trigger->SetDisplayId(11686);
                         trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        trigger->CastSpell(pTarget, SPELL_SIPHON_SOUL, true);
+                        trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
                         trigger->GetMotionMaster()->MoveChase(me);
 
-                        //DoCast(pTarget, SPELL_SIPHON_SOUL, true);
-                        //me->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pTarget->GetGUID());
+                        //DoCast(target, SPELL_SIPHON_SOUL, true);
+                        //me->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, target->GetGUID());
                         //me->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SIPHON_SOUL);
 
-                        PlayerGUID = pTarget->GetGUID();
+                        PlayerGUID = target->GetGUID();
                         PlayerAbility_Timer = urand(8000, 10000);
-                        PlayerClass = pTarget->getClass() - 1;
+                        PlayerClass = target->getClass() - 1;
 
                         if (PlayerClass == CLASS_DRUID-1)
                             PlayerClass = CLASS_DRUID;
-                        else if (PlayerClass == CLASS_PRIEST-1 && pTarget->HasSpell(15473))
+                        else if (PlayerClass == CLASS_PRIEST-1 && target->HasSpell(15473))
                             PlayerClass = CLASS_PRIEST; // shadow priest
 
                         SiphonSoul_Timer = 99999;   // buff lasts 30 sec
@@ -424,8 +424,8 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (PlayerAbility_Timer <= diff)
                 {
-                    //Unit* pTarget = Unit::GetUnit(*me, PlayerGUID);
-                    //if (pTarget && pTarget->isAlive())
+                    //Unit* target = Unit::GetUnit(*me, PlayerGUID);
+                    //if (target && target->isAlive())
                     //{
                         UseAbility();
                         PlayerAbility_Timer = urand(8000, 10000);
@@ -438,32 +438,32 @@ class boss_hexlord_malacrass : public CreatureScript
             void UseAbility()
             {
                 uint8 random = urand(0, 2);
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
                 switch(PlayerAbility[PlayerClass][random].target)
                 {
                     case ABILITY_TARGET_SELF:
-                        pTarget = me;
+                        target = me;
                         break;
                     case ABILITY_TARGET_VICTIM:
-                        pTarget = me->getVictim();
+                        target = me->getVictim();
                         break;
                     case ABILITY_TARGET_ENEMY:
                     default:
-                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         break;
                     case ABILITY_TARGET_HEAL:
-                        pTarget = DoSelectLowestHpFriendly(50, 0);
+                        target = DoSelectLowestHpFriendly(50, 0);
                         break;
                     case ABILITY_TARGET_BUFF:
                         {
                             std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, PlayerAbility[PlayerClass][random].spell);
                             if (!templist.empty())
-                                pTarget = *(templist.begin());
+                                target = *(templist.begin());
                         }
                         break;
                 }
-                if (pTarget)
-                    DoCast(pTarget, PlayerAbility[PlayerClass][random].spell, false);
+                if (target)
+                    DoCast(target, PlayerAbility[PlayerClass][random].spell, false);
             }
         };
 
@@ -511,8 +511,8 @@ class boss_thurg : public CreatureScript
                     std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, SPELL_BLOODLUST);
                     if (!templist.empty())
                     {
-                        if (Unit* pTarget = *(templist.begin()))
-                            DoCast(pTarget, SPELL_BLOODLUST, false);
+                        if (Unit* target = *(templist.begin()))
+                            DoCast(target, SPELL_BLOODLUST, false);
                     }
                     bloodlust_timer = 12000;
                 } else bloodlust_timer -= diff;
@@ -585,26 +585,26 @@ class boss_alyson_antille : public CreatureScript
 
                 if (flashheal_timer <= diff)
                 {
-                    Unit* pTarget = DoSelectLowestHpFriendly(99, 30000);
-                    if (pTarget)
+                    Unit* target = DoSelectLowestHpFriendly(99, 30000);
+                    if (target)
                     {
-                        if (pTarget->IsWithinDistInMap(me, 50))
-                            DoCast(pTarget, SPELL_FLASH_HEAL, false);
+                        if (target->IsWithinDistInMap(me, 50))
+                            DoCast(target, SPELL_FLASH_HEAL, false);
                         else
                         {
                             // bugged
                             //me->GetMotionMaster()->Clear();
-                            //me->GetMotionMaster()->MoveChase(pTarget, 20);
+                            //me->GetMotionMaster()->MoveChase(target, 20);
                         }
                     }
                     else
                     {
                         if (urand(0, 1))
-                            pTarget = DoSelectLowestHpFriendly(50, 0);
+                            target = DoSelectLowestHpFriendly(50, 0);
                         else
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target)
+                            DoCast(target, SPELL_DISPEL_MAGIC, false);
                     }
                     flashheal_timer = 2500;
                 } else flashheal_timer -= diff;
@@ -613,9 +613,9 @@ class boss_alyson_antille : public CreatureScript
                 {
                 if (urand(0, 1))
                 {
-                    Unit* pTarget = SelectTarget();
+                    Unit* target = SelectTarget();
 
-                    DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
+                    DoCast(target, SPELL_DISPEL_MAGIC, false);
                 }
                 else
                     me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);

@@ -284,9 +284,9 @@ public:
 
                 if (Blind_Timer <= diff)
                 {
-                    std::list<Unit*> pTargets;
-                    SelectTargetList(pTargets, 5, SELECT_TARGET_RANDOM, me->GetMeleeReach()*5, true);
-                    for (std::list<Unit*>::const_iterator i = pTargets.begin(); i != pTargets.end(); ++i)
+                    std::list<Unit*> targets;
+                    SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, me->GetMeleeReach()*5, true);
+                    for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
                         if (!me->IsWithinMeleeRange(*i))
                         {
                             DoCast(*i, SPELL_BLIND);
@@ -302,8 +302,8 @@ public:
                 {
                     DoScriptText(RAND(SAY_SPECIAL_1, SAY_SPECIAL_2), me);
 
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        pTarget->CastSpell(pTarget, SPELL_GARROTE, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        target->CastSpell(target, SPELL_GARROTE, true);
 
                     InVanish = false;
                 } else Wait_Timer -= diff;
@@ -449,17 +449,17 @@ public:
 
             if (ManaBurn_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (pTarget->getPowerType() == POWER_MANA)
-                        DoCast(pTarget, SPELL_MANABURN);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (target->getPowerType() == POWER_MANA)
+                        DoCast(target, SPELL_MANABURN);
                 ManaBurn_Timer = 5000;                          // 3 sec cast
             } else ManaBurn_Timer -= diff;
 
             if (ShadowWordPain_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    DoCast(pTarget, SPELL_SWPAIN);
+                    DoCast(target, SPELL_SWPAIN);
                     ShadowWordPain_Timer = 7000;
                 }
             } else ShadowWordPain_Timer -= diff;
@@ -573,9 +573,9 @@ public:
 
             if (GreaterHeal_Timer <= diff)
             {
-                Unit* pTarget = SelectGuestTarget();
+                Unit* target = SelectGuestTarget();
 
-                DoCast(pTarget, SPELL_GREATERHEAL);
+                DoCast(target, SPELL_GREATERHEAL);
                 GreaterHeal_Timer = 17000;
             } else GreaterHeal_Timer -= diff;
 
@@ -587,8 +587,8 @@ public:
 
             if (DispelMagic_Timer <= diff)
             {
-                if (Unit* pTarget = RAND(SelectGuestTarget(), SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
-                    DoCast(pTarget, SPELL_DISPELMAGIC);
+                if (Unit* target = RAND(SelectGuestTarget(), SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
+                    DoCast(target, SPELL_DISPELMAGIC);
 
                 DispelMagic_Timer = 25000;
             } else DispelMagic_Timer -= diff;
@@ -644,26 +644,26 @@ public:
 
             if (HolyLight_Timer <= diff)
             {
-                Unit* pTarget = SelectGuestTarget();
+                Unit* target = SelectGuestTarget();
 
-                DoCast(pTarget, SPELL_HOLYLIGHT);
+                DoCast(target, SPELL_HOLYLIGHT);
                 HolyLight_Timer = 10000;
             } else HolyLight_Timer -= diff;
 
             if (GreaterBless_Timer <= diff)
             {
-                Unit* pTarget = SelectGuestTarget();
+                Unit* target = SelectGuestTarget();
 
-                DoCast(pTarget, SPELL_GREATERBLESSOFMIGHT);
+                DoCast(target, SPELL_GREATERBLESSOFMIGHT);
 
                 GreaterBless_Timer = 50000;
             } else GreaterBless_Timer -= diff;
 
             if (Cleanse_Timer <= diff)
             {
-                Unit* pTarget = SelectGuestTarget();
+                Unit* target = SelectGuestTarget();
 
-                DoCast(pTarget, SPELL_CLEANSE);
+                DoCast(target, SPELL_CLEANSE);
 
                 Cleanse_Timer = 10000;
             } else Cleanse_Timer -= diff;

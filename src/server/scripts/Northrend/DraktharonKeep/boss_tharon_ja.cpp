@@ -119,8 +119,8 @@ public:
                 case SKELETAL:
                     if (uiCurseOfLifeTimer < diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_CURSE_OF_LIFE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_CURSE_OF_LIFE);
                         uiCurseOfLifeTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
                     } else uiCurseOfLifeTimer -= diff;
 
@@ -169,15 +169,15 @@ public:
                 case FLESH:
                     if (uiLightningBreathTimer < diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_LIGHTNING_BREATH);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_LIGHTNING_BREATH);
                         uiLightningBreathTimer = urand(6*IN_MILLISECONDS, 7*IN_MILLISECONDS);
                     } else uiLightningBreathTimer -= diff;
 
                     if (uiEyeBeamTimer < diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_EYE_BEAM);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_EYE_BEAM);
                         uiEyeBeamTimer = urand(4*IN_MILLISECONDS, 6*IN_MILLISECONDS);
                     } else uiEyeBeamTimer -= diff;
 

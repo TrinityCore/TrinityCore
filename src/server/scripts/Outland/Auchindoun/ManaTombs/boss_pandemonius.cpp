@@ -90,9 +90,9 @@ public:
 
             if (VoidBlast_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_VOID_BLAST);
+                    DoCast(target, SPELL_VOID_BLAST);
                     VoidBlast_Timer = 500;
                     ++VoidBlast_Counter;
                 }

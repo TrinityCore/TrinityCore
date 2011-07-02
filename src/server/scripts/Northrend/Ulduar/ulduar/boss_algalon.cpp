@@ -178,9 +178,9 @@ public:
         {
             if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (me->getVictim())
-                    pSummoned->AI()->AttackStart(pTarget ? pTarget : me->getVictim());
+                    pSummoned->AI()->AttackStart(target ? target : me->getVictim());
                 m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
             }
         }

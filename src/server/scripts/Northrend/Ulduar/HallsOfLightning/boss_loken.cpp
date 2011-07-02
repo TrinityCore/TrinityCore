@@ -180,8 +180,8 @@ public:
 
             if (m_uiArcLightning_Timer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_ARC_LIGHTNING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_ARC_LIGHTNING);
 
                 m_uiArcLightning_Timer = 15000 + rand()%1000;
             }

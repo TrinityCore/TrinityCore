@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Boss_Mekgineer_Steamrigger
 SD%Complete: 60
-SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards pTarget to repair.
+SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards target to repair.
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
@@ -137,8 +137,8 @@ public:
 
             if (Saw_Blade_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(pTarget, SPELL_SAW_BLADE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    DoCast(target, SPELL_SAW_BLADE);
                 else
                     DoCast(me->getVictim(), SPELL_SAW_BLADE);
 

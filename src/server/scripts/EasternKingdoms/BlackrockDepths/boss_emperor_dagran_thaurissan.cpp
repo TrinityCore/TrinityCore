@@ -81,8 +81,8 @@ public:
 
             if (HandOfThaurissan_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_HANDOFTHAURISSAN);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_HANDOFTHAURISSAN);
 
                 //3 Hands of Thaurissan will be casted
                 //if (Counter < 3)

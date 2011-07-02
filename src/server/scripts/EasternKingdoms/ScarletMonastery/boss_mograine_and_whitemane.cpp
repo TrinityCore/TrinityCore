@@ -317,10 +317,10 @@ public:
             //If we are <75% hp cast healing spells at self or Mograine
             if (m_uiHeal_Timer <= uiDiff)
             {
-                Creature* pTarget = NULL;
+                Creature* target = NULL;
 
                 if (!HealthAbovePct(75))
-                    pTarget = me;
+                    target = me;
 
                 if (m_pInstance)
                 {
@@ -328,12 +328,12 @@ public:
                     {
                         // checking m_bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                         if (m_bCanResurrectCheck && pMograine->isAlive() && !pMograine->HealthAbovePct(75))
-                            pTarget = pMograine;
+                            target = pMograine;
                     }
                 }
 
-                if (pTarget)
-                    DoCast(pTarget, SPELL_HEAL);
+                if (target)
+                    DoCast(target, SPELL_HEAL);
 
                 m_uiHeal_Timer = 13000;
             } else m_uiHeal_Timer -= uiDiff;

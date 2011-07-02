@@ -163,17 +163,17 @@ public:
 
                 if (ChainLightningTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_CHAIN_LIGHTNING);
 
                     ChainLightningTimer = 8000;
                 } else ChainLightningTimer -= diff;
 
                 if (ArcaneShockTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_ARCANE_SHOCK);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (target)
+                        DoCast(target, SPELL_ARCANE_SHOCK);
 
                     ArcaneShockTimer = 8000;
                 } else ArcaneShockTimer -= diff;

@@ -101,12 +101,12 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
                 // Not good target or too many players
-                if (pTarget->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
+                if (target->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
                     return;
                 // First target - start channel visual and set self as unnattackable
                 if (!insanityHandled)
@@ -118,7 +118,7 @@ public:
                     me->SetControlled(true, UNIT_STAT_STUNNED);
                 }
                 // phase mask
-                pTarget->CastSpell(pTarget, SPELL_INSANITY_TARGET+insanityHandled, true);
+                target->CastSpell(target, SPELL_INSANITY_TARGET+insanityHandled, true);
                 // summon twisted party members for this target
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
@@ -288,8 +288,8 @@ public:
 
             if (uiShiverTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHIVER);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHIVER);
                 uiShiverTimer = 15*IN_MILLISECONDS;
             } else uiShiverTimer -= diff;
 

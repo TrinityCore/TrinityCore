@@ -270,14 +270,14 @@ class boss_xt002 : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SEARING_LIGHT:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(pTarget, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
 
                             events.RepeatEvent(TIMER_SEARING_LIGHT);
                             break;
                         case EVENT_GRAVITY_BOMB:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(pTarget, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
 
                             events.RepeatEvent(TIMER_GRAVITY_BOMB);
                             break;

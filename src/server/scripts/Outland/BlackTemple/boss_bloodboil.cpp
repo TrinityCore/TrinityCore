@@ -151,10 +151,10 @@ public:
             std::list<HostileReference *>::const_iterator itr = m_threatlist.begin();
             for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
             {
-                Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //only on alive players
-                if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                    targets.push_back(pTarget);
+                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    targets.push_back(target);
             }
 
             //Sort the list of players
@@ -168,16 +168,16 @@ public:
             {
                 for (std::list<Unit* >::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
-                    Unit* pTarget = *itr;
-                    if (!pTarget) return;
+                    Unit* target = *itr;
+                    if (!target) return;
                     for (uint32 i = 0; i<3; ++i)
                     {
                         uint8 eff = spellInfo->Effect[i];
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
 
-                        Aura *Aur = new Aura(spellInfo, i, pTarget, pTarget, pTarget);
-                        pTarget->AddAura(Aur);
+                        Aura *Aur = new Aura(spellInfo, i, target, target, target);
+                        target->AddAura(Aur);
                     }
                 }
             }*/
@@ -228,8 +228,8 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_BEWILDERING_STRIKE);
                     float mt_threat = DoGetThreat(me->getVictim());
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
-                        me->AddThreat(pTarget, mt_threat);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                        me->AddThreat(target, mt_threat);
                     BewilderingStrikeTimer = 20000;
                 } else BewilderingStrikeTimer -= diff;
 
@@ -277,26 +277,26 @@ public:
             {
                 if (Phase1)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget && pTarget->isAlive())
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target && target->isAlive())
                     {
                         Phase1 = false;
 
-                        TargetThreat = DoGetThreat(pTarget);
-                        TargetGUID = pTarget->GetGUID();
-                        pTarget->CastSpell(me, SPELL_TAUNT_GURTOGG, true);
-                        if (DoGetThreat(pTarget))
-                            DoModifyThreatPercent(pTarget, -100);
-                        me->AddThreat(pTarget, 50000000.0f);
+                        TargetThreat = DoGetThreat(target);
+                        TargetGUID = target->GetGUID();
+                        target->CastSpell(me, SPELL_TAUNT_GURTOGG, true);
+                        if (DoGetThreat(target))
+                            DoModifyThreatPercent(target, -100);
+                        me->AddThreat(target, 50000000.0f);
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                                                                 // If VMaps are disabled, this spell can call the whole instance
                         DoCast(me, SPELL_INSIGNIFIGANCE, true);
-                        DoCast(pTarget, SPELL_FEL_RAGE_TARGET, true);
-                        DoCast(pTarget, SPELL_FEL_RAGE_2, true);
+                        DoCast(target, SPELL_FEL_RAGE_TARGET, true);
+                        DoCast(target, SPELL_FEL_RAGE_2, true);
                         /* These spells do not work, comment them out for now.
-                        DoCast(pTarget, SPELL_FEL_RAGE_2, true);
-                        DoCast(pTarget, SPELL_FEL_RAGE_3, true);*/
+                        DoCast(target, SPELL_FEL_RAGE_2, true);
+                        DoCast(target, SPELL_FEL_RAGE_3, true);*/
 
                         //Cast this without triggered so that it appears in combat logs and shows visual.
                         DoCast(me, SPELL_FEL_RAGE_SELF);

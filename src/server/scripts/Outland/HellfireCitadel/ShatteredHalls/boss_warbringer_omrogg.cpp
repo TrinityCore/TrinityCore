@@ -383,11 +383,11 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (ResetThreat_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoYellForThreat();
                         DoResetThreat();
-                        me->AddThreat(pTarget, 0.0f);
+                        me->AddThreat(target, 0.0f);
                     }
                     ResetThreat_Timer = 25000+rand()%15000;
                 }

@@ -128,9 +128,9 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
-                if (pTarget && pTarget->isAlive())
-                    me->AddThreat(pTarget, 0.0f);
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                if (target && target->isAlive())
+                    me->AddThreat(target, 0.0f);
             }
         }
 
@@ -174,8 +174,8 @@ public:
 
             if (SwarmTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CARRION_SWARM);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CARRION_SWARM);
 
                 SwarmTimer = urand(45000, 60000);
                 switch (urand(0, 1))
@@ -195,8 +195,8 @@ public:
             {
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        pTarget->CastSpell(pTarget, SPELL_SLEEP, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        target->CastSpell(target, SPELL_SLEEP, true);
                 }
                 SleepTimer = 60000;
                 switch (urand(0, 1))

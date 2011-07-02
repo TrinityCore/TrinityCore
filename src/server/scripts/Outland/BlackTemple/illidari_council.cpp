@@ -275,12 +275,12 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void StartEvent(Unit* pTarget)
+        void StartEvent(Unit* target)
         {
             if (!pInstance)
                 return;
 
-            if (pTarget && pTarget->isAlive())
+            if (target && target->isAlive())
             {
                 Council[0] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
                 Council[1] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
@@ -301,7 +301,7 @@ public:
                     {
                         Member = Unit::GetUnit((*me), Council[i]);
                         if (Member && Member->isAlive())
-                            CAST_CRE(Member)->AI()->AttackStart(pTarget);
+                            CAST_CRE(Member)->AI()->AttackStart(target);
                     }
                 }
 
@@ -557,12 +557,12 @@ public:
 
             if (HammerOfJusticeTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     // is in ~10-40 yd range
-                    if (me->IsInRange(pTarget, 10.0f, 40.0f, false))
+                    if (me->IsInRange(target, 10.0f, 40.0f, false))
                     {
-                        DoCast(pTarget, SPELL_HAMMER_OF_JUSTICE);
+                        DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                         HammerOfJusticeTimer = 20000;
                     }
                 }
@@ -670,9 +670,9 @@ public:
 
             if (BlizzardTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_BLIZZARD);
+                    DoCast(target, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
                     FlamestrikeTimer += 10000;
                     Cooldown = 1000;
@@ -681,9 +681,9 @@ public:
 
             if (FlamestrikeTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_FLAMESTRIKE);
+                    DoCast(target, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
                     BlizzardTimer += 10000;
                     Cooldown = 2000;
@@ -738,9 +738,9 @@ public:
 
             if (EmpoweredSmiteTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_EMPOWERED_SMITE);
+                    DoCast(target, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
                 }
             } else EmpoweredSmiteTimer -= diff;
@@ -753,9 +753,9 @@ public:
 
             if (DivineWrathTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_DIVINE_WRATH);
+                    DoCast(target, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
                 }
             } else DivineWrathTimer -= diff;
@@ -838,7 +838,7 @@ public:
 
                 if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         VanishTimer = 30000;
                         AppearEnvenomTimer= 28000;
@@ -847,8 +847,8 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoResetThreat();
                                                                 // Chase a unit. Check before DoMeleeAttackIfReady prevents from attacking
-                        me->AddThreat(pTarget, 500000.0f);
-                        me->GetMotionMaster()->MoveChase(pTarget);
+                        me->AddThreat(target, 500000.0f);
+                        me->GetMotionMaster()->MoveChase(target);
                     }
                 } else VanishTimer -= diff;
 
@@ -858,11 +858,11 @@ public:
             {
                 if (VanishTimer <= diff)                          // Become attackable and poison current target
                 {
-                    Unit* pTarget = me->getVictim();
-                    DoCast(pTarget, SPELL_DEADLY_POISON);
+                    Unit* target = me->getVictim();
+                    DoCast(target, SPELL_DEADLY_POISON);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoResetThreat();
-                    me->AddThreat(pTarget, 3000.0f);      // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
+                    me->AddThreat(target, 3000.0f);      // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
                     DeadlyPoisonTimer += 6000;
                     VanishTimer = 90000;
                     AppearEnvenomTimer = 4000;

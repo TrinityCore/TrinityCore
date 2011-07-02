@@ -228,10 +228,10 @@ public:
 
                         if (uiImpalingChargeTimer <= diff)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
-                                DoCast(pTarget, SPELL_IMPALING_CHARGE);
-                                CheckAchievement(pTarget->GetGUID());
+                                DoCast(target, SPELL_IMPALING_CHARGE);
+                                CheckAchievement(target->GetGUID());
                             }
                             uiImpalingChargeTimer = 31*IN_MILLISECONDS;
                             ++uiPhaseCounter;

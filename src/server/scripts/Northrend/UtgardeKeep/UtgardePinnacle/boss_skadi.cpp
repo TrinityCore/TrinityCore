@@ -258,8 +258,8 @@ public:
                 case CREATURE_YMIRJAR_HARPOONER:
                     pSummoned->setActive(true);
                     pSummoned->SetInCombatWithZone();
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        pSummoned->AI()->AttackStart(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        pSummoned->AI()->AttackStart(target);
                     break;
                 case CREATURE_TRIGGER:
                     pSummoned->CastSpell((Unit*)NULL, SPELL_FREEZING_CLOUD, true);
@@ -391,8 +391,8 @@ public:
 
                     if (m_uiPoisonedSpearTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_POISONED_SPEAR);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_POISONED_SPEAR);
                         m_uiPoisonedSpearTimer = 10000;
                     } else m_uiPoisonedSpearTimer -= diff;
 

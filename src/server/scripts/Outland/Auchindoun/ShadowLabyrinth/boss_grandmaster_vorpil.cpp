@@ -274,10 +274,10 @@ public:
 
             if (IsHeroic() && banish_Timer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
-                if (pTarget)
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
+                if (target)
                 {
-                    DoCast(pTarget, SPELL_BANISH);
+                    DoCast(target, SPELL_BANISH);
                     banish_Timer = 16000;
                 }
             } else banish_Timer -= diff;

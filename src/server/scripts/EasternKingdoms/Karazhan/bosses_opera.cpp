@@ -388,8 +388,8 @@ public:
 
             if (BrainWipeTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_BRAIN_WIPE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_BRAIN_WIPE);
                 BrainWipeTimer = 20000;
             } else BrainWipeTimer -= diff;
 
@@ -869,15 +869,15 @@ public:
             {
                 if (!IsChasing)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoScriptText(SAY_WOLF_HOOD, me);
-                        DoCast(pTarget, SPELL_LITTLE_RED_RIDING_HOOD, true);
-                        TempThreat = DoGetThreat(pTarget);
+                        DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
+                        TempThreat = DoGetThreat(target);
                         if (TempThreat)
-                            DoModifyThreatPercent(pTarget, -100);
-                        HoodGUID = pTarget->GetGUID();
-                        me->AddThreat(pTarget, 1000000.0f);
+                            DoModifyThreatPercent(target, -100);
+                        HoodGUID = target->GetGUID();
+                        me->AddThreat(target, 1000000.0f);
                         ChaseTimer = 20000;
                         IsChasing = true;
                     }
@@ -886,12 +886,12 @@ public:
                 {
                     IsChasing = false;
 
-                    if (Unit* pTarget = Unit::GetUnit((*me), HoodGUID))
+                    if (Unit* target = Unit::GetUnit((*me), HoodGUID))
                     {
                         HoodGUID = 0;
-                        if (DoGetThreat(pTarget))
-                            DoModifyThreatPercent(pTarget, -100);
-                        me->AddThreat(pTarget, TempThreat);
+                        if (DoGetThreat(target))
+                            DoModifyThreatPercent(target, -100);
+                        me->AddThreat(target, TempThreat);
                         TempThreat = 0;
                     }
 
@@ -977,19 +977,19 @@ void PretendToDie(Creature* creature)
     creature->SetStandState(UNIT_STAND_STATE_DEAD);
 };
 
-void Resurrect(Creature* pTarget)
+void Resurrect(Creature* target)
 {
-    pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    pTarget->SetFullHealth();
-    pTarget->SetStandState(UNIT_STAND_STATE_STAND);
-    pTarget->CastSpell(pTarget, SPELL_RES_VISUAL, true);
-    if (pTarget->getVictim())
+    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    target->SetFullHealth();
+    target->SetStandState(UNIT_STAND_STATE_STAND);
+    target->CastSpell(target, SPELL_RES_VISUAL, true);
+    if (target->getVictim())
     {
-        pTarget->GetMotionMaster()->MoveChase(pTarget->getVictim());
-        pTarget->AI()->AttackStart(pTarget->getVictim());
+        target->GetMotionMaster()->MoveChase(target->getVictim());
+        target->AI()->AttackStart(target->getVictim());
     }
         else
-            pTarget->GetMotionMaster()->Initialize();
+            target->GetMotionMaster()->Initialize();
 };
 
 class boss_julianne : public CreatureScript
@@ -1289,10 +1289,10 @@ public:
 
             if (BackwardLungeTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-                if (pTarget && !me->HasInArc(M_PI, pTarget))
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                if (target && !me->HasInArc(M_PI, target))
                 {
-                    DoCast(pTarget, SPELL_BACKWARD_LUNGE);
+                    DoCast(target, SPELL_BACKWARD_LUNGE);
                     BackwardLungeTimer = urand(15000, 30000);
                 }
             } else BackwardLungeTimer -= diff;
@@ -1305,8 +1305,8 @@ public:
 
             if (DeadlySwatheTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_DEADLY_SWATHE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_DEADLY_SWATHE);
                 DeadlySwatheTimer = urand(15000, 25000);
             } else DeadlySwatheTimer -= diff;
 
@@ -1410,8 +1410,8 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (BlindingPassionTimer <= diff)
     {
-        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-            DoCast(pTarget, SPELL_BLINDING_PASSION);
+        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            DoCast(target, SPELL_BLINDING_PASSION);
         BlindingPassionTimer = urand(30000, 45000);
     } else BlindingPassionTimer -= diff;
 

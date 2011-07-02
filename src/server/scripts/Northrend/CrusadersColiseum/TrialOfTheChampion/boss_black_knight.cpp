@@ -195,10 +195,10 @@ public:
                         {
                             if (uiDeathRespiteTimer <= uiDiff)
                             {
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
-                                    if (pTarget && pTarget->isAlive())
-                                        DoCast(pTarget, SPELL_DEATH_RESPITE);
+                                    if (target && target->isAlive())
+                                        DoCast(target, SPELL_DEATH_RESPITE);
                                 }
                                 uiDeathRespiteTimer = urand(15000, 16000);
                             } else uiDeathRespiteTimer -= uiDiff;
@@ -223,10 +223,10 @@ public:
                             }
                             if (uiDesecration <= uiDiff)
                             {
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
-                                    if (pTarget && pTarget->isAlive())
-                                        DoCast(pTarget, SPELL_DESECRATION);
+                                    if (target && target->isAlive())
+                                        DoCast(target, SPELL_DESECRATION);
                                 }
                                 uiDesecration = urand(15000, 16000);
                             } else uiDesecration -= uiDiff;
@@ -250,10 +250,10 @@ public:
                     } else uiDeathBiteTimer -= uiDiff;
                     if (uiMarkedDeathTimer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (pTarget && pTarget->isAlive())
-                                DoCast(pTarget, SPELL_MARKED_DEATH);
+                            if (target && target->isAlive())
+                                DoCast(target, SPELL_MARKED_DEATH);
                         }
                         uiMarkedDeathTimer = urand (5000, 7000);
                     } else uiMarkedDeathTimer -= uiDiff;
@@ -322,10 +322,10 @@ public:
 
             if (uiAttackTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
-                    if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget, (SPELL_LEAP));
+                    if (target && target->isAlive())
+                    DoCast(target, (SPELL_LEAP));
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;

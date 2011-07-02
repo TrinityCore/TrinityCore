@@ -112,8 +112,8 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                summoned->AI()->AttackStart(pTarget);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                summoned->AI()->AttackStart(target);
         }
 
         void SythSummoning()
@@ -154,40 +154,40 @@ public:
 
             if (flameshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FLAME_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FLAME_SHOCK);
 
                 flameshock_timer = 10000 + rand()%5000;
             } else flameshock_timer -= diff;
 
             if (arcaneshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_ARCANE_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_ARCANE_SHOCK);
 
                 arcaneshock_timer = 10000 + rand()%5000;
             } else arcaneshock_timer -= diff;
 
             if (frostshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FROST_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FROST_SHOCK);
 
                 frostshock_timer = 10000 + rand()%5000;
             } else frostshock_timer -= diff;
 
             if (shadowshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHADOW_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHADOW_SHOCK);
 
                 shadowshock_timer = 10000 + rand()%5000;
             } else shadowshock_timer -= diff;
 
             if (chainlightning_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CHAIN_LIGHTNING);
 
                 chainlightning_timer = 25000;
             } else chainlightning_timer -= diff;
@@ -229,16 +229,16 @@ public:
 
             if (flameshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FLAME_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FLAME_SHOCK);
 
                 flameshock_timer = 5000;
             } else flameshock_timer -= diff;
 
             if (flamebuffet_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FLAME_BUFFET);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FLAME_BUFFET);
 
                 flamebuffet_timer = 5000;
             } else flamebuffet_timer -= diff;
@@ -288,16 +288,16 @@ public:
 
             if (arcaneshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_ARCANE_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_ARCANE_SHOCK);
 
                 arcaneshock_timer = 5000;
             } else arcaneshock_timer -= diff;
 
             if (arcanebuffet_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_ARCANE_BUFFET);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_ARCANE_BUFFET);
 
                 arcanebuffet_timer = 5000;
             } else arcanebuffet_timer -= diff;
@@ -342,16 +342,16 @@ public:
 
             if (frostshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FROST_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FROST_SHOCK);
 
                 frostshock_timer = 5000;
             } else frostshock_timer -= diff;
 
             if (frostbuffet_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FROST_BUFFET);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FROST_BUFFET);
 
                 frostbuffet_timer = 5000;
             } else frostbuffet_timer -= diff;
@@ -397,16 +397,16 @@ public:
 
             if (shadowshock_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHADOW_SHOCK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHADOW_SHOCK);
 
                 shadowshock_timer = 5000;
             } else shadowshock_timer -= diff;
 
             if (shadowbuffet_timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHADOW_BUFFET);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHADOW_BUFFET);
 
                 shadowbuffet_timer = 5000;
             } else shadowbuffet_timer -= diff;

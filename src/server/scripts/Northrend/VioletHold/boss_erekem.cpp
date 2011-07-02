@@ -174,8 +174,8 @@ public:
             {
                 if (uint64 TargetGUID = GetChainHealTargetGUID())
                 {
-                    if (Creature* pTarget = Unit::GetCreature(*me, TargetGUID))
-                        DoCast(pTarget, SPELL_CHAIN_HEAL);
+                    if (Creature* target = Unit::GetCreature(*me, TargetGUID))
+                        DoCast(target, SPELL_CHAIN_HEAL);
 
                     //If one of the adds is dead spawn heals faster
                     Creature* pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
@@ -198,8 +198,8 @@ public:
 
             if (uiLightningBoltTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_LIGHTNING_BOLT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_LIGHTNING_BOLT);
                 uiLightningBoltTimer = urand(18000, 24000);
             } else uiLightningBoltTimer -= diff;
 

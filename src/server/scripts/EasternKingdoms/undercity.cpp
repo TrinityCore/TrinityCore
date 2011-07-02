@@ -107,11 +107,11 @@ public:
         {
             if (summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY)
             {
-                if (Unit* pTarget = Unit::GetUnit(*summoned, targetGUID))
+                if (Unit* target = Unit::GetUnit(*summoned, targetGUID))
                 {
-                    pTarget->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f, 0);
-                    pTarget->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
-                    summoned->CastSpell(pTarget, SPELL_RIBBON_OF_SOULS, false);
+                    target->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0);
+                    target->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
+                    summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
                 summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);

@@ -210,16 +210,16 @@ public:
                         if (uiVanishTimer <= diff)
                         {
                             //Count alive players
-                            Unit* pTarget = NULL;
+                            Unit* target = NULL;
                             std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                             std::vector<Unit* > target_list;
                             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                             {
-                                pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                                target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                 // exclude pets & totems
-                                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
-                                    target_list.push_back(pTarget);
-                                pTarget = NULL;
+                                if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                                    target_list.push_back(target);
+                                target = NULL;
                             }
                             //He only vanishes if there are 3 or more alive players
                             if (target_list.size() > 2)

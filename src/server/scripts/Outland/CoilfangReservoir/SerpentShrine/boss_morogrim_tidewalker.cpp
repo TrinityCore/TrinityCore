@@ -187,10 +187,10 @@ public:
 
                     for (uint8 i = 0; i < 10; ++i)
                     {
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                        if (pTarget && Murloc)
-                            Murloc->AI()->AttackStart(pTarget);
+                        if (target && Murloc)
+                            Murloc->AI()->AttackStart(target);
                     }
                     DoScriptText(EMOTE_EARTHQUAKE, me);
                     Earthquake = false;
@@ -211,7 +211,7 @@ public:
                 if (WateryGrave_Timer <= diff)
                 {
                     //Teleport 4 players under the waterfalls
-                    Unit* pTarget;
+                    Unit* target;
                     std::set<uint64> list;
                     std::set<uint64>::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
@@ -219,18 +219,18 @@ public:
                         counter = 0;
                         do
                         {
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
                             if (counter < Playercount)
                                 break;
-                            if (pTarget)
-                                itr = list.find(pTarget->GetGUID());
+                            if (target)
+                                itr = list.find(target->GetGUID());
                             ++counter;
                         } while (itr != list.end());
 
-                        if (pTarget)
+                        if (target)
                         {
-                            list.insert(pTarget->GetGUID());
-                            ApplyWateryGrave(pTarget, i);
+                            list.insert(target->GetGUID());
+                            ApplyWateryGrave(target, i);
                         }
                     }
 

@@ -117,10 +117,10 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* pTarget, const SpellEntry* entry)
+            void SpellHitTarget(Unit* target, const SpellEntry* entry)
             {
-                if (pTarget && entry->Id == uint32(SPELL_FIREBALL))
-                    me->SummonCreature(ENTRY_LIQUID_FIRE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
+                if (target && entry->Id == uint32(SPELL_FIREBALL))
+                    me->SummonCreature(ENTRY_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
             }
 
             void UpdateAI(const uint32 diff)
