@@ -266,11 +266,21 @@ void MapManager::Update(uint32 diff)
     MapMapType::iterator iter = i_maps.begin();
     for (; iter != i_maps.end(); ++iter)
     {
-        if (m_updater.activated())
-            m_updater.schedule_update(*iter->second, uint32(i_timer.GetCurrent()));
-        else
-            iter->second->Update(uint32(i_timer.GetCurrent()));
+        m_updater.schedule_update(*iter->second, uint32(i_timer.GetCurrent()));
+        if (iter->second->Instanceable())
+        {
+            MapInstanced::InstancedMaps & m_InstancedMaps = ((MapInstanced*)iter->second)->GetInstancedMaps();
+            for (MapInstanced::InstancedMaps::iterator iter_maps = m_InstancedMaps.begin(); iter_maps != m_InstancedMaps.end(); )
+                if (iter_maps->second->CanUnload(i_timer.GetCurrent()))
+                    ((MapInstanced*)iter->second)->DestroyInstance(iter_maps);
+                else
+                {
+                    m_updater.schedule_update(*iter_maps->second, uint32(i_timer.GetCurrent()));
+                    ++iter_maps;
+                }
+        }
     }
+
     if (m_updater.activated())
         m_updater.wait();
 
