@@ -489,7 +489,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
     SPELL_ATTR6_IGNORE_CROWD_CONTROL_TARGETS     = 0x00000100, //  8
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
-    SPELL_ATTR6_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS     = 0x00000400, // 10 NYI!
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
     SPELL_ATTR6_UNK12                            = 0x00001000, // 12
     SPELL_ATTR6_UNK13                            = 0x00002000, // 13
@@ -502,15 +502,15 @@ enum SpellAttr6
     SPELL_ATTR6_UNK20                            = 0x00100000, // 20
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR6_UNK23                            = 0x00800000, // 23 not set in 3.0.3
-    SPELL_ATTR6_UNK24                            = 0x01000000, // 24 not set in 3.0.3
-    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 not set in 3.0.3
-    SPELL_ATTR6_UNK26                            = 0x04000000, // 26 not set in 3.0.3
-    SPELL_ATTR6_UNK27                            = 0x08000000, // 27 not set in 3.0.3
-    SPELL_ATTR6_UNK28                            = 0x10000000, // 28 not set in 3.0.3
-    SPELL_ATTR6_UNK29                            = 0x20000000, // 29 not set in 3.0.3
-    SPELL_ATTR6_UNK30                            = 0x40000000, // 30 not set in 3.0.3
-    SPELL_ATTR6_UNK31                            = 0x80000000  // 31 not set in 3.0.3
+    SPELL_ATTR6_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24 NYI!
+    SPELL_ATTR6_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR6_UNK26                            = 0x04000000, // 26
+    SPELL_ATTR6_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR6_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR6_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR6_UNK30                            = 0x40000000, // 30
+    SPELL_ATTR6_UNK31                            = 0x80000000  // 31
 };
 
 enum SpellAttr7
