@@ -15,11 +15,11 @@ UPDATE `creature_template` SET `VehicleId` = '0', `ScriptName` = 'npc_og_camera_
 UPDATE `creature_template` SET `mechanic_immune_mask` = '8192' WHERE `entry` IN ('39860', '39826', '39799', '39819', '39273', '39910', '39837');
 
 DELETE FROM `creature` WHERE `id` IN ('39273', '39910');
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-('250249', '39273', '0', '1', '256', '0', '0', '-5423.01', '535.254', '386.516', '5.23555', '300', '0', '0', '630000', '0', '0', '0', '0', '134217728', '0'),
-('250248', '39910', '0', '1', '256', '0', '0', '-5427.93', '532.323', '386.85', '5.27046', '300', '0', '0', '630000', '0', '0', '0', '0', '0', '0');
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+('250249', '39273', '0', '1', '256', '0', '0', '-5423.01', '535.254', '386.516', '5.23555', '300', '0', '0', '630000', '0', '0', '0', '134217728', '0'),
+('250248', '39910', '0', '1', '256', '0', '0', '-5427.93', '532.323', '386.85', '5.27046', '300', '0', '0', '630000', '0', '0', '0', '0', '0');
 UPDATE `creature` SET `position_x` = '-5424.462891', `position_y` = '531.410095', `position_z` = '386.743347', `orientation` = '5.2' WHERE `id` = '39271';
-UPDATE `creature` SET `phaseMask`= '257' WHERE `id` = '7937';
+UPDATE `creature` SET `phaseMask`= '1' WHERE `id` = '7937';
 
 DELETE FROM `vehicle_template_accessory` WHERE `entry` = '39860';
 
@@ -36,7 +36,6 @@ UPDATE `creature_template` SET `speed_run` = '1.29', `faction_A` = '1770', `fact
 
 DELETE FROM `spell_area` WHERE (`spell` = '74310') AND (`area` IN ('1', '135', '721'));
 INSERT INTO `spell_area` VALUES
-('74310', '1', '25393', '1', '25393', '0', '0', '2', '1'),
 ('74310', '721', '25287', '1', '25393', '0', '0', '2', '1'),
 ('74310', '135', '25287', '1', '25393', '0', '0', '2', '1');
 

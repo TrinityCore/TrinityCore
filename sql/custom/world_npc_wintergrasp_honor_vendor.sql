@@ -7,5 +7,5 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (99002, 0, 43589, 0, 0, 2426);
 
 DELETE FROM `creature` WHERE `id`=99002;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(1293691, 99002, 571, 1, 1, 0, 99001, 5386.42, 2840.8, 418.675, 3.14854, 300, 0, 0, 1024, 1, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+(1293691, 99002, 571, 1, 1, 0, 99001, 5386.42, 2840.8, 418.675, 3.14854, 300, 0, 0, 1024, 1, 0, 0, 0, 0);
