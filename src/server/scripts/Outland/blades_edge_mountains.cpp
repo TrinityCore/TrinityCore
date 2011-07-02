@@ -53,9 +53,9 @@ class mobs_bladespire_ogre : public CreatureScript
 public:
     mobs_bladespire_ogre() : CreatureScript("mobs_bladespire_ogre") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_bladespire_ogreAI (pCreature);
+        return new mobs_bladespire_ogreAI (creature);
     }
 
     struct mobs_bladespire_ogreAI : public ScriptedAI
@@ -105,9 +105,9 @@ class mobs_nether_drake : public CreatureScript
 public:
     mobs_nether_drake() : CreatureScript("mobs_nether_drake") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_nether_drakeAI (pCreature);
+        return new mobs_nether_drakeAI (creature);
     }
 
     struct mobs_nether_drakeAI : public ScriptedAI
@@ -270,9 +270,9 @@ class npc_daranelle : public CreatureScript
 public:
     npc_daranelle() : CreatureScript("npc_daranelle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_daranelleAI (pCreature);
+        return new npc_daranelleAI (creature);
     }
 
     struct npc_daranelleAI : public ScriptedAI
@@ -312,23 +312,23 @@ class npc_overseer_nuaar : public CreatureScript
 public:
     npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->SEND_GOSSIP_MENU(10533, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(10533, creature->GetGUID());
             pPlayer->AreaExploredOrEventHappens(10682);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(10532, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(10532, creature->GetGUID());
 
         return true;
     }
@@ -347,29 +347,29 @@ class npc_saikkal_the_elder : public CreatureScript
 public:
     npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(10795, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(10795, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-                pPlayer->SEND_GOSSIP_MENU(10796, pCreature->GetGUID());
+                pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(10796, creature->GetGUID());
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(10794, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(10794, creature->GetGUID());
 
         return true;
     }

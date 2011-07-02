@@ -71,9 +71,9 @@ class boss_the_lurker_below : public CreatureScript
 public:
     boss_the_lurker_below() : CreatureScript("boss_the_lurker_below") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_the_lurker_belowAI (pCreature);
+        return new boss_the_lurker_belowAI (creature);
     }
 
     struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
@@ -375,9 +375,9 @@ class mob_coilfang_guardian : public CreatureScript
 public:
     mob_coilfang_guardian() : CreatureScript("mob_coilfang_guardian") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI* ai = new SimpleAI (pCreature);
+        SimpleAI* ai = new SimpleAI (creature);
 
         ai->Spell[0].Enabled = true;
         ai->Spell[0].Spell_Id = SPELL_ARCINGSMASH;
@@ -401,9 +401,9 @@ class mob_coilfang_ambusher : public CreatureScript
 public:
     mob_coilfang_ambusher() : CreatureScript("mob_coilfang_ambusher") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_coilfang_ambusherAI (pCreature);
+        return new mob_coilfang_ambusherAI (creature);
     }
 
     struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI

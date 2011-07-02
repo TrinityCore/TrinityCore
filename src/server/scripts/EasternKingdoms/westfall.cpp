@@ -54,27 +54,27 @@ class npc_daphne_stilwell : public CreatureScript
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_TOME_VALOR)
         {
-            DoScriptText(SAY_DS_START, pCreature);
+            DoScriptText(SAY_DS_START, creature);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_daphne_stilwell::npc_daphne_stilwellAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_daphne_stilwell::npc_daphne_stilwellAI, creature->AI()))
                 pEscortAI->Start(true, true, pPlayer->GetGUID());
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_daphne_stilwellAI(pCreature);
+        return new npc_daphne_stilwellAI(creature);
     }
 
     struct npc_daphne_stilwellAI : public npc_escortAI
     {
-        npc_daphne_stilwellAI(Creature* pCreature) : npc_escortAI(pCreature) {}
+        npc_daphne_stilwellAI(Creature* creature) : npc_escortAI(creature) {}
 
         uint32 uiWPHolder;
         uint32 uiShootTimer;
@@ -205,22 +205,22 @@ class npc_defias_traitor : public CreatureScript
 public:
     npc_defias_traitor() : CreatureScript("npc_defias_traitor") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitor::npc_defias_traitorAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitor::npc_defias_traitorAI, creature->AI()))
                 pEscortAI->Start(true, true, pPlayer->GetGUID());
 
-            DoScriptText(SAY_START, pCreature, pPlayer);
+            DoScriptText(SAY_START, creature, pPlayer);
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_defias_traitorAI(pCreature);
+        return new npc_defias_traitorAI(creature);
     }
 
     struct npc_defias_traitorAI : public npc_escortAI

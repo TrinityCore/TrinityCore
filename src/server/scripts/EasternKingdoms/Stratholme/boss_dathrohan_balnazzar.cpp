@@ -70,9 +70,9 @@ class boss_dathrohan_balnazzar : public CreatureScript
 public:
     boss_dathrohan_balnazzar() : CreatureScript("boss_dathrohan_balnazzar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_dathrohan_balnazzarAI (pCreature);
+        return new boss_dathrohan_balnazzarAI (creature);
     }
 
     struct boss_dathrohan_balnazzarAI : public ScriptedAI

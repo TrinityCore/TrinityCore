@@ -38,9 +38,9 @@ class mob_yenniku : public CreatureScript
 public:
     mob_yenniku() : CreatureScript("mob_yenniku") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_yennikuAI (pCreature);
+        return new mob_yennikuAI (creature);
     }
 
     struct mob_yennikuAI : public ScriptedAI

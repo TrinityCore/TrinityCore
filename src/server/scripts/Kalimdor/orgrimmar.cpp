@@ -44,19 +44,19 @@ class npc_shenthul : public CreatureScript
 public:
     npc_shenthul() : CreatureScript("npc_shenthul") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_SHATTERED_SALUTE)
         {
-            CAST_AI(npc_shenthul::npc_shenthulAI, pCreature->AI())->CanTalk = true;
-            CAST_AI(npc_shenthul::npc_shenthulAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
+            CAST_AI(npc_shenthul::npc_shenthulAI, creature->AI())->CanTalk = true;
+            CAST_AI(npc_shenthul::npc_shenthulAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_shenthulAI (pCreature);
+        return new npc_shenthulAI (creature);
     }
 
     struct npc_shenthulAI : public ScriptedAI
@@ -149,34 +149,34 @@ class npc_thrall_warchief : public CreatureScript
 public:
     npc_thrall_warchief() : CreatureScript("npc_thrall_warchief") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(5733, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5733, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                pPlayer->SEND_GOSSIP_MENU(5734, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5734, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                pPlayer->SEND_GOSSIP_MENU(5735, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5735, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                pPlayer->SEND_GOSSIP_MENU(5736, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5736, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                pPlayer->SEND_GOSSIP_MENU(5737, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5737, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+6:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-                pPlayer->SEND_GOSSIP_MENU(5738, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5738, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+7:
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -186,21 +186,21 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(QUEST_6566) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HTW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_thrall_warchiefAI (pCreature);
+        return new npc_thrall_warchiefAI (creature);
     }
 
     struct npc_thrall_warchiefAI : public ScriptedAI

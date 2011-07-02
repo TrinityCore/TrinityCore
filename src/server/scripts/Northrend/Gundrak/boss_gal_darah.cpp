@@ -68,9 +68,9 @@ class boss_gal_darah : public CreatureScript
 public:
     boss_gal_darah() : CreatureScript("boss_gal_darah") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gal_darahAI (pCreature);
+        return new boss_gal_darahAI (creature);
     }
 
     struct boss_gal_darahAI : public ScriptedAI

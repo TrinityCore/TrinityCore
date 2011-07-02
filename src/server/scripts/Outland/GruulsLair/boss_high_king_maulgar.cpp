@@ -111,9 +111,9 @@ class boss_high_king_maulgar : public CreatureScript
 public:
     boss_high_king_maulgar() : CreatureScript("boss_high_king_maulgar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_king_maulgarAI (pCreature);
+        return new boss_high_king_maulgarAI (creature);
     }
 
     struct boss_high_king_maulgarAI : public ScriptedAI
@@ -149,16 +149,16 @@ public:
 
             Phase2 = false;
 
-            Creature* pCreature = NULL;
+            Creature* creature = NULL;
             for (uint8 i = 0; i < 4; ++i)
             {
                 if (Council[i])
                 {
-                    pCreature = (Unit::GetCreature((*me), Council[i]));
-                    if (pCreature && !pCreature->isAlive())
+                    creature = (Unit::GetCreature((*me), Council[i]));
+                    if (creature && !creature->isAlive())
                     {
-                        pCreature->Respawn();
-                        pCreature->AI()->EnterEvadeMode();
+                        creature->Respawn();
+                        creature->AI()->EnterEvadeMode();
                     }
                 }
             }
@@ -310,9 +310,9 @@ class boss_olm_the_summoner : public CreatureScript
 public:
     boss_olm_the_summoner() : CreatureScript("boss_olm_the_summoner") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_olm_the_summonerAI (pCreature);
+        return new boss_olm_the_summonerAI (creature);
     }
 
     struct boss_olm_the_summonerAI : public ScriptedAI
@@ -438,9 +438,9 @@ class boss_kiggler_the_crazed : public CreatureScript
 public:
     boss_kiggler_the_crazed() : CreatureScript("boss_kiggler_the_crazed") { }
 
-    CreatureAI *GetAI(Creature* pCreature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
-        return new boss_kiggler_the_crazedAI (pCreature);
+        return new boss_kiggler_the_crazedAI (creature);
     }
 
     struct boss_kiggler_the_crazedAI : public ScriptedAI
@@ -560,9 +560,9 @@ class boss_blindeye_the_seer : public CreatureScript
 public:
     boss_blindeye_the_seer() : CreatureScript("boss_blindeye_the_seer") { }
 
-    CreatureAI *GetAI(Creature* pCreature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
-        return new boss_blindeye_the_seerAI (pCreature);
+        return new boss_blindeye_the_seerAI (creature);
     }
 
     struct boss_blindeye_the_seerAI : public ScriptedAI
@@ -670,9 +670,9 @@ class boss_krosh_firehand : public CreatureScript
 public:
     boss_krosh_firehand() : CreatureScript("boss_krosh_firehand") { }
 
-    CreatureAI *GetAI(Creature* pCreature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
-        return new boss_krosh_firehandAI (pCreature);
+        return new boss_krosh_firehandAI (creature);
     }
 
     struct boss_krosh_firehandAI : public ScriptedAI

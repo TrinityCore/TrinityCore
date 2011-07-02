@@ -67,9 +67,9 @@ class mob_voidtraveler : public CreatureScript
 public:
     mob_voidtraveler() : CreatureScript("mob_voidtraveler") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_voidtravelerAI (pCreature);
+        return new mob_voidtravelerAI (creature);
     }
 
     struct mob_voidtravelerAI : public ScriptedAI
@@ -140,9 +140,9 @@ class boss_grandmaster_vorpil : public CreatureScript
 public:
     boss_grandmaster_vorpil() : CreatureScript("boss_grandmaster_vorpil") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_grandmaster_vorpilAI (pCreature);
+        return new boss_grandmaster_vorpilAI (creature);
     }
 
     struct boss_grandmaster_vorpilAI : public ScriptedAI

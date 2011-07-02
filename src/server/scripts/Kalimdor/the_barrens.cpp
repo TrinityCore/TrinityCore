@@ -51,23 +51,23 @@ class npc_beaten_corpse : public CreatureScript
 public:
     npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
         {
-            pPlayer->SEND_GOSSIP_MENU(3558, pCreature->GetGUID());
-            pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(3558, creature->GetGUID());
+            pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(3557, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(3557, creature->GetGUID());
         return true;
     }
 
@@ -101,29 +101,29 @@ class npc_gilthares : public CreatureScript
 public:
     npc_gilthares() : CreatureScript("npc_gilthares") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_FREE_FROM_HOLD)
         {
-            pCreature->setFaction(FACTION_ESCORTEE);
-            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+            creature->setFaction(FACTION_ESCORTEE);
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            DoScriptText(SAY_GIL_START, pCreature, pPlayer);
+            DoScriptText(SAY_GIL_START, creature, pPlayer);
 
-            if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, pCreature->AI()))
+            if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_giltharesAI(pCreature);
+        return new npc_giltharesAI(creature);
     }
 
     struct npc_giltharesAI : public npc_escortAI
     {
-        npc_giltharesAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+        npc_giltharesAI(Creature* creature) : npc_escortAI(creature) { }
 
         void Reset() { }
 
@@ -186,26 +186,26 @@ class npc_sputtervalve : public CreatureScript
 public:
     npc_sputtervalve() : CreatureScript("npc_sputtervalve") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            pPlayer->SEND_GOSSIP_MENU(2013, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(2013, creature->GetGUID());
             pPlayer->AreaExploredOrEventHappens(6981);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -227,9 +227,9 @@ class npc_taskmaster_fizzule : public CreatureScript
 public:
     npc_taskmaster_fizzule() : CreatureScript("npc_taskmaster_fizzule") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_taskmaster_fizzuleAI(pCreature);
+        return new npc_taskmaster_fizzuleAI(creature);
     }
 
     struct npc_taskmaster_fizzuleAI : public ScriptedAI
@@ -343,9 +343,9 @@ class npc_twiggy_flathead : public CreatureScript
 public:
     npc_twiggy_flathead() : CreatureScript("npc_twiggy_flathead") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_twiggy_flatheadAI (pCreature);
+        return new npc_twiggy_flatheadAI (creature);
     }
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
@@ -416,13 +416,13 @@ public:
                     {
                         if (AffrayChallenger[i])
                         {
-                            Creature* pCreature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                            if (pCreature) {
-                                if (pCreature->isAlive())
+                            Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
+                            if (creature) {
+                                if (creature->isAlive())
                                 {
-                                    pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    pCreature->setDeathState(JUST_DIED);
+                                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    creature->setDeathState(JUST_DIED);
                                 }
                             }
                         }
@@ -432,12 +432,12 @@ public:
 
                     if (BigWill)
                     {
-                        Creature* pCreature = Unit::GetCreature((*me), BigWill);
-                        if (pCreature) {
-                            if (pCreature->isAlive()) {
-                                pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                pCreature->setDeathState(JUST_DIED);
+                        Creature* creature = Unit::GetCreature((*me), BigWill);
+                        if (creature) {
+                            if (creature->isAlive()) {
+                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                creature->setDeathState(JUST_DIED);
                             }
                         }
                     }
@@ -455,14 +455,14 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* pCreature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            if (!pCreature)
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            if (!creature)
                                 continue;
-                            pCreature->setFaction(35);
-                            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                            AffrayChallenger[i] = pCreature->GetGUID();
+                            creature->setFaction(35);
+                            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                            AffrayChallenger[i] = creature->GetGUID();
                         }
                         Wave_Timer = 5000;
                         Challenger_checker = 1000;
@@ -477,8 +477,8 @@ public:
                         {
                             if (AffrayChallenger[i])
                             {
-                                Creature* pCreature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                                if ((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i])
+                                Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
+                                if ((!creature || (!creature->isAlive())) && !Challenger_down[i])
                                 {
                                     DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, me);
                                     Challenger_down[i] = true;
@@ -493,34 +493,34 @@ public:
                         if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
                         {
                             DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, me);
-                            Creature* pCreature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
-                            if (pCreature && (pCreature->isAlive()))
+                            Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
+                            if (creature && (creature->isAlive()))
                             {
-                                pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                                pCreature->setFaction(14);
-                                pCreature->AI()->AttackStart(pWarrior);
+                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                                creature->setFaction(14);
+                                creature->AI()->AttackStart(pWarrior);
                                 ++Wave;
                                 Wave_Timer = 20000;
                             }
                         }
                         else if (Wave >= 6 && !EventBigWill) {
-                            if (Creature* pCreature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                             {
-                                BigWill = pCreature->GetGUID();
-                                //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
-                                //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78f);
-                                pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79f);
-                                pCreature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
+                                BigWill = creature->GetGUID();
+                                //creature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
+                                //creature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78f);
+                                creature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79f);
+                                creature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
                                 EventBigWill = true;
                                 Wave_Timer = 1000;
                             }
                         }
                         else if (Wave >= 6 && EventBigWill && BigWill)
                         {
-                            Creature* pCreature = Unit::GetCreature((*me), BigWill);
-                            if (!pCreature || !pCreature->isAlive())
+                            Creature* creature = Unit::GetCreature((*me), BigWill);
+                            if (!creature || !creature->isAlive())
                             {
                                 DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, me);
                                 EventInProgress = false;
@@ -566,7 +566,7 @@ public:
 
     struct npc_wizzlecrank_shredderAI : public npc_escortAI
     {
-        npc_wizzlecrank_shredderAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_wizzlecrank_shredderAI(Creature* creature) : npc_escortAI(creature)
         {
             m_bIsPostEvent = false;
             m_uiPostEventTimer = 1000;
@@ -688,20 +688,20 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_ESCAPE)
         {
-            pCreature->setFaction(FACTION_RATCHET);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, pCreature->AI()))
+            creature->setFaction(FACTION_RATCHET);
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_wizzlecrank_shredderAI(pCreature);
+        return new npc_wizzlecrank_shredderAI(creature);
     }
 
 };

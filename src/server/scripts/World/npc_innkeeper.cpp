@@ -42,7 +42,7 @@ class npc_innkeeper : public CreatureScript
 public:
     npc_innkeeper() : CreatureScript("npc_innkeeper") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
         {
@@ -57,13 +57,13 @@ public:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
         }
 
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
-        if (pCreature->isVendor())
+        if (creature->isVendor())
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        if (pCreature->isInnkeeper())
+        if (creature->isInnkeeper())
         {
             const char* localizedEntry;
             switch (pPlayer->GetSession()->GetSessionDbcLocale())
@@ -74,12 +74,12 @@ public:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
         }
 
-        pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
@@ -118,8 +118,8 @@ public:
 
         switch (uiAction)
         {
-            case GOSSIP_ACTION_TRADE: pPlayer->GetSession()->SendListInventory(pCreature->GetGUID()); break;
-            case GOSSIP_ACTION_INN: pPlayer->SetBindPoint(pCreature->GetGUID()); break;
+            case GOSSIP_ACTION_TRADE: pPlayer->GetSession()->SendListInventory(creature->GetGUID()); break;
+            case GOSSIP_ACTION_INN: pPlayer->SetBindPoint(creature->GetGUID()); break;
         }
         return true;
     }

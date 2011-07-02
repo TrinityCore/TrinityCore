@@ -35,9 +35,9 @@ class boss_princess_theradras : public CreatureScript
 public:
     boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ptheradrasAI (pCreature);
+        return new boss_ptheradrasAI (creature);
     }
 
     struct boss_ptheradrasAI : public ScriptedAI

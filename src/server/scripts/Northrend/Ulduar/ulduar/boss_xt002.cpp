@@ -181,14 +181,14 @@ class boss_xt002 : public CreatureScript
     public:
         boss_xt002() : CreatureScript("boss_xt002") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetUlduarAI<boss_xt002_AI>(pCreature);
+            return GetUlduarAI<boss_xt002_AI>(creature);
         }
 
         struct boss_xt002_AI : public BossAI
         {
-            boss_xt002_AI(Creature* pCreature) : BossAI(pCreature, BOSS_XT002)
+            boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
             {
             }
 
@@ -429,16 +429,16 @@ class mob_xt002_heart : public CreatureScript
     public:
         mob_xt002_heart() : CreatureScript("mob_xt002_heart") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_xt002_heartAI(pCreature);
+            return new mob_xt002_heartAI(creature);
         }
 
         struct mob_xt002_heartAI : public ScriptedAI
         {
-            mob_xt002_heartAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_xt002_heartAI(Creature* creature) : ScriptedAI(creature)
             {
-                _instance = pCreature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -473,14 +473,14 @@ class mob_scrapbot : public CreatureScript
     public:
         mob_scrapbot() : CreatureScript("mob_scrapbot") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_scrapbotAI(pCreature);
+            return new mob_scrapbotAI(creature);
         }
 
         struct mob_scrapbotAI : public ScriptedAI
         {
-            mob_scrapbotAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_scrapbotAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
             }
@@ -530,16 +530,16 @@ class mob_pummeller : public CreatureScript
     public:
         mob_pummeller() : CreatureScript("mob_pummeller") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_pummellerAI(pCreature);
+            return new mob_pummellerAI(creature);
         }
 
         struct mob_pummellerAI : public ScriptedAI
         {
-            mob_pummellerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_pummellerAI(Creature* creature) : ScriptedAI(creature)
             {
-                _instance = pCreature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -632,16 +632,16 @@ class mob_boombot : public CreatureScript
     public:
         mob_boombot() : CreatureScript("mob_boombot") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_boombotAI(pCreature);
+            return new mob_boombotAI(creature);
         }
 
         struct mob_boombotAI : public ScriptedAI
         {
-            mob_boombotAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_boombotAI(Creature* creature) : ScriptedAI(creature)
             {
-                _instance = pCreature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -711,14 +711,14 @@ class mob_life_spark : public CreatureScript
     public:
         mob_life_spark() : CreatureScript("mob_life_spark") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_life_sparkAI(pCreature);
+            return new mob_life_sparkAI(creature);
         }
 
         struct mob_life_sparkAI : public ScriptedAI
         {
-            mob_life_sparkAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_life_sparkAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 

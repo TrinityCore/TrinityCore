@@ -44,9 +44,9 @@ class boss_maiden_of_virtue : public CreatureScript
 public:
     boss_maiden_of_virtue() : CreatureScript("boss_maiden_of_virtue") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_maiden_of_virtueAI (pCreature);
+        return new boss_maiden_of_virtueAI (creature);
     }
 
     struct boss_maiden_of_virtueAI : public ScriptedAI

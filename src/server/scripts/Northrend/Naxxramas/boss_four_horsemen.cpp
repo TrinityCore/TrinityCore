@@ -82,9 +82,9 @@ class boss_four_horsemen : public CreatureScript
 public:
     boss_four_horsemen() : CreatureScript("boss_four_horsemen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_four_horsemenAI (pCreature);
+        return new boss_four_horsemenAI (creature);
     }
 
     struct boss_four_horsemenAI : public BossAI

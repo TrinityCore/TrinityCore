@@ -89,9 +89,9 @@ class boss_svala : public CreatureScript
 public:
     boss_svala() : CreatureScript("boss_svala") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_svalaAI (pCreature);
+        return new boss_svalaAI (creature);
     }
 
     struct boss_svalaAI : public ScriptedAI
@@ -212,9 +212,9 @@ class mob_ritual_channeler : public CreatureScript
 public:
     mob_ritual_channeler() : CreatureScript("mob_ritual_channeler") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ritual_channelerAI(pCreature);
+        return new mob_ritual_channelerAI(creature);
     }
 
     struct mob_ritual_channelerAI : public Scripted_NoMovementAI
@@ -251,9 +251,9 @@ class boss_svala_sorrowgrave : public CreatureScript
 public:
     boss_svala_sorrowgrave() : CreatureScript("boss_svala_sorrowgrave") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_svala_sorrowgraveAI(pCreature);
+        return new boss_svala_sorrowgraveAI(creature);
     }
 
     struct boss_svala_sorrowgraveAI : public ScriptedAI

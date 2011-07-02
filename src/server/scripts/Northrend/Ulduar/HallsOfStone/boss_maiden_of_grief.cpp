@@ -58,9 +58,9 @@ class boss_maiden_of_grief : public CreatureScript
 public:
     boss_maiden_of_grief() : CreatureScript("boss_maiden_of_grief") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_maiden_of_griefAI (pCreature);
+        return new boss_maiden_of_griefAI (creature);
     }
 
     struct boss_maiden_of_griefAI : public ScriptedAI

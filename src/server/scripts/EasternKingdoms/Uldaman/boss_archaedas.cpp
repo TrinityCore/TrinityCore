@@ -63,7 +63,7 @@ class boss_archaedas : public CreatureScript
 
         struct boss_archaedasAI : public ScriptedAI
         {
-            boss_archaedasAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_archaedasAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = me->GetInstanceScript();
             }
@@ -331,7 +331,7 @@ class mob_stonekeepers : public CreatureScript
 
         struct mob_stonekeepersAI : public ScriptedAI
         {
-            mob_stonekeepersAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_stonekeepersAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = me->GetInstanceScript();
             }

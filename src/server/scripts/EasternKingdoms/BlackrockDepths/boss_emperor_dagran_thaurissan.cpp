@@ -42,9 +42,9 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
 public:
     boss_emperor_dagran_thaurissan() : CreatureScript("boss_emperor_dagran_thaurissan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_draganthaurissanAI (pCreature);
+        return new boss_draganthaurissanAI (creature);
     }
 
     struct boss_draganthaurissanAI : public ScriptedAI

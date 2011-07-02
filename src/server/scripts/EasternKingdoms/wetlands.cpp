@@ -50,14 +50,14 @@ class npc_tapoke_slim_jahn : public CreatureScript
 public:
     npc_tapoke_slim_jahn() : CreatureScript("npc_tapoke_slim_jahn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_tapoke_slim_jahnAI(pCreature);
+        return new npc_tapoke_slim_jahnAI(creature);
     }
 
     struct npc_tapoke_slim_jahnAI : public npc_escortAI
     {
-        npc_tapoke_slim_jahnAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature) { }
 
         bool m_bFriendSummoned;
 
@@ -144,11 +144,11 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
         {
-            Creature* pSlim = pCreature->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
+            Creature* pSlim = creature->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
 
             if (!pSlim)
                 return false;

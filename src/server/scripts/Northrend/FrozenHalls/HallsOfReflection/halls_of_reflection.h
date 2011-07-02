@@ -79,7 +79,7 @@ enum Actions
 // handled the summonList and the notification events to/from the InstanceScript
 struct boss_horAI : ScriptedAI
 {
-    boss_horAI(Creature* pCreature) : ScriptedAI(pCreature), summons(pCreature)
+    boss_horAI(Creature* creature) : ScriptedAI(creature), summons(creature)
     {
         pInstance = me->GetInstanceScript();
     }

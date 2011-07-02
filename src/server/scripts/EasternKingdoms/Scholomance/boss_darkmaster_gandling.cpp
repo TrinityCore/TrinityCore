@@ -55,9 +55,9 @@ class boss_darkmaster_gandling : public CreatureScript
 public:
     boss_darkmaster_gandling() : CreatureScript("boss_darkmaster_gandling") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_darkmaster_gandlingAI (pCreature);
+        return new boss_darkmaster_gandlingAI (creature);
     }
 
     struct boss_darkmaster_gandlingAI : public ScriptedAI

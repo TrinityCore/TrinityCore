@@ -48,25 +48,25 @@ class npc_mist : public CreatureScript
 public:
     npc_mist() : CreatureScript("npc_mist") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MIST)
         {
-            if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, pCreature->AI()))
+            if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
                 pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_mistAI(pCreature);
+        return new npc_mistAI(creature);
     }
 
     struct npc_mistAI : public FollowerAI
     {
-        npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { }
+        npc_mistAI(Creature* creature) : FollowerAI(creature) { }
 
         void Reset() { }
 

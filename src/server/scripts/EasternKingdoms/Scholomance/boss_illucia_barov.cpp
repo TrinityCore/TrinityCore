@@ -36,9 +36,9 @@ class boss_illucia_barov : public CreatureScript
 public:
     boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_illuciabarovAI (pCreature);
+        return new boss_illuciabarovAI (creature);
     }
 
     struct boss_illuciabarovAI : public ScriptedAI

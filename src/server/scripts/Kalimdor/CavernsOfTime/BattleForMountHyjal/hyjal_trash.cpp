@@ -518,9 +518,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_giant_infernalAI(pCreature);
+        return new mob_giant_infernalAI(creature);
     }
 };
 
@@ -532,9 +532,9 @@ class mob_abomination : public CreatureScript
 public:
     mob_abomination() : CreatureScript("mob_abomination") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_abominationAI(pCreature);
+        return new mob_abominationAI(creature);
     }
 
     struct mob_abominationAI : public hyjal_trashAI
@@ -633,9 +633,9 @@ class mob_ghoul : public CreatureScript
 public:
     mob_ghoul() : CreatureScript("mob_ghoul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ghoulAI(pCreature);
+        return new mob_ghoulAI(creature);
     }
 
     struct mob_ghoulAI : public hyjal_trashAI
@@ -742,9 +742,9 @@ class mob_necromancer : public CreatureScript
 public:
     mob_necromancer() : CreatureScript("mob_necromancer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_necromancerAI(pCreature);
+        return new mob_necromancerAI(creature);
     }
 
     struct mob_necromancerAI : public hyjal_trashAI
@@ -863,9 +863,9 @@ class mob_banshee : public CreatureScript
 public:
     mob_banshee() : CreatureScript("mob_banshee") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_bansheeAI(pCreature);
+        return new mob_bansheeAI(creature);
     }
 
     struct mob_bansheeAI : public hyjal_trashAI
@@ -968,9 +968,9 @@ class mob_crypt_fiend : public CreatureScript
 public:
     mob_crypt_fiend() : CreatureScript("mob_crypt_fiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_crypt_fiendAI(pCreature);
+        return new mob_crypt_fiendAI(creature);
     }
 
     struct mob_crypt_fiendAI : public hyjal_trashAI
@@ -1060,9 +1060,9 @@ class mob_fel_stalker : public CreatureScript
 public:
     mob_fel_stalker() : CreatureScript("mob_fel_stalker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fel_stalkerAI(pCreature);
+        return new mob_fel_stalkerAI(creature);
     }
 
     struct mob_fel_stalkerAI : public hyjal_trashAI
@@ -1152,9 +1152,9 @@ class mob_frost_wyrm : public CreatureScript
 public:
     mob_frost_wyrm() : CreatureScript("mob_frost_wyrm") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frost_wyrmAI(pCreature);
+        return new mob_frost_wyrmAI(creature);
     }
 
     struct mob_frost_wyrmAI : public hyjal_trashAI
@@ -1269,9 +1269,9 @@ class mob_gargoyle : public CreatureScript
 public:
     mob_gargoyle() : CreatureScript("mob_gargoyle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_gargoyleAI(pCreature);
+        return new mob_gargoyleAI(creature);
     }
 
     struct mob_gargoyleAI : public hyjal_trashAI
@@ -1409,9 +1409,9 @@ class alliance_rifleman : public CreatureScript
 public:
     alliance_rifleman() : CreatureScript("alliance_rifleman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new alliance_riflemanAI(pCreature);
+        return new alliance_riflemanAI(creature);
     }
 
     struct alliance_riflemanAI : public Scripted_NoMovementAI

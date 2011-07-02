@@ -108,9 +108,9 @@ class boss_felmyst : public CreatureScript
 public:
     boss_felmyst() : CreatureScript("boss_felmyst") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_felmystAI(pCreature);
+        return new boss_felmystAI(creature);
     }
 
     struct boss_felmystAI : public ScriptedAI
@@ -527,9 +527,9 @@ class mob_felmyst_vapor : public CreatureScript
 public:
     mob_felmyst_vapor() : CreatureScript("mob_felmyst_vapor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_felmyst_vaporAI(pCreature);
+        return new mob_felmyst_vaporAI(creature);
     }
 
     struct mob_felmyst_vaporAI : public ScriptedAI
@@ -560,9 +560,9 @@ class mob_felmyst_trail : public CreatureScript
 public:
     mob_felmyst_trail() : CreatureScript("mob_felmyst_trail") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_felmyst_trailAI(pCreature);
+        return new mob_felmyst_trailAI(creature);
     }
 
     struct mob_felmyst_trailAI : public ScriptedAI

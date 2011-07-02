@@ -33,9 +33,9 @@ class boss_hungarfen : public CreatureScript
 public:
     boss_hungarfen() : CreatureScript("boss_hungarfen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_hungarfenAI (pCreature);
+        return new boss_hungarfenAI (creature);
     }
 
     struct boss_hungarfenAI : public ScriptedAI
@@ -105,9 +105,9 @@ class mob_underbog_mushroom : public CreatureScript
 public:
     mob_underbog_mushroom() : CreatureScript("mob_underbog_mushroom") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_underbog_mushroomAI (pCreature);
+        return new mob_underbog_mushroomAI (creature);
     }
 
     struct mob_underbog_mushroomAI : public ScriptedAI

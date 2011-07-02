@@ -52,9 +52,9 @@ class boss_the_maker : public CreatureScript
 
         struct boss_the_makerAI : public ScriptedAI
         {
-            boss_the_makerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_the_makerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;

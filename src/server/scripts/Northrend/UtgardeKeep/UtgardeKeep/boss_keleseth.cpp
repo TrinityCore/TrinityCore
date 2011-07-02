@@ -65,9 +65,9 @@ class mob_frost_tomb : public CreatureScript
 public:
     mob_frost_tomb() : CreatureScript("mob_frost_tomb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frost_tombAI(pCreature);
+        return new mob_frost_tombAI(creature);
     }
 
     struct mob_frost_tombAI : public ScriptedAI
@@ -117,9 +117,9 @@ class boss_keleseth : public CreatureScript
 public:
     boss_keleseth() : CreatureScript("boss_keleseth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kelesethAI (pCreature);
+        return new boss_kelesethAI (creature);
     }
 
     struct boss_kelesethAI : public ScriptedAI
@@ -260,9 +260,9 @@ class mob_vrykul_skeleton : public CreatureScript
 public:
     mob_vrykul_skeleton() : CreatureScript("mob_vrykul_skeleton") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_vrykul_skeletonAI (pCreature);
+        return new mob_vrykul_skeletonAI (creature);
     }
 
     struct mob_vrykul_skeletonAI : public ScriptedAI

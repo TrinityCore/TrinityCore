@@ -388,9 +388,9 @@ class boss_veknilash : public CreatureScript
 public:
     boss_veknilash() : CreatureScript("boss_veknilash") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_veknilashAI (pCreature);
+        return new boss_veknilashAI (creature);
     }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
@@ -474,9 +474,9 @@ class boss_veklor : public CreatureScript
 public:
     boss_veklor() : CreatureScript("boss_veklor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_veklorAI (pCreature);
+        return new boss_veklorAI (creature);
     }
 
     struct boss_veklorAI : public boss_twinemperorsAI

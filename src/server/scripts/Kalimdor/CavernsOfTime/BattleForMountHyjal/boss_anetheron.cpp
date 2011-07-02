@@ -57,9 +57,9 @@ class boss_anetheron : public CreatureScript
 public:
     boss_anetheron() : CreatureScript("boss_anetheron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_anetheronAI (pCreature);
+        return new boss_anetheronAI (creature);
     }
 
     struct boss_anetheronAI : public hyjal_trashAI
@@ -247,9 +247,9 @@ class mob_towering_infernal : public CreatureScript
 public:
     mob_towering_infernal() : CreatureScript("mob_towering_infernal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_towering_infernalAI (pCreature);
+        return new mob_towering_infernalAI (creature);
     }
 
     struct mob_towering_infernalAI : public ScriptedAI

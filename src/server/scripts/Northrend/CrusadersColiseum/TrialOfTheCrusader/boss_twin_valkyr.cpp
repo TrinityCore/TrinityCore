@@ -114,9 +114,9 @@ enum Actions
 
 struct boss_twin_baseAI : public ScriptedAI
 {
-    boss_twin_baseAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+    boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
     {
-        m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
     InstanceScript* m_pInstance;
@@ -436,14 +436,14 @@ class boss_fjola : public CreatureScript
 public:
     boss_fjola() : CreatureScript("boss_fjola") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fjolaAI(pCreature);
+        return new boss_fjolaAI(creature);
     }
 
     struct boss_fjolaAI : public boss_twin_baseAI
     {
-        boss_fjolaAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
+        boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
         void Reset() {
             boss_twin_baseAI::Reset();
@@ -495,14 +495,14 @@ class boss_eydis : public CreatureScript
 public:
     boss_eydis() : CreatureScript("boss_eydis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eydisAI(pCreature);
+        return new boss_eydisAI(creature);
     }
 
     struct boss_eydisAI : public boss_twin_baseAI
     {
-        boss_eydisAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
+        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
         void Reset() {
             boss_twin_baseAI::Reset();
@@ -578,9 +578,9 @@ class mob_essence_of_twin : public CreatureScript
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
-    mob_unleashed_ballAI(Creature* pCreature) : ScriptedAI(pCreature)
+    mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
     InstanceScript* m_pInstance;
@@ -630,14 +630,14 @@ class mob_unleashed_dark : public CreatureScript
 public:
     mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unleashed_darkAI(pCreature);
+        return new mob_unleashed_darkAI(creature);
     }
 
     struct mob_unleashed_darkAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_darkAI(Creature* pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -663,14 +663,14 @@ class mob_unleashed_light : public CreatureScript
 public:
     mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unleashed_lightAI(pCreature);
+        return new mob_unleashed_lightAI(creature);
     }
 
     struct mob_unleashed_lightAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_lightAI(Creature* pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {

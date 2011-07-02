@@ -81,9 +81,9 @@ class boss_cannon_master_willey : public CreatureScript
 public:
     boss_cannon_master_willey() : CreatureScript("boss_cannon_master_willey") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_cannon_master_willeyAI (pCreature);
+        return new boss_cannon_master_willeyAI (creature);
     }
 
     struct boss_cannon_master_willeyAI : public ScriptedAI

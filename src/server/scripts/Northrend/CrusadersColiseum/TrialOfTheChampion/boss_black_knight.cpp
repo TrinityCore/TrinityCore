@@ -78,9 +78,9 @@ public:
 
     struct boss_black_knightAI : public ScriptedAI
     {
-        boss_black_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -293,9 +293,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_black_knightAI (pCreature);
+        return new boss_black_knightAI (creature);
     }
 };
 
@@ -306,7 +306,7 @@ public:
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
-        npc_risen_ghoulAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiAttackTimer;
 
@@ -334,9 +334,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_risen_ghoulAI(pCreature);
+        return new npc_risen_ghoulAI(creature);
     }
 };
 
@@ -347,7 +347,7 @@ public:
 
     struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
     {
-        npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
         {
             Start(false, true, 0, NULL);
         }
@@ -367,9 +367,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_black_knight_skeletal_gryphonAI(pCreature);
+        return new npc_black_knight_skeletal_gryphonAI(creature);
     }
 };
 

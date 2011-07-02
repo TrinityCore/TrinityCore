@@ -46,7 +46,7 @@ class mob_crystalcore_devastator : public CreatureScript
         }
         struct mob_crystalcore_devastatorAI : public ScriptedAI
         {
-            mob_crystalcore_devastatorAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 Knockaway_Timer;
             uint32 Countercharge_Timer;

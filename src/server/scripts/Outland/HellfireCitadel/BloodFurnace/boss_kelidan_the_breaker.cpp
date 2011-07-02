@@ -78,9 +78,9 @@ class boss_kelidan_the_breaker : public CreatureScript
 
         struct boss_kelidan_the_breakerAI : public ScriptedAI
         {
-            boss_kelidan_the_breakerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_kelidan_the_breakerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
                 for (uint8 i=0; i<5; ++i)
                     Channelers[i] = 0;
             }
@@ -298,7 +298,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
         struct mob_shadowmoon_channelerAI : public ScriptedAI
         {
-            mob_shadowmoon_channelerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 

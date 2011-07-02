@@ -60,9 +60,9 @@ class boss_gurtogg_bloodboil : public CreatureScript
 public:
     boss_gurtogg_bloodboil() : CreatureScript("boss_gurtogg_bloodboil") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gurtogg_bloodboilAI (pCreature);
+        return new boss_gurtogg_bloodboilAI (creature);
     }
 
     struct boss_gurtogg_bloodboilAI : public ScriptedAI

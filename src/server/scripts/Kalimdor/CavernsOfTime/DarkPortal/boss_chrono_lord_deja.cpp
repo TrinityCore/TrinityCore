@@ -48,9 +48,9 @@ class boss_chrono_lord_deja : public CreatureScript
 public:
     boss_chrono_lord_deja() : CreatureScript("boss_chrono_lord_deja") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_chrono_lord_dejaAI (pCreature);
+        return new boss_chrono_lord_dejaAI (creature);
     }
 
     struct boss_chrono_lord_dejaAI : public ScriptedAI

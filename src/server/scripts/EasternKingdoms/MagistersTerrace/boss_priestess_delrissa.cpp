@@ -92,9 +92,9 @@ class boss_priestess_delrissa : public CreatureScript
 public:
     boss_priestess_delrissa() : CreatureScript("boss_priestess_delrissa") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_priestess_delrissaAI(pCreature);
+        return new boss_priestess_delrissaAI(creature);
     }
 
     struct boss_priestess_delrissaAI : public ScriptedAI
@@ -486,9 +486,9 @@ class boss_kagani_nightstrike : public CreatureScript
 public:
     boss_kagani_nightstrike() : CreatureScript("boss_kagani_nightstrike") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kagani_nightstrikeAI(pCreature);
+        return new boss_kagani_nightstrikeAI(creature);
     }
 
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
@@ -591,9 +591,9 @@ class boss_ellris_duskhallow : public CreatureScript
 public:
     boss_ellris_duskhallow() : CreatureScript("boss_ellris_duskhallow") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ellris_duskhallowAI(pCreature);
+        return new boss_ellris_duskhallowAI(creature);
     }
 
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
@@ -683,9 +683,9 @@ class boss_eramas_brightblaze : public CreatureScript
 public:
     boss_eramas_brightblaze() : CreatureScript("boss_eramas_brightblaze") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eramas_brightblazeAI(pCreature);
+        return new boss_eramas_brightblazeAI(creature);
     }
 
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
@@ -745,9 +745,9 @@ class boss_yazzai : public CreatureScript
 public:
     boss_yazzai() : CreatureScript("boss_yazzai") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_yazzaiAI(pCreature);
+        return new boss_yazzaiAI(creature);
     }
 
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
@@ -876,9 +876,9 @@ class boss_warlord_salaris : public CreatureScript
 public:
     boss_warlord_salaris() : CreatureScript("boss_warlord_salaris") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_warlord_salarisAI(pCreature);
+        return new boss_warlord_salarisAI(creature);
     }
 
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
@@ -997,9 +997,9 @@ class boss_garaxxas : public CreatureScript
 public:
     boss_garaxxas() : CreatureScript("boss_garaxxas") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_garaxxasAI(pCreature);
+        return new boss_garaxxasAI(creature);
     }
 
     struct boss_garaxxasAI : public boss_priestess_lackey_commonAI
@@ -1117,9 +1117,9 @@ class boss_apoko : public CreatureScript
 public:
     boss_apoko() : CreatureScript("boss_apoko") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_apokoAI(pCreature);
+        return new boss_apokoAI(creature);
     }
 
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
@@ -1216,9 +1216,9 @@ class boss_zelfan : public CreatureScript
 public:
     boss_zelfan() : CreatureScript("boss_zelfan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_zelfanAI(pCreature);
+        return new boss_zelfanAI(creature);
     }
 
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI
@@ -1302,9 +1302,9 @@ class mob_high_explosive_sheep : public CreatureScript
 public:
     mob_high_explosive_sheep() : CreatureScript("mob_high_explosive_sheep") { }
 
-    //CreatureAI* GetAI(Creature* pCreature) const
+    //CreatureAI* GetAI(Creature* creature) const
     //{
-    //    return new mob_high_explosive_sheepAI (pCreature);
+    //    return new mob_high_explosive_sheepAI (creature);
     //};
 };
 */

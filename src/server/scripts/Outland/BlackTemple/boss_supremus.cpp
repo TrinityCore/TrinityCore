@@ -58,9 +58,9 @@ class molten_flame : public CreatureScript
 public:
     molten_flame() : CreatureScript("molten_flame") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new molten_flameAI (pCreature);
+        return new molten_flameAI (creature);
     }
 
     struct molten_flameAI : public NullCreatureAI
@@ -84,9 +84,9 @@ class boss_supremus : public CreatureScript
 public:
     boss_supremus() : CreatureScript("boss_supremus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_supremusAI (pCreature);
+        return new boss_supremusAI (creature);
     }
 
     struct boss_supremusAI : public ScriptedAI
@@ -256,9 +256,9 @@ class npc_volcano : public CreatureScript
 public:
     npc_volcano() : CreatureScript("npc_volcano") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_volcanoAI (pCreature);
+        return new npc_volcanoAI (creature);
     }
 
     struct npc_volcanoAI : public Scripted_NoMovementAI

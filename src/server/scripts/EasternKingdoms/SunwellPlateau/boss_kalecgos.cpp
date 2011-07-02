@@ -108,9 +108,9 @@ class boss_kalecgos : public CreatureScript
 public:
     boss_kalecgos() : CreatureScript("boss_kalecgos") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecgosAI (pCreature);
+        return new boss_kalecgosAI (creature);
     }
 
     struct boss_kalecgosAI : public ScriptedAI
@@ -441,9 +441,9 @@ class boss_kalec : public CreatureScript
 public:
     boss_kalec() : CreatureScript("boss_kalec") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecAI (pCreature);
+        return new boss_kalecAI (creature);
     }
 
     struct boss_kalecAI : public ScriptedAI
@@ -571,9 +571,9 @@ class boss_sathrovarr : public CreatureScript
 public:
     boss_sathrovarr() : CreatureScript("boss_sathrovarr") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sathrovarrAI (pCreature);
+        return new boss_sathrovarrAI (creature);
     }
 
     struct boss_sathrovarrAI : public ScriptedAI

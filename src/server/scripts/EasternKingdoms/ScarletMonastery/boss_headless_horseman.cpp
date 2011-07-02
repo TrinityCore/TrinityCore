@@ -133,9 +133,9 @@ class mob_wisp_invis : public CreatureScript
 public:
     mob_wisp_invis() : CreatureScript("mob_wisp_invis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_wisp_invisAI (pCreature);
+        return new mob_wisp_invisAI (creature);
     }
 
     struct mob_wisp_invisAI : public ScriptedAI
@@ -220,9 +220,9 @@ class mob_head : public CreatureScript
 public:
     mob_head() : CreatureScript("mob_head") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_headAI (pCreature);
+        return new mob_headAI (creature);
     }
 
     struct mob_headAI : public ScriptedAI
@@ -359,9 +359,9 @@ class boss_headless_horseman : public CreatureScript
 public:
     boss_headless_horseman() : CreatureScript("boss_headless_horseman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_headless_horsemanAI (pCreature);
+        return new boss_headless_horsemanAI (creature);
     }
 
     struct boss_headless_horsemanAI : public ScriptedAI
@@ -748,9 +748,9 @@ class mob_pulsing_pumpkin : public CreatureScript
 public:
     mob_pulsing_pumpkin() : CreatureScript("mob_pulsing_pumpkin") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_pulsing_pumpkinAI (pCreature);
+        return new mob_pulsing_pumpkinAI (creature);
     }
 
     struct mob_pulsing_pumpkinAI : public ScriptedAI

@@ -49,16 +49,16 @@ class boss_ambassador_hellmaw : public CreatureScript
 public:
     boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ambassador_hellmawAI(pCreature);
+        return new boss_ambassador_hellmawAI(creature);
     }
 
     struct boss_ambassador_hellmawAI : public npc_escortAI
     {
-        boss_ambassador_hellmawAI(Creature* pCreature) : npc_escortAI(pCreature)
+        boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;

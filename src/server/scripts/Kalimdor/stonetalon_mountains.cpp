@@ -46,13 +46,13 @@ class npc_braug_dimspirit : public CreatureScript
 public:
     npc_braug_dimspirit() : CreatureScript("npc_braug_dimspirit") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, 6766, false);
+            creature->CastSpell(pPlayer, 6766, false);
 
         }
         if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
@@ -63,10 +63,10 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(6627) == QUEST_STATUS_INCOMPLETE)
         {
@@ -76,10 +76,10 @@ public:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-            pPlayer->SEND_GOSSIP_MENU(5820, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5820, creature->GetGUID());
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(5819, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5819, creature->GetGUID());
 
         return true;
     }
@@ -145,23 +145,23 @@ public:
         void Reset(){}
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kaya_flathoof::npc_kaya_flathoofAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_kaya_flathoof::npc_kaya_flathoofAI, creature->AI()))
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
 
-            DoScriptText(SAY_START, pCreature);
-            pCreature->setFaction(113);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            DoScriptText(SAY_START, creature);
+            creature->setFaction(113);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_kaya_flathoofAI(pCreature);
+        return new npc_kaya_flathoofAI(creature);
     }
 
 };

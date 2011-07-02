@@ -38,9 +38,9 @@ class boss_high_interrogator_gerstahn : public CreatureScript
 public:
     boss_high_interrogator_gerstahn() : CreatureScript("boss_high_interrogator_gerstahn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_interrogator_gerstahnAI (pCreature);
+        return new boss_high_interrogator_gerstahnAI (creature);
     }
 
     struct boss_high_interrogator_gerstahnAI : public ScriptedAI

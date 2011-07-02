@@ -83,9 +83,9 @@ class boss_sjonnir : public CreatureScript
 public:
     boss_sjonnir() : CreatureScript("boss_sjonnir") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sjonnirAI (pCreature);
+        return new boss_sjonnirAI (creature);
     }
 
     struct boss_sjonnirAI : public ScriptedAI
@@ -251,9 +251,9 @@ class mob_malformed_ooze : public CreatureScript
 public:
     mob_malformed_ooze() : CreatureScript("mob_malformed_ooze") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_malformed_oozeAI(pCreature);
+        return new mob_malformed_oozeAI(creature);
     }
 
     struct mob_malformed_oozeAI : public ScriptedAI
@@ -294,9 +294,9 @@ class mob_iron_sludge : public CreatureScript
 public:
     mob_iron_sludge() : CreatureScript("mob_iron_sludge") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_iron_sludgeAI(pCreature);
+        return new mob_iron_sludgeAI(creature);
     }
 
     struct mob_iron_sludgeAI : public ScriptedAI

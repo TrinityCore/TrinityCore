@@ -55,9 +55,9 @@ class mob_unkor_the_ruthless : public CreatureScript
 public:
     mob_unkor_the_ruthless() : CreatureScript("mob_unkor_the_ruthless") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unkor_the_ruthlessAI (pCreature);
+        return new mob_unkor_the_ruthlessAI (creature);
     }
 
     struct mob_unkor_the_ruthlessAI : public ScriptedAI
@@ -162,9 +162,9 @@ class mob_infested_root_walker : public CreatureScript
 public:
     mob_infested_root_walker() : CreatureScript("mob_infested_root_walker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_infested_root_walkerAI (pCreature);
+        return new mob_infested_root_walkerAI (creature);
     }
 
     struct mob_infested_root_walkerAI : public ScriptedAI
@@ -194,9 +194,9 @@ class npc_skywing : public CreatureScript
 public:
     npc_skywing() : CreatureScript("npc_skywing") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_skywingAI(pCreature);
+        return new npc_skywingAI(creature);
     }
 
     struct npc_skywingAI : public npc_escortAI
@@ -257,9 +257,9 @@ class mob_rotting_forest_rager : public CreatureScript
 public:
     mob_rotting_forest_rager() : CreatureScript("mob_rotting_forest_rager") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_rotting_forest_ragerAI (pCreature);
+        return new mob_rotting_forest_ragerAI (creature);
     }
 
     struct mob_rotting_forest_ragerAI : public ScriptedAI
@@ -297,9 +297,9 @@ class mob_netherweb_victim : public CreatureScript
 public:
     mob_netherweb_victim() : CreatureScript("mob_netherweb_victim") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_netherweb_victimAI (pCreature);
+        return new mob_netherweb_victimAI (creature);
     }
 
     struct mob_netherweb_victimAI : public ScriptedAI
@@ -358,36 +358,36 @@ class npc_floon : public CreatureScript
 public:
     npc_floon() : CreatureScript("npc_floon") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(9443, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(9443, creature->GetGUID());
         }
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->setFaction(FACTION_HOSTILE_FL);
-            DoScriptText(SAY_FLOON_ATTACK, pCreature, pPlayer);
-            pCreature->AI()->AttackStart(pPlayer);
+            creature->setFaction(FACTION_HOSTILE_FL);
+            DoScriptText(SAY_FLOON_ATTACK, creature, pPlayer);
+            creature->AI()->AttackStart(pPlayer);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(9442, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(9442, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_floonAI (pCreature);
+        return new npc_floonAI (creature);
     }
 
     struct npc_floonAI : public ScriptedAI
@@ -518,19 +518,19 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
         {
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
-            pCreature->setFaction(113);
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+            creature->setFaction(113);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_isla_starmaneAI(pCreature);
+        return new npc_isla_starmaneAI(creature);
     }
 
 };
@@ -606,24 +606,24 @@ class npc_slim : public CreatureScript
 public:
     npc_slim() : CreatureScript("npc_slim") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+        if (creature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(9896, creature->GetGUID());
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(9895, creature->GetGUID());
 
         return true;
     }
@@ -645,24 +645,24 @@ class npc_akuno : public CreatureScript
 public:
     npc_akuno() : CreatureScript("npc_akuno") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
         {
-            if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, pCreature->AI()))
+            if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID());
 
             if (pPlayer->GetTeamId() == TEAM_ALLIANCE)
-                pCreature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+                creature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
             else
-                pCreature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
+                creature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_akunoAI(pCreature);
+        return new npc_akunoAI(creature);
     }
 
     struct npc_akunoAI : public npc_escortAI

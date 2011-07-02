@@ -138,9 +138,9 @@ class boss_lady_vashj : public CreatureScript
 public:
     boss_lady_vashj() : CreatureScript("boss_lady_vashj") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_lady_vashjAI (pCreature);
+        return new boss_lady_vashjAI (creature);
     }
 
     struct boss_lady_vashjAI : public ScriptedAI
@@ -404,12 +404,12 @@ public:
                         me->GetMotionMaster()->Clear();
                         DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
-                        Creature* pCreature;
+                        Creature* creature;
                         for (uint8 i = 0; i < 4; ++i)
                         {
-                            pCreature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                            if (pCreature)
-                                ShieldGeneratorChannel[i] = pCreature->GetGUID();
+                            creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            if (creature)
+                                ShieldGeneratorChannel[i] = creature->GetGUID();
                         }
                         DoScriptText(SAY_PHASE2, me);
                     }
@@ -580,9 +580,9 @@ class mob_enchanted_elemental : public CreatureScript
 public:
     mob_enchanted_elemental() : CreatureScript("mob_enchanted_elemental") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_enchanted_elementalAI (pCreature);
+        return new mob_enchanted_elementalAI (creature);
     }
 
     struct mob_enchanted_elementalAI : public ScriptedAI
@@ -682,9 +682,9 @@ class mob_tainted_elemental : public CreatureScript
 public:
     mob_tainted_elemental() : CreatureScript("mob_tainted_elemental") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_tainted_elementalAI (pCreature);
+        return new mob_tainted_elementalAI (creature);
     }
 
     struct mob_tainted_elementalAI : public ScriptedAI
@@ -757,9 +757,9 @@ class mob_toxic_sporebat : public CreatureScript
 public:
     mob_toxic_sporebat() : CreatureScript("mob_toxic_sporebat") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_toxic_sporebatAI (pCreature);
+        return new mob_toxic_sporebatAI (creature);
     }
 
     struct mob_toxic_sporebatAI : public ScriptedAI
@@ -865,9 +865,9 @@ class mob_coilfang_elite : public CreatureScript
 public:
     mob_coilfang_elite() : CreatureScript("mob_coilfang_elite") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI* ai = new SimpleAI (pCreature);
+        SimpleAI* ai = new SimpleAI (creature);
 
         ai->Spell[0].Enabled = true;
         ai->Spell[0].Spell_Id = 31345;                          //Cleave
@@ -890,9 +890,9 @@ class mob_coilfang_strider : public CreatureScript
 public:
     mob_coilfang_strider() : CreatureScript("mob_coilfang_strider") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI* ai = new SimpleAI (pCreature);
+        SimpleAI* ai = new SimpleAI (creature);
 
         ai->Spell[0].Enabled = true;
         ai->Spell[0].Spell_Id = 41374;                          //Mind Blast
@@ -915,9 +915,9 @@ class mob_shield_generator_channel : public CreatureScript
 public:
     mob_shield_generator_channel() : CreatureScript("mob_shield_generator_channel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shield_generator_channelAI (pCreature);
+        return new mob_shield_generator_channelAI (creature);
     }
 
     struct mob_shield_generator_channelAI : public ScriptedAI

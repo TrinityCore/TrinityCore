@@ -50,16 +50,16 @@ class boss_moorabi : public CreatureScript
 public:
     boss_moorabi() : CreatureScript("boss_moorabi") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_moorabiAI(pCreature);
+        return new boss_moorabiAI(creature);
     }
 
     struct boss_moorabiAI : public ScriptedAI
     {
-        boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

@@ -53,36 +53,36 @@ class npc_prospector_anvilward : public CreatureScript
 public:
     npc_prospector_anvilward() : CreatureScript("npc_prospector_anvilward") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(8240, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(8240, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
                 pPlayer->CLOSE_GOSSIP_MENU();
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_prospector_anvilward::npc_prospector_anvilwardAI, pCreature->AI()))
+                if (npc_escortAI* pEscortAI = CAST_AI(npc_prospector_anvilward::npc_prospector_anvilwardAI, creature->AI()))
                     pEscortAI->Start(true, false, pPlayer->GetGUID());
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(8239, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(8239, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_prospector_anvilwardAI(pCreature);
+        return new npc_prospector_anvilwardAI(creature);
     }
 
     struct npc_prospector_anvilwardAI : public npc_escortAI
@@ -184,14 +184,14 @@ class npc_second_trial_paladin : public CreatureScript
 public:
     npc_second_trial_paladin() : CreatureScript("npc_second_trial_paladin") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_secondTrialAI (pCreature);
+        return new npc_secondTrialAI (creature);
     }
 
     struct npc_secondTrialAI : public ScriptedAI
     {
-        npc_secondTrialAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_secondTrialAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 timer;
         uint8  questPhase;
@@ -346,35 +346,35 @@ class npc_second_trial_controller : public CreatureScript
 public:
     npc_second_trial_controller() : CreatureScript("npc_second_trial_controller") { }
 
-    bool OnQuestAccept(Player* /*pPlayer*/, Creature* pCreature, Quest const *quest)
+    bool OnQuestAccept(Player* /*pPlayer*/, Creature* creature, Quest const *quest)
     {
         // One Player exclusive quest, wait for user go activation
         if (quest->GetQuestId() == QUEST_SECOND_TRIAL)
-            CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, pCreature->AI())->questPhase = 1;
+            CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, creature->AI())->questPhase = 1;
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         // quest only available if not already started
         // Quest_template flag is set to : QUEST_FLAGS_EVENT
         // Escort quests or any other event-driven quests. If player in party, all players that can accept this quest will receive confirmation box to accept quest.
         // !not sure if this really works!
 
-        if (CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, pCreature->AI())->questPhase == 0)
+        if (CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, creature->AI())->questPhase == 0)
         {
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-            pPlayer->SendPreparedQuest(pCreature->GetGUID());
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            pPlayer->SendPreparedQuest(creature->GetGUID());
         }
 
-        pPlayer->SEND_GOSSIP_MENU(pCreature->GetEntry(), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(creature->GetEntry(), creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new master_kelerun_bloodmournAI (pCreature);
+        return new master_kelerun_bloodmournAI (creature);
     }
 
     struct master_kelerun_bloodmournAI : public ScriptedAI
@@ -508,8 +508,8 @@ public:
     bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
     {
         // find spawn :: master_kelerun_bloodmourn
-        if (Creature* pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
-           CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, pCreature->AI())->StartEvent();
+        if (Creature* creature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
+           CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, creature->AI())->StartEvent();
 
         return true;
     }
@@ -529,19 +529,19 @@ class npc_apprentice_mirveda : public CreatureScript
 public:
     npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
         {
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, pCreature->AI())->Summon = true;
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
+            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
+            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_apprentice_mirvedaAI (pCreature);
+        return new npc_apprentice_mirvedaAI (creature);
     }
 
     struct npc_apprentice_mirvedaAI : public ScriptedAI
@@ -630,9 +630,9 @@ class npc_infused_crystal : public CreatureScript
 public:
     npc_infused_crystal() : CreatureScript("npc_infused_crystal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_infused_crystalAI (pCreature);
+        return new npc_infused_crystalAI (creature);
     }
 
     struct npc_infused_crystalAI : public Scripted_NoMovementAI

@@ -61,9 +61,9 @@ class boss_maexxna : public CreatureScript
 public:
     boss_maexxna() : CreatureScript("boss_maexxna") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_maexxnaAI (pCreature);
+        return new boss_maexxnaAI (creature);
     }
 
     struct boss_maexxnaAI : public BossAI
@@ -152,9 +152,9 @@ class mob_webwrap : public CreatureScript
 public:
     mob_webwrap() : CreatureScript("mob_webwrap") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_webwrapAI (pCreature);
+        return new mob_webwrapAI (creature);
     }
 
     struct mob_webwrapAI : public NullCreatureAI

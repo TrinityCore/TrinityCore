@@ -67,9 +67,9 @@ class boss_harbinger_skyriss : public CreatureScript
         }
         struct boss_harbinger_skyrissAI : public ScriptedAI
         {
-            boss_harbinger_skyrissAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_harbinger_skyrissAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
                 Intro = false;
             }
 
@@ -271,9 +271,9 @@ class boss_harbinger_skyriss : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_harbinger_skyrissAI (pCreature);
+            return new boss_harbinger_skyrissAI (creature);
         }
 };
 
@@ -290,7 +290,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
         }
         struct boss_harbinger_skyriss_illusionAI : public ScriptedAI
         {
-            boss_harbinger_skyriss_illusionAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset() { }
 

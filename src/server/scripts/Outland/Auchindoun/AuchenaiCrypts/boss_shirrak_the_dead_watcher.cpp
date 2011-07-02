@@ -45,9 +45,9 @@ class boss_shirrak_the_dead_watcher : public CreatureScript
 public:
     boss_shirrak_the_dead_watcher() : CreatureScript("boss_shirrak_the_dead_watcher") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_shirrak_the_dead_watcherAI (pCreature);
+        return new boss_shirrak_the_dead_watcherAI (creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
@@ -165,9 +165,9 @@ class mob_focus_fire : public CreatureScript
 public:
     mob_focus_fire() : CreatureScript("mob_focus_fire") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_focus_fireAI (pCreature);
+        return new mob_focus_fireAI (creature);
     }
 
     struct mob_focus_fireAI : public ScriptedAI

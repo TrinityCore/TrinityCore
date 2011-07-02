@@ -42,9 +42,9 @@ class boss_arcanist_doan : public CreatureScript
 public:
     boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_arcanist_doanAI (pCreature);
+        return new boss_arcanist_doanAI (creature);
     }
 
     struct boss_arcanist_doanAI : public ScriptedAI

@@ -68,9 +68,9 @@ class boss_twilight_corrupter : public CreatureScript
 public:
     boss_twilight_corrupter() : CreatureScript("boss_twilight_corrupter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_twilight_corrupterAI (pCreature);
+        return new boss_twilight_corrupterAI (creature);
     }
 
     struct boss_twilight_corrupterAI : public ScriptedAI

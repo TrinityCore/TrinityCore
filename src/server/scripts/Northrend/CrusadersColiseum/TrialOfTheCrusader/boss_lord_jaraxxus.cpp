@@ -90,16 +90,16 @@ class boss_jaraxxus : public CreatureScript
 public:
     boss_jaraxxus() : CreatureScript("boss_jaraxxus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_jaraxxusAI(pCreature);
+        return new boss_jaraxxusAI(creature);
     }
 
     struct boss_jaraxxusAI : public ScriptedAI
     {
-        boss_jaraxxusAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+        boss_jaraxxusAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             Reset();
         }
 
@@ -252,14 +252,14 @@ class mob_legion_flame : public CreatureScript
 public:
     mob_legion_flame() : CreatureScript("mob_legion_flame") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_legion_flameAI(pCreature);
+        return new mob_legion_flameAI(creature);
     }
 
     struct mob_legion_flameAI : public Scripted_NoMovementAI
     {
-        mob_legion_flameAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             Reset();
         }
@@ -284,16 +284,16 @@ class mob_infernal_volcano : public CreatureScript
 public:
     mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_infernal_volcanoAI(pCreature);
+        return new mob_infernal_volcanoAI(creature);
     }
 
     struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
     {
-        mob_infernal_volcanoAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature), Summons(me)
+        mob_infernal_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
 
@@ -360,16 +360,16 @@ class mob_fel_infernal : public CreatureScript
 public:
     mob_fel_infernal() : CreatureScript("mob_fel_infernal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fel_infernalAI(pCreature);
+        return new mob_fel_infernalAI(creature);
     }
 
     struct mob_fel_infernalAI : public ScriptedAI
     {
-        mob_fel_infernalAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
 
@@ -414,16 +414,16 @@ class mob_nether_portal : public CreatureScript
 public:
     mob_nether_portal() : CreatureScript("mob_nether_portal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_nether_portalAI(pCreature);
+        return new mob_nether_portalAI(creature);
     }
 
     struct mob_nether_portalAI : public ScriptedAI
     {
-        mob_nether_portalAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+        mob_nether_portalAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
 
@@ -484,16 +484,16 @@ class mob_mistress_of_pain : public CreatureScript
 public:
     mob_mistress_of_pain() : CreatureScript("mob_mistress_of_pain") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_mistress_of_painAI(pCreature);
+        return new mob_mistress_of_painAI(creature);
     }
 
     struct mob_mistress_of_painAI : public ScriptedAI
     {
-        mob_mistress_of_painAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_mistress_of_painAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             if (m_pInstance)
                 m_pInstance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, INCREASE);
             Reset();

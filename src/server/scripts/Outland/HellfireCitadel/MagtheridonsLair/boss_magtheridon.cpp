@@ -109,7 +109,7 @@ class mob_abyssal : public CreatureScript
 
         struct mob_abyssalAI : public ScriptedAI
         {
-            mob_abyssalAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_abyssalAI(Creature* creature) : ScriptedAI(creature)
             {
                 trigger = 0;
                 Despawn_Timer = 60000;
@@ -215,9 +215,9 @@ class boss_magtheridon : public CreatureScript
 
         struct boss_magtheridonAI : public ScriptedAI
         {
-            boss_magtheridonAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_magtheridonAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -495,9 +495,9 @@ class mob_hellfire_channeler : public CreatureScript
 
         struct mob_hellfire_channelerAI : public ScriptedAI
         {
-            mob_hellfire_channelerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_hellfire_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;

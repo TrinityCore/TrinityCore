@@ -42,9 +42,9 @@ class boss_fankriss : public CreatureScript
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fankrissAI (pCreature);
+        return new boss_fankrissAI (creature);
     }
 
     struct boss_fankrissAI : public ScriptedAI

@@ -51,9 +51,9 @@ class boss_rage_winterchill : public CreatureScript
 public:
     boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_rage_winterchillAI (pCreature);
+        return new boss_rage_winterchillAI (creature);
     }
 
     struct boss_rage_winterchillAI : public hyjal_trashAI

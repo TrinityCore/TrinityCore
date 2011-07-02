@@ -62,16 +62,16 @@ class boss_xevozz : public CreatureScript
 public:
     boss_xevozz() : CreatureScript("boss_xevozz") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_xevozzAI (pCreature);
+        return new boss_xevozzAI (creature);
     }
 
     struct boss_xevozzAI : public ScriptedAI
     {
-        boss_xevozzAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_xevozzAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance  = pCreature->GetInstanceScript();
+            pInstance  = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -229,16 +229,16 @@ class mob_ethereal_sphere : public CreatureScript
 public:
     mob_ethereal_sphere() : CreatureScript("mob_ethereal_sphere") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ethereal_sphereAI (pCreature);
+        return new mob_ethereal_sphereAI (creature);
     }
 
     struct mob_ethereal_sphereAI : public ScriptedAI
     {
-        mob_ethereal_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance   = pCreature->GetInstanceScript();
+            pInstance   = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

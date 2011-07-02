@@ -169,9 +169,9 @@ class boss_eye_of_cthun : public CreatureScript
 public:
     boss_eye_of_cthun() : CreatureScript("boss_eye_of_cthun") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new eye_of_cthunAI (pCreature);
+        return new eye_of_cthunAI (creature);
     }
 
     struct eye_of_cthunAI : public Scripted_NoMovementAI
@@ -473,9 +473,9 @@ class boss_cthun : public CreatureScript
 public:
     boss_cthun() : CreatureScript("boss_cthun") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new cthunAI (pCreature);
+        return new cthunAI (creature);
     }
 
     struct cthunAI : public Scripted_NoMovementAI
@@ -932,9 +932,9 @@ class mob_eye_tentacle : public CreatureScript
 public:
     mob_eye_tentacle() : CreatureScript("mob_eye_tentacle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new eye_tentacleAI (pCreature);
+        return new eye_tentacleAI (creature);
     }
 
     struct eye_tentacleAI : public Scripted_NoMovementAI
@@ -1005,9 +1005,9 @@ class mob_claw_tentacle : public CreatureScript
 public:
     mob_claw_tentacle() : CreatureScript("mob_claw_tentacle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new claw_tentacleAI (pCreature);
+        return new claw_tentacleAI (creature);
     }
 
     struct claw_tentacleAI : public Scripted_NoMovementAI
@@ -1115,9 +1115,9 @@ class mob_giant_claw_tentacle : public CreatureScript
 public:
     mob_giant_claw_tentacle() : CreatureScript("mob_giant_claw_tentacle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new giant_claw_tentacleAI (pCreature);
+        return new giant_claw_tentacleAI (creature);
     }
 
     struct giant_claw_tentacleAI : public Scripted_NoMovementAI
@@ -1234,9 +1234,9 @@ class mob_giant_eye_tentacle : public CreatureScript
 public:
     mob_giant_eye_tentacle() : CreatureScript("mob_giant_eye_tentacle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new giant_eye_tentacleAI (pCreature);
+        return new giant_eye_tentacleAI (creature);
     }
 
     struct giant_eye_tentacleAI : public Scripted_NoMovementAI
@@ -1298,9 +1298,9 @@ class mob_giant_flesh_tentacle : public CreatureScript
 public:
     mob_giant_flesh_tentacle() : CreatureScript("mob_giant_flesh_tentacle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new flesh_tentacleAI (pCreature);
+        return new flesh_tentacleAI (creature);
     }
 
     struct flesh_tentacleAI : public Scripted_NoMovementAI
