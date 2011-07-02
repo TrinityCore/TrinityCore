@@ -76,10 +76,10 @@ public:
             DoCast(me, SPELL_CAPTURESOUL);
         }
 
-        void SummonHounds(Unit* pVictim)
+        void SummonHounds(Unit* victim)
         {
             if (Creature* Hound = DoSpawnCreature(19207, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
-                Hound->AI()->AttackStart(pVictim);
+                Hound->AI()->AttackStart(victim);
         }
 
         void UpdateAI(const uint32 diff)
