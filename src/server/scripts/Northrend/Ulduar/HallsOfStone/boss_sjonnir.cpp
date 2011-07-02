@@ -308,7 +308,7 @@ public:
 
         InstanceScript* pInstance;
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
                 if (Creature* Sjonnir = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SJONNIR)))

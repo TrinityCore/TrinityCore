@@ -660,7 +660,7 @@ public:
 
         void Reset() {}
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             Player* player = GetPlayerForEscort();
             if (HasEscortState(STATE_ESCORT_ESCORTING) && player)

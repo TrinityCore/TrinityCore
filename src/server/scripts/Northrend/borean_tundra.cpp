@@ -1227,7 +1227,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (Creature* pTalbot = me->GetCreature(*me, uiTalbot))
                 pTalbot->RemoveFromWorld();
@@ -1430,7 +1430,7 @@ public:
             DoMeleeAttackIfReady();
        }
 
-       void JustDied(Unit* pKiller)
+       void JustDied(Unit* killer)
        {
             if (!LeryssaGUID || !ArlosGUID)
                 return;
@@ -1449,8 +1449,8 @@ public:
             pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             pLeryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
 
-            if (pKiller->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(pKiller)->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(killer)->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
         }
     };
 
@@ -2123,16 +2123,16 @@ public:
     {
         npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) {}
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (pKiller->GetTypeId() == TYPEID_PLAYER &&
-                CAST_PLR(pKiller)->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
+            if (killer->GetTypeId() == TYPEID_PLAYER &&
+                CAST_PLR(killer)->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
                 (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
                 me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    CAST_PLR(pKiller)->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0], 0);
+                    CAST_PLR(killer)->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0], 0);
             }
         }
     };

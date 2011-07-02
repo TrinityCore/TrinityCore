@@ -180,7 +180,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (me->isSummon()) //we are not a normal spawn.
                 if (pInstance)

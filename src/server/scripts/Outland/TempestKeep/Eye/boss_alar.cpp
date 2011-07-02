@@ -168,7 +168,7 @@ class boss_alar : public CreatureScript
                     ScriptedAI::AttackStart(who);
             }
 
-            void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage)
             {
                 if (damage >= me->GetHealth() && Phase1)
                 {
@@ -490,9 +490,9 @@ class mob_ember_of_alar : public CreatureScript
                 me->setDeathState(JUST_DIED);
             }
 
-            void DamageTaken(Unit* pKiller, uint32 &damage)
+            void DamageTaken(Unit* killer, uint32 &damage)
             {
-                if (damage >= me->GetHealth() && pKiller != me && !toDie)
+                if (damage >= me->GetHealth() && killer != me && !toDie)
                 {
                     damage = 0;
                     DoCast(me, SPELL_EMBER_BLAST, true);

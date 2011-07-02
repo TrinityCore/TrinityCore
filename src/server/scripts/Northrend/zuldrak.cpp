@@ -684,14 +684,14 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (uiWhisker)
                 if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                     pWhisker->RemoveFromWorld();
 
-            if (pKiller->GetTypeId() == TYPEID_PLAYER)
-                pKiller->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, pKiller);
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, killer);
 
         }
     };
@@ -787,10 +787,10 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (Player* player = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, pKiller);
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, killer);
         }
     };
 
@@ -867,22 +867,22 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
             {
-                std::string sText = (std::string(pKiller->GetName()) + " has defeated Yg.. Yggg-really big worm!");
+                std::string sText = (std::string(killer->GetName()) + " has defeated Yg.. Yggg-really big worm!");
                 pSummoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
             }
 
-            if (Player* player = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
-                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1, pKiller);
-                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2, pKiller);
+                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1, killer);
+                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2, killer);
             }
 
             for (uint8 i = 0; i < 3; ++i)
-                DoCast(pKiller, SPELL_JORMUNGAR_SPAWN, true);
+                DoCast(killer, SPELL_JORMUNGAR_SPAWN, true);
         }
     };
 
@@ -1009,12 +1009,12 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (Player* player = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, pKiller);
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, killer);
 
-            std::string sText = ("And with AUTHORITY, " + std::string(pKiller->GetName()) + " dominates the magnataur lord! Stinkbeard's clan is gonna miss him back home in the Dragonblight!");
+            std::string sText = ("And with AUTHORITY, " + std::string(killer->GetName()) + " dominates the magnataur lord! Stinkbeard's clan is gonna miss him back home in the Dragonblight!");
             me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
         }
     };
@@ -1147,17 +1147,17 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                         pTemp->DespawnOrUnsummon();
 
-            if (Player* player = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND, pKiller);
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND, killer);
 
-            std::string sText = (std::string(pKiller->GetName()) + " is victorious once more!");
+            std::string sText = (std::string(killer->GetName()) + " is victorious once more!");
 
             if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
                 pSummoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);

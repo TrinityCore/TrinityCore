@@ -2100,7 +2100,7 @@ public:
     {
         npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
+        void DamageTaken(Unit* /*killer*/, uint32 &damage)
         {
             if (me->isSummon())
                 if (Unit* pOwner = me->ToTempSummon()->GetSummoner())

@@ -308,7 +308,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (PlayerGUID)
                 if (Player* player = Unit::GetPlayer(*me, PlayerGUID))

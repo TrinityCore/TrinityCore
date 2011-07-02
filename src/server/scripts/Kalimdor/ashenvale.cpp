@@ -368,7 +368,7 @@ class npc_muglash : public CreatureScript
                 m_bIsBrazierExtinguished = false;
             }
 
-            void JustDied(Unit* /*pKiller*/)
+            void JustDied(Unit* /*killer*/)
             {
                 Player* player = GetPlayerForEscort();
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
