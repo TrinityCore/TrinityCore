@@ -35,8 +35,6 @@
 #include "WorldPacket.h"
 #include "Group.h"
 
-extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
-
 MapManager::MapManager()
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
@@ -51,13 +49,6 @@ void MapManager::Initialize()
 {
     Map::InitStateMachine();
 
-    // debugging code, should be deleted some day
-    {
-        for (uint8 i = 0; i < MAX_GRID_STATE; ++i)
-             i_GridStates[i] = si_GridStates[i];
-
-        i_GridStateErrorCount = 0;
-    }
     int num_threads(sWorld->getIntConfig(CONFIG_NUMTHREADS));
     // Start mtmaps
     if (m_updater.activate(num_threads) == -1)
@@ -71,31 +62,6 @@ void MapManager::InitializeVisibilityDistanceInfo()
 {
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         (*iter).second->InitVisibilityDistance();
-}
-
-// debugging code, should be deleted some day
-void MapManager::checkAndCorrectGridStatesArray()
-{
-    bool ok = true;
-    for (int i=0; i<MAX_GRID_STATE; i++)
-    {
-        if (i_GridStates[i] != si_GridStates[i])
-        {
-            sLog->outError("MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
-            ok = false;
-            si_GridStates[i] = i_GridStates[i];
-        }
-        #ifdef TRINITY_DEBUG
-        // inner class checking only when compiled with debug
-        if (!si_GridStates[i]->checkMagic())
-        {
-            ok = false;
-            si_GridStates[i]->setMagic();
-        }
-        #endif
-    }
-    if (!ok)
-        ++i_GridStateErrorCount;
 }
 
 Map* MapManager::_createBaseMap(uint32 id)
