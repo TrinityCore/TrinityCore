@@ -130,8 +130,8 @@ class boss_nazan : public CreatureScript
 
                 if (Fireball_Timer <= diff)
                 {
-                    if (Unit* pVictim = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pVictim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
+                    if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(victim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
                     Fireball_Timer = urand(4000, 7000);
                 }
                 else
@@ -148,8 +148,8 @@ class boss_nazan : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* pVictim = SelectTarget(SELECT_TARGET_NEAREST, 0))
-                            me->AI()->AttackStart(pVictim);
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                            me->AI()->AttackStart(victim);
                         DoStartMovement(me->getVictim());
                         DoScriptText(EMOTE, me);
                         return;
@@ -370,18 +370,18 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 if (!pSummoned)
                     return;
-                Unit* pVictim = me->getVictim();
+                Unit* victim = me->getVictim();
                 if (pSummoned->GetEntry() == ENTRY_NAZAN)
                 {
                     CAST_AI(boss_nazan::boss_nazanAI, pSummoned->AI())->VazrudenGUID = VazrudenGUID;
                     pSummoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     pSummoned->SetSpeed(MOVE_FLIGHT, 2.5f);
-                    if (pVictim)
-                        AttackStartNoMove(pVictim);
+                    if (victim)
+                        AttackStartNoMove(victim);
                 }
                 else
-                    if (pVictim)
-                        pSummoned->AI()->AttackStart(pVictim);
+                    if (victim)
+                        pSummoned->AI()->AttackStart(victim);
             }
 
             void SentryDownBy(Unit* pKiller)

@@ -382,7 +382,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SARTHARION_SLAY_1, SAY_SARTHARION_SLAY_2, SAY_SARTHARION_SLAY_3), me);
         }
@@ -1020,7 +1020,7 @@ public:
             DoCast(me, SPELL_POWER_OF_TENEBRON);
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_TENEBRON_SLAY_1, SAY_TENEBRON_SLAY_2), me);
         }
@@ -1116,7 +1116,7 @@ public:
             DoCast(me, SPELL_POWER_OF_SHADRON);
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SHADRON_SLAY_1, SAY_SHADRON_SLAY_2), me);
         }
@@ -1215,7 +1215,7 @@ public:
             DoCast(me, SPELL_POWER_OF_VESPERON);
         }
 
-        void KilledUnit(Unit* /*pVictim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_VESPERON_SLAY_1, SAY_VESPERON_SLAY_2), me);
         }
