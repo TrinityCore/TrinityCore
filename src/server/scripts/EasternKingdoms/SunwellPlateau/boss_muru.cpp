@@ -126,7 +126,7 @@ public:
 
     struct boss_entropiusAI : public ScriptedAI
     {
-        boss_entropiusAI(Creature *c) : ScriptedAI(c), Summons(me)
+        boss_entropiusAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -226,7 +226,7 @@ public:
 
     struct boss_muruAI : public Scripted_NoMovementAI
     {
-        boss_muruAI(Creature *c) : Scripted_NoMovementAI(c), Summons(me)
+        boss_muruAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
         {
             pInstance = c->GetInstanceScript();
         }

@@ -165,7 +165,7 @@ public:
 
     struct boss_felmystAI : public ScriptedAI
     {
-        boss_felmystAI(Creature *c) : ScriptedAI(c){
+        boss_felmystAI(Creature* c) : ScriptedAI(c){
             pInstance = c->GetInstanceScript();
 
             // wait for core patch be accepted
@@ -694,7 +694,7 @@ public:
 
     struct mob_felmyst_vaporAI : public ScriptedAI
     {
-        mob_felmyst_vaporAI(Creature *c) : ScriptedAI(c)
+        mob_felmyst_vaporAI(Creature* c) : ScriptedAI(c)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetSpeed(MOVE_RUN, 0.8f);
@@ -725,7 +725,7 @@ public:
 
     struct mob_felmyst_trailAI : public ScriptedAI
     {
-        mob_felmyst_trailAI(Creature *c) : ScriptedAI(c)
+        mob_felmyst_trailAI(Creature* c) : ScriptedAI(c)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->CastSpell(me, SPELL_TRAIL_TRIGGER, true);

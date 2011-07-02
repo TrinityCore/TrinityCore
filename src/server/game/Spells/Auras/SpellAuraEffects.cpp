@@ -3815,8 +3815,9 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
         }
     }
 
-    //recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_UNK4 0x00000010 flag)
-    if (GetMiscValue() == STAT_STAMINA && (m_spellProto->Attributes & SPELL_ATTR0_UNK4))
+    // recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_UNK4 0x00000010 flag)
+    // this check is total bullshit i think
+    if (GetMiscValue() == STAT_STAMINA && (m_spellProto->Attributes & SPELL_ATTR0_ABILITY))
         target->SetHealth(std::max<uint32>(uint32(healthPct * target->GetMaxHealth() * 0.01f), (alive ? 1 : 0)));
 }
 
@@ -6072,26 +6073,21 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         return;
     }
 
-    // We use it to fight with invalid data that appears later sometimes.
-    SpellEntry const*spellProto = GetSpellProto();
-    const uint32 effIndex = GetEffIndex();
-    uint64 casterGuid = GetCasterGUID();
-
     // Consecrate ticks can miss and will not show up in the combat log
-    if (spellProto->Effect[effIndex] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
-        caster->SpellHitResult(target, spellProto, false) != SPELL_MISS_NONE)
+    if (GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+        caster->SpellHitResult(target, GetSpellProto(), false) != SPELL_MISS_NONE)
         return;
 
     // some auras remove at specific health level or more
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        switch (spellProto->Id)
+        switch (GetSpellProto()->Id)
         {
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound
                 if (target->IsFullHealth())
                 {
-                    target->RemoveAurasDueToSpell(spellProto->Id);
+                    target->RemoveAurasDueToSpell(GetSpellProto()->Id);
                     return;
                 }
                 break;
@@ -6100,7 +6096,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 uint32 percent = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 1, caster);
                 if (!target->HealthBelowPct(percent))
                 {
-                    target->RemoveAurasDueToSpell(spellProto->Id);
+                    target->RemoveAurasDueToSpell(GetSpellProto()->Id);
                     return;
                 }
                 break;
@@ -6117,18 +6113,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        damage = caster->SpellDamageBonus(target, spellProto, damage, DOT, GetBase()->GetStackAmount());
+        damage = caster->SpellDamageBonus(target, GetSpellProto(), damage, DOT, GetBase()->GetStackAmount());
 
         // Calculate armor mitigation
-        if (Unit::IsDamageReducedByArmor(GetSpellSchoolMask(spellProto), spellProto, effIndex))
+        if (Unit::IsDamageReducedByArmor(GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), GetEffIndex()))
         {
-            uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, spellProto);
+            uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellProto());
             cleanDamage.mitigated_damage += damage - damageReductedArmor;
             damage = damageReductedArmor;
         }
 
         // Curse of Agony damage-per-tick calculation
-        if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags[0] & 0x400) && spellProto->SpellIconID == 544)
+        if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x400) && GetSpellProto()->SpellIconID == 544)
         {
             uint32 totalTick = GetTotalTicks();
             // 1..4 ticks, 1/2 from normal tick damage
@@ -6140,7 +6136,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             // 5..8 ticks have normal tick damage
         }
         // There is a Chance to make a Soul Shard when Drain soul does damage
-        if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags[0] & 0x00004000))
+        if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000))
         {
             if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
             {
@@ -6154,7 +6150,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 }
             }
         }
-        if (spellProto->SpellFamilyName == SPELLFAMILY_GENERIC)
+        if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_GENERIC)
         {
             switch (GetId())
             {
@@ -6180,7 +6176,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     caster->ApplyResilience(target, NULL, &dmg, crit, CR_CRIT_TAKEN_SPELL);
     damage = dmg;
 
-    caster->CalcAbsorbResist(target, GetSpellSchoolMask(spellProto), DOT, damage, &absorb, &resist, spellProto);
+    caster->CalcAbsorbResist(target, GetSpellSchoolMask(GetSpellProto()), DOT, damage, &absorb, &resist, GetSpellProto());
 
     sLog->outDetail("PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
         GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUIDLow(), target->GetTypeId(), damage, GetId(), absorb);
@@ -6202,9 +6198,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 
-    caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, spellProto);
+    caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellProto());
 
-    caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellSchoolMask(spellProto), spellProto, true);
+    caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
 }
 
 void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const
@@ -6461,9 +6457,12 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     target->SendPeriodicAuraLog(&pInfo);
 
     int32 gainAmount = int32(drainedAmount * gainMultiplier);
-    int32 gainedAmount = caster->ModifyPower(powerType, gainAmount);
-    if (gainedAmount)
+    int32 gainedAmount = 0;
+    if (gainAmount)
+    {
+        gainedAmount = caster->ModifyPower(powerType, gainAmount);
         target->AddThreat(caster, float(gainedAmount) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
+    }
 
     // spell-specific code
     switch(GetId())

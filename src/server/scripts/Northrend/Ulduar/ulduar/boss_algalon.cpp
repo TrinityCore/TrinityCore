@@ -733,7 +733,7 @@ class boss_algalon : public CreatureScript
                     summons.DespawnEntry(CREATURE_BLACK_HOLE);
                     summons.DespawnEntry(CREATURE_LIVING_CONSTELLATION);
                     summons.DespawnEntry(CREATURE_COLLAPSING_STAR);
-                    events.CancelEventsByGCD(PHASE_1);
+                    events.CancelEventGroup(PHASE_1);
                     Position pos;
 
                     for (uint8 i = 1; i <= 4; ++i) //Summoning the black Holes.

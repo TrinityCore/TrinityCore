@@ -58,7 +58,7 @@ public:
 
     struct boss_gluthAI : public BossAI
     {
-        boss_gluthAI(Creature *c) : BossAI(c, BOSS_GLUTH)
+        boss_gluthAI(Creature* c) : BossAI(c, BOSS_GLUTH)
         {
             // Do not let Gluth be affected by zombies' debuff
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_TRIGGERED, true);
@@ -79,7 +79,7 @@ public:
             pWho->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
@@ -103,7 +103,7 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == MOB_ZOMBIE)
             {

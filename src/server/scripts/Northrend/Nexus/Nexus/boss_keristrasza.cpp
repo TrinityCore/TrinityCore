@@ -61,7 +61,7 @@ public:
 
     struct boss_keristraszaAI : public ScriptedAI
     {
-        boss_keristraszaAI(Creature *c) : ScriptedAI(c)
+        boss_keristraszaAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -125,7 +125,7 @@ public:
             auiContainmentSphereGUIDs[1] = pInstance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
             auiContainmentSphereGUIDs[2] = pInstance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
 
-            GameObject *ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
+            GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
 
             for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
             {
@@ -192,7 +192,7 @@ public:
                 DoScriptText(SAY_CRYSTAL_NOVA, me);
                 if (IsHeroic())
                     DoCast(me, SPELL_CRYSTALIZE);
-                else if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                else if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_CRYSTAL_CHAINS);
                 uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
             } else uiCrystalChainsCrystalizeTimer -= diff;
@@ -208,11 +208,11 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject *pGO)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
     {
         InstanceScript *pInstance = pGO->GetInstanceScript();
 
-        Creature *pKeristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
         if (pKeristrasza && pKeristrasza->isAlive())
         {
             // maybe these are hacks :(

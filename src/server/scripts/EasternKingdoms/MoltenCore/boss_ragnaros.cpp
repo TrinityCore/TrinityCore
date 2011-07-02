@@ -79,7 +79,7 @@ class boss_ragnaros : public CreatureScript
 
         struct boss_ragnarosAI : public BossAI
         {
-            boss_ragnarosAI(Creature *pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
+            boss_ragnarosAI(Creature* pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
             {
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
@@ -316,7 +316,7 @@ class mob_son_of_flame : public CreatureScript
 
         struct mob_son_of_flameAI : public ScriptedAI //didnt work correctly in EAI for me...
         {
-            mob_son_of_flameAI(Creature *c) : ScriptedAI(c)
+            mob_son_of_flameAI(Creature* c) : ScriptedAI(c)
             {
                 instance = me->GetInstanceScript();
             }

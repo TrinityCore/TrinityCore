@@ -65,7 +65,7 @@ public:
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) {}
 
         bool Enraged;
 
@@ -144,7 +144,7 @@ public:
                 if(counter > 3)
                     break;
 
-                Unit *pTarget = (*itr);
+                Unit* pTarget = (*itr);
                 if (pTarget->isAlive() && pTarget->GetHealth() > MostHP)
                 {
                     MostHP = pTarget->GetHealth();

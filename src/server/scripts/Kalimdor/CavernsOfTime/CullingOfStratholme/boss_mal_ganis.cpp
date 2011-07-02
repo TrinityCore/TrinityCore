@@ -76,7 +76,7 @@ public:
 
     struct boss_mal_ganisAI : public ScriptedAI
     {
-        boss_mal_ganisAI(Creature *c) : ScriptedAI(c)
+        boss_mal_ganisAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -118,7 +118,7 @@ public:
                 pInstance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = me->GetHealth()-1;
@@ -174,7 +174,7 @@ public:
 
                     if (uiMindBlastTimer <= diff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
                         uiMindBlastTimer = 6000;
                     } else uiMindBlastTimer -= diff;
@@ -188,7 +188,7 @@ public:
                     if (uiSleepTimer <= diff)
                     {
                         DoScriptText(RAND(SAY_SLEEP_1, SAY_SLEEP_2), me);
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                             DoCast(pTarget, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
                         uiSleepTimer = urand(12500, 17500);
                     } else uiSleepTimer -= diff;

@@ -57,7 +57,7 @@ public:
 
     struct boss_meathookAI : public ScriptedAI
     {
-        boss_meathookAI(Creature *c) : ScriptedAI(c)
+        boss_meathookAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)

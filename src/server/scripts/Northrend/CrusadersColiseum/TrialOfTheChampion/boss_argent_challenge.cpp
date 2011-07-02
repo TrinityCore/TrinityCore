@@ -313,7 +313,7 @@ class boss_paletress : public CreatureScript
             bHealth = false;
             bDone = false;
     		
-            if (Creature *pMemory = Unit::GetCreature(*me, MemoryGUID))
+            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
                 if (pMemory->isAlive())
                     pMemory->RemoveFromWorld();
 
@@ -437,7 +437,7 @@ class boss_paletress : public CreatureScript
                             DoCast(me,DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
                             break;
                         case 1:
-                            if (Creature *pMemory = Unit::GetCreature(*me, MemoryGUID))
+                            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
                                 if (pMemory->isAlive())
                                     DoCast(pMemory, DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
                             break;

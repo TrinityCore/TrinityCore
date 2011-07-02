@@ -62,7 +62,7 @@ public:
 
         void LockRageclaw()
         {
-            Unit *Rageclaw = Unit::GetCreature(*me, RageclawGUID);
+            Unit* Rageclaw = Unit::GetCreature(*me, RageclawGUID);
             // pointer check not needed
             me->SetInFront(Rageclaw);
             Rageclaw->SetInFront(me);
@@ -76,7 +76,7 @@ public:
             if (!pWho)
                 return;
 
-            Creature *Rageclaw = Unit::GetCreature(*me, RageclawGUID);
+            Creature* Rageclaw = Unit::GetCreature(*me, RageclawGUID);
             // pointer check not needed
             DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
 
@@ -105,7 +105,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_drakuru_shacklesAI(creature);
     }
@@ -187,7 +187,7 @@ public:
        }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_captured_rageclawAI(creature);
     }
@@ -557,7 +557,7 @@ public:
         return false;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_gurgthockAI(creature);
     }
@@ -616,7 +616,7 @@ public:
 
         void EnterEvadeMode()
         {
-            if (Creature *pWhisker = me->GetCreature(*me, uiWhisker))
+            if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                 pWhisker->RemoveFromWorld();
         }
 
@@ -649,7 +649,7 @@ public:
 
             if (uiFishyScentTimer <= uiDiff)
             {
-                if (Unit *pAffected = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pAffected = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pAffected, SPELL_FISHY_SCENT);
                     AffectedGUID = pAffected->GetGUID();
@@ -662,7 +662,7 @@ public:
                 DoScriptText(SAY_CALL_FOR_HELP , me);
                 //DoCast(me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
 
-                if (Creature *pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (Creature* pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     uiWhisker = pWhisker->GetGUID();
                 bSummoned = true;
             }
@@ -678,7 +678,7 @@ public:
                     pSummon->AI()->AttackStart(me->getVictim());
                     break;
                 case NPC_HUNGRY_PENGUIN:
-                    if (Unit *pAffected = Unit::GetUnit(*me, AffectedGUID))
+                    if (Unit* pAffected = Unit::GetUnit(*me, AffectedGUID))
                     {
                         if (pAffected->isAlive())
                             pSummon->AI()->AttackStart(pAffected);
@@ -690,7 +690,7 @@ public:
         void JustDied(Unit* pKiller)
         {
             if (uiWhisker)
-                if (Creature *pWhisker = me->GetCreature(*me, uiWhisker))
+                if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                     pWhisker->RemoveFromWorld();
 
             if (pKiller->GetTypeId() == TYPEID_PLAYER)
@@ -699,7 +699,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_orinoko_tuskbreakerAI(creature);
     }
@@ -797,7 +797,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_korrak_bloodragerAI(creature);
     }
@@ -889,7 +889,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_yggdrasAI(creature);
     }
@@ -1022,7 +1022,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_stinkbeardAI(creature);
     }
@@ -1232,7 +1232,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_fiend_elementalAI(creature);
     }
@@ -1266,7 +1266,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_released_offspring_harkoaAI(creature);
     }
@@ -1378,7 +1378,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_crusade_recruitAI(creature);
     }
@@ -1990,7 +1990,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_nassAI(creature);
     }

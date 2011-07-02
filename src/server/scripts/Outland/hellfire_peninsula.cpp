@@ -406,7 +406,7 @@ public:
 
     struct npc_wounded_blood_elfAI : public npc_escortAI
     {
-        npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {}
+        npc_wounded_blood_elfAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {

@@ -252,7 +252,7 @@ public:
 
     struct boss_sacrolashAI : public boss_eredar_twinAI
     {
-        boss_sacrolashAI(Creature *c) : boss_eredar_twinAI(c){
+        boss_sacrolashAI(Creature* c) : boss_eredar_twinAI(c){
             pInstance = c->GetInstanceScript();
         }
 
@@ -481,7 +481,7 @@ public:
 
     struct boss_alythessAI : public boss_eredar_twinAI
     {
-        boss_alythessAI(Creature *c) : boss_eredar_twinAI(c){
+        boss_alythessAI(Creature* c) : boss_eredar_twinAI(c){
             pInstance = c->GetInstanceScript();
             IntroStepCounter = 10;
         }
@@ -556,12 +556,12 @@ public:
                 pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             ScriptedAI::AttackStartNoMove(who);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || me->getVictim())
                 return;
@@ -764,7 +764,7 @@ public:
 
     struct mob_shadow_imageAI : public ScriptedAI
     {
-        mob_shadow_imageAI(Creature *c) : ScriptedAI(c) {}
+        mob_shadow_imageAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;

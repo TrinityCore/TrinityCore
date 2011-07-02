@@ -63,7 +63,7 @@ public:
 
     struct boss_epochAI : public ScriptedAI
     {
-        boss_epochAI(Creature *c) : ScriptedAI(c)
+        boss_epochAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -129,7 +129,7 @@ public:
 
             if (uiCurseOfExertionTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
                 uiCurseOfExertionTimer = DUNGEON_MODE(15000, 10000);
             } else uiCurseOfExertionTimer -= diff;

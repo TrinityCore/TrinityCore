@@ -134,14 +134,14 @@ public:
             CheckPlayersFrostResist();
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
                 IceBlockMap::iterator itr = iceblocks.find(pTarget->GetGUID());
                 if (itr != iceblocks.end() && !itr->second)
                 {
-                    if (GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                    if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                         itr->second = iceblock->GetGUID();
                 }
             }
@@ -267,9 +267,9 @@ public:
                         case EVENT_BLIZZARD:
                         {
                             //DoCastAOE(SPELL_SUMMON_BLIZZARD);
-                            Unit *target = SelectTarget(SELECT_TARGET_RANDOM,1);
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM,1);
                             if (!target) target = me->getVictim();
-                            if (Creature *pSummon = DoSummon(MOB_BLIZZARD, target, 0.0f, 20000, TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* pSummon = DoSummon(MOB_BLIZZARD, target, 0.0f, 20000, TEMPSUMMON_TIMED_DESPAWN))
                                 pSummon->GetMotionMaster()->MoveRandom(40);
                             events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20000,7000), 0, PHASE_GROUND);
                             break;
@@ -364,7 +364,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (; i != me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit *pTarget = (*i)->getTarget();
+                Unit* pTarget = (*i)->getTarget();
                 if (pTarget->GetTypeId() != TYPEID_PLAYER)
                     continue;
 

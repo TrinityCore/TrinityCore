@@ -78,7 +78,7 @@ public:
 
     struct boss_brutallusAI : public ScriptedAI
     {
-        boss_brutallusAI(Creature *c) : ScriptedAI(c)
+        boss_brutallusAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -266,7 +266,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if(pInstance && Intro)
                 pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);

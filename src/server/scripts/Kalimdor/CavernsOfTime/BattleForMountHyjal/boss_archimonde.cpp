@@ -194,7 +194,7 @@ public:
         {
             if (ChangeTargetTimer <= diff)
             {
-                if (Unit *temp = Unit::GetUnit(*me, TargetGUID))
+                if (Unit* temp = Unit::GetUnit(*me, TargetGUID))
                 {
                     me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
                     TargetGUID = 0;
@@ -233,7 +233,7 @@ public:
 
     struct boss_archimondeAI : public hyjal_trashAI
     {
-        boss_archimondeAI(Creature *c) : hyjal_trashAI(c)
+        boss_archimondeAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             // prevent SPELL_HAND_OF_DEATH deal damage to units affected by SPELL_PROTECTION_OF_ELUNE
@@ -372,7 +372,7 @@ public:
                 return false;
 
             targets.sort(Trinity::ObjectDistanceOrderPred(me));
-            Unit *pTarget = targets.front();
+            Unit* pTarget = targets.front();
             if (pTarget)
             {
                 if (!me->IsWithinDistInMap(pTarget, me->GetAttackDistance(pTarget)))
@@ -384,7 +384,7 @@ public:
             return false;
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             if (summoned->GetEntry() == CREATURE_ANCIENT_WISP)
                 summoned->AI()->AttackStart(me);
@@ -405,7 +405,7 @@ public:
                 summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
                 summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
 
-                if (Unit *DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
+                if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
                 {
                     summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
                     DoomfireSpiritGUID = 0;
@@ -414,7 +414,7 @@ public:
         }
 
         //this is code doing close to what the summoning spell would do (spell 31903)
-        void SummonDoomfire(Unit *pTarget)
+        void SummonDoomfire(Unit* pTarget)
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
                 pTarget->GetPositionX()+15.0f, pTarget->GetPositionY()+15.0f, pTarget->GetPositionZ(), 0,
@@ -484,12 +484,12 @@ public:
                 {
                     if (!IsChanneling)
                     {
-                        Creature *temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 1200000);
 
                         if (temp)
                             WorldTreeGUID = temp->GetGUID();
 
-                        if (Unit *Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
+                        if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
                         {
                             Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             Nordrassil->SetDisplayId(11686);
@@ -498,7 +498,7 @@ public:
                         }
                     }
 
-                    if (Unit *Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
+                    if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
                     {
                         Nordrassil->CastSpell(me, SPELL_DRAIN_WORLD_TREE_2, true);
                         DrainNordrassilTimer = 1000;
@@ -616,7 +616,7 @@ public:
                 else
                     DoScriptText(SAY_DOOMFIRE2, me);
 
-                Unit *temp = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!temp)
                     temp = me->getVictim();
 

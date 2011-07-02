@@ -76,7 +76,7 @@ public:
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
+        boss_nothAI(Creature* c) : BossAI(c, BOSS_NOTH) {}
 
         uint32 waveCount, balconyCount;
 
@@ -120,7 +120,7 @@ public:
                 DoScriptText(SAY_SLAY, me);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
             summon->setActive(true);

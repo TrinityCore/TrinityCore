@@ -45,7 +45,7 @@ public:
 
     struct boss_kruulAI : public ScriptedAI
     {
-        boss_kruulAI(Creature *c) : ScriptedAI(c) {}
+        boss_kruulAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowVolley_Timer;
         uint32 Cleave_Timer;
@@ -78,7 +78,7 @@ public:
 
         void SummonHounds(Unit* pVictim)
         {
-            if (Creature *Hound = DoSpawnCreature(19207, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+            if (Creature* Hound = DoSpawnCreature(19207, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                 Hound->AI()->AttackStart(pVictim);
         }
 

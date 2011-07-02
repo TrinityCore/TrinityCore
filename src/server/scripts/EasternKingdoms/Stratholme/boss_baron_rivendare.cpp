@@ -89,7 +89,7 @@ public:
 
     struct boss_baron_rivendareAI : public ScriptedAI
     {
-        boss_baron_rivendareAI(Creature *c) : ScriptedAI(c)
+        boss_baron_rivendareAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -122,7 +122,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->AI()->AttackStart(pTarget);
         }
 

@@ -312,7 +312,7 @@ class boss_black_knight : public CreatureScript
 
                     if (uiDeathRespiteTimer <= uiDiff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             if (pTarget && pTarget->isAlive())
                             DoCast(pTarget,SPELL_DEATH_RESPITE);
@@ -395,7 +395,7 @@ class boss_black_knight : public CreatureScript
             {      
                 if(me)
                 {
-                    Map *instance = me->GetMap();
+                    Map* instance = me->GetMap();
                     if(instance && pInstance)
                     {
                         Creature* npc = instance->GetCreature(pInstance->GetData64(DATA_ANNOUNCER));

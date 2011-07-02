@@ -83,7 +83,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
             PrepareSpellScript(spell_mage_cold_snap_SpellScript)
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
 
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -139,7 +139,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                     if (unitTarget->GetTypeId() == TYPEID_UNIT)
                         unitTarget->CastSpell(unitTarget, spell_list[urand(0, 5)], true);
             }
@@ -188,7 +188,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                 {
                     // Glyph of Eternal Water
                     if (unitTarget->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))

@@ -261,21 +261,20 @@ void ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair, GridType& grid, 
     }
 }
 
-Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia)
+Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia /*=false*/)
 {
     Corpse* corpse = GetCorpseForPlayerGUID(player_guid);
     if (!corpse)
     {
         //in fact this function is called from several places
         //even when player doesn't have a corpse, not an error
-        // TODO: really, now...
-        //sLog->outError("Try remove corpse that not in map for GUID %ul", player_guid);
         return NULL;
     }
 
     sLog->outStaticDebug("Deleting Corpse and spawned bones.");
 
-    Map* map = corpse->GetMap();
+    // Map can be NULL
+    Map* map = corpse->FindMap();
 
     // remove corpse from player_guid -> corpse map and from current map
     RemoveCorpse(corpse);
@@ -287,7 +286,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
     Corpse* bones = NULL;
     // create the bones only if the map and the grid is loaded at the corpse's location
     // ignore bones creating option in case insignia
-   
+
     if (map && (insignia ||
         (map->IsBattlegroundOrArena() ? sWorld->getBoolConfig(CONFIG_DEATH_BONES_BG_OR_ARENA) : sWorld->getBoolConfig(CONFIG_DEATH_BONES_WORLD))) &&
         !map->IsRemovalGrid(corpse->GetPositionX(), corpse->GetPositionY()))
@@ -296,7 +295,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
         bones = new Corpse;
         bones->Create(corpse->GetGUIDLow(), map);
 
-        for (uint8 i = 3; i < CORPSE_END; ++i)                    // don't overwrite guid and object type
+        for (uint8 i = OBJECT_FIELD_TYPE + 1; i < CORPSE_END; ++i)                    // don't overwrite guid and object type
             bones->SetUInt32Value(i, corpse->GetUInt32Value(i));
 
         bones->SetGrid(corpse->GetGrid());

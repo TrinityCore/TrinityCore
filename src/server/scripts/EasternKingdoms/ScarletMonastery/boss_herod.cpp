@@ -52,7 +52,7 @@ public:
 
     struct boss_herodAI : public ScriptedAI
     {
-        boss_herodAI(Creature *c) : ScriptedAI(c) {}
+        boss_herodAI(Creature* c) : ScriptedAI(c) {}
 
         bool Enrage;
 
@@ -130,7 +130,7 @@ public:
 
     struct mob_scarlet_traineeAI : public npc_escortAI
     {
-        mob_scarlet_traineeAI(Creature *c) : npc_escortAI(c)
+        mob_scarlet_traineeAI(Creature* c) : npc_escortAI(c)
         {
             Start_Timer = urand(1000, 6000);
         }

@@ -522,14 +522,14 @@ public:
 
         void HandleAnimation()
         {
-            Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-            if (!plr)
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            if (!player)
                 return;
 
-            Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
-            Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100.0f, me);
-            Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
-            Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100.0f, me);
+            Unit* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
+            Unit* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f, me);
+            Unit* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
+            Unit* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f, me);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
@@ -659,19 +659,19 @@ public:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8050, 1473, 65, 15);
                         break; //Text: sands will stop
                     case 34:
-                        DoCast(plr, 23017, true);//Arcane Channeling
+                        DoCast(player, 23017, true);//Arcane Channeling
                         break;
                     case 35:
                         me->CastSpell(-8088, 1520.43f, 2.67f, 25158, true);
                         break;
                     case 36:
-                        DoCast(plr, 25159, true);
+                        DoCast(player, 25159, true);
                         break;
                     case 37:
                         me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 38:
-                        DoCast(plr, 25166, true);
+                        DoCast(player, 25166, true);
                         me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 39:
@@ -719,11 +719,11 @@ public:
                         uint32 entries[4] = { 15423, 15424, 15414, 15422 };
                         for (uint8 i = 0; i < 4; ++i)
                         {
-                            mob = plr->FindNearestCreature(entries[i], 50, me);
+                            mob = player->FindNearestCreature(entries[i], 50, me);
                             while (mob)
                             {
                                 mob->RemoveFromWorld();
-                                mob = plr->FindNearestCreature(15423, 50, me);
+                                mob = player->FindNearestCreature(15423, 50, me);
                             }
                         }
                         break;
@@ -755,14 +755,14 @@ public:
                         me->GetMotionMaster()->MoveCharge(-8117.99f, 1532.24f, 3.94f, 4);
                         break;
                     case 60:
-                        if (plr)
-                            DoScriptText(ANACHRONOS_SAY_10, me, plr);
+                        if (player)
+                            DoScriptText(ANACHRONOS_SAY_10, me, player);
                         me->GetMotionMaster()->MoveCharge(-8113.46f, 1524.16f, 2.89f, 4);
                         break;
                     case 61:
                         me->GetMotionMaster()->MoveCharge(-8057.1f, 1470.32f, 2.61f, 6);
-                        if (plr->IsInRange(me, 0, 15))
-                            plr->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD , me);
+                        if (player->IsInRange(me, 0, 15))
+                            player->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD , me);
                         break;
                     case 62:
                         me->SetDisplayId(15500);
@@ -841,8 +841,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            Unit *pTarget = NULL;
-            //Player* plr = me->GetPlayer(PlayerGUID);
+            Unit* pTarget = NULL;
+            //Player* player = me->GetPlayer(PlayerGUID);
 
             if (!Timers)
             {
@@ -1083,19 +1083,19 @@ class go_crystalline_tear : public GameObjectScript
 public:
     go_crystalline_tear() : GameObjectScript("go_crystalline_tear") { }
 
-    bool OnQuestAccept(Player* plr, GameObject* go, Quest const* quest)
+    bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
 
-            if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
+            if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, player))
             {
 
-                Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                /* Unit* Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Creature* Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
 
                 if (Merithra)
                 {
@@ -1123,9 +1123,9 @@ public:
 
                 if (Anachronos)
                 {
-                    CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = plr->GetGUID();
+                    CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = player->GetGUID();
                     CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
+                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = player->GetGUID();
                     CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
                     CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
                 }

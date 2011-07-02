@@ -350,7 +350,7 @@ public:
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
     {
-        npc_twiggy_flatheadAI(Creature *c) : ScriptedAI(c) {}
+        npc_twiggy_flatheadAI(Creature* c) : ScriptedAI(c) {}
 
         bool EventInProgress;
         bool EventGrate;
@@ -383,7 +383,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || (!who->isAlive())) return;
 

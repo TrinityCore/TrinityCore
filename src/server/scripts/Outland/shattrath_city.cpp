@@ -162,7 +162,7 @@ public:
             me->RestoreFaction();
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->HealthBelowPctDamaged(20, damage))
@@ -321,7 +321,7 @@ public:
     struct npc_kservantAI : public npc_escortAI
     {
     public:
-        npc_kservantAI(Creature *c) : npc_escortAI(c) {}
+        npc_kservantAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
