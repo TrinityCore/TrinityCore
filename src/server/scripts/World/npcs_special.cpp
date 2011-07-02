@@ -2103,11 +2103,11 @@ public:
         void DamageTaken(Unit* /*killer*/, uint32 &damage)
         {
             if (me->isSummon())
-                if (Unit* pOwner = me->ToTempSummon()->GetSummoner())
+                if (Unit* owner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (pOwner->HasAura(GLYPH_OF_SHADOWFIEND))
+                    if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
                         if (damage >= me->GetHealth())
-                            pOwner->CastSpell(pOwner, GLYPH_OF_SHADOWFIEND_MANA, true);
+                            owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
                 }
         }
 

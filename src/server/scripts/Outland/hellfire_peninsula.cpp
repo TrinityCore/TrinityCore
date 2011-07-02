@@ -503,8 +503,8 @@ public:
                 pHelboar->RemoveCorpse();
                 DoCast(SPELL_SUMMON_POO);
 
-                if (Player* pOwner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    me->GetMotionMaster()->MoveFollow(pOwner, 0.0f, 0.0f);
+                if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
             }
         }
 
