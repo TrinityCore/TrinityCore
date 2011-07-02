@@ -83,29 +83,34 @@ enum BossSpells
     SPELL_DARK_TOUCH            = 67282,
 
     SPELL_TWIN_POWER            = 65916,
-    SPELL_LIGHT_ESSENCE         = 65686,
-    SPELL_DARK_ESSENCE          = 65684,
     SPELL_BERSERK               = 64238,
     SPELL_NONE                  = 0,
-
-    SPELL_EMPOWERED_DARK        = 65724,
-    SPELL_EMPOWERED_LIGHT       = 65748,
-
-    SPELL_UNLEASHED_DARK        = 65808,
-    SPELL_UNLEASHED_LIGHT       = 65795,
-    //PowerUp 67604
+    SPELL_TWIN_EMPATHY_1         = 66132,
+    SPELL_TWIN_EMPATHY_2        = 66133,
 };
 
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
 #define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
+
+#define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE(65795, 67238, 67239, 67240)
+#define SPELL_UNLEASHED_DARK_HELPER RAID_MODE(65808, 67172, 67173, 67174)
+
+#define SPELL_DARK_VORTEX_TRIGGERED_HELPER RAID_MODE(66059, 67155, 67156, 67157)
+#define SPELL_LIGHT_VORTEX_TRIGGERED_HELPER RAID_MODE(66048, 67203, 67204, 67205)
+
+#define SPELL_POWERING_UP_HELPER RAID_MODE(67590, 67602, 67603, 67604)
+#define SPELL_SURGE_OF_SPEED_HELPER RAID_MODE(65828, 67241, 67242, 67243)
+
+#define SPELL_DARK_SURGE_TRIGGERED_HELPER RAID_MODE(65769, 67265, 67266, 67267)
+#define SPELL_LIGHT_SURGE_TRIGGERED_HELPER RAID_MODE(65767, 67274, 67275, 67276)
 
 #define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
 #define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
 
 enum Actions
 {
-    ACTION_VORTEX,
-    ACTION_PACT
+    ACTION_VORTEX		= 1,
+    ACTION_PACT			= 2,
 };
 
 /*######
@@ -159,20 +164,51 @@ struct boss_twin_baseAI : public ScriptedAI
 
         m_uiWaveCount = 1;
         m_uiColorballsTimer = 15*IN_MILLISECONDS;
-        m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+        m_uiSpecialAbilityTimer = 45*IN_MILLISECONDS;
         m_uiSpikeTimer = 20*IN_MILLISECONDS;
         m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
 
         Summons.DespawnAll();
     }
+    // Players should gain powering up when they absorb damage from light/dark vortex
+	void SpellHitTarget(Unit* pWho, const SpellEntry* spell)
+	{
+		if (spell->Id == SPELL_LIGHT_VORTEX_TRIGGERED_HELPER && pWho->HasAura(SPELL_LIGHT_ESSENCE_HELPER) && !pWho->HasAura(SPELL_EMPOWERED_LIGHT_HELPER))
+		{ 
+			pWho->CastSpell(pWho, SPELL_POWERING_UP_HELPER, true);
+			int n = urand(5, 8);
+			if(Aura * aura = pWho->GetAura(SPELL_POWERING_UP_HELPER))
+			{
+				aura->SetStackAmount(aura->GetStackAmount()+n);
+				if(aura->GetStackAmount() >= 100)
+				{
+					pWho->CastSpell(pWho, SPELL_EMPOWERED_LIGHT_HELPER, true);
+					pWho->RemoveAurasDueToSpell(SPELL_POWERING_UP_HELPER);
+				}
+			}
+		}
+		if (spell->Id == SPELL_DARK_VORTEX_TRIGGERED_HELPER && pWho->HasAura(SPELL_DARK_ESSENCE_HELPER) && !pWho->HasAura(SPELL_EMPOWERED_DARK_HELPER))
+		{ 
+			pWho->CastSpell(pWho, SPELL_POWERING_UP_HELPER, true);
+			int n = urand(5, 8);
+			if(Aura * aura = pWho->GetAura(SPELL_POWERING_UP_HELPER))
+			{
+				aura->SetStackAmount(aura->GetStackAmount()+n);
+				if(aura->GetStackAmount() >= 100)
+				{
+					pWho->CastSpell(pWho, SPELL_EMPOWERED_DARK_HELPER, true);
+					pWho->RemoveAurasDueToSpell(SPELL_POWERING_UP_HELPER);
+				}
+			}
+		}
+	}
 
     void JustReachedHome()
     {
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         me->DespawnOrUnsummon();
     }
@@ -238,28 +274,6 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (pDoneBy->GetGUID() == me->GetGUID())
             return;
-
-        if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (pDoneBy->HasAura(m_uiOtherEssenceSpellId))
-                uiDamage += uiDamage/2;
-            if (pDoneBy->HasAura(m_uiEmpoweredWeaknessSpellId))
-                uiDamage += uiDamage;
-            else
-                if (pDoneBy->HasAura(m_uiMyEssenceSpellId))
-                    uiDamage /= 2;
-        }
-
-        if (m_pInstance)
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
-    }
-
-    void SpellHit(Unit* caster, const SpellEntry* spell)
-    {
-        if (caster->ToCreature() == me)
-            if (spell->Effect[0] == 136) //Effect Heal
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->EffectBasePoints[0]));
     }
 
     void SummonColorballs(uint8 quantity)
@@ -282,7 +296,6 @@ struct boss_twin_baseAI : public ScriptedAI
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
         {
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
             {
                 if (!pSister->isAlive())
@@ -308,7 +321,6 @@ struct boss_twin_baseAI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         if (me->isAlive())
         {
@@ -324,10 +336,10 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (action)
         {
             case ACTION_VORTEX:
-                m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 2 : 1;
+				m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 2 : 1;
                 break;
             case ACTION_PACT:
-                m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
+				m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
                 DoCast(me, SPELL_TWIN_POWER);
                 break;
         }
@@ -338,11 +350,6 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!m_pInstance || !UpdateVictim())
             return;
 
-        if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
-            me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
-        else
-            me->SetHealth(1);
-
         switch (m_uiStage)
         {
             case 0:
@@ -351,30 +358,38 @@ struct boss_twin_baseAI : public ScriptedAI
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
                     if (Creature* pSister = GetSister())
-                        pSister->AI()->DoAction(ACTION_VORTEX);
+					{
+                        pSister->AI()->DoAction(ACTION_VORTEX);						
+					}
                     DoScriptText(m_uiVortexEmote, me);
                     DoScriptText(m_uiVortexSay, me);
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = 45*IN_MILLISECONDS;
                 }
                 else
+				{
                     m_uiSpecialAbilityTimer -= uiDiff;
+				}
                 break;
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
                     if (Creature* pSister = GetSister())
-                        pSister->AI()->DoAction(ACTION_PACT);
+					{
+                        pSister->AI()->DoAction(ACTION_PACT);						
+					}
                     DoScriptText(EMOTE_SHIELD, me);
                     DoScriptText(SAY_SHIELD, me);
                     DoCast(me, m_uiShieldSpellId);
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = 45*IN_MILLISECONDS;
                 }
                 else
+				{
                     m_uiSpecialAbilityTimer -= uiDiff;
+				}
                 break;
             default:
                 break;
@@ -421,9 +436,10 @@ struct boss_twin_baseAI : public ScriptedAI
             m_bIsBerserk = true;
         }
         else
+		{
             m_uiBerserkTimer -= uiDiff;
-
-        DoMeleeAttackIfReady();
+		}
+		DoMeleeAttackIfReady();
     }
 };
 
@@ -480,6 +496,8 @@ public:
             if (m_pInstance)
             {
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+               if (Creature* pEydis = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_DARKBANE)))
+				   me->AddAura(SPELL_TWIN_EMPATHY_1, pEydis);
             }
         }
     };
@@ -504,7 +522,8 @@ public:
     {
         boss_eydisAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
 
-        void Reset() {
+        void Reset() 
+		{
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
             m_uiStage = 1;
@@ -526,6 +545,13 @@ public:
             HomeLocation = ToCCommonLoc[9];
             EssenceLocation[0] = TwinValkyrsLoc[0];
             EssenceLocation[1] = TwinValkyrsLoc[1];
+        }
+        void EnterCombat(Unit* pWho)
+        {
+            boss_twin_baseAI::EnterCombat(pWho);
+            if (m_pInstance)
+                if (Creature* pFjola = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_LIGHTBANE)))
+                    me->AddAura(SPELL_TWIN_EMPATHY_2, pFjola);
         }
     };
 
@@ -646,13 +672,30 @@ public:
                 if (Unit* pTarget = me->SelectNearestTarget(2.0f))
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
-                        DoCastAOE(SPELL_UNLEASHED_DARK);
+                        DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(500);
                     }
                 m_uiRangeCheckTimer = IN_MILLISECONDS;
             }
             else m_uiRangeCheckTimer -= uiDiff;
+        }
+        void SpellHitTarget(Unit* pWho, const SpellEntry* spell)
+        {
+            if (spell->Id == SPELL_UNLEASHED_DARK_HELPER && pWho->HasAura(SPELL_DARK_ESSENCE_HELPER) && !pWho->HasAura(SPELL_EMPOWERED_DARK_HELPER))
+            {
+               pWho->CastSpell(pWho, SPELL_POWERING_UP_HELPER, true);
+               int n = urand(5, 8);
+               if(Aura * aura = pWho->GetAura(SPELL_POWERING_UP_HELPER))
+               {
+                   aura->SetStackAmount(aura->GetStackAmount()+n);
+                   if(aura->GetStackAmount() >= 100)
+                   {
+                       pWho->CastSpell(pWho, SPELL_EMPOWERED_DARK_HELPER, true);
+                       pWho->RemoveAurasDueToSpell(SPELL_POWERING_UP_HELPER);
+                   }
+               }
+            }
         }
     };
 
@@ -679,7 +722,7 @@ public:
                 if (Unit* pTarget = me->SelectNearestTarget(2.0f))
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
-                        DoCastAOE(SPELL_UNLEASHED_LIGHT);
+                        DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(500);
                     }
@@ -687,10 +730,88 @@ public:
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
-    };
-
+        void SpellHitTarget(Unit* pWho, const SpellEntry* spell)
+        {
+            if (spell->Id == SPELL_UNLEASHED_LIGHT_HELPER && pWho->HasAura(SPELL_LIGHT_ESSENCE_HELPER) && !pWho->HasAura(SPELL_EMPOWERED_LIGHT_HELPER))
+            { 
+               pWho->CastSpell(pWho, SPELL_POWERING_UP_HELPER, true);
+               int n = urand(5, 8);
+               if(Aura * aura = pWho->GetAura(SPELL_POWERING_UP_HELPER))
+               {
+                   aura->SetStackAmount(aura->GetStackAmount()+n);
+                   if(aura->GetStackAmount() >= 100)
+                   {
+                       pWho->CastSpell(pWho, SPELL_EMPOWERED_LIGHT_HELPER, true);
+                       pWho->RemoveAurasDueToSpell(SPELL_POWERING_UP_HELPER);
+                   }
+               }
+            }
+        }
+   };
 };
 
+enum PoweringUpSpells
+{
+    SPELL_SURGE_OF_SPEED_1      = 65828,
+    SPELL_SURGE_OF_SPEED_2      = 67241,
+    SPELL_SURGE_OF_SPEED_3      = 67242,
+    SPELL_SURGE_OF_SPEED_4      = 67243,
+   
+    SPELL_POWERING_UP_1         = 67590,
+    SPELL_POWERING_UP_2         = 67602,
+    SPELL_POWERING_UP_3         = 67603,
+    SPELL_POWERING_UP_4         = 67604,
+};
+ 
+class spell_powering_up : public SpellScriptLoader
+{
+public:
+    spell_powering_up() : SpellScriptLoader("spell_powering_up") { }
+    class spell_powering_up_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_powering_up_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return true;
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* pTarget = GetTargetUnit())
+			{
+                if (urand(0, 100) <= 30)
+				{
+					switch(GetSpellInfo()->Id)
+					{
+						case SPELL_POWERING_UP_1:
+							pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_1, true);
+							break;
+						case SPELL_POWERING_UP_2:
+							pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_2, true);
+							break;
+						case SPELL_POWERING_UP_3:
+							pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_3, true);
+							break;
+						case SPELL_POWERING_UP_4:
+							pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_4, true);
+							break;
+					}
+				}
+			}
+		}
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_powering_up_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_powering_up_SpellScript();
+    }
+};
 void AddSC_boss_twin_valkyr()
 {
     new boss_fjola();
@@ -698,4 +819,5 @@ void AddSC_boss_twin_valkyr()
     new mob_unleashed_light();
     new mob_unleashed_dark();
     new mob_essence_of_twin();
+	new spell_powering_up();
 }

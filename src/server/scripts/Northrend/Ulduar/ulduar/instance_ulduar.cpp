@@ -547,10 +547,16 @@ public:
                 case GO_HODIR_IN_DOOR_STONE:
                     uiHodirEntranceDoorGUID = go->GetGUID();
                     break;
-                case GO_FREYA_CHEST_HERO:
-                case GO_FREYA_CHEST:
-                    uiFreyaChestGUID = go->GetGUID();
-                    break;
+			   case GO_FREYA_CHEST_0_ELDER_10:
+               case GO_FREYA_CHEST_1_ELDER_10:
+		       case GO_FREYA_CHEST_2_ELDER_10:
+			   case GO_FREYA_CHEST_3_ELDER_10:
+			   case GO_FREYA_CHEST_0_ELDER_25:
+			   case GO_FREYA_CHEST_1_ELDER_25:
+			   case GO_FREYA_CHEST_2_ELDER_25:
+			   case GO_FREYA_CHEST_3_ELDER_25:
+                   uiFreyaChestGUID = go->GetGUID();
+                   break;
                 case GO_LEVIATHAN_DOOR:
                     AddDoor(go, true);
                     break;
@@ -781,10 +787,17 @@ public:
                         HandleGameObject(uiHodirStoneDoorGUID, true);
 
                         if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
+						{
                             if (GetData(DATA_HODIR_RARE_CHEST))
+							{
                                 HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+								HodirRareCache->SetRespawnTime(HodirRareCache->GetRespawnDelay());
+							}
+						}
                         if (GameObject* go = instance->GetGameObject(uiHodirChestGUID))
+						{
                             go->SetRespawnTime(go->GetRespawnDelay());
+						}
                     }
 
                     HandleGameObject(uiHodirEntranceDoorGUID, state != IN_PROGRESS);
@@ -796,11 +809,11 @@ public:
                     if (GameObject* obj = instance->GetGameObject(uiThorimDoorGUID))
                         obj->SetGoState(state == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE);
                     break;
-                case TYPE_FREYA:
-                    if (state == DONE)
-                        if (GameObject* go = instance->GetGameObject(uiFreyaChestGUID))
-                            go->SetRespawnTime(go->GetRespawnDelay());
-                    break;
+				case TYPE_FREYA:
+                   if (state == DONE)
+                       if (GameObject* go = instance->GetGameObject(uiFreyaChestGUID))
+                           go->SetRespawnTime(604800);
+                   break;
                 case TYPE_ALGALON:
                     if (state == IN_PROGRESS)
                     {

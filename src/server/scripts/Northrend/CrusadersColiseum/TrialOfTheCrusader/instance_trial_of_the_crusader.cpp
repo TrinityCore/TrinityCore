@@ -368,10 +368,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                         }
                         break;
-                    case DATA_HEALTH_TWIN_SHARED:
-                        DataDamageTwin = data;
-                        data = NOT_STARTED;
-                        break;
 
                     //Achievements
                     case DATA_SNOBOLD_COUNT:
@@ -584,8 +580,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                         };
                         return EventNPCId;
-                    case DATA_HEALTH_TWIN_SHARED:
-                        return DataDamageTwin;
                     default:
                         break;
                 }

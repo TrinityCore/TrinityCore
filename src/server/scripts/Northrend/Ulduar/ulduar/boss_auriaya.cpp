@@ -124,8 +124,8 @@ class boss_auriaya : public CreatureScript
                 DoScriptText(SAY_AGGRO,me);
 
                 events.ScheduleEvent(EVENT_SCREECH, urand(45000, 65000));
-                events.ScheduleEvent(EVENT_BLAST, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_TERRIFYING, urand(20000, 30000));
+                events.ScheduleEvent(EVENT_BLAST, 35500);
+                events.ScheduleEvent(EVENT_TERRIFYING, 35000);
                 events.ScheduleEvent(EVENT_DEFENDER, urand(40000, 55000));
                 events.ScheduleEvent(EVENT_SUMMON, urand(45000, 55000));
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -231,11 +231,11 @@ class boss_auriaya : public CreatureScript
                         case EVENT_TERRIFYING:
                             DoScriptText(EMOTE_FEAR, me);
                             DoCast(SPELL_TERRIFYING_SCREECH);
-                            events.ScheduleEvent(EVENT_TERRIFYING, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_TERRIFYING, 35000);
                             break;
                         case EVENT_BLAST:
                             DoCastAOE(SPELL_SENTINEL_BLAST);
-                            events.ScheduleEvent(EVENT_BLAST, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_BLAST, 35000);
                             break;
                         case EVENT_DEFENDER:
                             DoScriptText(EMOTE_DEFENDER, me);

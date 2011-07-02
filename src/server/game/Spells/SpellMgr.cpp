@@ -465,6 +465,19 @@ AuraState GetSpellAuraState(SpellEntry const* spellInfo)
         (spellInfo->SpellFamilyFlags[2] & 2)))
         return AURA_STATE_CONFLAGRATE;
 
+   // Twin Val'kyr encounter aura defines
+   // Dark Essence Effect 2 -- Empowered Darkness -- Surge of Darkness
+   if (spellInfo->Id == 65827 || spellInfo->Id == 67179 || spellInfo->Id == 67180 || spellInfo->Id == 67181 ||
+       spellInfo->Id == 65724 || spellInfo->Id == 67213 || spellInfo->Id == 67214 || spellInfo->Id == 67215 ||
+       spellInfo->Id == 65768 || spellInfo->Id == 67262 || spellInfo->Id == 67263 || spellInfo->Id == 67264)
+       return AURA_STATE_UNKNOWN19;
+
+   // Light Essence Effect 2 -- Empowered Light -- Surge of Light
+   if (spellInfo->Id == 65811 || spellInfo->Id == 67511 || spellInfo->Id == 67512 || spellInfo->Id == 67513 ||
+       spellInfo->Id == 65748 || spellInfo->Id == 67216 || spellInfo->Id == 67217 || spellInfo->Id == 67218 ||
+       spellInfo->Id == 65766 || spellInfo->Id == 67270 || spellInfo->Id == 67271 || spellInfo->Id == 67272)
+       return AURA_STATE_UNKNOWN22;
+
     // Faerie Fire (druid versions)
     if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x400)
         return AURA_STATE_FAERIE_FIRE;
@@ -4211,6 +4224,20 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
             ++count;
             break;
+		// Dark/Light Vortex, hack to prevent channeling cancel
+		case 66058:
+		case 67182:
+		case 67183:
+		case 67184:
+		case 66046:
+		case 67206:
+		case 67207:
+		case 67208:
+			spellInfo->ChannelInterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
+			spellInfo->AuraInterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
+			spellInfo->InterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
+			++count;
+			break;
         // ULDUAR SPELLS
         //
         case 62016: // Thorim - Charge Orb
@@ -4298,6 +4325,15 @@ void SpellMgr::LoadSpellCustomAttr()
         case 64386: // Terrifying Screech (Auriaya)
         case 64389: // Sentinel Blast (Auriaya)
         case 64678: // Sentinel Blast (Auriaya)
+			spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+			spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_DIRECT_DAMAGE;
+			spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_HITBYSPELL;
+			spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_MOVE;
+			spellInfo->ChannelInterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+			spellInfo->ChannelInterruptFlags &= ~AURA_INTERRUPT_FLAG_DIRECT_DAMAGE;
+			spellInfo->ChannelInterruptFlags &= ~AURA_INTERRUPT_FLAG_HITBYSPELL;
+			spellInfo->ChannelInterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
+			spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_MOVE;
             spellInfo->DurationIndex = 28; // 5 seconds, wrong DBC data?
             ++count;
             break;

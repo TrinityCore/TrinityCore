@@ -218,6 +218,11 @@ enum FreyaEvents
     EVENT_FLUX                                   = 17,
 };
 
+#define SPELL_FREYA_CHEST_0_ELDER RAID_MODE<uint32>(62950,62955)
+#define SPELL_FREYA_CHEST_1_ELDER RAID_MODE<uint32>(62952,62956)
+#define SPELL_FREYA_CHEST_2_ELDER RAID_MODE<uint32>(62953,62957)
+#define SPELL_FREYA_CHEST_3_ELDER RAID_MODE<uint32>(62954,62958)
+
 #define WAVE_TIME                                60000 // Normal wave is one minute
 #define TIME_DIFFERENCE                          10000 // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
 #define DATA_GETTING_BACK_TO_NATURE              1
@@ -334,9 +339,10 @@ class boss_freya : public CreatureScript
                 if (damage >= me->GetHealth() && instance)
                 {
                     damage = 0;
+					EnterEvadeMode();
                     DoScriptText(SAY_DEATH, me);
                     me->SetReactState(REACT_PASSIVE);
-                    _JustDied();
+                    //_JustDied(); nonsense -.-'
                     me->RemoveAllAuras();
                     me->AttackStop();
                     me->setFaction(35);
@@ -356,9 +362,12 @@ class boss_freya : public CreatureScript
                             Elder[n]->AttackStop();
                             Elder[n]->CombatStop(true);
                             Elder[n]->DeleteThreatList();
+							++elderCount;
                         }
                     }
-                }
+					//summon chest
+					CAST_AI(boss_freya::boss_freyaAI,me->AI())->SummonChest();
+				}
             }
 
             void EnterCombat(Unit* who)
@@ -420,7 +429,7 @@ class boss_freya : public CreatureScript
                         return elderCount;
                 }
 
-                return 0;
+				return 0;
             }
 
             void UpdateAI(uint32 const diff)
@@ -685,6 +694,25 @@ class boss_freya : public CreatureScript
                 else
                     events.RescheduleEvent(EVENT_WAVE, TIME_DIFFERENCE);
             }
+			void SummonChest()
+			{
+				if (elderCount == 0)
+				{
+					DoCast(me, SPELL_FREYA_CHEST_0_ELDER, true);
+				}
+				if (elderCount == 1)
+				{
+					DoCast(me, SPELL_FREYA_CHEST_1_ELDER, true);
+				}
+				if (elderCount == 2)
+				{
+					DoCast(me, SPELL_FREYA_CHEST_2_ELDER, true);
+				}
+				if (elderCount == 3)
+				{
+					DoCast(me, SPELL_FREYA_CHEST_3_ELDER, true);
+				}
+			}
         };
 
         CreatureAI* GetAI(Creature* creature) const
