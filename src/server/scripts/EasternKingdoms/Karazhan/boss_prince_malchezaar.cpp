@@ -312,7 +312,7 @@ public:
             std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
             std::vector<Unit* > targets;
 
-            if (!t_list.size())
+            if (t_list.empty())
                 return;
 
             //begin + 1, so we don't target the one with the highest threat

@@ -144,7 +144,7 @@ public:
             // Get the Threat List
             std::list<HostileReference *> m_threatlist = me->getThreatManager().getThreatList();
 
-            if (!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
+            if (m_threatlist.empty()) // He doesn't have anyone in his threatlist, useless to continue
                 return;
 
             std::list<Unit* > targets;
