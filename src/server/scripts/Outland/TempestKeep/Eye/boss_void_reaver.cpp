@@ -118,27 +118,27 @@ class boss_void_reaver : public CreatureScript
                 // Arcane Orb
                 if (ArcaneOrb_Timer <= diff)
                 {
-                    Unit* pTarget = NULL;
+                    Unit* target = NULL;
                     std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                     std::vector<Unit* > target_list;
                     for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
-                        pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                        if (!pTarget)
+                        target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        if (!target)
                             continue;
                         // exclude pets & totems, 18 yard radius minimum
-                        if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive() && !pTarget->IsWithinDist(me, 18, false))
-                            target_list.push_back(pTarget);
-                        pTarget = NULL;
+                        if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && !target->IsWithinDist(me, 18, false))
+                            target_list.push_back(target);
+                        target = NULL;
                     }
 
                     if (target_list.size())
-                        pTarget = *(target_list.begin()+rand()%target_list.size());
+                        target = *(target_list.begin()+rand()%target_list.size());
                     else
-                        pTarget = me->getVictim();
+                        target = me->getVictim();
 
-                    if (pTarget)
-                        me->CastSpell(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, 0, pTarget);
+                    if (target)
+                        me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, 0, target);
                     ArcaneOrb_Timer = 3000;
                 }
                 else

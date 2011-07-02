@@ -80,8 +80,8 @@ public:
             if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
             {
                 Striders.push_back(summon->GetGUID());
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    summon->AI()->AttackStart(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    summon->AI()->AttackStart(target);
                 else
                     if (me->getVictim())
                         summon->AI()->AttackStart(me->getVictim());
@@ -125,21 +125,21 @@ public:
             {
                 if (LevitatedTarget_Timer <= diff)
                 {
-                    if (Unit* pTarget = Unit::GetUnit(*me, LevitatedTarget))
+                    if (Unit* target = Unit::GetUnit(*me, LevitatedTarget))
                     {
-                        if (!pTarget->HasAura(SPELL_LEVITATE))
+                        if (!target->HasAura(SPELL_LEVITATE))
                         {
                             LevitatedTarget = 0;
                             return;
                         }
                         if (InAir)
                         {
-                            pTarget->AddAura(SPELL_SUSPENSION, pTarget);
+                            target->AddAura(SPELL_SUSPENSION, target);
                             LevitatedTarget = 0;
                         }
                         else
                         {
-                            pTarget->CastSpell(pTarget, SPELL_MAGNETIC_PULL, true);
+                            target->CastSpell(target, SPELL_MAGNETIC_PULL, true);
                             InAir = true;
                             LevitatedTarget_Timer = 1500;
                         }
@@ -150,10 +150,10 @@ public:
             }
             if (Levitate_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
-                    DoCast(pTarget, SPELL_LEVITATE);
-                    LevitatedTarget = pTarget->GetGUID();
+                    DoCast(target, SPELL_LEVITATE);
+                    LevitatedTarget = target->GetGUID();
                     LevitatedTarget_Timer = 2000;
                     InAir = false;
                 }
@@ -163,16 +163,16 @@ public:
             // Chain Lightning
             if (ChainLightning_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CHAIN_LIGHTNING);
                 ChainLightning_Timer = 7000;
             } else ChainLightning_Timer -= diff;
 
             // Static Charge
             if (StaticCharge_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
-                    DoCast(pTarget, SPELL_STATIC_CHARGE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
+                    DoCast(target, SPELL_STATIC_CHARGE);
                 StaticCharge_Timer = 10000;
             } else StaticCharge_Timer -= diff;
 

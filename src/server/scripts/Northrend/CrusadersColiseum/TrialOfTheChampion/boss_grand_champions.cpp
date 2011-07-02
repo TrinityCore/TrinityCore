@@ -537,8 +537,8 @@ public:
 
             if (uiPolymorphTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_POLYMORPH);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_POLYMORPH);
                 uiPolymorphTimer = 8000;
             } else uiPolymorphTimer -= uiDiff;
 
@@ -669,8 +669,8 @@ public:
 
             if (uiChainLightningTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CHAIN_LIGHTNING);
 
                 uiChainLightningTimer = 16000;
             } else uiChainLightningTimer -= uiDiff;
@@ -821,10 +821,10 @@ public:
 
             if (uiShootTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
                 {
-                    uiTargetGUID = pTarget->GetGUID();
-                    DoCast(pTarget, SPELL_SHOOT);
+                    uiTargetGUID = target->GetGUID();
+                    DoCast(target, SPELL_SHOOT);
                 }
                 uiShootTimer = 12000;
                 uiMultiShotTimer = 3000;
@@ -834,11 +834,11 @@ public:
             if (bShoot && uiMultiShotTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(true);
-                Unit* pTarget = Unit::GetUnit(*me, uiTargetGUID);
+                Unit* target = Unit::GetUnit(*me, uiTargetGUID);
 
-                if (pTarget && me->IsInRange(pTarget, 5.0f, 30.0f, false))
+                if (target && me->IsInRange(target, 5.0f, 30.0f, false))
                 {
-                    DoCast(pTarget, SPELL_MULTI_SHOT);
+                    DoCast(target, SPELL_MULTI_SHOT);
                 } else
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -849,7 +849,7 @@ public:
                             Player* player = itr->getSource();
                             if (player && !player->isGameMaster() && me->IsInRange(player, 5.0f, 30.0f, false))
                             {
-                                DoCast(pTarget, SPELL_MULTI_SHOT);
+                                DoCast(target, SPELL_MULTI_SHOT);
                                 break;
                             }
                         }
@@ -974,8 +974,8 @@ public:
 
             if (uiPosionBottleTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_POISON_BOTTLE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
 

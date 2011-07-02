@@ -199,20 +199,20 @@ public:
             float y = Coords[random].y;
             Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (!Soul) return false;
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
                 CAST_AI(npc_enslaved_soul::npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = me->GetGUID();
-                Soul->AI()->AttackStart(pTarget);
+                Soul->AI()->AttackStart(target);
             } else EnterEvadeMode();
             return true;
         }
 
-        void MergeThreatList(Creature* pTarget)
+        void MergeThreatList(Creature* target)
         {
-            if (!pTarget)
+            if (!target)
                 return;
 
-            std::list<HostileReference*>& m_threatlist = pTarget->getThreatManager().getThreatList();
+            std::list<HostileReference*>& m_threatlist = target->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
@@ -220,7 +220,7 @@ public:
                 if (pUnit)
                 {
                     DoModifyThreatPercent(pUnit, -100);
-                    float threat = pTarget->getThreatManager().getThreat(pUnit);
+                    float threat = target->getThreatManager().getThreat(pUnit);
                     me->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
                 }
             }
@@ -446,11 +446,11 @@ public:
                 return; // No targets added for some reason. No point continuing.
             targets.sort(Trinity::ObjectDistanceOrderPred(me)); // Sort players by distance.
             targets.resize(1); // Only need closest target.
-            Unit* pTarget = targets.front(); // Get the first target.
-            if (pTarget)
-                pTarget->CastSpell(me, SPELL_FIXATE_TAUNT, true);
+            Unit* target = targets.front(); // Get the first target.
+            if (target)
+                target->CastSpell(me, SPELL_FIXATE_TAUNT, true);
             DoResetThreat();
-            me->AddThreat(pTarget, 1000000);
+            me->AddThreat(target, 1000000);
         }
 
         void UpdateAI(const uint32 diff)

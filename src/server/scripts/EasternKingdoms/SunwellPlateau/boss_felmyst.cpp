@@ -293,20 +293,20 @@ public:
                 break;
             case 2:
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-                if (!pTarget)
-                    pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                if (!target)
+                    target = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 
-                if (!pTarget)
+                if (!target)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
-                Creature* Vapor = me->SummonCreature(MOB_VAPOR, pTarget->GetPositionX()-5+rand()%10, pTarget->GetPositionY()-5+rand()%10, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+                Creature* Vapor = me->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if (Vapor)
                 {
-                    Vapor->AI()->AttackStart(pTarget);
+                    Vapor->AI()->AttackStart(target);
                     me->InterruptNonMeleeSpells(false);
                     DoCast(Vapor, SPELL_VAPOR_CHANNEL, false); // core bug
                     Vapor->CastSpell(Vapor, SPELL_VAPOR_TRIGGER, true);
@@ -320,22 +320,22 @@ public:
                 DespawnSummons(MOB_VAPOR_TRAIL);
                 //DoCast(me, SPELL_VAPOR_SELECT); need core support
 
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-                if (!pTarget)
-                    pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                if (!target)
+                    target = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 
-                if (!pTarget)
+                if (!target)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
-                //pTarget->CastSpell(pTarget, SPELL_VAPOR_SUMMON, true); need core support
-                Creature* pVapor = me->SummonCreature(MOB_VAPOR, pTarget->GetPositionX()-5+rand()%10, pTarget->GetPositionY()-5+rand()%10, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+                //pTarget->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
+                Creature* pVapor = me->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if (pVapor)
                 {
                     if (pVapor->AI())
-                        pVapor->AI()->AttackStart(pTarget);
+                        pVapor->AI()->AttackStart(target);
                     me->InterruptNonMeleeSpells(false);
                     DoCast(pVapor, SPELL_VAPOR_CHANNEL, false); // core bug
                     pVapor->CastSpell(pVapor, SPELL_VAPOR_TRIGGER, true);
@@ -350,20 +350,20 @@ public:
                 break;
             case 5:
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-                if (!pTarget)
-                    pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                if (!target)
+                    target = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 
-                if (!pTarget)
+                if (!target)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
-                breathX = pTarget->GetPositionX();
-                breathY = pTarget->GetPositionY();
+                breathX = target->GetPositionX();
+                breathY = target->GetPositionY();
                 float x, y, z;
-                pTarget->GetContactPoint(me, x, y, z, 70);
+                target->GetContactPoint(me, x, y, z, 70);
                 me->GetMotionMaster()->MovePoint(0, x, y, z+10);
                 break;
             }
@@ -393,8 +393,8 @@ public:
                     uiFlightCount = 4;
                 break;
             case 9:
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                    DoStartMovement(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    DoStartMovement(target);
                 else
                 {
                     EnterEvadeMode();
@@ -447,8 +447,8 @@ public:
                         events.ScheduleEvent(EVENT_GAS_NOVA, urand(20000, 25000));
                         break;
                     case EVENT_ENCAPSULATE:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
-                            DoCast(pTarget, SPELL_ENCAPSULATE_CHANNEL, false);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
+                            DoCast(target, SPELL_ENCAPSULATE_CHANNEL, false);
                         events.ScheduleEvent(EVENT_ENCAPSULATE, urand(25000, 30000));
                         break;
                     case EVENT_FLIGHT:
@@ -548,8 +548,8 @@ public:
         void UpdateAI(const uint32 /*diff*/)
         {
             if (!me->getVictim())
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    AttackStart(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    AttackStart(target);
         }
     };
 

@@ -290,20 +290,20 @@ public:
             if (Creature* pSummoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
                 Player* player = NULL;
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
                 if (PlayerGUID)
                 {
                     player = Unit::GetPlayer(*me, PlayerGUID);
                     if (player)
-                        pTarget = RAND((Unit*)me, (Unit*)player);
+                        target = RAND((Unit*)me, (Unit*)player);
                 } else
-                    pTarget = me;
+                    target = me;
 
-                if (pTarget)
+                if (target)
                 {
                     pSummoned->setFaction(168);
-                    pSummoned->AddThreat(pTarget, 32.0f);
-                    pSummoned->AI()->AttackStart(pTarget);
+                    pSummoned->AddThreat(target, 32.0f);
+                    pSummoned->AI()->AttackStart(target);
                 }
             }
         }

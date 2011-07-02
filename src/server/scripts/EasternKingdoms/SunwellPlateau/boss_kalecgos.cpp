@@ -645,9 +645,9 @@ public:
                 damage = 0;
         }
 
-        void KilledUnit(Unit* pTarget)
+        void KilledUnit(Unit* target)
         {
-            if (pTarget->GetGUID() == KalecGUID)
+            if (target->GetGUID() == KalecGUID)
             {
                 TeleportAllPlayersBack();
                 if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
@@ -783,9 +783,9 @@ public:
 
             if (AgonyCurseTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (!pTarget) pTarget = me->getVictim();
-                DoCast(pTarget, SPELL_AGONY_CURSE);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (!target) target = me->getVictim();
+                DoCast(target, SPELL_AGONY_CURSE);
                 AgonyCurseTimer = 20000;
             } else AgonyCurseTimer -= diff;
 

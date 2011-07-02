@@ -101,8 +101,8 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(pTarget, SPELL_POLYMORPH);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    DoCast(target, SPELL_POLYMORPH);
 
                 Polymorph_Timer = 20000;
             } else Polymorph_Timer -= diff;

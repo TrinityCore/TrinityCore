@@ -369,23 +369,23 @@ public:
                 return;
 
             uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
-            Unit* pTarget = GetTarget();
-            if (!pTarget->HasAura(spellId))
+            Unit* target = GetTarget();
+            if (!target->HasAura(spellId))
             {
                 SpellEntry const* triggeredSpellInfo = sSpellStore.LookupEntry(spellId);
-                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, pTarget);
-                triggerCaster->CastSpell(pTarget, triggeredSpellInfo, true, 0, aurEff);
+                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, target);
+                triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
             }
         }
 
         void HandleUpdatePeriodic(AuraEffect * aurEff)
         {
-            Unit* pTarget = GetUnitOwner();
-            if (Player* playerTarget = pTarget->ToPlayer())
+            Unit* target = GetUnitOwner();
+            if (Player* playerTarget = target->ToPlayer())
             {
                 int32 baseAmount = aurEff->GetBaseAmount();
                 int32 amount = playerTarget->isMoving() ?
-                pTarget->CalculateSpellDamage(pTarget, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
+                target->CalculateSpellDamage(target, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
                 aurEff->GetAmount() - 1;
                 aurEff->SetAmount(amount);
             }

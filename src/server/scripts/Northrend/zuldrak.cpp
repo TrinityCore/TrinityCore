@@ -767,15 +767,15 @@ public:
 
             if (uiUppercutTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
-                    DoCast(pTarget, SPELL_UPPERCUT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                    DoCast(target, SPELL_UPPERCUT);
                 uiUppercutTimer = 12000;
             } else uiUppercutTimer -= uiDiff;
 
             if (uiChargeTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0))
-                    DoCast(pTarget, SPELL_CHARGE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
+                    DoCast(target, SPELL_CHARGE);
                 uiChargeTimer = 15000;
             } else uiChargeTimer -= uiDiff;
 
@@ -983,20 +983,20 @@ public:
 
             if (uiKnockAwayTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget, SPELL_KNOCK_AWAY);
+                    if (target && target->isAlive())
+                        DoCast(target, SPELL_KNOCK_AWAY);
                 }
                 uiKnockAwayTimer = 10000;
             } else uiKnockAwayTimer -= uiDiff;
 
             if (uiStinkyBeardTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget, SPELL_STINKY_BEARD);
+                    if (target && target->isAlive())
+                        DoCast(target, SPELL_STINKY_BEARD);
                 }
                 uiStinkyBeardTimer = 15000;
             } else uiStinkyBeardTimer -= uiDiff;

@@ -226,18 +226,18 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
-            Unit* pTarget = GetTarget();
-            Unit* pVictim = pTarget->getVictim();
-            if (pVictim && (pTarget->GetHealthPct() > pVictim->GetHealthPct()))
+            Unit* target = GetTarget();
+            Unit* pVictim = target->getVictim();
+            if (pVictim && (target->GetHealthPct() > pVictim->GetHealthPct()))
             {
-                if (!pTarget->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
+                if (!target->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
                 {
                     int32 bp = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
-                    pTarget->CastCustomSpell(pTarget, ROGUE_SPELL_PREY_ON_THE_WEAK, &bp, 0, 0, true);
+                    target->CastCustomSpell(target, ROGUE_SPELL_PREY_ON_THE_WEAK, &bp, 0, 0, true);
                 }
             }
             else
-                pTarget->RemoveAurasDueToSpell(ROGUE_SPELL_PREY_ON_THE_WEAK);
+                target->RemoveAurasDueToSpell(ROGUE_SPELL_PREY_ON_THE_WEAK);
         }
 
         void Register()

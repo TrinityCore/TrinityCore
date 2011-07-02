@@ -108,13 +108,13 @@ public:
             //LightningCloud_Timer
             if (LightningCloud_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_LIGHTNING_CLOUD);
 
                 //cast twice in Heroic mode
                 if (IsHeroic())
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_LIGHTNING_CLOUD);
 
                 LightningCloud_Timer = 15000+rand()%10000;
             } else LightningCloud_Timer -=diff;
@@ -122,21 +122,21 @@ public:
             //LungBurst_Timer
             if (LungBurst_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_LUNG_BURST);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_LUNG_BURST);
                 LungBurst_Timer = 7000+rand()%5000;
             } else LungBurst_Timer -=diff;
 
             //EnvelopingWinds_Timer
             if (EnvelopingWinds_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_ENVELOPING_WINDS);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_ENVELOPING_WINDS);
 
                 //cast twice in Heroic mode
                 if (IsHeroic())
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_ENVELOPING_WINDS);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ENVELOPING_WINDS);
                 EnvelopingWinds_Timer = 10000+rand()%5000;
             } else EnvelopingWinds_Timer -=diff;
 

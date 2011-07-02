@@ -195,10 +195,10 @@ public:
             //store the threat list in a different container
             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
-                if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                    targets.push_back(pTarget);
+                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    targets.push_back(target);
             }
 
             //cut down to size if we have more than 3 targets
@@ -309,8 +309,8 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (!pTarget)
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (!target)
                         return;
 
                     uint32 Spells[3];
@@ -337,7 +337,7 @@ public:
                     if (AvailableSpells)
                     {
                         CurrentNormalSpell = Spells[rand() % AvailableSpells];
-                        DoCast(pTarget, CurrentNormalSpell);
+                        DoCast(target, CurrentNormalSpell);
                     }
                 }
                 NormalCastTimer = 1000;
@@ -351,8 +351,8 @@ public:
                         DoCast(me, SPELL_AOE_CS);
                         break;
                     case 1:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_CHAINSOFICE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_CHAINSOFICE);
                         break;
                 }
                 SecondarySpellTimer = urand(5000, 20000);

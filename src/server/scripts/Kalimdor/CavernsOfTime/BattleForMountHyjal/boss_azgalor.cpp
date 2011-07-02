@@ -121,9 +121,9 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit* pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
-                if (pTarget && pTarget->isAlive())
-                    me->AddThreat(pTarget, 0.0f);
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                if (target && target->isAlive())
+                    me->AddThreat(target, 0.0f);
             }
         }
 

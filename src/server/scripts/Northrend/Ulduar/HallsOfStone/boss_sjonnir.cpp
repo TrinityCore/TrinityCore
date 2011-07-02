@@ -156,8 +156,8 @@ public:
 
             if (uiChainLightningTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CHAIN_LIGHTING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CHAIN_LIGHTING);
                 uiChainLightningTimer = 10000 + rand()%5000;
             } else uiChainLightningTimer -= diff;
 
@@ -209,8 +209,8 @@ public:
         void JustSummoned(Creature* summon)
         {
             summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
-            /*if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                summon->AI()->AttackStart(pTarget);*/
+            /*if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                summon->AI()->AttackStart(target);*/
             lSummons.Summon(summon);
         }
 

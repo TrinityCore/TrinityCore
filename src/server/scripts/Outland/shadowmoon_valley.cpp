@@ -1541,11 +1541,11 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                        if (target->GetTypeId() == TYPEID_PLAYER)
                         {
-                            DoCast(pTarget, SpawnCast[1].SpellId); //Focused Bursts
+                            DoCast(target, SpawnCast[1].SpellId); //Focused Bursts
                             SpellTimer1 = SpawnCast[1].Timer2 + (rand()%5 * 1000);
                         } else SpellTimer1 = 2000;
                     }
@@ -1629,10 +1629,10 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
             {
                 if (PlayerGUID)
                 {
-                    if (Player* pTarget = Unit::GetPlayer(*me, PlayerGUID))
+                    if (Player* target = Unit::GetPlayer(*me, PlayerGUID))
                     {
                         float x, y, z;
-                        pTarget->GetPosition(x, y, z);
+                        target->GetPosition(x, y, z);
                         Spawn->GetMotionMaster()->MovePoint(0, x, y, z);
                     }
                 }

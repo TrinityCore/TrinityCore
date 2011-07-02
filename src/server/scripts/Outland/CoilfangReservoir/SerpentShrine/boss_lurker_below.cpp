@@ -299,11 +299,11 @@ public:
 
                 if (GeyserTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (!pTarget && me->getVictim())
-                        pTarget = me->getVictim();
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_GEYSER, true);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                    if (!target && me->getVictim())
+                        target = me->getVictim();
+                    if (target)
+                        DoCast(target, SPELL_GEYSER, true);
                     GeyserTimer = rand()%5000 + 15000;
                 } else GeyserTimer -= diff;
 
@@ -311,11 +311,11 @@ public:
                 {
                     if (WaterboltTimer <= diff)
                     {
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!pTarget && me->getVictim())
-                            pTarget = me->getVictim();
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_WATERBOLT, true);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (!target && me->getVictim())
+                            target = me->getVictim();
+                        if (target)
+                            DoCast(target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
                     } else WaterboltTimer -= diff;
                 }
@@ -453,11 +453,11 @@ public:
 
             if (ShootBowTimer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 int bp0 = 1100;
-                if (pTarget)
-                    me->CastCustomSpell(pTarget, SPELL_SHOOT, &bp0, NULL, NULL, true);
+                if (target)
+                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, NULL, NULL, true);
                 ShootBowTimer = 4000+rand()%5000;
                 MultiShotTimer += 1500;//add global cooldown
             } else ShootBowTimer -= diff;

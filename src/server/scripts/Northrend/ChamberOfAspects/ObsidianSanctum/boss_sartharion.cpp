@@ -644,9 +644,9 @@ public:
             // Lavas Strike
             if (m_uiLavaStrikeTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    CastLavaStrikeOnTarget(pTarget);
+                    CastLavaStrikeOnTarget(target);
 
                     if(urand(0, 5) == 0)
                         DoScriptText(RAND(SAY_SARTHARION_SPECIAL_1, SAY_SARTHARION_SPECIAL_2, SAY_SARTHARION_SPECIAL_3), me);
@@ -1037,8 +1037,8 @@ public:
             // shadow fissure
             if (m_uiShadowFissureTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
 
                 m_uiShadowFissureTimer = urand(15000, 20000);
             }
@@ -1133,8 +1133,8 @@ public:
             // shadow fissure
             if (m_uiShadowFissureTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
                 m_uiShadowFissureTimer = urand(15000, 20000);
             }
@@ -1232,8 +1232,8 @@ public:
             // shadow fissure
             if (m_uiShadowFissureTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
                 m_uiShadowFissureTimer = urand(15000, 20000);
             }
@@ -1300,19 +1300,19 @@ public:
             uiDespawnTimer = 28000;
             if (pInstance)
             {
-                Creature* pTarget = NULL;
+                Creature* target = NULL;
                 //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                 {
-                    pTarget = Unit::GetCreature((*me), pInstance->GetData64(DATA_SARTHARION));
-                    if (pTarget)
-                        pTarget->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, pTarget);
+                    target = Unit::GetCreature((*me), pInstance->GetData64(DATA_SARTHARION));
+                    if (target)
+                        target->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, target);
                 }
                 else
                 {
-                    pTarget = Unit::GetCreature((*me), pInstance->GetData64(DATA_SHADRON));
-                    if (pTarget)
-                        pTarget->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, pTarget);
+                    target = Unit::GetCreature((*me), pInstance->GetData64(DATA_SHADRON));
+                    if (target)
+                        target->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, target);
                 }
             }
 

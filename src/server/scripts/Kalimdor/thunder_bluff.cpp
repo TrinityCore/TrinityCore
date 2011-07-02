@@ -99,9 +99,9 @@ public:
 
             if (BerserkerCharge_Timer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
-                    DoCast(pTarget, SPELL_BERSERKER_CHARGE);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target)
+                    DoCast(target, SPELL_BERSERKER_CHARGE);
                 BerserkerCharge_Timer = 25000;
             } else BerserkerCharge_Timer -= diff;
 

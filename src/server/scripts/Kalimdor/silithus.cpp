@@ -841,7 +841,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            Unit* pTarget = NULL;
+            Unit* target = NULL;
             //Player* player = me->GetPlayer(PlayerGUID);
 
             if (!Timers)
@@ -888,21 +888,21 @@ public:
             if (!hasTarget)
             {
                 if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
-                    pTarget = me->FindNearestCreature(15423, 20, true);
+                    target = me->FindNearestCreature(15423, 20, true);
                 if (me->GetEntry() == 15423)
                 {
                     uint8 tar = urand(0, 2);
 
                     if (tar == 0)
-                        pTarget = me->FindNearestCreature(15422, 20, true);
+                        target = me->FindNearestCreature(15422, 20, true);
                     else if (tar == 1)
-                        pTarget = me->FindNearestCreature(15424, 20, true);
+                        target = me->FindNearestCreature(15424, 20, true);
                     else if (tar == 2)
-                        pTarget = me->FindNearestCreature(15414, 20, true);
+                        target = me->FindNearestCreature(15414, 20, true);
                 }
                 hasTarget = true;
-                if (pTarget)
-                    me->AI()->AttackStart(pTarget);
+                if (target)
+                    me->AI()->AttackStart(target);
             }
             if (!(me->FindNearestCreature(15379, 60)))
                 DoCast(me, 33652);

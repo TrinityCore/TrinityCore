@@ -155,7 +155,7 @@ public:
             }
         }
 
-        void EventStart(Creature* anchor, Player* pTarget)
+        void EventStart(Creature* anchor, Player* target)
         {
             wait_timer = 5000;
             phase = PHASE_TO_EQUIP;
@@ -167,8 +167,8 @@ public:
             float z;
             anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
 
-            playerGUID = pTarget->GetGUID();
-            DoScriptText(say_event_start[rand()%8], me, pTarget);
+            playerGUID = target->GetGUID();
+            DoScriptText(say_event_start[rand()%8], me, target);
         }
 
         void UpdateAI(const uint32 diff)
@@ -233,8 +233,8 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         phase = PHASE_ATTACKING;
 
-                        if (Player* pTarget = Unit::GetPlayer(*me, playerGUID))
-                            me->AI()->AttackStart(pTarget);
+                        if (Player* target = Unit::GetPlayer(*me, playerGUID))
+                            me->AI()->AttackStart(target);
                         wait_timer = 0;
                     }
                 }
@@ -561,8 +561,8 @@ public:
                         Phase = 1;
                         break;
                     case 1:
-                        if (Unit* pTarget = Unit::GetUnit(*me, TargetGUID))
-                            DoCast(pTarget, DESPAWN_HORSE, true);
+                        if (Unit* target = Unit::GetUnit(*me, TargetGUID))
+                            DoCast(target, DESPAWN_HORSE, true);
                         PhaseTimer = 3000;
                         Phase = 2;
                         break;

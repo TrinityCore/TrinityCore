@@ -111,11 +111,11 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (pTarget)
-                    DoTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+                if (target)
+                    DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = 10000 + rand()%10000;
             } else ChangeTarget_Timer -= diff;

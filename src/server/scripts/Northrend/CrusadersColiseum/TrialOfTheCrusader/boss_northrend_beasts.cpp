@@ -293,9 +293,9 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
-            if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
-                if (pTarget->isAlive())
-                    pTarget->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+            if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+                if (target->isAlive())
+                    target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
             if (m_pInstance)
                 m_pInstance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
         }
@@ -305,9 +305,9 @@ public:
             if (m_bTargetDied || !UpdateVictim())
                 return;
 
-            if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+            if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
             {
-                if (!pTarget->isAlive())
+                if (!target->isAlive())
                 {
                     if (m_pInstance)
                     {
@@ -329,24 +329,24 @@ public:
 
             if (m_uiFireBombTimer < uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_FIRE_BOMB);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_FIRE_BOMB);
                 m_uiFireBombTimer = 20000;
             }
             else m_uiFireBombTimer -= uiDiff;
 
             if (m_uiBatterTimer < uiDiff)
             {
-                if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
-                    DoCast(pTarget, SPELL_BATTER);
+                if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+                    DoCast(target, SPELL_BATTER);
                 m_uiBatterTimer = 10000;
             }
             else m_uiBatterTimer -= uiDiff;
 
             if (m_uiHeadCrackTimer < uiDiff)
             {
-                if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
-                    DoCast(pTarget, SPELL_HEAD_CRACK);
+                if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+                    DoCast(target, SPELL_HEAD_CRACK);
                 m_uiHeadCrackTimer = 35000;
             }
             else m_uiHeadCrackTimer -= uiDiff;
@@ -500,8 +500,8 @@ struct boss_jormungarAI : public ScriptedAI
             case 4: // Stationary
                 if (sprayTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, spraySpell);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, spraySpell);
                     sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else sprayTimer -= uiDiff;
 
@@ -697,7 +697,7 @@ public:
         bool   m_bMovementFinish;
         bool   m_bTrampleCasted;
         uint8  m_uiStage;
-        Unit*  pTarget;
+        Unit*  target;
 
         void Reset()
         {
@@ -800,8 +800,8 @@ public:
 
                     if (m_uiArticBreathTimer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_ARCTIC_BREATH);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ARCTIC_BREATH);
                         m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
                     } else m_uiArticBreathTimer -= uiDiff;
 
@@ -825,11 +825,11 @@ public:
                     m_uiStage = 2;
                     break;
                 case 2:
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
-                        m_uiTrampleTargetGUID = pTarget->GetGUID();
+                        m_uiTrampleTargetGUID = target->GetGUID();
                         me->SetUInt64Value(UNIT_FIELD_TARGET, m_uiTrampleTargetGUID);
-                        DoScriptText(SAY_TRAMPLE_STARE, me, pTarget);
+                        DoScriptText(SAY_TRAMPLE_STARE, me, target);
                         m_bTrampleCasted = false;
                         SetCombatMovement(false);
                         me->GetMotionMaster()->MoveIdle();
@@ -841,13 +841,13 @@ public:
                 case 3:
                     if (m_uiTrampleTimer <= uiDiff)
                     {
-                        if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                        if (Unit* target = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
                         {
                             m_bTrampleCasted = false;
                             m_bMovementStarted = true;
-                            m_fTrampleTargetX = pTarget->GetPositionX();
-                            m_fTrampleTargetY = pTarget->GetPositionY();
-                            m_fTrampleTargetZ = pTarget->GetPositionZ();
+                            m_fTrampleTargetX = target->GetPositionX();
+                            m_fTrampleTargetY = target->GetPositionY();
+                            m_fTrampleTargetZ = target->GetPositionZ();
                             me->GetMotionMaster()->MoveJump(2*me->GetPositionX()-m_fTrampleTargetX,
                                 2*me->GetPositionY()-m_fTrampleTargetY,
                                 me->GetPositionZ(),

@@ -161,10 +161,10 @@ public:
                 {
                     if (uiFrostBoltVolleyTimer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            if (pTarget)
-                                DoCast(pTarget, SPELL_FROST_BOLT_VOLLEY);
+                            if (target)
+                                DoCast(target, SPELL_FROST_BOLT_VOLLEY);
                         }
                         uiFrostBoltVolleyTimer = urand(5000, 8000);
                     } else uiFrostBoltVolleyTimer -= uiDiff;

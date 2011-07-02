@@ -237,9 +237,9 @@ public:
 
             if (ManaBurn_Timer <= diff)
             {
-                Unit* pTarget = me->getVictim();
-                if (pTarget && pTarget->getPowerType() == POWER_MANA)
-                    DoCast(pTarget, SPELL_MANA_BURN);
+                Unit* target = me->getVictim();
+                if (target && target->getPowerType() == POWER_MANA)
+                    DoCast(target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000+rand()%8000;
             } else ManaBurn_Timer -= diff;
 

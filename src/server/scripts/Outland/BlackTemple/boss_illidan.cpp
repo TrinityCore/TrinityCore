@@ -392,13 +392,13 @@ public:
 
         void ChargeCheck()
         {
-            Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
-            if (pTarget && (!me->IsWithinCombatRange(pTarget, FLAME_CHARGE_DISTANCE)))
+            Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
+            if (target && (!me->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
             {
-                me->AddThreat(pTarget, 5000000.0f);
-                AttackStart(pTarget);
-                DoCast(pTarget, SPELL_CHARGE);
-                me->MonsterTextEmote(EMOTE_SETS_GAZE_ON, pTarget->GetGUID());
+                me->AddThreat(target, 5000000.0f);
+                AttackStart(target);
+                DoCast(target, SPELL_CHARGE);
+                me->MonsterTextEmote(EMOTE_SETS_GAZE_ON, target->GetGUID());
             }
         }
 
@@ -411,8 +411,8 @@ public:
                     Glaive->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_FLAME_ENRAGE, true);
                     DoResetThreat();
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget && pTarget->isAlive())
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target && target->isAlive())
                     {
                         me->AddThreat(me->getVictim(), 5000000.0f);
                         AttackStart(me->getVictim());
@@ -1038,8 +1038,8 @@ public:
 
                 case EVENT_PARASITIC_SHADOWFIEND:
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
-                            DoCast(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
+                            DoCast(target, SPELL_PARASITIC_SHADOWFIEND, true);
                         Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                     }
                     break;
@@ -1271,9 +1271,9 @@ public:
         {
             if (GETCRE(Illidan, IllidanGUID))
             {
-                Unit* pTarget = Illidan->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = Illidan->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (!pTarget || !me->IsWithinDistInMap(pTarget, 80) || Illidan->IsWithinDistInMap(pTarget, 20))
+                if (!target || !me->IsWithinDistInMap(target, 80) || Illidan->IsWithinDistInMap(target, 20))
                 {
                     uint8 pos = rand()%4;
                     BlinkTo(HoverPosition[pos].x, HoverPosition[pos].y, HoverPosition[pos].z);
@@ -1281,7 +1281,7 @@ public:
                 else
                 {
                     float x, y, z;
-                    pTarget->GetPosition(x, y, z);
+                    target->GetPosition(x, y, z);
                     BlinkTo(x, y, z);
                 }
             }
@@ -1886,19 +1886,19 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
                 summon->setDeathState(JUST_DIED);
                 return;
             }
-            Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
-            if (!pTarget || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND)
-                || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-            if (pTarget)
-                summon->AI()->AttackStart(pTarget);
+            Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
+            if (!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
+            if (target)
+                summon->AI()->AttackStart(target);
         }
         break;
     case SHADOW_DEMON:
-        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
         {
-            summon->AddThreat(pTarget, 5000000.0f);
-            summon->AI()->AttackStart(pTarget);
+            summon->AddThreat(target, 5000000.0f);
+            summon->AI()->AttackStart(target);
         }
         break;
     case MAIEV_SHADOWSONG:
@@ -2128,8 +2128,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Unit* pTarget = Unit::GetUnit((*me), TargetGUID))
-                pTarget->RemoveAurasDueToSpell(SPELL_PARALYZE);
+            if (Unit* target = Unit::GetUnit((*me), TargetGUID))
+                target->RemoveAurasDueToSpell(SPELL_PARALYZE);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -2231,8 +2231,8 @@ public:
         {
             if (!me->getVictim())
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
-                    AttackStart(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
+                    AttackStart(target);
                 else
                 {
                     me->SetVisible(false);

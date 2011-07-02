@@ -233,8 +233,8 @@ class mob_ragin_flames : public CreatureScript
 
                     if (!onlyonce)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            me->GetMotionMaster()->MoveChase(pTarget);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            me->GetMotionMaster()->MoveChase(target);
                         onlyonce = true;
                     }
 

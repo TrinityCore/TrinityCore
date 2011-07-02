@@ -154,7 +154,7 @@ public:
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
-   travels in random directions if pTarget cannot be found. */
+   travels in random directions if target cannot be found. */
 class mob_doomfire_targetting : public CreatureScript
 {
 public:
@@ -216,10 +216,10 @@ public:
 /* Finally, Archimonde's script. His script isn't extremely complex, most are simply spells on timers.
    The only complicated aspect of the battle is Finger of Death and Doomfire, with Doomfire being the
    hardest bit to code. Finger of Death is simply a distance check - if no one is in melee range, then
-   select a random pTarget and cast the spell on them. However, if someone IS in melee range, and this
+   select a random target and cast the spell on them. However, if someone IS in melee range, and this
    is NOT the main tank (creature's victim), then we aggro that player and they become the new victim.
    For Doomfire, we summon a mob (Doomfire Spirit) for the Doomfire mob to follow. It's spirit will
-   randomly select it's pTarget to follow and then we create the random movement making it unpredictable. */
+   randomly select it's target to follow and then we create the random movement making it unpredictable. */
 
 class boss_archimonde : public CreatureScript
 {
@@ -367,13 +367,13 @@ public:
                 return false;
 
             targets.sort(Trinity::ObjectDistanceOrderPred(me));
-            Unit* pTarget = targets.front();
-            if (pTarget)
+            Unit* target = targets.front();
+            if (target)
             {
-                if (!me->IsWithinDistInMap(pTarget, me->GetAttackDistance(pTarget)))
+                if (!me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
                     return true;                                // Cast Finger of Death
                 else                                            // This target is closest, he is our new tank
-                    me->AddThreat(pTarget, me->getThreatManager().getThreat(me->getVictim()));
+                    me->AddThreat(target, me->getThreatManager().getThreat(me->getVictim()));
             }
 
             return false;
@@ -409,14 +409,14 @@ public:
         }
 
         //this is code doing close to what the summoning spell would do (spell 31903)
-        void SummonDoomfire(Unit* pTarget)
+        void SummonDoomfire(Unit* target)
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
-                pTarget->GetPositionX()+15.0f, pTarget->GetPositionY()+15.0f, pTarget->GetPositionZ(), 0,
+                target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
-                pTarget->GetPositionX()-15.0f, pTarget->GetPositionY()-15.0f, pTarget->GetPositionZ(), 0,
+                target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 

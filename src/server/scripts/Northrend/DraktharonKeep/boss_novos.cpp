@@ -168,8 +168,8 @@ public:
                 case PHASE_2:
                     if (uiTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY),
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY),
                                                          RAND(H_SPELL_ARCANE_BLAST, H_SPELL_BLIZZARD, H_SPELL_FROSTBOLT, H_SPELL_WRATH_OF_MISERY)));
                         uiTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
                     } else uiTimer -= diff;
@@ -299,8 +299,8 @@ public:
             if (type != POINT_MOTION_TYPE || id != 0)
                 return;
             if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-                if (Unit* pTarget = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
-                    AttackStart(pTarget);
+                if (Unit* target = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
+                    AttackStart(target);
         }
     };
 
@@ -331,8 +331,8 @@ public:
             if (Creature* Novos = ObjectAccessor::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             {
                 Novos->AI()->DoAction(ACTION_MINION_REACHED);
-                if (Unit* pTarget = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())
-                    AttackStart(pTarget);
+                if (Unit* target = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())
+                    AttackStart(target);
             }
         }
     };

@@ -890,18 +890,18 @@ void hyjalAI::UpdateAI(const uint32 diff)
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
 
                 switch(Spells[i].TargetType)
                 {
-                    case TARGETTYPE_SELF: pTarget = me; break;
-                    case TARGETTYPE_RANDOM: pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0); break;
-                    case TARGETTYPE_VICTIM: pTarget = me->getVictim(); break;
+                    case TARGETTYPE_SELF: target = me; break;
+                    case TARGETTYPE_RANDOM: target = SelectTarget(SELECT_TARGET_RANDOM, 0); break;
+                    case TARGETTYPE_VICTIM: target = me->getVictim(); break;
                 }
 
-                if (pTarget && pTarget->isAlive())
+                if (target && target->isAlive())
                 {
-                    DoCast(pTarget, Spells[i].SpellId);
+                    DoCast(target, Spells[i].SpellId);
                     SpellTimer[i] = Spells[i].Cooldown;
                 }
             } else SpellTimer[i] -= diff;

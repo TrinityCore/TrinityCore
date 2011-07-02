@@ -356,11 +356,11 @@ public:
                     Creature* pUnit = Unit::GetCreature((*me), InnderDemon[i]);
                     if (pUnit && pUnit->isAlive())
                     {
-                        Unit* pUnit_pTarget = Unit::GetUnit(*pUnit, CAST_AI(mob_inner_demon::mob_inner_demonAI, pUnit->AI())->victimGUID);
-                        if (pUnit_pTarget && pUnit_pTarget->isAlive())
+                        Unit* unit_target = Unit::GetUnit(*pUnit, CAST_AI(mob_inner_demon::mob_inner_demonAI, pUnit->AI())->victimGUID);
+                        if (unit_target && unit_target->isAlive())
                         {
-                            pUnit->CastSpell(pUnit_pTarget, SPELL_CONSUMING_MADNESS, true);
-                            DoModifyThreatPercent(pUnit_pTarget, -100);
+                            pUnit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
+                            DoModifyThreatPercent(unit_target, -100);
                         }
                     }
                 }
@@ -759,10 +759,10 @@ public:
 
             if (Mindblast_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (pTarget)DoCast(pTarget, SPELL_MINDBLAST);
+                if (target)DoCast(target, SPELL_MINDBLAST);
 
                 Mindblast_Timer = 10000 + rand()%5000;
             } else Mindblast_Timer -= diff;

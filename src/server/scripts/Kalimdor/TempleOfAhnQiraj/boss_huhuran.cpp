@@ -95,8 +95,8 @@ public:
             // Wyvern Timer
             if (Wyvern_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_WYVERNSTING);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_WYVERNSTING);
                 Wyvern_Timer = 15000 + rand()%17000;
             } else Wyvern_Timer -= diff;
 

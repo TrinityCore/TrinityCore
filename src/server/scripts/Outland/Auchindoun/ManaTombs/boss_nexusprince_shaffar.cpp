@@ -128,8 +128,8 @@ public:
             {
                 summoned->CastSpell(summoned, SPELL_ETHEREAL_BEACON_VISUAL, false);
 
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    summoned->AI()->AttackStart(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    summoned->AI()->AttackStart(target);
             }
 
             summons.Summon(summoned);

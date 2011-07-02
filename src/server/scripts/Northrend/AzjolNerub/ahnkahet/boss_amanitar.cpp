@@ -132,8 +132,8 @@ public:
 
             if (uiRootTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_ENTANGLING_ROOTS);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_ENTANGLING_ROOTS);
                 uiRootTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiRootTimer -= diff;
 
@@ -145,8 +145,8 @@ public:
 
             if (uiBoltTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_VENOM_BOLT_VOLLEY);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_VENOM_BOLT_VOLLEY);
                 uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiBoltTimer -= diff;
 

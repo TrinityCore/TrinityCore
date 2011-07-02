@@ -192,9 +192,9 @@ class boss_omor_the_unscarred : public CreatureScript
                 {
                     DoScriptText(SAY_CURSE, me);
 
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(pTarget, SPELL_TREACHEROUS_AURA);
+                        DoCast(target, SPELL_TREACHEROUS_AURA);
                         Aura_Timer = 8000+rand()%8000;
                     }
                 }
@@ -203,12 +203,12 @@ class boss_omor_the_unscarred : public CreatureScript
 
                 if (Shadowbolt_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (pTarget)
-                            pTarget = me->getVictim();
+                        if (target)
+                            target = me->getVictim();
 
-                        DoCast(pTarget, SPELL_SHADOW_BOLT);
+                        DoCast(target, SPELL_SHADOW_BOLT);
                         Shadowbolt_Timer = 4000+rand()%2500;
                     }
                 }

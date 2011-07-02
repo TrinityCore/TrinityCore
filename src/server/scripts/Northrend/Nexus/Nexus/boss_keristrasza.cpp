@@ -192,8 +192,8 @@ public:
                 DoScriptText(SAY_CRYSTAL_NOVA, me);
                 if (IsHeroic())
                     DoCast(me, SPELL_CRYSTALIZE);
-                else if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CRYSTAL_CHAINS);
+                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CRYSTAL_CHAINS);
                 uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
             } else uiCrystalChainsCrystalizeTimer -= diff;
 

@@ -115,10 +115,10 @@ public:
             DoingSpeech = false;
         }
 
-        void BeginSpeech(Unit* pTarget)
+        void BeginSpeech(Unit* target)
         {
             //Stand up and begin speach
-            PlayerGUID = pTarget->GetGUID();
+            PlayerGUID = target->GetGUID();
 
             //10 seconds
             DoScriptText(SAY_LINE1, me);
@@ -208,18 +208,18 @@ public:
             //BurningAdrenalineCaster_Timer
             if (BurningAdrenalineCaster_Timer <= diff)
             {
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
 
                 uint8 i = 0;
                 while (i < 3)                                   // max 3 tries to get a random target with power_mana
                 {
                     ++i;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); //not aggro leader
-                    if (pTarget && pTarget->getPowerType() == POWER_MANA)
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); //not aggro leader
+                    if (target && target->getPowerType() == POWER_MANA)
                             i = 3;
                 }
-                if (pTarget)                                     // cast on self (see below)
-                    pTarget->CastSpell(pTarget, SPELL_BURNINGADRENALINE, 1);
+                if (target)                                     // cast on self (see below)
+                    target->CastSpell(target, SPELL_BURNINGADRENALINE, 1);
 
                 BurningAdrenalineCaster_Timer = 15000;
             } else BurningAdrenalineCaster_Timer -= diff;

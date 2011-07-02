@@ -119,8 +119,8 @@ public:
 
             if (WingBuffet_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_WING_BUFFET);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_WING_BUFFET);
                 WingBuffet_Timer = 25000+rand()%10000;
             } else WingBuffet_Timer -= diff;
 

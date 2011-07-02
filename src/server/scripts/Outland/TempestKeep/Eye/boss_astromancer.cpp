@@ -171,8 +171,8 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 if (Summoned)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        Summoned->AI()->AttackStart(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        Summoned->AI()->AttackStart(target);
 
                     Summons.Summon(Summoned);
                 }
@@ -227,8 +227,8 @@ class boss_high_astromancer_solarian : public CreatureScript
                     if (Wrath_Timer <= diff)
                     {
                         me->InterruptNonMeleeSpells(false);
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                            DoCast(pTarget, SPELL_WRATH_OF_THE_ASTROMANCER, true);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                            DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER, true);
                         Wrath_Timer = 20000+rand()%5000;
                     }
                     else
@@ -243,11 +243,11 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                            if (!me->HasInArc(2.5f, pTarget))
-                                pTarget = me->getVictim();
-                            if (pTarget)
-                                DoCast(pTarget, SPELL_ARCANE_MISSILES);
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                            if (!me->HasInArc(2.5f, target))
+                                target = me->getVictim();
+                            if (target)
+                                DoCast(target, SPELL_ARCANE_MISSILES);
                         }
                         ArcaneMissiles_Timer = 3000;
                     }
@@ -258,11 +258,11 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         //Target the tank ?
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         {
-                            if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                            if (target->GetTypeId() == TYPEID_PLAYER)
                             {
-                                DoCast(pTarget, SPELL_WRATH_OF_THE_ASTROMANCER);
+                                DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER);
                                 m_uiWrathOfTheAstromancer_Timer = 25000;
                             }
                             else
@@ -446,21 +446,21 @@ class mob_solarium_priest : public CreatureScript
 
                 if (healTimer <= diff)
                 {
-                    Unit* pTarget = NULL;
+                    Unit* target = NULL;
                     switch (urand(0, 1))
                     {
                         case 0:
                             if (pInstance)
-                                pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_ASTROMANCER));
+                                target = Unit::GetUnit((*me), pInstance->GetData64(DATA_ASTROMANCER));
                             break;
                         case 1:
-                            pTarget = me;
+                            target = me;
                             break;
                     }
 
-                    if (pTarget)
+                    if (target)
                     {
-                        DoCast(pTarget, SPELL_SOLARIUM_GREAT_HEAL);
+                        DoCast(target, SPELL_SOLARIUM_GREAT_HEAL);
                         healTimer = 9000;
                     }
                 }
