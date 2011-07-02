@@ -304,7 +304,7 @@ class npc_muglash : public CreatureScript
 
         struct npc_muglashAI : public npc_escortAI
         {
-            npc_muglashAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+            npc_muglashAI(Creature* creature) : npc_escortAI(creature) { }
 
             uint32 m_uiWaveId;
             uint32 m_uiEventTimer;
@@ -427,9 +427,9 @@ class npc_muglash : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_muglashAI(pCreature);
+            return new npc_muglashAI(creature);
         }
 
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)

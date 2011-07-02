@@ -83,9 +83,9 @@ class boss_mother_shahraz : public CreatureScript
 public:
     boss_mother_shahraz() : CreatureScript("boss_mother_shahraz") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_shahrazAI (pCreature);
+        return new boss_shahrazAI (creature);
     }
 
     struct boss_shahrazAI : public ScriptedAI

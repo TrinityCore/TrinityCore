@@ -307,15 +307,15 @@ public:
     {
         int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
-        if (Creature* pCreature = pPlayer->SummonCreature(NpcPrisonEntry[Random],
+        if (Creature* creature = pPlayer->SummonCreature(NpcPrisonEntry[Random],
             pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
         {
-            if (!pCreature->IsHostileTo(pPlayer))
+            if (!creature->IsHostileTo(pPlayer))
             {
                 uint32 Spell = 0;
 
-                if (FactionTemplateEntry const* pFaction = pCreature->getFactionTemplateEntry())
+                if (FactionTemplateEntry const* pFaction = creature->getFactionTemplateEntry())
                 {
                     switch(pFaction->faction)
                     {
@@ -328,9 +328,9 @@ public:
                     }
 
                     if (Spell)
-                        pCreature->CastSpell(pPlayer, Spell, false);
+                        creature->CastSpell(pPlayer, Spell, false);
                     else
-                        sLog->outError("TSCR: go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
+                        sLog->outError("TSCR: go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", creature->GetEntry(), creature->getFaction());
                 }
             }
         }
@@ -475,8 +475,8 @@ public:
         //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
         //pPlayer->CastSpell(pPlayer, SPELL_SUMMON_RIZZLE, false);
 
-        if (Creature* pCreature = pPlayer->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
-            pCreature->CastSpell(pPlayer, SPELL_BLACKJACK, false);
+        if (Creature* creature = pPlayer->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            creature->CastSpell(pPlayer, SPELL_BLACKJACK, false);
 
         return false;
     }

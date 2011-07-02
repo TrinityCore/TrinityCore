@@ -86,9 +86,9 @@ class boss_shade_of_aran : public CreatureScript
 public:
     boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_aranAI (pCreature);
+        return new boss_aranAI (creature);
     }
 
     struct boss_aranAI : public ScriptedAI
@@ -516,9 +516,9 @@ class mob_aran_elemental : public CreatureScript
 public:
     mob_aran_elemental() : CreatureScript("mob_aran_elemental") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new water_elementalAI (pCreature);
+        return new water_elementalAI (creature);
     }
 
     struct water_elementalAI : public ScriptedAI
@@ -555,10 +555,10 @@ class mob_shadow_of_aran : public CreatureScript
 public:
     mob_shadow_of_aran() : CreatureScript("mob_shadow_of_aran") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        sLog->outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
-        SimpleAI* ai = new SimpleAI (pCreature);
+        sLog->outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", creature->GetEntry());
+        SimpleAI* ai = new SimpleAI (creature);
 
         ai->Spell[0].Enabled = true;
         ai->Spell[0].Spell_Id = SPELL_SHADOW_PYRO;

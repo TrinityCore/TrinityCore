@@ -51,21 +51,21 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
         {
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
-            DoScriptText(SAY_READY, pCreature, pPlayer);
-            pCreature->setFaction(113);
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+            DoScriptText(SAY_READY, creature, pPlayer);
+            creature->setFaction(113);
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_willixAI(pCreature);
+        return new npc_willixAI(creature);
     }
 
     struct npc_willixAI : public npc_escortAI

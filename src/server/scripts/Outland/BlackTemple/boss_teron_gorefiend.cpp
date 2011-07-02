@@ -56,9 +56,9 @@ class mob_doom_blossom : public CreatureScript
 public:
     mob_doom_blossom() : CreatureScript("mob_doom_blossom") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_doom_blossomAI(pCreature);
+        return new mob_doom_blossomAI(creature);
     }
 
     struct mob_doom_blossomAI : public ScriptedAI
@@ -122,9 +122,9 @@ class mob_shadowy_construct : public CreatureScript
 public:
     mob_shadowy_construct() : CreatureScript("mob_shadowy_construct") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shadowy_constructAI(pCreature);
+        return new mob_shadowy_constructAI(creature);
     }
 
     struct mob_shadowy_constructAI : public ScriptedAI
@@ -212,9 +212,9 @@ class boss_teron_gorefiend : public CreatureScript
 public:
     boss_teron_gorefiend() : CreatureScript("boss_teron_gorefiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_teron_gorefiendAI (pCreature);
+        return new boss_teron_gorefiendAI (creature);
     }
 
     struct boss_teron_gorefiendAI : public ScriptedAI

@@ -47,9 +47,9 @@ class mob_naga_distiller : public CreatureScript
 public:
     mob_naga_distiller() : CreatureScript("mob_naga_distiller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_naga_distillerAI (pCreature);
+        return new mob_naga_distillerAI (creature);
     }
 
     struct mob_naga_distillerAI : public ScriptedAI
@@ -105,9 +105,9 @@ class boss_warlord_kalithresh : public CreatureScript
 public:
     boss_warlord_kalithresh() : CreatureScript("boss_warlord_kalithresh") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_warlord_kalithreshAI (pCreature);
+        return new boss_warlord_kalithreshAI (creature);
     }
 
     struct boss_warlord_kalithreshAI : public ScriptedAI

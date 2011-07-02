@@ -60,9 +60,9 @@ class boss_magus_telestra : public CreatureScript
 public:
     boss_magus_telestra() : CreatureScript("boss_magus_telestra") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_magus_telestraAI (pCreature);
+        return new boss_magus_telestraAI (creature);
     }
 
     struct boss_magus_telestraAI : public ScriptedAI

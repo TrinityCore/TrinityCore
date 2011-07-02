@@ -65,7 +65,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
         struct boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
-            boss_pathaleon_the_calculatorAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+            boss_pathaleon_the_calculatorAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
             }
 
@@ -192,9 +192,9 @@ class boss_pathaleon_the_calculator : public CreatureScript
             }
         };
 
-            CreatureAI* GetAI(Creature* pCreature) const
+            CreatureAI* GetAI(Creature* creature) const
             {
-                return new boss_pathaleon_the_calculatorAI (pCreature);
+                return new boss_pathaleon_the_calculatorAI (creature);
             }
 };
 
@@ -209,7 +209,7 @@ class mob_nether_wraith : public CreatureScript
 
         struct mob_nether_wraithAI : public ScriptedAI
         {
-            mob_nether_wraithAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_nether_wraithAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 ArcaneMissiles_Timer;
             uint32 Detonation_Timer;
@@ -267,9 +267,9 @@ class mob_nether_wraith : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_nether_wraithAI (pCreature);
+            return new mob_nether_wraithAI (creature);
         }
 };
 

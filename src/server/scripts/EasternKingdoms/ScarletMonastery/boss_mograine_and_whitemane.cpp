@@ -58,16 +58,16 @@ class boss_scarlet_commander_mograine : public CreatureScript
 public:
     boss_scarlet_commander_mograine() : CreatureScript("boss_scarlet_commander_mograine") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_scarlet_commander_mograineAI (pCreature);
+        return new boss_scarlet_commander_mograineAI (creature);
     }
 
     struct boss_scarlet_commander_mograineAI : public ScriptedAI
     {
-        boss_scarlet_commander_mograineAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_scarlet_commander_mograineAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -223,16 +223,16 @@ class boss_high_inquisitor_whitemane : public CreatureScript
 public:
     boss_high_inquisitor_whitemane() : CreatureScript("boss_high_inquisitor_whitemane") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_inquisitor_whitemaneAI (pCreature);
+        return new boss_high_inquisitor_whitemaneAI (creature);
     }
 
     struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
     {
-        boss_high_inquisitor_whitemaneAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_high_inquisitor_whitemaneAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;

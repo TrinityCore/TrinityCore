@@ -82,9 +82,9 @@ class boss_morogrim_tidewalker : public CreatureScript
 public:
     boss_morogrim_tidewalker() : CreatureScript("boss_morogrim_tidewalker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_morogrim_tidewalkerAI (pCreature);
+        return new boss_morogrim_tidewalkerAI (creature);
     }
 
     struct boss_morogrim_tidewalkerAI : public ScriptedAI
@@ -289,9 +289,9 @@ class mob_water_globule : public CreatureScript
 public:
     mob_water_globule() : CreatureScript("mob_water_globule") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_water_globuleAI (pCreature);
+        return new mob_water_globuleAI (creature);
     }
 
     struct mob_water_globuleAI : public ScriptedAI

@@ -72,22 +72,22 @@ class npc_blackfathom_deeps_event : public CreatureScript
 public:
     npc_blackfathom_deeps_event() : CreatureScript("npc_blackfathom_deeps_event") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_blackfathom_deeps_eventAI (pCreature);
+        return new npc_blackfathom_deeps_eventAI (creature);
     }
 
     struct npc_blackfathom_deeps_eventAI : public ScriptedAI
     {
-        npc_blackfathom_deeps_eventAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_blackfathom_deeps_eventAI(Creature* creature) : ScriptedAI(creature)
         {
-            if (pCreature->isSummon())
+            if (creature->isSummon())
             {
-                pCreature->SetHomePosition(HomePosition);
+                creature->SetHomePosition(HomePosition);
                 AttackPlayer();
             }
 
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -201,7 +201,7 @@ class npc_morridune : public CreatureScript
 public:
     npc_morridune() : CreatureScript("npc_morridune") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch(uiAction)
@@ -214,24 +214,24 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MORRIDUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_morriduneAI (pCreature);
+        return new npc_morriduneAI (creature);
     }
 
     struct npc_morriduneAI : public npc_escortAI
     {
-        npc_morriduneAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
         {
-            DoScriptText(SAY_MORRIDUNE_1, pCreature);
+            DoScriptText(SAY_MORRIDUNE_1, creature);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             Start(false, false, 0);
         }

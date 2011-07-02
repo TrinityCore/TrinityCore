@@ -50,14 +50,14 @@ class boss_falric : public CreatureScript
 public:
     boss_falric() : CreatureScript("boss_falric") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_falricAI(pCreature);
+        return new boss_falricAI(creature);
     }
 
     struct boss_falricAI : public boss_horAI
     {
-        boss_falricAI(Creature* pCreature) : boss_horAI(pCreature) {}
+        boss_falricAI(Creature* creature) : boss_horAI(creature) {}
 
         uint8 uiHopelessnessCount;
 

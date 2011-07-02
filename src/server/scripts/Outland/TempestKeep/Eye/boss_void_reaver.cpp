@@ -53,9 +53,9 @@ class boss_void_reaver : public CreatureScript
 
         struct boss_void_reaverAI : public ScriptedAI
         {
-            boss_void_reaverAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_void_reaverAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;

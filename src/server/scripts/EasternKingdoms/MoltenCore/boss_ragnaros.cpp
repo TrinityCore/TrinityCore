@@ -79,7 +79,7 @@ class boss_ragnaros : public CreatureScript
 
         struct boss_ragnarosAI : public BossAI
         {
-            boss_ragnarosAI(Creature* pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
+            boss_ragnarosAI(Creature* creature) : BossAI(creature, BOSS_RAGNAROS)
             {
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
@@ -303,9 +303,9 @@ class boss_ragnaros : public CreatureScript
             bool _isBanished;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_ragnarosAI(pCreature);
+            return new boss_ragnarosAI(creature);
         }
 };
 
@@ -339,9 +339,9 @@ class mob_son_of_flame : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_son_of_flameAI(pCreature);
+            return new mob_son_of_flameAI(creature);
         }
 };
 

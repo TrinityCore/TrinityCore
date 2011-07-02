@@ -87,9 +87,9 @@ class boss_palehoof : public CreatureScript
 public:
     boss_palehoof() : CreatureScript("boss_palehoof") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_palehoofAI (pCreature);
+        return new boss_palehoofAI (creature);
     }
 
     struct boss_palehoofAI : public ScriptedAI
@@ -290,9 +290,9 @@ class mob_ravenous_furbolg : public CreatureScript
 public:
     mob_ravenous_furbolg() : CreatureScript("mob_ravenous_furbolg") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ravenous_furbolgAI (pCreature);
+        return new mob_ravenous_furbolgAI (creature);
     }
 
     struct mob_ravenous_furbolgAI : public ScriptedAI
@@ -403,9 +403,9 @@ class mob_frenzied_worgen : public CreatureScript
 public:
     mob_frenzied_worgen() : CreatureScript("mob_frenzied_worgen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frenzied_worgenAI (pCreature);
+        return new mob_frenzied_worgenAI (creature);
     }
 
     struct mob_frenzied_worgenAI : public ScriptedAI
@@ -519,9 +519,9 @@ class mob_ferocious_rhino : public CreatureScript
 public:
     mob_ferocious_rhino() : CreatureScript("mob_ferocious_rhino") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ferocious_rhinoAI (pCreature);
+        return new mob_ferocious_rhinoAI (creature);
     }
 
     struct mob_ferocious_rhinoAI : public ScriptedAI
@@ -639,9 +639,9 @@ class mob_massive_jormungar : public CreatureScript
 public:
     mob_massive_jormungar() : CreatureScript("mob_massive_jormungar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_massive_jormungarAI (pCreature);
+        return new mob_massive_jormungarAI (creature);
     }
 
     struct mob_massive_jormungarAI : public ScriptedAI
@@ -745,9 +745,9 @@ class mob_palehoof_orb : public CreatureScript
 public:
     mob_palehoof_orb() : CreatureScript("mob_palehoof_orb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_palehoof_orbAI (pCreature);
+        return new mob_palehoof_orbAI (creature);
     }
 
     struct mob_palehoof_orbAI : public ScriptedAI

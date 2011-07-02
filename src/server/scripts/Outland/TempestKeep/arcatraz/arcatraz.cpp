@@ -76,9 +76,9 @@ class npc_millhouse_manastorm : public CreatureScript
         }
         struct npc_millhouse_manastormAI : public ScriptedAI
         {
-            npc_millhouse_manastormAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -280,9 +280,9 @@ class npc_warden_mellichar : public CreatureScript
         }
         struct npc_warden_mellicharAI : public ScriptedAI
         {
-            npc_warden_mellicharAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_warden_mellicharAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -536,7 +536,7 @@ class mob_zerekethvoidzone : public CreatureScript
         }
         struct mob_zerekethvoidzoneAI : public ScriptedAI
         {
-            mob_zerekethvoidzoneAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_zerekethvoidzoneAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {

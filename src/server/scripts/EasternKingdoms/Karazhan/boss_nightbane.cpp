@@ -63,9 +63,9 @@ class boss_nightbane : public CreatureScript
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nightbaneAI (pCreature);
+        return new boss_nightbaneAI (creature);
     }
 
     struct boss_nightbaneAI : public ScriptedAI

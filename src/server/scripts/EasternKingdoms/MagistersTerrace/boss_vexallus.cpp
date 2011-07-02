@@ -64,9 +64,9 @@ class boss_vexallus : public CreatureScript
 public:
     boss_vexallus() : CreatureScript("boss_vexallus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_vexallusAI (pCreature);
+        return new boss_vexallusAI (creature);
     };
 
     struct boss_vexallusAI : public ScriptedAI
@@ -199,9 +199,9 @@ class mob_pure_energy : public CreatureScript
 public:
     mob_pure_energy() : CreatureScript("mob_pure_energy") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_pure_energyAI (pCreature);
+        return new mob_pure_energyAI (creature);
     };
 
     struct mob_pure_energyAI : public ScriptedAI

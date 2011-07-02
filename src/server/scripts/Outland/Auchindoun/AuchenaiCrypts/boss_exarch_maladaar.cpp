@@ -46,9 +46,9 @@ class mob_stolen_soul : public CreatureScript
 public:
     mob_stolen_soul() : CreatureScript("mob_stolen_soul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stolen_soulAI (pCreature);
+        return new mob_stolen_soulAI (creature);
     }
 
     struct mob_stolen_soulAI : public ScriptedAI
@@ -155,9 +155,9 @@ class boss_exarch_maladaar : public CreatureScript
 public:
     boss_exarch_maladaar() : CreatureScript("boss_exarch_maladaar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_exarch_maladaarAI (pCreature);
+        return new boss_exarch_maladaarAI (creature);
     }
 
     struct boss_exarch_maladaarAI : public ScriptedAI
@@ -312,9 +312,9 @@ class mob_avatar_of_martyred : public CreatureScript
 public:
     mob_avatar_of_martyred() : CreatureScript("mob_avatar_of_martyred") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_avatar_of_martyredAI (pCreature);
+        return new mob_avatar_of_martyredAI (creature);
     }
 
     struct mob_avatar_of_martyredAI : public ScriptedAI

@@ -149,24 +149,24 @@ public:
         {
             if (GetCastItem())
                 if (Player* pCaster = GetCaster()->ToPlayer())
-                    if (Creature* pCreatureTarget = GetHitCreature())
+                    if (Creature* creatureTarget = GetHitCreature())
                     {
                         uint32 uiNewEntry = 0;
                         switch (pCaster->GetTeam())
                         {
                             case HORDE:
-                                if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
+                                if (creatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
                                     uiNewEntry = NPC_CURED_GAZELLE;
                                 break;
                             case ALLIANCE:
-                                if (pCreatureTarget->GetEntry() == NPC_SICKLY_DEER)
+                                if (creatureTarget->GetEntry() == NPC_SICKLY_DEER)
                                     uiNewEntry = NPC_CURED_DEER;
                                 break;
                         }
                         if (uiNewEntry)
                         {
-                            pCreatureTarget->UpdateEntry(uiNewEntry);
-                            pCreatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            creatureTarget->UpdateEntry(uiNewEntry);
+                            creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
                         }
                     }
         }
@@ -500,17 +500,17 @@ public:
         PrepareSpellScript(spell_q12459_seeds_of_natures_wrath_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Creature* pCreatureTarget = GetHitCreature())
+            if (Creature* creatureTarget = GetHitCreature())
             {
                 uint32 uiNewEntry = 0;
-                switch (pCreatureTarget->GetEntry())
+                switch (creatureTarget->GetEntry())
                 {
                     case NPC_REANIMATED_FROSTWYRM:  uiNewEntry = NPC_WEAK_REANIMATED_FROSTWYRM; break;
                     case NPC_TURGID:                uiNewEntry = NPC_WEAK_TURGID;               break;
                     case NPC_DEATHGAZE:             uiNewEntry = NPC_WEAK_DEATHGAZE;            break;
                 }
                 if (uiNewEntry)
-                    pCreatureTarget->UpdateEntry(uiNewEntry);
+                    creatureTarget->UpdateEntry(uiNewEntry);
             }
         }
 

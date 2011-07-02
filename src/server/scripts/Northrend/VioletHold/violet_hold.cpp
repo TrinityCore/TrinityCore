@@ -253,19 +253,19 @@ class npc_sinclari_vh : public CreatureScript
 public:
     npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->CLOSE_GOSSIP_MENU();
-                CAST_AI(npc_sinclari_vh::npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
-                if (InstanceScript *pInstance = pCreature->GetInstanceScript())
+                CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
+                if (InstanceScript *pInstance = creature->GetInstanceScript())
                     pInstance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->SEND_GOSSIP_MENU(13854, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(13854, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
                 pPlayer->NearTeleportTo(playerTeleportPosition.GetPositionX(), playerTeleportPosition.GetPositionY(), playerTeleportPosition.GetPositionZ(), playerTeleportPosition.GetOrientation(), true);
@@ -275,9 +275,9 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+        if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             switch (pInstance->GetData(DATA_MAIN_EVENT_PHASE))
             {
@@ -285,29 +285,29 @@ public:
                 case FAIL: // Allow to start event if not started or wiped
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(13853, creature->GetGUID());
                     break;
                 case IN_PROGRESS: // Allow to teleport inside if event is in progress
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_I_WANT_IN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(13853, creature->GetGUID());
                     break;
                 default:
-                    pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(13910, creature->GetGUID());
             }
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_sinclariAI(pCreature);
+        return new npc_sinclariAI(creature);
     }
 
     struct npc_sinclariAI : public ScriptedAI
     {
-        npc_sinclariAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_sinclariAI(Creature* creature) : ScriptedAI(creature)
         {
-           pInstance = pCreature->GetInstanceScript();
+           pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -419,9 +419,9 @@ class mob_azure_saboteur : public CreatureScript
 public:
     mob_azure_saboteur() : CreatureScript("mob_azure_saboteur") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_saboteurAI (pCreature);
+        return new mob_azure_saboteurAI (creature);
     }
 
     struct mob_azure_saboteurAI : public npc_escortAI
@@ -543,9 +543,9 @@ class npc_teleportation_portal_vh : public CreatureScript
 public:
     npc_teleportation_portal_vh() : CreatureScript("npc_teleportation_portal_vh") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_teleportation_portalAI(pCreature);
+        return new npc_teleportation_portalAI(creature);
     }
 
     struct npc_teleportation_portalAI : public ScriptedAI
@@ -801,9 +801,9 @@ class mob_azure_invader : public CreatureScript
 public:
     mob_azure_invader() : CreatureScript("mob_azure_invader") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_invaderAI (pCreature);
+        return new mob_azure_invaderAI (creature);
     }
 
     struct mob_azure_invaderAI : public violet_hold_trashAI
@@ -879,9 +879,9 @@ class mob_azure_binder : public CreatureScript
 public:
     mob_azure_binder() : CreatureScript("mob_azure_binder") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_binderAI (pCreature);
+        return new mob_azure_binderAI (creature);
     }
 
     struct mob_azure_binderAI : public violet_hold_trashAI
@@ -957,9 +957,9 @@ class mob_azure_mage_slayer : public CreatureScript
 public:
     mob_azure_mage_slayer() : CreatureScript("mob_azure_mage_slayer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_mage_slayerAI (pCreature);
+        return new mob_azure_mage_slayerAI (creature);
     }
 
     struct mob_azure_mage_slayerAI : public violet_hold_trashAI
@@ -1017,9 +1017,9 @@ class mob_azure_raider : public CreatureScript
 public:
     mob_azure_raider() : CreatureScript("mob_azure_raider") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_raiderAI (pCreature);
+        return new mob_azure_raiderAI (creature);
     }
 
     struct mob_azure_raiderAI : public violet_hold_trashAI
@@ -1069,9 +1069,9 @@ class mob_azure_stalker : public CreatureScript
 public:
     mob_azure_stalker() : CreatureScript("mob_azure_stalker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_stalkerAI (pCreature);
+        return new mob_azure_stalkerAI (creature);
     }
 
     struct mob_azure_stalkerAI : public violet_hold_trashAI
@@ -1201,9 +1201,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_spellbreakerAI (pCreature);
+        return new mob_azure_spellbreakerAI (creature);
     }
 };
 
@@ -1212,9 +1212,9 @@ class mob_azure_captain : public CreatureScript
 public:
     mob_azure_captain() : CreatureScript("mob_azure_captain") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_captainAI (pCreature);
+        return new mob_azure_captainAI (creature);
     }
 
     struct  mob_azure_captainAI : public violet_hold_trashAI
@@ -1264,9 +1264,9 @@ class mob_azure_sorceror : public CreatureScript
 public:
     mob_azure_sorceror() : CreatureScript("mob_azure_sorceror") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_sorcerorAI (pCreature);
+        return new mob_azure_sorcerorAI (creature);
     }
 
     struct  mob_azure_sorcerorAI : public violet_hold_trashAI

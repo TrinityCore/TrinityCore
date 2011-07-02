@@ -42,33 +42,33 @@ class npc_cairne_bloodhoof : public CreatureScript
 public:
     npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_SENDER_INFO)
         {
             pPlayer->CastSpell(pPlayer, 23123, false);
-            pPlayer->SEND_GOSSIP_MENU(7014, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7014, creature->GetGUID());
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(7013, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(7013, creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_cairne_bloodhoofAI (pCreature);
+        return new npc_cairne_bloodhoofAI (creature);
     }
 
     struct npc_cairne_bloodhoofAI : public ScriptedAI

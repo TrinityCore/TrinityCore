@@ -48,9 +48,9 @@ class boss_azgalor : public CreatureScript
 public:
     boss_azgalor() : CreatureScript("boss_azgalor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_azgalorAI (pCreature);
+        return new boss_azgalorAI (creature);
     }
 
     struct boss_azgalorAI : public hyjal_trashAI
@@ -211,9 +211,9 @@ class mob_lesser_doomguard : public CreatureScript
 public:
     mob_lesser_doomguard() : CreatureScript("mob_lesser_doomguard") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_lesser_doomguardAI (pCreature);
+        return new mob_lesser_doomguardAI (creature);
     }
 
     struct mob_lesser_doomguardAI : public hyjal_trashAI

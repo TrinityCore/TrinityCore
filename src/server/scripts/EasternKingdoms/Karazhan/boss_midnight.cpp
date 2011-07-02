@@ -51,9 +51,9 @@ class boss_attumen : public CreatureScript
 public:
     boss_attumen() : CreatureScript("boss_attumen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_attumenAI (pCreature);
+        return new boss_attumenAI (creature);
     }
 
     struct boss_attumenAI : public ScriptedAI
@@ -112,9 +112,9 @@ class boss_midnight : public CreatureScript
 public:
     boss_midnight() : CreatureScript("boss_midnight") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_midnightAI(pCreature);
+        return new boss_midnightAI(creature);
     }
 
     struct boss_midnightAI : public ScriptedAI

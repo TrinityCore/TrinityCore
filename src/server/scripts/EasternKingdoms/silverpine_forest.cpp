@@ -44,36 +44,36 @@ class npc_astor_hadren : public CreatureScript
 public:
     npc_astor_hadren() : CreatureScript("npc_astor_hadren") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_astor_hadrenAI(pCreature);
+        return new npc_astor_hadrenAI(creature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                pPlayer->SEND_GOSSIP_MENU(624, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(624, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 pPlayer->CLOSE_GOSSIP_MENU();
-                pCreature->setFaction(21);
+                creature->setFaction(21);
                 if (pPlayer)
-                    CAST_AI(npc_astor_hadren::npc_astor_hadrenAI, pCreature->AI())->AttackStart(pPlayer);
+                    CAST_AI(npc_astor_hadren::npc_astor_hadrenAI, creature->AI())->AttackStart(pPlayer);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(623, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(623, creature->GetGUID());
 
         return true;
     }
@@ -174,22 +174,22 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_ESCORTING)
         {
-            DoScriptText(SAY_QUESTACCEPT, pCreature, pPlayer);
+            DoScriptText(SAY_QUESTACCEPT, creature, pPlayer);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_deathstalker_erlandAI(pCreature);
+        return new npc_deathstalker_erlandAI(creature);
     }
 
 };
@@ -225,22 +225,22 @@ class pyrewood_ambush : public CreatureScript
 public:
     pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest *pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest *pQuest)
     {
-        if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->QuestInProgress)
+        if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
         {
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->QuestInProgress = true;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->Phase = 0;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->KillCount = 0;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress = true;
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->Phase = 0;
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->KillCount = 0;
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new pyrewood_ambushAI (pCreature);
+        return new pyrewood_ambushAI (creature);
     }
 
     struct pyrewood_ambushAI : public ScriptedAI

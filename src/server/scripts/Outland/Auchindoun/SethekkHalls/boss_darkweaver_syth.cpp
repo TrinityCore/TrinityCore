@@ -58,9 +58,9 @@ class boss_darkweaver_syth : public CreatureScript
 public:
     boss_darkweaver_syth() : CreatureScript("boss_darkweaver_syth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_darkweaver_sythAI (pCreature);
+        return new boss_darkweaver_sythAI (creature);
     }
 
     struct boss_darkweaver_sythAI : public ScriptedAI
@@ -247,9 +247,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_syth_fireAI (pCreature);
+        return new mob_syth_fireAI (creature);
     }
 };
 
@@ -258,9 +258,9 @@ class mob_syth_arcane : public CreatureScript
 public:
     mob_syth_arcane() : CreatureScript("mob_syth_arcane") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_syth_arcaneAI (pCreature);
+        return new mob_syth_arcaneAI (creature);
     }
 
     struct mob_syth_arcaneAI : public ScriptedAI
@@ -312,9 +312,9 @@ class mob_syth_frost : public CreatureScript
 public:
     mob_syth_frost() : CreatureScript("mob_syth_frost") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_syth_frostAI (pCreature);
+        return new mob_syth_frostAI (creature);
     }
 
     struct mob_syth_frostAI : public ScriptedAI
@@ -367,9 +367,9 @@ class mob_syth_shadow : public CreatureScript
 public:
     mob_syth_shadow() : CreatureScript("mob_syth_shadow") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_syth_shadowAI (pCreature);
+        return new mob_syth_shadowAI (creature);
     }
 
     struct mob_syth_shadowAI : public ScriptedAI

@@ -151,12 +151,12 @@ public:
 
     struct generic_vehicleAI_toc5AI : public npc_escortAI
     {
-        generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature)
+        generic_vehicleAI_toc5AI(Creature* creature) : npc_escortAI(creature)
         {
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
 
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -294,9 +294,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new generic_vehicleAI_toc5AI(pCreature);
+        return new generic_vehicleAI_toc5AI(creature);
     }
 };
 
@@ -308,9 +308,9 @@ public:
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
     struct boss_warrior_toc5AI : public ScriptedAI
     {
-        boss_warrior_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_warrior_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -427,9 +427,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_warrior_toc5AI(pCreature);
+        return new boss_warrior_toc5AI(creature);
     }
 };
 
@@ -441,9 +441,9 @@ public:
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
     struct boss_mage_toc5AI : public ScriptedAI
     {
-        boss_mage_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_mage_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -566,9 +566,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_mage_toc5AI(pCreature);
+        return new boss_mage_toc5AI(creature);
     }
 };
 
@@ -580,9 +580,9 @@ public:
     // Colosos && Runok Wildmane || Shaman
     struct boss_shaman_toc5AI : public ScriptedAI
     {
-        boss_shaman_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_shaman_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -713,9 +713,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_shaman_toc5AI(pCreature);
+        return new boss_shaman_toc5AI(creature);
     }
 };
 
@@ -727,9 +727,9 @@ public:
         // Jaelyne Evensong && Zul'tore || Hunter
     struct boss_hunter_toc5AI : public ScriptedAI
     {
-        boss_hunter_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_hunter_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -868,9 +868,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_hunter_toc5AI(pCreature);
+        return new boss_hunter_toc5AI(creature);
     }
 };
 
@@ -882,9 +882,9 @@ public:
     // Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
     struct boss_rouge_toc5AI : public ScriptedAI
     {
-        boss_rouge_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_rouge_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -989,9 +989,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_rouge_toc5AI(pCreature);
+        return new boss_rouge_toc5AI(creature);
     }
 };
 

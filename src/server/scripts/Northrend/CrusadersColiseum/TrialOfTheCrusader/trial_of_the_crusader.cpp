@@ -104,9 +104,9 @@ class npc_announcer_toc10 : public CreatureScript
 
         struct npc_announcer_toc10AI : public ScriptedAI
         {
-            npc_announcer_toc10AI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature)
             {
-                m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+                m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             }
 
             InstanceScript* m_pInstance;
@@ -237,9 +237,9 @@ class boss_lich_king_toc : public CreatureScript
 
         struct boss_lich_king_tocAI : public ScriptedAI
         {
-            boss_lich_king_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_lich_king_tocAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+                m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             }
 
             InstanceScript* m_pInstance;
@@ -339,9 +339,9 @@ class boss_lich_king_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_lich_king_tocAI(pCreature);
+            return new boss_lich_king_tocAI(creature);
         }
 };
 
@@ -353,7 +353,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
         struct npc_fizzlebang_tocAI : public ScriptedAI
         {
-            npc_fizzlebang_tocAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+            npc_fizzlebang_tocAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -506,9 +506,9 @@ class npc_fizzlebang_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_fizzlebang_tocAI(pCreature);
+            return new npc_fizzlebang_tocAI(creature);
         }
 };
 
@@ -520,7 +520,7 @@ class npc_tirion_toc : public CreatureScript
 
         struct npc_tirion_tocAI : public ScriptedAI
         {
-            npc_tirion_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_tirion_tocAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -820,9 +820,9 @@ class npc_tirion_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_tirion_tocAI(pCreature);
+            return new npc_tirion_tocAI(creature);
         }
 };
 
@@ -834,7 +834,7 @@ class npc_garrosh_toc : public CreatureScript
 
         struct npc_garrosh_tocAI : public ScriptedAI
         {
-            npc_garrosh_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_garrosh_tocAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -898,9 +898,9 @@ class npc_garrosh_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_garrosh_tocAI(pCreature);
+            return new npc_garrosh_tocAI(creature);
         }
 };
 
@@ -912,7 +912,7 @@ class npc_varian_toc : public CreatureScript
 
         struct npc_varian_tocAI : public ScriptedAI
         {
-            npc_varian_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_varian_tocAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -976,9 +976,9 @@ class npc_varian_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_varian_tocAI(pCreature);
+            return new npc_varian_tocAI(creature);
         }
 };
 

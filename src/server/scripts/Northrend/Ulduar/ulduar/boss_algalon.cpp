@@ -74,9 +74,9 @@ class boss_algalon : public CreatureScript
 public:
     boss_algalon() : CreatureScript("boss_algalon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return GetUlduarAI<boss_algalonAI>(pCreature);
+        return GetUlduarAI<boss_algalonAI>(creature);
     }
 
     struct boss_algalonAI : public ScriptedAI
@@ -333,16 +333,16 @@ class mob_collapsing_star : public CreatureScript
 public:
     mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_collapsing_starAI(pCreature);
+        return new mob_collapsing_starAI(creature);
     }
 
     struct mob_collapsing_starAI : public ScriptedAI
     {
-        mob_collapsing_starAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_collapsing_starAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

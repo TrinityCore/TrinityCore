@@ -37,9 +37,9 @@ class boss_general_angerforge : public CreatureScript
 public:
     boss_general_angerforge() : CreatureScript("boss_general_angerforge") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_general_angerforgeAI (pCreature);
+        return new boss_general_angerforgeAI (creature);
     }
 
     struct boss_general_angerforgeAI : public ScriptedAI

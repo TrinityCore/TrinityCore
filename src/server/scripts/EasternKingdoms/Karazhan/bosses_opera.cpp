@@ -88,16 +88,16 @@ EndScriptData */
 #define CREATURE_CYCLONE        18412
 #define CREATURE_CRONE          18168
 
-void SummonCroneIfReady(InstanceScript* pInstance, Creature* pCreature)
+void SummonCroneIfReady(InstanceScript* pInstance, Creature* creature)
 {
     pInstance->SetData(DATA_OPERA_OZ_DEATHCOUNT, SPECIAL);  // Increment DeathCount
 
     if (pInstance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
     {
-        if (Creature* pCrone = pCreature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, pCreature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+        if (Creature* pCrone = creature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, creature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
         {
-            if (pCreature->getVictim())
-                pCrone->AI()->AttackStart(pCreature->getVictim());
+            if (creature->getVictim())
+                pCrone->AI()->AttackStart(creature->getVictim());
         }
     }
 };
@@ -107,9 +107,9 @@ class boss_dorothee : public CreatureScript
 public:
     boss_dorothee() : CreatureScript("boss_dorothee") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_dorotheeAI(pCreature);
+        return new boss_dorotheeAI(creature);
     }
 
     struct boss_dorotheeAI : public ScriptedAI
@@ -222,9 +222,9 @@ class mob_tito : public CreatureScript
 public:
     mob_tito() : CreatureScript("mob_tito") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_titoAI(pCreature);
+        return new mob_titoAI(creature);
     }
 
     struct mob_titoAI : public ScriptedAI
@@ -289,9 +289,9 @@ class boss_strawman : public CreatureScript
 public:
     boss_strawman() : CreatureScript("boss_strawman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_strawmanAI(pCreature);
+        return new boss_strawmanAI(creature);
     }
 
     struct boss_strawmanAI : public ScriptedAI
@@ -404,9 +404,9 @@ class boss_tinhead : public CreatureScript
 public:
     boss_tinhead() : CreatureScript("boss_tinhead") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_tinheadAI(pCreature);
+        return new boss_tinheadAI(creature);
     }
 
     struct boss_tinheadAI : public ScriptedAI
@@ -514,9 +514,9 @@ class boss_roar : public CreatureScript
 public:
     boss_roar() : CreatureScript("boss_roar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_roarAI(pCreature);
+        return new boss_roarAI(creature);
     }
 
     struct boss_roarAI : public ScriptedAI
@@ -623,9 +623,9 @@ class boss_crone : public CreatureScript
 public:
     boss_crone() : CreatureScript("boss_crone") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_croneAI(pCreature);
+        return new boss_croneAI(creature);
     }
 
     struct boss_croneAI : public ScriptedAI
@@ -705,9 +705,9 @@ class mob_cyclone : public CreatureScript
 public:
     mob_cyclone() : CreatureScript("mob_cyclone") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_cycloneAI(pCreature);
+        return new mob_cycloneAI(creature);
     }
 
     struct mob_cycloneAI : public ScriptedAI
@@ -769,24 +769,24 @@ class npc_grandmother : public CreatureScript
 public:
     npc_grandmother() : CreatureScript("npc_grandmother") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            if (Creature* pBigBadWolf = pCreature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+            if (Creature* pBigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
                 pBigBadWolf->AI()->AttackStart(pPlayer);
 
-            pCreature->DespawnOrUnsummon();
+            creature->DespawnOrUnsummon();
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        pPlayer->SEND_GOSSIP_MENU(8990, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(8990, creature->GetGUID());
 
         return true;
     }
@@ -798,9 +798,9 @@ class boss_bigbadwolf : public CreatureScript
 public:
     boss_bigbadwolf() : CreatureScript("boss_bigbadwolf") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_bigbadwolfAI(pCreature);
+        return new boss_bigbadwolfAI(creature);
     }
 
     struct boss_bigbadwolfAI : public ScriptedAI
@@ -966,15 +966,15 @@ enum RAJPhase
     PHASE_BOTH          = 2,
 };
 
-void PretendToDie(Creature* pCreature)
+void PretendToDie(Creature* creature)
 {
-    pCreature->InterruptNonMeleeSpells(true);
-    pCreature->RemoveAllAuras();
-    pCreature->SetHealth(0);
-    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    pCreature->GetMotionMaster()->MovementExpired(false);
-    pCreature->GetMotionMaster()->MoveIdle();
-    pCreature->SetStandState(UNIT_STAND_STATE_DEAD);
+    creature->InterruptNonMeleeSpells(true);
+    creature->RemoveAllAuras();
+    creature->SetHealth(0);
+    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    creature->GetMotionMaster()->MovementExpired(false);
+    creature->GetMotionMaster()->MoveIdle();
+    creature->SetStandState(UNIT_STAND_STATE_DEAD);
 };
 
 void Resurrect(Creature* pTarget)
@@ -997,9 +997,9 @@ class boss_julianne : public CreatureScript
 public:
     boss_julianne() : CreatureScript("boss_julianne") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_julianneAI(pCreature);
+        return new boss_julianneAI(creature);
     }
 
     struct boss_julianneAI : public ScriptedAI
@@ -1120,9 +1120,9 @@ class boss_romulo : public CreatureScript
 public:
     boss_romulo() : CreatureScript("boss_romulo") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_romuloAI(pCreature);
+        return new boss_romuloAI(creature);
     }
 
     struct boss_romuloAI : public ScriptedAI

@@ -44,25 +44,25 @@ public:
 
     npc_galen_goodward() : CreatureScript("npc_galen_goodward") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const *quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const *quest)
     {
         if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
         {
-            CAST_AI(npc_galen_goodward::npc_galen_goodwardAI, pCreature->AI())->Start(false, false, pPlayer->GetGUID());
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-            DoScriptText(SAY_QUEST_ACCEPTED, pCreature);
+            CAST_AI(npc_galen_goodward::npc_galen_goodwardAI, creature->AI())->Start(false, false, pPlayer->GetGUID());
+            creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+            DoScriptText(SAY_QUEST_ACCEPTED, creature);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_galen_goodwardAI(pCreature);
+        return new npc_galen_goodwardAI(creature);
     }
 
     struct npc_galen_goodwardAI : public npc_escortAI
     {
-        npc_galen_goodwardAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_galen_goodwardAI(Creature* creature) : npc_escortAI(creature)
         {
             m_uiGalensCageGUID = 0;
             Reset();

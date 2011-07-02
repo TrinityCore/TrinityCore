@@ -74,16 +74,16 @@ class boss_volkhan : public CreatureScript
 public:
     boss_volkhan() : CreatureScript("boss_volkhan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_volkhanAI(pCreature);
+        return new boss_volkhanAI(creature);
     }
 
     struct boss_volkhanAI : public ScriptedAI
     {
-        boss_volkhanAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_volkhanAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -348,9 +348,9 @@ public:
 
                 case 5:
                     // 5 - Spawn the Golems
-                    if (Creature* pCreatureTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
+                    if (Creature* creatureTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
                         for (uint8 i = 0; i < MAX_GOLEM; ++i)
-                            me->CastSpell(pCreatureTarget, SPELL_SUMMON_MOLTEN_GOLEM, true);
+                            me->CastSpell(creatureTarget, SPELL_SUMMON_MOLTEN_GOLEM, true);
 
                     m_bIsStriking = true;
                     m_uiSummonPhase = 0;        // Reset back to Phase 0 for next time
@@ -371,14 +371,14 @@ class mob_molten_golem : public CreatureScript
 public:
     mob_molten_golem() : CreatureScript("mob_molten_golem") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_molten_golemAI(pCreature);
+        return new mob_molten_golemAI(creature);
     }
 
     struct mob_molten_golemAI : public ScriptedAI
     {
-        mob_molten_golemAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+        mob_molten_golemAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool m_bIsFrozen;
 

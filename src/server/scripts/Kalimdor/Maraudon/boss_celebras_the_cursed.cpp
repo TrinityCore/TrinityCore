@@ -34,9 +34,9 @@ class celebras_the_cursed : public CreatureScript
 public:
     celebras_the_cursed() : CreatureScript("celebras_the_cursed") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new celebras_the_cursedAI (pCreature);
+        return new celebras_the_cursedAI (creature);
     }
 
     struct celebras_the_cursedAI : public ScriptedAI

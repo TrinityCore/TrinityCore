@@ -89,9 +89,9 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
         struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         {
-            boss_grand_warlock_nethekurseAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_grand_warlock_nethekurseAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -318,9 +318,9 @@ class mob_fel_orc_convert : public CreatureScript
 
         struct mob_fel_orc_convertAI : public ScriptedAI
         {
-            mob_fel_orc_convertAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_fel_orc_convertAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -401,7 +401,7 @@ class mob_lesser_shadow_fissure : public CreatureScript
 
         struct mob_lesser_shadow_fissureAI : public ScriptedAI
         {
-            mob_lesser_shadow_fissureAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset() { }
             void MoveInLineOfSight(Unit* /*who*/) {}
@@ -409,9 +409,9 @@ class mob_lesser_shadow_fissure : public CreatureScript
             void EnterCombat(Unit* /*who*/) {}
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_lesser_shadow_fissureAI (pCreature);
+            return new mob_lesser_shadow_fissureAI (creature);
         }
 };
 

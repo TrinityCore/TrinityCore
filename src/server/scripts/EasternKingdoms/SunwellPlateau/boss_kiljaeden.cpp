@@ -210,7 +210,7 @@ float ShieldOrbLocations[4][2]=
 struct Speech
 {
     int32 textid;
-    uint32 pCreature, timer;
+    uint32 creature, timer;
 };
 
 // Timers
@@ -244,9 +244,9 @@ class boss_kalecgos_kj : public CreatureScript
 public:
     boss_kalecgos_kj() : CreatureScript("boss_kalecgos_kj") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecgos_kjAI (pCreature);
+        return new boss_kalecgos_kjAI (creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -399,9 +399,9 @@ class mob_kiljaeden_controller : public CreatureScript
 public:
     mob_kiljaeden_controller() : CreatureScript("mob_kiljaeden_controller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_kiljaeden_controllerAI (pCreature);
+        return new mob_kiljaeden_controllerAI (creature);
     }
 
     struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
@@ -499,9 +499,9 @@ class boss_kiljaeden : public CreatureScript
 public:
     boss_kiljaeden() : CreatureScript("boss_kiljaeden") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kiljaedenAI (pCreature);
+        return new boss_kiljaedenAI (creature);
     }
 
     struct boss_kiljaedenAI : public Scripted_NoMovementAI
@@ -723,7 +723,7 @@ public:
                             {
                                 SpeechTimer = 0;
                                 if (pInstance)
-                                    if (Creature* pSpeechCreature = Unit::GetCreature(*me, pInstance->GetData64(Speeches[speechCount].pCreature)))
+                                    if (Creature* pSpeechCreature = Unit::GetCreature(*me, pInstance->GetData64(Speeches[speechCount].creature)))
                                         DoScriptText(Speeches[speechCount].textid, pSpeechCreature);
                                 if (speechCount == 12)
                                     if (Creature* pAnveena =  Unit::GetCreature(*me, pInstance->GetData64(DATA_ANVEENA)))
@@ -913,9 +913,9 @@ class mob_hand_of_the_deceiver : public CreatureScript
 public:
     mob_hand_of_the_deceiver() : CreatureScript("mob_hand_of_the_deceiver") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_hand_of_the_deceiverAI (pCreature);
+        return new mob_hand_of_the_deceiverAI (creature);
     }
 
     struct mob_hand_of_the_deceiverAI : public ScriptedAI
@@ -1014,9 +1014,9 @@ class mob_felfire_portal : public CreatureScript
 public:
     mob_felfire_portal() : CreatureScript("mob_felfire_portal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_felfire_portalAI (pCreature);
+        return new mob_felfire_portalAI (creature);
     }
 
     struct mob_felfire_portalAI : public Scripted_NoMovementAI
@@ -1059,9 +1059,9 @@ class mob_volatile_felfire_fiend : public CreatureScript
 public:
     mob_volatile_felfire_fiend() : CreatureScript("mob_volatile_felfire_fiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_volatile_felfire_fiendAI (pCreature);
+        return new mob_volatile_felfire_fiendAI (creature);
     }
 
     struct mob_volatile_felfire_fiendAI : public ScriptedAI
@@ -1117,9 +1117,9 @@ class mob_armageddon : public CreatureScript
 public:
     mob_armageddon() : CreatureScript("mob_armageddon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_armageddonAI (pCreature);
+        return new mob_armageddonAI (creature);
     }
 
     struct mob_armageddonAI : public Scripted_NoMovementAI
@@ -1172,9 +1172,9 @@ class mob_shield_orb : public CreatureScript
 public:
     mob_shield_orb() : CreatureScript("mob_shield_orb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shield_orbAI (pCreature);
+        return new mob_shield_orbAI (creature);
     }
 
     struct mob_shield_orbAI : public ScriptedAI
@@ -1260,9 +1260,9 @@ class mob_sinster_reflection : public CreatureScript
 public:
     mob_sinster_reflection() : CreatureScript("mob_sinster_reflection") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_sinster_reflectionAI (pCreature);
+        return new mob_sinster_reflectionAI (creature);
     }
 
     struct mob_sinster_reflectionAI : public ScriptedAI

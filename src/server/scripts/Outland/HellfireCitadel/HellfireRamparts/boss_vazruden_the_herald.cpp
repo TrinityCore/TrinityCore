@@ -82,7 +82,7 @@ class boss_nazan : public CreatureScript
 
         struct boss_nazanAI : public ScriptedAI
         {
-            boss_nazanAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_nazanAI(Creature* creature) : ScriptedAI(creature)
             {
                 VazrudenGUID = 0;
                 flight = true;
@@ -210,7 +210,7 @@ class boss_vazruden : public CreatureScript
         }
         struct boss_vazrudenAI : public ScriptedAI
         {
-            boss_vazrudenAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_vazrudenAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -289,7 +289,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
         struct boss_vazruden_the_heraldAI : public ScriptedAI
         {
-            boss_vazruden_the_heraldAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_vazruden_the_heraldAI(Creature* creature) : ScriptedAI(creature)
             {
                 summoned = false;
                 sentryDown = false;
@@ -469,7 +469,7 @@ class mob_hellfire_sentry : public CreatureScript
         }
         struct mob_hellfire_sentryAI : public ScriptedAI
         {
-            mob_hellfire_sentryAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 KidneyShot_Timer;
 

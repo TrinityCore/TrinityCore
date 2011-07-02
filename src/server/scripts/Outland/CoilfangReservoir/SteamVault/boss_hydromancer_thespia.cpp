@@ -51,9 +51,9 @@ class boss_hydromancer_thespia : public CreatureScript
 public:
     boss_hydromancer_thespia() : CreatureScript("boss_hydromancer_thespia") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_thespiaAI (pCreature);
+        return new boss_thespiaAI (creature);
     }
 
     struct boss_thespiaAI : public ScriptedAI
@@ -151,9 +151,9 @@ class mob_coilfang_waterelemental : public CreatureScript
 public:
     mob_coilfang_waterelemental() : CreatureScript("mob_coilfang_waterelemental") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_coilfang_waterelementalAI (pCreature);
+        return new mob_coilfang_waterelementalAI (creature);
     }
 
     struct mob_coilfang_waterelementalAI : public ScriptedAI

@@ -80,10 +80,10 @@ class boss_alar : public CreatureScript
         }
         struct boss_alarAI : public ScriptedAI
         {
-            boss_alarAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_alarAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
-                DefaultMoveSpeedRate = pCreature->GetSpeedRate(MOVE_RUN);
+                pInstance = creature->GetInstanceScript();
+                DefaultMoveSpeedRate = creature->GetSpeedRate(MOVE_RUN);
             }
 
             InstanceScript *pInstance;
@@ -467,11 +467,11 @@ class mob_ember_of_alar : public CreatureScript
 
         struct mob_ember_of_alarAI : public ScriptedAI
         {
-            mob_ember_of_alarAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_ember_of_alarAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
-                pCreature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
-                pCreature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+                pInstance = creature->GetInstanceScript();
+                creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
             InstanceScript *pInstance;
@@ -546,7 +546,7 @@ class mob_flame_patch_alar : public CreatureScript
 
         struct mob_flame_patch_alarAI : public ScriptedAI
         {
-            mob_flame_patch_alarAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
             void Reset() {}
             void EnterCombat(Unit* /*who*/) {}
             void AttackStart(Unit* /*who*/) {}

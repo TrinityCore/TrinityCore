@@ -40,7 +40,7 @@ public:
 
     struct npc_drakuru_shacklesAI : public ScriptedAI
     {
-        npc_drakuru_shacklesAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 RageclawGUID;
 
@@ -131,7 +131,7 @@ public:
 
     struct npc_captured_rageclawAI : public ScriptedAI
     {
-        npc_captured_rageclawAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_captured_rageclawAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 DespawnTimer;
         bool Despawn;
@@ -207,23 +207,23 @@ class npc_gymer : public CreatureScript
 public:
     npc_gymer() : CreatureScript("npc_gymer") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(QUEST_STORM_KING_VENGEANCE) == QUEST_STATUS_INCOMPLETE)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_G, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(13640, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(13640, creature->GetGUID());
         }
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -332,7 +332,7 @@ public:
 
     struct npc_gurgthockAI : public ScriptedAI
     {
-        npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 SummonGUID;
         uint64 uiPlayerGUID;
@@ -495,8 +495,8 @@ public:
                             uiPhase = 0;
                             break;
                         case 11:
-                            if (Creature* pCreature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                DoScriptText(SAY_STINKBEARD_SPAWN, pCreature);
+                            if (Creature* creature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                DoScriptText(SAY_STINKBEARD_SPAWN, creature);
                             uiPhase = 0;
                             break;
                         case 12:
@@ -517,8 +517,8 @@ public:
                             break;
                         case 14:
                             uiBossRandom = urand(0, 3);
-                            if (Creature* pCreature = me->SummonCreature(Boss[uiBossRandom].uiBoss, SpawnPosition[2], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                pCreature->AI()->SetData(1, uiBossRandom);
+                            if (Creature* creature = me->SummonCreature(Boss[uiBossRandom].uiBoss, SpawnPosition[2], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                creature->AI()->SetData(1, uiBossRandom);
                             uiPhase = 0;
                             break;
                     }
@@ -527,29 +527,29 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* pQuest)
     {
         switch (pQuest->GetQuestId())
         {
             case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
         }
 
-        pCreature->AI()->SetGUID(pPlayer->GetGUID());
+        creature->AI()->SetGUID(pPlayer->GetGUID());
 
         return false;
     }
@@ -584,7 +584,7 @@ public:
 
     struct npc_orinoko_tuskbreakerAI : public ScriptedAI
     {
-        npc_orinoko_tuskbreakerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_orinoko_tuskbreakerAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
@@ -721,7 +721,7 @@ public:
 
     struct npc_korrak_bloodragerAI : public npc_escortAI
     {
-        npc_korrak_bloodragerAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_korrak_bloodragerAI(Creature* creature) : npc_escortAI(creature)
         {
             Start(true, true, 0, NULL);
             SetDespawnAtEnd(false);
@@ -818,7 +818,7 @@ public:
 
     struct npc_yggdrasAI : public ScriptedAI
     {
-        npc_yggdrasAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_yggdrasAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiCleaveTimer;
         uint32 uiCorrodeFleshTimer;
@@ -912,7 +912,7 @@ public:
 
     struct npc_stinkbeardAI : public npc_escortAI
     {
-        npc_stinkbeardAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_stinkbeardAI(Creature* creature) : npc_escortAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
@@ -1036,7 +1036,7 @@ public:
 
     struct npc_elemental_lordAI : public ScriptedAI
     {
-        npc_elemental_lordAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) {}
 
         std::list<uint64> SummonList;
 
@@ -1181,7 +1181,7 @@ public:
 
     struct npc_fiend_elementalAI : public ScriptedAI
     {
-        npc_fiend_elementalAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_fiend_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiMissleTimer;
         uint32 uiSpell;
@@ -1246,7 +1246,7 @@ public:
 
     struct npc_released_offspring_harkoaAI : public ScriptedAI
     {
-        npc_released_offspring_harkoaAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_released_offspring_harkoaAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset()
         {
@@ -1295,7 +1295,7 @@ public:
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
-        npc_crusade_recruitAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 m_uiPhase;                  //The current phase we are in
         uint32 m_uiTimer;                 //Timer until phase transition
@@ -1356,25 +1356,25 @@ public:
         return new npc_crusade_recruitAI(creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_CRUSADE_TEXT, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_CRUSADE_TEXT, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, SPELL_QUEST_CREDIT, true);
-            CAST_AI(npc_crusade_recruit::npc_crusade_recruitAI, (pCreature->AI()))->m_uiPhase = 1;
-            pCreature->SetInFront(pPlayer);
-            pCreature->SendMovementFlagUpdate();
+            creature->CastSpell(pPlayer, SPELL_QUEST_CREDIT, true);
+            CAST_AI(npc_crusade_recruit::npc_crusade_recruitAI, (creature->AI()))->m_uiPhase = 1;
+            creature->SetInFront(pPlayer);
+            creature->SendMovementFlagUpdate();
         }
 
         return true;

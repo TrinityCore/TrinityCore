@@ -57,7 +57,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         struct boss_watchkeeper_gargolmarAI : public ScriptedAI
         {
-            boss_watchkeeper_gargolmarAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_watchkeeper_gargolmarAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 

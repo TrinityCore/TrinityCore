@@ -61,47 +61,47 @@ class npc_sergeant_bly : public CreatureScript
 public:
     npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
-            pCreature->AI()->DoAction(0);
+            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
+            creature->AI()->DoAction(0);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+        if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             if (pInstance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                pPlayer->SEND_GOSSIP_MENU(1517, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(1517, creature->GetGUID());
             }
             else
                 if (pInstance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
-                    pPlayer->SEND_GOSSIP_MENU(1515, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(1515, creature->GetGUID());
                 else
-                    pPlayer->SEND_GOSSIP_MENU(1516, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(1516, creature->GetGUID());
             return true;
         }
         return false;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_sergeant_blyAI (pCreature);
+        return new npc_sergeant_blyAI (creature);
     }
 
     struct npc_sergeant_blyAI : public ScriptedAI
     {
-        npc_sergeant_blyAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_sergeant_blyAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             postGossipStep = 0;
         }
 
@@ -258,49 +258,49 @@ class npc_weegli_blastfuse : public CreatureScript
 public:
     npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             //here we make him run to door, set the charge and run away off to nowhere
-            pCreature->AI()->DoAction(0);
+            creature->AI()->DoAction(0);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+        if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             switch (pInstance->GetData(EVENT_PYRAMID))
             {
                 case PYRAMID_KILLED_ALL_TROLLS:
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    pPlayer->SEND_GOSSIP_MENU(1514, pCreature->GetGUID());  //if event can proceed to end
+                    pPlayer->SEND_GOSSIP_MENU(1514, creature->GetGUID());  //if event can proceed to end
                     break;
                 case PYRAMID_NOT_STARTED:
-                    pPlayer->SEND_GOSSIP_MENU(1511, pCreature->GetGUID());  //if event not started
+                    pPlayer->SEND_GOSSIP_MENU(1511, creature->GetGUID());  //if event not started
                     break;
                 default:
-                    pPlayer->SEND_GOSSIP_MENU(1513, pCreature->GetGUID());  //if event are in progress
+                    pPlayer->SEND_GOSSIP_MENU(1513, creature->GetGUID());  //if event are in progress
             }
             return true;
         }
         return false;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_weegli_blastfuseAI (pCreature);
+        return new npc_weegli_blastfuseAI (creature);
     }
 
     struct npc_weegli_blastfuseAI : public ScriptedAI
     {
-        npc_weegli_blastfuseAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_weegli_blastfuseAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             destroyingDoor=false;
             Bomb_Timer = 10000;
             LandMine_Timer = 30000;

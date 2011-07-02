@@ -147,17 +147,17 @@ class npc_deserter_agitator : public CreatureScript
 public:
     npc_deserter_agitator() : CreatureScript("npc_deserter_agitator") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DESERTER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 
@@ -167,18 +167,18 @@ public:
             switch (urand(0, 1))
             {
                 case 0:
-                    pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    pCreature->setFaction(14);
-                    pCreature->AI()->AttackStart(pPlayer);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->setFaction(14);
+                    creature->AI()->AttackStart(pPlayer);
                     break;
                 case 1:
                     pPlayer->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
-                    pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    pCreature->SetSpeed(MOVE_RUN, pCreature->GetSpeedRate(MOVE_RUN), true);
-                    pCreature->setFaction(35);
-                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
-                    pCreature->SetReactState(REACT_PASSIVE);
-                    pCreature->GetMotionMaster()->MovePoint(1, DeserterDisappearPos);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->SetSpeed(MOVE_RUN, creature->GetSpeedRate(MOVE_RUN), true);
+                    creature->setFaction(35);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->GetMotionMaster()->MovePoint(1, DeserterDisappearPos);
                     break;
             }
         }
@@ -186,14 +186,14 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_deserter_agitatorAI(pCreature);
+        return new npc_deserter_agitatorAI(creature);
     }
 
     struct npc_deserter_agitatorAI : public ScriptedAI
     {
-        npc_deserter_agitatorAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+        npc_deserter_agitatorAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -245,17 +245,17 @@ class npc_theramore_guard : public CreatureScript
 public:
     npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 
@@ -263,24 +263,24 @@ public:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             pPlayer->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
-            DoScriptText(SAY_QUEST1, pCreature);
-            pCreature->CastSpell(pCreature, SPELL_DOCTORED_LEAFLET, false);
-            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, pCreature->AI())->uiYellTimer = 4000;
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, pCreature->AI())->bYellTimer = true;
+            DoScriptText(SAY_QUEST1, creature);
+            creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->uiYellTimer = 4000;
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
         }
 
         return true;
     }
 
-    CreatureAI *GetAI(Creature* pCreature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
-        return new npc_theramore_guardAI(pCreature);
+        return new npc_theramore_guardAI(creature);
     }
 
     struct npc_theramore_guardAI : public ScriptedAI
     {
-        npc_theramore_guardAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+        npc_theramore_guardAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiYellTimer;
         uint32 uiStep;
@@ -337,26 +337,26 @@ class npc_lady_jaina_proudmoore : public CreatureScript
 public:
     npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_SENDER_INFO)
         {
-            pPlayer->SEND_GOSSIP_MENU(7012, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7012, creature->GetGUID());
             pPlayer->CastSpell(pPlayer, SPELL_JAINAS_AUTOGRAPH, false);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -377,27 +377,27 @@ class npc_nat_pagle : public CreatureScript
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
-        if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+        if (creature->isVendor() && pPlayer->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            pPlayer->SEND_GOSSIP_MENU(7640, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7640, creature->GetGUID());
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(7638, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7638, creature->GetGUID());
 
         return true;
     }
@@ -431,22 +431,22 @@ class npc_private_hendel : public CreatureScript
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
 
-    bool OnQuestAccept(Player* /*pPlayer*/, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* /*pPlayer*/, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-            pCreature->setFaction(FACTION_HOSTILE);
+            creature->setFaction(FACTION_HOSTILE);
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_private_hendelAI(pCreature);
+        return new npc_private_hendelAI(creature);
     }
 
     struct npc_private_hendelAI : public ScriptedAI
     {
-        npc_private_hendelAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+        npc_private_hendelAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -498,14 +498,14 @@ class npc_zelfrax : public CreatureScript
 public:
     npc_zelfrax() : CreatureScript("npc_zelfrax") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_zelfraxAI(pCreature);
+        return new npc_zelfraxAI(creature);
     }
 
     struct npc_zelfraxAI : public ScriptedAI
     {
-        npc_zelfraxAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_zelfraxAI(Creature* creature) : ScriptedAI(creature)
         {
             MoveToDock();
         }
@@ -583,20 +583,20 @@ class npc_stinky : public CreatureScript
 public:
    npc_stinky() : CreatureScript("npc_stinky") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_stinkyAI(pCreature);
+        return new npc_stinkyAI(creature);
     }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const *quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const *quest)
     {
          if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
          {
-             if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, pCreature->AI()))
+             if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
              {
-                 pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-                 pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-                 DoScriptText(SAY_QUEST_ACCEPTED, pCreature);
+                 creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+                 creature->SetStandState(UNIT_STAND_STATE_STAND);
+                 DoScriptText(SAY_QUEST_ACCEPTED, creature);
                  pEscortAI->Start(false, false, pPlayer->GetGUID());
              }
          }
@@ -605,7 +605,7 @@ public:
 
     struct npc_stinkyAI : public npc_escortAI
     {
-       npc_stinkyAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+       npc_stinkyAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 i)
         {
