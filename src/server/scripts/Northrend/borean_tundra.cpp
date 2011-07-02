@@ -511,14 +511,14 @@ public:
 
             if (who->GetEntry() == NPC_JENNY && me->IsWithinDistInMap(who, 10.0f))
             {
-                if (Unit* pOwner = who->GetOwner())
+                if (Unit* owner = who->GetOwner())
                 {
-                    if (pOwner->GetTypeId() == TYPEID_PLAYER)
+                    if (owner->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (who->HasAura(SPELL_CRATES_CARRIED))
                         {
-                            pOwner->CastSpell(pOwner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
-                            CAST_PLR(pOwner)->CompleteQuest(QUEST_LOADER_UP);
+                            owner->CastSpell(owner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
+                            CAST_PLR(owner)->CompleteQuest(QUEST_LOADER_UP);
                             CAST_CRE(who)->DisappearAndDie();
                         }
                     }
@@ -2175,9 +2175,9 @@ public:
                     {
                         if (Unit* uOwner = me->GetOwner())
                         {
-                            Player* pOwner = uOwner->ToPlayer();
-                            if (pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
-                                pOwner->KilledMonsterCredit(cCredit->GetEntry(), cCredit->GetGUID());
+                            Player* owner = uOwner->ToPlayer();
+                            if (owner && owner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
+                                owner->KilledMonsterCredit(cCredit->GetEntry(), cCredit->GetGUID());
                         }
                     }
                 }
