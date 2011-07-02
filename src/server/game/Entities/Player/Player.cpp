@@ -53,7 +53,7 @@
 #include "Util.h"
 #include "Transport.h"
 #include "Weather.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvP.h"

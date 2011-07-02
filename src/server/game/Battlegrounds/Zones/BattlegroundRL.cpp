@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundRL.h"
 #include "Language.h"
 #include "Object.h"
@@ -51,7 +51,7 @@ void BattlegroundRL::Update(uint32 diff)
 void BattlegroundRL::StartingEventCloseDoors()
 {
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
-        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+        SpawnObject(i, RESPAWN_IMMEDIATELY);
 }
 
 void BattlegroundRL::StartingEventOpenDoors()
@@ -60,10 +60,10 @@ void BattlegroundRL::StartingEventOpenDoors()
         DoorOpen(i);
 
     for (uint32 i = BG_RL_OBJECT_BUFF_1; i <= BG_RL_OBJECT_BUFF_2; ++i)
-        SpawnBGObject(i, 60);
+        SpawnObject(i, 60);
 }
 
-void BattlegroundRL::AddPlayer(Player *plr)
+void BattlegroundRL::OnPlayerJoin(Player *plr)
 {
     Battleground::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in constructor

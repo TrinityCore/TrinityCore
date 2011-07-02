@@ -41,7 +41,7 @@
 #include "UpdateMask.h"
 #include "Util.h"
 #include "ScriptMgr.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {

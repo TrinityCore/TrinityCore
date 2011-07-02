@@ -32,7 +32,7 @@
 #include "Creature.h"
 #include "Pet.h"
 #include "BattlegroundMgr.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 

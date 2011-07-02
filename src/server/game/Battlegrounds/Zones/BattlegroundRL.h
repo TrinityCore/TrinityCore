@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDRL_H
 #define __BATTLEGROUNDRL_H
 
-class Battleground;
+#include "ArenaMap.h"
 
 enum BattlegroundRLObjectTypes
 {
@@ -37,14 +37,6 @@ enum BattlegroundRLObjects
     BG_RL_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundRLScore : public BattlegroundScore
-{
-    public:
-        BattlegroundRLScore() {};
-        virtual ~BattlegroundRLScore() {};
-        //TODO fix me
-};
-
 class ArenaMap;
 
 class BattlegroundRL : public ArenaMap
@@ -57,7 +49,7 @@ class BattlegroundRL : public ArenaMap
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void OnPlayerJoin(Player *plr);
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         virtual void StartingEventCloseDoors();

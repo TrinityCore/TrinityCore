@@ -16,7 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
+#include "ArenaMap.h"
+#include "ArenaScore.h"
 #include "BattlegroundNA.h"
 #include "Language.h"
 #include "Object.h"
@@ -51,7 +52,7 @@ void BattlegroundNA::Update(uint32 diff)
 void BattlegroundNA::StartingEventCloseDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
-        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+        SpawnObject(i, RESPAWN_IMMEDIATELY);
 }
 
 void BattlegroundNA::StartingEventOpenDoors()
@@ -60,16 +61,16 @@ void BattlegroundNA::StartingEventOpenDoors()
         DoorOpen(i);
 
     for (uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
-        SpawnBGObject(i, 60);
+        SpawnObject(i, 60);
 }
 
-void BattlegroundNA::AddPlayer(Player *plr)
+void BattlegroundNA::OnPlayerJoin(Player *plr)
 {
-    Battleground::OnPlayerJoin(plr);
+    ArenaMap::OnPlayerJoin(plr);
     //create score and add it to map, default values are set in constructor
-    BattlegroundNAScore* sc = new BattlegroundNAScore;
+    ArenaScore* sc = new ArenaScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    PlayerScores[plr->GetGUIDLow()] = sc;
 
     UpdateArenaWorldState();
 }

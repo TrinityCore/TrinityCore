@@ -26,7 +26,7 @@
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
@@ -113,7 +113,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         else if (Battleground *bg = _player->GetBattleground())
         {
             if (_player->IsInvitedForBattlegroundInstance(_player->GetBattlegroundId()))
-                bg->OnPlayerJoin(_player);  // AUTO REFACTOR - called method is wrong
+                bg->AddPlayer(_player);
         }
     }
 

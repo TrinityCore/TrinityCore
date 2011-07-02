@@ -97,8 +97,8 @@ void BattlegroundRV::StartingEventCloseDoors()
 void BattlegroundRV::StartingEventOpenDoors()
 {
     // Buff respawn
-    SpawnBGObject(BG_RV_OBJECT_BUFF_1, 90);
-    SpawnBGObject(BG_RV_OBJECT_BUFF_2, 90);
+    SpawnObject(BG_RV_OBJECT_BUFF_1, 90);
+    SpawnObject(BG_RV_OBJECT_BUFF_2, 90);
     // Open fences
     DoorOpen(BG_RV_OBJECT_FENCE_1);
     DoorOpen(BG_RV_OBJECT_FENCE_2);
@@ -116,7 +116,7 @@ void BattlegroundRV::OnPlayerJoin(Player *plr)
     //create score and add it to map, default values are set in constructor
     BattlegroundRVScore* sc = new BattlegroundRVScore;
 
-    ScoreMap[plr->GetGUIDLow()] = sc;
+    PlayerScores[plr->GetGUIDLow()] = sc;
 
     UpdateWorldState(BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));

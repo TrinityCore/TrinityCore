@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "EventProcessor.h"
 
 //this container can't be deque, because deque doesn't like removing the last element - if you remove it, it invalidates next iterator and crash appears

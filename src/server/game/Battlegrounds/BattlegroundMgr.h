@@ -21,8 +21,9 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundQueue.h"
+#include "BattlegroundTemplate.h"
 #include <ace/Singleton.h>
 
 typedef std::map<uint32, Battleground*> BattlegroundSet;

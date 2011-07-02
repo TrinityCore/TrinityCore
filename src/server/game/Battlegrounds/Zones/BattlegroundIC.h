@@ -856,6 +856,7 @@ class BattlegroundICScore : public BattlegroundScore
 
         void AppendToPacket(WorldPacket* data)
         {
+            BattlegroundScore::AppendToPacket(data);
             *data << GetMemberCount<BattlegroundICScore>();
             *data << BasesAssaulted;
             *data << BasesDefended;

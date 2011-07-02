@@ -40,7 +40,7 @@
 #include "Pet.h"
 #include "Util.h"
 #include "Totem.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "OutdoorPvP.h"
 #include "InstanceSaveMgr.h"
 #include "GridNotifiersImpl.h"

@@ -18,9 +18,8 @@
 #ifndef __BATTLEGROUNDAB_H
 #define __BATTLEGROUNDAB_H
 
+#include "BattlegroundMap.h"
 #include "BattlegroundScore.h"
-
-class Battleground;
 
 enum BG_AB_WorldStates
 {
@@ -243,6 +242,7 @@ class BattlegroundABScore : public BattlegroundScore
 
         void AppendToPacket(WorldPacket* data)
         {
+            BattlegroundScore::AppendToPacket(data);
             *data << GetMemberCount<BattlegroundABScore>();
             *data << BasesAssaulted;
             *data << BasesDefended;
@@ -262,10 +262,23 @@ class BattlegroundAB : public BattlegroundMap
         BattlegroundAB();
         ~BattlegroundAB();
 
+        
+        void Update(uint32 const& diff);
+
+    protected:
+        void InitializeObjects();
         void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
-        void Update(uint32 diff);
+        void StartBattleground();
+
+        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void FillInitialWorldStates(WorldPacket& data);
+
         void OnPlayerJoin(Player *plr);
+
+    public:
+
+        
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
         void RemovePlayer(Player *plr, uint64 guid, uint32 team);
@@ -275,17 +288,14 @@ class BattlegroundAB : public BattlegroundMap
         void EndBattleground(uint32 winner);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        /* Scorekeeping */
-        virtual void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
-
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        
 
         /* Nodes occupying */
         virtual void EventPlayerClickedOnFlag(Player *source, GameObject* target_obj);
 
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
-        bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
+        bool IsTeamScores500Disadvantage(uint32 team) const { return _teamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
     private:
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
@@ -305,18 +315,18 @@ class BattlegroundAB : public BattlegroundMap
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8               m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
-        BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
-        uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
-        bool                m_IsInformedNearVictory;
-        uint32              m_HonorTics;
-        uint32              m_ReputationTics;
+        uint8 _nodes[BG_AB_DYNAMIC_NODES_COUNT];
+        uint8 _prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        BG_AB_BannerTimer _bannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
+        uint32 _nodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
+        uint32 _lastTick[BG_TEAMS_COUNT];
+        uint32 _honorScoreTicks[BG_TEAMS_COUNT];
+        uint32 _reputationScoreTicks[BG_TEAMS_COUNT];
+        bool _isInformedNearVictory;
+        uint32 _honorTicks;
+        uint32 _reputationTicks;
         // need for achievements
-        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool _teamScores500Disadvantage[BG_TEAMS_COUNT];
 };
 #endif
 

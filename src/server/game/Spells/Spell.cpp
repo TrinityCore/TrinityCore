@@ -42,7 +42,7 @@
 #include "SharedDefines.h"
 #include "LootMgr.h"
 #include "VMapFactory.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "Util.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"

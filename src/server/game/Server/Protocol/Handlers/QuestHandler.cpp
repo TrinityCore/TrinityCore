@@ -28,7 +28,7 @@
 #include "QuestDef.h"
 #include "ObjectAccessor.h"
 #include "Group.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundAV.h"
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"

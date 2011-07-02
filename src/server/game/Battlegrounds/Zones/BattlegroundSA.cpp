@@ -112,8 +112,8 @@ bool BattlegroundSA::ResetObjs()
     // MAD props for Kiper for discovering those values - 4 hours of his work.
     GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
     GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
-    SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
-    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
+    SpawnObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
+    SpawnObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
@@ -130,7 +130,7 @@ bool BattlegroundSA::ResetObjs()
 
     for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
     {
-        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+        SpawnObject(i, RESPAWN_IMMEDIATELY);
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
@@ -434,7 +434,7 @@ void BattlegroundSA::OnPlayerJoin(Player *plr)
 
     //create score and add it to map, default values are set in constructor
     BattlegroundSAScore* sc = new BattlegroundSAScore;
-    ScoreMap[plr->GetGUIDLow()] = sc;
+    PlayerScores[plr->GetGUIDLow()] = sc;
 
     if (!ShipsStarted)
     {
@@ -474,8 +474,8 @@ void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 
 void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::const_iterator itr = ScoreMap.find(Source->GetGUIDLow());
-    if (itr == ScoreMap.end())                         // player not found...
+    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(Source->GetGUIDLow());
+    if (itr == PlayerScores.end())                         // player not found...
         return;
 
     if (type == SCORE_DESTROYED_DEMOLISHER)
@@ -566,13 +566,13 @@ void BattlegroundSA::OverrideGunFaction()
 
     for (uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10;i++)
     {
-        if (Creature* gun = GetBGCreature(i))
+        if (Creature* gun = GetCreature(i))
             gun->setFaction(BG_SA_Factions[Attackers? TEAM_ALLIANCE : TEAM_HORDE]);
     }
 
     for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4;i++)
     {
-        if (Creature* dem = GetBGCreature(i))
+        if (Creature* dem = GetCreature(i))
             dem->setFaction(BG_SA_Factions[Attackers]);
     }
 }
@@ -584,7 +584,7 @@ void BattlegroundSA::DemolisherStartState(bool start)
 
     for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; i++)
     {
-        if (Creature* dem = GetBGCreature(i))
+        if (Creature* dem = GetCreature(i))
         {
             if (start)
                 dem->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -862,7 +862,7 @@ void BattlegroundSA::UpdateDemolisherSpawns()
     {
         if (m_BgCreatures[i])
         {
-            if (Creature *Demolisher = GetBGCreature(i))
+            if (Creature *Demolisher = GetCreature(i))
             {
                 if (Demolisher->isDead())
                 {

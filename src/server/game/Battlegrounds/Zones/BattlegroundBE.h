@@ -41,13 +41,6 @@ enum BattlegroundBEObjects
     BG_BE_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundBEScore : public BattlegroundScore
-{
-    public:
-        BattlegroundBEScore() {};
-        virtual ~BattlegroundBEScore() {};
-};
-
 class BattlegroundBE : public ArenaMap
 {
     friend class BattlegroundMgr;
@@ -58,7 +51,7 @@ class BattlegroundBE : public ArenaMap
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 

@@ -16,6 +16,10 @@
  */
 
 #include "ArenaMap.h"
+#include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
+#include "Player.h"
+#include "Log.h"
 
 void ArenaMap::InitializeTextIds()
 {
@@ -31,4 +35,36 @@ void ArenaMap::InitializePreparationDelayTimes()
     PreparationDelayTimers[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     PreparationDelayTimers[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
     PreparationDelayTimers[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
+}
+
+void ArenaMap::EndBattleground(uint32 winner)
+{
+    BattlegroundMap::EndBattleground();
+
+    uint32 loser = 1 - winner;
+
+    ArenaTeam* winnerTeam = _arenaTeams[winner];
+    ArenaTeam* loserTeam = _arenaTeams[loser];
+
+    if (_rated && winner != WINNER_NONE)
+    {
+        uint32 loserTeamRating = loserTeam->GetRating();
+        uint32 loserMMR = loserTeam->GetAverageMMR(GetGroupForTeam(loserTeam));
+        uint32 winnerTeamRating = winnerTeam->GetRating();
+        uint32 winnerMMR = winnerTeam->GetAverageMMR(GetGroupForTeam(winnerTeam));
+        
+        uint32 winnerChange = winnerTeam->WonAgainst(loserMMR);
+        uint32 loserChange = loserTeam->WonAgainst(winnerMMR);
+        sLog->outArena("Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %d, Loser change: %d ---",
+            winnerTeamRating, loserTeamRating, winnerMMR, loserMMR, winnerChange, loserChange);
+
+    }
+}
+
+Group* ArenaMap::GetGroupForTeam(uint32 team) const
+{
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        if (Player* player = itr->getSource())
+            if (player->GetBGTeam() == winner)
+                return player->GetGroup();
 }

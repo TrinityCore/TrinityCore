@@ -70,12 +70,6 @@ enum BattlegroundMarks
     ITEM_SA_MARK_OF_HONOR           = 42425
 };
 
-enum BattlegroundMarksCount
-{
-    ITEM_WINNER_COUNT               = 3,
-    ITEM_LOSER_COUNT                = 1
-};
-
 enum BattlegroundCreatures
 {
     BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
@@ -104,7 +98,6 @@ enum BattlegroundSpells
 enum BattlegroundTimeIntervals
 {
     RESURRECTION_INTERVAL           = 30000,                // ms
-    //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
     INVITE_ACCEPT_WAIT_TIME         = 40000,                // ms
     TIME_TO_AUTOREMOVE              = 120000,               // ms
@@ -142,15 +135,6 @@ enum BattlegroundRandomRewards
 
 const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
 
-enum BattlegroundStatus
-{
-    STATUS_NONE         = 0,                                // first status, should mean bg is not instance
-    STATUS_WAIT_QUEUE   = 1,                                // means bg is empty and waiting for queue
-    STATUS_WAIT_JOIN    = 2,                                // this means, that BG has already started and it is waiting for more players
-    STATUS_IN_PROGRESS  = 3,                                // means bg is running
-    STATUS_WAIT_LEAVE   = 4                                 // means some faction has won BG and it is ending
-};
-
 struct BattlegroundPlayer
 {
     time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
@@ -181,34 +165,6 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_3v3      = 9,
     BATTLEGROUND_QUEUE_5v5      = 10,
     MAX_BATTLEGROUND_QUEUE_TYPES
-};
-
-enum ScoreType
-{
-    SCORE_KILLING_BLOWS         = 1,
-    SCORE_DEATHS                = 2,
-    SCORE_HONORABLE_KILLS       = 3,
-    SCORE_BONUS_HONOR           = 4,
-    //EY, but in MSG_PVP_LOG_DATA opcode!
-    SCORE_DAMAGE_DONE           = 5,
-    SCORE_HEALING_DONE          = 6,
-    //WS
-    SCORE_FLAG_CAPTURES         = 7,
-    SCORE_FLAG_RETURNS          = 8,
-    //AB and IC
-    SCORE_BASES_ASSAULTED       = 9,
-    SCORE_BASES_DEFENDED        = 10,
-    //AV
-    SCORE_GRAVEYARDS_ASSAULTED  = 11,
-    SCORE_GRAVEYARDS_DEFENDED   = 12,
-    SCORE_TOWERS_ASSAULTED      = 13,
-    SCORE_TOWERS_DEFENDED       = 14,
-    SCORE_MINES_CAPTURED        = 15,
-    SCORE_LEADERS_KILLED        = 16,
-    SCORE_SECONDARY_OBJECTIVES  = 17,
-    //SOTA
-    SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19,
 };
 
 enum ArenaType
@@ -425,7 +381,7 @@ class Battleground
         void StartBattleground();
 
         GameObject* GetBGObject(uint32 type);
-        Creature* GetBGCreature(uint32 type);
+        Creature* GetCreature(uint32 type);
 
         // Location
         void SetMapId(uint32 MapID) { m_MapId = MapID; }

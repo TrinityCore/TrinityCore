@@ -18,7 +18,7 @@
 #ifndef TRINITY_ARENA_MAP_H
 #define TRINITY_ARENA_MAP_H
 
-class BattlegroundMap;
+#include "BattlegroundMap.h"
 
 class ArenaMap : public BattlegroundMap
 {
@@ -26,6 +26,13 @@ class ArenaMap : public BattlegroundMap
         void InitializeTextIds();                   // Initializes text IDs that are used in the battleground at any possible phase.
         void InitializePreparationDelayTimes();     // Initializes preparation delay timers.
 
+    protected:
+        void EndBattleground(uint32 winner);
+        Group* GetGroupForTeam(uint32 team) const;  // Needed for GetAverageMMR
+
+    private:
+        bool _rated;
+        ArenaTeam* _arenaTeams[BG_TEAMS_COUNT];
 };
 
 #endif

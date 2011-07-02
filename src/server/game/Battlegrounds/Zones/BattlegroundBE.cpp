@@ -16,7 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
+#include "ArenaMap.h"
+#include "ArenaScore.h"
 #include "BattlegroundBE.h"
 #include "Language.h"
 #include "Object.h"
@@ -51,10 +52,10 @@ void BattlegroundBE::Update(uint32 diff)
 void BattlegroundBE::StartingEventCloseDoors()
 {
     for (uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; ++i)
-        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+        SpawnObject(i, RESPAWN_IMMEDIATELY);
 
     for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
-        SpawnBGObject(i, RESPAWN_ONE_DAY);
+        SpawnObject(i, RESPAWN_ONE_DAY);
 }
 
 void BattlegroundBE::StartingEventOpenDoors()
@@ -63,16 +64,17 @@ void BattlegroundBE::StartingEventOpenDoors()
         DoorOpen(i);
 
     for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
-        SpawnBGObject(i, 60);
+        SpawnObject(i, 60);
 }
 
-void BattlegroundBE::AddPlayer(Player *plr)
+void BattlegroundBE::OnPlayerJoin(Player *plr)
 {
-    Battleground::OnPlayerJoin(plr);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundBEScore* sc = new BattlegroundBEScore;
+    ArenaMap::OnPlayerJoin(plr);
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    //create score and add it to map, default values are set in constructor
+    ArenaScore* sc = new ArenaScore;
+
+    PlayerScores[plr->GetGUIDLow()] = sc;
 
     UpdateArenaWorldState();
 }

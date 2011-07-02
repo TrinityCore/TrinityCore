@@ -15,38 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_BATTLEGROUND_SCORE_H
-#define TRINITY_BATTLEGROUND_SCORE_H
+#ifndef TRINITY_ARENA_SCORE_H
+#define TRINITY_ARENA_SCORE_H
 
-#include "WorldPacket.h"
+#include "BattlegroundScore.h"
 
-class BattlegroundScore
+class ArenaMap;
+
+class ArenaScore : public BattlegroundScore
 {
+    friend class ArenaMap;
     protected:
-        BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
-            BonusHonor(0), DamageDone(0), HealingDone(0) {};
-        virtual ~BattlegroundScore() {};
-
-        virtual void AppendToPacket(WorldPacket* data) 
+        ArenaScore() : BattlegroundScore(), TeamId(0), PointsLost(0), PointsGained(0), MatchmakerRating(0) {};
+        virtual ~ArenaScore() {};
+        void AppendToPacket(WorldPacket* data) 
         {
             *data << KillingBlows;
-            *data << HonorableKills;
-            *data << Deaths;
-            *data << BonusHonor;
+            *data << TeamId;
             *data << DamageDone;
             *data << HealingDone;
+            *data << uint32(0); // Padding
         }
 
-        template <class T> uint32 GetMemberCount() { return sizeof(T) / sizeof(uint32); }
-
-        // Default score, present in every type 
-        uint32 KillingBlows;
-        uint32 Deaths;
-        uint32 HonorableKills;
-        uint32 BonusHonor;
-        uint32 DamageDone;
-        uint32 HealingDone;
-
+        uint8 TeamId;   // ALLIANCE or HORDE 
+        uint32 PointsLost;
+        uint32 PointsGained;
+        uint32 MatchmakerRating;
 };
 
 #endif

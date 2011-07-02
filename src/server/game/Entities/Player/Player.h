@@ -20,7 +20,7 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "Bag.h"
 #include "Common.h"
 #include "DatabaseEnv.h"

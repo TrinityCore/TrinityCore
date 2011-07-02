@@ -36,7 +36,7 @@
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
 #include "MapManager.h"
-#include "Battleground.h"
+#include "BattlegroundMap.h"
 #include "BattlegroundAB.h"
 #include "Map.h"
 #include "InstanceScript.h"

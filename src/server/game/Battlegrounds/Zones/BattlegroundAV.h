@@ -1532,6 +1532,7 @@ class BattlegroundAVScore : public BattlegroundScore
 
         void AppendToPacket(WorldPacket* data)
         {
+            BattlegroundScore::AppendToPacket(data);
             *data << GetMemberCount<BattlegroundAVScore>();
             *data << GraveyardsAssaulted;
             *data << GraveyardsDefended;

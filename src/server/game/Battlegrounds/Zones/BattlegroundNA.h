@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDNA_H
 #define __BATTLEGROUNDNA_H
 
-class Battleground;
+#include "ArenaMap.h"
 
 enum BattlegroundNAObjectTypes
 {
@@ -41,14 +41,6 @@ enum BattlegroundNAObjects
     BG_NA_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundNAScore : public BattlegroundScore
-{
-    public:
-        BattlegroundNAScore() {};
-        virtual ~BattlegroundNAScore() {};
-        //TODO fix me
-};
-
 class ArenaMap;
 
 class BattlegroundNA : public ArenaMap
@@ -61,7 +53,7 @@ class BattlegroundNA : public ArenaMap
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 

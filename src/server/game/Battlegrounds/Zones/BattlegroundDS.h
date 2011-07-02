@@ -19,7 +19,7 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-class Battleground;
+#include "ArenaMap.h"
 
 enum BattlegroundDSObjectTypes
 {
@@ -49,14 +49,6 @@ enum BattlegroundDSData
     BG_DS_WATERFALL_DURATION                     = 10000,
 };
 
-class BattlegroundDSScore : public BattlegroundScore
-{
-    public:
-        BattlegroundDSScore() {};
-        virtual ~BattlegroundDSScore() {};
-        //TODO fix me
-};
-
 class BattlegroundDS : public ArenaMap
 {
     friend class BattlegroundMgr;
@@ -67,7 +59,7 @@ class BattlegroundDS : public ArenaMap
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void OnPlayerJoin(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 

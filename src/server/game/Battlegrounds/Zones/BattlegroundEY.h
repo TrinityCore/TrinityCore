@@ -329,6 +329,7 @@ class BattlegroundEYScore : public BattlegroundScore
 
         void AppendToPacket(WorldPacket* data)
         {
+            BattlegroundScore::AppendToPacket(data);
             *data << GetMemberCount<BattlegroundEYScore>();
             *data << FlagCaptures;
         }
@@ -355,9 +356,9 @@ class BattlegroundEY : public BattlegroundMap
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID() const    { return m_FlagKeeper; }
-        void SetFlagPicker(uint64 guid)     { m_FlagKeeper = guid; }
-        bool IsFlagPickedup() const         { return m_FlagKeeper != 0; }
+        uint64 GetFlagPickerGUID() const    { return _flagKeeper; }
+        void SetFlagPicker(uint64 guid)     { _flagKeeper = guid; }
+        bool IsFlagPickedup() const         { return _flagKeeper != 0; }
         uint8 GetFlagState() const          { return m_FlagState; }
         void RespawnFlag(bool send_message);
         void RespawnFlagAfterDrop();
@@ -396,18 +397,18 @@ class BattlegroundEY : public BattlegroundMap
         void UpdatePointStatuses();
 
         /* Scorekeeping */
-        uint32 GetTeamScore(uint32 Team) const { return m_TeamScores[GetTeamIndexByTeamId(Team)]; }
+        uint32 GetTeamScore(uint32 Team) const { return TeamScores[GetTeamIndexByTeamId(Team)]; }
         void AddPoints(uint32 Team, uint32 Points);
 
-        void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
-        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
+        void RemovePoint(uint32 TeamID, uint32 Points = 1) { TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
+        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
 
         uint32 m_HonorScoreTics[2];
         uint32 m_TeamPointsCount[2];
 
         uint32 m_Points_Trigger[EY_POINTS_MAX];
 
-        uint64 m_FlagKeeper;                                // keepers guid
+        uint64 _flagKeeper;                                // keepers guid
         uint64 m_DroppedFlagGUID;
         uint32 m_FlagCapturedBgObjectType;                  // type that should be despawned when flag is captured
         uint8 m_FlagState;                                  // for checking flag state
