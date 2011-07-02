@@ -666,11 +666,11 @@ public:
             Map::PlayerList const &players = instance->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                Player* pPlayer = itr->getSource();
-                if (pPlayer->isGameMaster())
+                Player* player = itr->getSource();
+                if (player->isGameMaster())
                     continue;
 
-                if (pPlayer->isAlive())
+                if (player->isAlive())
                     return false;
             }
 

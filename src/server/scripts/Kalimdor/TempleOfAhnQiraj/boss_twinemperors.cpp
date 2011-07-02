@@ -79,7 +79,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     virtual bool IAmVeklor() = 0;
     virtual void Reset() = 0;
-    virtual void CastSpellOnBug(Creature* pTarget) = 0;
+    virtual void CastSpellOnBug(Creature* target) = 0;
 
     void TwinReset()
     {
@@ -388,9 +388,9 @@ class boss_veknilash : public CreatureScript
 public:
     boss_veknilash() : CreatureScript("boss_veknilash") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_veknilashAI (pCreature);
+        return new boss_veknilashAI (creature);
     }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
@@ -418,12 +418,12 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void CastSpellOnBug(Creature* pTarget)
+        void CastSpellOnBug(Creature* target)
         {
-            pTarget->setFaction(14);
-            pTarget->AI()->AttackStart(me->getThreatManager().getHostilTarget());
-            pTarget->AddAura(SPELL_MUTATE_BUG, pTarget);
-            pTarget->SetFullHealth();
+            target->setFaction(14);
+            target->AI()->AttackStart(me->getThreatManager().getHostilTarget());
+            target->AddAura(SPELL_MUTATE_BUG, target);
+            target->SetFullHealth();
         }
 
         void UpdateAI(const uint32 diff)
@@ -474,9 +474,9 @@ class boss_veklor : public CreatureScript
 public:
     boss_veklor() : CreatureScript("boss_veklor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_veklorAI (pCreature);
+        return new boss_veklorAI (creature);
     }
 
     struct boss_veklorAI : public boss_twinemperorsAI
@@ -508,11 +508,11 @@ public:
             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
         }
 
-        void CastSpellOnBug(Creature* pTarget)
+        void CastSpellOnBug(Creature* target)
         {
-            pTarget->setFaction(14);
-            pTarget->AddAura(SPELL_EXPLODEBUG, pTarget);
-            pTarget->SetFullHealth();
+            target->setFaction(14);
+            target->AddAura(SPELL_EXPLODEBUG, target);
+            target->SetFullHealth();
         }
 
         void UpdateAI(const uint32 diff)
@@ -542,10 +542,10 @@ public:
             //Blizzard_Timer
             if (Blizzard_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
-                if (pTarget)
-                    DoCast(pTarget, SPELL_BLIZZARD);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
+                if (target)
+                    DoCast(target, SPELL_BLIZZARD);
                 Blizzard_Timer = 15000+rand()%15000;
             } else Blizzard_Timer -= diff;
 

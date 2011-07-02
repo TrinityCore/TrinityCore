@@ -135,8 +135,8 @@ class npc_zulaman_hostage : public CreatureScript
             void EnterCombat(Unit* /*who*/) {}
             void JustDied(Unit* /*who*/)
             {
-                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                if (pPlayer) pPlayer->SendLoot(me->GetGUID(), LOOT_CORPSE);
+                Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                if (player) player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             }
             void UpdateAI(const uint32 /*diff*/)
             {
@@ -150,36 +150,36 @@ class npc_zulaman_hostage : public CreatureScript
             return new npc_zulaman_hostageAI(creature);
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
             if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
 
-            if (!pCreature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 return true;
-            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
+            InstanceScript* pInstance = creature->GetInstanceScript();
             if (pInstance)
             {
                 //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);
                 pInstance->SetData(DATA_CHESTLOOTED, 0);
                 float x, y, z;
-                pCreature->GetPosition(x, y, z);
-                uint32 entry = pCreature->GetEntry();
+                creature->GetPosition(x, y, z);
+                uint32 entry = creature->GetEntry();
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     if (HostageEntry[i] == entry)
                     {
-                        pCreature->SummonGameObject(ChestEntry[i], x-2, y, z, 0, 0, 0, 0, 0, 0);
+                        creature->SummonGameObject(ChestEntry[i], x-2, y, z, 0, 0, 0, 0, 0, 0);
                         break;
                     }
                 }

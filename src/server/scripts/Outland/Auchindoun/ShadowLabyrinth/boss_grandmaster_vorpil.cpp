@@ -67,9 +67,9 @@ class mob_voidtraveler : public CreatureScript
 public:
     mob_voidtraveler() : CreatureScript("mob_voidtraveler") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_voidtravelerAI (pCreature);
+        return new mob_voidtravelerAI (creature);
     }
 
     struct mob_voidtravelerAI : public ScriptedAI
@@ -140,9 +140,9 @@ class boss_grandmaster_vorpil : public CreatureScript
 public:
     boss_grandmaster_vorpil() : CreatureScript("boss_grandmaster_vorpil") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_grandmaster_vorpilAI (pCreature);
+        return new boss_grandmaster_vorpilAI (creature);
     }
 
     struct boss_grandmaster_vorpilAI : public ScriptedAI
@@ -274,10 +274,10 @@ public:
 
             if (IsHeroic() && banish_Timer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
-                if (pTarget)
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
+                if (target)
                 {
-                    DoCast(pTarget, SPELL_BANISH);
+                    DoCast(target, SPELL_BANISH);
                     banish_Timer = 16000;
                 }
             } else banish_Timer -= diff;

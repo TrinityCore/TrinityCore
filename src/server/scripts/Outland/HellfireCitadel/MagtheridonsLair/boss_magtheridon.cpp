@@ -109,7 +109,7 @@ class mob_abyssal : public CreatureScript
 
         struct mob_abyssalAI : public ScriptedAI
         {
-            mob_abyssalAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_abyssalAI(Creature* creature) : ScriptedAI(creature)
             {
                 trigger = 0;
                 Despawn_Timer = 60000;
@@ -215,9 +215,9 @@ class boss_magtheridon : public CreatureScript
 
         struct boss_magtheridonAI : public ScriptedAI
         {
-            boss_magtheridonAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_magtheridonAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -426,10 +426,10 @@ class boss_magtheridon : public CreatureScript
 
                 if (Blaze_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         float x, y, z;
-                        pTarget->GetPosition(x, y, z);
+                        target->GetPosition(x, y, z);
                         Creature* summon = me->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (summon)
                         {
@@ -460,10 +460,10 @@ class boss_magtheridon : public CreatureScript
                 {
                     if (Debris_Timer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             float x, y, z;
-                            pTarget->GetPosition(x, y, z);
+                            target->GetPosition(x, y, z);
                             Creature* summon = me->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                             if (summon)
                                 CAST_AI(mob_abyssal::mob_abyssalAI, summon->AI())->SetTrigger(1);
@@ -495,9 +495,9 @@ class mob_hellfire_channeler : public CreatureScript
 
         struct mob_hellfire_channelerAI : public ScriptedAI
         {
-            mob_hellfire_channelerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_hellfire_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -577,8 +577,8 @@ class mob_hellfire_channeler : public CreatureScript
 
                 if (Fear_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(pTarget, SPELL_FEAR);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        DoCast(target, SPELL_FEAR);
                     Fear_Timer = 25000 + rand()%15000;
                 }
                 else
@@ -586,8 +586,8 @@ class mob_hellfire_channeler : public CreatureScript
 
                 if (Infernal_Timer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_BURNING_ABYSSAL, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_BURNING_ABYSSAL, true);
                     Infernal_Timer = 30000 + rand()%10000;
                 }
                 else
@@ -611,7 +611,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         InstanceScript* pInstance = pGO->GetInstanceScript();
 
@@ -625,13 +625,13 @@ public:
             return true;
 
         // if exhausted or already channeling return
-        if (pPlayer->HasAura(SPELL_MIND_EXHAUSTION) || pPlayer->HasAura(SPELL_SHADOW_GRASP))
+        if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
             return true;
 
-        pPlayer->InterruptNonMeleeSpells(false);
-        pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP, true);
-        pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP_VISUAL, false);
-        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(pGO->GetGUID(), pPlayer->GetGUID());
+        player->InterruptNonMeleeSpells(false);
+        player->CastSpell(player, SPELL_SHADOW_GRASP, true);
+        player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
+        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(pGO->GetGUID(), player->GetGUID());
         return true;
     }
 };

@@ -101,9 +101,9 @@ class boss_ymiron : public CreatureScript
 public:
     boss_ymiron() : CreatureScript("boss_ymiron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ymironAI(pCreature);
+        return new boss_ymironAI(creature);
     }
 
     struct boss_ymironAI : public ScriptedAI
@@ -318,10 +318,10 @@ public:
                         //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
                         if (Creature* pTemp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                pTemp->AddThreat(pTarget, 0.0f);
-                                pTemp->AI()->AttackStart(pTarget);
+                                pTemp->AddThreat(target, 0.0f);
+                                pTemp->AI()->AttackStart(target);
                             }
                         }
                     }

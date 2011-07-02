@@ -76,7 +76,7 @@ class boss_majordomo : public CreatureScript
 
         struct boss_majordomoAI : public BossAI
         {
-            boss_majordomoAI(Creature* pCreature) : BossAI(pCreature, BOSS_MAJORDOMO_EXECUTUS)
+            boss_majordomoAI(Creature* creature) : BossAI(creature, BOSS_MAJORDOMO_EXECUTUS)
             {
             }
 

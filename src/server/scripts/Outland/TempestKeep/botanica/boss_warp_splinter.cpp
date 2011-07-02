@@ -73,7 +73,7 @@ class mob_warp_splinter_treant : public CreatureScript
         }
         struct mob_warp_splinter_treantAI  : public ScriptedAI
         {
-            mob_warp_splinter_treantAI (Creature* pCreature) : ScriptedAI(pCreature)
+            mob_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
             {
                 WarpGuid = 0;
             }
@@ -137,10 +137,10 @@ class boss_warp_splinter : public CreatureScript
         }
         struct boss_warp_splinterAI : public ScriptedAI
         {
-            boss_warp_splinterAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_warp_splinterAI(Creature* creature) : ScriptedAI(creature)
             {
-                Treant_Spawn_Pos_X = pCreature->GetPositionX();
-                Treant_Spawn_Pos_Y = pCreature->GetPositionY();
+                Treant_Spawn_Pos_X = creature->GetPositionX();
+                Treant_Spawn_Pos_Y = creature->GetPositionY();
             }
 
             uint32 War_Stomp_Timer;

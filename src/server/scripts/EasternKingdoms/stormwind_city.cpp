@@ -48,27 +48,27 @@ class npc_archmage_malin : public CreatureScript
 public:
     npc_archmage_malin() : CreatureScript("npc_archmage_malin") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, 42711, true);
+            player->CLOSE_GOSSIP_MENU();
+            creature->CastSpell(player, 42711, true);
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(11223) == QUEST_STATUS_COMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MALIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(11223) == QUEST_STATUS_COMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MALIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -90,19 +90,19 @@ class npc_bartleby : public CreatureScript
 public:
     npc_bartleby() : CreatureScript("npc_bartleby") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_BEAT)
         {
-            pCreature->setFaction(FACTION_ENEMY);
-            pCreature->AI()->AttackStart(pPlayer);
+            creature->setFaction(FACTION_ENEMY);
+            creature->AI()->AttackStart(player);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_bartlebyAI(pCreature);
+        return new npc_bartlebyAI(creature);
     }
 
     struct npc_bartlebyAI : public ScriptedAI
@@ -162,19 +162,19 @@ class npc_dashel_stonefist : public CreatureScript
 public:
     npc_dashel_stonefist() : CreatureScript("npc_dashel_stonefist") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
         {
-            pCreature->setFaction(FACTION_HOSTILE);
-            CAST_AI(npc_dashel_stonefist::npc_dashel_stonefistAI, pCreature->AI())->AttackStart(pPlayer);
+            creature->setFaction(FACTION_HOSTILE);
+            CAST_AI(npc_dashel_stonefist::npc_dashel_stonefistAI, creature->AI())->AttackStart(player);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dashel_stonefistAI(pCreature);
+        return new npc_dashel_stonefistAI(creature);
     }
 
     struct npc_dashel_stonefistAI : public ScriptedAI
@@ -233,40 +233,40 @@ class npc_lady_katrana_prestor : public CreatureScript
 public:
     npc_lady_katrana_prestor() : CreatureScript("npc_lady_katrana_prestor") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                pPlayer->SEND_GOSSIP_MENU(2694, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(2694, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                pPlayer->SEND_GOSSIP_MENU(2695, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(2695, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                pPlayer->SEND_GOSSIP_MENU(2696, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                player->SEND_GOSSIP_MENU(2696, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->AreaExploredOrEventHappens(4185);
+                player->CLOSE_GOSSIP_MENU();
+                player->AreaExploredOrEventHappens(4185);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(4185) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(4185) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(2693, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(2693, creature->GetGUID());
 
         return true;
     }
@@ -299,16 +299,16 @@ class npc_lord_gregor_lescovar : public CreatureScript
 public:
     npc_lord_gregor_lescovar() : CreatureScript("npc_lord_gregor_lescovar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lord_gregor_lescovarAI(pCreature);
+        return new npc_lord_gregor_lescovarAI(creature);
     }
 
     struct npc_lord_gregor_lescovarAI : public npc_escortAI
     {
-        npc_lord_gregor_lescovarAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_lord_gregor_lescovarAI(Creature* creature) : npc_escortAI(creature)
         {
-            pCreature->RestoreFaction();
+            creature->RestoreFaction();
         }
 
         uint32 uiTimer;
@@ -335,12 +335,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->isAlive() && !pMarzon->isInCombat())
-                    pMarzon->AI()->AttackStart(pWho);
+                    pMarzon->AI()->AttackStart(who);
             }
         }
 
@@ -418,8 +418,8 @@ public:
                             break;
                         case 6:
                             DoScriptText(SAY_LESCOVAR_4, me);
-                            if (Player* pPlayer = GetPlayerForEscort())
-                                pPlayer->AreaExploredOrEventHappens(QUEST_THE_ATTACK);
+                            if (Player* player = GetPlayerForEscort())
+                                player->AreaExploredOrEventHappens(QUEST_THE_ATTACK);
                             uiTimer = 2000;
                             uiPhase = 7;
                             break;
@@ -455,14 +455,14 @@ class npc_marzon_silent_blade : public CreatureScript
 public:
     npc_marzon_silent_blade() : CreatureScript("npc_marzon_silent_blade") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_marzon_silent_bladeAI(pCreature);
+        return new npc_marzon_silent_bladeAI(creature);
     }
 
     struct npc_marzon_silent_bladeAI : public ScriptedAI
     {
-        npc_marzon_silent_bladeAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_marzon_silent_bladeAI(Creature* creature) : ScriptedAI(creature)
         {
             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
@@ -472,16 +472,16 @@ public:
             me->RestoreFaction();
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             DoScriptText(SAY_MARZON_2, me);
 
             if (me->isSummon())
             {
-                if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->isAlive() && !pSummoner->isInCombat())
-                        pSummoner->ToCreature()->AI()->AttackStart(pWho);
+                    if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive() && !summoner->isInCombat())
+                        summoner->ToCreature()->AI()->AttackStart(who);
                 }
             }
         }
@@ -492,10 +492,10 @@ public:
 
             if (me->isSummon())
             {
-                if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->isAlive())
-                        pSummoner->ToCreature()->DisappearAndDie();
+                    if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive())
+                        summoner->ToCreature()->DisappearAndDie();
                 }
             }
         }
@@ -507,17 +507,17 @@ public:
 
             if (me->isSummon())
             {
-                Unit* pSummoner = me->ToTempSummon()->GetSummoner();
-                if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->IsAIEnabled)
+                Unit* summoner = me->ToTempSummon()->GetSummoner();
+                if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled)
                 {
                     npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI *ai =
-                        CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pSummoner->GetAI());
+                        CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
                     if (ai)
                     {
                         ai->uiTimer = 2000;
                         ai->uiPhase = 5;
                     }
-                    //me->ChangeOrient(0.0f, pSummoner);
+                    //me->ChangeOrient(0.0f, summoner);
                 }
             }
         }
@@ -557,14 +557,14 @@ class npc_tyrion_spybot : public CreatureScript
 public:
     npc_tyrion_spybot() : CreatureScript("npc_tyrion_spybot") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_tyrion_spybotAI(pCreature);
+        return new npc_tyrion_spybotAI(creature);
     }
 
     struct npc_tyrion_spybotAI : public npc_escortAI
     {
-        npc_tyrion_spybotAI(Creature* pCreature) : npc_escortAI(pCreature) {}
+        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) {}
 
         uint32 uiTimer;
         uint32 uiPhase;
@@ -658,9 +658,9 @@ public:
                         case 10:
                             if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR, 10.0f))
                             {
-                                if (Player* pPlayer = GetPlayerForEscort())
+                                if (Player* player = GetPlayerForEscort())
                                 {
-                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, pPlayer->GetGUID());
+                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, player->GetGUID());
                                     CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
                                 }
                             }
@@ -696,13 +696,13 @@ class npc_tyrion : public CreatureScript
 public:
     npc_tyrion() : CreatureScript("npc_tyrion") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_THE_ATTACK)
         {
-            if (Creature* pSpybot = pCreature->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
+            if (Creature* pSpybot = creature->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
             {
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, pPlayer->GetGUID());
+                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, player->GetGUID());
                 CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->SetMaxPlayerDistance(200.0f);
             }
             return true;

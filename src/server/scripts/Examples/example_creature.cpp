@@ -121,18 +121,18 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             // Enter Combat called once per combat
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* who)
             {
                 //Say some stuff
-                DoScriptText(SAY_AGGRO, me, pWho);
+                DoScriptText(SAY_AGGRO, me, who);
             }
 
             // *** HANDLED FUNCTION ***
             // Attack Start is called when victim change (including at start of combat)
-            // By default, attack pWho and start movement toward the victim.
-            //void AttackStart(Unit* pWho)
+            // By default, attack who and start movement toward the victim.
+            //void AttackStart(Unit* who)
             //{
-            //    ScriptedAI::AttackStart(pWho);
+            //    ScriptedAI::AttackStart(who);
             //}
 
             // *** HANDLED FUNCTION ***
@@ -144,7 +144,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             //Our Receive emote function
-            void ReceiveEmote(Player* /*pPlayer*/, uint32 uiTextEmote)
+            void ReceiveEmote(Player* /*player*/, uint32 uiTextEmote)
             {
                 me->HandleEmoteCommand(uiTextEmote);
 
@@ -258,28 +258,28 @@ class example_creature : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new example_creatureAI(pCreature);
+            return new example_creatureAI(creature);
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
 
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
             if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
             {
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 //Set our faction to hostile towards all
-                pCreature->setFaction(FACTION_WORGEN);
-                pCreature->AI()->AttackStart(pPlayer);
+                creature->setFaction(FACTION_WORGEN);
+                creature->AI()->AttackStart(player);
             }
 
             return true;

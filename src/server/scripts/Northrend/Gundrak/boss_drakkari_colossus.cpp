@@ -387,9 +387,9 @@ class npc_living_mojo : public CreatureScript
 public:
     npc_living_mojo() : CreatureScript("npc_living_mojo") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_living_mojoAI (pCreature);
+        return new npc_living_mojoAI (creature);
     }
 
     struct npc_living_mojoAI : public ScriptedAI

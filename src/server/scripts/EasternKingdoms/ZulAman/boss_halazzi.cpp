@@ -262,12 +262,12 @@ class boss_halazzi : public CreatureScript
 
                     if (ShockTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            if (pTarget->IsNonMeleeSpellCasted(false))
-                                DoCast(pTarget, SPELL_EARTHSHOCK);
+                            if (target->IsNonMeleeSpellCasted(false))
+                                DoCast(target, SPELL_EARTHSHOCK);
                             else
-                                DoCast(pTarget, SPELL_FLAMESHOCK);
+                                DoCast(target, SPELL_FLAMESHOCK);
                             ShockTimer = 10000 + rand()%5000;
                         }
                     } else ShockTimer -= diff;

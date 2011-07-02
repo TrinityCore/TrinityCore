@@ -36,9 +36,9 @@ class boss_lorekeeper_polkelt : public CreatureScript
 public:
     boss_lorekeeper_polkelt() : CreatureScript("boss_lorekeeper_polkelt") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_lorekeeperpolkeltAI (pCreature);
+        return new boss_lorekeeperpolkeltAI (creature);
     }
 
     struct boss_lorekeeperpolkeltAI : public ScriptedAI

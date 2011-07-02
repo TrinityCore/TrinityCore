@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: mob_anubisath_sentinel
 SD%Complete: 95
-SDComment: Shadow storm is not properly implemented in core it should only pTarget ppl outside of melee range.
+SDComment: Shadow storm is not properly implemented in core it should only target ppl outside of melee range.
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
@@ -60,9 +60,9 @@ class mob_anubisath_sentinel : public CreatureScript
 public:
     mob_anubisath_sentinel() : CreatureScript("mob_anubisath_sentinel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new aqsentinelAI (pCreature);
+        return new aqsentinelAI (creature);
     }
 
     struct aqsentinelAI : public ScriptedAI

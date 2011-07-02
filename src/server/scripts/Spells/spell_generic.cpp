@@ -476,10 +476,10 @@ class spell_gen_trick_or_treat : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Player* pTarget = GetHitPlayer())
+                if (Player* target = GetHitPlayer())
                 {
-                    GetCaster()->CastSpell(pTarget, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
-                    GetCaster()->CastSpell(pTarget, SPELL_TRICKED_OR_TREATED, true, NULL);
+                    GetCaster()->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
+                    GetCaster()->CastSpell(target, SPELL_TRICKED_OR_TREATED, true, NULL);
                 }
             }
 
