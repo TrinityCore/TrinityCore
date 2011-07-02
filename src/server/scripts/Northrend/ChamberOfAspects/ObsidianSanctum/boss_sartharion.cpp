@@ -362,7 +362,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_SARTHARION_DEATH, me);
 
@@ -901,7 +901,7 @@ struct dummy_dragonAI : public ScriptedAI
         //Refresh respawnTime so time again are set to 30secs?
     }
 
-    void JustDied(Unit* /*pKiller*/)
+    void JustDied(Unit* /*killer*/)
     {
         if (!m_bCanLoot)
             me->SetLootRecipient(NULL);
@@ -1415,7 +1415,7 @@ public:
             DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
 

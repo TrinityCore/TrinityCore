@@ -196,7 +196,7 @@ class boss_archaedas : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied (Unit* /*pKiller*/)
+            void JustDied (Unit* /*killer*/)
             {
                 if (pInstance)
                 {

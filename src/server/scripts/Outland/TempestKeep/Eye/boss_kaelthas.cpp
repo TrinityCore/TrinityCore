@@ -208,7 +208,7 @@ struct advisorbase_ai : public ScriptedAI
         DelayRes_Timer = 2000;
     }
 
-    void DamageTaken(Unit* pKiller, uint32 &damage)
+    void DamageTaken(Unit* killer, uint32 &damage)
     {
         if (damage < me->GetHealth())
             return;
@@ -240,7 +240,7 @@ struct advisorbase_ai : public ScriptedAI
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveIdle();
             me->SetStandState(UNIT_STAND_STATE_DEAD);
-            JustDied(pKiller);
+            JustDied(killer);
         }
     }
 
@@ -1043,7 +1043,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 me->AddThreat(who, 5000000.0f);
             }
 
-            void JustDied(Unit* /*pKiller*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_THALADRED_DEATH, me);
@@ -1200,7 +1200,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void JustDied(Unit* /*pKiller*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_CAPERNIAN_DEATH, me);
@@ -1339,7 +1339,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void JustDied(Unit* /*pKiller*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_TELONICUS_DEATH, me);

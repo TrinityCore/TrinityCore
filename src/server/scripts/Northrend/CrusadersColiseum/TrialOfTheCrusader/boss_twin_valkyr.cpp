@@ -277,7 +277,7 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*pKiller*/)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)

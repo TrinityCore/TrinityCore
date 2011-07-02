@@ -1765,9 +1765,9 @@ public:
             */
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            boss_faction_championsAI::JustDied(pKiller);
+            boss_faction_championsAI::JustDied(killer);
             Summons.DespawnAll();
         }
 

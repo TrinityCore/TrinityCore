@@ -412,7 +412,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
@@ -530,7 +530,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);

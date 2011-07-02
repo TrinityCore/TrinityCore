@@ -577,7 +577,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (!me->isSummon())
                 return;

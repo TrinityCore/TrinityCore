@@ -115,7 +115,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 

@@ -675,15 +675,15 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (pKiller->ToPlayer() && pKiller->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
+            if (killer->ToPlayer() && killer->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
             {
                 if (me->FindNearestCreature(NPC_WAR_GOLEM, 10.0f, true))
                 {
-                    if (pKiller->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_A) == QUEST_STATUS_INCOMPLETE ||
-                        pKiller->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_H) == QUEST_STATUS_INCOMPLETE)
-                        pKiller->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, 0);
+                    if (killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_A) == QUEST_STATUS_INCOMPLETE ||
+                        killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_H) == QUEST_STATUS_INCOMPLETE)
+                        killer->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, 0);
                 }
             }
         }

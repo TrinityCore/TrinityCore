@@ -878,7 +878,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInst)
                 pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);

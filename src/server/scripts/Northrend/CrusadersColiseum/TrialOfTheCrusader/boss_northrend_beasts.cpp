@@ -149,7 +149,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
@@ -291,7 +291,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (target->isAlive())
@@ -375,7 +375,7 @@ struct boss_jormungarAI : public ScriptedAI
         sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
     }
 
-    void JustDied(Unit* /*pKiller*/)
+    void JustDied(Unit* /*killer*/)
     {
         if (instanceScript)
         {
@@ -716,7 +716,7 @@ public:
             m_uiStage = 0;
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);

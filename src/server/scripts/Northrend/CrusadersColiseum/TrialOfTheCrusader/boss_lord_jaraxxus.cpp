@@ -150,7 +150,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
@@ -330,7 +330,7 @@ public:
             pSummoned->SetCorpseDelay(0);
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon();
         }
@@ -512,7 +512,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);
