@@ -507,7 +507,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
+        void DamageTaken(Unit* /*killer*/, uint32 &damage)
         {
             if (damage < me->GetHealth())
                 return;

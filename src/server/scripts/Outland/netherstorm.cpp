@@ -1003,7 +1003,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             Player* player = GetPlayerForEscort();
             if (player)

@@ -58,7 +58,7 @@ public:
             m_uiFrenzy_Timer = 1000;
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             InstanceScript* pInstance = me->GetInstanceScript();
             if (pInstance)

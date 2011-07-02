@@ -402,7 +402,7 @@ public:
         {
             m_uiChatTimer = 4000;
         }
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             Player* player = GetPlayerForEscort();
             if (HasEscortState(STATE_ESCORT_ESCORTING))

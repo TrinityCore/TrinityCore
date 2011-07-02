@@ -117,7 +117,7 @@ class boss_arlokk : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* /*pKiller*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 

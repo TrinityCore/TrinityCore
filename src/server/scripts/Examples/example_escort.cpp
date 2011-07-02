@@ -115,14 +115,14 @@ class example_escort : public CreatureScript
                 m_uiChatTimer = 4000;
             }
 
-            void JustDied(Unit* pKiller)
+            void JustDied(Unit* killer)
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
                     if (Player* player = GetPlayerForEscort())
                     {
                         // not a likely case, code here for the sake of example
-                        if (pKiller == me)
+                        if (killer == me)
                         {
                             DoScriptText(SAY_DEATH_1, me, player);
                         }

@@ -395,13 +395,13 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (pInstance)
             {
                 Creature* pSvala = Unit::GetCreature((*me), pInstance->GetData64(DATA_SVALA));
                 if (pSvala && pSvala->isAlive())
-                    pKiller->Kill(pSvala);
+                    killer->Kill(pSvala);
 
                 pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, DONE);
             }

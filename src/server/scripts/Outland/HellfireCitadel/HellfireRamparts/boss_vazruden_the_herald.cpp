@@ -384,11 +384,11 @@ class boss_vazruden_the_herald : public CreatureScript
                         pSummoned->AI()->AttackStart(victim);
             }
 
-            void SentryDownBy(Unit* pKiller)
+            void SentryDownBy(Unit* killer)
             {
                 if (sentryDown)
                 {
-                    AttackStartNoMove(pKiller);
+                    AttackStartNoMove(killer);
                     sentryDown = false;
                 }
                 else

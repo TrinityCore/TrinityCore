@@ -404,7 +404,7 @@ public:
             me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
         }
 
-        void SummonedCreatureDies(Creature* pSummoned, Unit* /*pKiller*/)
+        void SummonedCreatureDies(Creature* pSummoned, Unit* /*killer*/)
         {
             uint32 uiEntry = 0;
 

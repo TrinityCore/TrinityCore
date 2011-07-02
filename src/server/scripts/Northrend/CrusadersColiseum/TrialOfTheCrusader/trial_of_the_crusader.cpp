@@ -364,9 +364,9 @@ class npc_fizzlebang_toc : public CreatureScript
             uint64 m_uiPortalGUID;
             uint64 m_uiTriggerGUID;
 
-            void JustDied(Unit* pKiller)
+            void JustDied(Unit* killer)
             {
-                DoScriptText(SAY_STAGE_1_06, me, pKiller);
+                DoScriptText(SAY_STAGE_1_06, me, killer);
                 m_pInstance->SetData(TYPE_EVENT, 1180);
                 if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_JARAXXUS)))
                 {
