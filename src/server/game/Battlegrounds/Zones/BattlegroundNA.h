@@ -50,7 +50,6 @@ class BattlegroundNA : public ArenaMap
     public:
         BattlegroundNA();
         ~BattlegroundNA();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void StartingEventCloseDoors();

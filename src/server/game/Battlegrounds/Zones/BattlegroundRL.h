@@ -46,7 +46,6 @@ class BattlegroundRL : public ArenaMap
     public:
         BattlegroundRL();
         ~BattlegroundRL();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void OnPlayerJoin(Player *plr);
