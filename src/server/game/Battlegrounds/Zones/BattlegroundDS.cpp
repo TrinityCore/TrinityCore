@@ -39,14 +39,14 @@ void BattlegroundDS::InitializeObjects()
     ObjectGUIDsByType.resize(BG_DS_OBJECT_MAX);
 
     // gates
-    AddObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95f, 817.2f, 20.8096f, 3.15f, 0, 0, 0.99627f, 0.0862864f, RESPAWN_IMMEDIATELY);
-    AddObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65f, 764.913f, 20.0729f, 6.3f, 0, 0, 0.0310211f, -0.999519f, RESPAWN_IMMEDIATELY);
+    AddGameObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95f, 817.2f, 20.8096f, 3.15f, 0, 0, 0.99627f, 0.0862864f, RESPAWN_IMMEDIATELY);
+    AddGameObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65f, 764.913f, 20.0729f, 6.3f, 0, 0, 0.0310211f, -0.999519f, RESPAWN_IMMEDIATELY);
     // water
-    AddObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, BUFF_RESPAWN_TIME);
-    AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, BUFF_RESPAWN_TIME);
+    AddGameObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, BUFF_RESPAWN_TIME);
+    AddGameObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, BUFF_RESPAWN_TIME);
     // buffs
-    AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, BUFF_RESPAWN_TIME);
-    AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, BUFF_RESPAWN_TIME);
+    AddGameObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, BUFF_RESPAWN_TIME);
+    AddGameObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, BUFF_RESPAWN_TIME);
 }
 
 void BattlegroundDS::Update(uint32 const& diff)
@@ -59,14 +59,14 @@ void BattlegroundDS::Update(uint32 const& diff)
         {
             setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
             for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnObject(i, getWaterFallTimer());
+                SpawnGameObject(i, getWaterFallTimer());
             setWaterFallActive(false);
         }
         else
         {
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
             for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnObject(i, RESPAWN_IMMEDIATELY);
+                SpawnGameObject(i, RESPAWN_IMMEDIATELY);
             setWaterFallActive(true);
         }
     }
@@ -77,7 +77,7 @@ void BattlegroundDS::Update(uint32 const& diff)
 void BattlegroundDS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
-        SpawnObject(i, RESPAWN_IMMEDIATELY);
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
 }
 
 void BattlegroundDS::StartingEventOpenDoors()
@@ -86,13 +86,13 @@ void BattlegroundDS::StartingEventOpenDoors()
         DoorOpen(i);
 
     for (uint32 i = BG_DS_OBJECT_BUFF_1; i <= BG_DS_OBJECT_BUFF_2; ++i)
-        SpawnObject(i, 60);
+        SpawnGameObject(i, 60);
 
     setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
     setWaterFallActive(false);
 
     for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-        SpawnObject(i, getWaterFallTimer());
+        SpawnGameObject(i, getWaterFallTimer());
 }
 
 void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)

@@ -162,11 +162,11 @@ class BattlegroundMap : public Map
         void UpdateWorldState(uint32 type, uint32 value);
 
         // Entity management - GameObject
-        GameObject* AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
-        GameObject* AddObject(uint32 type, uint32 entry, Position* pos, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
+        GameObject* AddGameObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
+        GameObject* AddGameObject(uint32 type, uint32 entry, Position* pos, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
         GameObject* GetGameObject(uint32 type);
-        void SpawnObject(uint32 type, uint32 respawntime);  // Spawns an already added gameobject
-        bool DeleteObject(uint32 type); // Deletes an object with specified type designation 
+        void SpawnGameObject(uint32 type, uint32 respawntime);  // Spawns an already added gameobject
+        bool DeleteGameObject(uint32 type); // Deletes an object with specified type designation 
 
         // Entity management - Creature
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0); // Adds and spawns creatures to map

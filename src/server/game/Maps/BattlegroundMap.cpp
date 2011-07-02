@@ -284,14 +284,14 @@ bool BattlegroundMap::AreTeamsInBalance() const
              _participantCount[BG_TEAM_ALLIANCE] < _template.MinPlayersPerTeam);
 }
 
-GameObject* BattlegroundMap::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime /*= 0*/)
+GameObject* BattlegroundMap::AddGameObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime /*= 0*/)
 {
     Position pos;
     pos.Relocate(x, y, z, o);
-    return AddObject(type, entry, &pos, r0, r1, r2, r3, respawnTime);
+    return AddGameObject(type, entry, &pos, r0, r1, r2, r3, respawnTime);
 }
 
-GameObject* BattlegroundMap::AddObject(uint32 type, uint32 entry, Position* pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime /*= 0*/)
+GameObject* BattlegroundMap::AddGameObject(uint32 type, uint32 entry, Position* pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime /*= 0*/)
 {
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
@@ -332,7 +332,7 @@ GameObject* BattlegroundMap::GetGameObject(uint32 type)
     return Map::GetGameObject(guid);
 }
 
-void BattlegroundMap::SpawnObject(uint32 type, uint32 respawntime)
+void BattlegroundMap::SpawnGameObject(uint32 type, uint32 respawntime)
 {
     GameObject* object = GetGameObject(type);
     // If it's present in ObjectGUIDsByType it MUST also be in world
@@ -349,7 +349,7 @@ void BattlegroundMap::SpawnObject(uint32 type, uint32 respawntime)
     object->SetRespawnTime(respawntime);
 }
 
-bool BattlegroundMap::DeleteObject(uint32 type)
+bool BattlegroundMap::DeleteGameObject(uint32 type)
 {
     ASSERT(type < ObjectGUIDsByType.size());
 
