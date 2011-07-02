@@ -461,8 +461,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // Flags
     SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // Flags
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
+    SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
 
-    SMART_ACTION_END                                = 97,
+    SMART_ACTION_END                                = 98,
 };
 
 struct SmartAction
@@ -844,6 +845,13 @@ struct SmartAction
         {
             uint32 anim;
         } sendGoCustomAnim;
+
+        struct
+        {
+            uint32 speedxy;
+            uint32 speedz;
+        } jump;
+
         struct
         {
             uint32 param1;

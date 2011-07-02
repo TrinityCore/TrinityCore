@@ -5633,12 +5633,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 70701;
                     break;
                 }
+                // Essence of the Blood Queen
                 case 70871:
                 {
-                    target = this;
-                    triggered_spell_id = 70872;
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                    break;
+                    CastCustomSpell(70872, SPELLVALUE_BASE_POINT0, basepoints0, this);
+                    return true;
                 }
                 case 65032: // Boom aura (321 Boombot)
                 {
@@ -17144,8 +17144,10 @@ bool Unit::SetPosition(float x, float y, float z, float orientation, bool telepo
 
 void Unit::SendThreatListUpdate()
 {
-    if (uint32 count = getThreatManager().getThreatList().size())
+    if (!getThreatManager().isThreatListEmpty())
     {
+        uint32 count = getThreatManager().getThreatList().size();
+
         //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data.append(GetPackGUID());
@@ -17162,8 +17164,10 @@ void Unit::SendThreatListUpdate()
 
 void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
-    if (uint32 count = getThreatManager().getThreatList().size())
+    if (!getThreatManager().isThreatListEmpty())
     {
+        uint32 count = getThreatManager().getThreatList().size();
+
         sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
         data.append(GetPackGUID());
