@@ -377,9 +377,9 @@ public:
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        Player* pPlayer = itr->getSource();
-                        if (pPlayer)
-                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
+                        Player* player = itr->getSource();
+                        if (player)
+                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
                     }
                 }
             }
@@ -543,7 +543,7 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
         uint8 SpectralPlayers = 0;
         Map* pMap = pGo->GetMap();
@@ -557,10 +557,10 @@ public:
                 ++SpectralPlayers;
         }
         uint8 MaxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
-        if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MaxSpectralPlayers && SpectralPlayers >= MaxSpectralPlayers))
-            pPlayer->GetSession()->SendNotification(GO_FAILED);
+        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MaxSpectralPlayers && SpectralPlayers >= MaxSpectralPlayers))
+            player->GetSession()->SendNotification(GO_FAILED);
         else
-            pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_SPECTRAL, true);
+            player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
         return true;
     }
 

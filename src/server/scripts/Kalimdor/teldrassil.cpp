@@ -48,12 +48,12 @@ class npc_mist : public CreatureScript
 public:
     npc_mist() : CreatureScript("npc_mist") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MIST)
         {
             if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
-                pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
+                pMistAI->StartFollow(player, FACTION_DARNASSUS, pQuest);
         }
 
         return true;
@@ -88,10 +88,10 @@ public:
         {
             DoScriptText(EMOTE_AT_HOME, me);
 
-            if (Player* pPlayer = GetLeaderForFollower())
+            if (Player* player = GetLeaderForFollower())
             {
-                if (pPlayer->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
-                    pPlayer->GroupEventHappens(QUEST_MIST, me);
+                if (player->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
+                    player->GroupEventHappens(QUEST_MIST, me);
             }
 
             //The follow is over (and for later development, run off to the woods before really end)

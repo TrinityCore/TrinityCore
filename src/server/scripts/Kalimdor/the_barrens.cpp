@@ -51,23 +51,23 @@ class npc_beaten_corpse : public CreatureScript
 public:
     npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
         {
-            pPlayer->SEND_GOSSIP_MENU(3558, creature->GetGUID());
-            pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+            player->SEND_GOSSIP_MENU(3558, creature->GetGUID());
+            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(3557, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(3557, creature->GetGUID());
         return true;
     }
 
@@ -101,17 +101,17 @@ class npc_gilthares : public CreatureScript
 public:
     npc_gilthares() : CreatureScript("npc_gilthares") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_FREE_FROM_HOLD)
         {
             creature->setFaction(FACTION_ESCORTEE);
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            DoScriptText(SAY_GIL_START, creature, pPlayer);
+            DoScriptText(SAY_GIL_START, creature, player);
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
-                pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
         }
         return true;
     }
@@ -129,31 +129,31 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(uiPointId)
             {
                 case 16:
-                    DoScriptText(SAY_GIL_AT_LAST, me, pPlayer);
+                    DoScriptText(SAY_GIL_AT_LAST, me, player);
                     break;
                 case 17:
-                    DoScriptText(SAY_GIL_PROCEED, me, pPlayer);
+                    DoScriptText(SAY_GIL_PROCEED, me, player);
                     break;
                 case 18:
-                    DoScriptText(SAY_GIL_FREEBOOTERS, me, pPlayer);
+                    DoScriptText(SAY_GIL_FREEBOOTERS, me, player);
                     break;
                 case 37:
-                    DoScriptText(SAY_GIL_ALMOST, me, pPlayer);
+                    DoScriptText(SAY_GIL_ALMOST, me, player);
                     break;
                 case 47:
-                    DoScriptText(SAY_GIL_SWEET, me, pPlayer);
+                    DoScriptText(SAY_GIL_SWEET, me, player);
                     break;
                 case 53:
-                    DoScriptText(SAY_GIL_FREED, me, pPlayer);
-                    pPlayer->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
+                    DoScriptText(SAY_GIL_FREED, me, player);
+                    player->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
                     break;
             }
         }
@@ -186,26 +186,26 @@ class npc_sputtervalve : public CreatureScript
 public:
     npc_sputtervalve() : CreatureScript("npc_sputtervalve") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            pPlayer->SEND_GOSSIP_MENU(2013, creature->GetGUID());
-            pPlayer->AreaExploredOrEventHappens(6981);
+            player->SEND_GOSSIP_MENU(2013, creature->GetGUID());
+            player->AreaExploredOrEventHappens(6981);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -295,7 +295,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void ReceiveEmote(Player* /*pPlayer*/, uint32 emote)
+        void ReceiveEmote(Player* /*player*/, uint32 emote)
         {
             if (emote == TEXT_EMOTE_SALUTE)
             {
@@ -592,9 +592,9 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(uiPointId)
@@ -620,18 +620,18 @@ public:
 
         void WaypointStart(uint32 uiPointId)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(uiPointId)
             {
                 case 9:
-                    DoScriptText(SAY_STARTUP2, me, pPlayer);
+                    DoScriptText(SAY_STARTUP2, me, player);
                     break;
                 case 18:
-                    DoScriptText(SAY_PROGRESS_1, me, pPlayer);
+                    DoScriptText(SAY_PROGRESS_1, me, player);
                     SetRun();
                     break;
             }
@@ -666,9 +666,9 @@ public:
                                 DoScriptText(SAY_END, me);
                                 break;
                             case 3:
-                                if (Player* pPlayer = GetPlayerForEscort())
+                                if (Player* player = GetPlayerForEscort())
                                 {
-                                    pPlayer->GroupEventHappens(QUEST_ESCAPE, me);
+                                    player->GroupEventHappens(QUEST_ESCAPE, me);
                                     me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
                                 }
                                 break;
@@ -688,13 +688,13 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_ESCAPE)
         {
             creature->setFaction(FACTION_RATCHET);
             if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
         }
         return true;
     }

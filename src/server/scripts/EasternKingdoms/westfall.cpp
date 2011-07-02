@@ -54,14 +54,14 @@ class npc_daphne_stilwell : public CreatureScript
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_TOME_VALOR)
         {
             DoScriptText(SAY_DS_START, creature);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_daphne_stilwell::npc_daphne_stilwellAI, creature->AI()))
-                pEscortAI->Start(true, true, pPlayer->GetGUID());
+                pEscortAI->Start(true, true, player->GetGUID());
         }
 
         return true;
@@ -98,9 +98,9 @@ public:
 
         void WaypointReached(uint32 uiPoint)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             uiWPHolder = uiPoint;
@@ -144,7 +144,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_STATE_USESTANDING_NOSHEATHE);
                     break;
                 case 17:
-                    pPlayer->GroupEventHappens(QUEST_TOME_VALOR, me);
+                    player->GroupEventHappens(QUEST_TOME_VALOR, me);
                     break;
             }
         }
@@ -205,14 +205,14 @@ class npc_defias_traitor : public CreatureScript
 public:
     npc_defias_traitor() : CreatureScript("npc_defias_traitor") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
         {
             if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitor::npc_defias_traitorAI, creature->AI()))
-                pEscortAI->Start(true, true, pPlayer->GetGUID());
+                pEscortAI->Start(true, true, player->GetGUID());
 
-            DoScriptText(SAY_START, creature, pPlayer);
+            DoScriptText(SAY_START, creature, player);
         }
 
         return true;
@@ -229,9 +229,9 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch (i)
@@ -240,13 +240,13 @@ public:
                     SetRun(false);
                     break;
                 case 36:
-                    DoScriptText(SAY_PROGRESS, me, pPlayer);
+                    DoScriptText(SAY_PROGRESS, me, player);
                     break;
                 case 44:
-                    DoScriptText(SAY_END, me, pPlayer);
+                    DoScriptText(SAY_END, me, player);
                     {
-                        if (pPlayer)
-                            pPlayer->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
+                        if (player)
+                            player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
                     }
                     break;
             }

@@ -65,9 +65,9 @@ class go_cat_figurine : public GameObjectScript
 public:
     go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        pPlayer->CastSpell(pPlayer, SPELL_SUMMON_GHOST_SABER, true);
+        player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
         return false;
     }
 };
@@ -80,16 +80,16 @@ class go_northern_crystal_pylon : public GameObjectScript
 public:
     go_northern_crystal_pylon() : GameObjectScript("go_northern_crystal_pylon") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
         {
-            pPlayer->PrepareQuestMenu(pGO->GetGUID());
-            pPlayer->SendPreparedQuest(pGO->GetGUID());
+            player->PrepareQuestMenu(pGO->GetGUID());
+            player->SendPreparedQuest(pGO->GetGUID());
         }
 
-        if (pPlayer->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->AreaExploredOrEventHappens(4285);
+        if (player->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
+            player->AreaExploredOrEventHappens(4285);
 
         return true;
     }
@@ -100,16 +100,16 @@ class go_eastern_crystal_pylon : public GameObjectScript
 public:
     go_eastern_crystal_pylon() : GameObjectScript("go_eastern_crystal_pylon") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
         {
-            pPlayer->PrepareQuestMenu(pGO->GetGUID());
-            pPlayer->SendPreparedQuest(pGO->GetGUID());
+            player->PrepareQuestMenu(pGO->GetGUID());
+            player->SendPreparedQuest(pGO->GetGUID());
         }
 
-        if (pPlayer->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->AreaExploredOrEventHappens(4287);
+        if (player->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
+            player->AreaExploredOrEventHappens(4287);
 
         return true;
     }
@@ -120,16 +120,16 @@ class go_western_crystal_pylon : public GameObjectScript
 public:
     go_western_crystal_pylon() : GameObjectScript("go_western_crystal_pylon") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
         {
-            pPlayer->PrepareQuestMenu(pGO->GetGUID());
-            pPlayer->SendPreparedQuest(pGO->GetGUID());
+            player->PrepareQuestMenu(pGO->GetGUID());
+            player->SendPreparedQuest(pGO->GetGUID());
         }
 
-        if (pPlayer->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->AreaExploredOrEventHappens(4288);
+        if (player->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
+            player->AreaExploredOrEventHappens(4288);
 
         return true;
     }
@@ -144,11 +144,11 @@ class go_barov_journal : public GameObjectScript
 public:
     go_barov_journal() : GameObjectScript("go_barov_journal") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !pPlayer->HasSpell(26086))
+        if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
         {
-            pPlayer->CastSpell(pPlayer, 26095, false);
+            player->CastSpell(player, 26095, false);
         }
         return true;
     }
@@ -163,11 +163,11 @@ class go_field_repair_bot_74A : public GameObjectScript
 public:
     go_field_repair_bot_74A() : GameObjectScript("go_field_repair_bot_74A") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->HasSkill(SKILL_ENGINERING) && pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !pPlayer->HasSpell(22704))
+        if (player->HasSkill(SKILL_ENGINERING) && player->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !player->HasSpell(22704))
         {
-            pPlayer->CastSpell(pPlayer, 22864, false);
+            player->CastSpell(player, 22864, false);
         }
         return true;
     }
@@ -187,14 +187,14 @@ class go_gilded_brazier : public GameObjectScript
 public:
     go_gilded_brazier() : GameObjectScript("go_gilded_brazier") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         {
-            if (pPlayer->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
+            if (player->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
             {
-                if (Creature* Stillblade = pPlayer->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 60000))
-                    Stillblade->AI()->AttackStart(pPlayer);
+                if (Creature* Stillblade = player->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 60000))
+                    Stillblade->AI()->AttackStart(player);
             }
         }
         return true;
@@ -210,10 +210,10 @@ class go_orb_of_command : public GameObjectScript
 public:
     go_orb_of_command() : GameObjectScript("go_orb_of_command") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->GetQuestRewardStatus(7761))
-            pPlayer->CastSpell(pPlayer, 23460, true);
+        if (player->GetQuestRewardStatus(7761))
+            player->CastSpell(player, 23460, true);
 
         return true;
     }
@@ -228,11 +228,11 @@ class go_tablet_of_madness : public GameObjectScript
 public:
     go_tablet_of_madness() : GameObjectScript("go_tablet_of_madness") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetSkillValue(SKILL_ALCHEMY) >= 300 && !pPlayer->HasSpell(24266))
+        if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
         {
-            pPlayer->CastSpell(pPlayer, 24267, false);
+            player->CastSpell(player, 24267, false);
         }
         return true;
     }
@@ -248,13 +248,13 @@ public:
     go_tablet_of_the_seven() : GameObjectScript("go_tablet_of_the_seven") { }
 
     //TODO: use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
             return true;
 
-        if (pPlayer->GetQuestStatus(4296) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->CastSpell(pPlayer, 15065, false);
+        if (player->GetQuestStatus(4296) == QUEST_STATUS_INCOMPLETE)
+            player->CastSpell(player, 15065, false);
 
         return true;
     }
@@ -269,10 +269,10 @@ class go_jump_a_tron : public GameObjectScript
 public:
     go_jump_a_tron() : GameObjectScript("go_jump_a_tron") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-         pPlayer->CastSpell(pPlayer, 33382, true);
+        if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
+         player->CastSpell(player, 33382, true);
 
         return true;
     }
@@ -303,15 +303,15 @@ class go_ethereum_prison : public GameObjectScript
 public:
     go_ethereum_prison() : GameObjectScript("go_ethereum_prison") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
-        if (Creature* creature = pPlayer->SummonCreature(NpcPrisonEntry[Random],
-            pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer),
+        if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random],
+            pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(player),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
         {
-            if (!creature->IsHostileTo(pPlayer))
+            if (!creature->IsHostileTo(player))
             {
                 uint32 Spell = 0;
 
@@ -328,7 +328,7 @@ public:
                     }
 
                     if (Spell)
-                        creature->CastSpell(pPlayer, Spell, false);
+                        creature->CastSpell(player, Spell, false);
                     else
                         sLog->outError("TSCR: go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", creature->GetEntry(), creature->getFaction());
                 }
@@ -353,12 +353,12 @@ class go_ethereum_stasis : public GameObjectScript
 public:
     go_ethereum_stasis() : GameObjectScript("go_ethereum_stasis") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         int Random = rand() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
-        pPlayer->SummonCreature(NpcStasisEntry[Random],
-            pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer),
+        player->SummonCreature(NpcStasisEntry[Random],
+            pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(player),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
         return false;
@@ -379,7 +379,7 @@ class go_resonite_cask : public GameObjectScript
 public:
     go_resonite_cask() : GameObjectScript("go_resonite_cask") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
             pGO->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
@@ -399,10 +399,10 @@ class go_sacred_fire_of_life : public GameObjectScript
 public:
     go_sacred_fire_of_life() : GameObjectScript("go_sacred_fire_of_life") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-            pPlayer->SummonCreature(NPC_ARIKARA, -5008.338f, -2118.894f, 83.657f, 0.874f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            player->SummonCreature(NPC_ARIKARA, -5008.338f, -2118.894f, 83.657f, 0.874f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
         return true;
     }
@@ -427,7 +427,7 @@ class go_shrine_of_the_birds : public GameObjectScript
 public:
     go_shrine_of_the_birds() : GameObjectScript("go_shrine_of_the_birds") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         uint32 BirdEntry = 0;
 
@@ -448,7 +448,7 @@ public:
         }
 
         if (BirdEntry)
-            pPlayer->SummonCreature(BirdEntry, fX, fY, fZ, pGO->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+            player->SummonCreature(BirdEntry, fX, fY, fZ, pGO->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
         return false;
     }
@@ -470,13 +470,13 @@ class go_southfury_moonstone : public GameObjectScript
 public:
     go_southfury_moonstone() : GameObjectScript("go_southfury_moonstone") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
         //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
-        //pPlayer->CastSpell(pPlayer, SPELL_SUMMON_RIZZLE, false);
+        //player->CastSpell(player, SPELL_SUMMON_RIZZLE, false);
 
-        if (Creature* creature = pPlayer->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
-            creature->CastSpell(pPlayer, SPELL_BLACKJACK, false);
+        if (Creature* creature = player->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            creature->CastSpell(player, SPELL_BLACKJACK, false);
 
         return false;
     }
@@ -498,14 +498,14 @@ class go_tele_to_dalaran_crystal : public GameObjectScript
 public:
     go_tele_to_dalaran_crystal() : GameObjectScript("go_tele_to_dalaran_crystal") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
+        if (player->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
         {
             return false;
         }
         else
-            pPlayer->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
+            player->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
 
         return true;
     }
@@ -520,9 +520,9 @@ class go_tele_to_violet_stand : public GameObjectScript
 public:
     go_tele_to_violet_stand() : GameObjectScript("go_tele_to_violet_stand") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || pPlayer->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || player->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
             return false;
 
         return true;
@@ -550,38 +550,38 @@ class go_fel_crystalforge : public GameObjectScript
 public:
     go_fel_crystalforge() : GameObjectScript("go_fel_crystalforge") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
-            pPlayer->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
+            player->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, pGO->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, pGO->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->CastSpell(pPlayer, SPELL_CREATE_1_FLASK_OF_BEAST, false);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
+                player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_BEAST, false);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->CastSpell(pPlayer, SPELL_CREATE_5_FLASK_OF_BEAST, false);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
+                player->CastSpell(player, SPELL_CREATE_5_FLASK_OF_BEAST, false);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
         case GOSSIP_ACTION_INFO_DEF + 2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, pGO->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, pGO->GetGUID());
                 break;
         }
         return true;
@@ -609,38 +609,38 @@ class go_bashir_crystalforge : public GameObjectScript
 public:
     go_bashir_crystalforge() : GameObjectScript("go_bashir_crystalforge") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
-            pPlayer->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
+            player->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_TEXT, pGO->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_TEXT, pGO->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->CastSpell(pPlayer, SPELL_CREATE_1_FLASK_OF_SORCERER, false);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
+                player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_SORCERER, false);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->CastSpell(pPlayer, SPELL_CREATE_5_FLASK_OF_SORCERER, false);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
+                player->CastSpell(player, SPELL_CREATE_5_FLASK_OF_SORCERER, false);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_TEXT, pGO->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(GOSSIP_BASHIR_CRYSTALFORGE_TEXT, pGO->GetGUID());
                 break;
         }
         return true;
@@ -673,36 +673,36 @@ class go_matrix_punchograph : public GameObjectScript
 public:
     go_matrix_punchograph() : GameObjectScript("go_matrix_punchograph") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         switch(pGO->GetEntry())
         {
             case MATRIX_PUNCHOGRAPH_3005_A:
-                if (pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
                 {
-                    pPlayer->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer, SPELL_YELLOW_PUNCH_CARD, true);
+                    player->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
+                    player->CastSpell(player, SPELL_YELLOW_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_B:
-                if (pPlayer->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
                 {
-                    pPlayer->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer, SPELL_BLUE_PUNCH_CARD, true);
+                    player->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
+                    player->CastSpell(player, SPELL_BLUE_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_C:
-                if (pPlayer->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
                 {
-                    pPlayer->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer, SPELL_RED_PUNCH_CARD, true);
+                    player->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
+                    player->CastSpell(player, SPELL_RED_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_D:
-                if (pPlayer->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
                 {
-                    pPlayer->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
-                    pPlayer->CastSpell(pPlayer, SPELL_PRISMATIC_PUNCH_CARD, true);
+                    player->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
+                    player->CastSpell(player, SPELL_PRISMATIC_PUNCH_CARD, true);
                 }
                 break;
             default:
@@ -726,12 +726,12 @@ class go_rusty_cage : public GameObjectScript
 public:
     go_rusty_cage() : GameObjectScript("go_rusty_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (Creature* pGoblinPrisoner = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER, 5.0f, true))
         {
             pGO->SetGoState(GO_STATE_ACTIVE);
-            pPlayer->KilledMonsterCredit(NPC_GOBLIN_PRISIONER, pGoblinPrisoner->GetGUID());
+            player->KilledMonsterCredit(NPC_GOBLIN_PRISIONER, pGoblinPrisoner->GetGUID());
             pGoblinPrisoner->DisappearAndDie();
         }
 
@@ -753,12 +753,12 @@ class go_scourge_cage : public GameObjectScript
 public:
     go_scourge_cage() : GameObjectScript("go_scourge_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (Creature* pNearestPrisoner = pGO->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
         {
             pGO->SetGoState(GO_STATE_ACTIVE);
-            pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
+            player->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
             pNearestPrisoner->DisappearAndDie();
         }
 
@@ -781,12 +781,12 @@ class go_arcane_prison : public GameObjectScript
 public:
     go_arcane_prison() : GameObjectScript("go_arcane_prison") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
         {
             pGO->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-            pPlayer->CastSpell(pPlayer, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
+            player->CastSpell(player, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
             return true;
         } else
             return false;
@@ -804,10 +804,10 @@ class go_blood_filled_orb : public GameObjectScript
 public:
     go_blood_filled_orb() : GameObjectScript("go_blood_filled_orb") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-            pPlayer->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
         return true;
     }
@@ -835,7 +835,7 @@ class go_jotunheim_cage : public GameObjectScript
 public:
     go_jotunheim_cage() : GameObjectScript("go_jotunheim_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         Creature* pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
         if (!pPrisoner)
@@ -852,20 +852,20 @@ public:
             return false;
 
         pPrisoner->DisappearAndDie();
-        pPlayer->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN, 0);
+        player->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN, 0);
         switch(pPrisoner->GetEntry())
         {
             case NPC_EBON_BLADE_PRISONER_HUMAN:
-                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_H, true);
+                player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_H, true);
                 break;
             case NPC_EBON_BLADE_PRISONER_NE:
-                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_NE, true);
+                player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_NE, true);
                 break;
             case NPC_EBON_BLADE_PRISONER_TROLL:
-                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_TROLL, true);
+                player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_TROLL, true);
                 break;
             case NPC_EBON_BLADE_PRISONER_ORC:
-                pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLADE_KNIGHT_ORC, true);
+                player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_ORC, true);
                 break;
         }
         return true;
@@ -884,12 +884,12 @@ class go_table_theka : public GameObjectScript
 public:
     go_table_theka() : GameObjectScript("go_table_theka") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        if (pPlayer->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
+        if (player->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
+            player->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TABLE_THEKA, pGO->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_TABLE_THEKA, pGO->GetGUID());
 
         return true;
     }
@@ -910,12 +910,12 @@ class go_inconspicuous_landmark : public GameObjectScript
 public:
     go_inconspicuous_landmark() : GameObjectScript("go_inconspicuous_landmark") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->HasItemCount(ITEM_CUERGOS_KEY, 1))
+        if (player->HasItemCount(ITEM_CUERGOS_KEY, 1))
             return false;
 
-        pPlayer->CastSpell(pPlayer, SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB, true);
+        player->CastSpell(player, SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB, true);
 
         return true;
     }
@@ -930,13 +930,13 @@ class go_soulwell : public GameObjectScript
 public:
     go_soulwell() : GameObjectScript("go_soulwell") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         Unit* caster = pGO->GetOwner();
         if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
             return true;
 
-        if (!pPlayer->IsInSameRaidWith(static_cast<Player* >(caster)))
+        if (!player->IsInSameRaidWith(static_cast<Player* >(caster)))
             return true;
 
         // Repeating this at every use is ugly and inefficient. But as long as we don't have proper
@@ -961,7 +961,7 @@ public:
         }
 
         pGO->AddUse();
-        pPlayer->CastSpell(pPlayer, newSpell, true);
+        player->CastSpell(player, newSpell, true);
         return true;
     }
 };
@@ -985,9 +985,9 @@ class go_dragonflayer_cage : public GameObjectScript
 public:
     go_dragonflayer_cage() : GameObjectScript("go_dragonflayer_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        if (pPlayer->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
             return true;
 
         Creature* pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PRIEST, 2.0f);
@@ -1009,7 +1009,7 @@ public:
         if (qInfo)
         {
             //TODO: prisoner should help player for a short period of time
-            pPlayer->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0], 0);
+            player->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0], 0);
             pPrisoner->DisappearAndDie();
         }
         return true;
@@ -1032,16 +1032,16 @@ class go_tadpole_cage : public GameObjectScript
 public:
     go_tadpole_cage() : GameObjectScript("go_tadpole_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
             Creature* pTadpole = pGO->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
             if (pTadpole)
             {
                 pGO->UseDoorOrButton();
                 pTadpole->DisappearAndDie();
-                pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE, 0);
+                player->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE, 0);
                 //FIX: Summon minion tadpole
             }
         }
@@ -1067,10 +1067,10 @@ class go_black_cage : public GameObjectScript
 public:
     go_black_cage() : GameObjectScript("go_black_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        if ((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
-            (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
+        if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
+            (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
         {
             Creature* pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT, 1.0f);
             if (!pPrisoner)
@@ -1079,7 +1079,7 @@ public:
             {
                 pGO->UseDoorOrButton();
                 pPrisoner->DisappearAndDie();
-                pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(), 0);
+                player->KilledMonsterCredit(pPrisoner->GetEntry(), 0);
             }
         }
         return true;
@@ -1110,41 +1110,41 @@ class go_amberpine_outhouse : public GameObjectScript
 public:
     go_amberpine_outhouse() : GameObjectScript("go_amberpine_outhouse") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        QuestStatus status = pPlayer->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
+        QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
         if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_VACANT, pGO->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_VACANT, pGO->GetGUID());
             return true;
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_INUSE, pGO->GetGUID());
+            player->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_INUSE, pGO->GetGUID());
             return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            Creature* pTarget = GetClosestCreatureWithEntry(pPlayer, NPC_OUTHOUSE_BUNNY, 3.0f);
+            player->CLOSE_GOSSIP_MENU();
+            Creature* pTarget = GetClosestCreatureWithEntry(player, NPC_OUTHOUSE_BUNNY, 3.0f);
             if (pTarget)
             {
-                pTarget->AI()->SetData(1, pPlayer->getGender());
+                pTarget->AI()->SetData(1, player->getGender());
                 pGO->CastSpell(pTarget, SPELL_INDISPOSED_III);
             }
-            pGO->CastSpell(pPlayer, SPELL_INDISPOSED);
-            if (pPlayer->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER, 1))
-                pGO->CastSpell(pPlayer, SPELL_CREATE_AMBERSEEDS);
+            pGO->CastSpell(player, SPELL_INDISPOSED);
+            if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER, 1))
+                pGO->CastSpell(player, SPELL_CREATE_AMBERSEEDS);
             return true;
         }
         else
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->GetSession()->SendNotification(GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
+            player->CLOSE_GOSSIP_MENU();
+            player->GetSession()->SendNotification(GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
             return false;
         }
     }
@@ -1165,11 +1165,11 @@ class go_hive_pod : public GameObjectScript
 public:
     go_hive_pod() : GameObjectScript("go_hive_pod") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        pPlayer->SendLoot(pGO->GetGUID(), LOOT_CORPSE);
-        pGO->SummonCreature(NPC_HIVE_AMBUSHER, pGO->GetPositionX()+1, pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-        pGO->SummonCreature(NPC_HIVE_AMBUSHER, pGO->GetPositionX(), pGO->GetPositionY()+1, pGO->GetPositionZ(), pGO->GetAngle(pPlayer), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        player->SendLoot(pGO->GetGUID(), LOOT_CORPSE);
+        pGO->SummonCreature(NPC_HIVE_AMBUSHER, pGO->GetPositionX()+1, pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        pGO->SummonCreature(NPC_HIVE_AMBUSHER, pGO->GetPositionX(), pGO->GetPositionY()+1, pGO->GetPositionZ(), pGO->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         return true;
     }
 };
@@ -1179,7 +1179,7 @@ class go_massive_seaforium_charge : public GameObjectScript
 public:
     go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
     {
         pGo->SetLootState(GO_JUST_DEACTIVATED);
         return true;

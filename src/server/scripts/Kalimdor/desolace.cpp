@@ -57,18 +57,18 @@ class npc_aged_dying_ancient_kodo : public CreatureScript
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
         {
             //the expected quest objective
-            pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
 
-            pPlayer->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
             creature->GetMotionMaster()->MoveIdle();
         }
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -176,10 +176,10 @@ class go_iruxos : public GameObjectScript
 public:
     go_iruxos() : GameObjectScript("go_iruxos") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-            if (pPlayer->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->SummonCreature(11876, pPlayer->GetInnPosX(), pPlayer->GetInnPosY(), pPlayer->GetInnPosZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            if (player->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
+                player->SummonCreature(11876, player->GetInnPosX(), player->GetInnPosY(), player->GetInnPosZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
             return true;
     }
@@ -197,13 +197,13 @@ class npc_dalinda : public CreatureScript
 public:
     npc_dalinda() : CreatureScript("npc_dalinda") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
        {
             if (npc_escortAI* pEscortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
             {
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
                 creature->setFaction(113);
             }
         }
@@ -221,15 +221,15 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
             switch (i)
             {
                 case 1:
                     me->IsStandState();
                     break;
                 case 15:
-                    if (pPlayer)
-                    pPlayer->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
+                    if (player)
+                    player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
                     break;
             }
         }
@@ -240,9 +240,9 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (pPlayer)
-                pPlayer->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
+            Player* player = GetPlayerForEscort();
+            if (player)
+                player->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
             return;
         }
 

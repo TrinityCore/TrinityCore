@@ -213,8 +213,8 @@ public:
         {
             for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
             {
-                if (Player* pPlayer = Unit::GetPlayer(*me, itr->first))
-                    pPlayer->RemoveAura(SPELL_ICEBOLT);
+                if (Player* player = Unit::GetPlayer(*me, itr->first))
+                    player->RemoveAura(SPELL_ICEBOLT);
                 if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     pGo->Delete();
             }

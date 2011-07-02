@@ -144,7 +144,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             //Our Receive emote function
-            void ReceiveEmote(Player* /*pPlayer*/, uint32 uiTextEmote)
+            void ReceiveEmote(Player* /*player*/, uint32 uiTextEmote)
             {
                 me->HandleEmoteCommand(uiTextEmote);
 
@@ -263,23 +263,23 @@ class example_creature : public CreatureScript
             return new example_creatureAI(creature);
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(907, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
 
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
             if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
             {
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 //Set our faction to hostile towards all
                 creature->setFaction(FACTION_WORGEN);
-                creature->AI()->AttackStart(pPlayer);
+                creature->AI()->AttackStart(player);
             }
 
             return true;

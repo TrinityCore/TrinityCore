@@ -124,12 +124,12 @@ public:
             return false;
         }
 
-        void OnPlayerEnter(Player* pPlayer)
+        void OnPlayerEnter(Player* player)
         {
             if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return;
 
-            pPlayer->SendUpdateWorldState(WORLD_STATE_BM, 0);
+            player->SendUpdateWorldState(WORLD_STATE_BM, 0);
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -208,13 +208,13 @@ public:
                         {
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
-                                if (Player* pPlayer = itr->getSource())
+                                if (Player* player = itr->getSource())
                                 {
-                                    if (pPlayer->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE)
-                                        pPlayer->AreaExploredOrEventHappens(QUEST_OPENING_PORTAL);
+                                    if (player->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE)
+                                        player->AreaExploredOrEventHappens(QUEST_OPENING_PORTAL);
 
-                                    if (pPlayer->GetQuestStatus(QUEST_MASTER_TOUCH) == QUEST_STATUS_INCOMPLETE)
-                                        pPlayer->AreaExploredOrEventHappens(QUEST_MASTER_TOUCH);
+                                    if (player->GetQuestStatus(QUEST_MASTER_TOUCH) == QUEST_STATUS_INCOMPLETE)
+                                        player->AreaExploredOrEventHappens(QUEST_MASTER_TOUCH);
                                 }
                             }
                         }

@@ -974,18 +974,18 @@ class item_tainted_core : public ItemScript
 public:
     item_tainted_core() : ItemScript("item_tainted_core") { }
 
-    bool OnUse(Player* pPlayer, Item* /*_Item*/, SpellCastTargets const& targets)
+    bool OnUse(Player* player, Item* /*_Item*/, SpellCastTargets const& targets)
     {
-        InstanceScript *pInstance = pPlayer->GetInstanceScript();
+        InstanceScript *pInstance = player->GetInstanceScript();
 
         if (!pInstance)
         {
-            pPlayer->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
+            player->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
             return true;
         }
 
         Creature* Vashj = NULL;
-        Vashj = (Unit::GetCreature((*pPlayer), pInstance->GetData64(DATA_LADYVASHJ)));
+        Vashj = (Unit::GetCreature((*player), pInstance->GetData64(DATA_LADYVASHJ)));
         if (Vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->AI())->Phase == 2))
         {
             if (GameObject* gObj = targets.GetGOTarget())
@@ -1016,7 +1016,7 @@ public:
 
                 if (pInstance->GetData(identifier))
                 {
-                    pPlayer->GetSession()->SendNotification(TEXT_ALREADY_DEACTIVATED);
+                    player->GetSession()->SendNotification(TEXT_ALREADY_DEACTIVATED);
                     return true;
                 }
 
@@ -1032,15 +1032,15 @@ public:
                 pInstance->SetData(identifier, 1);
 
                 //remove this item
-                pPlayer->DestroyItemCount(31088, 1, true);
+                player->DestroyItemCount(31088, 1, true);
                 return true;
             }
             else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT)
                 return false;
             else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
             {
-                pPlayer->DestroyItemCount(31088, 1, true);
-                pPlayer->CastSpell(targets.GetUnitTarget(), 38134, true);
+                player->DestroyItemCount(31088, 1, true);
+                player->CastSpell(targets.GetUnitTarget(), 38134, true);
                 return true;
             }
         }

@@ -155,14 +155,14 @@ public:
             StartEvent();
         }
 
-        void ApplyWateryGrave(Unit* pPlayer, uint8 i)
+        void ApplyWateryGrave(Unit* player, uint8 i)
         {
             switch(i)
             {
-            case 0: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_1, true); break;
-            case 1: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_2, true); break;
-            case 2: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_3, true); break;
-            case 3: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_4, true); break;
+            case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
+            case 1: player->CastSpell(player, SPELL_WATERY_GRAVE_2, true); break;
+            case 2: player->CastSpell(player, SPELL_WATERY_GRAVE_3, true); break;
+            case 3: player->CastSpell(player, SPELL_WATERY_GRAVE_4, true); break;
             }
         }
 

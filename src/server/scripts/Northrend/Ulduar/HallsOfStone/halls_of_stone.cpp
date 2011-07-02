@@ -268,25 +268,25 @@ class npc_brann_hos : public CreatureScript
 public:
     npc_brann_hos() : CreatureScript("npc_brann_hos") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1 || uiAction == GOSSIP_ACTION_INFO_DEF+2)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_brann_hos::npc_brann_hosAI, creature->AI())->StartWP();
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(TEXT_ID_START, creature->GetGUID());
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(TEXT_ID_START, creature->GetGUID());
 
         return true;
     }
@@ -705,9 +705,9 @@ public:
                             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM), false);
                             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR), false);
                         }
-                        Player* pPlayer = GetPlayerForEscort();
-                        if (pPlayer)
-                            pPlayer->GroupEventHappens(QUEST_HALLS_OF_STONE, me);
+                        Player* player = GetPlayerForEscort();
+                        if (player)
+                            player->GroupEventHappens(QUEST_HALLS_OF_STONE, me);
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         JumpToNextStep(180000);
                         break;

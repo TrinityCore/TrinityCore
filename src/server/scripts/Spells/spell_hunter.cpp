@@ -381,10 +381,10 @@ public:
         void HandleUpdatePeriodic(AuraEffect * aurEff)
         {
             Unit* pTarget = GetUnitOwner();
-            if (Player* pPlayerTarget = pTarget->ToPlayer())
+            if (Player* playerTarget = pTarget->ToPlayer())
             {
                 int32 baseAmount = aurEff->GetBaseAmount();
-                int32 amount = pPlayerTarget->isMoving() ?
+                int32 amount = playerTarget->isMoving() ?
                 pTarget->CalculateSpellDamage(pTarget, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
                 aurEff->GetAmount() - 1;
                 aurEff->SetAmount(amount);

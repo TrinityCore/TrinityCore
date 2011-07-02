@@ -704,12 +704,12 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* pCaster = GetCaster();
-            if (Player* pPlayer = pCaster->ToPlayer())
+            if (Player* player = pCaster->ToPlayer())
             {
                 if(Creature* pTarget = GetHitCreature())
                 {
-                    pPlayer->CastSpell(pPlayer, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
-                    pPlayer->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
+                    player->CastSpell(player, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
+                    player->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
                     pTarget->DespawnOrUnsummon();
                 }
             }

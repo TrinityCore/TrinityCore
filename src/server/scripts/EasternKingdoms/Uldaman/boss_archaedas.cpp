@@ -394,15 +394,15 @@ class go_altar_of_archaedas : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+        bool OnGossipHello(Player* player, GameObject* /*pGO*/)
         {
-            InstanceScript* pInstance = pPlayer->GetInstanceScript();
+            InstanceScript* pInstance = player->GetInstanceScript();
             if (!pInstance)
                 return false;
 
-            pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
+            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
 
-            pInstance->SetData64(0, pPlayer->GetGUID());     // activate archaedas
+            pInstance->SetData64(0, player->GetGUID());     // activate archaedas
             return false;
         }
 };
@@ -425,13 +425,13 @@ class go_altar_of_the_keepers : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
+        bool OnGossipHello(Player* player, GameObject* /*pGo*/)
         {
-            InstanceScript* pInstance = pPlayer->GetInstanceScript();
+            InstanceScript* pInstance = player->GetInstanceScript();
             if (!pInstance)
                 return false;
 
-            pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
+            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
 
             pInstance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS); // activate the Stone Keepers
             return false;
