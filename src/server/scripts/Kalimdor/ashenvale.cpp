@@ -350,7 +350,7 @@ class npc_muglash : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*pWho*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (Player* player = GetPlayerForEscort())
                     if (HasEscortState(STATE_ESCORT_PAUSED))

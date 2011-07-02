@@ -350,7 +350,7 @@ public:
                 pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_SARTHARION_AGGRO, me);
             DoZoneInCombat();
@@ -1013,7 +1013,7 @@ public:
             m_bHasPortalOpen = false;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_TENEBRON_AGGRO, me);
             DoZoneInCombat();
@@ -1109,7 +1109,7 @@ public:
             m_bHasPortalOpen = false;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_SHADRON_AGGRO, me);
             DoZoneInCombat();
@@ -1208,7 +1208,7 @@ public:
             m_bHasPortalOpen = false;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_VESPERON_AGGRO, me);
             DoZoneInCombat();
@@ -1523,9 +1523,9 @@ public:
             me->DealDamage(me, me->GetHealth());
         }
 
-        void JustSummoned(Creature* pWho)
+        void JustSummoned(Creature* who)
         {
-            pWho->SetInCombatWithZone();
+            who->SetInCombatWithZone();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -1541,8 +1541,8 @@ public:
                 m_uiHatchEggTimer -= uiDiff;
         }
 
-        void AttackStart(Unit* /*pWho*/) {}
-        void MoveInLineOfSight(Unit* /*pWho*/) {}
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
     };
 
 };

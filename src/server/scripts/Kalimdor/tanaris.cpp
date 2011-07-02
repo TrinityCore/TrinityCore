@@ -541,13 +541,13 @@ public:
             TortaGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_TORTA)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
             {
-                if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
                     if (Player* player = GetLeaderForFollower())
                     {
@@ -555,7 +555,7 @@ public:
                             player->GroupEventHappens(QUEST_TOOGA, me);
                     }
 
-                    TortaGUID = pWho->GetGUID();
+                    TortaGUID = who->GetGUID();
                     SetFollowComplete(true);
                 }
             }

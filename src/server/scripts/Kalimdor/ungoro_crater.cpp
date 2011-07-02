@@ -217,13 +217,13 @@ public:
             SpraggleGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_SPRAGGLE)
             {
-                if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
                     if (Player* player = GetLeaderForFollower())
                     {
@@ -231,7 +231,7 @@ public:
                             player->GroupEventHappens(QUEST_A_LITTLE_HELP, me);
                     }
 
-                    SpraggleGUID = pWho->GetGUID();
+                    SpraggleGUID = who->GetGUID();
                     SetFollowComplete(true);
                 }
             }

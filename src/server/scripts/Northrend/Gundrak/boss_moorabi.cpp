@@ -83,7 +83,7 @@ public:
                 pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_MOJO_FRENZY, true);

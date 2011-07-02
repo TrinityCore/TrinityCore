@@ -502,24 +502,24 @@ public:
     {
         npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            ScriptedAI::MoveInLineOfSight(pWho);
+            ScriptedAI::MoveInLineOfSight(who);
 
-            if (pWho->GetTypeId() != TYPEID_UNIT)
+            if (who->GetTypeId() != TYPEID_UNIT)
                 return;
 
-            if (pWho->GetEntry() == NPC_JENNY && me->IsWithinDistInMap(pWho, 10.0f))
+            if (who->GetEntry() == NPC_JENNY && me->IsWithinDistInMap(who, 10.0f))
             {
-                if (Unit* pOwner = pWho->GetOwner())
+                if (Unit* pOwner = who->GetOwner())
                 {
                     if (pOwner->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (pWho->HasAura(SPELL_CRATES_CARRIED))
+                        if (who->HasAura(SPELL_CRATES_CARRIED))
                         {
                             pOwner->CastSpell(pOwner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
                             CAST_PLR(pOwner)->CompleteQuest(QUEST_LOADER_UP);
-                            CAST_CRE(pWho)->DisappearAndDie();
+                            CAST_CRE(who)->DisappearAndDie();
                         }
                     }
                 }
@@ -860,10 +860,10 @@ public:
            HarpoonerGUID = 0;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            if (me->canAttack(pWho))
-                AttackStart(pWho);
+            if (me->canAttack(who))
+                AttackStart(who);
         }
 
         void SpellHit(Unit* caster, const SpellEntry *spell)
@@ -876,16 +876,16 @@ public:
             WithRedDragonBlood = true;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
             if (!HarpoonerGUID)
                 return;
 
-            if (me->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
+            if (me->HasAura(SPELL_SUBDUED) && who->GetEntry() == NPC_RAELORASZ)
             {
-                if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
                     if (Player* pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
                     {
@@ -1616,10 +1616,10 @@ public:
             bEnslaved = false;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            if (me->canAttack(pWho))
-                AttackStart(pWho);
+            if (me->canAttack(who))
+                AttackStart(who);
         }
 
         void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
@@ -1636,11 +1636,11 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            if (who->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
             {
                 SetFollowComplete();
                 me->DisappearAndDie();
@@ -1702,7 +1702,7 @@ public:
             CasterGUID = 0;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
@@ -2278,9 +2278,9 @@ public:
             m_uiTimer = 0;
         }
 
-        void EnterCombat(Unit* /*pWho*/) {}
+        void EnterCombat(Unit* /*who*/) {}
 
-        void AttackStart(Unit* /*pWho*/) {}
+        void AttackStart(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 uiDiff)
         {

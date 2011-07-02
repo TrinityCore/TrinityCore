@@ -174,14 +174,14 @@ public:
             return NULL;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!m_pSpawnAssoc)
                 return;
 
-            if (pWho->isTargetableForAttack() && me->IsHostileTo(pWho))
+            if (who->isTargetableForAttack() && me->IsHostileTo(who))
             {
-                Player* playerTarget = pWho->GetTypeId() == TYPEID_PLAYER ? CAST_PLR(pWho) : NULL;
+                Player* playerTarget = who->GetTypeId() == TYPEID_PLAYER ? CAST_PLR(who) : NULL;
 
                 // airforce guards only spawn for players
                 if (!playerTarget)
@@ -197,10 +197,10 @@ public:
                 {
                     case SPAWNTYPE_ALARMBOT:
                     {
-                        if (!pWho->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
+                        if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                             return;
 
-                        Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK);
+                        Aura* pMarkAura = who->GetAura(SPELL_GUARDS_MARK);
                         if (pMarkAura)
                         {
                             // the target wasn't able to move out of our range within 25 seconds
@@ -215,7 +215,7 @@ public:
                             if (pMarkAura->GetDuration() < AURA_DURATION_TIME_LEFT)
                             {
                                 if (!pLastSpawnedGuard->getVictim())
-                                    pLastSpawnedGuard->AI()->AttackStart(pWho);
+                                    pLastSpawnedGuard->AI()->AttackStart(who);
                             }
                         }
                         else
@@ -226,13 +226,13 @@ public:
                             if (!pLastSpawnedGuard)
                                 return;
 
-                            pLastSpawnedGuard->CastSpell(pWho, SPELL_GUARDS_MARK, true);
+                            pLastSpawnedGuard->CastSpell(who, SPELL_GUARDS_MARK, true);
                         }
                         break;
                     }
                     case SPAWNTYPE_TRIPWIRE_ROOFTOP:
                     {
-                        if (!pWho->IsWithinDistInMap(me, RANGE_TRIPWIRE))
+                        if (!who->IsWithinDistInMap(me, RANGE_TRIPWIRE))
                             return;
 
                         if (!pLastSpawnedGuard)
@@ -245,7 +245,7 @@ public:
                         if (!playerTarget->IsFlying())
                         {
                             if (!pLastSpawnedGuard->getVictim())
-                                pLastSpawnedGuard->AI()->AttackStart(pWho);
+                                pLastSpawnedGuard->AI()->AttackStart(who);
                         }
                         break;
                     }

@@ -167,7 +167,7 @@ public:
                 m_pInstance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
@@ -385,14 +385,14 @@ public:
             m_uiRenewSteel_Timer = 10000 + rand()%1000;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             if (m_pInstance)
             {
                 if (Creature* pBjarngrim = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->isAlive() && !pBjarngrim->getVictim())
-                        pBjarngrim->AI()->AttackStart(pWho);
+                        pBjarngrim->AI()->AttackStart(who);
                 }
             }
         }

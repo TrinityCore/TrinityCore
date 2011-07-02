@@ -102,7 +102,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 pSummoned->AI()->AttackStart(me);
             }
 
-            void EnterCombat(Unit* /*pWho*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
             }

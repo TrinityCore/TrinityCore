@@ -195,9 +195,9 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* pWho)
+    void KilledUnit(Unit* who)
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER)
+        if (who->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
             if (m_pInstance)
@@ -302,7 +302,7 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me), m_pInstance->GetData64(m_uiSisterNpcId));
     }
 
-    void EnterCombat(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
         if (m_pInstance)
@@ -474,9 +474,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            boss_twin_baseAI::EnterCombat(pWho);
+            boss_twin_baseAI::EnterCombat(who);
             if (m_pInstance)
             {
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);

@@ -101,13 +101,13 @@ public:
             m_uiFallAsleepTimer = urand(10000, 45000);
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_LILADRIS)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_LILADRIS)
             {
-                if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE*5))
+                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE*5))
                 {
                     if (Player* player = GetLeaderForFollower())
                     {
@@ -368,15 +368,15 @@ public:
 
         void Reset() { }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_GELKAK)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_GELKAK)
             {
-                if (me->IsWithinDistInMap(pWho, 10.0f))
+                if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(SAY_AT_CLOSE, pWho);
+                    DoScriptText(SAY_AT_CLOSE, who);
                     DoAtEnd();
                 }
             }

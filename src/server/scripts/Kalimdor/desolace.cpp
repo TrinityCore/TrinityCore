@@ -118,16 +118,16 @@ public:
             m_uiDespawnTimer = 0;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (pWho->GetEntry() == NPC_SMEED)
+            if (who->GetEntry() == NPC_SMEED)
             {
                 if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                     return;
 
-                if (me->IsWithinDistInMap(pWho, 10.0f))
+                if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(RAND(SAY_SMEED_HOME_1, SAY_SMEED_HOME_2, SAY_SMEED_HOME_3), pWho);
+                    DoScriptText(RAND(SAY_SMEED_HOME_1, SAY_SMEED_HOME_2, SAY_SMEED_HOME_3), who);
 
                     //spell have no implemented effect (dummy), so useful to notify spellHit
                     DoCast(me, SPELL_KODO_KOMBO_GOSSIP, true);
@@ -234,7 +234,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void Reset() {}
 

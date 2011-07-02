@@ -120,7 +120,7 @@ class npc_announcer_toc10 : public CreatureScript
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
         };
 
         bool OnGossipHello(Player* player, Creature* creature)
@@ -530,7 +530,7 @@ class npc_tirion_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -844,7 +844,7 @@ class npc_garrosh_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -922,7 +922,7 @@ class npc_varian_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {

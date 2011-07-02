@@ -360,19 +360,19 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER)
             {
-                if (CAST_PLR(pWho)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
+                if (CAST_PLR(who)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
                 {
                     float Radius = 10.0;
-                    if (me->IsWithinDistInMap(pWho, Radius))
+                    if (me->IsWithinDistInMap(who, Radius))
                     {
-                        Start(false, false, pWho->GetGUID());
+                        Start(false, false, who->GetGUID());
                     }
                 }
             }

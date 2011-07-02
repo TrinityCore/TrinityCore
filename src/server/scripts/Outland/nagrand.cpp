@@ -645,7 +645,7 @@ public:
             m_uiFrostShockTimer = 6000;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_EARTHBIND_TOTEM, false);
         }

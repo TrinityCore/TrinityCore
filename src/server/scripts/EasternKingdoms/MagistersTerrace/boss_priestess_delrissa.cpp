@@ -372,9 +372,9 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* who)
     {
-        if (!pWho)
+        if (!who)
             return;
 
         if (pInstance)
@@ -385,8 +385,8 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 {
                     if (!pAdd->getVictim() && pAdd != me)
                     {
-                        pWho->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(pWho, 0.0f);
+                        who->SetInCombatWith(pAdd);
+                        pAdd->AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -395,8 +395,8 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
             {
                 if (pDelrissa->isAlive() && !pDelrissa->getVictim())
                 {
-                    pWho->SetInCombatWith(pDelrissa);
-                    pDelrissa->AddThreat(pWho, 0.0f);
+                    who->SetInCombatWith(pDelrissa);
+                    pDelrissa->AddThreat(who, 0.0f);
                 }
             }
         }
@@ -618,7 +618,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_SUMMON_IMP);
         }
