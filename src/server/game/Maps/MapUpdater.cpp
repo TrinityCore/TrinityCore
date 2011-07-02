@@ -106,11 +106,6 @@ int MapUpdater::schedule_update(Map& map, ACE_UINT32 diff)
     return 0;
 }
 
-bool MapUpdater::activated()
-{
-    return m_executor.activated();
-}
-
 void MapUpdater::update_finished()
 {
     ACE_GUARD(ACE_Thread_Mutex, guard, m_mutex);

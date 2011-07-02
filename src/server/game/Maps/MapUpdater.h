@@ -24,9 +24,6 @@ class MapUpdater
         int activate(size_t num_threads);
 
         int deactivate();
-
-        bool activated();
-
     private:
 
         DelayExecutor m_executor;

@@ -59,9 +59,12 @@ void MapManager::Initialize()
         i_GridStateErrorCount = 0;
     }
     int num_threads(sWorld->getIntConfig(CONFIG_NUMTHREADS));
-    // Start mtmaps if needed.
-    if (num_threads > 0 && m_updater.activate(num_threads) == -1)
+    // Start mtmaps
+    if (m_updater.activate(num_threads) == -1)
+    {
+        sLog->outCrash("MapUpdater cannot be started, crashing");
         abort();
+    }
 }
 
 void MapManager::InitializeVisibilityDistanceInfo()
@@ -281,8 +284,7 @@ void MapManager::Update(uint32 diff)
         }
     }
 
-    if (m_updater.activated())
-        m_updater.wait();
+    m_updater.wait();
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
@@ -332,8 +334,7 @@ void MapManager::UnloadAll()
         i_maps.erase(iter++);
     }
 
-    if (m_updater.activated())
-        m_updater.deactivate();
+    m_updater.deactivate();
 
     Map::DeleteStateMachine();
 }
