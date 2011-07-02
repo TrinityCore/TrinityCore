@@ -111,14 +111,14 @@ class npc_millhouse_manastorm : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* pWho)
+            void AttackStart(Unit* who)
             {
-                if (me->Attack(pWho, true))
+                if (me->Attack(who, true))
                 {
-                    me->AddThreat(pWho, 0.0f);
-                    me->SetInCombatWith(pWho);
-                    pWho->SetInCombatWith(me);
-                    me->GetMotionMaster()->MoveChase(pWho, 25.0f);
+                    me->AddThreat(who, 0.0f);
+                    me->SetInCombatWith(who);
+                    who->SetInCombatWith(me);
+                    me->GetMotionMaster()->MoveChase(who, 25.0f);
                 }
             }
 

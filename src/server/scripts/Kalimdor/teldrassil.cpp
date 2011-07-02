@@ -70,15 +70,15 @@ public:
 
         void Reset() { }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_ARYNIA)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_ARYNIA)
             {
-                if (me->IsWithinDistInMap(pWho, 10.0f))
+                if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(SAY_AT_HOME, pWho);
+                    DoScriptText(SAY_AT_HOME, who);
                     DoComplete();
                 }
             }

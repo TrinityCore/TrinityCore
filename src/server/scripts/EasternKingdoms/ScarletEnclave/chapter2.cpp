@@ -657,13 +657,13 @@ public:
             return false;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (PlayerGUID || pWho->GetTypeId() != TYPEID_PLAYER || !pWho->IsWithinDist(me, INTERACTION_DISTANCE))
+            if (PlayerGUID || who->GetTypeId() != TYPEID_PLAYER || !who->IsWithinDist(me, INTERACTION_DISTANCE))
                 return;
 
-            if (MeetQuestCondition(pWho))
-                PlayerGUID = pWho->GetGUID();
+            if (MeetQuestCondition(who))
+                PlayerGUID = who->GetGUID();
         }
 
         void UpdateAI(const uint32 diff)

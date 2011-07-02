@@ -1022,18 +1022,18 @@ public:
             DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             //don't always use
             if (rand()%5)
                 return;
 
             //only aggro text if not player
-            if (pWho->GetTypeId() != TYPEID_PLAYER)
+            if (who->GetTypeId() != TYPEID_PLAYER)
             {
                 //appears to be random
                 if (urand(0, 1))
-                    DoScriptText(RAND(SAY_WIL_AGGRO1, SAY_WIL_AGGRO2), pWho);
+                    DoScriptText(RAND(SAY_WIL_AGGRO1, SAY_WIL_AGGRO2), who);
             }
         }
 

@@ -127,7 +127,7 @@ public:
             timeBombTimer = urand(20000, 25000);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 
@@ -139,24 +139,24 @@ public:
                 instance->SetData(DATA_UROM_PLATAFORM, instance->GetData(DATA_UROM_PLATAFORM)+1);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
             if (me->GetPositionZ() > 518.63f)
-                DoStartNoMovement(pWho);
+                DoStartNoMovement(who);
 
             if (me->GetPositionZ() < 518.63f)
             {
-                if (me->Attack(pWho, true))
+                if (me->Attack(who, true))
                 {
                     DoScriptText(SayAggro[3], me);
 
-                    me->SetInCombatWith(pWho);
-                    pWho->SetInCombatWith(me);
+                    me->SetInCombatWith(who);
+                    who->SetInCombatWith(me);
 
-                    me->GetMotionMaster()->MoveChase(pWho, 0, 0);
+                    me->GetMotionMaster()->MoveChase(who, 0, 0);
                 }
             }
         }

@@ -356,21 +356,21 @@ public:
     {
         npc_guardian_pavilionAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
                 return;
 
-            if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(pWho) || !me->isInBackInMap(pWho, 5.0f))
+            if (!who || who->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(who) || !me->isInBackInMap(who, 5.0f))
                 return;
 
-            if (pWho->HasAura(SPELL_TRESPASSER_H) || pWho->HasAura(SPELL_TRESPASSER_A))
+            if (who->HasAura(SPELL_TRESPASSER_H) || who->HasAura(SPELL_TRESPASSER_A))
                 return;
 
-            if (pWho->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
-                pWho->CastSpell(pWho, SPELL_TRESPASSER_H, true);
+            if (who->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+                who->CastSpell(who, SPELL_TRESPASSER_H, true);
             else
-                pWho->CastSpell(pWho, SPELL_TRESPASSER_A, true);
+                who->CastSpell(who, SPELL_TRESPASSER_A, true);
 
         }
     };

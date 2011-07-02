@@ -185,9 +185,9 @@ public:
             m_vBurrowGUID.clear();
         }
 
-        void KilledUnit(Unit* pWho)
+        void KilledUnit(Unit* who)
         {
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
                 if (m_pInstance)
@@ -195,7 +195,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*pWho*/)
+        void MoveInLineOfSight(Unit* /*who*/)
         {
             if (!m_bIntro)
             {
@@ -250,7 +250,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -582,7 +582,7 @@ public:
             DoCast(SPELL_FROST_SPHERE);
         }
 
-        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
+        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
         {
             if (me->GetHealth() < uiDamage)
             {
@@ -660,17 +660,17 @@ public:
             m_uiTargetGUID = 0;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            m_uiTargetGUID = pWho->GetGUID();
-            DoCast(pWho, SPELL_MARK);
+            m_uiTargetGUID = who->GetGUID();
+            DoCast(who, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
             m_uiSpeed = 0;
             m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(pWho);
+            me->TauntApply(who);
         }
 
-        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
+        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
         {
             uiDamage = 0;
         }

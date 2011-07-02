@@ -335,12 +335,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->isAlive() && !pMarzon->isInCombat())
-                    pMarzon->AI()->AttackStart(pWho);
+                    pMarzon->AI()->AttackStart(who);
             }
         }
 
@@ -472,7 +472,7 @@ public:
             me->RestoreFaction();
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             DoScriptText(SAY_MARZON_2, me);
 
@@ -481,7 +481,7 @@ public:
                 if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
                 {
                     if (pSummoner && pSummoner->GetTypeId() == TYPEID_UNIT && pSummoner->isAlive() && !pSummoner->isInCombat())
-                        pSummoner->ToCreature()->AI()->AttackStart(pWho);
+                        pSummoner->ToCreature()->AI()->AttackStart(who);
                 }
             }
         }

@@ -98,7 +98,7 @@ class example_escort : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*pWho*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {

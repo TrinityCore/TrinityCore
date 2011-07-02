@@ -76,10 +76,10 @@ public:
             m_uiPeriodicSay = 6000;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
-                DoScriptText(RAND(SAY_ATTACKED_1, SAY_ATTACKED_2), me, pWho);
+                DoScriptText(RAND(SAY_ATTACKED_1, SAY_ATTACKED_2), me, who);
         }
 
         void WaypointStart(uint32 uiPointId)

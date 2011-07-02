@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_MO_AGGRO, me);
             DoCast(me, SPELL_RETRIBUTIONAURA);
@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pWho*/, const SpellEntry* pSpell)
+        void SpellHit(Unit* /*who*/, const SpellEntry* pSpell)
         {
             //When hit with ressurection say text
             if (pSpell->Id == SPELL_SCARLETRESURRECTION)
@@ -260,15 +260,15 @@ public:
                     m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
             if (m_pInstance && m_pInstance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
                 return;
 
-            ScriptedAI::AttackStart(pWho);
+            ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_WH_INTRO, me);
         }
