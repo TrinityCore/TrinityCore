@@ -125,7 +125,7 @@ public:
                 m_pInstance->SetData(TYPE_VOLKHAN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
@@ -133,16 +133,16 @@ public:
                 m_pInstance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->AddThreat(pWho, 0.0f);
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
+                me->AddThreat(who, 0.0f);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
 
                 if (!m_bHasTemper)
-                    me->GetMotionMaster()->MoveChase(pWho);
+                    me->GetMotionMaster()->MoveChase(who);
             }
         }
 
@@ -395,16 +395,16 @@ public:
             m_uiImmolation_Timer = 5000;
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->AddThreat(pWho, 0.0f);
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
+                me->AddThreat(who, 0.0f);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
 
                 if (!m_bIsFrozen)
-                    me->GetMotionMaster()->MoveChase(pWho);
+                    me->GetMotionMaster()->MoveChase(who);
             }
         }
 

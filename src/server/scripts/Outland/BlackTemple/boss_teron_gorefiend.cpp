@@ -265,11 +265,11 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!Intro && pWho->GetTypeId() == TYPEID_PLAYER && pWho->isTargetableForAttack() && me->IsHostileTo(pWho) && pWho->isInAccessiblePlaceFor(me))
+            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && who->isTargetableForAttack() && me->IsHostileTo(who) && who->isInAccessiblePlaceFor(me))
             {
-                if (me->IsWithinDistInMap(pWho, VISIBLE_RANGE) && me->IsWithinLOSInMap(pWho))
+                if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
                     if (pInstance)
                         pInstance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
@@ -278,12 +278,12 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoScriptText(SAY_INTRO, me);
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                    AggroTargetGUID = pWho->GetGUID();
+                    AggroTargetGUID = who->GetGUID();
                     Intro = true;
                 }
             }
             if (Done)
-                ScriptedAI::MoveInLineOfSight(pWho);
+                ScriptedAI::MoveInLineOfSight(who);
         }
 
         void KilledUnit(Unit* /*victim*/)

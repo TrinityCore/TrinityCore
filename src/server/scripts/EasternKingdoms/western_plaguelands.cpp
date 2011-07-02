@@ -255,13 +255,13 @@ public:
     {
         npc_andorhal_towerAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER)
+            if (!who || who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             if (me->FindNearestGameObject(GO_BEACON_TORCH, 10.0f))
-                CAST_PLR(pWho)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                CAST_PLR(who)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
         }
     };
 
@@ -378,7 +378,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/){}
+        void EnterCombat(Unit* /*who*/){}
 
          void JustDied(Unit* /*pKiller*/)
         {

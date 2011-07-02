@@ -173,12 +173,12 @@ public:
             DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!pRyga && pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(pWho, 15.0f))
-                pRyga = pWho;
+            if (!pRyga && who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(who, 15.0f))
+                pRyga = who;
 
-            npc_escortAI::MoveInLineOfSight(pWho);
+            npc_escortAI::MoveInLineOfSight(who);
         }
 
         void WaypointReached(uint32 uiPointId)

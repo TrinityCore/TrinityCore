@@ -286,7 +286,7 @@ public:
             magneticPullTimer = 20000;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(SPELL_STALAGG_TESLA);
         }
@@ -370,7 +370,7 @@ public:
             staticFieldTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(SPELL_FEUGEN_TESLA);
         }

@@ -141,9 +141,9 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void KilledUnit(Unit* pWho)
+        void KilledUnit(Unit* who)
         {
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 if (m_pInstance)
                     m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
@@ -163,7 +163,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->SetInCombatWithZone();
             if (m_pInstance)

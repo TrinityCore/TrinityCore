@@ -94,12 +94,12 @@ public:
                 m_pInstance->SetData(TYPE_HELLMAW, FAIL);
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->HasAura(SPELL_BANISH))
                 return;
 
-            npc_escortAI::MoveInLineOfSight(pWho);
+            npc_escortAI::MoveInLineOfSight(who);
         }
 
         void WaypointReached(uint32 /*i*/)

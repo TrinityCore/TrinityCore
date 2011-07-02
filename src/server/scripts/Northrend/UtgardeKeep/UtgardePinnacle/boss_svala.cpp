@@ -123,12 +123,12 @@ public:
                 pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (Phase == IDLE && pWho->isTargetableForAttack() && me->IsHostileTo(pWho) && me->IsWithinDistInMap(pWho, 40))
+            if (Phase == IDLE && who->isTargetableForAttack() && me->IsHostileTo(who) && me->IsWithinDistInMap(who, 40))
             {
                 Phase = INTRO;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

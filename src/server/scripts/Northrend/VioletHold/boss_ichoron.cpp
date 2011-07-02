@@ -117,7 +117,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
@@ -138,17 +138,17 @@ public:
             }
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->AddThreat(pWho, 0.0f);
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
-                DoStartMovement(pWho);
+                me->AddThreat(who, 0.0f);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
+                DoStartMovement(who);
             }
         }
 
@@ -204,7 +204,7 @@ public:
             return 0;
         }
 
-        void MoveInLineOfSight(Unit* /*pWho*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -358,7 +358,7 @@ public:
             DoCast(me, SPELL_WATER_GLOBULE);
         }
 
-        void AttackStart(Unit* /*pWho*/)
+        void AttackStart(Unit* /*who*/)
         {
             return;
         }

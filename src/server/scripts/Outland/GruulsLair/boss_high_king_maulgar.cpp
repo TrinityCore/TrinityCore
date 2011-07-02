@@ -339,18 +339,18 @@ public:
                 pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->AddThreat(pWho, 0.0f);
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
+                me->AddThreat(who, 0.0f);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
 
-                me->GetMotionMaster()->MoveChase(pWho, 30.0f);
+                me->GetMotionMaster()->MoveChase(who, 30.0f);
             }
         }
 

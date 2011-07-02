@@ -796,7 +796,7 @@ public:
         {
         }
 
-        void JustDied(Unit* /*pWho*/)
+        void JustDied(Unit* /*who*/)
         {
             DoCast(SPELL_HALLUCINATION_2);
         }

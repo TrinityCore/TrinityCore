@@ -121,18 +121,18 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             // Enter Combat called once per combat
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* who)
             {
                 //Say some stuff
-                DoScriptText(SAY_AGGRO, me, pWho);
+                DoScriptText(SAY_AGGRO, me, who);
             }
 
             // *** HANDLED FUNCTION ***
             // Attack Start is called when victim change (including at start of combat)
-            // By default, attack pWho and start movement toward the victim.
-            //void AttackStart(Unit* pWho)
+            // By default, attack who and start movement toward the victim.
+            //void AttackStart(Unit* who)
             //{
-            //    ScriptedAI::AttackStart(pWho);
+            //    ScriptedAI::AttackStart(who);
             //}
 
             // *** HANDLED FUNCTION ***

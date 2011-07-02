@@ -71,9 +71,9 @@ public:
             DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
-        void UnlockRageclaw(Unit* pWho)
+        void UnlockRageclaw(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
             Creature* Rageclaw = Unit::GetCreature(*me, RageclawGUID);
@@ -628,9 +628,9 @@ public:
             uiBattleShoutTimer  = 7000;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            DoCast(pWho, SPELL_IMPALE);
+            DoCast(who, SPELL_IMPALE);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -753,7 +753,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_GROW);
         }
@@ -1195,12 +1195,12 @@ public:
             uiMissleTimer = urand(2000, 7000);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            AttackStartNoMove(pWho);
+            AttackStartNoMove(who);
         }
 
         void SetData(uint32 uiData, uint32 uiValue)

@@ -406,20 +406,20 @@ struct boss_faction_championsAI : public ScriptedAI
         return count;
     }
 
-    void AttackStart(Unit* pWho)
+    void AttackStart(Unit* who)
     {
-        if (!pWho) return;
+        if (!who) return;
 
-        if (me->Attack(pWho, true))
+        if (me->Attack(who, true))
         {
-            me->AddThreat(pWho, 10.0f);
-            me->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(me);
+            me->AddThreat(who, 10.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
 
             if (mAIType == AI_MELEE || mAIType == AI_PET)
-                DoStartMovement(pWho);
+                DoStartMovement(who);
             else
-                DoStartMovement(pWho, 20.0f);
+                DoStartMovement(who, 20.0f);
             SetCombatMovement(true);
         }
     }
@@ -872,9 +872,9 @@ public:
             DoCast(me, SPELL_SHADOWFORM);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            boss_faction_championsAI::EnterCombat(pWho);
+            boss_faction_championsAI::EnterCombat(who);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -1865,9 +1865,9 @@ public:
             SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            boss_faction_championsAI::EnterCombat(pWho);
+            boss_faction_championsAI::EnterCombat(who);
             DoCast(SPELL_SEAL_OF_COMMAND);
         }
 

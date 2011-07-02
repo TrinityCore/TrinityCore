@@ -81,7 +81,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             Player* player = GetPlayerForEscort();
 

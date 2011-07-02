@@ -162,7 +162,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->SetInCombatWithZone();
             m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
@@ -265,11 +265,11 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            m_uiTargetGUID = pWho->GetGUID();
-            me->TauntApply(pWho);
-            DoCast(pWho, SPELL_SNOBOLLED);
+            m_uiTargetGUID = who->GetGUID();
+            me->TauntApply(who);
+            DoCast(who, SPELL_SNOBOLLED);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -402,16 +402,16 @@ struct boss_jormungarAI : public ScriptedAI
         me->DespawnOrUnsummon();
     }
 
-    void KilledUnit(Unit* pWho)
+    void KilledUnit(Unit* who)
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER)
+        if (who->GetTypeId() == TYPEID_PLAYER)
         {
             if (instanceScript)
                 instanceScript->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
         }
     }
 
-    void EnterCombat(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
         if (instanceScript)
@@ -756,16 +756,16 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void KilledUnit(Unit* pWho)
+        void KilledUnit(Unit* who)
         {
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 if (m_pInstance)
                     m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);

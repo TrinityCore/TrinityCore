@@ -510,18 +510,18 @@ public:
             MoveToDock();
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
 
                 if (IsCombatMovementAllowed())
-                    me->GetMotionMaster()->MoveChase(pWho);
+                    me->GetMotionMaster()->MoveChase(who);
             }
         }
 
@@ -653,9 +653,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            DoScriptText(SAY_ATTACKED_1, me, pWho);
+            DoScriptText(SAY_ATTACKED_1, me, who);
         }
 
         void Reset() {}

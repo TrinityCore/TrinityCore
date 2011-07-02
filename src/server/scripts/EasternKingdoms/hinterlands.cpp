@@ -130,9 +130,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            if (pWho->GetEntry() == NPC_MARAUDING_OWL || pWho->GetEntry() == NPC_VILE_AMBUSHER)
+            if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
                 return;
 
             if (rand()%1)
@@ -236,13 +236,13 @@ public:
             npc_escortAI::JustRespawned();
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                if (pWho->GetEntry() == NPC_OUTRUNNER && !m_bIsByOutrunner)
+                if (who->GetEntry() == NPC_OUTRUNNER && !m_bIsByOutrunner)
                 {
-                    DoScriptText(SAY_RIN_BY_OUTRUNNER, pWho);
+                    DoScriptText(SAY_RIN_BY_OUTRUNNER, who);
                     m_bIsByOutrunner = true;
                 }
 
