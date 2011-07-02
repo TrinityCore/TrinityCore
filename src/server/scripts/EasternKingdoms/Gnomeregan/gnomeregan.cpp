@@ -95,30 +95,30 @@ public:
         return new npc_blastmaster_emi_shortfuseAI(creature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
 
-            creature->setFaction(pPlayer->getFaction());
+            creature->setFaction(player->getFaction());
             creature->AI()->SetData(1, 0);
 
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         InstanceScript* pInstance = creature->GetInstanceScript();
 
         if (pInstance && pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
 
         return true;
     }
@@ -251,16 +251,16 @@ public:
 
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
-                if (Player* pPlayer = i->getSource())
+                if (Player* player = i->getSource())
                 {
-                    if (pPlayer->isGameMaster())
+                    if (player->isGameMaster())
                         continue;
 
-                    if (pPlayer->isAlive())
+                    if (player->isAlive())
                     {
-                        pTemp->SetInCombatWith(pPlayer);
-                        pPlayer->SetInCombatWith(pTemp);
-                        pTemp->AddThreat(pPlayer, 0.0f);
+                        pTemp->SetInCombatWith(player);
+                        player->SetInCombatWith(pTemp);
+                        pTemp->AddThreat(player, 0.0f);
                     }
                 }
             }

@@ -42,25 +42,25 @@ class npc_spirit_of_olum : public CreatureScript
 public:
     npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
 
-        pPlayer->InterruptNonMeleeSpells(false);
-        pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, false);
+        player->InterruptNonMeleeSpells(false);
+        player->CastSpell(player, SPELL_TELEPORT, false);
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         InstanceScript* pInstance = creature->GetInstanceScript();
 
         if (pInstance && (pInstance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (pInstance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 

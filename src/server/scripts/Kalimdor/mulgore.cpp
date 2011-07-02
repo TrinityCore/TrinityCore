@@ -43,24 +43,24 @@ class npc_skorn_whitecloud : public CreatureScript
 public:
     npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
-            pPlayer->SEND_GOSSIP_MENU(523, creature->GetGUID());
+            player->SEND_GOSSIP_MENU(523, creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (!pPlayer->GetQuestRewardStatus(770))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (!player->GetQuestRewardStatus(770))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(522, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(522, creature->GetGUID());
 
         return true;
     }

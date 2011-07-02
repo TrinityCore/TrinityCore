@@ -611,7 +611,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
         InstanceScript* pInstance = pGO->GetInstanceScript();
 
@@ -625,13 +625,13 @@ public:
             return true;
 
         // if exhausted or already channeling return
-        if (pPlayer->HasAura(SPELL_MIND_EXHAUSTION) || pPlayer->HasAura(SPELL_SHADOW_GRASP))
+        if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
             return true;
 
-        pPlayer->InterruptNonMeleeSpells(false);
-        pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP, true);
-        pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP_VISUAL, false);
-        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(pGO->GetGUID(), pPlayer->GetGUID());
+        player->InterruptNonMeleeSpells(false);
+        player->CastSpell(player, SPELL_SHADOW_GRASP, true);
+        player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
+        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(pGO->GetGUID(), player->GetGUID());
         return true;
     }
 };

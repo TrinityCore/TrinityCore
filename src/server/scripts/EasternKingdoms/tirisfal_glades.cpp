@@ -48,13 +48,13 @@ class npc_calvin_montague : public CreatureScript
 public:
     npc_calvin_montague() : CreatureScript("npc_calvin_montague") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_590)
         {
             creature->setFaction(FACTION_HOSTILE);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            CAST_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(pPlayer);
+            CAST_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
         }
         return true;
     }
@@ -130,8 +130,8 @@ public:
                         ++m_uiPhase;
                         break;
                     case 2:
-                        if (Player* pPlayer = Unit::GetPlayer(*me, m_uiPlayerGUID))
-                            pPlayer->AreaExploredOrEventHappens(QUEST_590);
+                        if (Player* player = Unit::GetPlayer(*me, m_uiPlayerGUID))
+                            player->AreaExploredOrEventHappens(QUEST_590);
 
                         DoCast(me, SPELL_DRINK, true);
                         ++m_uiPhase;
@@ -171,15 +171,15 @@ class go_mausoleum_door : public GameObjectScript
 public:
     go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGo*/)
     {
-        if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
             return false;
 
-        if (GameObject* pTrigger = pPlayer->FindNearestGameObject(GO_TRIGGER, 30.0f))
+        if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
         {
             pTrigger->SetGoState(GO_STATE_READY);
-            pPlayer->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+            player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
             return false;
         }
 
@@ -193,12 +193,12 @@ class go_mausoleum_trigger : public GameObjectScript
 public:
     go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
-        if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
             return false;
 
-        if (GameObject* pDoor = pPlayer->FindNearestGameObject(GO_DOOR, 30.0f))
+        if (GameObject* pDoor = player->FindNearestGameObject(GO_DOOR, 30.0f))
         {
             pGo->SetGoState(GO_STATE_ACTIVE);
             pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);

@@ -134,11 +134,11 @@ public:
                 {
                     me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
 
-                    if (Player* pPlayer = Unit::GetPlayer(*me, pCaster))
+                    if (Player* player = Unit::GetPlayer(*me, pCaster))
                     {
-                        DoScriptText(RAND(SAY_HEAL1, SAY_HEAL2, SAY_HEAL3, SAY_HEAL4), me, pPlayer);
+                        DoScriptText(RAND(SAY_HEAL1, SAY_HEAL2, SAY_HEAL3, SAY_HEAL4), me, player);
 
-                        pPlayer->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                        player->TalkedToCreature(me->GetEntry(), me->GetGUID());
                     }
 
                     me->GetMotionMaster()->Clear();
@@ -195,24 +195,24 @@ class npc_engineer_spark_overgrind : public CreatureScript
 public:
     npc_engineer_spark_overgrind() : CreatureScript("npc_engineer_spark_overgrind") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
             creature->setFaction(FACTION_HOSTILE);
-            CAST_AI(npc_engineer_spark_overgrind::npc_engineer_spark_overgrindAI, creature->AI())->AttackStart(pPlayer);
+            CAST_AI(npc_engineer_spark_overgrind::npc_engineer_spark_overgrindAI, creature->AI())->AttackStart(player);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -349,13 +349,13 @@ class npc_magwin : public CreatureScript
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
         {
             creature->setFaction(113);
             if (npc_escortAI* pEscortAI = CAST_AI(npc_escortAI, creature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
         }
         return true;
     }
@@ -371,26 +371,26 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(i)
             {
             case 0:
-                DoScriptText(SAY_START, me, pPlayer);
+                DoScriptText(SAY_START, me, player);
                 break;
             case 17:
-                DoScriptText(SAY_PROGRESS, me, pPlayer);
+                DoScriptText(SAY_PROGRESS, me, player);
                 break;
             case 28:
-                DoScriptText(SAY_END1, me, pPlayer);
+                DoScriptText(SAY_END1, me, player);
                 break;
             case 29:
-                DoScriptText(EMOTE_HUG, me, pPlayer);
-                DoScriptText(SAY_END2, me, pPlayer);
-                pPlayer->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
+                DoScriptText(EMOTE_HUG, me, player);
+                DoScriptText(SAY_END2, me, player);
+                player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
                 break;
             }
         }
@@ -586,15 +586,15 @@ class go_ravager_cage : public GameObjectScript
 public:
     go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
-        if (pPlayer->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* ravager = pGo->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
             {
                 ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 ravager->SetReactState(REACT_AGGRESSIVE);
-                ravager->AI()->AttackStart(pPlayer);
+                ravager->AI()->AttackStart(player);
             }
         }
         return true ;

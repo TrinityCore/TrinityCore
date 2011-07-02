@@ -48,47 +48,47 @@ class example_gossip_codebox : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-            pPlayer->PlayerTalkClass->SendGossipMenu(907, creature->GetGUID());
+            player->PlayerTalkClass->SendGossipMenu(907, creature->GetGUID());
 
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
             if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
             {
                 DoScriptText(SAY_NOT_INTERESTED, creature);
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
             }
 
             return true;
         }
 
-        bool OnGossipSelectCode(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction, const char* code)
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction, const char* code)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
             if (uiSender == GOSSIP_SENDER_MAIN)
             {
                 switch (uiAction)
                 {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (std::strcmp(code, pPlayer->GetName()) != 0)
+                    if (std::strcmp(code, player->GetName()) != 0)
                     {
                         DoScriptText(SAY_WRONG, creature);
-                        creature->CastSpell(pPlayer, SPELL_POLYMORPH, true);
+                        creature->CastSpell(player, SPELL_POLYMORPH, true);
                     }
                     else
                     {
                         DoScriptText(SAY_CORRECT, creature);
-                        creature->CastSpell(pPlayer, SPELL_MARK_OF_THE_WILD, true);
+                        creature->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
                     }
-                    pPlayer->CLOSE_GOSSIP_MENU();
+                    player->CLOSE_GOSSIP_MENU();
 
                     return true;
                 }

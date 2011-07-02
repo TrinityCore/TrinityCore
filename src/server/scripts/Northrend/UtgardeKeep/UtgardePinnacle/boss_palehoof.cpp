@@ -834,7 +834,7 @@ class go_palehoof_sphere : public GameObjectScript
 public:
     go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         InstanceScript *pInstance = pGO->GetInstanceScript();
 

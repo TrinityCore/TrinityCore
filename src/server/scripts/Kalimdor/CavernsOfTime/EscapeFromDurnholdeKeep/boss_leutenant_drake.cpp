@@ -36,7 +36,7 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         if (InstanceScript* pInstance = pGO->GetInstanceScript())
         {

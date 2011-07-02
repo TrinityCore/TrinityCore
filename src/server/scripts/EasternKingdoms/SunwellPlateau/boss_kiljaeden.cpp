@@ -374,16 +374,16 @@ class go_orb_of_the_blue_flight : public GameObjectScript
 public:
     go_orb_of_the_blue_flight() : GameObjectScript("go_orb_of_the_blue_flight") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
         if (pGo->GetUInt32Value(GAMEOBJECT_FACTION) == 35)
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
-            pPlayer->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
-            pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
+            player->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
+            player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
             pGo->SetUInt32Value(GAMEOBJECT_FACTION, 0);
 
-            if (Creature* pKalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ)))
+            if (Creature* pKalec = Unit::GetCreature(*player, pInstance->GetData64(DATA_KALECGOS_KJ)))
                 CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->SetRingOfBlueFlames();
 
             pGo->Refresh();

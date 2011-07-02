@@ -235,8 +235,8 @@ public:
                 Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
 
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* pPlayer = i->getSource())
-                        pPlayer->DeMorph();
+                    if (Player* player = i->getSource())
+                        player->DeMorph();
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_ACHIEVEMENT_CHECK);
 
                 pInstance->SetData(DATA_THARON_JA_EVENT, DONE);

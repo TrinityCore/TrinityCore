@@ -61,63 +61,63 @@ class npc_orsonn_and_kodian : public CreatureScript
 public:
     npc_orsonn_and_kodian() : CreatureScript("npc_orsonn_and_kodian") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
         {
             switch(creature->GetEntry())
             {
                 case NPC_ORSONN:
-                    if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT) || !pPlayer->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_ORSONN_CREDIT))
+                    if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_ORSONN_CREDIT))
                     {
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN1, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN1, creature->GetGUID());
                         return true;
                     }
                     break;
                 case NPC_KODIAN:
-                    if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_KODIAN_CREDIT) || !pPlayer->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_KODIAN_CREDIT))
+                    if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_KODIAN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_KODIAN_CREDIT))
                     {
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN1, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN1, creature->GetGUID());
                         return true;
                     }
                     break;
             }
         }
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN2, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN2, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN3, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN3, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->TalkedToCreature(NPC_ORSONN_CREDIT, creature->GetGUID());
+                player->CLOSE_GOSSIP_MENU();
+                player->TalkedToCreature(NPC_ORSONN_CREDIT, creature->GetGUID());
                 break;
 
             case GOSSIP_ACTION_INFO_DEF+4:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN2, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN2, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->TalkedToCreature(NPC_KODIAN_CREDIT, creature->GetGUID());
+                player->CLOSE_GOSSIP_MENU();
+                player->TalkedToCreature(NPC_KODIAN_CREDIT, creature->GetGUID());
                 break;
         }
 
@@ -182,8 +182,8 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
-            if (!pPlayer)
+            Player* player = GetPlayerForEscort();
+            if (!player)
                 return;
             switch (i)
             {
@@ -262,11 +262,11 @@ public:
                     }
                     break;
                 case 24:
-                    if (pPlayer)
+                    if (player)
                     {
                         Completed = true;
-                        pPlayer->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
-                        DoScriptText(SAY_QUEST_COMPLETE, me, pPlayer);
+                        player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
+                        DoScriptText(SAY_QUEST_COMPLETE, me, player);
                     }
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     break;
@@ -309,7 +309,7 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_PERILOUS_ADVENTURE)
         {
@@ -320,7 +320,7 @@ public:
             }
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
         }
         return true;
     }
@@ -737,14 +737,14 @@ public:
         {
             if (uiRunAwayTimer <= uiDiff)
             {
-                if (Player* pPlayer = Unit::GetPlayer(*me, uiPlayerGUID))
+                if (Player* player = Unit::GetPlayer(*me, uiPlayerGUID))
                 {
                     switch (uiTimer)
                     {
                         case 0:
-                            if (pPlayer->GetQuestStatus(QUEST_SMOKE_EM_OUT_A) == QUEST_STATUS_INCOMPLETE ||
-                                pPlayer->GetQuestStatus(QUEST_SMOKE_EM_OUT_H) == QUEST_STATUS_INCOMPLETE)
-                                pPlayer->KilledMonsterCredit(NPC_VENTURE_CO_STABLES_KC, 0);
+                            if (player->GetQuestStatus(QUEST_SMOKE_EM_OUT_A) == QUEST_STATUS_INCOMPLETE ||
+                                player->GetQuestStatus(QUEST_SMOKE_EM_OUT_H) == QUEST_STATUS_INCOMPLETE)
+                                player->KilledMonsterCredit(NPC_VENTURE_CO_STABLES_KC, 0);
                             me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()+7, me->GetPositionZ());
                             uiRunAwayTimer = 2500;
                             ++uiTimer;

@@ -44,28 +44,28 @@ class npc_blood_knight_dawnstar : public CreatureScript
 public:
     npc_blood_knight_dawnstar() : CreatureScript("npc_blood_knight_dawnstar") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             ItemPosCountVec dest;
-            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 24226, 1, NULL);
+            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 24226, 1, NULL);
             if (msg == EQUIP_ERR_OK)
             {
-                pPlayer->StoreNewItem(dest, 24226, 1, true);
-                pPlayer->PlayerTalkClass->ClearMenus();
+                player->StoreNewItem(dest, 24226, 1, true);
+                player->PlayerTalkClass->ClearMenus();
             }
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(9692) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(24226, 1, true))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_BKD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(9692) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(24226, 1, true))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_BKD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -83,26 +83,26 @@ class npc_budd_nedreck : public CreatureScript
 public:
     npc_budd_nedreck() : CreatureScript("npc_budd_nedreck") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(pPlayer, 42540, false);
+            player->CLOSE_GOSSIP_MENU();
+            creature->CastSpell(player, 42540, false);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -117,25 +117,25 @@ class npc_rathis_tomber : public CreatureScript
 public:
     npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->GetSession()->SendListInventory(creature->GetGUID());
+            player->GetSession()->SendListInventory(creature->GetGUID());
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (creature->isVendor() && pPlayer->GetQuestRewardStatus(9152))
+        if (creature->isVendor() && player->GetQuestRewardStatus(9152))
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            pPlayer->SEND_GOSSIP_MENU(8432, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            player->SEND_GOSSIP_MENU(8432, creature->GetGUID());
         }else
-        pPlayer->SEND_GOSSIP_MENU(8431, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(8431, creature->GetGUID());
 
         return true;
     }
@@ -173,9 +173,9 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(i)
@@ -185,24 +185,24 @@ public:
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                     Cage->SetGoState(GO_STATE_ACTIVE);
-                DoScriptText(SAY_START, me, pPlayer);
+                DoScriptText(SAY_START, me, player);
                 break;
                 }
             case 5:
-                DoScriptText(SAY_PROGRESS1, me, pPlayer);
+                DoScriptText(SAY_PROGRESS1, me, player);
             case 11:
-                DoScriptText(SAY_PROGRESS2, me, pPlayer);
+                DoScriptText(SAY_PROGRESS2, me, player);
                 me->SetOrientation(4.762841f);
                 break;
             case 18:
                 {
-                DoScriptText(SAY_PROGRESS3, me, pPlayer);
+                DoScriptText(SAY_PROGRESS3, me, player);
                 Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
                 Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (Summ1 && Summ2)
                 {
                     Summ1->Attack(me, true);
-                    Summ2->Attack(pPlayer, true);
+                    Summ2->Attack(player, true);
                 }
                 me->AI()->AttackStart(Summ1);
                 break;
@@ -210,19 +210,19 @@ public:
             case 19: me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
             case 25: me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
             case 30:
-                if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(pPlayer)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
+                if (player && player->GetTypeId() == TYPEID_PLAYER)
+                    CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
                 break;
             case 32:
                 me->SetOrientation(2.978281f);
-                DoScriptText(SAY_END1, me, pPlayer);
+                DoScriptText(SAY_END1, me, player);
                 break;
             case 33:
                 me->SetOrientation(5.858011f);
-                DoScriptText(SAY_END2, me, pPlayer);
+                DoScriptText(SAY_END2, me, player);
                 Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                 if (CaptainHelios)
-                DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, pPlayer);
+                DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
                 break;
             }
         }
@@ -234,14 +234,14 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
         {
             creature->setFaction(113);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
         }
         return true;
     }

@@ -44,47 +44,47 @@ class npc_royal_historian_archesonus : public CreatureScript
 public:
     npc_royal_historian_archesonus() : CreatureScript("npc_royal_historian_archesonus") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                pPlayer->SEND_GOSSIP_MENU(2236, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(2236, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                pPlayer->SEND_GOSSIP_MENU(2237, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(2237, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                pPlayer->SEND_GOSSIP_MENU(2238, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                player->SEND_GOSSIP_MENU(2238, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                pPlayer->SEND_GOSSIP_MENU(2239, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                player->SEND_GOSSIP_MENU(2239, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->AreaExploredOrEventHappens(3702);
+                player->CLOSE_GOSSIP_MENU();
+                player->AreaExploredOrEventHappens(3702);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(creature->GetGUID());
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(3702) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(3702) == QUEST_STATUS_INCOMPLETE)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(2235, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            player->SEND_GOSSIP_MENU(2235, creature->GetGUID());
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }

@@ -34,20 +34,20 @@ class at_twilight_grove : public AreaTriggerScript
 public:
     at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
     {
-        if (pPlayer->HasQuestForItem(21149))
+        if (player->HasQuestForItem(21149))
         {
-            if (Unit* TCorrupter = pPlayer->SummonCreature(15625, -10328.16f, -489.57f, 49.95f, 0, TEMPSUMMON_MANUAL_DESPAWN, 60000))
+            if (Unit* TCorrupter = player->SummonCreature(15625, -10328.16f, -489.57f, 49.95f, 0, TEMPSUMMON_MANUAL_DESPAWN, 60000))
             {
                 TCorrupter->setFaction(14);
                 TCorrupter->SetMaxHealth(832750);
             }
-            if (Unit* CorrupterSpeaker = pPlayer->SummonCreature(1, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ()-1, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
+            if (Unit* CorrupterSpeaker = player->SummonCreature(1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()-1, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
             {
                 CorrupterSpeaker->SetName("Twilight Corrupter");
                 CorrupterSpeaker->SetVisible(true);
-                CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...", 0, pPlayer->GetGUID());
+                CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...", 0, player->GetGUID());
             }
         }
         return false;

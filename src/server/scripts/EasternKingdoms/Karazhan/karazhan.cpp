@@ -324,70 +324,70 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
 
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(8971, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(8971, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->StartEvent();
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_OZ;
-                sLog->outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", pPlayer->GetGUID());
+                sLog->outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_HOOD;
-                sLog->outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", pPlayer->GetGUID());
+                sLog->outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_RAJ;
-                sLog->outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", pPlayer->GetGUID());
+                sLog->outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
                 break;
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             // Check for death of Moroes and if opera event is not done already
             if (pInstance->GetData(TYPE_MOROES) == DONE && pInstance->GetData(TYPE_OPERA) != DONE)
             {
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-                if (pPlayer->isGameMaster())
+                if (player->isGameMaster())
                 {
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 }
 
                 if (npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI()))
                 {
                     if (!pBarnesAI->RaidWiped)
-                        pPlayer->SEND_GOSSIP_MENU(8970, creature->GetGUID());
+                        player->SEND_GOSSIP_MENU(8970, creature->GetGUID());
                     else
-                        pPlayer->SEND_GOSSIP_MENU(8975, creature->GetGUID());
+                        player->SEND_GOSSIP_MENU(8975, creature->GetGUID());
 
                     return true;
                 }
             }
         }
 
-        pPlayer->SEND_GOSSIP_MENU(8978, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(8978, creature->GetGUID());
         return true;
     }
 
@@ -414,26 +414,26 @@ class npc_berthold : public CreatureScript
 public:
     npc_berthold() : CreatureScript("npc_berthold") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-            pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, true);
+            player->CastSpell(player, SPELL_TELEPORT, true);
 
-        pPlayer->CLOSE_GOSSIP_MENU();
+        player->CLOSE_GOSSIP_MENU();
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             // Check if Shade of Aran event is done
             if (pInstance->GetData(TYPE_ARAN) == DONE)
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 

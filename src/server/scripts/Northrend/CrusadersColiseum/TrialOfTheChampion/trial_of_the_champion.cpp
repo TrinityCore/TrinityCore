@@ -382,19 +382,19 @@ public:
 
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
-                if (Player* pPlayer = i->getSource())
+                if (Player* player = i->getSource())
                 {
-                    if (pPlayer->isGameMaster())
+                    if (player->isGameMaster())
                         continue;
 
-                    if (pPlayer->isAlive())
+                    if (player->isAlive())
                     {
                         pTemp->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                         pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pTemp->SetReactState(REACT_AGGRESSIVE);
-                        pTemp->SetInCombatWith(pPlayer);
-                        pPlayer->SetInCombatWith(pTemp);
-                        pTemp->AddThreat(pPlayer, 0.0f);
+                        pTemp->SetInCombatWith(player);
+                        player->SetInCombatWith(pTemp);
+                        pTemp->AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -466,7 +466,7 @@ public:
         return new npc_announcer_toc5AI(creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         InstanceScript* pInstance = creature->GetInstanceScript();
 
@@ -482,21 +482,21 @@ public:
             pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
             pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
             pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         else if (pInstance)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
         }
 

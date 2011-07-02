@@ -253,29 +253,29 @@ class npc_sinclari_vh : public CreatureScript
 public:
     npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
                 if (InstanceScript *pInstance = creature->GetInstanceScript())
                     pInstance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->SEND_GOSSIP_MENU(13854, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(13854, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->NearTeleportTo(playerTeleportPosition.GetPositionX(), playerTeleportPosition.GetPositionY(), playerTeleportPosition.GetPositionZ(), playerTeleportPosition.GetOrientation(), true);
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->NearTeleportTo(playerTeleportPosition.GetPositionX(), playerTeleportPosition.GetPositionY(), playerTeleportPosition.GetPositionZ(), playerTeleportPosition.GetOrientation(), true);
+                player->CLOSE_GOSSIP_MENU();
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
@@ -283,16 +283,16 @@ public:
             {
                 case NOT_STARTED:
                 case FAIL: // Allow to start event if not started or wiped
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    pPlayer->SEND_GOSSIP_MENU(13853, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    player->SEND_GOSSIP_MENU(13853, creature->GetGUID());
                     break;
                 case IN_PROGRESS: // Allow to teleport inside if event is in progress
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_I_WANT_IN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    pPlayer->SEND_GOSSIP_MENU(13853, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_I_WANT_IN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                    player->SEND_GOSSIP_MENU(13853, creature->GetGUID());
                     break;
                 default:
-                    pPlayer->SEND_GOSSIP_MENU(13910, creature->GetGUID());
+                    player->SEND_GOSSIP_MENU(13910, creature->GetGUID());
             }
         }
         return true;

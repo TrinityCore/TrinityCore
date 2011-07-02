@@ -61,32 +61,32 @@ class npc_sergeant_bly : public CreatureScript
 public:
     npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
+            player->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
             creature->AI()->DoAction(0);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             if (pInstance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                pPlayer->SEND_GOSSIP_MENU(1517, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->SEND_GOSSIP_MENU(1517, creature->GetGUID());
             }
             else
                 if (pInstance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
-                    pPlayer->SEND_GOSSIP_MENU(1515, creature->GetGUID());
+                    player->SEND_GOSSIP_MENU(1515, creature->GetGUID());
                 else
-                    pPlayer->SEND_GOSSIP_MENU(1516, creature->GetGUID());
+                    player->SEND_GOSSIP_MENU(1516, creature->GetGUID());
             return true;
         }
         return false;
@@ -216,7 +216,7 @@ class go_troll_cage : public GameObjectScript
 public:
     go_troll_cage() : GameObjectScript("go_troll_cage") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
     {
         if (InstanceScript* pInstance = pGo->GetInstanceScript())
         {
@@ -258,33 +258,33 @@ class npc_weegli_blastfuse : public CreatureScript
 public:
     npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
             //here we make him run to door, set the charge and run away off to nowhere
             creature->AI()->DoAction(0);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (InstanceScript* pInstance = creature->GetInstanceScript())
         {
             switch (pInstance->GetData(EVENT_PYRAMID))
             {
                 case PYRAMID_KILLED_ALL_TROLLS:
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    pPlayer->SEND_GOSSIP_MENU(1514, creature->GetGUID());  //if event can proceed to end
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    player->SEND_GOSSIP_MENU(1514, creature->GetGUID());  //if event can proceed to end
                     break;
                 case PYRAMID_NOT_STARTED:
-                    pPlayer->SEND_GOSSIP_MENU(1511, creature->GetGUID());  //if event not started
+                    player->SEND_GOSSIP_MENU(1511, creature->GetGUID());  //if event not started
                     break;
                 default:
-                    pPlayer->SEND_GOSSIP_MENU(1513, creature->GetGUID());  //if event are in progress
+                    player->SEND_GOSSIP_MENU(1513, creature->GetGUID());  //if event are in progress
             }
             return true;
         }
@@ -410,7 +410,7 @@ class go_shallow_grave : public GameObjectScript
 public:
     go_shallow_grave() : GameObjectScript("go_shallow_grave") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
     {
         // randomly summon a zombie or dead hero the first time a grave is used
         if (pGo->GetUseCount() == 0)
@@ -443,9 +443,9 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
     {
-        Creature* pZumrah = pPlayer->FindNearestCreature(ZUMRAH_ID, 30.0f);
+        Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
 
         if (!pZumrah)
             return false;

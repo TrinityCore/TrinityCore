@@ -49,31 +49,31 @@ public:
         return new npc_astor_hadrenAI(creature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                pPlayer->SEND_GOSSIP_MENU(624, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(624, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
                 creature->setFaction(21);
-                if (pPlayer)
-                    CAST_AI(npc_astor_hadren::npc_astor_hadrenAI, creature->AI())->AttackStart(pPlayer);
+                if (player)
+                    CAST_AI(npc_astor_hadren::npc_astor_hadrenAI, creature->AI())->AttackStart(player);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        if (player->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(623, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(623, creature->GetGUID());
 
         return true;
     }
@@ -136,18 +136,18 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch(i)
             {
-            case 1: DoScriptText(SAY_START, me, pPlayer);break;
+            case 1: DoScriptText(SAY_START, me, player);break;
             case 13:
-                DoScriptText(SAY_LAST, me, pPlayer);
-                pPlayer->GroupEventHappens(QUEST_ESCORTING, me); break;
-            case 14: DoScriptText(SAY_THANKS, me, pPlayer); break;
+                DoScriptText(SAY_LAST, me, player);
+                player->GroupEventHappens(QUEST_ESCORTING, me); break;
+            case 14: DoScriptText(SAY_THANKS, me, player); break;
             case 15: {
                     Unit* Rane = me->FindNearestCreature(NPC_RANE, 20);
                     if (Rane)
@@ -174,14 +174,14 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_ESCORTING)
         {
-            DoScriptText(SAY_QUESTACCEPT, creature, pPlayer);
+            DoScriptText(SAY_QUESTACCEPT, creature, player);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+                pEscortAI->Start(true, false, player->GetGUID());
         }
 
         return true;
@@ -225,14 +225,14 @@ class pyrewood_ambush : public CreatureScript
 public:
     pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest *pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
         {
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress = true;
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->Phase = 0;
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->KillCount = 0;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->PlayerGUID = player->GetGUID();
         }
 
         return true;
@@ -289,13 +289,13 @@ public:
         {
             if (Creature* pSummoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
-                Player* pPlayer = NULL;
+                Player* player = NULL;
                 Unit* pTarget = NULL;
                 if (PlayerGUID)
                 {
-                    pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                    if (pPlayer)
-                        pTarget = RAND((Unit*)me, (Unit*)pPlayer);
+                    player = Unit::GetPlayer(*me, PlayerGUID);
+                    if (player)
+                        pTarget = RAND((Unit*)me, (Unit*)player);
                 } else
                     pTarget = me;
 
@@ -311,9 +311,9 @@ public:
         void JustDied(Unit* /*pKiller*/)
         {
             if (PlayerGUID)
-                if (Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID))
-                    if (pPlayer->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->FailQuest(QUEST_PYREWOOD_AMBUSH);
+                if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                    if (player->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
+                        player->FailQuest(QUEST_PYREWOOD_AMBUSH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -364,10 +364,10 @@ public:
                 case 5: //end
                     if (PlayerGUID)
                     {
-                        if (Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID))
+                        if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
                         {
                             me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
-                            pPlayer->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
+                            player->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
                         }
                     }
                     QuestInProgress = false;
