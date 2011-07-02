@@ -33,7 +33,7 @@
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
-#define ATTACK_DISTANCE             5.0f
+#define ATTACK_DISTANCE             4.0f
 #define MAX_VISIBILITY_DISTANCE     500.0f // max distance for visible objects
 #define SIGHT_RANGE_UNIT            50.0f
 #define DEFAULT_VISIBILITY_DISTANCE 90.0f // default visible distance, 90 yards on continents
