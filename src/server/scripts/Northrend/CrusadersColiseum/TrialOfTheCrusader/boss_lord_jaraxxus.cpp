@@ -68,7 +68,6 @@ enum BossSpells
     SPELL_FEL_FIREBALL          = 66532,
     SPELL_FEL_LIGHTING          = 66528,
     SPELL_INCINERATE_FLESH      = 66237,
-    SPELL_TOUCH_OF_JARAXXUS     = 66209,
     SPELL_BURNING_INFERNO       = 66242,
     SPELL_NETHER_PORTAL         = 66263,
     SPELL_LEGION_FLAME          = 66197,
@@ -76,6 +75,8 @@ enum BossSpells
     SPELL_SHIVAN_SLASH          = 67098,
     SPELL_SPINNING_STRIKE       = 66283,
     SPELL_MISTRESS_KISS         = 67077,
+    SPELL_SPINNING_STRIKE_1     = 66283,
+    SPELL_SPINNING_STRIKE_2     = 66285,
     SPELL_FEL_INFERNO           = 67047,
     SPELL_FEL_STREAK            = 66494,
     SPELL_BERSERK               = 64238,
@@ -112,7 +113,6 @@ public:
         uint32 m_uiIncinerateFleshTimer;
         uint32 m_uiNetherPowerTimer;
         uint32 m_uiLegionFlameTimer;
-        uint32 m_uiTouchOfJaraxxusTimer;
         uint32 m_uiSummonNetherPortalTimer;
         uint32 m_uiSummonInfernalEruptionTimer;
 
@@ -126,7 +126,6 @@ public:
             m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
-            m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             m_uiSummonNetherPortalTimer = 1*MINUTE*IN_MILLISECONDS;
             m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             Summons.DespawnAll();
@@ -220,7 +219,10 @@ public:
 
             if (m_uiNetherPowerTimer <= uiDiff)
             {
-                DoCast(me, SPELL_NETHER_POWER);
+				if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
+				{
+					me->SetAuraStack(SPELL_NETHER_POWER, me, 5);
+				}else me->SetAuraStack(SPELL_NETHER_POWER, me, 10);
                 m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             } else m_uiNetherPowerTimer -= uiDiff;
 
@@ -233,13 +235,6 @@ public:
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
-
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
-            {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
-                m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else m_uiTouchOfJaraxxusTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
@@ -535,7 +530,11 @@ public:
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(pTarget, SPELL_SPINNING_STRIKE);
+                {
+                    DoCast(pTarget,SPELL_SPINNING_STRIKE_1);
+                    DoCast(pTarget,SPELL_SPINNING_STRIKE_2);
+                    pTarget->CastSpell(me, 66287, true);
+                }
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
 
@@ -552,6 +551,73 @@ public:
 
 };
 
+class spell_spinning_pain_strike : public SpellScriptLoader
+{
+public:
+    spell_spinning_pain_strike() : SpellScriptLoader("spell_spinning_pain_strike") { }
+
+    class spell_spinning_pain_strike_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_spinning_pain_strike_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return true;
+        }
+
+        void CalcDamage(SpellEffIndex /*effIndex*/)
+        {
+            uint32 dmg = 0;
+            if(Unit* pTarget = GetHitUnit())
+                dmg = ((float)pTarget->GetMaxHealth())*50.0f/100.0f;
+            SetHitDamage(dmg);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_spinning_pain_strike_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_spinning_pain_strike_SpellScript();
+    }
+};
+
+class spell_eject_all_passengers : public SpellScriptLoader
+{
+public:
+    spell_eject_all_passengers() : SpellScriptLoader("spell_eject_all_passengers") { }
+
+    class spell_eject_all_passengers_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_eject_all_passengers_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* pCaster = GetCaster())
+                if (Vehicle* pVehicle = pCaster->GetVehicleKit())
+                    pVehicle->RemoveAllPassengers();
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_eject_all_passengers_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_eject_all_passengers_SpellScript();
+    }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -560,4 +626,6 @@ void AddSC_boss_jaraxxus()
     new mob_fel_infernal();
     new mob_nether_portal();
     new mob_mistress_of_pain();
+	new spell_spinning_pain_strike();
+    new spell_eject_all_passengers();
 }
