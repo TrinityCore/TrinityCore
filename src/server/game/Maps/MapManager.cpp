@@ -66,22 +66,21 @@ void MapManager::InitializeVisibilityDistanceInfo()
 
 Map* MapManager::_createBaseMap(uint32 id)
 {
-    Map *m = _findMap(id);
+    Map* m = _findMap(id);
 
-    if (m == NULL)
+    if (!m)
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
-        const MapEntry* entry = sMapStore.LookupEntry(id);
-        if (entry && entry->Instanceable())
+        if (const MapEntry* entry = sMapStore.LookupEntry(id))
         {
-            m = new MapInstanced(id, i_gridCleanUpDelay);
+            if (entry->Instanceable())
+                m = new MapInstanced(id, i_gridCleanUpDelay);
+            else
+                m = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
+
+            i_maps[id] = m;
         }
-        else
-        {
-            m = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
-        }
-        i_maps[id] = m;
     }
 
     ASSERT(m != NULL);
@@ -91,17 +90,18 @@ Map* MapManager::_createBaseMap(uint32 id)
 Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceId*/)
 {
     ASSERT(obj);
-    //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
-    Map *m = _createBaseMap(id);
+    Map* m = _createBaseMap(id);
 
-    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
+    if (Player* player = obj->ToPlayer())
+        if (m->Instanceable())
+            m = ((MapInstanced*)m)->CreateInstance(id, player);
 
     return m;
 }
 
-Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
+Map* MapManager::FindMap(uint32 mapId, uint32 instanceId) const
 {
-    Map *map = _findMap(mapid);
+    Map* map = _findMap(mapId);
     if (!map)
         return NULL;
 
@@ -111,7 +111,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
     return ((MapInstanced*)map)->FindMap(instanceId);
 }
 
-bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
+bool MapManager::CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
     if (!entry)
@@ -263,24 +263,24 @@ void MapManager::DoDelayedMovesAndRemoves()
 {
 }
 
-bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
+bool MapManager::ExistMapAndVMap(uint32 mapId, float x, float y)
 {
     GridPair p = Trinity::ComputeGridPair(x, y);
 
-    int gx=63-p.x_coord;
-    int gy=63-p.y_coord;
+    int gx = 63 - p.x_coord;
+    int gy = 63 - p.y_coord;
 
-    return Map::ExistMap(mapid, gx, gy) && Map::ExistVMap(mapid, gx, gy);
+    return Map::ExistMap(mapId, gx, gy) && Map::ExistVMap(mapId, gx, gy);
 }
 
-bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
+bool MapManager::IsValidMAP(uint32 mapId, bool startUp)
 {
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
+    MapEntry const* mEntry = sMapStore.LookupEntry(mapId);
 
     if (startUp)
         return mEntry ? true : false;
     else
-        return mEntry && (!mEntry->IsDungeon() || sObjectMgr->GetInstanceTemplate(mapid));
+        return mEntry && (!mEntry->IsDungeon() || sObjectMgr->GetInstanceTemplate(mapId));
 
     // TODO: add check for battleground template
 }
@@ -309,24 +309,7 @@ uint32 MapManager::GetNumInstances()
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, 0);
 
-    uint32 ret = 0;
-    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
-    {
-        Map *map = itr->second;
-        if (!map->Instanceable())
-            continue;
-        MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
-        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon()) ret++;
-    }
-    return ret;
-}
-
-uint32 MapManager::GetNumPlayersInInstances()
-{
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, 0);
-
-    uint32 ret = 0;
+    uint32 count = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map *map = itr->second;
@@ -335,17 +318,34 @@ uint32 MapManager::GetNumPlayersInInstances()
         MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
             if (mitr->second->IsDungeon())
-                ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
+                count++;
     }
-    return ret;
+    return count;
+}
+
+uint32 MapManager::GetNumPlayersInInstances()
+{
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, 0);
+
+    uint32 count = 0;
+    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    {
+        Map *map = itr->second;
+        if (!map->Instanceable())
+            continue;
+        MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
+        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
+            if (mitr->second->IsDungeon())
+                count += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
+    }
+    return count;
 }
 
 void MapManager::InitInstanceIds()
 {
     _nextInstanceId = 1;
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
-    if (result)
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance"))
     {
         uint32 maxId = (*result)[0].GetUInt32();
 
@@ -385,9 +385,7 @@ uint32 MapManager::GenerateInstanceId()
     {
         // Due to the odd memory allocation behavior of vector<bool> we match size to capacity before triggering a new allocation
         if (_instanceIds.size() < _instanceIds.capacity())
-        {
             _instanceIds.resize(_instanceIds.capacity());
-        }
         else
             _instanceIds.resize((newInstanceId / 32) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
     }
