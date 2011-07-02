@@ -289,7 +289,7 @@ class npc_stinky_icc : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                _events.ScheduleEvent(EVENT_DECIMATE, urand(31000, 33000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
@@ -310,7 +310,7 @@ class npc_stinky_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, urand(31000, 33000));
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
