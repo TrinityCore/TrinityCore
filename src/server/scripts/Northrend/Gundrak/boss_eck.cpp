@@ -34,9 +34,9 @@ class boss_eck : public CreatureScript
 public:
     boss_eck() : CreatureScript("boss_eck") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eckAI (pCreature);
+        return new boss_eckAI (creature);
     }
 
     struct boss_eckAI : public ScriptedAI
@@ -138,9 +138,9 @@ class npc_ruins_dweller : public CreatureScript
 public:
     npc_ruins_dweller() : CreatureScript("npc_ruins_dweller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ruins_dwellerAI (pCreature);
+        return new npc_ruins_dwellerAI (creature);
     }
 
     struct npc_ruins_dwellerAI : public ScriptedAI

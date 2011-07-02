@@ -100,9 +100,9 @@ class boss_fathomlord_karathress : public CreatureScript
 public:
     boss_fathomlord_karathress() : CreatureScript("boss_fathomlord_karathress") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fathomlord_karathressAI (pCreature);
+        return new boss_fathomlord_karathressAI (creature);
     }
 
     struct boss_fathomlord_karathressAI : public ScriptedAI
@@ -310,9 +310,9 @@ class boss_fathomguard_sharkkis : public CreatureScript
 public:
     boss_fathomguard_sharkkis() : CreatureScript("boss_fathomguard_sharkkis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fathomguard_sharkkisAI (pCreature);
+        return new boss_fathomguard_sharkkisAI (creature);
     }
 
     struct boss_fathomguard_sharkkisAI : public ScriptedAI
@@ -464,9 +464,9 @@ class boss_fathomguard_tidalvess : public CreatureScript
 public:
     boss_fathomguard_tidalvess() : CreatureScript("boss_fathomguard_tidalvess") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fathomguard_tidalvessAI (pCreature);
+        return new boss_fathomguard_tidalvessAI (creature);
     }
 
     struct boss_fathomguard_tidalvessAI : public ScriptedAI
@@ -591,9 +591,9 @@ class boss_fathomguard_caribdis : public CreatureScript
 public:
     boss_fathomguard_caribdis() : CreatureScript("boss_fathomguard_caribdis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fathomguard_caribdisAI (pCreature);
+        return new boss_fathomguard_caribdisAI (creature);
     }
 
     struct boss_fathomguard_caribdisAI : public ScriptedAI

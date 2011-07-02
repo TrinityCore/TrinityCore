@@ -63,9 +63,9 @@ class boss_netherspite : public CreatureScript
 public:
     boss_netherspite() : CreatureScript("boss_netherspite") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_netherspiteAI(pCreature);
+        return new boss_netherspiteAI(creature);
     }
 
     struct boss_netherspiteAI : public ScriptedAI

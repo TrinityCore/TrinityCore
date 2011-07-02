@@ -42,9 +42,9 @@ class boss_kri : public CreatureScript
 public:
     boss_kri() : CreatureScript("boss_kri") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kriAI (pCreature);
+        return new boss_kriAI (creature);
     }
 
     struct boss_kriAI : public ScriptedAI
@@ -139,9 +139,9 @@ class boss_vem : public CreatureScript
 public:
     boss_vem() : CreatureScript("boss_vem") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_vemAI (pCreature);
+        return new boss_vemAI (creature);
     }
 
     struct boss_vemAI : public ScriptedAI
@@ -232,9 +232,9 @@ class boss_yauj : public CreatureScript
 public:
     boss_yauj() : CreatureScript("boss_yauj") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_yaujAI (pCreature);
+        return new boss_yaujAI (creature);
     }
 
     struct boss_yaujAI : public ScriptedAI

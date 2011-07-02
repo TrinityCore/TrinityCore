@@ -86,16 +86,16 @@ class boss_bjarngrim : public CreatureScript
 public:
     boss_bjarngrim() : CreatureScript("boss_bjarngrim") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_bjarngrimAI(pCreature);
+        return new boss_bjarngrimAI(creature);
     }
 
     struct boss_bjarngrimAI : public ScriptedAI
     {
-        boss_bjarngrimAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_bjarngrimAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
         }
@@ -362,16 +362,16 @@ class mob_stormforged_lieutenant : public CreatureScript
 public:
     mob_stormforged_lieutenant() : CreatureScript("mob_stormforged_lieutenant") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stormforged_lieutenantAI(pCreature);
+        return new mob_stormforged_lieutenantAI(creature);
     }
 
     struct mob_stormforged_lieutenantAI : public ScriptedAI
     {
-        mob_stormforged_lieutenantAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;

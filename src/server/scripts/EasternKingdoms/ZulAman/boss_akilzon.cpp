@@ -370,12 +370,12 @@ class boss_akilzon : public CreatureScript
                                 if (z > 95)
                                     z = 95.0f - urand(0, 5);
                             }
-                            Creature* pCreature = me->SummonCreature(MOB_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                            if (pCreature)
+                            Creature* creature = me->SummonCreature(MOB_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            if (creature)
                             {
-                                pCreature->AddThreat(me->getVictim(), 1.0f);
-                                pCreature->AI()->AttackStart(me->getVictim());
-                                BirdGUIDs[i] = pCreature->GetGUID();
+                                creature->AddThreat(me->getVictim(), 1.0f);
+                                creature->AI()->AttackStart(me->getVictim());
+                                BirdGUIDs[i] = creature->GetGUID();
                             }
                         }
                     }

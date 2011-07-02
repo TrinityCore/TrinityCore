@@ -40,9 +40,9 @@ class boss_high_inquisitor_fairbanks : public CreatureScript
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_inquisitor_fairbanksAI (pCreature);
+        return new boss_high_inquisitor_fairbanksAI (creature);
     }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI

@@ -57,9 +57,9 @@ class boss_talon_king_ikiss : public CreatureScript
 public:
     boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_talon_king_ikissAI (pCreature);
+        return new boss_talon_king_ikissAI (creature);
     }
 
     struct boss_talon_king_ikissAI : public ScriptedAI

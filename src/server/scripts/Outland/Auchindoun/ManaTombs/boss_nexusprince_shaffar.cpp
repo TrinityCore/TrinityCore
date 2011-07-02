@@ -60,9 +60,9 @@ class boss_nexusprince_shaffar : public CreatureScript
 public:
     boss_nexusprince_shaffar() : CreatureScript("boss_nexusprince_shaffar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nexusprince_shaffarAI (pCreature);
+        return new boss_nexusprince_shaffarAI (creature);
     }
 
     struct boss_nexusprince_shaffarAI : public ScriptedAI
@@ -226,9 +226,9 @@ class mob_ethereal_beacon : public CreatureScript
 public:
     mob_ethereal_beacon() : CreatureScript("mob_ethereal_beacon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ethereal_beaconAI (pCreature);
+        return new mob_ethereal_beaconAI (creature);
     }
 
     struct mob_ethereal_beaconAI : public ScriptedAI
@@ -318,9 +318,9 @@ class mob_ethereal_apprentice : public CreatureScript
 public:
     mob_ethereal_apprentice() : CreatureScript("mob_ethereal_apprentice") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ethereal_apprenticeAI (pCreature);
+        return new mob_ethereal_apprenticeAI (creature);
     }
 
     struct mob_ethereal_apprenticeAI : public ScriptedAI

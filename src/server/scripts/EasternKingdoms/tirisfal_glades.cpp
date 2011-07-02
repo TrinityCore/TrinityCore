@@ -48,25 +48,25 @@ class npc_calvin_montague : public CreatureScript
 public:
     npc_calvin_montague() : CreatureScript("npc_calvin_montague") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_590)
         {
-            pCreature->setFaction(FACTION_HOSTILE);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            CAST_AI(npc_calvin_montague::npc_calvin_montagueAI, pCreature->AI())->AttackStart(pPlayer);
+            creature->setFaction(FACTION_HOSTILE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            CAST_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(pPlayer);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_calvin_montagueAI (pCreature);
+        return new npc_calvin_montagueAI (creature);
     }
 
     struct npc_calvin_montagueAI : public ScriptedAI
     {
-        npc_calvin_montagueAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+        npc_calvin_montagueAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 m_uiPhase;
         uint32 m_uiPhaseTimer;

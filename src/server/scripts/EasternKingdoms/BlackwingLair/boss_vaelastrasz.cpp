@@ -45,38 +45,38 @@ class boss_vaelastrasz : public CreatureScript
 public:
     boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
 
-    void SendDefaultMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    void SendDefaultMenu(Player* pPlayer, Creature* creature, uint32 uiAction)
     {
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(boss_vaelastrasz::boss_vaelAI, pCreature->AI())->BeginSpeech(pPlayer);
+            CAST_AI(boss_vaelastrasz::boss_vaelAI, creature->AI())->BeginSpeech(pPlayer);
         }
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiSender == GOSSIP_SENDER_MAIN)
-            SendDefaultMenu(pPlayer, pCreature, uiAction);
+            SendDefaultMenu(pPlayer, creature, uiAction);
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(907, creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_vaelAI (pCreature);
+        return new boss_vaelAI (creature);
     }
 
     struct boss_vaelAI : public ScriptedAI

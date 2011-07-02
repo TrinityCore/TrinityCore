@@ -244,7 +244,7 @@ struct Yells
 {
     uint32 sound;
     std::string text;
-    uint32 pCreature, timer, emote;
+    uint32 creature, timer, emote;
     bool Talk;
 };
 
@@ -368,9 +368,9 @@ class mob_flame_of_azzinoth : public CreatureScript
 public:
     mob_flame_of_azzinoth() : CreatureScript("mob_flame_of_azzinoth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new flame_of_azzinothAI (pCreature);
+        return new flame_of_azzinothAI (creature);
     }
 
     struct flame_of_azzinothAI : public ScriptedAI
@@ -460,9 +460,9 @@ class boss_illidan_stormrage : public CreatureScript
 public:
     boss_illidan_stormrage() : CreatureScript("boss_illidan_stormrage") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_illidan_stormrageAI (pCreature);
+        return new boss_illidan_stormrageAI (creature);
     }
 
     struct boss_illidan_stormrageAI : public ScriptedAI
@@ -617,22 +617,22 @@ public:
         {
             Timer[EVENT_TALK_SEQUENCE] = Conversation[count].timer;
 
-            Creature* pCreature = NULL;
-            if (Conversation[count].pCreature == ILLIDAN_STORMRAGE)
-                pCreature = me;
-            else if (Conversation[count].pCreature == AKAMA)
-                pCreature = (Unit::GetCreature((*me), AkamaGUID));
-            else if (Conversation[count].pCreature == MAIEV_SHADOWSONG)
-                pCreature = (Unit::GetCreature((*me), MaievGUID));
+            Creature* creature = NULL;
+            if (Conversation[count].creature == ILLIDAN_STORMRAGE)
+                creature = me;
+            else if (Conversation[count].creature == AKAMA)
+                creature = (Unit::GetCreature((*me), AkamaGUID));
+            else if (Conversation[count].creature == MAIEV_SHADOWSONG)
+                creature = (Unit::GetCreature((*me), MaievGUID));
 
-            if (pCreature)
+            if (creature)
             {
                 if (Conversation[count].emote)
-                    pCreature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
+                    creature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
                 if (Conversation[count].text.size())
-                    pCreature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
                 if (Conversation[count].sound)
-                    DoPlaySoundToSet(pCreature, Conversation[count].sound); // Play some sound on the creature
+                    DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
             }
         }
 
@@ -1150,9 +1150,9 @@ class boss_maiev_shadowsong : public CreatureScript
 public:
     boss_maiev_shadowsong() : CreatureScript("boss_maiev_shadowsong") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_maievAI (pCreature);
+        return new boss_maievAI (creature);
     }
 
     struct boss_maievAI : public ScriptedAI
@@ -1800,28 +1800,28 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_akama_illidan::npc_akama_illidanAI, pCreature->AI())->EnterPhase(PHASE_CHANNEL);
+            CAST_AI(npc_akama_illidan::npc_akama_illidanAI, creature->AI())->EnterPhase(PHASE_CHANNEL);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        pPlayer->SEND_GOSSIP_MENU(10465, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(10465, creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_akama_illidanAI(pCreature);
+        return new npc_akama_illidanAI(creature);
     }
 
 };
@@ -2010,9 +2010,9 @@ class mob_cage_trap_trigger : public CreatureScript
 public:
     mob_cage_trap_trigger() : CreatureScript("mob_cage_trap_trigger") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new cage_trap_triggerAI (pCreature);
+        return new cage_trap_triggerAI (creature);
     }
 
     struct cage_trap_triggerAI : public ScriptedAI
@@ -2107,9 +2107,9 @@ class mob_shadow_demon : public CreatureScript
 public:
     mob_shadow_demon() : CreatureScript("mob_shadow_demon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new shadow_demonAI (pCreature);
+        return new shadow_demonAI (creature);
     }
 
     struct shadow_demonAI : public ScriptedAI
@@ -2158,9 +2158,9 @@ class mob_blade_of_azzinoth : public CreatureScript
 public:
     mob_blade_of_azzinoth() : CreatureScript("mob_blade_of_azzinoth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new blade_of_azzinothAI (pCreature);
+        return new blade_of_azzinothAI (creature);
     }
 
     struct blade_of_azzinothAI : public NullCreatureAI
@@ -2181,9 +2181,9 @@ class mob_parasitic_shadowfiend : public CreatureScript
 public:
     mob_parasitic_shadowfiend() : CreatureScript("mob_parasitic_shadowfiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_parasitic_shadowfiendAI (pCreature);
+        return new mob_parasitic_shadowfiendAI (creature);
     }
 
     // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap

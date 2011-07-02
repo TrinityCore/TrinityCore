@@ -79,9 +79,9 @@ class mob_ancient_wisp : public CreatureScript
 public:
     mob_ancient_wisp() : CreatureScript("mob_ancient_wisp") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ancient_wispAI(pCreature);
+        return new mob_ancient_wispAI(creature);
     }
 
     struct mob_ancient_wispAI : public ScriptedAI
@@ -135,9 +135,9 @@ class mob_doomfire : public CreatureScript
 public:
     mob_doomfire() : CreatureScript("mob_doomfire") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_doomfireAI(pCreature);
+        return new mob_doomfireAI(creature);
     }
 
     struct mob_doomfireAI : public ScriptedAI
@@ -160,9 +160,9 @@ class mob_doomfire_targetting : public CreatureScript
 public:
     mob_doomfire_targetting() : CreatureScript("mob_doomfire_targetting") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_doomfire_targettingAI(pCreature);
+        return new mob_doomfire_targettingAI(creature);
     }
 
     struct mob_doomfire_targettingAI : public ScriptedAI
@@ -226,9 +226,9 @@ class boss_archimonde : public CreatureScript
 public:
     boss_archimonde() : CreatureScript("boss_archimonde") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_archimondeAI (pCreature);
+        return new boss_archimondeAI (creature);
     }
 
     struct boss_archimondeAI : public hyjal_trashAI

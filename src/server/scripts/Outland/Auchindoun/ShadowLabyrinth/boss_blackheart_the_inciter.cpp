@@ -59,9 +59,9 @@ class boss_blackheart_the_inciter : public CreatureScript
 public:
     boss_blackheart_the_inciter() : CreatureScript("boss_blackheart_the_inciter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_blackheart_the_inciterAI (pCreature);
+        return new boss_blackheart_the_inciterAI (creature);
     }
 
     struct boss_blackheart_the_inciterAI : public ScriptedAI

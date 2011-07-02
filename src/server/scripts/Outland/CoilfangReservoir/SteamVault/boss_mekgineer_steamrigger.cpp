@@ -53,9 +53,9 @@ class boss_mekgineer_steamrigger : public CreatureScript
 public:
     boss_mekgineer_steamrigger() : CreatureScript("boss_mekgineer_steamrigger") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_mekgineer_steamriggerAI (pCreature);
+        return new boss_mekgineer_steamriggerAI (creature);
     }
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
@@ -197,9 +197,9 @@ class mob_steamrigger_mechanic : public CreatureScript
 public:
     mob_steamrigger_mechanic() : CreatureScript("mob_steamrigger_mechanic") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_steamrigger_mechanicAI (pCreature);
+        return new mob_steamrigger_mechanicAI (creature);
     }
 
     struct mob_steamrigger_mechanicAI : public ScriptedAI

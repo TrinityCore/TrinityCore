@@ -50,9 +50,9 @@ class boss_meathook : public CreatureScript
 public:
     boss_meathook() : CreatureScript("boss_meathook") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_meathookAI (pCreature);
+        return new boss_meathookAI (creature);
     }
 
     struct boss_meathookAI : public ScriptedAI

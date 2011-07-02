@@ -83,12 +83,12 @@ class boss_high_astromancer_solarian : public CreatureScript
 
         struct boss_high_astromancer_solarianAI : public ScriptedAI
         {
-            boss_high_astromancer_solarianAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+            boss_high_astromancer_solarianAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
 
-                defaultarmor = pCreature->GetArmor();
-                defaultsize = pCreature->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                defaultarmor = creature->GetArmor();
+                defaultsize = creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
             }
 
             InstanceScript *pInstance;
@@ -417,9 +417,9 @@ class mob_solarium_priest : public CreatureScript
 
         struct mob_solarium_priestAI : public ScriptedAI
         {
-            mob_solarium_priestAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_solarium_priestAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript *pInstance;

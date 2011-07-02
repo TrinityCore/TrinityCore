@@ -638,9 +638,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kelthuzadAI (pCreature);
+        return new boss_kelthuzadAI (creature);
     }
 
 };

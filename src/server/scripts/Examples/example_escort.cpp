@@ -64,7 +64,7 @@ class example_escort : public CreatureScript
         struct example_escortAI : public npc_escortAI
         {
             // CreatureAI functions
-            example_escortAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+            example_escortAI(Creature* creature) : npc_escortAI(creature) { }
 
             uint32 m_uiDeathCoilTimer;
             uint32 m_uiChatTimer;
@@ -178,29 +178,29 @@ class example_escort : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new example_escortAI(pCreature);
+            return new example_escortAI(creature);
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* pPlayer, Creature* creature)
         {
-            pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-            pPlayer->PrepareGossipMenu(pCreature, 0);
+            pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+            pPlayer->PrepareGossipMenu(creature, 0);
 
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-            pPlayer->SendPreparedGossip(pCreature);
+            pPlayer->SendPreparedGossip(creature);
 
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
             pPlayer->PlayerTalkClass->ClearMenus();
-            npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, pCreature->AI());
+            npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 
             switch(uiAction)
             {

@@ -53,9 +53,9 @@ class boss_epoch : public CreatureScript
 public:
     boss_epoch() : CreatureScript("boss_epoch") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_epochAI (pCreature);
+        return new boss_epochAI (creature);
     }
 
     struct boss_epochAI : public ScriptedAI

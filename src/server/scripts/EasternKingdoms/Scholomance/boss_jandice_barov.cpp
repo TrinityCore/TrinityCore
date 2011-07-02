@@ -36,9 +36,9 @@ class boss_jandice_barov : public CreatureScript
 public:
     boss_jandice_barov() : CreatureScript("boss_jandice_barov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_jandicebarovAI (pCreature);
+        return new boss_jandicebarovAI (creature);
     }
 
     struct boss_jandicebarovAI : public ScriptedAI
@@ -158,9 +158,9 @@ class mob_illusionofjandicebarov : public CreatureScript
 public:
     mob_illusionofjandicebarov() : CreatureScript("mob_illusionofjandicebarov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_illusionofjandicebarovAI (pCreature);
+        return new mob_illusionofjandicebarovAI (creature);
     }
 
     struct mob_illusionofjandicebarovAI : public ScriptedAI

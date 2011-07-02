@@ -48,9 +48,9 @@ class boss_erekem : public CreatureScript
 public:
     boss_erekem() : CreatureScript("boss_erekem") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_erekemAI (pCreature);
+        return new boss_erekemAI (creature);
     }
 
     struct boss_erekemAI : public ScriptedAI
@@ -263,9 +263,9 @@ class mob_erekem_guard : public CreatureScript
 public:
     mob_erekem_guard() : CreatureScript("mob_erekem_guard") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_erekem_guardAI (pCreature);
+        return new mob_erekem_guardAI (creature);
     }
 
     struct mob_erekem_guardAI : public ScriptedAI

@@ -70,9 +70,9 @@ class npc_manaforge_control_console : public CreatureScript
 public:
     npc_manaforge_control_console() : CreatureScript("npc_manaforge_control_console") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_manaforge_control_consoleAI (pCreature);
+        return new npc_manaforge_control_consoleAI (creature);
     }
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
@@ -146,9 +146,9 @@ public:
             }
         }
 
-        void DoWaveSpawnForCreature(Creature* pCreature)
+        void DoWaveSpawnForCreature(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
                     if (rand()%2)
@@ -200,9 +200,9 @@ public:
                     break;
             }
         }
-        void DoFinalSpawnForCreature(Creature* pCreature)
+        void DoFinalSpawnForCreature(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
                     add = me->SummonCreature(ENTRY_SUNFURY_TECH, 2946.52f, 4201.42f, 163.47f, 3.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
@@ -388,9 +388,9 @@ class npc_commander_dawnforge : public CreatureScript
 public:
     npc_commander_dawnforge() : CreatureScript("npc_commander_dawnforge") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_commander_dawnforgeAI(pCreature);
+        return new npc_commander_dawnforgeAI(creature);
     }
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
@@ -681,35 +681,35 @@ class npc_professor_dabiri : public CreatureScript
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const *quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const *quest)
     {
         if (quest->GetQuestId() == QUEST_DIMENSIUS)
-            DoScriptText(WHISPER_DABIRI, pCreature, pPlayer);
+            DoScriptText(WHISPER_DABIRI, creature, pPlayer);
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pCreature->CastSpell(pPlayer, SPELL_PHASE_DISTRUPTOR, false);
+            creature->CastSpell(pPlayer, SPELL_PHASE_DISTRUPTOR, false);
             pPlayer->CLOSE_GOSSIP_MENU();
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(29778, 1))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -742,9 +742,9 @@ class mob_phase_hunter : public CreatureScript
 public:
     mob_phase_hunter() : CreatureScript("mob_phase_hunter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_phase_hunterAI (pCreature);
+        return new mob_phase_hunterAI (creature);
     }
 
     struct mob_phase_hunterAI : public ScriptedAI
@@ -871,20 +871,20 @@ class npc_bessy : public CreatureScript
 public:
     npc_bessy() : CreatureScript("npc_bessy") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == Q_ALMABTRIEB)
         {
-            pCreature->setFaction(113);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+            creature->setFaction(113);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_bessyAI(pCreature);
+        return new npc_bessyAI(creature);
     }
 
     struct npc_bessyAI : public npc_escortAI
@@ -958,14 +958,14 @@ class npc_maxx_a_million_escort : public CreatureScript
 public:
     npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
 
-    CreatureAI *GetAI(Creature* pCreature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
-        return new npc_maxx_a_million_escortAI(pCreature);
+        return new npc_maxx_a_million_escortAI(creature);
     }
 
     struct npc_maxx_a_million_escortAI : public npc_escortAI
     {
-        npc_maxx_a_million_escortAI(Creature* pCreature) : npc_escortAI(pCreature) {}
+        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) {}
 
         bool bTake;
         uint32 uiTakeTimer;
@@ -1034,13 +1034,13 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
         {
-            if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, pCreature->AI()))
+            if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {
-                pCreature->setFaction(113);
+                creature->setFaction(113);
                 pEscortAI->Start(false, false, pPlayer->GetGUID());
             }
         }

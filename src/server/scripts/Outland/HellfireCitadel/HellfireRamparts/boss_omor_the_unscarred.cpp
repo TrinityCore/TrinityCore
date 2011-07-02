@@ -60,7 +60,7 @@ class boss_omor_the_unscarred : public CreatureScript
 
         struct boss_omor_the_unscarredAI : public ScriptedAI
         {
-            boss_omor_the_unscarredAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_omor_the_unscarredAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
             }

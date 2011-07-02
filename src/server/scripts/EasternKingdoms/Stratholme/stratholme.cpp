@@ -92,9 +92,9 @@ class mob_freed_soul : public CreatureScript
 public:
     mob_freed_soul() : CreatureScript("mob_freed_soul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_freed_soulAI (pCreature);
+        return new mob_freed_soulAI (creature);
     }
 
     struct mob_freed_soulAI : public ScriptedAI
@@ -126,9 +126,9 @@ class mob_restless_soul : public CreatureScript
 public:
     mob_restless_soul() : CreatureScript("mob_restless_soul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_restless_soulAI (pCreature);
+        return new mob_restless_soulAI (creature);
     }
 
     struct mob_restless_soulAI : public ScriptedAI
@@ -204,9 +204,9 @@ class mobs_spectral_ghostly_citizen : public CreatureScript
 public:
     mobs_spectral_ghostly_citizen() : CreatureScript("mobs_spectral_ghostly_citizen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_spectral_ghostly_citizenAI (pCreature);
+        return new mobs_spectral_ghostly_citizenAI (creature);
     }
 
     struct mobs_spectral_ghostly_citizenAI : public ScriptedAI

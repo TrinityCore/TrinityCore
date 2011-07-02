@@ -45,9 +45,9 @@ class boss_kazrogal : public CreatureScript
 public:
     boss_kazrogal() : CreatureScript("boss_kazrogal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kazrogalAI (pCreature);
+        return new boss_kazrogalAI (creature);
     }
 
     struct boss_kazrogalAI : public hyjal_trashAI

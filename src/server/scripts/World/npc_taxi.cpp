@@ -63,12 +63,12 @@ class npc_taxi : public CreatureScript
 public:
     npc_taxi() : CreatureScript("npc_taxi") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
-        switch(pCreature->GetEntry())
+        switch(creature->GetEntry())
         {
         case 17435: // Azuremyst Isle - Susurrus
             if (pPlayer->HasItemCount(23843, 1, true))
@@ -168,7 +168,7 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CRIMSONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+25);
             break;
         case 26602:
-            if (pCreature->isTaxi())
+            if (creature->isTaxi())
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, GOSSIP_THRICESTAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 26);
 
             if (pPlayer->GetQuestStatus(11692) == QUEST_STATUS_COMPLETE)
@@ -182,11 +182,11 @@ public:
             break;
         }
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch(uiAction)
@@ -202,7 +202,7 @@ public:
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
             if (!pPlayer->HasItemCount(25853, 1)) {
-                pPlayer->SEND_GOSSIP_MENU(9780, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(9780, creature->GetGUID());
             } else {
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->ActivateTaxiPathTo(534);              //TaxiPath 534
@@ -302,7 +302,7 @@ public:
             pPlayer->CastSpell(pPlayer, 42295, true);
             break;
         case GOSSIP_ACTION_INFO_DEF + 26:
-            pPlayer->GetSession()->SendTaxiMenu(pCreature);
+            pPlayer->GetSession()->SendTaxiMenu(creature);
             break;
         case GOSSIP_ACTION_INFO_DEF + 27:
             pPlayer->CLOSE_GOSSIP_MENU();

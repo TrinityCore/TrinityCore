@@ -90,9 +90,9 @@ class boss_sacrolash : public CreatureScript
 public:
     boss_sacrolash() : CreatureScript("boss_sacrolash") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sacrolashAI (pCreature);
+        return new boss_sacrolashAI (creature);
     };
 
     struct boss_sacrolashAI : public ScriptedAI
@@ -348,9 +348,9 @@ class boss_alythess : public CreatureScript
 public:
     boss_alythess() : CreatureScript("boss_alythess") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_alythessAI (pCreature);
+        return new boss_alythessAI (creature);
     };
 
     struct boss_alythessAI : public Scripted_NoMovementAI
@@ -678,9 +678,9 @@ class mob_shadow_image : public CreatureScript
 public:
     mob_shadow_image() : CreatureScript("mob_shadow_image") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shadow_imageAI (pCreature);
+        return new mob_shadow_imageAI (creature);
     };
 
     struct mob_shadow_imageAI : public ScriptedAI

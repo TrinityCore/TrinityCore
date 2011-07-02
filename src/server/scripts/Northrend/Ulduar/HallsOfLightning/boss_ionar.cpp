@@ -71,16 +71,16 @@ class boss_ionar : public CreatureScript
 public:
     boss_ionar() : CreatureScript("boss_ionar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ionarAI(pCreature);
+        return new boss_ionarAI(creature);
     }
 
     struct boss_ionarAI : public ScriptedAI
     {
-        boss_ionarAI(Creature* pCreature) : ScriptedAI(pCreature), lSparkList(pCreature)
+        boss_ionarAI(Creature* creature) : ScriptedAI(creature), lSparkList(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -301,16 +301,16 @@ class mob_spark_of_ionar : public CreatureScript
 public:
     mob_spark_of_ionar() : CreatureScript("mob_spark_of_ionar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_spark_of_ionarAI(pCreature);
+        return new mob_spark_of_ionarAI(creature);
     }
 
     struct mob_spark_of_ionarAI : public ScriptedAI
     {
-        mob_spark_of_ionarAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

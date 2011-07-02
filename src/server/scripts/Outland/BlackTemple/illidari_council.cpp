@@ -210,9 +210,9 @@ class mob_illidari_council : public CreatureScript
 public:
     mob_illidari_council() : CreatureScript("mob_illidari_council") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_illidari_councilAI (pCreature);
+        return new mob_illidari_councilAI (creature);
     }
 
     struct mob_illidari_councilAI : public ScriptedAI
@@ -408,7 +408,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         }
         DoZoneInCombat();
         // Load GUIDs on first aggro because the Creature guids are only set as the creatures are created in world-
-        // this means that for each pCreature, it will attempt to LoadGUIDs even though some of the other creatures are
+        // this means that for each creature, it will attempt to LoadGUIDs even though some of the other creatures are
         // not in world, and thus have no GUID set in the instance data system. Putting it in aggro ensures that all the creatures
         // have been loaded and have their GUIDs set in the instance data system.
         if (!LoadedGUIDs)
@@ -468,9 +468,9 @@ class boss_gathios_the_shatterer : public CreatureScript
 public:
     boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gathios_the_shattererAI (pCreature);
+        return new boss_gathios_the_shattererAI (creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
@@ -595,9 +595,9 @@ class boss_high_nethermancer_zerevor : public CreatureScript
 public:
     boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_nethermancer_zerevorAI (pCreature);
+        return new boss_high_nethermancer_zerevorAI (creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
@@ -699,9 +699,9 @@ class boss_lady_malande : public CreatureScript
 public:
     boss_lady_malande() : CreatureScript("boss_lady_malande") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_lady_malandeAI (pCreature);
+        return new boss_lady_malandeAI (creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
@@ -777,9 +777,9 @@ class boss_veras_darkshadow : public CreatureScript
 public:
     boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_veras_darkshadowAI (pCreature);
+        return new boss_veras_darkshadowAI (creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI

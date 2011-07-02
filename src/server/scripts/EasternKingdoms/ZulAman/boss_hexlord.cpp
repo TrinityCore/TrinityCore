@@ -325,18 +325,18 @@ class boss_hexlord_malacrass : public CreatureScript
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Creature* pCreature = (Unit::GetCreature((*me), AddGUID[i]));
-                    if (!pCreature || !pCreature->isAlive())
+                    Creature* creature = (Unit::GetCreature((*me), AddGUID[i]));
+                    if (!creature || !creature->isAlive())
                     {
-                        if (pCreature) pCreature->setDeathState(DEAD);
-                        pCreature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        if (pCreature) AddGUID[i] = pCreature->GetGUID();
+                        if (creature) creature->setDeathState(DEAD);
+                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        if (creature) AddGUID[i] = creature->GetGUID();
                     }
                     else
                     {
-                        pCreature->AI()->EnterEvadeMode();
-                        pCreature->GetMap()->CreatureRelocation(me, Pos_X[i], POS_Y, POS_Z, ORIENT);
-                        pCreature->StopMoving();
+                        creature->AI()->EnterEvadeMode();
+                        creature->GetMap()->CreatureRelocation(me, Pos_X[i], POS_Y, POS_Z, ORIENT);
+                        creature->StopMoving();
                     }
                 }
             }

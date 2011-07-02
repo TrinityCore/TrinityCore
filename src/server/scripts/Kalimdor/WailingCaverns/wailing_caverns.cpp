@@ -80,55 +80,55 @@ class npc_disciple_of_naralex : public CreatureScript
 public:
     npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_disciple_of_naralexAI(pCreature);
+        return new npc_disciple_of_naralexAI(creature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
-        InstanceScript *pInstance = pCreature->GetInstanceScript();
+        InstanceScript *pInstance = creature->GetInstanceScript();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             if (pInstance)
                 pInstance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
 
-            DoScriptText(SAY_MAKE_PREPARATIONS, pCreature);
+            DoScriptText(SAY_MAKE_PREPARATIONS, creature);
 
-            pCreature->setFaction(250);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->setFaction(250);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
-            CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtFar(false);
-            CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtEnd(false);
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, pPlayer->GetGUID());
+            CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
+            CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        InstanceScript *pInstance = pCreature->GetInstanceScript();
+        InstanceScript *pInstance = creature->GetInstanceScript();
 
         if (pInstance)
         {
-            pCreature->CastSpell(pPlayer, SPELL_MARK_OF_THE_WILD_RANK_2, true);
+            creature->CastSpell(pPlayer, SPELL_MARK_OF_THE_WILD_RANK_2, true);
             if ((pInstance->GetData(TYPE_LORD_COBRAHN) == DONE) && (pInstance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
                 (pInstance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (pInstance->GetData(TYPE_LORD_SERPENTIS) == DONE))
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NARALEX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, creature->GetGUID());
 
                 if (!pInstance->GetData(TYPE_NARALEX_YELLED))
                 {
-                    DoScriptText(SAY_AT_LAST, pCreature);
+                    DoScriptText(SAY_AT_LAST, creature);
                     pInstance->SetData(TYPE_NARALEX_YELLED, 1);
                 }
             }
             else
             {
-                pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_START_1, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_START_1, creature->GetGUID());
             }
         }
         return true;

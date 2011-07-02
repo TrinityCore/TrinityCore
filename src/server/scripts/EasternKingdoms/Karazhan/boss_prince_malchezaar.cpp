@@ -101,9 +101,9 @@ class netherspite_infernal : public CreatureScript
 public:
     netherspite_infernal() : CreatureScript("netherspite_infernal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new netherspite_infernalAI (pCreature);
+        return new netherspite_infernalAI (creature);
     }
 
     struct netherspite_infernalAI : public ScriptedAI
@@ -176,9 +176,9 @@ class boss_malchezaar : public CreatureScript
 public:
     boss_malchezaar() : CreatureScript("boss_malchezaar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_malchezaarAI (pCreature);
+        return new boss_malchezaarAI (creature);
     }
 
     struct boss_malchezaarAI : public ScriptedAI

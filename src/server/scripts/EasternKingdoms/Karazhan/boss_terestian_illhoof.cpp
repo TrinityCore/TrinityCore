@@ -61,9 +61,9 @@ class mob_kilrek : public CreatureScript
 public:
     mob_kilrek() : CreatureScript("mob_kilrek") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_kilrekAI (pCreature);
+        return new mob_kilrekAI (creature);
     }
 
     struct mob_kilrekAI : public ScriptedAI
@@ -133,9 +133,9 @@ class mob_demon_chain : public CreatureScript
 public:
     mob_demon_chain() : CreatureScript("mob_demon_chain") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_demon_chainAI(pCreature);
+        return new mob_demon_chainAI(creature);
     }
 
     struct mob_demon_chainAI : public ScriptedAI
@@ -171,9 +171,9 @@ class mob_fiendish_portal : public CreatureScript
 public:
     mob_fiendish_portal() : CreatureScript("mob_fiendish_portal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fiendish_portalAI (pCreature);
+        return new mob_fiendish_portalAI (creature);
     }
 
     struct mob_fiendish_portalAI : public PassiveAI
@@ -208,9 +208,9 @@ class mob_fiendish_imp : public CreatureScript
 public:
     mob_fiendish_imp() : CreatureScript("mob_fiendish_imp") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fiendish_impAI (pCreature);
+        return new mob_fiendish_impAI (creature);
     }
 
     struct mob_fiendish_impAI : public ScriptedAI
@@ -251,9 +251,9 @@ class boss_terestian_illhoof : public CreatureScript
 public:
     boss_terestian_illhoof() : CreatureScript("boss_terestian_illhoof") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_terestianAI (pCreature);
+        return new boss_terestianAI (creature);
     }
 
     struct boss_terestianAI : public ScriptedAI

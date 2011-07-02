@@ -55,9 +55,9 @@ class boss_patchwerk : public CreatureScript
 public:
     boss_patchwerk() : CreatureScript("boss_patchwerk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_patchwerkAI (pCreature);
+        return new boss_patchwerkAI (creature);
     }
 
     struct boss_patchwerkAI : public BossAI

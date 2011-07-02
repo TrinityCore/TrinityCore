@@ -114,16 +114,16 @@ class boss_gormok : public CreatureScript
 public:
     boss_gormok() : CreatureScript("boss_gormok") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gormokAI(pCreature);
+        return new boss_gormokAI(creature);
     }
 
     struct boss_gormokAI : public ScriptedAI
     {
-        boss_gormokAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+        boss_gormokAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -229,16 +229,16 @@ class mob_snobold_vassal : public CreatureScript
 public:
     mob_snobold_vassal() : CreatureScript("mob_snobold_vassal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_snobold_vassalAI(pCreature);
+        return new mob_snobold_vassalAI(creature);
     }
 
     struct mob_snobold_vassalAI : public ScriptedAI
     {
-        mob_snobold_vassalAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             if (m_pInstance)
                 m_pInstance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
         }
@@ -576,7 +576,7 @@ class boss_acidmaw : public CreatureScript
 
     struct boss_acidmawAI : public boss_jormungarAI
     {
-        boss_acidmawAI(Creature* pCreature) : boss_jormungarAI(pCreature) { }
+        boss_acidmawAI(Creature* creature) : boss_jormungarAI(creature) { }
 
         void Reset()
         {
@@ -608,7 +608,7 @@ public:
 
     struct boss_dreadscaleAI : public boss_jormungarAI
     {
-        boss_dreadscaleAI(Creature* pCreature) : boss_jormungarAI(pCreature) { }
+        boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature) { }
 
         void Reset()
         {
@@ -626,9 +626,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_dreadscaleAI(pCreature);
+        return new boss_dreadscaleAI(creature);
     }
 };
 
@@ -637,14 +637,14 @@ class mob_slime_pool : public CreatureScript
 public:
     mob_slime_pool() : CreatureScript("mob_slime_pool") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_slime_poolAI(pCreature);
+        return new mob_slime_poolAI(creature);
     }
 
     struct mob_slime_poolAI : public ScriptedAI
     {
-        mob_slime_poolAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_slime_poolAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -672,16 +672,16 @@ class boss_icehowl : public CreatureScript
 public:
     boss_icehowl() : CreatureScript("boss_icehowl") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_icehowlAI(pCreature);
+        return new boss_icehowlAI(creature);
     }
 
     struct boss_icehowlAI : public ScriptedAI
     {
-        boss_icehowlAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_icehowlAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;

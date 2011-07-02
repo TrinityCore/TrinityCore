@@ -90,45 +90,45 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
 public:
     npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_blastmaster_emi_shortfuseAI(pCreature);
+        return new npc_blastmaster_emi_shortfuseAI(creature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
 
-            pCreature->setFaction(pPlayer->getFaction());
-            pCreature->AI()->SetData(1, 0);
+            creature->setFaction(pPlayer->getFaction());
+            creature->AI()->SetData(1, 0);
 
             pPlayer->CLOSE_GOSSIP_MENU();
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
+        InstanceScript* pInstance = creature->GetInstanceScript();
 
         if (pInstance && pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
 
         return true;
     }
 
     struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
     {
-        npc_blastmaster_emi_shortfuseAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
-            pCreature->RestoreFaction();
+            pInstance = creature->GetInstanceScript();
+            creature->RestoreFaction();
             Reset();
         }
 
@@ -548,14 +548,14 @@ class boss_grubbis : public CreatureScript
 public:
     boss_grubbis() : CreatureScript("boss_grubbis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_grubbisAI(pCreature);
+        return new boss_grubbisAI(creature);
     }
 
     struct boss_grubbisAI : public ScriptedAI
     {
-        boss_grubbisAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_grubbisAI(Creature* creature) : ScriptedAI(creature)
         {
             SetDataSummoner();
         }

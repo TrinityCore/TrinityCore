@@ -57,43 +57,43 @@ class npc_aged_dying_ancient_kodo : public CreatureScript
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pPlayer->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && pCreature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        if (pPlayer->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
         {
             //the expected quest objective
-            pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+            pPlayer->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
 
             pPlayer->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-            pCreature->GetMotionMaster()->MoveIdle();
+            creature->GetMotionMaster()->MoveIdle();
         }
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool EffectDummyCreature(Unit* pCaster, uint32 spellId, uint32 effIndex, Creature* pCreatureTarget)
+    bool EffectDummyCreature(Unit* pCaster, uint32 spellId, uint32 effIndex, Creature* creatureTarget)
     {
         //always check spellid and effectindex
         if (spellId == SPELL_KODO_KOMBO_ITEM && effIndex == 0)
         {
             //no effect if player/creature already have aura from spells
-            if (pCaster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || pCreatureTarget->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+            if (pCaster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || creatureTarget->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
                 return true;
 
-            if (pCreatureTarget->GetEntry() == NPC_AGED_KODO ||
-                pCreatureTarget->GetEntry() == NPC_DYING_KODO ||
-                pCreatureTarget->GetEntry() == NPC_ANCIENT_KODO)
+            if (creatureTarget->GetEntry() == NPC_AGED_KODO ||
+                creatureTarget->GetEntry() == NPC_DYING_KODO ||
+                creatureTarget->GetEntry() == NPC_ANCIENT_KODO)
             {
                 pCaster->CastSpell(pCaster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
 
-                pCreatureTarget->UpdateEntry(NPC_TAMED_KODO);
-                pCreatureTarget->CastSpell(pCreatureTarget, SPELL_KODO_KOMBO_DESPAWN_BUFF, false);
+                creatureTarget->UpdateEntry(NPC_TAMED_KODO);
+                creatureTarget->CastSpell(creatureTarget, SPELL_KODO_KOMBO_DESPAWN_BUFF, false);
 
-                if (pCreatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-                    pCreatureTarget->GetMotionMaster()->MoveIdle();
+                if (creatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+                    creatureTarget->GetMotionMaster()->MoveIdle();
 
-                pCreatureTarget->GetMotionMaster()->MoveFollow(pCaster, PET_FOLLOW_DIST,  pCreatureTarget->GetFollowAngle());
+                creatureTarget->GetMotionMaster()->MoveFollow(pCaster, PET_FOLLOW_DIST,  creatureTarget->GetFollowAngle());
             }
 
             //always return true when we are handling this spell and effect
@@ -102,14 +102,14 @@ public:
         return false;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_aged_dying_ancient_kodoAI(pCreature);
+        return new npc_aged_dying_ancient_kodoAI(creature);
     }
 
     struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
-        npc_aged_dying_ancient_kodoAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
         uint32 m_uiDespawnTimer;
 
@@ -197,27 +197,27 @@ class npc_dalinda : public CreatureScript
 public:
     npc_dalinda() : CreatureScript("npc_dalinda") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
        {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_dalinda::npc_dalindaAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
             {
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
-                pCreature->setFaction(113);
+                creature->setFaction(113);
             }
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dalindaAI(pCreature);
+        return new npc_dalindaAI(creature);
     }
 
     struct npc_dalindaAI : public npc_escortAI
     {
-        npc_dalindaAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+        npc_dalindaAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 i)
         {

@@ -54,22 +54,22 @@ class npc_ame : public CreatureScript
 public:
     npc_ame() : CreatureScript("npc_ame") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_CHASING_AME)
         {
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
-            DoScriptText(SAY_READY, pCreature, pPlayer);
-            pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, pPlayer->GetGUID());
+            DoScriptText(SAY_READY, creature, pPlayer);
+            creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             // Change faction so mobs attack
-            pCreature->setFaction(113);
+            creature->setFaction(113);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ameAI(pCreature);
+        return new npc_ameAI(creature);
     }
 
     struct npc_ameAI : public npc_escortAI
@@ -180,13 +180,13 @@ class npc_ringo : public CreatureScript
 public:
     npc_ringo() : CreatureScript("npc_ringo") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
         {
-            if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, pCreature->AI()))
+            if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
             {
-                pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+                creature->SetStandState(UNIT_STAND_STATE_STAND);
                 pRingoAI->StartFollow(pPlayer, FACTION_ESCORTEE, pQuest);
             }
         }
@@ -194,14 +194,14 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ringoAI(pCreature);
+        return new npc_ringoAI(creature);
     }
 
     struct npc_ringoAI : public FollowerAI
     {
-        npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature) { }
+        npc_ringoAI(Creature* creature) : FollowerAI(creature) { }
 
         uint32 m_uiFaintTimer;
         uint32 m_uiEndEventProgress;

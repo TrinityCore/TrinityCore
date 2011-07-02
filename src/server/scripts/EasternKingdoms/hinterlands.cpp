@@ -57,33 +57,33 @@ class npc_00x09hl : public CreatureScript
 public:
     npc_00x09hl() : CreatureScript("npc_00x09hl") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_RESQUE_OOX_09)
         {
-            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
 
             if (pPlayer->GetTeam() == ALLIANCE)
-                pCreature->setFaction(FACTION_ESCORTEE_A);
+                creature->setFaction(FACTION_ESCORTEE_A);
             else if (pPlayer->GetTeam() == HORDE)
-                pCreature->setFaction(FACTION_ESCORTEE_H);
+                creature->setFaction(FACTION_ESCORTEE_H);
 
-            DoScriptText(SAY_OOX_START, pCreature, pPlayer);
+            DoScriptText(SAY_OOX_START, creature, pPlayer);
 
-            if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, pCreature->AI()))
+            if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_00x09hlAI(pCreature);
+        return new npc_00x09hlAI(creature);
     }
 
     struct npc_00x09hlAI : public npc_escortAI
     {
-        npc_00x09hlAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+        npc_00x09hlAI(Creature* creature) : npc_escortAI(creature) { }
 
         void Reset() { }
 
@@ -191,27 +191,27 @@ class npc_rinji : public CreatureScript
 public:
     npc_rinji() : CreatureScript("npc_rinji") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_RINJI_TRAPPED)
         {
-            if (GameObject* pGo = pCreature->FindNearestGameObject(GO_RINJI_CAGE, INTERACTION_DISTANCE))
+            if (GameObject* pGo = creature->FindNearestGameObject(GO_RINJI_CAGE, INTERACTION_DISTANCE))
                 pGo->UseDoorOrButton();
 
-            if (npc_rinjiAI* pEscortAI = CAST_AI(npc_rinji::npc_rinjiAI, pCreature->AI()))
+            if (npc_rinjiAI* pEscortAI = CAST_AI(npc_rinji::npc_rinjiAI, creature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_rinjiAI(pCreature);
+        return new npc_rinjiAI(creature);
     }
 
     struct npc_rinjiAI : public npc_escortAI
     {
-        npc_rinjiAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_rinjiAI(Creature* creature) : npc_escortAI(creature)
         {
             m_bIsByOutrunner = false;
             m_iSpawnId = 0;

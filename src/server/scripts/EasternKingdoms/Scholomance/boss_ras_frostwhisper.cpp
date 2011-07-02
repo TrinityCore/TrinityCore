@@ -37,9 +37,9 @@ class boss_boss_ras_frostwhisper : public CreatureScript
 public:
     boss_boss_ras_frostwhisper() : CreatureScript("boss_boss_ras_frostwhisper") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_rasfrostAI (pCreature);
+        return new boss_rasfrostAI (creature);
     }
 
     struct boss_rasfrostAI : public ScriptedAI

@@ -34,9 +34,9 @@ class boss_timmy_the_cruel : public CreatureScript
 public:
     boss_timmy_the_cruel() : CreatureScript("boss_timmy_the_cruel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_timmy_the_cruelAI (pCreature);
+        return new boss_timmy_the_cruelAI (creature);
     }
 
     struct boss_timmy_the_cruelAI : public ScriptedAI

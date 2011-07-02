@@ -49,14 +49,14 @@ class npc_crusade_persuaded : public CreatureScript
 public:
     npc_crusade_persuaded() : CreatureScript("npc_crusade_persuaded") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_crusade_persuadedAI (pCreature);
+        return new npc_crusade_persuadedAI (creature);
     }
 
     struct npc_crusade_persuadedAI : public ScriptedAI
     {
-        npc_crusade_persuadedAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiSpeech_timer;
         uint32 uiSpeech_counter;
@@ -177,26 +177,26 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* pPlayer, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_BREAKOUT)
         {
-            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID());
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_koltira_deathweaverAI(pCreature);
+        return new npc_koltira_deathweaverAI(creature);
     }
 
     struct npc_koltira_deathweaverAI : public npc_escortAI
     {
-        npc_koltira_deathweaverAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
         {
             me->SetReactState(REACT_DEFENSIVE);
         }
@@ -356,14 +356,14 @@ class mob_scarlet_courier : public CreatureScript
 public:
     mob_scarlet_courier() : CreatureScript("mob_scarlet_courier") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scarlet_courierAI (pCreature);
+        return new mob_scarlet_courierAI (creature);
     }
 
     struct mob_scarlet_courierAI : public ScriptedAI
     {
-        mob_scarlet_courierAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        mob_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiStage;
         uint32 uiStage_timer;
@@ -450,14 +450,14 @@ class mob_high_inquisitor_valroth : public CreatureScript
 public:
     mob_high_inquisitor_valroth() : CreatureScript("mob_high_inquisitor_valroth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_high_inquisitor_valrothAI (pCreature);
+        return new mob_high_inquisitor_valrothAI (creature);
     }
 
     struct mob_high_inquisitor_valrothAI : public ScriptedAI
     {
-        mob_high_inquisitor_valrothAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        mob_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiRenew_timer;
         uint32 uiInquisitor_Penance_timer;
@@ -586,14 +586,14 @@ class npc_a_special_surprise : public CreatureScript
 public:
     npc_a_special_surprise() : CreatureScript("npc_a_special_surprise") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_a_special_surpriseAI(pCreature);
+        return new npc_a_special_surpriseAI(creature);
     }
 
     struct npc_a_special_surpriseAI : public ScriptedAI
     {
-        npc_a_special_surpriseAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ExecuteSpeech_Timer;
         uint32 ExecuteSpeech_Counter;

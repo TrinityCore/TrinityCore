@@ -95,9 +95,9 @@ class npc_unworthy_initiate : public CreatureScript
 public:
     npc_unworthy_initiate() : CreatureScript("npc_unworthy_initiate") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_unworthy_initiateAI(pCreature);
+        return new npc_unworthy_initiateAI(creature);
     }
 
     struct npc_unworthy_initiateAI : public ScriptedAI
@@ -286,9 +286,9 @@ class npc_unworthy_initiate_anchor : public CreatureScript
 public:
     npc_unworthy_initiate_anchor() : CreatureScript("npc_unworthy_initiate_anchor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_unworthy_initiate_anchorAI(pCreature);
+        return new npc_unworthy_initiate_anchorAI(creature);
     }
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
@@ -362,58 +362,58 @@ class npc_death_knight_initiate : public CreatureScript
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
 
-            if (pPlayer->isInCombat() || pCreature->isInCombat())
+            if (pPlayer->isInCombat() || creature->isInCombat())
                 return true;
 
-            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, pCreature->AI()))
+            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
             {
                 if (pInitiateAI->m_bIsDuelInProgress)
                     return true;
             }
 
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
             int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
-            DoScriptText(m_auiRandomSay[uiSayId], pCreature, pPlayer);
+            DoScriptText(m_auiRandomSay[uiSayId], creature, pPlayer);
 
-            pPlayer->CastSpell(pCreature, SPELL_DUEL, false);
+            pPlayer->CastSpell(creature, SPELL_DUEL, false);
             pPlayer->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && pCreature->IsFullHealth())
+        if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
         {
             if (pPlayer->HealthBelowPct(10))
                 return true;
 
-            if (pPlayer->isInCombat() || pCreature->isInCombat())
+            if (pPlayer->isInCombat() || creature->isInCombat())
                 return true;
 
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_death_knight_initiateAI(pCreature);
+        return new npc_death_knight_initiateAI(creature);
     }
 
     struct npc_death_knight_initiateAI : public CombatAI
     {
-        npc_death_knight_initiateAI(Creature* pCreature) : CombatAI(pCreature)
+        npc_death_knight_initiateAI(Creature* creature) : CombatAI(creature)
         {
             m_bIsDuelInProgress = false;
         }
@@ -524,9 +524,9 @@ class npc_dark_rider_of_acherus : public CreatureScript
 public:
     npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dark_rider_of_acherusAI(pCreature);
+        return new npc_dark_rider_of_acherusAI(creature);
     }
 
     struct npc_dark_rider_of_acherusAI : public ScriptedAI
@@ -616,9 +616,9 @@ class npc_salanar_the_horseman : public CreatureScript
 public:
     npc_salanar_the_horseman() : CreatureScript("npc_salanar_the_horseman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_salanar_the_horsemanAI(pCreature);
+        return new npc_salanar_the_horsemanAI(creature);
     }
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
@@ -685,9 +685,9 @@ class npc_ros_dark_rider : public CreatureScript
 public:
     npc_ros_dark_rider() : CreatureScript("npc_ros_dark_rider") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ros_dark_riderAI(pCreature);
+        return new npc_ros_dark_riderAI(creature);
     }
 
     struct npc_ros_dark_riderAI : public ScriptedAI
@@ -736,9 +736,9 @@ class npc_dkc1_gothik : public CreatureScript
 public:
     npc_dkc1_gothik() : CreatureScript("npc_dkc1_gothik") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dkc1_gothikAI(pCreature);
+        return new npc_dkc1_gothikAI(creature);
     }
 
     struct npc_dkc1_gothikAI : public ScriptedAI
@@ -778,9 +778,9 @@ class npc_scarlet_ghoul : public CreatureScript
 public:
     npc_scarlet_ghoul() : CreatureScript("npc_scarlet_ghoul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_scarlet_ghoulAI(pCreature);
+        return new npc_scarlet_ghoulAI(creature);
     }
 
     struct npc_scarlet_ghoulAI : public ScriptedAI
