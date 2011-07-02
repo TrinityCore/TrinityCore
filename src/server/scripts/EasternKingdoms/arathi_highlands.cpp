@@ -97,9 +97,9 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                pSummoned->AI()->AttackStart(me);
+                summoned->AI()->AttackStart(me);
             }
 
             void EnterCombat(Unit* /*who*/)

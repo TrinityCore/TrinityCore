@@ -273,21 +273,21 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
             ++KillCount;
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            Summons.Despawn(pSummoned);
+            Summons.Despawn(summoned);
             --KillCount;
         }
 
         void SummonCreatureWithRandomTarget(uint32 creatureId, int position)
         {
-            if (Creature* pSummoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
+            if (Creature* summoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
                 Player* player = NULL;
                 Unit* target = NULL;
@@ -301,9 +301,9 @@ public:
 
                 if (target)
                 {
-                    pSummoned->setFaction(168);
-                    pSummoned->AddThreat(target, 32.0f);
-                    pSummoned->AI()->AttackStart(target);
+                    summoned->setFaction(168);
+                    summoned->AddThreat(target, 32.0f);
+                    summoned->AI()->AttackStart(target);
                 }
             }
         }

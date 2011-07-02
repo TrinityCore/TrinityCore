@@ -98,9 +98,9 @@ public:
                 TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            pSummoned->AI()->AttackStart(me);
+            summoned->AI()->AttackStart(me);
         }
     };
 

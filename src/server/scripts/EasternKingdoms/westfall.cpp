@@ -164,9 +164,9 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            pSummoned->AI()->AttackStart(me);
+            summoned->AI()->AttackStart(me);
         }
 
         void Update(const uint32 diff)

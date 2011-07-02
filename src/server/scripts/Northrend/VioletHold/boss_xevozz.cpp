@@ -111,13 +111,13 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            pSummoned->SetSpeed(MOVE_RUN, 0.5f);
+            summoned->SetSpeed(MOVE_RUN, 0.5f);
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
-                pSummoned->AddThreat(target, 0.00f);
-                pSummoned->AI()->AttackStart(target);
+                summoned->AddThreat(target, 0.00f);
+                summoned->AI()->AttackStart(target);
             }
         }
 

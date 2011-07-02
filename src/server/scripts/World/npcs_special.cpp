@@ -151,17 +151,17 @@ public:
 
         Creature* SummonGuard()
         {
-            Creature* pSummoned = me->SummonCreature(m_pSpawnAssoc->m_uiSpawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Creature* summoned = me->SummonCreature(m_pSpawnAssoc->m_uiSpawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
 
-            if (pSummoned)
-                m_uiSpawnedGUID = pSummoned->GetGUID();
+            if (summoned)
+                m_uiSpawnedGUID = summoned->GetGUID();
             else
             {
                 sLog->outErrorDb("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
                 m_pSpawnAssoc = NULL;
             }
 
-            return pSummoned;
+            return summoned;
         }
 
         Creature* GetSummonedGuard()

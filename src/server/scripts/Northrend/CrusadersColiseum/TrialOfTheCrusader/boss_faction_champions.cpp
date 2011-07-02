@@ -1737,9 +1737,9 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
         }
 
         void SummonedCreatureDespawn(Creature* /*pSummoned*/)

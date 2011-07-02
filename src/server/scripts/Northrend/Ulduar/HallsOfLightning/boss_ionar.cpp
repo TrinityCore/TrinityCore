@@ -191,28 +191,28 @@ public:
                 uiDamage = 0;
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == NPC_SPARK_OF_IONAR)
+            if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
             {
-                lSparkList.Summon(pSummoned);
+                lSparkList.Summon(summoned);
 
-                pSummoned->CastSpell(pSummoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER, H_SPELL_SPARK_VISUAL_TRIGGER), true);
+                summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER, H_SPELL_SPARK_VISUAL_TRIGGER), true);
 
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
                 {
-                    pSummoned->SetInCombatWith(target);
-                    pSummoned->GetMotionMaster()->Clear();
-                    pSummoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+                    summoned->SetInCombatWith(target);
+                    summoned->GetMotionMaster()->Clear();
+                    summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
                 }
             }
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == NPC_SPARK_OF_IONAR)
-                lSparkList.Despawn(pSummoned);
+            if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
+                lSparkList.Despawn(summoned);
         }
 
         void UpdateAI(const uint32 uiDiff)

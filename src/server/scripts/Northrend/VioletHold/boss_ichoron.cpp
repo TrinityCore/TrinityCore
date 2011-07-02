@@ -301,23 +301,23 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned)
+            if (summoned)
             {
-                pSummoned->SetSpeed(MOVE_RUN, 0.3f);
-                pSummoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-                m_waterElements.push_back(pSummoned->GetGUID());
-                pInstance->SetData64(DATA_ADD_TRASH_MOB, pSummoned->GetGUID());
+                summoned->SetSpeed(MOVE_RUN, 0.3f);
+                summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
+                m_waterElements.push_back(summoned->GetGUID());
+                pInstance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            if (pSummoned)
+            if (summoned)
             {
-                m_waterElements.remove(pSummoned->GetGUID());
-                pInstance->SetData64(DATA_DEL_TRASH_MOB, pSummoned->GetGUID());
+                m_waterElements.remove(summoned->GetGUID());
+                pInstance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
 

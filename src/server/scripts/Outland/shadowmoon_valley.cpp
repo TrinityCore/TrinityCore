@@ -1004,10 +1004,10 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == NPC_COILSKAR_ASSASSIN)
-                pSummoned->AI()->AttackStart(me);
+            if (summoned->GetEntry() == NPC_COILSKAR_ASSASSIN)
+                summoned->AI()->AttackStart(me);
         }
 
         //this is very unclear, random say without no real relevance to script/event

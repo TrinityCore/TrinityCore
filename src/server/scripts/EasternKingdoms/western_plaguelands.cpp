@@ -324,10 +324,10 @@ public:
             m_uiChatTimer = 7000;
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == NPC_GHOUL)
-                pSummoned->AI()->AttackStart(me);
+            if (summoned->GetEntry() == NPC_GHOUL)
+                summoned->AI()->AttackStart(me);
         }
 
         void WaypointReached(uint32 i)

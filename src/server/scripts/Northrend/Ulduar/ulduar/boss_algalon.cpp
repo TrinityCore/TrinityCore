@@ -174,14 +174,14 @@ public:
             m_lCollapsingStarGUIDList.clear();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
+            if (summoned->GetEntry() == CREATURE_COLLAPSING_STAR)
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (me->getVictim())
-                    pSummoned->AI()->AttackStart(target ? target : me->getVictim());
-                m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
+                    summoned->AI()->AttackStart(target ? target : me->getVictim());
+                m_lCollapsingStarGUIDList.push_back(summoned->GetGUID());
             }
         }
 

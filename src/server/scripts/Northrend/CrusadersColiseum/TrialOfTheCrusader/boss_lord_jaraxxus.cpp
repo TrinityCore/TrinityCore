@@ -158,9 +158,9 @@ public:
                 m_pInstance->SetData(TYPE_JARAXXUS, DONE);
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -324,10 +324,10 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            Summons.Summon(pSummoned);
-            pSummoned->SetCorpseDelay(0);
+            Summons.Summon(summoned);
+            summoned->SetCorpseDelay(0);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -453,10 +453,10 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            Summons.Summon(pSummoned);
-            pSummoned->SetCorpseDelay(0);
+            Summons.Summon(summoned);
+            summoned->SetCorpseDelay(0);
         }
 
         void UpdateAI(const uint32 uiDiff)

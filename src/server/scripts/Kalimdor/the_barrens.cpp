@@ -637,13 +637,13 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == NPC_PILOT_WIZZ)
+            if (summoned->GetEntry() == NPC_PILOT_WIZZ)
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
-            if (pSummoned->GetEntry() == NPC_MERCENARY)
-                pSummoned->AI()->AttackStart(me);
+            if (summoned->GetEntry() == NPC_MERCENARY)
+                summoned->AI()->AttackStart(me);
         }
 
         void UpdateEscortAI(const uint32 uiDiff)
