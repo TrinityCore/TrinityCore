@@ -113,14 +113,14 @@ Map* MapManager::FindMap(uint32 mapId, uint32 instanceId) const
 
 bool MapManager::CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck)
 {
-    MapEntry const* entry = sMapStore.LookupEntry(mapid);
+    MapEntry const* entry = sMapStore.LookupEntry(mapId);
     if (!entry)
        return false;
 
     if (!entry->IsDungeon())
         return true;
 
-    InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
+    InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapId);
     if (!instance)
         return false;
 
@@ -132,7 +132,7 @@ bool MapManager::CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck)
         // Send aborted message for dungeons
         if (entry->IsNonRaidDungeon())
         {
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficulty());
+            player->SendTransferAborted(mapId, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficulty());
             return false;
         }
         else    // attempt to downscale
@@ -167,12 +167,13 @@ bool MapManager::CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck)
             uint32 corpseMap = corpse->GetMapId();
             do
             {
-                if (corpseMap == mapid)
+                if (corpseMap == mapId)
                     break;
 
                 InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(corpseMap);
                 corpseMap = instance ? instance->Parent : 0;
-            } while (corpseMap);
+            }
+            while (corpseMap);
 
             if (!corpseMap)
             {
@@ -192,7 +193,7 @@ bool MapManager::CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck)
     {
         InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
         if (boundInstance && boundInstance->save)
-            if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
+            if (Map* boundMap = sMapMgr->FindMap(mapId, boundInstance->save->GetInstanceId()))
                 if (!loginCheck && !boundMap->CanEnter(player))
                     return false;
             /*
@@ -211,19 +212,19 @@ bool MapManager::CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck)
     if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instaceIdToCheck = 0;
-        if (InstanceSave* save = player->GetInstanceSave(mapid, entry->IsRaid()))
+        if (InstanceSave* save = player->GetInstanceSave(mapId, entry->IsRaid()))
             instaceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found
         if (!player->CheckInstanceCount(instaceIdToCheck))
         {
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_TOO_MANY_INSTANCES);
+            player->SendTransferAborted(mapId, TRANSFER_ABORT_TOO_MANY_INSTANCES);
             return false;
         }
     }
 
     //Other requirements
-    return player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true);
+    return player->Satisfy(sObjectMgr->GetAccessRequirement(mapId, targetDifficulty), mapId, true);
 }
 
 void MapManager::Update(uint32 diff)

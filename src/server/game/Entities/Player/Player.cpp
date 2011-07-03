@@ -54,6 +54,7 @@
 #include "Transport.h"
 #include "Weather.h"
 #include "BattlegroundMap.h"
+#include "ArenaMap.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvP.h"
@@ -21801,21 +21802,14 @@ void Player::ResetWeeklyQuestStatus()
     m_WeeklyQuestChanged = false;
 }
 
-Battleground* Player::GetBattleground() const
+BattlegroundMap* Player::GetBattleground() const
 {
-    if (GetBattlegroundId() == 0)
-        return NULL;
-
-    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
+    return dynamic_cast<BattlegroundMap*>(GetMap());
 }
 
 bool Player::InArena() const
 {
-    Battleground *bg = GetBattleground();
-    if (!bg || !bg->isArena())
-        return false;
-
-    return true;
+    return dynamic_cast<ArenaMap*>(GetMap()) == NULL ? false : true;
 }
 
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const

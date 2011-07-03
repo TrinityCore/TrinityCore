@@ -47,7 +47,6 @@ class CreatureGroup;
 struct ScriptInfo;
 struct ScriptAction;
 struct Position;
-class Battleground;
 class MapInstanced;
 class InstanceMap;
 namespace Trinity { struct ObjectUpdater; }

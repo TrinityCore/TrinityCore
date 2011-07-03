@@ -111,6 +111,27 @@ enum ScoreType
     SCORE_DESTROYED_WALL        = 19,
 };
 
+enum BGHonorMode
+{
+    BG_NORMAL = 0,
+    BG_HOLIDAY,
+    BG_HONOR_MODE_NUM
+};
+
+enum BattlegroundBuffObjects
+{
+    BG_OBJECTID_SPEEDBUFF_ENTRY     = 179871,
+    BG_OBJECTID_REGENBUFF_ENTRY     = 179904,
+    BG_OBJECTID_BERSERKERBUFF_ENTRY = 179905
+};
+
+const uint32 BuffEntries[3] =
+{
+    BG_OBJECTID_SPEEDBUFF_ENTRY, 
+    BG_OBJECTID_REGENBUFF_ENTRY, 
+    BG_OBJECTID_BERSERKERBUFF_ENTRY
+};
+
 class BattlegroundScore;
 
 class BattlegroundMap : public Map
@@ -139,7 +160,7 @@ class BattlegroundMap : public Map
         void Remove(Player*, bool);
 
         void Update(uint32 const& diff);
-        // Private processing methods
+        // processing methods
         virtual void ProcessPreparation(uint32 const& diff);
         virtual void ProcessInProgress(uint32 const& diff);
         virtual void ProcessEnded(uint32 const& diff);
@@ -165,6 +186,9 @@ class BattlegroundMap : public Map
 
         virtual void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool addHonor = true);
         void UpdateWorldState(uint32 type, uint32 value);
+        void SendMessageToAll(int32 entry, ChatMsg type, Player* source = NULL);
+        void SendMessageToAll(char const* string, ChatMsg type, Player* source = NULL);
+        char const* ParseStrings(int32 mainEntry, int32 args1, int32 args2);
 
         // Entity management - GameObject
         GameObject* AddGameObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
@@ -172,6 +196,8 @@ class BattlegroundMap : public Map
         GameObject* GetGameObject(uint32 type);
         void SpawnGameObject(uint32 type, uint32 respawntime);  // Spawns an already added gameobject
         bool DeleteGameObject(uint32 type); // Deletes an object with specified type designation 
+        void DoorOpen(uint32 type);
+        void DoorClose(uint32 type);
 
         // Entity management - Creature
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0); // Adds and spawns creatures to map
@@ -205,7 +231,6 @@ class BattlegroundMap : public Map
         // Packet senders
         void SendPacketToAll(WorldPacket* data);
         void SendPacketToTeam(WorldPacket* data, uint32 team, Player* exclude);
-        void SendMessageToAll(int32 entry, ChatMsg type);
         void SendPlayerJoinedPacket(Player* player);
         void SendPlayerLeftPacket(Player* player);
        

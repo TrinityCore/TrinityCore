@@ -1178,7 +1178,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
         {
             //spawning/despawning of aura
             SpawnGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
-            SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(owner)+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
+            SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+owner+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
             // Those who are waiting to resurrect at this object are taken to the closest own object's graveyard
             std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
             if (!ghost_list.empty())
@@ -1193,7 +1193,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
                     if (!ClosestGrave)
                         ClosestGrave = GetClosestGraveYard(plr);
                     else
-                        plr->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
+                        plr->TeleportTo(GetId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
                 }
                 m_ReviveQueue[m_BgCreatures[node]].clear();
             }

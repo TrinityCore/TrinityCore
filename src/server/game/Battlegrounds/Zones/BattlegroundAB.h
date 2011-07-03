@@ -289,7 +289,7 @@ class BattlegroundAB : public BattlegroundMap
 
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
-        bool IsTeamScores500Disadvantage(uint32 team) const { return _teamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
+        bool IsTeamScores500Disadvantage(uint32 team) const { return _teamScores500Disadvantage[team]; }
     private:
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);

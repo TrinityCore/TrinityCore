@@ -143,9 +143,9 @@ void BattlegroundEY::InitializeObjects()
             continue;
         }
 
-        AddGameObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3, Buff_Entries[0], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY);
-        AddGameObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 1, Buff_Entries[1], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY);
-        AddGameObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 2, Buff_Entries[2], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY);
+        AddGameObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3, BuffEntries[0], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY);
+        AddGameObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 1, BuffEntries[1], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY);
+        AddGameObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 2, BuffEntries[2], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY);
     }
 
     WorldSafeLocsEntry const *sg = NULL;

@@ -53,7 +53,7 @@ class MapManager
         }
         uint32 GetZoneId(uint32 mapId, float x, float y, float z) const
         {
-            return Map::GetZoneIdByAreaFlag(GetAreaFlag(mapId, x, y, z), mapid);
+            return Map::GetZoneIdByAreaFlag(GetAreaFlag(mapId, x, y, z), mapId);
         }
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapId, float x, float y, float z)
         {

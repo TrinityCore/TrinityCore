@@ -29,12 +29,14 @@
 #include "Util.h"
 
 // these variables aren't used outside of this file, so declare them only here
-uint32 BG_AB_HonorScoreTicks[BG_HONOR_MODE_NUM] = {
+uint32 BG_AB_HonorScoreTicks[BG_HONOR_MODE_NUM] =
+{
     330, // normal honor
     200  // holiday
 };
 
-uint32 BG_AB_ReputationScoreTicks[BG_HONOR_MODE_NUM] = {
+uint32 BG_AB_ReputationScoreTicks[BG_HONOR_MODE_NUM] =
+{
     200, // normal honor
     150  // holiday
 };
@@ -87,9 +89,9 @@ void BattlegroundAB::InitializeObjects()
     //buffs
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {
-        AddGameObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY);
+        AddGameObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, BuffEntries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY);
         AddGameObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY);
-        AddGameObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY);
+        AddGameObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, BuffEntries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY);
     }
 
     // despawn banners, auras and buffs
@@ -160,13 +162,13 @@ void BattlegroundAB::ProcessInProgress(uint32 const& diff)
                 if (teamIndex == 0)
                 {
                     // FIXME: team and node names not localized
-                    SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
+                    SendMessageToAll(ParseStrings(LANG_BG_AB_NODE_TAKEN, LANG_BG_AB_ALLY, _GetNodeNameId(node)), CHAT_MSG_BG_SYSTEM_ALLIANCE);
                     PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
                 }
                 else
                 {
                     // FIXME: team and node names not localized
-                    SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
+                    SendMessageToAll(ParseStrings(LANG_BG_AB_NODE_TAKEN, LANG_BG_AB_HORDE, _GetNodeNameId(node)), CHAT_MSG_BG_SYSTEM_HORDE);
                     PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
                 }
             }
@@ -492,9 +494,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* /*targ
 
         // FIXME: team and node names not localized
         if (teamIndex == 0)
-            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), LANG_BG_AB_ALLY);
+            SendMessageToAll(ParseStrings(LANG_BG_AB_NODE_CLAIMED, _GetNodeNameId(node), LANG_BG_AB_ALLY), CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), LANG_BG_AB_HORDE);
+            SendMessageToAll(ParseStrings(LANG_BG_AB_NODE_CLAIMED, _GetNodeNameId(node), LANG_BG_AB_HORDE), CHAT_MSG_BG_SYSTEM_HORDE, source);
 
         sound = BG_AB_SOUND_NODE_CLAIMED;
     }
@@ -516,9 +518,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* /*targ
 
             // FIXME: node names not localized
             if (teamIndex == BG_TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+                SendMessageToAll(ParseStrings(LANG_BG_AB_NODE_ASSAULTED, _GetNodeNameId(node)), CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
             else
-                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+                SendMessageToAll(ParseStrings(LANG_BG_AB_NODE_ASSAULTED, _GetNodeNameId(node)), CHAT_MSG_BG_SYSTEM_HORDE, source);
         }
         // If contested, change back to occupied
         else
