@@ -1128,8 +1128,8 @@ public:
 
     bool OnGossipHello(Player * pPlayer, GameObject * pGO)
     {
-        if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
-            (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
+        if ((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
+            (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
         {
             Creature * pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT, 5.0f);
 
@@ -1139,13 +1139,12 @@ public:
             if (pPrisoner)
             {
                 pGO->UseDoorOrButton();
-                pGO->SetResetTime(65000);
+                pGO->SetResetTime(65*IN_MILLISECONDS);
 
                 pPrisoner->HandleEmoteCommand(EMOTE_ONESHOT_YES);
                 pPrisoner->Whisper(TEXT_ID, pPlayer->GetGUID());
-                pPrisoner->SetTimeUntilDisappear(5000);
-                pPrisoner->GetMotionMaster()->MoveFleeing(pPlayer, 5000);
-
+                pPrisoner->SetTimeUntilDisappear(5*IN_MILLISECONDS);
+                pPrisoner->GetMotionMaster()->MoveFleeing(pPlayer, 5*IN_MILLISECONDS);
             }
         }
         return true;
