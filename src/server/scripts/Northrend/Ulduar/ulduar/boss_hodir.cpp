@@ -352,8 +352,9 @@ class boss_hodir : public CreatureScript
                     damage = 0;
                     DoScriptText(SAY_DEATH, me);
                     if (iCouldSayThatThisCacheWasRare)
+					{
                         instance->SetData(DATA_HODIR_RARE_CHEST, 1);
-
+					}
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
