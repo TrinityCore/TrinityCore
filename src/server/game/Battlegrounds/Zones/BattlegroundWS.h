@@ -177,12 +177,12 @@ class BattlegroundWS : public BattlegroundMap
         /* Construction */
         BattlegroundWS();
         ~BattlegroundWS();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void OnPlayerJoin(Player *plr);
         void StartBattleground();
         void InitializeObjects();
+        void ProcessInProgress(uint32 const& diff);
 
         /* BG Flags */
         uint64 GetAllianceFlagPickerGUID() const    { return m_FlagKeepers[BG_TEAM_ALLIANCE]; }
