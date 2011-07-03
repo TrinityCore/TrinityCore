@@ -342,7 +342,6 @@ class boss_freya : public CreatureScript
 					EnterEvadeMode();
                     DoScriptText(SAY_DEATH, me);
                     me->SetReactState(REACT_PASSIVE);
-                    //_JustDied(); nonsense -.-'
                     me->RemoveAllAuras();
                     me->AttackStop();
                     me->setFaction(35);
@@ -367,6 +366,7 @@ class boss_freya : public CreatureScript
                     }
 					//summon chest
 					CAST_AI(boss_freya::boss_freyaAI,me->AI())->SummonChest();
+					_JustDied();
 				}
             }
 

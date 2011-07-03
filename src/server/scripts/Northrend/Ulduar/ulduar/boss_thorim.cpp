@@ -535,7 +535,6 @@ public:
 			if (damage >= me->GetHealth() && instance)
 			{
 				damage = 0;
-				EnterEvadeMode();
 				DoScriptText(SAY_DEATH, me);
 				me->SetReactState(REACT_PASSIVE);
 				me->RemoveAllAuras();
@@ -560,6 +559,7 @@ public:
 				{
 					me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
 				}
+				_JustDied();
 			}
         }
     };
