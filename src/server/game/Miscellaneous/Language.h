@@ -1172,6 +1172,7 @@ enum TrinityStrings
     LANG_JAIL_INIT_4            = 12143,
     LANG_JAIL_FMTSTR            = 12144,
     LANG_JAIL_DATA_LOADED       = 12145,
+    LANG_JAIL_NO_SITE           = 12146,
     LANG_JAIL_ENABLED           = 12197,
     LANG_JAIL_DISABLED          = 12198,
     LANG_JAIL_NOT_ACTIVE        = 12199

@@ -73,6 +73,7 @@ public:
 
     // Kommandos aus jail_commandscript bearbeiten
     bool InfoKommando(ChatHandler * handler);
+    bool GotoKommando(ChatHandler * handler, const char * args);
     bool PInfoKommando(ChatHandler * handler, const char * args);
     bool ArrestKommando(ChatHandler * handler, const char * args);
     bool ReleaseKommando(ChatHandler * handler, const char * args, bool reset = false);

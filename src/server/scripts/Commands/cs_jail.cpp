@@ -14,6 +14,7 @@ public:
         static ChatCommand JailCommandTable[] =
         {
             { "info",       SEC_PLAYER,         true,   &HandleJailInfoCmd,     "", NULL },
+            { "goto",       SEC_PLAYER,         true,   &HandleJailGotoCmd,     "", NULL },
             { "pinfo",      SEC_ANWAERTER,      true,   &HandleJailPInfoCmd,    "", NULL },
             { "arrest",     SEC_GAMEMASTER,     true,   &HandleJailArrestCmd,   "", NULL },
             { "release",    SEC_GAMEMASTER,     true,   &HandleJailReleaseCmd,  "", NULL },
@@ -32,6 +33,7 @@ public:
         return commandTable;
     }
     static bool HandleJailInfoCmd(ChatHandler       * handler, const char * /*args*/)   { return sJail->InfoKommando(handler);              }
+    static bool HandleJailGotoCmd(ChatHandler       * handler, const char * args)       { return sJail->GotoKommando(handler, args);        }
     static bool HandleJailPInfoCmd(ChatHandler      * handler, const char * args)       { return sJail->PInfoKommando(handler, args);       }
     static bool HandleJailArrestCmd(ChatHandler     * handler, const char * args)       { return sJail->ArrestKommando(handler, args);      }
     static bool HandleJailReleaseCmd(ChatHandler    * handler, const char * args)       { return sJail->ReleaseKommando(handler, args);     }

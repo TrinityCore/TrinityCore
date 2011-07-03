@@ -48,6 +48,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc3`) VALUES
 (12143, 'Jail: %u arrests (%u are active) within %u ms loaded.','Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.'),
 (12144, 'ERROR! STRING TO LONG!','FEHLER! STRING ZU LANG!'),
 (12145, 'Jail: Jail data loaded.','Jail: Die Knastdaten wurden geladen.'),
+(12146, 'No faction (horde/ally) given!','Du hast keine Fraktion (horde/ally) angegeben!'),
 (12197, 'The Jail is now active.', 'Das Jail ist nun aktiv.'),
 (12198, 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'),
 (12199, 'The Jail is not active!', 'Das Jail ist nicht aktiv!');

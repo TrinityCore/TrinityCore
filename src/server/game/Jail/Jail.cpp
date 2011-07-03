@@ -131,6 +131,37 @@ bool Jail::InfoKommando(ChatHandler * handler)
     return true;
 }
 
+bool Jail::GotoKommando(ChatHandler * handler, const char * args)
+{
+    if (!m_JailKonf.Enabled)
+        return SendeInaktiv(handler);
+
+    Player * chr = handler->GetSession()->GetPlayer();
+    if (!chr)
+        return false;
+
+    std::string tmp;
+    char * chartmp = strtok((char*)args, " ");
+    if (chartmp == NULL)
+    {
+        handler->SendSysMessage(LANG_JAIL_NO_SITE);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+    else
+    {
+        tmp = chartmp;
+        normalizePlayerName(tmp);
+    }
+
+    if (tmp.c_str() == "horde")
+        chr->TeleportTo(m_JailKonf.MapHorde, m_JailKonf.HordePos.m_positionX, m_JailKonf.HordePos.m_positionY, m_JailKonf.HordePos.m_positionZ, m_JailKonf.HordePos.m_orientation);
+    else
+        chr->TeleportTo(m_JailKonf.MapAlly, m_JailKonf.AllyPos.m_positionX, m_JailKonf.AllyPos.m_positionY, m_JailKonf.AllyPos.m_positionZ, m_JailKonf.AllyPos.m_orientation);
+
+    return true;
+}
+
 bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
 {
     if (!m_JailKonf.Enabled)
