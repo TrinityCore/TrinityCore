@@ -115,20 +115,20 @@ enum WB_ACHIEVEMENTS
 // *INDENT-OFF*
     ACHIEVEMENTS_WIN_WG                          = 1717,
     ACHIEVEMENTS_WIN_WG_100                      = 1718, // todo
-    ACHIEVEMENTS_WG_GNOMESLAUGHTER               = 1723, // todo
+    ACHIEVEMENTS_WG_GNOMESLAUGHTER               = 1723,
     ACHIEVEMENTS_WG_TOWER_DESTROY                = 1727,
-    ACHIEVEMENTS_DESTRUCTION_DERBY_A             = 1737, // todo
-    ACHIEVEMENTS_WG_TOWER_CANNON_KILL            = 1751, // todo
-    ACHIEVEMENTS_WG_MASTER_A                     = 1752, // todo
+    ACHIEVEMENTS_DESTRUCTION_DERBY_A             = 1737,
+    ACHIEVEMENTS_WG_TOWER_CANNON_KILL            = 1751,
+    ACHIEVEMENTS_WG_MASTER_A                     = 1752,
     ACHIEVEMENTS_WIN_WG_TIMER_10                 = 1755,
     ACHIEVEMENTS_STONE_KEEPER_50                 = 2085, // todo
     ACHIEVEMENTS_STONE_KEEPER_100                = 2086, // todo
     ACHIEVEMENTS_STONE_KEEPER_250                = 2087, // todo
     ACHIEVEMENTS_STONE_KEEPER_500                = 2088, // todo
     ACHIEVEMENTS_STONE_KEEPER_1000               = 2089, // todo
-    ACHIEVEMENTS_WG_RANGER                       = 2199, // todo
-    ACHIEVEMENTS_DESTRUCTION_DERBY_H             = 2476, // todo
-    ACHIEVEMENTS_WG_MASTER_H                     = 2776, // todo
+    ACHIEVEMENTS_WG_RANGER                       = 2199,
+    ACHIEVEMENTS_DESTRUCTION_DERBY_H             = 2476,
+    ACHIEVEMENTS_WG_MASTER_H                     = 2776,
 // *INDENT-ON*
 };
 

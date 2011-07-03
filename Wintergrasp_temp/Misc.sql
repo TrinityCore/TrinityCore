@@ -64,6 +64,35 @@ INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`targ
 (59767,571,4314.648,2408.522,392.642,6.268125), -- Teleport: Eastspark Factory Graveyard "area 4612"
 (59769,571,5140.790,2179.120,390.950,1.972220); -- Teleport: Alliance Landing Zone
 
-
-
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (7703,7704,7705,7706,7707,7708,7709,7710,7711,7712,7713,7714,7715,7716,7718,7719);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
+-- Didn't Stand a Chance
+(7703,11,0,0, 'achievement_did_not_stand_a_chance'),
+-- Vehicular Gnomeslaughter
+(7704,11,0,0, 'achievement_vehicular_gnomeslaughter'), -- Vehicle 
+(7705,1,28366,0, ''), -- Tower Cannon
+(7706,1,27883,0, ''), -- Shredder (removed in 3.0.3)
+(7707,1,27838,0, ''), -- Fighter (removed in 3.0.3)
+(7708,1,27850,0, ''), -- Bomber (removed in 3.0.3)
+-- Wintergrasp Ranger
+(7709,6,4575,0, ''), -- Wintergrasp Fortress
+(7709,3,101,0, ''),
+(7710,6,4612,0, ''), -- Eastspark Workshop
+(7710,3,101,0, ''),
+(7711,6,4539,0, ''), -- The Broken Temple
+(7711,3,101,0, ''),
+(7712,6,4538,0, ''), -- The Sunken Ring
+(7712,3,101,0, ''),
+(7713,6,4611,0, ''), -- Westspark Workshop
+(7713,3,101,0, ''),
+(7714,6,4581,0, ''), -- Flamewatch Tower
+(7714,3,101,0, ''),
+(7715,6,4583,0, ''), -- Shadowsight Tower
+(7715,3,101,0, ''),
+(7716,6,4582,0, ''), -- Winter's Edge Tower
+(7716,3,101,0, ''),
+(7718,6,4584,0, ''), -- The Cauldron of Flames
+(7718,3,101,0, ''),
+(7719,6,4589,0, ''), -- The Chilled Quagmire
+(7719,3,101,0, '');
 

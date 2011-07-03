@@ -409,6 +409,58 @@ class npc_wintergrasp_quest_giver : public CreatureScript
     }
 };
 
+enum eWGVehicle
+{
+    NPC_CATAPULT            = 27881,
+    NPC_DEMOLISHER          = 28094,
+    NPC_TOWER_CANON         = 28366,
+    NPC_SIEGE_ENGINE_A      = 28312,
+    NPC_SIEGE_ENGINE_H      = 32627,
+    NPC_SARAHS_BG_BRUISER   = 32898,
+};
+
+class achievement_vehicular_gnomeslaughter : public AchievementCriteriaScript
+{
+    public:
+        achievement_vehicular_gnomeslaughter() : AchievementCriteriaScript("achievement_vehicular_gnomeslaughter") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            switch (target->GetEntry())
+            {
+                case NPC_CATAPULT:
+                case NPC_DEMOLISHER:
+                case NPC_SIEGE_ENGINE_A:
+                case NPC_SIEGE_ENGINE_H:
+                case NPC_SARAHS_BG_BRUISER:
+                    return true;
+                    break;
+            }
+
+            return false;
+        }
+};
+
+class achievement_did_not_stand_a_chance : public AchievementCriteriaScript
+{
+    public:
+        achievement_did_not_stand_a_chance() : AchievementCriteriaScript("achievement_did_not_stand_a_chance") { }
+
+        bool OnCheck(Player* source, Unit* target)
+        {
+            if (!target || !target->IsMounted())
+                return false;
+
+            if (source->GetVehicleBase() && source->GetVehicleBase()->GetEntry() == NPC_TOWER_CANON)
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_wintergrasp()
 {
     new npc_wg_dalaran_queue();
@@ -416,4 +468,6 @@ void AddSC_wintergrasp()
     new npc_demolisher_engineerer();
     new go_wintergrasp_teleporter();
     new npc_wintergrasp_quest_giver();
+    new achievement_vehicular_gnomeslaughter();
+    new achievement_did_not_stand_a_chance();
 }

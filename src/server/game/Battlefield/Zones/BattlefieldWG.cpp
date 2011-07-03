@@ -699,6 +699,9 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
         }
         return;
     }
+    else
+        killer->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, victim);
+
     for (GuidSet::const_iterator itr = m_vehicles[killer->GetTeamId()? TEAM_ALLIANCE : TEAM_HORDE].begin();
          itr != m_vehicles[killer->GetTeamId()? TEAM_ALLIANCE : TEAM_HORDE].end(); ++itr)
     {
