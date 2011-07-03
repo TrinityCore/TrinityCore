@@ -4845,7 +4845,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         if (Unit *driver = vehicle->GetPassenger(0))
                         {
                             driver->ExitVehicle();
-                            driver->GetMotionMaster()->MoveJump(driver->GetPositionX(), driver->GetPositionY(), driver->GetPositionZ()+7.0f, 2.0f, 2.0f);
+                            driver->GetMotionMaster()->MoveJump(driver->GetPositionX(), driver->GetPositionY(), driver->GetPositionZ()+7.0f, 1.5f, 1.5f);
                         }
                     break;
                 }

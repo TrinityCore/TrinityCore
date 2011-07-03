@@ -37,7 +37,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 ## Basic Orders
 ######*/
 
-UPDATE `creature_template` SET `ScriptName` = 'npc_steamcrank' WHERE `entry` = 39368;
+UPDATE `creature_template` SET `ScriptName` = 'npc_steamcrank' WHERE `entry` = '39368';
+
+/*######
+## In and Out
+######*/
+
+UPDATE `creature_template` SET `npcflag` = '16777216', `VehicleId` = '745', `spell6` = '74153' WHERE `entry` = '39682';
 
 /*######
 ## Operation 'Gnomeregan'
