@@ -19,12 +19,14 @@
 /* ScriptData
 SDName: Ironforge
 SD%Complete: 100
-SDComment: Quest support: 3702
+SDComment: Quest support: 3702, 25229
 SDCategory: Ironforge
 EndScriptData */
 
 /* ContentData
 npc_royal_historian_archesonus
+npc_gnome_citizen
+spell_motivate_a_tron
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -91,7 +93,180 @@ public:
 
 };
 
+/*######
+## npc_gnome_citizen
+## spell_motivate_a_tron
+######*/
+
+enum Spells
+{
+    SPELL_CITIZEN_AURA                  = 74034,
+    SPELL_PETACT_AURA                   = 74071,
+    SPELL_QUEST_CREDIT                  = 73960,
+
+    SPELL_MOTIVATE_1                    = 73943,
+    SPELL_MOTIVATE_2                    = 74080,
+
+    SPELL_TURNIN                        = 75078,
+    SPELL_AOE_TURNIN                    = 73955,
+};
+
+enum Creatures
+{
+    NPC_SPARKNOZZLE                     = 39675,
+
+    NPC_CITIZEN_1                       = 39253,
+    NPC_CITIZEN_2                       = 39623,
+
+    NPC_MOTIVATED_CITIZEN_1             = 39466,
+    NPC_MOTIVATED_CITIZEN_2             = 39624,
+};
+
+enum Points
+{
+    POINT_SPARKNOZZLE                   = 4026500,
+};
+
+enum Texts
+{
+    SAY_CITIZEN_START                   = 0,
+    SAY_CITIZEN_END                     = 1,
+};
+
+class npc_gnome_citizen : public CreatureScript
+{
+    public:
+        npc_gnome_citizen() : CreatureScript("npc_gnome_citizen") { }
+
+        struct npc_gnome_citizenAI : public ScriptedAI
+        {
+            npc_gnome_citizenAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Reset();
+                Player* player = me->GetOwner()->ToPlayer();
+
+                switch (urand(1, 4))
+                {
+                    case 1:
+                        _mountModel = 6569;
+                        break;
+                    case 2:
+                        _mountModel = 9473;
+                        break;
+                    case 3:
+                        _mountModel = 9474;
+                        break;
+                    case 4:
+                        _mountModel = 9475;
+                        break;
+                }
+                if (player)
+                    me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * M_PI / 3.0f * 4.0f);
+            }
+
+            void Reset()
+            {
+                _complete = false;
+                me->AddAura(SPELL_CITIZEN_AURA, me);
+                DoCast(me, SPELL_PETACT_AURA);
+                me->SetReactState(REACT_PASSIVE);
+                Talk(SAY_CITIZEN_START);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+                if (id == POINT_SPARKNOZZLE)
+                    me->DespawnOrUnsummon();
+            }
+
+            void SpellHit(Unit* caster, SpellEntry const* spell)
+            {
+                if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_SPARKNOZZLE && !_complete)
+                {
+                    _complete = true;    // Preventing from giving credit twice
+                    DoCast(me, SPELL_TURNIN);
+                    DoCast(me, SPELL_QUEST_CREDIT);
+                    Talk(SAY_CITIZEN_END);
+                    me->GetMotionMaster()->MovePoint(POINT_SPARKNOZZLE, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                Unit* owner = me->GetOwner();
+
+                if (!owner)
+                    return;
+
+                if (owner->IsMounted() && !me->IsMounted())
+                    me->Mount(_mountModel);
+                else if (!owner->IsMounted() && me->IsMounted())
+                    me->Unmount();
+
+                me->SetSpeed(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
+                me->SetSpeed(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));
+            }
+
+        private:
+            uint32 _mountModel;
+            bool _complete;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_gnome_citizenAI(creature);
+        }
+};
+
+class spell_motivate_a_tron : public SpellScriptLoader
+{
+    public:
+        spell_motivate_a_tron() : SpellScriptLoader("spell_motivate_a_tron") {}
+
+        class spell_motivate_a_tron_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_motivate_a_tron_SpellScript)
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_MOTIVATE_1))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_MOTIVATE_2))
+                    return false;
+               return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    uint32 motivate = 0;
+                    if (target->GetEntry() == NPC_CITIZEN_1)
+                        motivate = SPELL_MOTIVATE_1;
+                    else if (target->GetEntry() == NPC_CITIZEN_2)
+                        motivate = SPELL_MOTIVATE_2;
+                    if (motivate)
+                        caster->CastSpell(target, motivate, true, NULL, NULL, caster->GetGUID());
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_motivate_a_tron_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_motivate_a_tron_SpellScript();
+        }
+};
+
 void AddSC_ironforge()
 {
     new npc_royal_historian_archesonus();
+    new npc_gnome_citizen();
+    new spell_motivate_a_tron();
 }
