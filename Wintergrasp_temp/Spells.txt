@@ -21,3 +21,9 @@ set x,y,z,o to nearest trigger entry: 23472
 make player cast 60968 on vehicle
 aura 14267 on self if player is horde
 aura 14268 on self if player is alliance
+
+Spells cast on vehicle as auras... or something (PET_SPELLS cooldowns):
+61178 (Grab Passenger) (Catapult, Siege Engine... NOT tower cannons)
+56866 (-Unknown-) (Catapult, Siege Engine.... NOT tower cannons)
+14268 (Alliance Flag) (Catapult, Siege Engine... NOT tower cannons)
+14267 (Horde Flag)
