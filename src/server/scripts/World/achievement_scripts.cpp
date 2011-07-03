@@ -89,13 +89,13 @@ class achievement_save_the_day : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            if (Player const* target = target->ToPlayer())
+            if (Player const* player = target->ToPlayer())
             {
                 if (source->GetBattlegroundTypeId() != BATTLEGROUND_WS || !source->GetBattleground())
                     return false;
 
                 BattlegroundWS* pWSG = static_cast<BattlegroundWS*>(source->GetBattleground());
-                if (pWSG->GetFlagState(target->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
+                if (pWSG->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
                     return true;
             }
             return false;
