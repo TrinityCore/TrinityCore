@@ -70,9 +70,9 @@ class Unit;
 class Battlefield;
 class BfGraveYard;
 
-typedef std::set < uint64 > GuidSet;
-typedef std::vector < BfGraveYard * >GraveYardVect;
-typedef std::map < uint64, uint32 > PlayerTimerMap;
+typedef std::set<uint64> GuidSet;
+typedef std::vector<BfGraveYard*> GraveYardVect;
+typedef std::map<uint64, uint32> PlayerTimerMap;
 
 class BfCapturePoint
 {
@@ -103,7 +103,7 @@ public:
     bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o);
     GameObject *GetCapturePointGo() { return m_capturePoint; }
 
-    TeamId GetTeamId() {return m_team;}
+    TeamId GetTeamId() { return m_team; }
 protected:
     bool DelCapturePoint();
 
@@ -176,7 +176,7 @@ class Battlefield:public ZoneScript
     virtual ~Battlefield();
 
     /// typedef of map witch store capturepoint and the associate gameobject entry
-    typedef std::map < uint32 /*lowguid */ , BfCapturePoint * >BfCapturePointMap;
+    typedef std::map<uint32 /*lowguid */, BfCapturePoint*> BfCapturePointMap;
 
     /// Call this to init the Battlefield
     virtual bool SetupBattlefield() { return true; }
@@ -370,8 +370,8 @@ protected:
 
     GuidSet m_Groups[BG_TEAMS_COUNT];                       // Contain different raid group
 
-    std::vector < uint64 > m_Data64;
-    std::vector < uint32 > m_Data32;
+    std::vector<uint64> m_Data64;
+    std::vector<uint32> m_Data32;
 
     void KickAfk();
     // use for switch off all worldstate for client

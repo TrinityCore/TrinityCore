@@ -38,11 +38,11 @@ class BfCapturePointWG;
 struct BfWGGameObjectBuilding;
 struct BfWGWorkShopData;
 
-typedef std::set<GameObject *>GameObjectSet;
-typedef std::set<BfWGGameObjectBuilding *> GameObjectBuilding;
-typedef std::set<BfWGWorkShopData *> WorkShop;
-//typedef std::set<BfCapturePointWG *> CapturePointSet; unused ?
-typedef std::set<Group *> GroupSet;
+typedef std::set<GameObject*> GameObjectSet;
+typedef std::set<BfWGGameObjectBuilding*> GameObjectBuilding;
+typedef std::set<BfWGWorkShopData*> WorkShop;
+//typedef std::set<BfCapturePointWG*> CapturePointSet; unused ?
+typedef std::set<Group*> GroupSet;
 
 enum eWGItem
 {
@@ -363,7 +363,7 @@ class BattlefieldWG : public Battlefield
          */
         void AddBrokenTower(TeamId team);
 
-        void DoCompleteOrIncrementAchievement(uint32 achievement, Player *player, uint8 incrementNumber = 1);
+        void DoCompleteOrIncrementAchievement(uint32 achievementId, Player *player, uint8 incrementNumber = 1);
 
         /**
          * \brief called when a player is die, for add him to resurrect queue

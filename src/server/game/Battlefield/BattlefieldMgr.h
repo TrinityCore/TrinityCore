@@ -61,8 +61,8 @@ class BattlefieldMgr
 
     void HandleDropFlag(Player * plr, uint32 spellId);
 
-    typedef std::vector < Battlefield * >BattlefieldSet;
-    typedef std::map < uint32 /* zoneid */ , Battlefield * >BattlefieldMap;
+    typedef std::vector<Battlefield*> BattlefieldSet;
+    typedef std::map<uint32 /* zoneid */, Battlefield*> BattlefieldMap;
   private:
     // contains all initiated battlefield events
     // used when initing / cleaning up

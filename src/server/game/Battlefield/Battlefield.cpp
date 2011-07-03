@@ -857,7 +857,7 @@ Creature *Battlefield::SpawnCreature(uint32 entry, Position pos, TeamId team)
 Creature *Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team)
 {
     //Get map object
-    Map* map = const_cast < Map * >(sMapMgr->CreateBaseMap(m_MapId));
+    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(m_MapId));
     if (!map)
     {
         sLog->outError("Can't create creature entry: %u map not found", entry);
@@ -896,7 +896,7 @@ Creature *Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
 GameObject *Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z, float o)
 {
     //Get map object
-    Map* map = const_cast < Map * >(sMapMgr->CreateBaseMap(571));
+    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(571));
     if (!map)
         return 0;
 
@@ -1024,12 +1024,12 @@ bool BfCapturePoint::Update(uint32 diff)
                 if (!m_capturePoint->IsWithinDistInMap(plr, radius) || !plr->IsOutdoorPvPActive())
                     HandlePlayerLeave(plr);
 
-    std::list < Player * >players;
+    std::list<Player*> players;
     Trinity::AnyPlayerInObjectRangeCheck checker(m_capturePoint, radius);
     Trinity::PlayerListSearcher < Trinity::AnyPlayerInObjectRangeCheck > searcher(m_capturePoint, players, checker);
     m_capturePoint->VisitNearbyWorldObject(radius, searcher);
 
-    for (std::list < Player * >::iterator itr = players.begin(); itr != players.end(); ++itr)
+    for (std::list< Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
         if ((*itr)->IsOutdoorPvPActive())
             if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
                 HandlePlayerEnter(*itr);

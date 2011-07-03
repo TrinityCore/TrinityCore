@@ -561,22 +561,23 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
 // *****************************************************
 // *******************Reward System*********************
 // *****************************************************
-void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player *player, uint8 /*incrementNumber */ )
+void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievementId, Player *player, uint8 /*incrementNumber */ )
 {
-    AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
+    AchievementEntry const* achievement = GetAchievementStore()->LookupEntry(achievementId);
+    if (!player || !achievement)
+        return;
 
     switch (achievement)
     {
         case ACHIEVEMENTS_WIN_WG_100:
-            {
-                // player->GetAchievementMgr().UpdateAchievementCriteria();
-            }
+        {
+            // player->GetAchievementMgr().UpdateAchievementCriteria();
+        }
         default:
-            {
-                if (player)
-                    player->CompletedAchievement(AE);
-            }
+        {
+            player->CompletedAchievement(achievement);
             break;
+        }
     }
 
 }
