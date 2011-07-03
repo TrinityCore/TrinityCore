@@ -47,15 +47,16 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 (0, -1850504, 'Guide me to the Eastspark Graveyard.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''),
 (0, -1850505, 'Guide me back to the Horde landing camp.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''),
 (0, -1850506, 'Guide me back to the Alliance landing camp.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''),
-(0, -1850507, 'Se mettre dans la file pour le Joug-d''hiver.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''); -- (Needs proper english text)
+(0, -1850507, 'Se mettre dans la file pour le Joug-d''hiver.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, ''); -- (Needs proper english text, maybe "Get in the queue for Wintergrasp."?)
 
 -- New support-commands for battlefield class
 DELETE FROM `command` WHERE name IN ('bf start', 'bf stop', 'bf enable', 'bf switch', 'bf timer');
-INSERT INTO `command` (`name`,`security`,`help`) VALUES ('bf start',3,'Syntaxe: .bf start #battleid');
-INSERT INTO `command` (`name`,`security`,`help`) VALUES ('bf stop',3,'Syntaxe: .bf stop #battleid');
-INSERT INTO `command` (`name`,`security`,`help`) VALUES ('bf enable',3,'Syntaxe: .bf enable #battleid');
-INSERT INTO `command` (`name`,`security`,`help`) VALUES ('bf switch',3,'Syntaxe: .bf switch #battleid');
-INSERT INTO `command` (`name`,`security`,`help`) VALUES ('bf timer',3,'Syntaxe: .bf timer #battleid #timer');
+INSERT INTO `command` (`name`,`security`,`help`) VALUES
+('bf start',3,'Syntax: .bf start #battleid'),
+('bf stop',3,'Syntax: .bf stop #battleid'),
+('bf enable',3,'Syntax: .bf enable #battleid'),
+('bf switch',3,'Syntax: .bf switch #battleid'),
+('bf timer',3,'Syntax: .bf timer #battleid #timer');
 
 -- NPC talk text insert from sniff
 DELETE FROM `creature_text` WHERE `entry`=15214 AND `groupid` BETWEEN 0 AND 30;

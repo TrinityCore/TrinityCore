@@ -1,53 +1,54 @@
--- Gossip Menu insert from sniff
-DELETE FROM `gossip_menu` WHERE `entry`=9904 AND `text_id`=13759;
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (9904,13759);
-DELETE FROM `gossip_menu` WHERE `entry`=9904 AND `text_id`=13761;
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (9904,13761);
-DELETE FROM `gossip_menu` WHERE `entry`=9923 AND `text_id`=14172;
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (9923,14172);
-DELETE FROM `gossip_menu` WHERE `entry`=10229 AND `text_id`=14221;
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (10229,14221);
+-- Template gossip updates
+UPDATE `creature_template` SET `gossip_menu_id`=9904 WHERE `entry`=30400;
+UPDATE `creature_template` SET `gossip_menu_id`=10229 WHERE `entry`=31091;
 
--- Creature Gossip_menu_option Update from sniff
-DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (9904);
+-- Gossip Menu
+DELETE FROM `gossip_menu` WHERE `entry`=9904 AND `text_id`=13759;
+DELETE FROM `gossip_menu` WHERE `entry`=9904 AND `text_id`=13761;
+DELETE FROM `gossip_menu` WHERE `entry`=9923 AND `text_id`=14172;
+DELETE FROM `gossip_menu` WHERE `entry`=10229 AND `text_id`=14221;
+INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
+(9904,13759),
+(9904,13761),
+(9923,14172),
+(10229,14221);
+
+-- Gossip Menu Option
+DELETE FROM `gossip_menu_option` WHERE `menu_id`=9904;
+DELETE FROM `gossip_menu_option` WHERE `menu_id`=10129 AND `id` IN (2,4);
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (9904,0,0, 'I would like to build a catapult.',1,1,0,0,0,0, ''),
 (9904,1,0, 'I would like to build a demolisher.',1,1,0,0,0,0, ''),
-(9904,2,0, 'I would like to build a siege engine.',1,1,0,0,0,0, '');
+(9904,2,0, 'I would like to build a siege engine.',1,1,0,0,0,0, ''),
+(10129,2,0, 'Guide me to the Broken Temple Graveyard.',1,1,0,0,0,0, ''),
+(10129,4,0, 'Guide me to the Eastspark Graveyard.',1,1,0,0,0,0, '');
+
+-- Conditions
 -- Add gossip_menu condition for 9904 Horde
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=9904;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=9923;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9904;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9923;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`) VALUES
 (14,9904,13759,0,1,33280), -- Must have Rank 1: Corporal
 (14,9904,13759,1,1,55629), -- Or must have Rank 2: First Lieutenant
 (14,9904,13761,0,11,33280), -- Must not have Rank 1: Corporal
-(14,9904,13761,0,11,55629); -- Must not have Rank 2: First Lieutenant
+(14,9904,13761,0,11,55629), -- Must not have Rank 2: First Lieutenant
 -- Add gossip_menu condition for 9923 Alliance
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=9923;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`) VALUES
 (14,9923,13798,0,1,33280), -- Must have Rank 1: Corporal
 (14,9923,13798,1,1,55629), -- Or must have Rank 2: First Lieutenant
 (14,9923,14172,0,11,33280), -- Must not have Rank 1: Corporal
-(14,9923,14172,0,11,55629); -- Must not have Rank 2: First Lieutenant
+(14,9923,14172,0,11,55629), -- Must not have Rank 2: First Lieutenant
 -- Add conditions to gossip options horde
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9904;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) VALUES
-(15,9904,0,0,1,33280,0), -- Must have reached Rank 1: Corporal
-(15,9904,0,1,1,55629,0), -- Or must have reached Rank 2: First Lieutenant
-(15,9904,1,0,1,55629,0), -- Must have reached Rank 2: First Lieutenant
-(15,9904,2,0,1,55629,0); -- Must have reached Rank 2: First Lieutenant
+(15,9904,0,0,1,33280), -- Must have reached Rank 1: Corporal
+(15,9904,0,1,1,55629), -- Or must have reached Rank 2: First Lieutenant
+(15,9904,1,0,1,55629), -- Must have reached Rank 2: First Lieutenant
+(15,9904,2,0,1,55629), -- Must have reached Rank 2: First Lieutenant
 -- Add conditions to gossip options alliance
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9923;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) VALUES
-(15,9923,0,0,1,33280,0), -- Must have reached Rank 1: Corporal
-(15,9923,0,1,1,55629,0), -- Or must have reached Rank 2: First Lieutenant
-(15,9923,1,0,1,55629,0), -- Must have reached Rank 2: First Lieutenant
-(15,9923,2,0,1,55629,0); -- Must have reached Rank 2: First Lieutenant
-
--- Add Missing Horde Spirt Healer options Wintergrasp
-DELETE FROM `gossip_menu_option` WHERE `menu_id`=10129 AND `id` IN (2,4);
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
-(10129,2,0, 'Guide me to the Broken Temple Graveyard.',1,1,0,0,0,0, ''),
-(10129,4,0, 'Guide me to the Eastspark Graveyard.',1,1,0,0,0,0, '');
+(15,9923,0,0,1,33280), -- Must have reached Rank 1: Corporal
+(15,9923,0,1,1,55629), -- Or must have reached Rank 2: First Lieutenant
+(15,9923,1,0,1,55629), -- Must have reached Rank 2: First Lieutenant
+(15,9923,2,0,1,55629); -- Must have reached Rank 2: First Lieutenant
 
 /* -- Add scripts to Wintergrasp spirit guide gossip
 -- !!!should be scripted by SAI or cpp script!!!
@@ -85,4 +86,3 @@ INSERT INTO `gossip_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`) VAL
 (990402,0,33,0,0),(990402,0,15,61408,1),
 (990403,0,33,0,0),(990403,0,15,56661,1);
 */
-

@@ -51,10 +51,10 @@ enum eWGdata
     SPELL_VEHICLE_TELEPORT              = 49759,
 };
 
-class npc_demolisher_engineerer : public CreatureScript
+class npc_wg_demolisher_engineer : public CreatureScript
 {
   public:
-    npc_demolisher_engineerer() : CreatureScript("npc_demolisher_engineerer")
+    npc_wg_demolisher_engineer() : CreatureScript("npc_wg_demolisher_engineer")
     {
     }
 
@@ -120,10 +120,10 @@ class npc_demolisher_engineerer : public CreatureScript
     }
 };
 
-class npc_wg_spiritguide : public CreatureScript
+class npc_wg_spirit_guide : public CreatureScript
 {
   public:
-    npc_wg_spiritguide() : CreatureScript("npc_wg_spiritguide")
+    npc_wg_spirit_guide() : CreatureScript("npc_wg_spirit_guide")
     {
     }
 
@@ -171,10 +171,10 @@ class npc_wg_spiritguide : public CreatureScript
     }
 };
 
-class npc_wg_dalaran_queue : public CreatureScript
+class npc_wg_queue : public CreatureScript
 {
   public:
-    npc_wg_dalaran_queue() : CreatureScript("npc_wg_dalaran_queue")
+    npc_wg_queue() : CreatureScript("npc_wg_queue")
     {
     }
 
@@ -234,16 +234,16 @@ class npc_wg_dalaran_queue : public CreatureScript
 
 const uint32 Vehicules[4] = { 32627, 28312, 28094, 27881 };
 
-class go_wintergrasp_teleporter : public GameObjectScript
+class go_wg_vehicle_teleporter : public GameObjectScript
 {
   public:
-    go_wintergrasp_teleporter() : GameObjectScript("go_wintergrasp_teleporter")
+    go_wg_vehicle_teleporter() : GameObjectScript("go_wg_vehicle_teleporter")
     {
     }
 
-    struct go_wintergrasp_teleporterAI : public GameObjectAI
+    struct go_wg_vehicle_teleporterAI : public GameObjectAI
     {
-        go_wintergrasp_teleporterAI(GameObject* g) : GameObjectAI(g)
+        go_wg_vehicle_teleporterAI(GameObject* g) : GameObjectAI(g)
         {
             uiCheckTimer = 1000;
         }
@@ -286,14 +286,14 @@ class go_wintergrasp_teleporter : public GameObjectScript
 
     GameObjectAI *GetAI(GameObject* go) const
     {
-        return new go_wintergrasp_teleporterAI(go);
+        return new go_wg_vehicle_teleporterAI(go);
     }
 };
 
-class npc_wintergrasp_quest_giver : public CreatureScript
+class npc_wg_quest_giver : public CreatureScript
 {
   public:
-    npc_wintergrasp_quest_giver() : CreatureScript("npc_wintergrasp_quest_giver")
+    npc_wg_quest_giver() : CreatureScript("npc_wg_quest_giver")
     {
     }
 
@@ -421,9 +421,9 @@ class npc_wintergrasp_quest_giver : public CreatureScript
 
 void AddSC_wintergrasp()
 {
-    new npc_wg_dalaran_queue();
-    new npc_wg_spiritguide();
-    new npc_demolisher_engineerer();
-    new go_wintergrasp_teleporter();
-    new npc_wintergrasp_quest_giver();
+    new npc_wg_queue();
+    new npc_wg_spirit_guide();
+    new npc_wg_demolisher_engineer();
+    new go_wg_vehicle_teleporter();
+    new npc_wg_quest_giver();
 }
