@@ -66,14 +66,14 @@ class boss_grilek : public CreatureScript
                 {
 
                     DoCast(me, SPELL_AVARTAR);
-                    Unit* pTarget = NULL;
+                    Unit* target = NULL;
 
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                     if (DoGetThreat(me->getVictim()))
                         DoModifyThreatPercent(me->getVictim(), -50);
-                    if (pTarget)
-                        AttackStart(pTarget);
+                    if (target)
+                        AttackStart(target);
 
                     Avartar_Timer = 25000 + rand()%10000;
                 } else Avartar_Timer -= diff;

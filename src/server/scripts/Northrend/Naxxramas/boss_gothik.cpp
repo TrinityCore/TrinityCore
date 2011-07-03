@@ -469,10 +469,10 @@ class boss_gothik : public CreatureScript
                                     DoTeleportTo(PosGroundLiveSide);
 
                                 me->getThreatManager().resetAggro(NotOnSameSide(me));
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                 {
-                                    me->getThreatManager().addThreat(pTarget, 100.0f);
-                                    AttackStart(pTarget);
+                                    me->getThreatManager().addThreat(target, 100.0f);
+                                    AttackStart(target);
                                 }
 
                                 events.ScheduleEvent(EVENT_TELEPORT, 20000);

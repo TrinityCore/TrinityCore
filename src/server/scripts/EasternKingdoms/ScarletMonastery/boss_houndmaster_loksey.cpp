@@ -37,9 +37,9 @@ class boss_houndmaster_loksey : public CreatureScript
 public:
     boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_houndmaster_lokseyAI (pCreature);
+        return new boss_houndmaster_lokseyAI (creature);
     }
 
     struct boss_houndmaster_lokseyAI : public ScriptedAI

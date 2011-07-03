@@ -58,9 +58,9 @@ class boss_maiden_of_grief : public CreatureScript
 public:
     boss_maiden_of_grief() : CreatureScript("boss_maiden_of_grief") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_maiden_of_griefAI (pCreature);
+        return new boss_maiden_of_griefAI (creature);
     }
 
     struct boss_maiden_of_griefAI : public ScriptedAI
@@ -119,10 +119,10 @@ public:
             {
                 if (PartingSorrowTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_PARTING_SORROW);
+                    if (target)
+                        DoCast(target, SPELL_PARTING_SORROW);
 
                     PartingSorrowTimer = 30000 + rand()%10000;
                 } else PartingSorrowTimer -= diff;
@@ -144,10 +144,10 @@ public:
 
             if (PillarOfWoeTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
-                if (pTarget)
-                    DoCast(pTarget, SPELL_PILLAR_OF_WOE_N);
+                if (target)
+                    DoCast(target, SPELL_PILLAR_OF_WOE_N);
                 else
                     DoCast(me->getVictim(), SPELL_PILLAR_OF_WOE_N);
 

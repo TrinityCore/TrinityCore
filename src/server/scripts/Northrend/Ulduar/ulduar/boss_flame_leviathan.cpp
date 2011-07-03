@@ -1210,38 +1210,38 @@ class npc_brann_bronzebeard : public CreatureScript
 public:
     npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
 
-    //bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
+    //bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
     //{
-    //    pPlayer->PlayerTalkClass->ClearMenus();
+    //    player->PlayerTalkClass->ClearMenus();
     //    switch(uiAction)
     //    {
     //        case GOSSIP_ACTION_INFO_DEF+1:
-    //            if (pPlayer)
+    //            if (player)
     //            {
-    //                pPlayer->PrepareGossipMenu(creature);
+    //                player->PrepareGossipMenu(creature);
     //
-    //                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-    //                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+    //                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    //                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
     //            }
     //            break;
     //        case GOSSIP_ACTION_INFO_DEF+2:
-    //            if (pPlayer)
-    //                pPlayer->CLOSE_GOSSIP_MENU();
+    //            if (player)
+    //                player->CLOSE_GOSSIP_MENU();
     //            if (Creature* Lorekeeper = creature->FindNearestCreature(NPC_LOREKEEPER, 1000, true)) //lore keeper of lorgannon
     //                Lorekeeper->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     //            break;
     //    }
     //    return true;
     //}
-    //bool OnGossipHello(Player* pPlayer, Creature* creature)
+    //bool OnGossipHello(Player* player, Creature* creature)
     //{
     //    InstanceScript* instance = creature->GetInstanceScript();
     //    if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE)
     //    {
-    //        pPlayer->PrepareGossipMenu(creature);
+    //        player->PrepareGossipMenu(creature);
     //
-    //        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    //        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+    //        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    //        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
     //    }
     //    return true;
     //}
@@ -1254,7 +1254,7 @@ class go_ulduar_tower : public GameObjectScript
     public:
         go_ulduar_tower() : GameObjectScript("go_ulduar_tower") { }
 
-        void OnDestroyed(GameObject* go, Player* /*pPlayer*/,  uint32 /*value*/)
+        void OnDestroyed(GameObject* go, Player* /*player*/,  uint32 /*value*/)
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)

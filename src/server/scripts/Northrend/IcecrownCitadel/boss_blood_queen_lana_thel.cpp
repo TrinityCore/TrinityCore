@@ -148,6 +148,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 _offtank = NULL;
                 _vampires.clear();
                 _creditBloodQuickening = false;
+                _killMinchar = false;
             }
 
             void EnterCombat(Unit* who)

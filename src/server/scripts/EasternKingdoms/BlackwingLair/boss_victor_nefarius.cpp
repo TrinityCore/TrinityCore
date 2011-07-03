@@ -74,38 +74,38 @@ class boss_victor_nefarius : public CreatureScript
 public:
     boss_victor_nefarius() : CreatureScript("boss_victor_nefarius") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(7198, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(7198, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                pPlayer->SEND_GOSSIP_MENU(7199, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                player->SEND_GOSSIP_MENU(7199, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                DoScriptText(SAY_GAMESBEGIN_1, pCreature);
-                CAST_AI(boss_victor_nefarius::boss_victor_nefariusAI, pCreature->AI())->BeginEvent(pPlayer);
+                player->CLOSE_GOSSIP_MENU();
+                DoScriptText(SAY_GAMESBEGIN_1, creature);
+                CAST_AI(boss_victor_nefarius::boss_victor_nefariusAI, creature->AI())->BeginEvent(player);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1 , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(7134, pCreature->GetGUID());
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1 , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(7134, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_victor_nefariusAI (pCreature);
+        return new boss_victor_nefariusAI (creature);
     }
 
     struct boss_victor_nefariusAI : public ScriptedAI
@@ -224,7 +224,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void BeginEvent(Player* pTarget)
+        void BeginEvent(Player* target)
         {
             DoScriptText(SAY_GAMESBEGIN_2, me);
 
@@ -240,7 +240,7 @@ public:
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
             me->setFaction(103);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            AttackStart(pTarget);
+            AttackStart(target);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -269,8 +269,8 @@ public:
                 //ShadowBoltTimer
                 if (ShadowBoltTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, SPELL_SHADOWBOLT);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        DoCast(target, SPELL_SHADOWBOLT);
 
                     ShadowBoltTimer = urand(3000, 10000);
                 } else ShadowBoltTimer -= diff;
@@ -278,8 +278,8 @@ public:
                 //FearTimer
                 if (FearTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, SPELL_FEAR);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        DoCast(target, SPELL_FEAR);
 
                     FearTimer = 10000 + (rand()%10000);
                 } else FearTimer -= diff;
@@ -290,7 +290,7 @@ public:
                     //Spawn 2 random types of creatures at the 2 locations
                     uint32 CreatureID;
                     Creature* Spawned = NULL;
-                    Unit* pTarget = NULL;
+                    Unit* target = NULL;
 
                     //1 in 3 chance it will be a chromatic
                     if (urand(0, 2) == 0)
@@ -302,10 +302,10 @@ public:
 
                     //Spawn Creature and force it to start attacking a random target
                     Spawned = me->SummonCreature(CreatureID, ADD_X1, ADD_Y1, ADD_Z1, 5.000f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget && Spawned)
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target && Spawned)
                     {
-                        Spawned->AI()->AttackStart(pTarget);
+                        Spawned->AI()->AttackStart(target);
                         Spawned->setFaction(103);
                     }
 
@@ -318,10 +318,10 @@ public:
                     ++SpawnedAdds;
 
                     Spawned = me->SummonCreature(CreatureID, ADD_X2, ADD_Y2, ADD_Z2, 5.000f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget && Spawned)
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target && Spawned)
                     {
-                        Spawned->AI()->AttackStart(pTarget);
+                        Spawned->AI()->AttackStart(target);
                         Spawned->setFaction(103);
                     }
 
@@ -346,10 +346,10 @@ public:
 
                         //Spawn nef and have him attack a random target
                         Creature* Nefarian = me->SummonCreature(CREATURE_NEFARIAN, NEF_X, NEF_Y, NEF_Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                        if (pTarget && Nefarian)
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                        if (target && Nefarian)
                         {
-                            Nefarian->AI()->AttackStart(pTarget);
+                            Nefarian->AI()->AttackStart(target);
                             Nefarian->setFaction(103);
                             NefarianGUID = Nefarian->GetGUID();
                         }

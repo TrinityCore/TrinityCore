@@ -70,9 +70,9 @@ class boss_slad_ran : public CreatureScript
 public:
     boss_slad_ran() : CreatureScript("boss_slad_ran") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_slad_ranAI (pCreature);
+        return new boss_slad_ranAI (creature);
     }
 
     struct boss_slad_ranAI : public ScriptedAI
@@ -195,9 +195,9 @@ class mob_slad_ran_constrictor : public CreatureScript
 public:
     mob_slad_ran_constrictor() : CreatureScript("mob_slad_ran_constrictor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_slad_ran_constrictorAI (pCreature);
+        return new mob_slad_ran_constrictorAI (creature);
     }
 
     struct mob_slad_ran_constrictorAI : public ScriptedAI
@@ -232,9 +232,9 @@ class mob_slad_ran_viper : public CreatureScript
 public:
     mob_slad_ran_viper() : CreatureScript("mob_slad_ran_viper") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_slad_ran_viperAI (pCreature);
+        return new mob_slad_ran_viperAI (creature);
     }
 
     struct mob_slad_ran_viperAI : public ScriptedAI

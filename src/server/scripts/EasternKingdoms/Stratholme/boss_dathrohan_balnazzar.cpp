@@ -70,9 +70,9 @@ class boss_dathrohan_balnazzar : public CreatureScript
 public:
     boss_dathrohan_balnazzar() : CreatureScript("boss_dathrohan_balnazzar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_dathrohan_balnazzarAI (pCreature);
+        return new boss_dathrohan_balnazzarAI (creature);
     }
 
     struct boss_dathrohan_balnazzarAI : public ScriptedAI
@@ -186,8 +186,8 @@ public:
                 //PsychicScream
                 if (m_uiPsychicScream_Timer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_PSYCHICSCREAM);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_PSYCHICSCREAM);
 
                     m_uiPsychicScream_Timer = 20000;
                 } else m_uiPsychicScream_Timer -= uiDiff;
@@ -195,8 +195,8 @@ public:
                 //DeepSleep
                 if (m_uiDeepSleep_Timer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_SLEEP);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SLEEP);
 
                     m_uiDeepSleep_Timer = 15000;
                 } else m_uiDeepSleep_Timer -= uiDiff;

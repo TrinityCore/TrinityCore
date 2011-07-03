@@ -42,9 +42,9 @@ class boss_kri : public CreatureScript
 public:
     boss_kri() : CreatureScript("boss_kri") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kriAI (pCreature);
+        return new boss_kriAI (creature);
     }
 
     struct boss_kriAI : public ScriptedAI
@@ -139,9 +139,9 @@ class boss_vem : public CreatureScript
 public:
     boss_vem() : CreatureScript("boss_vem") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_vemAI (pCreature);
+        return new boss_vemAI (creature);
     }
 
     struct boss_vemAI : public ScriptedAI
@@ -193,13 +193,13 @@ public:
             //Charge_Timer
             if (Charge_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target)
                 {
-                    DoCast(pTarget, SPELL_CHARGE);
-                    //me->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true, 1);
-                    AttackStart(pTarget);
+                    DoCast(target, SPELL_CHARGE);
+                    //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
+                    AttackStart(target);
                 }
 
                 Charge_Timer = 8000 + rand()%8000;
@@ -232,9 +232,9 @@ class boss_yauj : public CreatureScript
 public:
     boss_yauj() : CreatureScript("boss_yauj") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_yaujAI (pCreature);
+        return new boss_yaujAI (creature);
     }
 
     struct boss_yaujAI : public ScriptedAI
@@ -273,10 +273,10 @@ public:
 
             for (uint8 i = 0; i < 10; ++i)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 Creature* Summoned = me->SummonCreature(15621, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
-                if (Summoned && pTarget)
-                    Summoned->AI()->AttackStart(pTarget);
+                if (Summoned && target)
+                    Summoned->AI()->AttackStart(target);
             }
         }
 

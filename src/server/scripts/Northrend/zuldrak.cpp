@@ -269,7 +269,7 @@ enum eGurgthock
     SAY_QUEST_ACCEPT_KORRAK_1       = -1571033,
     SAY_QUEST_ACCEPT_KORRAK_2       = -1571034,
     SAY_QUEST_ACCEPT_MAGNATAUR      = -1571035,
-    //SAY_QUEST_ACCEPT_Vladof_der_Metzger = 0, // Der Text fällt mir im Moment nicht mehr ein...
+    //SAY_QUEST_ACCEPT_Vladof_der_Metzger = 0, // Der Text fï¿½llt mir im Moment nicht mehr ein...
 
     EMOTE_YGGDRAS_SPAWN             = -1571039,
     SAY_STINKBEARD_SPAWN            = -1571040,
