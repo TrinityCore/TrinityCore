@@ -52,15 +52,16 @@ index 0000000..37b9488
 +(3,672,30,1,31.7282,135.794,-40.0508,4.73516,35,2179.85,-4763.96,54.911,4.44216,1,0,1,168,15,1);
 diff --git a/sql/jail/world_command_jail.sql b/sql/jail/world_command_jail.sql
 new file mode 100644
-index 0000000..a304db7
+index 0000000..8e75c97
 --- /dev/null
 +++ b/sql/jail/world_command_jail.sql
-@@ -0,0 +1,13 @@
+@@ -0,0 +1,14 @@
 +﻿SET NAMES utf8;
 +
 +DELETE FROM `command` WHERE `name` LIKE '%jail%';
 +INSERT INTO `command` (name, security, help) VALUES
 +('jail info',       0, 'Syntax: .jail info\nZeigt dir deinen Knaststatus an.'),
++('jail goto',       0, 'Syntax: .jail goto Fraktion (horde/ally)\nTeleportiert dich in den Knast der angegebenen Fraktion.'),
 +('jail pinfo',      1, 'Syntax: .jail pinfo [Charakter]\nZeigt Jail-Infos vom selektiertem, oder angegeben Charakter an.'),
 +('jail arrest',     2, 'Syntax: .jail arrest Charakter Stunden Grund\nBuchtet den Charakter für Stunden aus dem Grund ein.'),
 +('jail release',    2, 'Syntax: .jail release Charakter\nEntlässt den Charakter aus dem Knast.'),
@@ -71,10 +72,10 @@ index 0000000..a304db7
 +('jail delete',     3, 'Syntax: .jail delete\nWie reset, aber löscht auch Jails mit Bannungen!\nDie Bannung wird dadurch auch gelöscht!');
 diff --git a/sql/jail/world_string_jail.sql b/sql/jail/world_string_jail.sql
 new file mode 100644
-index 0000000..b4842dc
+index 0000000..7551fa3
 --- /dev/null
 +++ b/sql/jail/world_string_jail.sql
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,54 @@
 +﻿SET NAMES utf8;
 +
 +DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12100 AND 12199;
@@ -125,6 +126,7 @@ index 0000000..b4842dc
 +(12143, 'Jail: %u arrests (%u are active) within %u ms loaded.','Jail: Insgesamt %u Inhaftierung(en), davon sind %u aktiv, in %u ms geladen.'),
 +(12144, 'ERROR! STRING TO LONG!','FEHLER! STRING ZU LANG!'),
 +(12145, 'Jail: Jail data loaded.','Jail: Die Knastdaten wurden geladen.'),
++(12146, 'No faction (horde/ally) given!','Du hast keine Fraktion (horde/ally) angegeben!'),
 +(12197, 'The Jail is now active.', 'Das Jail ist nun aktiv.'),
 +(12198, 'The Jail is now inactive.', 'Das Jail ist nun deaktiviert.'),
 +(12199, 'The Jail is not active!', 'Das Jail ist nicht aktiv!');
@@ -346,10 +348,10 @@ index 6520b67..1f3d398 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..f409af4
+index 0000000..65eacd9
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,870 @@
+@@ -0,0 +1,901 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include "Jail.h"
@@ -479,6 +481,37 @@ index 0000000..f409af4
 +    }
 +    else
 +        handler->SendSysMessage(LANG_JAIL_PRESERVATION);
++
++    return true;
++}
++ 
++bool Jail::GotoKommando(ChatHandler * handler, const char * args)
++{
++    if (!m_JailKonf.Enabled)
++        return SendeInaktiv(handler);
++
++    Player * chr = handler->GetSession()->GetPlayer();
++    if (!chr)
++        return false;
++
++    std::string tmp;
++    char * chartmp = strtok((char*)args, " ");
++    if (chartmp == NULL)
++    {
++        handler->SendSysMessage(LANG_JAIL_NO_SITE);
++        handler->SetSentErrorMessage(true);
++        return false;
++    }
++    else
++    {
++        tmp = chartmp;
++        normalizePlayerName(tmp);
++    }
++
++    if (tmp.c_str() == "horde")
++        chr->TeleportTo(m_JailKonf.MapHorde, m_JailKonf.HordePos.m_positionX, m_JailKonf.HordePos.m_positionY, m_JailKonf.HordePos.m_positionZ, m_JailKonf.HordePos.m_orientation);
++    else
++        chr->TeleportTo(m_JailKonf.MapAlly, m_JailKonf.AllyPos.m_positionX, m_JailKonf.AllyPos.m_positionY, m_JailKonf.AllyPos.m_positionZ, m_JailKonf.AllyPos.m_orientation);
 +
 +    return true;
 +}
@@ -1222,10 +1255,10 @@ index 0000000..f409af4
 +}
 diff --git a/src/server/game/Jail/Jail.h b/src/server/game/Jail/Jail.h
 new file mode 100644
-index 0000000..d0b5c7f
+index 0000000..d100a3e
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.h
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,102 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#ifndef _JAIL_H
@@ -1303,6 +1336,7 @@ index 0000000..d0b5c7f
 +
 +    // Kommandos aus jail_commandscript bearbeiten
 +    bool InfoKommando(ChatHandler * handler);
++    bool GotoKommando(ChatHandler * handler, const char * args);
 +    bool PInfoKommando(ChatHandler * handler, const char * args);
 +    bool ArrestKommando(ChatHandler * handler, const char * args);
 +    bool ReleaseKommando(ChatHandler * handler, const char * args, bool reset = false);
@@ -1328,7 +1362,7 @@ index 0000000..d0b5c7f
 +
 +#endif
 diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
-index bd2c34a..bd65697 100755
+index bd2c34a..ee798b4 100755
 --- a/src/server/game/Miscellaneous/Language.h
 +++ b/src/server/game/Miscellaneous/Language.h
 @@ -1,4 +1,5 @@
@@ -1337,7 +1371,7 @@ index bd2c34a..bd65697 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1048,9 +1049,60 @@ enum TrinityStrings
+@@ -1048,9 +1049,61 @@ enum TrinityStrings
      LANG_AUTO_BROADCAST                 = 11000,
      LANG_INVALID_REALMID                = 11001,
  
@@ -1393,6 +1427,7 @@ index bd2c34a..bd65697 100755
 +    LANG_JAIL_INIT_4            = 12143,
 +    LANG_JAIL_FMTSTR            = 12144,
 +    LANG_JAIL_DATA_LOADED       = 12145,
++    LANG_JAIL_NO_SITE           = 12146,
 +    LANG_JAIL_ENABLED           = 12197,
 +    LANG_JAIL_DISABLED          = 12198,
 +    LANG_JAIL_NOT_ACTIVE        = 12199
@@ -1570,10 +1605,10 @@ index 19c42ba..731b9eb 100644
    Commands/cs_npc.cpp
 diff --git a/src/server/scripts/Commands/cs_jail.cpp b/src/server/scripts/Commands/cs_jail.cpp
 new file mode 100644
-index 0000000..01a1db0
+index 0000000..0fc3008
 --- /dev/null
 +++ b/src/server/scripts/Commands/cs_jail.cpp
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,50 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include "Jail.h"
@@ -1590,6 +1625,7 @@ index 0000000..01a1db0
 +        static ChatCommand JailCommandTable[] =
 +        {
 +            { "info",       SEC_PLAYER,         true,   &HandleJailInfoCmd,     "", NULL },
++            { "goto",       SEC_PLAYER,         true,   &HandleJailGotoCmd,     "", NULL },
 +            { "pinfo",      SEC_MODERATOR,      true,   &HandleJailPInfoCmd,    "", NULL },
 +            { "arrest",     SEC_GAMEMASTER,     true,   &HandleJailArrestCmd,   "", NULL },
 +            { "release",    SEC_GAMEMASTER,     true,   &HandleJailReleaseCmd,  "", NULL },
@@ -1608,6 +1644,7 @@ index 0000000..01a1db0
 +        return commandTable;
 +    }
 +    static bool HandleJailInfoCmd(ChatHandler       * handler, const char * /*args*/)   { return sJail->InfoKommando(handler);              }
++    static bool HandleJailGotoCmd(ChatHandler       * handler, const char * args)       { return sJail->GotoKommando(handler, args);        }
 +    static bool HandleJailPInfoCmd(ChatHandler      * handler, const char * args)       { return sJail->PInfoKommando(handler, args);       }
 +    static bool HandleJailArrestCmd(ChatHandler     * handler, const char * args)       { return sJail->ArrestKommando(handler, args);      }
 +    static bool HandleJailReleaseCmd(ChatHandler    * handler, const char * args)       { return sJail->ReleaseKommando(handler, args);     }
