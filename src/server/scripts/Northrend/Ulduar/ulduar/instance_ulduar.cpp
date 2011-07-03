@@ -569,7 +569,8 @@ public:
                     break;
                 case GO_XT002_DOOR:
                     uiXT002DoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(TYPE_LEVIATHAN) == DONE, go);
+                    if (GetBossState(TYPE_RAZORSCALE) != DONE)
+                        HandleGameObject(uiXT002DoorGUID, false);
                     break;
                 case GO_MIMIRON_TRAIN:
                     go->setActive(true);
