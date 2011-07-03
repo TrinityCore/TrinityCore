@@ -480,7 +480,7 @@ void Vehicle::TeleportVehicle(float x, float y, float z, float ang)
     _me->NearTeleportTo(x, y, z, ang);
     for (GuidSet::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
         if(Unit* plr = sObjectAccessor->FindUnit(*itr))
-                plr->NearTeleportTo(x, y, z, ang);
+            plr->NearTeleportTo(x, y, z, ang);
 }
 
 void Vehicle::InitMovementInfoForBase()
