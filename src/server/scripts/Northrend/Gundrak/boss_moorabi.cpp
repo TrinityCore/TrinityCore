@@ -89,7 +89,7 @@ public:
                 pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*whoVic*/)
         {
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_MOJO_FRENZY, true);
@@ -157,7 +157,7 @@ public:
             return 0;
         }
 
-         void JustDied(Unit* /*pKiller*/)
+         void JustDied(Unit* /*killer*/)
          {
             DoScriptText(SAY_DEATH, me);
 
@@ -165,9 +165,9 @@ public:
                 pInstance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
-            if (pVictim == me)
+            if (victim == me)
                 return;
 
             DoScriptText(RAND(SAY_SLAY_2, SAY_SLAY_3), me);

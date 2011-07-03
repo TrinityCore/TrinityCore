@@ -65,9 +65,9 @@ class boss_faerlina : public CreatureScript
 public:
     boss_faerlina() : CreatureScript("boss_faerlina") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_faerlinaAI (pCreature);
+        return new boss_faerlinaAI (creature);
     }
 
     struct boss_faerlinaAI : public BossAI
@@ -196,16 +196,16 @@ class mob_faerlina_add : public CreatureScript
 public:
     mob_faerlina_add() : CreatureScript("mob_faerlina_add") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_faerlina_addAI (pCreature);
+        return new mob_faerlina_addAI (creature);
     }
 
     struct mob_faerlina_addAI : public ScriptedAI
     {
-        mob_faerlina_addAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_faerlina_addAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript *pInstance;

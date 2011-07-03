@@ -1267,14 +1267,14 @@ public:
             mob_black_temple_tashAI::Reset();
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                DoStartMovement(pWho, 30, M_PI/2);
+                DoStartMovement(who, 30, M_PI/2);
             }
         }
 
@@ -1318,14 +1318,14 @@ public:
             mob_black_temple_tashAI::Reset();
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                DoStartMovement(pWho, 30, me->GetAngle(pWho));
+                DoStartMovement(who, 30, me->GetAngle(who));
             }
         }
 
@@ -2834,14 +2834,14 @@ public:
             mob_black_temple_tashAI::Reset();
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                 DoStartMovement(pWho, 20, me->GetAngle(pWho));
+                 DoStartMovement(who, 20, me->GetAngle(who));
             }
         }
 

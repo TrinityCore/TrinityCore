@@ -72,9 +72,9 @@ class mob_inner_demon : public CreatureScript
 public:
     mob_inner_demon() : CreatureScript("mob_inner_demon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_inner_demonAI (pCreature);
+        return new mob_inner_demonAI (creature);
     }
 
     struct mob_inner_demonAI : public ScriptedAI
@@ -163,9 +163,9 @@ class boss_leotheras_the_blind : public CreatureScript
 public:
     boss_leotheras_the_blind() : CreatureScript("boss_leotheras_the_blind") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_leotheras_the_blindAI (pCreature);
+        return new boss_leotheras_the_blindAI (creature);
     }
 
     struct boss_leotheras_the_blindAI : public ScriptedAI
@@ -335,10 +335,10 @@ public:
                 if (InnderDemon[i])
                 {
                         //delete creature
-                        Creature* pCreature = Unit::GetCreature((*me), InnderDemon[i]);
-                        if (pCreature && pCreature->isAlive())
+                        Creature* creature = Unit::GetCreature((*me), InnderDemon[i]);
+                        if (creature && creature->isAlive())
                         {
-                            pCreature->DespawnOrUnsummon();
+                            creature->DespawnOrUnsummon();
                         }
                         InnderDemon[i] = 0;
                 }
@@ -356,11 +356,11 @@ public:
                     Creature* pUnit = Unit::GetCreature((*me), InnderDemon[i]);
                     if (pUnit && pUnit->isAlive())
                     {
-                        Unit* pUnit_pTarget = Unit::GetUnit(*pUnit, CAST_AI(mob_inner_demon::mob_inner_demonAI, pUnit->AI())->victimGUID);
-                        if (pUnit_pTarget && pUnit_pTarget->isAlive())
+                        Unit* unit_target = Unit::GetUnit(*pUnit, CAST_AI(mob_inner_demon::mob_inner_demonAI, pUnit->AI())->victimGUID);
+                        if (unit_target && unit_target->isAlive())
                         {
-                            pUnit->CastSpell(pUnit_pTarget, SPELL_CONSUMING_MADNESS, true);
-                            DoModifyThreatPercent(pUnit_pTarget, -100);
+                            pUnit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
+                            DoModifyThreatPercent(unit_target, -100);
                         }
                     }
                 }
@@ -593,9 +593,9 @@ class boss_leotheras_the_blind_demonform : public CreatureScript
 public:
     boss_leotheras_the_blind_demonform() : CreatureScript("boss_leotheras_the_blind_demonform") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_leotheras_the_blind_demonformAI (pCreature);
+        return new boss_leotheras_the_blind_demonformAI (creature);
     }
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
@@ -666,9 +666,9 @@ class mob_greyheart_spellbinder : public CreatureScript
 public:
     mob_greyheart_spellbinder() : CreatureScript("mob_greyheart_spellbinder") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_greyheart_spellbinderAI (pCreature);
+        return new mob_greyheart_spellbinderAI (creature);
     }
 
     struct mob_greyheart_spellbinderAI : public ScriptedAI
@@ -759,10 +759,10 @@ public:
 
             if (Mindblast_Timer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (pTarget)DoCast(pTarget, SPELL_MINDBLAST);
+                if (target)DoCast(target, SPELL_MINDBLAST);
 
                 Mindblast_Timer = 10000 + rand()%5000;
             } else Mindblast_Timer -= diff;

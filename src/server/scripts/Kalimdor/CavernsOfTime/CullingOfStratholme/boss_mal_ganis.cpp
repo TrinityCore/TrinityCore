@@ -69,9 +69,9 @@ class boss_mal_ganis : public CreatureScript
 public:
     boss_mal_ganis() : CreatureScript("boss_mal_ganis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_mal_ganisAI (pCreature);
+        return new boss_mal_ganisAI (creature);
     }
 
     struct boss_mal_ganisAI : public ScriptedAI
@@ -174,8 +174,8 @@ public:
 
                     if (uiMindBlastTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
                         uiMindBlastTimer = 6000;
                     } else uiMindBlastTimer -= diff;
 
@@ -188,8 +188,8 @@ public:
                     if (uiSleepTimer <= diff)
                     {
                         DoScriptText(RAND(SAY_SLEEP_1, SAY_SLEEP_2), me);
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                            DoCast(pTarget, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                            DoCast(target, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
                         uiSleepTimer = urand(12500, 17500);
                     } else uiSleepTimer -= diff;
 

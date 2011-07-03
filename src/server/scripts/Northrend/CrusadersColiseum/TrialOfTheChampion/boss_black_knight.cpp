@@ -109,9 +109,9 @@ class boss_black_knight : public CreatureScript
 
     struct boss_black_knightAI : public BossAI
     {
-        boss_black_knightAI(Creature* pCreature) : BossAI(pCreature,BOSS_BLACK_KNIGHT)
+        boss_black_knightAI(Creature* creature) : BossAI(creature,BOSS_BLACK_KNIGHT)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             bStartCombat = false;
         }
 
@@ -167,7 +167,7 @@ class boss_black_knight : public CreatureScript
                    
             ResetEncounter();
            
-            //me->SummonCreature(28859,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN);
+            //me->SummonCreature(28859,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMsummon_CORPSE_DESPAWN);
             //uiState=IDLE;
             bEventInProgress = false;
             bEvent = false;
@@ -207,10 +207,10 @@ class boss_black_knight : public CreatureScript
         }
 
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            SummonList.push_back(pSummon->GetGUID());
-            pSummon->AI()->AttackStart(me->getVictim());
+            SummonList.push_back(summon->GetGUID());
+            summon->AI()->AttackStart(me->getVictim());
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -278,10 +278,10 @@ class boss_black_knight : public CreatureScript
 
                     if (uiDesecration1 <= uiDiff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (pTarget && pTarget->isAlive())
-                                DoCast(pTarget,SPELL_DESECRATION);
+                            if (target && target->isAlive())
+                                DoCast(target,SPELL_DESECRATION);
                         }
                         uiDesecration1 = urand(15000,16000);
                     } else uiDesecration1 -= uiDiff;
@@ -312,10 +312,10 @@ class boss_black_knight : public CreatureScript
 
                     if (uiDeathRespiteTimer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (pTarget && pTarget->isAlive())
-                            DoCast(pTarget,SPELL_DEATH_RESPITE);
+                            if (target && target->isAlive())
+                            DoCast(target,SPELL_DEATH_RESPITE);
                         }
                         uiDeathRespiteTimer = urand(15000,16000);
                     } else uiDeathRespiteTimer -= uiDiff;
@@ -330,10 +330,10 @@ class boss_black_knight : public CreatureScript
 
                     if (uiMarkedDeathTimer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (pTarget && pTarget->isAlive())
-                                DoCast(pTarget,SPELL_MARKED_DEATH);
+                            if (target && target->isAlive())
+                                DoCast(target,SPELL_MARKED_DEATH);
                         }
                         uiMarkedDeathTimer = urand (5000, 7000);
                     } else uiMarkedDeathTimer -= uiDiff;
@@ -412,7 +412,7 @@ class boss_black_knight : public CreatureScript
         }
 
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             //uiState=ENABLE;
             DoScriptText(SAY_DEATH_3, me);
@@ -445,9 +445,9 @@ class boss_black_knight : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature *creature) const
     {
-        return new boss_black_knightAI (pCreature);
+        return new boss_black_knightAI (creature);
     };
 };
 
@@ -458,7 +458,7 @@ class npc_risen_ghoul : public CreatureScript
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
-        npc_risen_ghoulAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiAttackTimer;
             bool bReset;
@@ -494,10 +494,10 @@ class npc_risen_ghoul : public CreatureScript
 
             if (uiAttackTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
-                    if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget, (DUNGEON_MODE(SPELL_LEAP,SPELL_LEAP_H)));
+                    if (target && target->isAlive())
+                    DoCast(target, (DUNGEON_MODE(SPELL_LEAP,SPELL_LEAP_H)));
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;
@@ -506,9 +506,9 @@ class npc_risen_ghoul : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_risen_ghoulAI(pCreature);
+        return new npc_risen_ghoulAI(creature);
     };
 };
 
@@ -519,7 +519,7 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
 
     struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
     {
-        npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
         {
             Start(false,true,0,NULL);
         }
@@ -584,9 +584,9 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_black_knight_skeletal_gryphonAI(pCreature);
+        return new npc_black_knight_skeletal_gryphonAI(creature);
     };
 };
 
@@ -597,7 +597,7 @@ class npc_gr : public CreatureScript
 
     struct npc_grAI : public npc_escortAI
     {
-        npc_grAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_grAI(Creature* creature) : npc_escortAI(creature)
         {
             Start(false,true,0,NULL);
         }
@@ -645,9 +645,9 @@ class npc_gr : public CreatureScript
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_grAI(pCreature);
+        return new npc_grAI(creature);
     };
 };
 

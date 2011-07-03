@@ -449,49 +449,49 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
     {
         SpawnLoc[i] = Base[random][i];
     }
-    Creature* pCreature = NULL;
+    Creature* creature = NULL;
     switch(entry)
     {
             case 17906:    //GARGOYLE
 
                 if (!FirstBossDead && (WaveCount == 1 || WaveCount == 3))
                 {//summon at tower
-                    pCreature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0]+irand(-20, 20), SpawnPointSpecial[SPAWN_NEAR_TOWER][1]+irand(-20, 20), SpawnPointSpecial[SPAWN_NEAR_TOWER][2]+irand(-10, 10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
-                    if (pCreature)
-                        CAST_AI(hyjal_trashAI, pCreature->AI())->useFlyPath = true;
+                    creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0]+irand(-20, 20), SpawnPointSpecial[SPAWN_NEAR_TOWER][1]+irand(-20, 20), SpawnPointSpecial[SPAWN_NEAR_TOWER][2]+irand(-10, 10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                    if (creature)
+                        CAST_AI(hyjal_trashAI, creature->AI())->useFlyPath = true;
                 }else{//summon at gate
-                    pCreature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_GARG_GATE][0]+irand(-10, 10), SpawnPointSpecial[SPAWN_GARG_GATE][1]+irand(-10, 10), SpawnPointSpecial[SPAWN_GARG_GATE][2]+irand(-10, 10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                    creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_GARG_GATE][0]+irand(-10, 10), SpawnPointSpecial[SPAWN_GARG_GATE][1]+irand(-10, 10), SpawnPointSpecial[SPAWN_GARG_GATE][2]+irand(-10, 10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 }
                 break;
             case 17907:    //FROST_WYRM ,
                 if (FirstBossDead && WaveCount == 1) //summon at gate
-                    pCreature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_WYRM_GATE][0], SpawnPointSpecial[SPAWN_WYRM_GATE][1], SpawnPointSpecial[SPAWN_WYRM_GATE][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                    creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_WYRM_GATE][0], SpawnPointSpecial[SPAWN_WYRM_GATE][1], SpawnPointSpecial[SPAWN_WYRM_GATE][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 else
                 {
-                    pCreature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0], SpawnPointSpecial[SPAWN_NEAR_TOWER][1], SpawnPointSpecial[SPAWN_NEAR_TOWER][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
-                    if (pCreature)
-                        CAST_AI(hyjal_trashAI, pCreature->AI())->useFlyPath = true;
+                    creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0], SpawnPointSpecial[SPAWN_NEAR_TOWER][1], SpawnPointSpecial[SPAWN_NEAR_TOWER][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                    if (creature)
+                        CAST_AI(hyjal_trashAI, creature->AI())->useFlyPath = true;
                 }
                 break;
             case 17908:    //GIANT_INFERNAL
                 ++InfernalCount;
                 if (InfernalCount > 7)
                     InfernalCount = 0;
-                pCreature = me->SummonCreature(entry, InfernalPos[InfernalCount][0], InfernalPos[InfernalCount][1], InfernalPos[InfernalCount][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                creature = me->SummonCreature(entry, InfernalPos[InfernalCount][0], InfernalPos[InfernalCount][1], InfernalPos[InfernalCount][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 break;
             default:
-                pCreature = me->SummonCreature(entry, SpawnLoc[0], SpawnLoc[1], SpawnLoc[2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                creature = me->SummonCreature(entry, SpawnLoc[0], SpawnLoc[1], SpawnLoc[2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 break;
 
     }
 
-    if (pCreature)
+    if (creature)
     {
         // Increment Enemy Count to be used in World States and instance script
         ++EnemyCount;
 
-        pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-        pCreature->setActive(true);
+        creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        creature->setActive(true);
         switch(entry)
         {
             case NECROMANCER:
@@ -507,19 +507,19 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             case ANETHERON:
             case KAZROGAL:
             case AZGALOR:
-                CAST_AI(hyjal_trashAI, pCreature->AI())->IsEvent = true;
+                CAST_AI(hyjal_trashAI, creature->AI())->IsEvent = true;
                 break;
         }
         if (pInstance)
         {
             if (pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE)
-                pCreature->SetDisableReputationGain(true);//no repu for solo farming
+                creature->SetDisableReputationGain(true);//no repu for solo farming
         }
         // Check if Creature is a boss.
-        if (pCreature->isWorldBoss())
+        if (creature->isWorldBoss())
         {
-            if (!FirstBossDead)  BossGUID[0] = pCreature->GetGUID();
-            else                BossGUID[1] = pCreature->GetGUID();
+            if (!FirstBossDead)  BossGUID[0] = creature->GetGUID();
+            else                BossGUID[1] = creature->GetGUID();
             CheckTimer = 5000;
         }
     }
@@ -580,9 +580,9 @@ void hyjalAI::SummonNextWave(const Wave wave[18], uint32 Count, float Base[4][3]
     CheckTimer = 5000;
 }
 
-void hyjalAI::StartEvent(Player* pPlayer)
+void hyjalAI::StartEvent(Player* player)
 {
-    if (!pPlayer || IsDummy || !pInstance)
+    if (!player || IsDummy || !pInstance)
         return;
 
     Talk(BEGIN);
@@ -592,7 +592,7 @@ void hyjalAI::StartEvent(Player* pPlayer)
 
     NextWaveTimer = 15000;
     CheckTimer = 5000;
-    PlayerGUID = pPlayer->GetGUID();
+    PlayerGUID = player->GetGUID();
 
     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
@@ -890,18 +890,18 @@ void hyjalAI::UpdateAI(const uint32 diff)
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
 
                 switch(Spells[i].TargetType)
                 {
-                    case TARGETTYPE_SELF: pTarget = me; break;
-                    case TARGETTYPE_RANDOM: pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0); break;
-                    case TARGETTYPE_VICTIM: pTarget = me->getVictim(); break;
+                    case TARGETTYPE_SELF: target = me; break;
+                    case TARGETTYPE_RANDOM: target = SelectTarget(SELECT_TARGET_RANDOM, 0); break;
+                    case TARGETTYPE_VICTIM: target = me->getVictim(); break;
                 }
 
-                if (pTarget && pTarget->isAlive())
+                if (target && target->isAlive())
                 {
-                    DoCast(pTarget, Spells[i].SpellId);
+                    DoCast(target, Spells[i].SpellId);
                     SpellTimer[i] = Spells[i].Cooldown;
                 }
             } else SpellTimer[i] -= diff;

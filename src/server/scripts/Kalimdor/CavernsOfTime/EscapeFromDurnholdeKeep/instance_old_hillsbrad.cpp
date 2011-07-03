@@ -95,8 +95,8 @@ public:
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* pPlayer = itr->getSource())
-                        pPlayer->KilledMonsterCredit(LODGE_QUEST_TRIGGER, 0);
+                    if (Player* player = itr->getSource())
+                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER, 0);
                 }
             }
         }
@@ -119,9 +119,9 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            Player* pPlayer = GetPlayerInMap();
+            Player* player = GetPlayerInMap();
 
-            if (!pPlayer)
+            if (!player)
             {
                 sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
                 return;
@@ -146,7 +146,7 @@ public:
                         if (mBarrelCount == 5)
                         {
                             UpdateQuestCredit();
-                            pPlayer->SummonCreature(DRAKE_ENTRY, 2128.43f, 71.01f, 64.42f, 1.74f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                            player->SummonCreature(DRAKE_ENTRY, 2128.43f, 71.01f, 64.42f, 1.74f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
                             m_auiEncounter[0] = DONE;
                         }
                     }

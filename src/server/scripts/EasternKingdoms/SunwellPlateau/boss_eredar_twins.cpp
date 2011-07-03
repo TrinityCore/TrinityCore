@@ -245,9 +245,9 @@ class boss_sacrolash : public CreatureScript
 public:
     boss_sacrolash() : CreatureScript("boss_sacrolash") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sacrolashAI (pCreature);
+        return new boss_sacrolashAI (creature);
     }
 
     struct boss_sacrolashAI : public boss_eredar_twinAI
@@ -425,16 +425,16 @@ public:
 
             if(ShadowimageTimer <= diff)
             {
-                Unit* ptarget = NULL;
+                Unit* target = NULL;
                 Creature* temp = NULL;
                 for(int i = 0;i<3;i++)
                 {
-                    ptarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     temp = DoSpawnCreature(MOB_SHADOW_IMAGE,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN,10000);
-                    if(temp && ptarget)
+                    if(temp && target)
                     {
-                        temp->AI()->AttackStart(ptarget);
-                        temp->getThreatManager().addThreat(ptarget,500000.0f);
+                        temp->AI()->AttackStart(target);
+                        temp->getThreatManager().addThreat(target,500000.0f);
                     }
                 }
                 ShadowimageTimer = 20000;
@@ -474,9 +474,9 @@ class boss_alythess : public CreatureScript
 public:
     boss_alythess() : CreatureScript("boss_alythess") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_alythessAI (pCreature);
+        return new boss_alythessAI (creature);
     }
 
     struct boss_alythessAI : public boss_eredar_twinAI
@@ -757,9 +757,9 @@ class mob_shadow_image : public CreatureScript
 public:
     mob_shadow_image() : CreatureScript("mob_shadow_image") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shadow_imageAI (pCreature);
+        return new mob_shadow_imageAI (creature);
     }
 
     struct mob_shadow_imageAI : public ScriptedAI

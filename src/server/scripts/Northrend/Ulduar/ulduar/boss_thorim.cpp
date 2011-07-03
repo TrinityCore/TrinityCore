@@ -331,7 +331,7 @@ public:
                 DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me);
             _EnterCombat();
@@ -572,16 +572,16 @@ class npc_thorim_pre_phase : public CreatureScript
 public:
     npc_thorim_pre_phase() : CreatureScript("npc_thorim_pre_phase") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_thorim_pre_phaseAI (pCreature);
+        return new npc_thorim_pre_phaseAI (creature);
     }
 
     struct npc_thorim_pre_phaseAI : public ScriptedAI
     {
-        npc_thorim_pre_phaseAI(Creature *pCreature) : ScriptedAI(pCreature)
+        npc_thorim_pre_phaseAI(Creature *creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->setFaction(14);
             for (uint8 i = 0; i < 6; ++i)
                 if (me->GetEntry() == PRE_PHASE_ADD[i])
@@ -666,16 +666,16 @@ class npc_thorim_arena_phase : public CreatureScript
 public:
     npc_thorim_arena_phase() : CreatureScript("npc_thorim_arena_phase") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_thorim_arena_phaseAI (pCreature);
+        return new npc_thorim_arena_phaseAI (creature);
     }
 
     struct npc_thorim_arena_phaseAI : public ScriptedAI
     {
-        npc_thorim_arena_phaseAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_thorim_arena_phaseAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->setFaction(14);
             for (uint8 i = 0; i < 7; ++i)
                 if (me->GetEntry() == ARENA_PHASE_ADD[i])
@@ -693,9 +693,9 @@ public:
         bool IsInArena;
         bool healer;
 
-        bool isOnSameSide(const Unit* pWho)
+        bool isOnSameSide(const Unit* who)
         {
-            return (IsInArena == IN_ARENA(pWho));
+            return (IsInArena == IN_ARENA(who));
         }
     
         void DamageTaken(Unit* attacker, uint32 &damage)
@@ -1018,7 +1018,7 @@ public:
             summons.Summon(summon);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
             DoCast(me, SPELL_RUNIC_FORTIFICATION, true);

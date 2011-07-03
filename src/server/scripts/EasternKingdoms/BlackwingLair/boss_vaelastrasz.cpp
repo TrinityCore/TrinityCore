@@ -45,38 +45,38 @@ class boss_vaelastrasz : public CreatureScript
 public:
     boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
 
-    void SendDefaultMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    void SendDefaultMenu(Player* player, Creature* creature, uint32 uiAction)
     {
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(boss_vaelastrasz::boss_vaelAI, pCreature->AI())->BeginSpeech(pPlayer);
+            player->CLOSE_GOSSIP_MENU();
+            CAST_AI(boss_vaelastrasz::boss_vaelAI, creature->AI())->BeginSpeech(player);
         }
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiSender == GOSSIP_SENDER_MAIN)
-            SendDefaultMenu(pPlayer, pCreature, uiAction);
+            SendDefaultMenu(player, creature, uiAction);
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->SEND_GOSSIP_MENU(907, creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_vaelAI (pCreature);
+        return new boss_vaelAI (creature);
     }
 
     struct boss_vaelAI : public ScriptedAI
@@ -115,10 +115,10 @@ public:
             DoingSpeech = false;
         }
 
-        void BeginSpeech(Unit* pTarget)
+        void BeginSpeech(Unit* target)
         {
             //Stand up and begin speach
-            PlayerGUID = pTarget->GetGUID();
+            PlayerGUID = target->GetGUID();
 
             //10 seconds
             DoScriptText(SAY_LINE1, me);
@@ -208,18 +208,18 @@ public:
             //BurningAdrenalineCaster_Timer
             if (BurningAdrenalineCaster_Timer <= diff)
             {
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
 
                 uint8 i = 0;
                 while (i < 3)                                   // max 3 tries to get a random target with power_mana
                 {
                     ++i;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); //not aggro leader
-                    if (pTarget && pTarget->getPowerType() == POWER_MANA)
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); //not aggro leader
+                    if (target && target->getPowerType() == POWER_MANA)
                             i = 3;
                 }
-                if (pTarget)                                     // cast on self (see below)
-                    pTarget->CastSpell(pTarget, SPELL_BURNINGADRENALINE, 1);
+                if (target)                                     // cast on self (see below)
+                    target->CastSpell(target, SPELL_BURNINGADRENALINE, 1);
 
                 BurningAdrenalineCaster_Timer = 15000;
             } else BurningAdrenalineCaster_Timer -= diff;

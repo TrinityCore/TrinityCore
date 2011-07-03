@@ -204,14 +204,14 @@ class boss_algalon : public CreatureScript
     public:
         boss_algalon() : CreatureScript("boss_algalon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_algalonAI(pCreature);
+            return new boss_algalonAI(creature);
         }
 
         struct boss_algalonAI : public BossAI
         {
-            boss_algalonAI(Creature *pCreature) : BossAI(pCreature, TYPE_ALGALON), summons(pCreature) {}
+            boss_algalonAI(Creature *creature) : BossAI(creature, TYPE_ALGALON), summons(creature) {}
 
             uint32 Phase;
             uint32 uiPhase_timer;
@@ -844,14 +844,14 @@ class mob_collapsing_star : public CreatureScript
     public:
         mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_collapsing_starAI(pCreature);
+            return new mob_collapsing_starAI(creature);
         }
 
         struct mob_collapsing_starAI : public PassiveAI
         {
-            mob_collapsing_starAI(Creature *pCreature) : PassiveAI(pCreature) {}
+            mob_collapsing_starAI(Creature *creature) : PassiveAI(creature) {}
 
             bool exploded;
             uint32 Timer;
@@ -915,14 +915,14 @@ class mob_black_hole : public CreatureScript
     public:
         mob_black_hole() : CreatureScript("mob_black_hole") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_black_holeAI(pCreature);
+            return new mob_black_holeAI(creature);
         }
 
         struct mob_black_holeAI : public ScriptedAI
         {
-            mob_black_holeAI(Creature *pCreature) : ScriptedAI(pCreature) {}
+            mob_black_holeAI(Creature *creature) : ScriptedAI(creature) {}
 
             uint32 ShiftTimer;
 
@@ -965,14 +965,14 @@ class mob_living_constellation : public CreatureScript
     public:
         mob_living_constellation() : CreatureScript("mob_living_constellation") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_living_constellationAI(pCreature);
+            return new mob_living_constellationAI(creature);
         }
 
         struct mob_living_constellationAI : public ScriptedAI
         {
-            mob_living_constellationAI(Creature *pCreature) : ScriptedAI(pCreature) {}
+            mob_living_constellationAI(Creature *creature) : ScriptedAI(creature) {}
 
             uint32 Arcane_Timer;
             bool active;
@@ -1042,14 +1042,14 @@ class mob_dark_matter_algalon : public CreatureScript
     public:
         mob_dark_matter_algalon() : CreatureScript("mob_dark_matter_algalon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_dark_matter_algalonAI(pCreature);
+            return new mob_dark_matter_algalonAI(creature);
         }
 
         struct mob_dark_matter_algalonAI : public ScriptedAI
         {
-            mob_dark_matter_algalonAI(Creature *pCreature) : ScriptedAI(pCreature) {}
+            mob_dark_matter_algalonAI(Creature *creature) : ScriptedAI(creature) {}
 
 
             void InitializeAI()
@@ -1083,14 +1083,14 @@ class mob_algalon_asteroid_trigger : public CreatureScript
     public:
         mob_algalon_asteroid_trigger() : CreatureScript("mob_algalon_asteroid_trigger") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_algalon_asteroid_triggerAI(pCreature);
+            return new mob_algalon_asteroid_triggerAI(creature);
         }
 
         struct mob_algalon_asteroid_triggerAI : public PassiveAI
         {
-            mob_algalon_asteroid_triggerAI(Creature *pCreature) : PassiveAI(pCreature) {}
+            mob_algalon_asteroid_triggerAI(Creature *creature) : PassiveAI(creature) {}
 
             uint32 Event_Timer;
             uint8 Event_Phase;
@@ -1128,14 +1128,14 @@ class mob_brann_algalon : public CreatureScript
     public:
         mob_brann_algalon() : CreatureScript("mob_brann_algalon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_brann_algalonAI(pCreature);
+            return new mob_brann_algalonAI(creature);
         }
 
         struct mob_brann_algalonAI : public PassiveAI
         {
-            mob_brann_algalonAI(Creature *pCreature) : PassiveAI(pCreature) {}
+            mob_brann_algalonAI(Creature *creature) : PassiveAI(creature) {}
 
             uint8 CurrWP;
             uint32 delay;

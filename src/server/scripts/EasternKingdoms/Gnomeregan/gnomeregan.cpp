@@ -90,45 +90,45 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
 public:
     npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_blastmaster_emi_shortfuseAI(pCreature);
+        return new npc_blastmaster_emi_shortfuseAI(creature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, pCreature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
+                pEscortAI->Start(true, false, player->GetGUID());
 
-            pCreature->setFaction(pPlayer->getFaction());
-            pCreature->AI()->SetData(1, 0);
+            creature->setFaction(player->getFaction());
+            creature->AI()->SetData(1, 0);
 
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
+        InstanceScript* pInstance = creature->GetInstanceScript();
 
         if (pInstance && pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
 
         return true;
     }
 
     struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
     {
-        npc_blastmaster_emi_shortfuseAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
-            pCreature->RestoreFaction();
+            pInstance = creature->GetInstanceScript();
+            creature->RestoreFaction();
             Reset();
         }
 
@@ -232,12 +232,12 @@ public:
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
-                    if (Creature* pSummon = Unit::GetCreature(*me, *itr))
+                    if (Creature* summon = Unit::GetCreature(*me, *itr))
                     {
-                        if (pSummon->isAlive())
-                            pSummon->DisappearAndDie();
+                        if (summon->isAlive())
+                            summon->DisappearAndDie();
                         else
-                            pSummon->RemoveCorpse();
+                            summon->RemoveCorpse();
                     }
                 }
         }
@@ -251,16 +251,16 @@ public:
 
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
-                if (Player* pPlayer = i->getSource())
+                if (Player* player = i->getSource())
                 {
-                    if (pPlayer->isGameMaster())
+                    if (player->isGameMaster())
                         continue;
 
-                    if (pPlayer->isAlive())
+                    if (player->isAlive())
                     {
-                        pTemp->SetInCombatWith(pPlayer);
-                        pPlayer->SetInCombatWith(pTemp);
-                        pTemp->AddThreat(pPlayer, 0.0f);
+                        pTemp->SetInCombatWith(player);
+                        player->SetInCombatWith(pTemp);
+                        pTemp->AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -534,10 +534,10 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            SummonList.push_back(pSummon->GetGUID());
-            AggroAllPlayers(pSummon);
+            SummonList.push_back(summon->GetGUID());
+            AggroAllPlayers(summon);
         }
     };
 
@@ -548,14 +548,14 @@ class boss_grubbis : public CreatureScript
 public:
     boss_grubbis() : CreatureScript("boss_grubbis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_grubbisAI(pCreature);
+        return new boss_grubbisAI(creature);
     }
 
     struct boss_grubbisAI : public ScriptedAI
     {
-        boss_grubbisAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_grubbisAI(Creature* creature) : ScriptedAI(creature)
         {
             SetDataSummoner();
         }
@@ -565,8 +565,8 @@ public:
             if (!me->isSummon())
                 return;
 
-            if (Unit* pSummon = me->ToTempSummon()->GetSummoner())
-                CAST_CRE(pSummon)->AI()->SetData(2, 1);
+            if (Unit* summon = me->ToTempSummon()->GetSummoner())
+                CAST_CRE(summon)->AI()->SetData(2, 1);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -577,7 +577,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (!me->isSummon())
                 return;

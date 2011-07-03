@@ -165,8 +165,8 @@ const float PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 struct NotOnSameSide : public std::unary_function<Unit *, bool> {
     bool m_inLiveSide;
     NotOnSameSide(Unit *pSource) : m_inLiveSide(IN_LIVE_SIDE(pSource)) {}
-    bool operator() (const Unit *pTarget) {
-      return (m_inLiveSide != IN_LIVE_SIDE(pTarget));
+    bool operator() (const Unit *target) {
+      return (m_inLiveSide != IN_LIVE_SIDE(target));
     }
 };
 
@@ -175,9 +175,9 @@ class boss_gothik : public CreatureScript
 public:
     boss_gothik() : CreatureScript("boss_gothik") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gothikAI (pCreature);
+        return new boss_gothikAI (creature);
     }
 
     struct boss_gothikAI : public BossAI
@@ -396,7 +396,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit *target, const SpellEntry *spell)
         {
             if (!me->isInCombat())
                 return;
@@ -404,14 +404,14 @@ public:
             switch(spell->Id)
             {
                 case SPELL_INFORM_DEAD_TRAINEE:
-                    DoSummon(MOB_DEAD_TRAINEE, pTarget, 0);
+                    DoSummon(MOB_DEAD_TRAINEE, target, 0);
                     break;
                 case SPELL_INFORM_DEAD_KNIGHT:
-                    DoSummon(MOB_DEAD_KNIGHT, pTarget, 0);
+                    DoSummon(MOB_DEAD_KNIGHT, target, 0);
                     break;
                 case SPELL_INFORM_DEAD_RIDER:
-                    DoSummon(MOB_DEAD_RIDER, pTarget, 1.0f);
-                    DoSummon(MOB_DEAD_HORSE, pTarget, 1.0f);
+                    DoSummon(MOB_DEAD_RIDER, target, 1.0f);
+                    DoSummon(MOB_DEAD_HORSE, target, 1.0f);
                     break;
             }
         }
@@ -507,10 +507,10 @@ public:
                             }
 
                             me->getThreatManager().resetAggro(NotOnSameSide(me));
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                             {
-                                me->getThreatManager().addThreat(pTarget, 100.0f);
-                                AttackStart(pTarget);
+                                me->getThreatManager().addThreat(target, 100.0f);
+                                AttackStart(target);
                             }
 
                             events.ScheduleEvent(EVENT_TELEPORT, 20000);
@@ -530,9 +530,9 @@ class mob_gothik_minion : public CreatureScript
 public:
     mob_gothik_minion() : CreatureScript("mob_gothik_minion") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_gothik_minionAI (pCreature);
+        return new mob_gothik_minionAI (creature);
     }
 
     struct mob_gothik_minionAI : public CombatAI

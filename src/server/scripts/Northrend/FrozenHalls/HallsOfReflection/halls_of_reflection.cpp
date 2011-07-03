@@ -185,55 +185,55 @@ private:
 public:
     npc_jaina_or_sylvanas_hor(bool isSylvana, const char* name) : CreatureScript(name), m_isSylvana(isSylvana) { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                if (pCreature->AI())
-                    pCreature->AI()->DoAction(ACTION_START_INTRO);
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                player->CLOSE_GOSSIP_MENU();
+                if (creature->AI())
+                    creature->AI()->DoAction(ACTION_START_INTRO);
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                if (pCreature->AI())
-                    pCreature->AI()->DoAction(ACTION_SKIP_INTRO);
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                player->CLOSE_GOSSIP_MENU();
+                if (creature->AI())
+                    creature->AI()->DoAction(ACTION_SKIP_INTRO);
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 break;
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        QuestStatus status = pPlayer->GetQuestStatus(m_isSylvana ? QUEST_DELIVRANCE_FROM_THE_PIT_H2 : QUEST_DELIVRANCE_FROM_THE_PIT_A2);
+        QuestStatus status = player->GetQuestStatus(m_isSylvana ? QUEST_DELIVRANCE_FROM_THE_PIT_H2 : QUEST_DELIVRANCE_FROM_THE_PIT_A2);
         if (status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
-            pPlayer->ADD_GOSSIP_ITEM( 0, "Can you remove the sword?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM( 0, "Can you remove the sword?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         // once last quest is completed, she offers this shortcut of the starting event
-        QuestStatus status2 = pPlayer->GetQuestStatus(m_isSylvana ? QUEST_WRATH_OF_THE_LICH_KING_H2 : QUEST_WRATH_OF_THE_LICH_KING_A2);
+        QuestStatus status2 = player->GetQuestStatus(m_isSylvana ? QUEST_WRATH_OF_THE_LICH_KING_H2 : QUEST_WRATH_OF_THE_LICH_KING_A2);
         if (status2 == QUEST_STATUS_COMPLETE || status2 == QUEST_STATUS_REWARDED)
-            pPlayer->ADD_GOSSIP_ITEM( 0, "I hear Arthas coming. Whatever you have to do, do quickly.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM( 0, "I hear Arthas coming. Whatever you have to do, do quickly.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_jaina_or_sylvanas_horAI(pCreature);
+        return new npc_jaina_or_sylvanas_horAI(creature);
     }
 
     // AI of Part1: handle the intro till start of gauntlet event.
     struct npc_jaina_or_sylvanas_horAI : public ScriptedAI
     {
-        npc_jaina_or_sylvanas_horAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_jaina_or_sylvanas_horAI(Creature* creature) : ScriptedAI(creature)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -747,9 +747,9 @@ class npc_ghostly_priest : public CreatureScript
 public:
     npc_ghostly_priest() : CreatureScript("npc_ghostly_priest") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ghostly_priestAI(pCreature);
+        return new npc_ghostly_priestAI(creature);
     }
 
     struct npc_ghostly_priestAI: public ScriptedAI
@@ -788,25 +788,25 @@ public:
                 switch(eventId)
                 {
                     case EVENT_SHADOW_WORD_PAIN:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_SHADOW_WORD_PAIN);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_SHADOW_WORD_PAIN);
                         events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000);
                         return;
                     case EVENT_CIRCLE_OF_DESTRUCTION:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_CIRCLE_OF_DESTRUCTION);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_CIRCLE_OF_DESTRUCTION);
                         events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12000);
                         return;
                     case EVENT_COWER_IN_FEAR:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_COWER_IN_FEAR);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_COWER_IN_FEAR);
                         events.ScheduleEvent(EVENT_COWER_IN_FEAR, 10000);
                         return;
                     case EVENT_DARK_MENDING:
                         // find an ally with missing HP
-                        if (Unit* pTarget = DoSelectLowestHpFriendly(40, DUNGEON_MODE(30000, 50000)))
+                        if (Unit* target = DoSelectLowestHpFriendly(40, DUNGEON_MODE(30000, 50000)))
                         {
-                            DoCast(pTarget, SPELL_DARK_MENDING);
+                            DoCast(target, SPELL_DARK_MENDING);
                             events.ScheduleEvent(EVENT_DARK_MENDING, 20000);
                         }
                         else
@@ -829,9 +829,9 @@ class npc_phantom_mage : public CreatureScript
 public:
     npc_phantom_mage() : CreatureScript("npc_phantom_mage") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_phantom_mageAI(pCreature);
+        return new npc_phantom_mageAI(creature);
     }
 
     struct npc_phantom_mageAI: public ScriptedAI
@@ -871,8 +871,8 @@ public:
                 switch(eventId)
                 {
                     case EVENT_FIREBALL:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_FIREBALL);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_FIREBALL);
                         events.ScheduleEvent(EVENT_FIREBALL, 15000);
                         return;
                     case EVENT_FLAMESTRIKE:
@@ -880,13 +880,13 @@ public:
                         events.ScheduleEvent(EVENT_FLAMESTRIKE, 15000);
                         return;
                     case EVENT_FROSTBOLT:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_FROSTBOLT);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_FROSTBOLT);
                         events.ScheduleEvent(EVENT_FROSTBOLT, 15000);
                         return;
                     case EVENT_CHAINS_OF_ICE:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_CHAINS_OF_ICE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_CHAINS_OF_ICE);
                         events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 15000);
                         return;
                     case EVENT_HALLUCINATION:
@@ -906,9 +906,9 @@ class npc_phantom_hallucination : public CreatureScript
 public:
     npc_phantom_hallucination() : CreatureScript("npc_phantom_hallucination") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_phantom_hallucinationAI(pCreature);
+        return new npc_phantom_hallucinationAI(creature);
     }
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
@@ -917,7 +917,7 @@ public:
         {
         }
 
-        void JustDied(Unit* /*pWho*/)
+        void JustDied(Unit* /*who*/)
         {
             DoCast(SPELL_HALLUCINATION_2);
         }
@@ -930,9 +930,9 @@ class npc_shadowy_mercenary : public CreatureScript
 public:
     npc_shadowy_mercenary() : CreatureScript("npc_shadowy_mercenary") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_shadowy_mercenaryAI(pCreature);
+        return new npc_shadowy_mercenaryAI(creature);
     }
 
     struct npc_shadowy_mercenaryAI: public ScriptedAI
@@ -979,8 +979,8 @@ public:
                         events.ScheduleEvent(EVENT_DEADLY_POISON, 10000);
                         return;
                     case EVENT_ENVENOMED_DAGGER_THROW:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_ENVENOMED_DAGGER_THROW);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_ENVENOMED_DAGGER_THROW);
                         events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10000);
                         return;
                     case EVENT_KIDNEY_SHOT:
@@ -1001,9 +1001,9 @@ class npc_spectral_footman : public CreatureScript
 public:
     npc_spectral_footman() : CreatureScript("npc_spectral_footman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_spectral_footmanAI(pCreature);
+        return new npc_spectral_footmanAI(creature);
     }
 
     struct npc_spectral_footmanAI: public ScriptedAI
@@ -1066,9 +1066,9 @@ class npc_tortured_rifleman : public CreatureScript
 public:
     npc_tortured_rifleman() : CreatureScript("npc_tortured_rifleman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_tortured_riflemanAI(pCreature);
+        return new npc_tortured_riflemanAI(creature);
     }
 
     struct npc_tortured_riflemanAI  : public ScriptedAI
@@ -1107,13 +1107,13 @@ public:
                 switch(eventId)
                 {
                     case EVENT_SHOOT:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_SHOOT);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_SHOOT);
                         events.ScheduleEvent(EVENT_SHOOT, 2000);
                         return;
                     case EVENT_CURSED_ARROW:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_CURSED_ARROW);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_CURSED_ARROW);
                         events.ScheduleEvent(EVENT_CURSED_ARROW, 10000);
                         return;
                     case EVENT_FROST_TRAP:
@@ -1121,8 +1121,8 @@ public:
                         events.ScheduleEvent(EVENT_FROST_TRAP, 30000);
                         return;
                     case EVENT_ICE_SHOT:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_ICE_SHOT);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_ICE_SHOT);
                         events.ScheduleEvent(EVENT_ICE_SHOT, 15000);
                         return;
                 }
@@ -1160,9 +1160,9 @@ public:
 
     struct npc_frostworn_generalAI : public ScriptedAI
     {
-        npc_frostworn_generalAI(Creature *pCreature) : ScriptedAI(pCreature)
+        npc_frostworn_generalAI(Creature *creature) : ScriptedAI(creature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
 
@@ -1191,7 +1191,7 @@ public:
             pInstance->SetData(DATA_FROSWORN_EVENT, DONE);
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!pInstance)
                 return;
@@ -1199,18 +1199,18 @@ public:
             if (me->getVictim())
                 return;
 
-            if (pWho->GetTypeId() != TYPEID_PLAYER
+            if (who->GetTypeId() != TYPEID_PLAYER
                 || pInstance->GetData(DATA_MARWYN_EVENT) != DONE
-                || !me->IsWithinDistInMap(pWho, 20.0f)
+                || !me->IsWithinDistInMap(who, 20.0f)
                 ) return;
 
-            if (Player* pPlayer = (Player*)pWho)
-                if (pPlayer->isGameMaster())
+            if (Player* player = (Player*)who)
+                if (player->isGameMaster())
                     return;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            AttackStart(pWho);
+            AttackStart(who);
         }
 
         void EnterCombat(Unit* pVictim)
@@ -1228,8 +1228,8 @@ public:
 
             if(uiShieldTimer < uiDiff)
             {
-                if(Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                   DoCast(pTarget, SPELL_SHIELD_THROWN);
+                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                   DoCast(target, SPELL_SHIELD_THROWN);
                 uiShieldTimer = urand(8000, 12000);
             }
             else
@@ -1237,8 +1237,8 @@ public:
 
             if (uiSpikeTimer < uiDiff)
             {
-                if(Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SPIKE);
+                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SPIKE);
                 uiSpikeTimer = urand(15000, 20000);
             }
             else
@@ -1272,9 +1272,9 @@ public:
 
         }
     };
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_frostworn_generalAI(pCreature);
+        return new npc_frostworn_generalAI(creature);
     }
 };
 
@@ -1285,7 +1285,7 @@ public:
 
     struct npc_spiritual_reflectionAI : public ScriptedAI
     {
-        npc_spiritual_reflectionAI(Creature *pCreature) : ScriptedAI(pCreature)
+        npc_spiritual_reflectionAI(Creature *creature) : ScriptedAI(creature)
         {
             Reset();
         }
@@ -1310,8 +1310,8 @@ public:
 
             if(uiStrikeTimer < uiDiff)
             {
-                if(Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                   DoCast(pTarget, SPELL_BALEFUL_STRIKE);
+                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                   DoCast(target, SPELL_BALEFUL_STRIKE);
                 uiStrikeTimer = urand(3000, 8000);
             }
             else
@@ -1320,9 +1320,9 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_spiritual_reflectionAI(pCreature);
+        return new npc_spiritual_reflectionAI(creature);
     }
 };
 
@@ -1392,22 +1392,22 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
 public:
     npc_jaina_and_sylvana_hor_part2() : CreatureScript("npc_jaina_and_sylvana_hor_part2") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
-        InstanceScript* m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                ((npc_jaina_and_sylvana_hor_part2AI*)pCreature->AI())->Start(false,true);
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                pCreature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-                pCreature->setActive(true);
+                player->CLOSE_GOSSIP_MENU();
+                ((npc_jaina_and_sylvana_hor_part2AI*)creature->AI())->Start(false,true);
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                creature->setActive(true);
 
                 if(m_pInstance)
                 {
-                    m_pInstance->SetData64(DATA_ESCAPE_LIDER, pCreature->GetGUID());
+                    m_pInstance->SetData64(DATA_ESCAPE_LIDER, creature->GetGUID());
                     m_pInstance->SetData(DATA_LICHKING_EVENT, IN_PROGRESS);
                 }
                 return true;
@@ -1416,9 +1416,9 @@ public:
         }
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript*   m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        InstanceScript*   m_pInstance = (InstanceScript*)creature->GetInstanceScript();
 
         if(!m_pInstance)
             return false;
@@ -1426,26 +1426,26 @@ public:
         if(m_pInstance->GetData(DATA_LICHKING_EVENT) == DONE)
             return false;
 
-        if(pCreature->isQuestGiver())
-           pPlayer->PrepareQuestMenu( pCreature->GetGUID());
+        if(creature->isQuestGiver())
+           player->PrepareQuestMenu( creature->GetGUID());
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Lets go!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Lets go!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_jaina_and_sylvana_hor_part2AI(pCreature);
+        return new npc_jaina_and_sylvana_hor_part2AI(creature);
     }
 
     struct npc_jaina_and_sylvana_hor_part2AI : public npc_escortAI
     {
-        npc_jaina_and_sylvana_hor_part2AI(Creature *pCreature) : npc_escortAI(pCreature)
+        npc_jaina_and_sylvana_hor_part2AI(Creature *creature) : npc_escortAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
 
@@ -1673,19 +1673,19 @@ public:
             if(who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* pPlayer = (Player *)who;
+            Player* player = (Player *)who;
 
-            if(pPlayer->GetTeam() == ALLIANCE && me->GetEntry() == NPC_SYLVANA_OUTRO)
+            if(player->GetTeam() == ALLIANCE && me->GetEntry() == NPC_SYLVANA_OUTRO)
                 return;
 
-            if(pPlayer->GetTeam() == HORDE && me->GetEntry() == NPC_JAINA_OUTRO)
+            if(player->GetTeam() == HORDE && me->GetEntry() == NPC_JAINA_OUTRO)
                 return;
 
             if(me->IsWithinDistInMap(who, 50.0f)
                 && m_pInstance->GetData(DATA_FROSWORN_EVENT) == DONE
                 && m_pInstance->GetData(DATA_PHASE) == 3)
             {
-                pPlayer = (Player *)who;
+                player = (Player *)who;
                 Event = true;
                 me->setFaction(FACTION);
                 m_pInstance->SetData(DATA_PHASE, 4);
@@ -2032,11 +2032,11 @@ class at_hor_waves_restarter : public AreaTriggerScript
     public:
         at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") {}
 
-        bool OnTrigger(Player* pPlayer, AreaTriggerEntry const* /*trigger*/)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
-            InstanceScript* pInstance = pPlayer->GetInstanceScript();
+            InstanceScript* pInstance = player->GetInstanceScript();
 
-            if (pPlayer->isGameMaster())
+            if (player->isGameMaster())
                 return true;
 
             if(pInstance->GetData(DATA_WAVE_COUNT) == SPECIAL)
@@ -2046,12 +2046,12 @@ class at_hor_waves_restarter : public AreaTriggerScript
             {
                 pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);
 
-                if (Creature* pFalric = pPlayer->GetCreature(*pPlayer, pInstance->GetData64(DATA_FALRIC)))
+                if (Creature* pFalric = player->GetCreature(*player, pInstance->GetData64(DATA_FALRIC)))
                 {
                     pFalric->CastSpell(pFalric, SPELL_BOSS_SPAWN_AURA, true);
                     pFalric->SetVisible(true);
                 }
-                if (Creature* pMarwyn = pPlayer->GetCreature(*pPlayer, pInstance->GetData64(DATA_MARWYN)))
+                if (Creature* pMarwyn = player->GetCreature(*player, pInstance->GetData64(DATA_MARWYN)))
                 {
                     pMarwyn->CastSpell(pMarwyn, SPELL_BOSS_SPAWN_AURA, true);
                     pMarwyn->SetVisible(true);
@@ -2066,20 +2066,20 @@ class npc_queldelar : public CreatureScript
 public:
     npc_queldelar() : CreatureScript("npc_queldelar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_queldelarAI(pCreature);
+        return new npc_queldelarAI(creature);
     }
     struct npc_queldelarAI  : public ScriptedAI
     {
         npc_queldelarAI(Creature *c) : ScriptedAI(c)
         {
         }
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
-            if (me->IsWithinDistInMap(pWho, 20) && pWho->HasAura(SPELL_QUELDELAR_AURA))
+            if (me->IsWithinDistInMap(who, 20) && who->HasAura(SPELL_QUELDELAR_AURA))
             {
                 me->SummonCreature(NPC_QUELDELAR, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                 me->DisappearAndDie();

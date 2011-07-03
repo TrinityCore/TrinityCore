@@ -263,49 +263,49 @@ class mob_naxxramas_trash : public CreatureScript
 public:
     mob_naxxramas_trash() : CreatureScript("mob_naxxramas_trash") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        switch(pCreature->GetEntry())
+        switch(creature->GetEntry())
         {
-        case 15974: return new mob_dread_creeperAI (pCreature);
-        case 15975: return new mob_carrion_spinnerAI (pCreature);
-        case 15976: return new mob_venom_stalkerAI (pCreature);
-        case 15978: return new mob_crypt_reaverAI (pCreature);
-        case 15979: return new mob_tomb_horrorAI (pCreature);
-        case 15980: return new mob_naxxramas_cultistAI (pCreature);
-        case 15981: return new mob_naxxramas_acolyteAI (pCreature);
-        case 30085: return new mob_vigilant_shadeAI (pCreature);
+        case 15974: return new mob_dread_creeperAI (creature);
+        case 15975: return new mob_carrion_spinnerAI (creature);
+        case 15976: return new mob_venom_stalkerAI (creature);
+        case 15978: return new mob_crypt_reaverAI (creature);
+        case 15979: return new mob_tomb_horrorAI (creature);
+        case 15980: return new mob_naxxramas_cultistAI (creature);
+        case 15981: return new mob_naxxramas_acolyteAI (creature);
+        case 30085: return new mob_vigilant_shadeAI (creature);
 
-        case 16243: return new mob_plague_slimeAI (pCreature);
-        case 16244: return new mob_infectious_ghoulAI (pCreature);
-        case 16168: return new mob_stoneskin_gargoyleAI (pCreature);
-        case 16297: return new mob_mutated_grubAI (pCreature);
-        case 16306: return new mob_frenzied_batAI (pCreature);
-        case 16236: return new mob_eye_stalkAI (pCreature);
+        case 16243: return new mob_plague_slimeAI (creature);
+        case 16244: return new mob_infectious_ghoulAI (creature);
+        case 16168: return new mob_stoneskin_gargoyleAI (creature);
+        case 16297: return new mob_mutated_grubAI (creature);
+        case 16306: return new mob_frenzied_batAI (creature);
+        case 16236: return new mob_eye_stalkAI (creature);
 
-        case 16017: return new mob_patchwork_golemAI (pCreature);
-        case 16018: return new mob_bile_retcherAI (pCreature);
-        case 16020: return new mob_mad_scientistAI (pCreature);
-        case 16021: return new mob_living_monstrosityAI (pCreature);
-        case 16022: return new mob_surgical_assistantAI (pCreature);
-        case 16024: return new mob_embalming_slimeAI (pCreature);
-        case 16025: return new mob_stitched_giantAI (pCreature);
-        case 30071: return new mob_stitched_colossusAI (pCreature);
-        case 16027: return new mob_living_poisonAI (pCreature);
+        case 16017: return new mob_patchwork_golemAI (creature);
+        case 16018: return new mob_bile_retcherAI (creature);
+        case 16020: return new mob_mad_scientistAI (creature);
+        case 16021: return new mob_living_monstrosityAI (creature);
+        case 16022: return new mob_surgical_assistantAI (creature);
+        case 16024: return new mob_embalming_slimeAI (creature);
+        case 16025: return new mob_stitched_giantAI (creature);
+        case 30071: return new mob_stitched_colossusAI (creature);
+        case 16027: return new mob_living_poisonAI (creature);
 
-        case 16067: return new mob_deathcharger_steedAI (pCreature);
-        case 16145: return new mob_death_knight_captainAI (pCreature);
-        case 16146: return new mob_death_knightAI (pCreature);
-        case 16154: return new mob_risen_squireAI (pCreature);
-        case 16156: return new mob_dark_touched_warriorAI (pCreature);
-        case 16163: return new mob_death_knight_cavalierAI (pCreature);
-        case 16164: return new mob_shade_of_naxxramasAI (pCreature);
-        case 16167: return new mob_bony_constructAI  (pCreature);
-        case 16193: return new mob_skeletal_smithAI (pCreature);
-        case 16194: return new mob_unholy_axeAI (pCreature);
-        case 16215: return new mob_unholy_staffAI (pCreature);
-        case 16216: return new mob_unholy_swordsAI (pCreature);
-        default: return new mob_dread_creeperAI (pCreature);
+        case 16067: return new mob_deathcharger_steedAI (creature);
+        case 16145: return new mob_death_knight_captainAI (creature);
+        case 16146: return new mob_death_knightAI (creature);
+        case 16154: return new mob_risen_squireAI (creature);
+        case 16156: return new mob_dark_touched_warriorAI (creature);
+        case 16163: return new mob_death_knight_cavalierAI (creature);
+        case 16164: return new mob_shade_of_naxxramasAI (creature);
+        case 16167: return new mob_bony_constructAI  (creature);
+        case 16193: return new mob_skeletal_smithAI (creature);
+        case 16194: return new mob_unholy_axeAI (creature);
+        case 16215: return new mob_unholy_staffAI (creature);
+        case 16216: return new mob_unholy_swordsAI (creature);
+        default: return new mob_dread_creeperAI (creature);
         }
     }
     // Dread Creeper - 15974
@@ -1590,9 +1590,9 @@ class mob_naxxramas_teleporter : public CreatureScript
 public:
     mob_naxxramas_teleporter() : CreatureScript("mob_naxxramas_teleporter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_naxxramas_teleporterAI (pCreature);
+        return new mob_naxxramas_teleporterAI (creature);
     }
 
     struct mob_naxxramas_teleporterAI : public ScriptedAI
@@ -1674,23 +1674,23 @@ public:
         }
     };
 
-    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    bool OnGossipHello(Player *pPlayer, Creature *creature)
     {
         pPlayer->ADD_GOSSIP_ITEM(0,"Bringe mich zurueck zum Eingang",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            if(pCreature && pCreature->AI())
+            if(creature && creature->AI())
             {
-                NaxxTeleporter type = CAST_AI(mob_naxxramas_teleporterAI,pCreature->AI())->type;
+                NaxxTeleporter type = CAST_AI(mob_naxxramas_teleporterAI,creature->AI())->type;
                 pPlayer->NearTeleportTo(TeleportPoint[type].x,TeleportPoint[type].y,TeleportPoint[type].z,TeleportPoint[type].o);
             }
         }

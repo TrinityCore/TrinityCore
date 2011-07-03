@@ -350,8 +350,8 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_BEWILDERING_STRIKE);
                     //float mt_threat = DoGetThreat(me->getVictim());
-                    //if (Unit *ptarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
-                    //    me->AddThreat(ptarget, mt_threat);
+                    //if (Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                    //    me->AddThreat(target, mt_threat);
                     BewilderingStrikeTimer = 20000;
                 }else BewilderingStrikeTimer -= diff;
 

@@ -1013,8 +1013,8 @@ public:
                     Glaive->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_FLAME_ENRAGE, true);
                     DoResetThreat();
-                    Unit *ptarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if(ptarget && ptarget->isAlive())
+                    Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if(target && target->isAlive())
                     {
                         me->AddThreat(me->getVictim(), 5000000.0f);
                         AttackStart(me->getVictim());
@@ -1817,10 +1817,10 @@ class gameobject_cage_trap : public GameObjectScript
 public:
     gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
 
-    bool OnGossipHello (Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello (Player* player, GameObject* pGo)
     {
         float x, y, z;
-        pPlayer->GetPosition(x, y, z);
+        player->GetPosition(x, y, z);
 
         // Grid search for nearest live Creature of entry 23304 within 10 yards
         if (Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))

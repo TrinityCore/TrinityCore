@@ -105,9 +105,9 @@ class boss_kalecgos : public CreatureScript
 public:
     boss_kalecgos() : CreatureScript("boss_kalecgos") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecgosAI (pCreature);
+        return new boss_kalecgosAI (creature);
     }
 
     struct boss_kalecgosAI : public ScriptedAI
@@ -218,9 +218,9 @@ public:
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        Player* pPlayer = itr->getSource();
-                        if (pPlayer)
-                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
+                        Player* player = itr->getSource();
+                        if (player)
+                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
                     }
                 }
             }
@@ -301,9 +301,9 @@ class boss_sathrovarr : public CreatureScript
 public:
     boss_sathrovarr() : CreatureScript("boss_sathrovarr") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sathrovarrAI (pCreature);
+        return new boss_sathrovarrAI (creature);
     }
 
     struct boss_sathrovarrAI : public ScriptedAI
@@ -503,9 +503,9 @@ public:
 
             if(AgonyCurseTimer <= diff)
             {
-                Unit *ptarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if(!ptarget) ptarget = me->getVictim();
-                if(TryDoCast(ptarget, SPELL_AGONY_CURSE))
+                Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if(!target) target = me->getVictim();
+                if(TryDoCast(target, SPELL_AGONY_CURSE))
                     AgonyCurseTimer = 20000;
             }else AgonyCurseTimer -= diff;
 
@@ -677,9 +677,9 @@ class boss_kalec : public CreatureScript
 public:
     boss_kalec() : CreatureScript("boss_kalec") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecAI (pCreature);
+        return new boss_kalecAI (creature);
     }
 
     struct boss_kalecAI : public ScriptedAI

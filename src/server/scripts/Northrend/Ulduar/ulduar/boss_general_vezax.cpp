@@ -362,9 +362,9 @@ class boss_saronite_animus : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_saronite_animusAI(pCreature);
+            return new boss_saronite_animusAI(creature);
         }
 };
 

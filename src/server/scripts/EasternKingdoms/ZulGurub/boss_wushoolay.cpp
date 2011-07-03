@@ -70,9 +70,9 @@ class boss_wushoolay : public CreatureScript
                 //LightningWave_Timer
                 if (LightningWave_Timer <= diff)
                 {
-                    Unit* pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget) DoCast(pTarget, SPELL_LIGHTNINGWAVE);
+                    Unit* target = NULL;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target) DoCast(target, SPELL_LIGHTNINGWAVE);
 
                     LightningWave_Timer = 12000 + rand()%4000;
                 } else LightningWave_Timer -= diff;

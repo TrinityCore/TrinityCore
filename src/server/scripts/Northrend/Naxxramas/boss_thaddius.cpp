@@ -101,9 +101,9 @@ class boss_thaddius : public CreatureScript
 public:
     boss_thaddius() : CreatureScript("boss_thaddius") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_thaddiusAI (pCreature);
+        return new boss_thaddiusAI (creature);
     }
 
     struct boss_thaddiusAI : public BossAI
@@ -303,9 +303,9 @@ class mob_stalagg : public CreatureScript
 public:
     mob_stalagg() : CreatureScript("mob_stalagg") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stalaggAI(pCreature);
+        return new mob_stalaggAI(creature);
     }
 
     struct mob_stalaggAI : public ScriptedAI
@@ -330,7 +330,7 @@ public:
             magneticPullTimer = 20000;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(SPELL_STALAGG_TESLA);
         }
@@ -394,9 +394,9 @@ class mob_feugen : public CreatureScript
 public:
     mob_feugen() : CreatureScript("mob_feugen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_feugenAI(pCreature);
+        return new mob_feugenAI(creature);
     }
 
     struct mob_feugenAI : public ScriptedAI
@@ -419,7 +419,7 @@ public:
             staticFieldTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(SPELL_FEUGEN_TESLA);
         }

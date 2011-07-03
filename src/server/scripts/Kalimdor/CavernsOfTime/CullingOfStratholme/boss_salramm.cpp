@@ -66,9 +66,9 @@ class boss_salramm : public CreatureScript
 public:
     boss_salramm() : CreatureScript("boss_salramm") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_salrammAI (pCreature);
+        return new boss_salrammAI (creature);
     }
 
     struct boss_salrammAI : public ScriptedAI
@@ -108,11 +108,11 @@ public:
                  pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell) 
+        void SpellHitTarget(Unit* target, const SpellEntry* spell) 
         {
             if (spell->Id == SPELL_STEAL_FLESH)
             {
-                DoCast(pTarget, SPELL_STEAL_FLESH_VICTIM, true);
+                DoCast(target, SPELL_STEAL_FLESH_VICTIM, true);
                 DoCast(me, SPELL_STEAL_FLESH_SELF, true);
             }
         }
@@ -130,16 +130,16 @@ public:
             if(IsHeroic())
                 if (uiCurseFleshTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
-                        DoCast(pTarget, SPELL_CURSE_OF_TWISTED_FLESH);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                        DoCast(target, SPELL_CURSE_OF_TWISTED_FLESH);
                     uiCurseFleshTimer = 25000;
                 } else uiCurseFleshTimer -= diff;
 
             //Shadow bolt timer
             if (uiShadowBoltTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHADOW_BOLT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHADOW_BOLT);
                 uiShadowBoltTimer = urand(8000,12000);
             } else uiShadowBoltTimer -= diff;
 
@@ -147,8 +147,8 @@ public:
             if (uiStealFleshTimer <= diff)
             {
                 DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), me);
-                if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(random_pTarget, SPELL_STEAL_FLESH);
+                if (Unit* random_target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(random_target, SPELL_STEAL_FLESH);
                 uiStealFleshTimer = 10000;
             } else uiStealFleshTimer -= diff;
 
@@ -156,9 +156,9 @@ public:
             if (uiSummonGhoulsTimer <= diff)
             {
                  DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), me);
-                if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* random_target = SelectTarget(SELECT_TARGET_RANDOM, 0))
 	
-                     DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
+                     DoCast(random_target, SPELL_SUMMON_GHOULS);
                 uiSummonGhoulsTimer = 10000;
 
             } else uiSummonGhoulsTimer -= diff;

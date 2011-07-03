@@ -89,10 +89,10 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
         struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         {
-            boss_grand_warlock_nethekurseAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_grand_warlock_nethekurseAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
-                HeroicMode = pCreature->GetMap()->IsHeroic();
+                pInstance = creature->GetInstanceScript();
+                HeroicMode = creature->GetMap()->IsHeroic();
             }
 
             InstanceScript* pInstance;
@@ -278,8 +278,8 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 {
                     if (ShadowFissure_Timer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_SHADOW_FISSURE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SHADOW_FISSURE);
                         ShadowFissure_Timer = urand(7500, 15000);
                     }
                     else
@@ -287,8 +287,8 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
                     if (DeathCoil_Timer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_DEATH_COIL);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_DEATH_COIL);
                         DeathCoil_Timer = urand(15000, 20000);
                     }
                     else
@@ -319,9 +319,9 @@ class mob_fel_orc_convert : public CreatureScript
 
         struct mob_fel_orc_convertAI : public ScriptedAI
         {
-            mob_fel_orc_convertAI(Creature* pCreature) : ScriptedAI(pCreature)
+            mob_fel_orc_convertAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -402,7 +402,7 @@ class mob_lesser_shadow_fissure : public CreatureScript
 
         struct mob_lesser_shadow_fissureAI : public ScriptedAI
         {
-            mob_lesser_shadow_fissureAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset() { }
             void MoveInLineOfSight(Unit* /*who*/) {}
@@ -410,9 +410,9 @@ class mob_lesser_shadow_fissure : public CreatureScript
             void EnterCombat(Unit* /*who*/) {}
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_lesser_shadow_fissureAI (pCreature);
+            return new mob_lesser_shadow_fissureAI (creature);
         }
 };
 

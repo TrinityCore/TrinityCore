@@ -58,9 +58,9 @@ class boss_patchwerk : public CreatureScript
 public:
     boss_patchwerk() : CreatureScript("boss_patchwerk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_patchwerkAI (pCreature);
+        return new boss_patchwerkAI (creature);
     }
 
     struct boss_patchwerkAI : public BossAI
@@ -133,7 +133,7 @@ public:
 
             // Get Target with most HP and not getVictim()
             uint32 MostHP = 0;
-            Unit* pMostHPTarget = NULL;
+            Unit* pMostHtarget = NULL;
             uint32 counter = 0;
 
             for(std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
@@ -144,16 +144,16 @@ public:
                 if(counter > 3)
                     break;
 
-                Unit* pTarget = (*itr);
-                if (pTarget->isAlive() && pTarget->GetHealth() > MostHP)
+                Unit* target = (*itr);
+                if (target->isAlive() && target->GetHealth() > MostHP)
                 {
-                    MostHP = pTarget->GetHealth();
-                    pMostHPTarget = pTarget;
+                    MostHP = target->GetHealth();
+                    pMostHtarget = target;
                 }
             }
 
-            if(pMostHPTarget)
-                return pMostHPTarget;
+            if(pMostHtarget)
+                return pMostHtarget;
             else
                 return me->getVictim();
         }
@@ -176,15 +176,15 @@ public:
                         //Cast Hateful strike on the player with the highest
                         //amount of HP within melee distance
                         //uint32 MostHP = 0;
-                        //Unit* pMostHPTarget = NULL;
+                        //Unit* pMostHtarget = NULL;
                         //uint32 counter = 1;
                         //std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         //++i;
                         //for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         //{
-                        //    Unit *pTarget = (*i)->getTarget();
+                        //    Unit *target = (*i)->getTarget();
 
-                        //    if(!me->IsWithinMeleeRange(pTarget))
+                        //    if(!me->IsWithinMeleeRange(target))
                         //        continue;
 
                         //    counter++;
@@ -192,15 +192,15 @@ public:
                         //    if(counter > 3)
                         //        break;
 
-                        //    if (pTarget->isAlive() && pTarget->GetHealth() > MostHP)
+                        //    if (target->isAlive() && target->GetHealth() > MostHP)
                         //    {
-                        //        MostHP = pTarget->GetHealth();
-                        //        pMostHPTarget = pTarget;
+                        //        MostHP = target->GetHealth();
+                        //        pMostHtarget = target;
                         //    }
                         //}
 
-                        //if (pMostHPTarget) pMostHPTarget = me->getVictim();
-                        //if (pMostHPTarget)
+                        //if (pMostHtarget) pMostHtarget = me->getVictim();
+                        //if (pMostHtarget)
 
                         if(Unit* StrikeTarget = GetHatefullStrikeTarget())
                             DoCast(StrikeTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);

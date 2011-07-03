@@ -294,12 +294,12 @@ public:
             pulse_Timer = 10000;
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            me->Attack(pWho, true);
+            me->Attack(who, true);
         }
 
         bool SummonSoul()
@@ -309,10 +309,10 @@ public:
             float y = Coords[random].y;
             Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
             if(!Soul) return false;
-            if(Unit *ptarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
                 CAST_AI(npc_enslaved_soul::npc_enslaved_soulAI,Soul->AI())->ReliquaryGUID = me->GetGUID();
-                Soul->AI()->AttackStart(ptarget);
+                Soul->AI()->AttackStart(target);
             }else EnterEvadeMode();
             return true;
         }
@@ -365,8 +365,8 @@ public:
                     if(Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
                     {
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
-                        if (Unit *ptarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
-                            Summon->AI()->AttackStart(ptarget);
+                        if (Unit *target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                            Summon->AI()->AttackStart(target);
                         EssenceGUID = Summon->GetGUID();
                         ((boss_soul_essenceAI*)Summon->AI())->ReliquaryGUID = me->GetGUID();
                     }else EnterEvadeMode();

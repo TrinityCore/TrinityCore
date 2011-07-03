@@ -149,24 +149,24 @@ public:
         {
             if (GetCastItem())
                 if (Player* pCaster = GetCaster()->ToPlayer())
-                    if (Creature* pCreatureTarget = GetHitCreature())
+                    if (Creature* creatureTarget = GetHitCreature())
                     {
                         uint32 uiNewEntry = 0;
                         switch (pCaster->GetTeam())
                         {
                             case HORDE:
-                                if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
+                                if (creatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
                                     uiNewEntry = NPC_CURED_GAZELLE;
                                 break;
                             case ALLIANCE:
-                                if (pCreatureTarget->GetEntry() == NPC_SICKLY_DEER)
+                                if (creatureTarget->GetEntry() == NPC_SICKLY_DEER)
                                     uiNewEntry = NPC_CURED_DEER;
                                 break;
                         }
                         if (uiNewEntry)
                         {
-                            pCreatureTarget->UpdateEntry(uiNewEntry);
-                            pCreatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            creatureTarget->UpdateEntry(uiNewEntry);
+                            creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
                         }
                     }
         }
@@ -221,9 +221,9 @@ public:
         PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript)
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = GetTarget();
-            pTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            pTarget->AddUnitState(UNIT_STAT_ROOT);
+            Unit* target = GetTarget();
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            target->AddUnitState(UNIT_STAT_ROOT);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -265,11 +265,11 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetTargetUnit())
-                if (pTarget->GetTypeId() == TYPEID_UNIT && pTarget->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
+            if (Unit* target = GetTargetUnit())
+                if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                     // Make sure nobody else is channeling the same target
-                    if (!pTarget->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                        GetCaster()->CastSpell(pTarget, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
+                    if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
+                        GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
         }
 
         void Register()
@@ -302,9 +302,9 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetTargetUnit())
-                if (pTarget->GetTypeId() == TYPEID_UNIT)
-                    pTarget->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
+            if (Unit* target = GetTargetUnit())
+                if (target->GetTypeId() == TYPEID_UNIT)
+                    target->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
         }
 
         void Register()
@@ -443,12 +443,12 @@ public:
             if (pCaster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Creature* pTarget = GetHitCreature();
-            if (!pTarget)
+            Creature* target = GetHitCreature();
+            if (!target)
                 return;
 
             uint32 spellId = 0;
-            switch (pTarget->GetEntry())
+            switch (target->GetEntry())
             {
                 case NPC_SCAVENGEBOT_004A8: spellId = SPELL_SUMMON_SCAVENGEBOT_004A8;    break;
                 case NPC_SENTRYBOT_57K:     spellId = SPELL_SUMMON_SENTRYBOT_57K;        break;
@@ -460,7 +460,7 @@ public:
             }
             pCaster->CastSpell(pCaster, spellId, true, castItem);
             pCaster->CastSpell(pCaster, SPELL_ROBOT_KILL_CREDIT, true);
-            pTarget->DespawnOrUnsummon();
+            target->DespawnOrUnsummon();
         }
 
         void Register()
@@ -500,17 +500,17 @@ public:
         PrepareSpellScript(spell_q12459_seeds_of_natures_wrath_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Creature* pCreatureTarget = GetHitCreature())
+            if (Creature* creatureTarget = GetHitCreature())
             {
                 uint32 uiNewEntry = 0;
-                switch (pCreatureTarget->GetEntry())
+                switch (creatureTarget->GetEntry())
                 {
                     case NPC_REANIMATED_FROSTWYRM:  uiNewEntry = NPC_WEAK_REANIMATED_FROSTWYRM; break;
                     case NPC_TURGID:                uiNewEntry = NPC_WEAK_TURGID;               break;
                     case NPC_DEATHGAZE:             uiNewEntry = NPC_WEAK_DEATHGAZE;            break;
                 }
                 if (uiNewEntry)
-                    pCreatureTarget->UpdateEntry(uiNewEntry);
+                    creatureTarget->UpdateEntry(uiNewEntry);
             }
         }
 
@@ -704,13 +704,13 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* pCaster = GetCaster();
-            if (Player* pPlayer = pCaster->ToPlayer())
+            if (Player* player = pCaster->ToPlayer())
             {
-                if(Creature* pTarget = GetHitCreature())
+                if(Creature* target = GetHitCreature())
                 {
-                    pPlayer->CastSpell(pPlayer, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
-                    pPlayer->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
-                    pTarget->DespawnOrUnsummon();
+                    player->CastSpell(player, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
+                    player->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
+                    target->DespawnOrUnsummon();
                 }
             }
         }
