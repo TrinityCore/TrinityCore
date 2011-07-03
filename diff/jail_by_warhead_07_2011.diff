@@ -157,7 +157,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 7d206bc..c5adb6e 100755
+index 9eac54e..da3f368 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -311,7 +311,7 @@ index 7d206bc..c5adb6e 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index e84f4ea..975610f 100755
+index 6520b67..1f3d398 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -1448,7 +1448,7 @@ index 5149308..20bc136 100755
      AddSC_modify_commandscript();
      AddSC_npc_commandscript();
 diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
-index 1bf6101..73cd8e4 100755
+index 91f6e25..f2ceff3 100755
 --- a/src/server/game/World/World.cpp
 +++ b/src/server/game/World/World.cpp
 @@ -1,4 +1,5 @@
@@ -1465,7 +1465,7 @@ index 1bf6101..73cd8e4 100755
  #include "DBCStores.h"
  #include "LootMgr.h"
  #include "ItemEnchantmentMgr.h"
-@@ -1643,6 +1645,9 @@ void World::SetInitialWorldSettings()
+@@ -1642,6 +1644,9 @@ void World::SetInitialWorldSettings()
  
      m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
      m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
@@ -1475,7 +1475,7 @@ index 1bf6101..73cd8e4 100755
      m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
                                                              //Update "uptime" table based on configuration entry in minutes.
      m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
-@@ -1716,6 +1721,20 @@ void World::SetInitialWorldSettings()
+@@ -1715,6 +1720,20 @@ void World::SetInitialWorldSettings()
      sLog->outString("Calculate random battleground reset time..." );
      InitRandomBGResetTime();
  
@@ -1496,7 +1496,7 @@ index 1bf6101..73cd8e4 100755
      // possibly enable db logging; avoid massive startup spam by doing it here.
      if (sLog->GetLogDBLater())
      {
-@@ -1896,6 +1915,13 @@ void World::Update(uint32 diff)
+@@ -1895,6 +1914,13 @@ void World::Update(uint32 diff)
          sAuctionMgr->Update();
      }
  
@@ -1511,7 +1511,7 @@ index 1bf6101..73cd8e4 100755
      RecordTimeDiff(NULL);
      UpdateSessions(diff);
 diff --git a/src/server/game/World/World.h b/src/server/game/World/World.h
-index 1f3cd3c..c0fe2e3 100755
+index b045ce6..2d8e108 100755
 --- a/src/server/game/World/World.h
 +++ b/src/server/game/World/World.h
 @@ -1,4 +1,5 @@
