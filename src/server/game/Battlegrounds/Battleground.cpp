@@ -697,13 +697,13 @@ void Battleground::EndBattleground(uint32 winner)
             if (winner != WINNER_NONE)
             {
                 loser_team_rating = loser_arena_team->GetRating();
-                loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner));
+                loser_team_rating = GetArenaTeamRating(GetOtherTeam(winner));
                 winner_team_rating = winner_arena_team->GetRating();
-                winner_matchmaker_rating = GetArenaMatchmakerRating(winner);
-                winner_change = winner_arena_team->WonAgainst(loser_matchmaker_rating);
-                loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating);
+                winner_team_rating = GetArenaTeamRating(winner);
+                winner_change = winner_arena_team->WonAgainst(loser_team_rating);
+                loser_change = loser_arena_team->LostAgainst(winner_team_rating);
                 sLog->outArena("--- Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %d, Loser change: %d ---", winner_team_rating, loser_team_rating,
-                    winner_matchmaker_rating, loser_matchmaker_rating, winner_change, loser_change);
+                    winner_team_rating, loser_team_rating, winner_change, loser_change);
                 SetArenaTeamRatingChangeForTeam(winner, winner_change);
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
                 sLog->outArena("Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE], winner_arena_team->GetId(), winner_change, loser_change);
