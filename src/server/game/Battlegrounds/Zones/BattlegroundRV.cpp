@@ -81,18 +81,20 @@ void BattlegroundRV::Update(uint32 diff)
         setTimer(getTimer() - diff);
 }
 
-void BattlegroundRV::StartingEventCloseDoors()
+void BattlegroundRV::InitializeObjects()
 {
 }
 
-void BattlegroundRV::StartingEventOpenDoors()
+void BattlegroundRV::StartBattleground()
 {
     // Buff respawn
     SpawnGameObject(BG_RV_OBJECT_BUFF_1, 90);
     SpawnGameObject(BG_RV_OBJECT_BUFF_2, 90);
+
     // Open fences
     DoorOpen(BG_RV_OBJECT_FENCE_1);
     DoorOpen(BG_RV_OBJECT_FENCE_2);
+
     // Elevators
     DoorOpen(BG_RV_OBJECT_ELEVATOR_1);
     DoorOpen(BG_RV_OBJECT_ELEVATOR_2);

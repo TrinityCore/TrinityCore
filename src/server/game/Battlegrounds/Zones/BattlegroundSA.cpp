@@ -380,11 +380,11 @@ void BattlegroundSA::Update(uint32 diff)
     }
 }
 
-void BattlegroundSA::StartingEventCloseDoors()
+void BattlegroundSA::InitializeObjects()
 {
 }
 
-void BattlegroundSA::StartingEventOpenDoors()
+void BattlegroundSA::StartBattleground()
 {
 }
 

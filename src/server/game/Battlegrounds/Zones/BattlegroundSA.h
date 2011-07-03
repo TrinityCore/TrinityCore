@@ -443,9 +443,6 @@ class BattlegroundSA : public BattlegroundMap
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
         virtual void OnPlayerJoin(Player *plr);
-        /// Called when battle start
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
         /// Called for ini battleground, after that the first player be entered
         virtual bool SetupBattleground();
         virtual void Reset();
@@ -491,6 +488,9 @@ class BattlegroundSA : public BattlegroundMap
             }
             return uws;
         }
+
+        void StartBattleground();
+        void InitializeObjects();
 
         /// Called on battleground ending
         void EndBattleground(uint32 winner);

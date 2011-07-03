@@ -56,6 +56,24 @@ BattlegroundIC::~BattlegroundIC()
 
 }
 
+void BattlegroundIC::StartBattleground()
+{
+    // after 20 seconds they should be despawned
+    uint32 doorsToOpen[6] = {BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01, BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01,
+        BG_IC_GO_DOODAD_HU_PORTCULLIS01_1, BG_IC_GO_DOODAD_HU_PORTCULLIS01_2, BG_IC_GO_DOODAD_VR_PORTCULLIS01_1, BG_IC_GO_DOODAD_VR_PORTCULLIS01_2};
+    for (uint8 i = 0; i < 6; i++)
+        DoorOpen(doorsToOpen[i]);
+
+    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; i++)
+    {
+        if (!AddGameObject(BG_IC_Teleporters[i].type, BG_IC_Teleporters[i].entry,
+            BG_IC_Teleporters[i].x, BG_IC_Teleporters[i].y,
+            BG_IC_Teleporters[i].z, BG_IC_Teleporters[i].o,
+            0, 0, 0, 0, RESPAWN_ONE_DAY))
+            sLog->outError("Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject %u", BG_IC_Teleporters[i].entry);
+    }
+}
+
 void BattlegroundIC::HandlePlayerResurrect(Player* player)
 {
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
@@ -246,34 +264,13 @@ void BattlegroundIC::Update(uint32 diff)
     } else resourceTimer -= diff;
 }
 
-void BattlegroundIC::StartingEventCloseDoors()
+void BattlegroundIC::InitializeObjects()
 {
     // Show Full Gate Displays
     GetObject(BG_IC_GO_ALLIANCE_GATE_1)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED); // Alliance door
     GetObject(BG_IC_GO_ALLIANCE_GATE_2)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED); // Alliance door
     GetObject(BG_IC_GO_HORDE_GATE_2)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED); // Horde door
     GetObject(BG_IC_GO_HORDE_GATE_3)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED); // Horde door
-}
-
-void BattlegroundIC::StartingEventOpenDoors()
-{
-    //after 20 seconds they should be despawned
-    DoorOpen(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01);
-    DoorOpen(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01);
-
-    DoorOpen(BG_IC_GO_DOODAD_HU_PORTCULLIS01_1);
-    DoorOpen(BG_IC_GO_DOODAD_HU_PORTCULLIS01_2);
-    DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_1);
-    DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_2);
-
-    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; i++)
-    {
-        if (!AddGameObject(BG_IC_Teleporters[i].type, BG_IC_Teleporters[i].entry,
-            BG_IC_Teleporters[i].x, BG_IC_Teleporters[i].y,
-            BG_IC_Teleporters[i].z, BG_IC_Teleporters[i].o,
-            0, 0, 0, 0, RESPAWN_ONE_DAY))
-            sLog->outError("Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject %u", BG_IC_Teleporters[i].entry);
-    }
 }
 
 bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const

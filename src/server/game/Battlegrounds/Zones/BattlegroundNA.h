@@ -52,8 +52,8 @@ class BattlegroundNA : public ArenaMap
         ~BattlegroundNA();
 
         /* inherited from BattlegroundClass */
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartBattleground();
+        void InitializeObjects();
 
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         bool SetupBattleground();

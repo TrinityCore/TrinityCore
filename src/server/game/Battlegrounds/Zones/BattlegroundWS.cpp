@@ -166,7 +166,7 @@ void BattlegroundWS::Update(uint32 diff)
     }
 }
 
-void BattlegroundWS::StartingEventCloseDoors()
+void BattlegroundWS::InitializeObjects()
 {
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; ++i)
     {
@@ -180,10 +180,11 @@ void BattlegroundWS::StartingEventCloseDoors()
     UpdateWorldState(BG_WS_STATE_TIMER, 25);
 }
 
-void BattlegroundWS::StartingEventOpenDoors()
+void BattlegroundWS::StartBattleground()
 {
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_A_4; ++i)
         DoorOpen(i);
+
     for (uint32 i = BG_WS_OBJECT_DOOR_H_1; i <= BG_WS_OBJECT_DOOR_H_2; ++i)
         DoorOpen(i);
 

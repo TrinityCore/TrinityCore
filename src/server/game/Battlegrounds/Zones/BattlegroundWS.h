@@ -181,8 +181,8 @@ class BattlegroundWS : public BattlegroundMap
 
         /* inherited from BattlegroundClass */
         virtual void OnPlayerJoin(Player *plr);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartBattleground();
+        void InitializeObjects();
 
         /* BG Flags */
         uint64 GetAllianceFlagPickerGUID() const    { return m_FlagKeepers[BG_TEAM_ALLIANCE]; }

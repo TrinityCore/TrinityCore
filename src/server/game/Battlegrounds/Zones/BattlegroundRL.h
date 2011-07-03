@@ -51,8 +51,8 @@ class BattlegroundRL : public ArenaMap
         virtual void OnPlayerJoin(Player *plr);
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartBattleground();
+        void InitializeObjects();
 
         void RemovePlayer(Player *plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);

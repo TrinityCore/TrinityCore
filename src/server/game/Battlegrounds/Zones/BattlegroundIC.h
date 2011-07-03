@@ -882,8 +882,8 @@ class BattlegroundIC : public BattlegroundMap
 
         /* inherited from BattlegroundClass */
         virtual void OnPlayerJoin(Player *plr);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartBattleground();
+        void InitializeObjects();
 
         void RemovePlayer(Player *plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);

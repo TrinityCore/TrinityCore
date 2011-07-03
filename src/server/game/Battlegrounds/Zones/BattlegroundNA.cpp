@@ -35,13 +35,13 @@ BattlegroundNA::~BattlegroundNA()
 
 }
 
-void BattlegroundNA::StartingEventCloseDoors()
+void BattlegroundNA::InitializeObjects()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundNA::StartingEventOpenDoors()
+void BattlegroundNA::StartBattleground()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
