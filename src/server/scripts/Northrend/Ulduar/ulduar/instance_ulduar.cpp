@@ -774,6 +774,10 @@ public:
                         HandleGameObject(uiYoggSaronDoorGUID, true);
                         break;
                 case TYPE_KOLOGARN:
+                    if (state == IN_PROGRESS)
+                        HandleGameObject(uiKologarnDoorGUID, false);
+                    else
+                        HandleGameObject(uiKologarnDoorGUID, true);
                     if (state == DONE)
                     {
                         if (GameObject* go = instance->GetGameObject(uiKologarnChestGUID))
