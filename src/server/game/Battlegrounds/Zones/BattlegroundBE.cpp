@@ -37,10 +37,7 @@ void BattlegroundBE::InitializeObjects()
     // buffs
     AddGameObject(BG_BE_OBJECT_BUFF_1, BG_BE_OBJECT_TYPE_BUFF_1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, BUFF_RESPAWN_TIME);
     AddGameObject(BG_BE_OBJECT_BUFF_2, BG_BE_OBJECT_TYPE_BUFF_2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, BUFF_RESPAWN_TIME);
-}
 
-void BattlegroundBE::StartingEventCloseDoors()
-{
     for (uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
 
@@ -48,8 +45,10 @@ void BattlegroundBE::StartingEventCloseDoors()
         SpawnGameObject(i, RESPAWN_ONE_DAY);
 }
 
-void BattlegroundBE::StartingEventOpenDoors()
+void BattlegroundBE::StartBattleground()
 {
+    BattlegroundMap::StartBattleground();
+
     for (uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
 

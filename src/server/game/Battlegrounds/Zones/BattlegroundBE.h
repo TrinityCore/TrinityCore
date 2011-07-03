@@ -51,9 +51,7 @@ class BattlegroundBE : public ArenaMap
 
         void InitializeObjects();
 
-        /* inherited from BattlegroundClass */
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartBattleground();
 
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
 

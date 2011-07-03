@@ -262,28 +262,24 @@ class BattlegroundAB : public BattlegroundMap
         BattlegroundAB();
         ~BattlegroundAB();
 
-        void Update(uint32 const& diff);
+        void ProcessInProgress(uint32 const& diff);
     
         void InitializeObjects();
         void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
 
+        void InstallBattleground();
         void StartBattleground();
+        void EndBattleground(uint32 winner);
 
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player *source, uint32 type, uint32 value, bool addHonor = true);
         void FillInitialWorldStates(WorldPacket& data);
 
         void OnPlayerJoin(Player *plr);
 
     public:
 
-        
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        virtual bool SetupBattleground();
-        virtual void Reset();
-        void EndBattleground(uint32 winner);
+        
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         

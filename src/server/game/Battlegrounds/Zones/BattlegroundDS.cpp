@@ -24,16 +24,6 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-BattlegroundDS::BattlegroundDS()
-{
-    m_BgObjects.resize(BG_DS_OBJECT_MAX);
-}
-
-BattlegroundDS::~BattlegroundDS()
-{
-
-}
-
 void BattlegroundDS::InitializeObjects()
 {
     ObjectGUIDsByType.resize(BG_DS_OBJECT_MAX);
@@ -47,40 +37,12 @@ void BattlegroundDS::InitializeObjects()
     // buffs
     AddGameObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, BUFF_RESPAWN_TIME);
     AddGameObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, BUFF_RESPAWN_TIME);
-}
 
-void BattlegroundDS::Update(uint32 const& diff)
-{
-    ArenaMap::Update(diff);
-
-    if (getWaterFallTimer() < diff)
-    {
-        if (isWaterFallActive())
-        {
-            setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnGameObject(i, getWaterFallTimer());
-            setWaterFallActive(false);
-        }
-        else
-        {
-            setWaterFallTimer(BG_DS_WATERFALL_DURATION);
-            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-            setWaterFallActive(true);
-        }
-    }
-    else
-        setWaterFallTimer(getWaterFallTimer() - diff);
-}
-
-void BattlegroundDS::StartingEventCloseDoors()
-{
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundDS::StartingEventOpenDoors()
+void BattlegroundDS::StartBattleground()
 {
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
@@ -88,11 +50,38 @@ void BattlegroundDS::StartingEventOpenDoors()
     for (uint32 i = BG_DS_OBJECT_BUFF_1; i <= BG_DS_OBJECT_BUFF_2; ++i)
         SpawnGameObject(i, 60);
 
-    setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-    setWaterFallActive(false);
+    SetWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
+    SetWaterFallActive(false);
 
     for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-        SpawnGameObject(i, getWaterFallTimer());
+        SpawnGameObject(i, GetWaterFallTimer());
+}
+
+void BattlegroundDS::ProcessInProgress(uint32 const& diff)
+{
+    ArenaMap::ProcessInProgress(diff);
+
+    if (GetWaterFallTimer() < diff)
+    {
+        if (IsWaterFallActive())
+        {
+            SetWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
+            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
+                SpawnGameObject(i, GetWaterFallTimer());
+
+            SetWaterFallActive(false);
+        }
+        else
+        {
+            SetWaterFallTimer(BG_DS_WATERFALL_DURATION);
+            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
+                SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+
+            SetWaterFallActive(true);
+        }
+    }
+    else
+        SetWaterFallTimer(GetWaterFallTimer() - diff);
 }
 
 void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
@@ -140,10 +129,3 @@ void BattlegroundDS::FillInitialWorldStates(WorldPacket &data)
     data << uint32(3610) << uint32(1);                                              // 9 show
     UpdateArenaWorldState();
 }
-
-void BattlegroundDS::Reset()
-{
-    //call parent's class reset
-    Battleground::Reset();
-}
-

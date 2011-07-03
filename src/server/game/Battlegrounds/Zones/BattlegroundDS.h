@@ -57,16 +57,14 @@ class BattlegroundDS : public ArenaMap
         BattlegroundDS();
         ~BattlegroundDS();
 
-        void Update(uint32 const& diff);
+        void ProcessInProgress(uint32 const& diff);
 
         void InitializeObjects();
 
-        /* inherited from BattlegroundClass */
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartBattleground();
 
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleground();
+
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
@@ -75,9 +73,9 @@ class BattlegroundDS : public ArenaMap
         uint32 m_waterTimer;
         bool m_waterfallActive;
     protected:
-        bool isWaterFallActive() { return m_waterfallActive; };
-        void setWaterFallActive(bool active) { m_waterfallActive = active; };
-        void setWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
-        uint32 getWaterFallTimer() { return m_waterTimer; };
+        bool IsWaterFallActive() { return m_waterfallActive; };
+        void SetWaterFallActive(bool active) { m_waterfallActive = active; };
+        void SetWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
+        uint32 GetWaterFallTimer() { return m_waterTimer; };
 };
 #endif

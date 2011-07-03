@@ -156,7 +156,7 @@ enum BG_AV_ObjectIds
     BG_AV_OBJECTID_SMOKE                 = 179066
 };
 
-enum BG_AV_Nodes
+enum AVNodeId
 {
     BG_AV_NODES_FIRSTAID_STATION        = 0,
     BG_AV_NODES_STORMPIKE_GRAVE         = 1,
@@ -1519,7 +1519,7 @@ struct BG_AV_NodeInfo
     bool         Tower;
 };
 
-inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); }
+inline AVNodeId &operator++(AVNodeId &i){ return i = AVNodeId(i + 1); }
 
 class BattlegroundAV;
 
@@ -1560,6 +1560,11 @@ class BattlegroundAV : public BattlegroundMap
         void Update(uint32 diff);
 
         void InitializeTextIds();       // Initializes text IDs that are used in the battleground at any possible phase.
+        void InitializeObjects();
+
+        void InstallBattleground();
+        void StartBattleground();
+        void EndBattleground(uint32 winner);
 
         /* inherited from BattlegroundClass */
         virtual void OnPlayerJoin(Player *plr);
@@ -1568,7 +1573,7 @@ class BattlegroundAV : public BattlegroundMap
 
         void RemovePlayer(Player *plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleground();
+        
         virtual void ResetBGSubclass();
 
         /*general stuff*/
@@ -1582,28 +1587,26 @@ class BattlegroundAV : public BattlegroundMap
         void HandleQuestComplete(uint32 questid, Player* player);
         bool PlayerCanDoMineQuest(int32 GOId, uint32 team);
 
-        void EndBattleground(uint32 winner);
-
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
     private:
         /* Nodes occupying */
         void EventPlayerAssaultsPoint(Player* player, uint32 object);
         void EventPlayerDefendsPoint(Player* player, uint32 object);
-        void EventPlayerDestroyedPoint(BG_AV_Nodes node);
+        void EventPlayerDestroyedPoint(AVNodeId node);
 
-        void AssaultNode(BG_AV_Nodes node, uint16 team);
-        void DestroyNode(BG_AV_Nodes node);
-        void InitNode(BG_AV_Nodes node, uint16 team, bool tower);
-        void DefendNode(BG_AV_Nodes node, uint16 team);
+        void AssaultNode(AVNodeId node, uint16 team);
+        void DestroyNode(AVNodeId node);
+        void InitNode(AVNodeId node, uint16 team, bool tower);
+        void DefendNode(AVNodeId node, uint16 team);
 
-        void PopulateNode(BG_AV_Nodes node);
-        void DePopulateNode(BG_AV_Nodes node);
+        void PopulateNode(AVNodeId node);
+        void DePopulateNode(AVNodeId node);
 
-        BG_AV_Nodes GetNodeThroughObject(uint32 object);
-        uint32 GetObjectThroughNode(BG_AV_Nodes node);
-        const char* GetNodeName(BG_AV_Nodes node);
-        bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
+        AVNodeId GetNodeThroughObject(uint32 object);
+        uint32 GetObjectThroughNode(AVNodeId node);
+        const char* GetNodeName(AVNodeId node);
+        bool IsTower(AVNodeId node) { return m_Nodes[node].Tower; }
 
         /*mine*/
         void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
@@ -1612,27 +1615,26 @@ class BattlegroundAV : public BattlegroundMap
         void FillInitialWorldStates(WorldPacket& data);
         uint8 GetWorldStateType(uint8 state, uint16 team);
         void SendMineWorldStates(uint32 mine);
-        void UpdateNodeWorldState(BG_AV_Nodes node);
+        void UpdateNodeWorldState(AVNodeId node);
 
         /*general */
         Creature* AddAVCreature(uint16 cinfoid, uint16 type);
         uint16 GetBonusHonor(uint8 kills); //TODO remove this when the core handles this right
 
         /*variables */
-        int32 m_Team_Scores[2];
-        uint32 m_Team_QuestStatus[2][9]; //[x][y] x=team y=questcounter
+        uint32 m_Team_QuestStatus[BG_TEAMS_COUNT][9]; //[x][y] x=team y=questcounter
 
         BG_AV_NodeInfo m_Nodes[BG_AV_NODES_MAX];
 
-        uint32 m_Mine_Owner[2];
-        uint32 m_Mine_PrevOwner[2]; //only for worldstates needed
-        int32 m_Mine_Timer; //ticks for both teams
-        uint32 m_Mine_Reclaim_Timer[2];
-        uint32 m_CaptainBuffTimer[2];
-        bool m_CaptainAlive[2];
+        uint32 _mineOwner[BG_TEAMS_COUNT];
+        uint32 _minePreviousOwner[BG_TEAMS_COUNT]; //only for worldstates needed
+        int32 _mineTimer; //ticks for both teams
+        uint32 _mineReclaimTimer[BG_TEAMS_COUNT];
+        uint32 _captainBuffTimer[BG_TEAMS_COUNT];
+        bool _captainAlive[BG_TEAMS_COUNT];
 
-        uint8 m_MaxLevel; //TODO remove this when battleground-getmaxlevel() returns something usefull
-        bool m_IsInformedNearVictory[2];
+        uint8 _maxLevel; //TODO remove this when battleground-getmaxlevel() returns something usefull
+        bool _isInformedNearVictory[BG_TEAMS_COUNT];
 
 };
 

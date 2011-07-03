@@ -29,18 +29,246 @@
 #include "Player.h"
 #include "SpellAuras.h"
 
-BattlegroundAV::BattlegroundAV()
+void BattlegroundAV::InstallBattleground()
 {
-    ObjectGUIDsByType.resize(BG_AV_OBJECT_MAX + AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
+    _maxLevel = 0;
+
+    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i) //forloop for both teams (it just make 0 == alliance and 1 == horde also for both mines 0=north 1=south
+    {
+        for (uint8 j = 0; j < 9; ++j)
+            m_Team_QuestStatus[i][j] = 0;
+
+        TeamScores[i] = BG_AV_SCORE_INITIAL_POINTS;
+        _isInformedNearVictory[i] = false;
+        _captainAlive[i] = true;
+        _captainBuffTimer[i] = 120000 + urand(0, 4) * MINUTE; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
+        _mineOwner[i] = AV_NEUTRAL_TEAM;
+        _minePreviousOwner[i] = _mineOwner[i];
+    }
+
+    for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_STONEHEART_GRAVE; ++i) //alliance graves
+        InitNode(i, ALLIANCE, false);
+    for (AVNodeId i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) //alliance towers
+        InitNode(i, ALLIANCE, true);
+    for (AVNodeId i = BG_AV_NODES_ICEBLOOD_GRAVE; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i) //horde graves
+        InitNode(i, HORDE, false);
+    for (AVNodeId i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) //horde towers
+        InitNode(i, HORDE, true);
+
+    InitNode(BG_AV_NODES_SNOWFALL_GRAVE, AV_NEUTRAL_TEAM, false); //give snowfall neutral owner
+
+    _mineTimer = AV_MINE_TICK_TIMER;
 }
 
-BattlegroundAV::~BattlegroundAV()
+void BattlegroundAV::InitializeTextIds()
 {
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AV_START_TWO_MINUTES;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AV_START_ONE_MINUTE;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AV_START_HALF_MINUTE;
+    PreparationPhaseTextIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AV_HAS_BEGUN;
+}
+
+void BattlegroundAV::InitializeObjects()
+{
+    ObjectGUIDsByType.resize(BG_AV_OBJECT_MAX + AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
+
+    // Create starting objects
+    AddGameObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0][0], BG_AV_DoorPositons[0][1], BG_AV_DoorPositons[0][2], BG_AV_DoorPositons[0][3], 0, 0, sin(BG_AV_DoorPositons[0][3]/2), cos(BG_AV_DoorPositons[0][3]/2), RESPAWN_IMMEDIATELY);
+    AddGameObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1][0], BG_AV_DoorPositons[1][1], BG_AV_DoorPositons[1][2], BG_AV_DoorPositons[1][3], 0, 0, sin(BG_AV_DoorPositons[1][3]/2), cos(BG_AV_DoorPositons[1][3]/2), RESPAWN_IMMEDIATELY);
+
+    //spawn node-objects
+    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION ; i < BG_AV_NODES_MAX; ++i)
+    {
+        if (i <= BG_AV_NODES_FROSTWOLF_HUT)
+        {
+            AddGameObject(i, BG_AV_OBJECTID_BANNER_A_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+            AddGameObject(i+11, BG_AV_OBJECTID_BANNER_CONT_A_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+            AddGameObject(i+33, BG_AV_OBJECTID_BANNER_H_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+            AddGameObject(i+22, BG_AV_OBJECTID_BANNER_CONT_H_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+            AddGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+i*3, BG_AV_OBJECTID_AURA_N, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+            AddGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+i*3, BG_AV_OBJECTID_AURA_A, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+            AddGameObject(BG_AV_OBJECT_AURA_H_FIRSTAID_STATION+i*3, BG_AV_OBJECTID_AURA_H, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+        }
+        else //towers
+        {
+            if (i <= BG_AV_NODES_STONEHEART_BUNKER) //alliance towers
+            {
+                AddGameObject(i, BG_AV_OBJECTID_BANNER_A, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(i+22, BG_AV_OBJECTID_BANNER_CONT_H, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_A, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_N, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_A, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_PH, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+            }
+            else //horde towers
+            {
+                AddGameObject(i+7, BG_AV_OBJECTID_BANNER_CONT_A, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(i+29, BG_AV_OBJECTID_BANNER_H, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_N, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_H, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_PA, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+                AddGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_H, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY);
+            }
+
+            for (uint8 j=0; j <= 9; j++) //burning aura
+                AddGameObject(BG_AV_OBJECT_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j, BG_AV_OBJECTID_FIRE, BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][0], BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][1], BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][2], BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][3]/2), RESPAWN_ONE_DAY);
+        }
+    }
+
+    for (uint8 i=0; i<2; i++) //burning aura for buildings
+    {
+        for (uint8 j=0; j <= 9; j++)
+        {
+            if (j<5)
+                AddGameObject(BG_AV_OBJECT_BURN_BUILDING_ALLIANCE+(i*10)+j, BG_AV_OBJECTID_SMOKE, BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][0], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][1], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][2], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), RESPAWN_ONE_DAY);
+
+            else
+                AddGameObject(BG_AV_OBJECT_BURN_BUILDING_ALLIANCE+(i*10)+j, BG_AV_OBJECTID_FIRE, BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][0], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][1], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][2], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), RESPAWN_ONE_DAY);
+        }
+    }
+
+    for (uint16 i= 0; i <= (BG_AV_OBJECT_MINE_SUPPLY_N_MAX-BG_AV_OBJECT_MINE_SUPPLY_N_MIN); i++)
+        AddGameObject(BG_AV_OBJECT_MINE_SUPPLY_N_MIN+i, BG_AV_OBJECTID_MINE_N, BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][0], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][1], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][2], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][3]/2), RESPAWN_ONE_DAY);
+
+    for (uint16 i= 0 ; i <= (BG_AV_OBJECT_MINE_SUPPLY_S_MAX-BG_AV_OBJECT_MINE_SUPPLY_S_MIN); i++)
+        AddGameObject(BG_AV_OBJECT_MINE_SUPPLY_S_MIN+i, BG_AV_OBJECTID_MINE_S, BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][0], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][1], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][2], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3]/2), RESPAWN_ONE_DAY);
+
+    AddGameObject(BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE, BG_AV_OBJECTID_BANNER_SNOWFALL_N , BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][0], BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][1], BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][2], BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][3], 0, 0, sin(BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][3]/2), cos(BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][3]/2), RESPAWN_ONE_DAY);
+
+    for (uint8 i = 0; i < 4; i++)
+    {
+        AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_A+i, BG_AV_OBJECTID_SNOWFALL_CANDY_A , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY);
+        AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_PA+i, BG_AV_OBJECTID_SNOWFALL_CANDY_PA , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY);
+        AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_H+i, BG_AV_OBJECTID_SNOWFALL_CANDY_H , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY);
+        AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_PH+i, BG_AV_OBJECTID_SNOWFALL_CANDY_PH , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY);
+    }
+
+    uint16 i;
+
+    // Initial Nodes
+    for (i = 0; i < BG_AV_OBJECT_MAX; i++)
+        SpawnGameObject(i, RESPAWN_ONE_DAY);
+
+    for (i = BG_AV_OBJECT_FLAG_A_FIRSTAID_STATION; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_GRAVE ; i++)
+    {
+        SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+3*i, RESPAWN_IMMEDIATELY);
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+    }
+
+    for (i = BG_AV_OBJECT_FLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER ; i++)
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+
+    for (i = BG_AV_OBJECT_FLAG_H_ICEBLOOD_GRAVE; i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_WTOWER ; i++)
+    {
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+        if (i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_HUT)
+            SpawnGameObject(BG_AV_OBJECT_AURA_H_FIRSTAID_STATION+3*GetNodeThroughObject(i), RESPAWN_IMMEDIATELY);
+    }
+
+    for (i = BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_TFLAG_A_STONEHEART_BUNKER; i+=2)
+    {
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY); //flag
+        SpawnGameObject(i+16, RESPAWN_IMMEDIATELY); //aura
+    }
+
+    for (i = BG_AV_OBJECT_TFLAG_H_ICEBLOOD_TOWER; i <= BG_AV_OBJECT_TFLAG_H_FROSTWOLF_WTOWER; i+=2)
+    {
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY); //flag
+        SpawnGameObject(i+16, RESPAWN_IMMEDIATELY); //aura
+    }
+
+    //snowfall and the doors
+    for (i = BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE; i <= BG_AV_OBJECT_DOOR_A; i++)
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+
+    SpawnGameObject(BG_AV_OBJECT_AURA_N_SNOWFALL_GRAVE, RESPAWN_IMMEDIATELY);
+
+    DoorClose(BG_AV_OBJECT_DOOR_A);
+    DoorClose(BG_AV_OBJECT_DOOR_H);
+
+    //creatures
+    for (AVNodeId i= BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+    {
+        if (m_Nodes[i].Owner)
+            PopulateNode(i);
+    }
+
+    //all creatures which don't get despawned through the script are static
+    for (i=0; i < AV_STATICCPLACE_MAX; i++)
+        AddAVCreature(0, i+AV_CPLACE_MAX);
+
+    //mainspiritguides:
+    AddSpiritGuide(7, BG_AV_CreaturePos[7][0], BG_AV_CreaturePos[7][1], BG_AV_CreaturePos[7][2], BG_AV_CreaturePos[7][3], ALLIANCE);
+    AddSpiritGuide(8, BG_AV_CreaturePos[8][0], BG_AV_CreaturePos[8][1], BG_AV_CreaturePos[8][2], BG_AV_CreaturePos[8][3], HORDE);
+
+    //spawn the marshals (those who get deleted, if a tower gets destroyed)
+    for (i=AV_NPC_A_MARSHAL_SOUTH; i <= AV_NPC_H_MARSHAL_WTOWER; i++)
+        AddAVCreature(i, AV_CPLACE_A_MARSHAL_SOUTH+(i-AV_NPC_A_MARSHAL_SOUTH));
+
+    AddAVCreature(AV_NPC_HERALD, AV_CPLACE_HERALD);
+}
+
+void BattlegroundAV::StartBattleground()
+{
+    BattlegroundMap::StartBattleground();
+
+    for (uint16 i= BG_AV_OBJECT_MINE_SUPPLY_N_MIN; i <= BG_AV_OBJECT_MINE_SUPPLY_N_MAX; i++)
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+    for (uint16 i= BG_AV_OBJECT_MINE_SUPPLY_S_MIN; i <= BG_AV_OBJECT_MINE_SUPPLY_S_MAX; i++)
+        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
+    for (uint8 mine = AV_NORTH_MINE; mine <= AV_SOUTH_MINE; mine++) //mine population
+        ChangeMineOwner(mine, AV_NEUTRAL_TEAM, true);
+
+    UpdateWorldState(AV_SHOW_H_SCORE, 1);
+    UpdateWorldState(AV_SHOW_A_SCORE, 1);
+
+    DoorOpen(BG_AV_OBJECT_DOOR_H);
+    DoorOpen(BG_AV_OBJECT_DOOR_A);
+}
+
+void BattlegroundAV::EndBattleground(uint32 winner)
+{
+    //calculate bonuskills for both teams:
+    //first towers:
+    uint8 kills[2]={0, 0}; //0=ally 1=horde
+    uint8 rep[2]={0, 0}; //0=ally 1=horde
+    for (AVNodeId i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i)
+    {
+        if (m_Nodes[i].State == POINT_CONTROLED)
+        {
+            if (m_Nodes[i].Owner == ALLIANCE)
+            {
+                rep[0]   += BG_AV_REP_SURVIVING_TOWER;
+                kills[0] += BG_AV_KILL_SURVIVING_TOWER;
+            }
+            else
+            {
+                rep[0]   += BG_AV_KILL_SURVIVING_TOWER;
+                kills[1] += BG_AV_KILL_SURVIVING_TOWER;
+            }
+        }
+    }
+
+    for (int i=0; i <= 1; i++) //0=ally 1=horde
+    {
+        if (_captainAlive[i])
+        {
+            kills[i] += BG_AV_KILL_SURVIVING_CAPTAIN;
+            rep[i]   += BG_AV_REP_SURVIVING_CAPTAIN;
+        }
+        if (rep[i] != 0)
+            RewardReputationToTeam((i == 0)?730:729, rep[i], (i == 0)?ALLIANCE:HORDE);
+        if (kills[i] != 0)
+            RewardHonorToTeam(GetBonusHonor(kills[i]), (i == 0)?ALLIANCE:HORDE);
+    }
+
+    //TODO add enterevademode for all attacking creatures
+    BattlegroundMap::EndBattleground(winner);
 }
 
 uint16 BattlegroundAV::GetBonusHonor(uint8 kills) //TODO: move this function to Battleground.cpp (needs to find a way to get m_MaxLevel)
 {
-    return Trinity::Honor::hk_honor_at_level(m_MaxLevel, kills);
+    return Trinity::Honor::hk_honor_at_level(_maxLevel, kills);
 }
 
 void BattlegroundAV::HandleKillPlayer(Player* player, Player* killer)
@@ -87,12 +315,12 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN][0])
     {
-        if (!m_CaptainAlive[0])
+        if (!_captainAlive[0])
         {
             sLog->outError("Killed a Captain twice, please report this bug, if you haven't done \".respawn\"");
             return;
         }
-        m_CaptainAlive[0]=false;
+        _captainAlive[0]=false;
         RewardReputationToTeam(729, BG_AV_REP_CAPTAIN, HORDE);
         RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), HORDE);
         UpdateScore(ALLIANCE, (-1)*BG_AV_RES_CAPTAIN);
@@ -106,12 +334,12 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN][0])
     {
-        if (!m_CaptainAlive[1])
+        if (!_captainAlive[1])
         {
             sLog->outError("Killed a Captain twice, please report this bug, if you haven't done \".respawn\"");
             return;
         }
-        m_CaptainAlive[1]=false;
+        _captainAlive[1]=false;
         RewardReputationToTeam(730, BG_AV_REP_CAPTAIN, ALLIANCE);
         RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), ALLIANCE);
         UpdateScore(HORDE, (-1)*BG_AV_RES_CAPTAIN);
@@ -146,7 +374,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             if (m_Team_QuestStatus[team][0] == 500 || m_Team_QuestStatus[team][0] == 1000 || m_Team_QuestStatus[team][0] == 1500) //25, 50, 75 turn ins
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed starting with unit upgrading..", questid);
-                for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
+                for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
                     if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
                     {
                         DePopulateNode(i);
@@ -236,21 +464,21 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
 { //note: to remove reinforcementpoints points must be negative, for adding reinforcements points must be positive
     ASSERT(team == ALLIANCE || team == HORDE);
     uint8 teamindex = GetTeamIndexByTeamId(team); //0=ally 1=horde
-    m_Team_Scores[teamindex] += points;
+    TeamScores[teamindex] += points;
 
-    UpdateWorldState(((teamindex == BG_TEAM_HORDE)?AV_Horde_Score:AV_Alliance_Score), m_Team_Scores[teamindex]);
+    UpdateWorldState(((teamindex == BG_TEAM_HORDE)?AV_Horde_Score:AV_Alliance_Score), TeamScores[teamindex]);
     if (points < 0)
     {
-        if (m_Team_Scores[teamindex] < 1)
+        if (TeamScores[teamindex] < 1)
         {
-            m_Team_Scores[teamindex]=0;
+            TeamScores[teamindex]=0;
             EndBattleground(((teamindex == BG_TEAM_HORDE)?ALLIANCE:HORDE));
         }
-        else if (!m_IsInformedNearVictory[teamindex] && m_Team_Scores[teamindex] < SEND_MSG_NEAR_LOSE)
+        else if (!_isInformedNearVictory[teamindex] && TeamScores[teamindex] < SEND_MSG_NEAR_LOSE)
         {
             SendMessageToAll(teamindex == BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, teamindex == BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
             PlaySoundToAll(AV_SOUND_NEAR_VICTORY);
-            m_IsInformedNearVictory[teamindex] = true;
+            _isInformedNearVictory[teamindex] = true;
         }
     }
 }
@@ -298,7 +526,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     }
 
     if (level != 0)
-        level += m_MaxLevel - 60; //maybe we can do this more generic for custom level-range.. actually it's blizzlike
+        level += _maxLevel - 60; //maybe we can do this more generic for custom level-range.. actually it's blizzlike
     creature->SetLevel(level);
 
     uint32 triggerSpawnID = 0;
@@ -343,10 +571,10 @@ void BattlegroundAV::Update(uint32 diff)
     {
         for (uint8 i=0; i <= 1; i++)//0=alliance, 1=horde
         {
-            if (!m_CaptainAlive[i])
+            if (!_captainAlive[i])
                 continue;
-            if (m_CaptainBuffTimer[i] > diff)
-                m_CaptainBuffTimer[i] -= diff;
+            if (_captainBuffTimer[i] > diff)
+                _captainBuffTimer[i] -= diff;
             else
             {
                 if (i == 0)
@@ -363,30 +591,30 @@ void BattlegroundAV::Update(uint32 diff)
                     if (creature)
                         YellToAll(creature, LANG_BG_AV_H_CAPTAIN_BUFF, LANG_ORCISH);
                 }
-                m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60000; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
+                _captainBuffTimer[i] = 120000 + urand(0, 4)* 60000; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
             }
         }
         //add points from mine owning, and look if he neutral team wanrts to reclaim the mine
-        m_Mine_Timer -=diff;
+        _mineTimer -=diff;
         for (uint8 mine=0; mine <2; mine++)
         {
-            if (m_Mine_Owner[mine] == ALLIANCE || m_Mine_Owner[mine] == HORDE)
+            if (_mineOwner[mine] == ALLIANCE || _mineOwner[mine] == HORDE)
             {
-                if (m_Mine_Timer <= 0)
-                    UpdateScore(m_Mine_Owner[mine], 1);
+                if (_mineTimer <= 0)
+                    UpdateScore(_mineOwner[mine], 1);
 
-                if (m_Mine_Reclaim_Timer[mine] > diff)
-                    m_Mine_Reclaim_Timer[mine] -= diff;
+                if (_mineReclaimTimer[mine] > diff)
+                    _mineReclaimTimer[mine] -= diff;
                 else{ //we don't need to set this timer to 0 cause this codepart wont get called when this thing is 0
                     ChangeMineOwner(mine, AV_NEUTRAL_TEAM);
                 }
             }
         }
-        if (m_Mine_Timer <= 0)
-            m_Mine_Timer=AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
+        if (_mineTimer <= 0)
+            _mineTimer=AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
 
         //looks for all timers of the nodes and destroy the building (for graveyards the building wont get destroyed, it goes just to the other team
-        for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+        for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
             if (m_Nodes[i].State == POINT_ASSAULTED) //maybe remove this
             {
                 if (m_Nodes[i].Timer > diff)
@@ -397,29 +625,6 @@ void BattlegroundAV::Update(uint32 diff)
     }
 }
 
-void BattlegroundAV::StartingEventCloseDoors()
-{
-    DoorClose(BG_AV_OBJECT_DOOR_A);
-    DoorClose(BG_AV_OBJECT_DOOR_H);
-}
-
-void BattlegroundAV::StartingEventOpenDoors()
-{
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV: start spawning mine stuff");
-    for (uint16 i= BG_AV_OBJECT_MINE_SUPPLY_N_MIN; i <= BG_AV_OBJECT_MINE_SUPPLY_N_MAX; i++)
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-    for (uint16 i= BG_AV_OBJECT_MINE_SUPPLY_S_MIN; i <= BG_AV_OBJECT_MINE_SUPPLY_S_MAX; i++)
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-    for (uint8 mine = AV_NORTH_MINE; mine <= AV_SOUTH_MINE; mine++) //mine population
-        ChangeMineOwner(mine, AV_NEUTRAL_TEAM, true);
-
-    UpdateWorldState(AV_SHOW_H_SCORE, 1);
-    UpdateWorldState(AV_SHOW_A_SCORE, 1);
-
-    DoorOpen(BG_AV_OBJECT_DOOR_H);
-    DoorOpen(BG_AV_OBJECT_DOOR_A);
-}
-
 void BattlegroundAV::OnPlayerJoin(Player *plr)
 {
     BattlegroundMap::OnPlayerJoin(plr);
@@ -427,49 +632,9 @@ void BattlegroundAV::OnPlayerJoin(Player *plr)
     BattlegroundAVScore* sc = new BattlegroundAVScore;
     PlayerScores[plr->GetGUIDLow()] = sc;
 
-    if (m_MaxLevel == 0)
-        m_MaxLevel=(plr->getLevel()%10 == 0)? plr->getLevel() : (plr->getLevel()-(plr->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
+    if (_maxLevel == 0)
+        _maxLevel=(plr->getLevel()%10 == 0)? plr->getLevel() : (plr->getLevel()-(plr->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
 
-}
-
-void BattlegroundAV::EndBattleground(uint32 winner)
-{
-    //calculate bonuskills for both teams:
-    //first towers:
-    uint8 kills[2]={0, 0}; //0=ally 1=horde
-    uint8 rep[2]={0, 0}; //0=ally 1=horde
-    for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i)
-    {
-            if (m_Nodes[i].State == POINT_CONTROLED)
-            {
-                if (m_Nodes[i].Owner == ALLIANCE)
-                {
-                    rep[0]   += BG_AV_REP_SURVIVING_TOWER;
-                    kills[0] += BG_AV_KILL_SURVIVING_TOWER;
-                }
-                else
-                {
-                    rep[0]   += BG_AV_KILL_SURVIVING_TOWER;
-                    kills[1] += BG_AV_KILL_SURVIVING_TOWER;
-                }
-            }
-    }
-
-    for (int i=0; i <= 1; i++) //0=ally 1=horde
-    {
-        if (m_CaptainAlive[i])
-        {
-            kills[i] += BG_AV_KILL_SURVIVING_CAPTAIN;
-            rep[i]   += BG_AV_REP_SURVIVING_CAPTAIN;
-        }
-        if (rep[i] != 0)
-            RewardReputationToTeam((i == 0)?730:729, rep[i], (i == 0)?ALLIANCE:HORDE);
-        if (kills[i] != 0)
-            RewardHonorToTeam(GetBonusHonor(kills[i]), (i == 0)?ALLIANCE:HORDE);
-    }
-
-    //TODO add enterevademode for all attacking creatures
-    BattlegroundMap::EndBattleground(winner);
 }
 
 void BattlegroundAV::RemovePlayer(Player* plr, uint64 /*guid*/, uint32 /*team*/)
@@ -559,7 +724,7 @@ void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     }
 }
 
-void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
+void BattlegroundAV::EventPlayerDestroyedPoint(AVNodeId node)
 {
 
     uint32 object = GetObjectThroughNode(node);
@@ -629,10 +794,10 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
     else
         PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
 
-    if (m_Mine_Owner[mine] == team && !initial)
+    if (_mineOwner[mine] == team && !initial)
         return;
-    m_Mine_PrevOwner[mine] = m_Mine_Owner[mine];
-    m_Mine_Owner[mine] = team;
+    _minePreviousOwner[mine] = _mineOwner[mine];
+    _mineOwner[mine] = team;
 
     if (!initial)
     {
@@ -692,7 +857,7 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
 //    }
     if (team == ALLIANCE || team == HORDE)
     {
-        m_Mine_Reclaim_Timer[mine]=AV_MINE_RECLAIM_TIMER;
+        _mineReclaimTimer[mine]=AV_MINE_RECLAIM_TIMER;
         char buf[256];
         sprintf(buf, GetTrinityString(LANG_BG_AV_MINE_TAKEN), GetTrinityString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH), (team == ALLIANCE) ?  GetTrinityString(LANG_BG_AV_ALLY) : GetTrinityString(LANG_BG_AV_HORDE));
         Creature* creature = GetCreature(AV_CPLACE_HERALD);
@@ -713,13 +878,13 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
 bool BattlegroundAV::PlayerCanDoMineQuest(int32 GOId, uint32 team)
 {
     if (GOId == BG_AV_OBJECTID_MINE_N)
-         return (m_Mine_Owner[AV_NORTH_MINE] == team);
+         return (_mineOwner[AV_NORTH_MINE] == team);
     if (GOId == BG_AV_OBJECTID_MINE_S)
-         return (m_Mine_Owner[AV_SOUTH_MINE] == team);
+         return (_mineOwner[AV_SOUTH_MINE] == team);
     return true; //cause it's no mine'object it is ok if this is true
 }
 
-void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
+void BattlegroundAV::PopulateNode(AVNodeId node)
 {
     uint32 owner = m_Nodes[node].Owner;
     ASSERT(owner);
@@ -769,7 +934,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
-void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
+void BattlegroundAV::DePopulateNode(AVNodeId node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     for (uint8 i=0; i<4; i++)
@@ -784,29 +949,29 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
         DeleteCreature(node + 302);//NULL checks are in DeleteCreature! 0-302 spirit guides
 }
 
-BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
+AVNodeId BattlegroundAV::GetNodeThroughObject(uint32 object)
 {
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_AV getnodethroughobject %i", object);
     if (object <= BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER)
-        return BG_AV_Nodes(object);
+        return AVNodeId(object);
     if (object <= BG_AV_OBJECT_FLAG_C_A_FROSTWOLF_HUT)
-        return BG_AV_Nodes(object - 11);
+        return AVNodeId(object - 11);
     if (object <= BG_AV_OBJECT_FLAG_C_A_FROSTWOLF_WTOWER)
-        return BG_AV_Nodes(object - 7);
+        return AVNodeId(object - 7);
     if (object <= BG_AV_OBJECT_FLAG_C_H_STONEHEART_BUNKER)
-        return BG_AV_Nodes(object -22);
+        return AVNodeId(object -22);
     if (object <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_HUT)
-        return BG_AV_Nodes(object - 33);
+        return AVNodeId(object - 33);
     if (object <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_WTOWER)
-        return BG_AV_Nodes(object - 29);
+        return AVNodeId(object - 29);
     if (object == BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE)
         return BG_AV_NODES_SNOWFALL_GRAVE;
     sLog->outError("BattlegroundAV: ERROR! GetPlace got a wrong object :(");
     ASSERT(false);
-    return BG_AV_Nodes(0);
+    return AVNodeId(0);
 }
 
-uint32 BattlegroundAV::GetObjectThroughNode(BG_AV_Nodes node)
+uint32 BattlegroundAV::GetObjectThroughNode(AVNodeId node)
 { //this function is the counterpart to GetNodeThroughObject()
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_AV GetObjectThroughNode %i", node);
     if (m_Nodes[node].Owner == ALLIANCE)
@@ -877,7 +1042,7 @@ void BattlegroundAV::EventPlayerClickedOnFlag(Player *source, GameObject* target
 void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
 {
     ASSERT(GetStatus() == STATUS_IN_PROGRESS);
-    BG_AV_Nodes node = GetNodeThroughObject(object);
+    AVNodeId node = GetNodeThroughObject(object);
 
     uint32 owner = m_Nodes[node].Owner; //maybe should name it prevowner
     uint32 team = player->GetTeam();
@@ -949,7 +1114,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 {
     ASSERT(GetStatus() == STATUS_IN_PROGRESS);
 
-    BG_AV_Nodes node = GetNodeThroughObject(object);
+    AVNodeId node = GetNodeThroughObject(object);
     uint32 owner = m_Nodes[node].Owner; //maybe name it prevowner
     uint32 team  = player->GetTeam();
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_av: player assaults point object %i node %i", object, node);
@@ -1075,8 +1240,8 @@ void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
         }
     if (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM) //cause neutral teams aren't handled generic
         data << uint32(AV_SNOWFALL_N) << uint32(1);
-    data << uint32(AV_Alliance_Score)  << uint32(m_Team_Scores[0]);
-    data << uint32(AV_Horde_Score) << uint32(m_Team_Scores[1]);
+    data << uint32(AV_Alliance_Score)  << uint32(TeamScores[0]);
+    data << uint32(AV_Horde_Score) << uint32(TeamScores[1]);
     if (GetStatus() == STATUS_IN_PROGRESS){ //only if game started the teamscores are displayed
         data << uint32(AV_SHOW_A_SCORE) << uint32(1);
         data << uint32(AV_SHOW_H_SCORE) << uint32(1);
@@ -1113,7 +1278,7 @@ uint8 BattlegroundAV::GetWorldStateType(uint8 state, uint16 team) //this is used
     return 5; //this will crash the game, but i want to know if something is wrong here
 }
 
-void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
+void BattlegroundAV::UpdateNodeWorldState(AVNodeId node)
 {
     UpdateWorldState(BG_AV_NodeWorldStates[node][GetWorldStateType(m_Nodes[node].State, m_Nodes[node].Owner)], 1);
     if (m_Nodes[node].PrevOwner == AV_NEUTRAL_TEAM) //currently only snowfall is supported as neutral node (i don't want to make an extra row (neutral states) in worldstatesarray just for one node
@@ -1131,15 +1296,15 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
 
     uint8 owner, prevowner, mine2; //those variables are needed to access the right worldstate in the BG_AV_MineWorldStates array
     mine2 = (mine == AV_NORTH_MINE)?0:1;
-    if (m_Mine_PrevOwner[mine] == ALLIANCE)
+    if (_minePreviousOwner[mine] == ALLIANCE)
         prevowner = 0;
-    else if (m_Mine_PrevOwner[mine] == HORDE)
+    else if (_minePreviousOwner[mine] == HORDE)
         prevowner = 2;
     else
         prevowner = 1;
-    if (m_Mine_Owner[mine] == ALLIANCE)
+    if (_mineOwner[mine] == ALLIANCE)
         owner = 0;
-    else if (m_Mine_Owner[mine] == HORDE)
+    else if (_mineOwner[mine] == HORDE)
         owner = 2;
     else
         owner = 1;
@@ -1179,186 +1344,9 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
     return pGraveyard;
 }
 
-bool BattlegroundAV::SetupBattleground()
-{
-    // Create starting objects
-    if (
-       // alliance gates
-        !AddGameObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0][0], BG_AV_DoorPositons[0][1], BG_AV_DoorPositons[0][2], BG_AV_DoorPositons[0][3], 0, 0, sin(BG_AV_DoorPositons[0][3]/2), cos(BG_AV_DoorPositons[0][3]/2), RESPAWN_IMMEDIATELY)
-        // horde gates
-        || !AddGameObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1][0], BG_AV_DoorPositons[1][1], BG_AV_DoorPositons[1][2], BG_AV_DoorPositons[1][3], 0, 0, sin(BG_AV_DoorPositons[1][3]/2), cos(BG_AV_DoorPositons[1][3]/2), RESPAWN_IMMEDIATELY))
-    {
-        sLog->outErrorDb("BatteGroundAV: Failed to spawn some object Battleground not created!1");
-        return false;
-    }
 
-    //spawn node-objects
-    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION ; i < BG_AV_NODES_MAX; ++i)
-    {
-        if (i <= BG_AV_NODES_FROSTWOLF_HUT)
-        {
-            if (!AddGameObject(i, BG_AV_OBJECTID_BANNER_A_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                || !AddGameObject(i+11, BG_AV_OBJECTID_BANNER_CONT_A_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                || !AddGameObject(i+33, BG_AV_OBJECTID_BANNER_H_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                || !AddGameObject(i+22, BG_AV_OBJECTID_BANNER_CONT_H_B, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                //aura
-                || !AddGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+i*3, BG_AV_OBJECTID_AURA_N, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                || !AddGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+i*3, BG_AV_OBJECTID_AURA_A, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                || !AddGameObject(BG_AV_OBJECT_AURA_H_FIRSTAID_STATION+i*3, BG_AV_OBJECTID_AURA_H, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY))
-            {
-                sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!2");
-                return false;
-            }
-        }
-        else //towers
-        {
-            if (i <= BG_AV_NODES_STONEHEART_BUNKER) //alliance towers
-            {
-                if (!AddGameObject(i, BG_AV_OBJECTID_BANNER_A, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(i+22, BG_AV_OBJECTID_BANNER_CONT_H, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_A, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_N, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_A, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_PH, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY))
-                {
-                    sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!3");
-                    return false;
-                }
-            }
-            else //horde towers
-            {
-                if (!AddGameObject(i+7, BG_AV_OBJECTID_BANNER_CONT_A, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(i+29, BG_AV_OBJECTID_BANNER_H, BG_AV_ObjectPos[i][0], BG_AV_ObjectPos[i][1], BG_AV_ObjectPos[i][2], BG_AV_ObjectPos[i][3], 0, 0, sin(BG_AV_ObjectPos[i][3]/2), cos(BG_AV_ObjectPos[i][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_N, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_AURA_H, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_PA, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY)
-                    || !AddGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(i-BG_AV_NODES_DUNBALDAR_SOUTH)), BG_AV_OBJECTID_TOWER_BANNER_H, BG_AV_ObjectPos[i+8][0], BG_AV_ObjectPos[i+8][1], BG_AV_ObjectPos[i+8][2], BG_AV_ObjectPos[i+8][3], 0, 0, sin(BG_AV_ObjectPos[i+8][3]/2), cos(BG_AV_ObjectPos[i+8][3]/2), RESPAWN_ONE_DAY))
-                {
-                    sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!4");
-                    return false;
-                }
-            }
-            for (uint8 j=0; j <= 9; j++) //burning aura
-            {
-                if (!AddGameObject(BG_AV_OBJECT_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j, BG_AV_OBJECTID_FIRE, BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][0], BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][1], BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][2], BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_BURN_DUNBALDAR_SOUTH+((i-BG_AV_NODES_DUNBALDAR_SOUTH)*10)+j][3]/2), RESPAWN_ONE_DAY))
-                {
-                    sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!5.%i", i);
-                    return false;
-                }
-            }
-        }
-    }
-    for (uint8 i=0; i<2; i++) //burning aura for buildings
-    {
-        for (uint8 j=0; j <= 9; j++)
-        {
-            if (j<5)
-            {
-                if (!AddGameObject(BG_AV_OBJECT_BURN_BUILDING_ALLIANCE+(i*10)+j, BG_AV_OBJECTID_SMOKE, BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][0], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][1], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][2], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), RESPAWN_ONE_DAY))
-                {
-                    sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!6.%i", i);
-                    return false;
-                }
-            }
-            else
-            {
-                if (!AddGameObject(BG_AV_OBJECT_BURN_BUILDING_ALLIANCE+(i*10)+j, BG_AV_OBJECTID_FIRE, BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][0], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][1], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][2], BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_BURN_BUILDING_A+(i*10)+j][3]/2), RESPAWN_ONE_DAY))
-                {
-                    sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!7.%i", i);
-                    return false;
-                }
-            }
-        }
-    }
-    for (uint16 i= 0; i <= (BG_AV_OBJECT_MINE_SUPPLY_N_MAX-BG_AV_OBJECT_MINE_SUPPLY_N_MIN); i++)
-    {
-        if (!AddGameObject(BG_AV_OBJECT_MINE_SUPPLY_N_MIN+i, BG_AV_OBJECTID_MINE_N, BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][0], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][1], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][2], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_N_MIN+i][3]/2), RESPAWN_ONE_DAY))
-        {
-            sLog->outError("BatteGroundAV: Failed to spawn some mine supplies Battleground not created!7.5.%i", i);
-            return false;
-        }
-    }
-    for (uint16 i= 0 ; i <= (BG_AV_OBJECT_MINE_SUPPLY_S_MAX-BG_AV_OBJECT_MINE_SUPPLY_S_MIN); i++)
-    {
-        if (!AddGameObject(BG_AV_OBJECT_MINE_SUPPLY_S_MIN+i, BG_AV_OBJECTID_MINE_S, BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][0], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][1], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][2], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3]/2), RESPAWN_ONE_DAY))
-        {
-            sLog->outError("BatteGroundAV: Failed to spawn some mine supplies Battleground not created!7.6.%i", i);
-            return false;
-        }
-    }
 
-    if (!AddGameObject(BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE, BG_AV_OBJECTID_BANNER_SNOWFALL_N , BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][0], BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][1], BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][2], BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][3], 0, 0, sin(BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][3]/2), cos(BG_AV_ObjectPos[BG_AV_NODES_SNOWFALL_GRAVE][3]/2), RESPAWN_ONE_DAY))
-    {
-        sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!8");
-        return false;
-    }
-    for (uint8 i = 0; i < 4; i++)
-    {
-        if (!AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_A+i, BG_AV_OBJECTID_SNOWFALL_CANDY_A , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY)
-            || !AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_PA+i, BG_AV_OBJECTID_SNOWFALL_CANDY_PA , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY)
-            || !AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_H+i, BG_AV_OBJECTID_SNOWFALL_CANDY_H , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY)
-            || !AddGameObject(BG_AV_OBJECT_SNOW_EYECANDY_PH+i, BG_AV_OBJECTID_SNOWFALL_CANDY_PH , BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][0], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][1], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][2], BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_SNOW_1+i][3]/2), RESPAWN_ONE_DAY))
-        {
-            sLog->outError("BatteGroundAV: Failed to spawn some object Battleground not created!9.%i", i);
-            return false;
-        }
-    }
-
-    uint16 i;
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Alterac Valley: entering state STATUS_WAIT_JOIN ...");
-    // Initial Nodes
-    for (i = 0; i < BG_AV_OBJECT_MAX; i++)
-        SpawnGameObject(i, RESPAWN_ONE_DAY);
-    for (i = BG_AV_OBJECT_FLAG_A_FIRSTAID_STATION; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_GRAVE ; i++){
-        SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+3*i, RESPAWN_IMMEDIATELY);
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-    }
-    for (i = BG_AV_OBJECT_FLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER ; i++)
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-    for (i = BG_AV_OBJECT_FLAG_H_ICEBLOOD_GRAVE; i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_WTOWER ; i++){
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-        if (i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_HUT)
-            SpawnGameObject(BG_AV_OBJECT_AURA_H_FIRSTAID_STATION+3*GetNodeThroughObject(i), RESPAWN_IMMEDIATELY);
-    }
-    for (i = BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_TFLAG_A_STONEHEART_BUNKER; i+=2)
-    {
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY); //flag
-        SpawnGameObject(i+16, RESPAWN_IMMEDIATELY); //aura
-    }
-    for (i = BG_AV_OBJECT_TFLAG_H_ICEBLOOD_TOWER; i <= BG_AV_OBJECT_TFLAG_H_FROSTWOLF_WTOWER; i+=2)
-    {
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY); //flag
-        SpawnGameObject(i+16, RESPAWN_IMMEDIATELY); //aura
-    }
-    //snowfall and the doors
-    for (i = BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE; i <= BG_AV_OBJECT_DOOR_A; i++)
-        SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-    SpawnGameObject(BG_AV_OBJECT_AURA_N_SNOWFALL_GRAVE, RESPAWN_IMMEDIATELY);
-
-    //creatures
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV start poputlating nodes");
-    for (BG_AV_Nodes i= BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
-    {
-        if (m_Nodes[i].Owner)
-            PopulateNode(i);
-    }
-    //all creatures which don't get despawned through the script are static
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV: start spawning static creatures");
-    for (i=0; i < AV_STATICCPLACE_MAX; i++)
-        AddAVCreature(0, i+AV_CPLACE_MAX);
-    //mainspiritguides:
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV: start spawning spiritguides creatures");
-    AddSpiritGuide(7, BG_AV_CreaturePos[7][0], BG_AV_CreaturePos[7][1], BG_AV_CreaturePos[7][2], BG_AV_CreaturePos[7][3], ALLIANCE);
-    AddSpiritGuide(8, BG_AV_CreaturePos[8][0], BG_AV_CreaturePos[8][1], BG_AV_CreaturePos[8][2], BG_AV_CreaturePos[8][3], HORDE);
-    //spawn the marshals (those who get deleted, if a tower gets destroyed)
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV: start spawning marshal creatures");
-    for (i=AV_NPC_A_MARSHAL_SOUTH; i <= AV_NPC_H_MARSHAL_WTOWER; i++)
-        AddAVCreature(i, AV_CPLACE_A_MARSHAL_SOUTH+(i-AV_NPC_A_MARSHAL_SOUTH));
-    AddAVCreature(AV_NPC_HERALD, AV_CPLACE_HERALD);
-    return true;
-}
-
-const char* BattlegroundAV::GetNodeName(BG_AV_Nodes node)
+const char* BattlegroundAV::GetNodeName(AVNodeId node)
 {
     switch (node)
     {
@@ -1385,7 +1373,7 @@ const char* BattlegroundAV::GetNodeName(BG_AV_Nodes node)
     return "Unknown";
 }
 
-void BattlegroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
+void BattlegroundAV::AssaultNode(AVNodeId node, uint16 team)
 {
     if (m_Nodes[node].TotalOwner == team)
     {
@@ -1415,7 +1403,7 @@ void BattlegroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
     m_Nodes[node].State      = POINT_ASSAULTED;
 }
 
-void BattlegroundAV::DestroyNode(BG_AV_Nodes node)
+void BattlegroundAV::DestroyNode(AVNodeId node)
 {
     ASSERT(m_Nodes[node].State == POINT_ASSAULTED);
 
@@ -1426,7 +1414,7 @@ void BattlegroundAV::DestroyNode(BG_AV_Nodes node)
     m_Nodes[node].Timer      = 0;
 }
 
-void BattlegroundAV::InitNode(BG_AV_Nodes node, uint16 team, bool tower)
+void BattlegroundAV::InitNode(AVNodeId node, uint16 team, bool tower)
 {
     m_Nodes[node].TotalOwner = team;
     m_Nodes[node].Owner      = team;
@@ -1438,7 +1426,7 @@ void BattlegroundAV::InitNode(BG_AV_Nodes node, uint16 team, bool tower)
     m_Nodes[node].Tower      = tower;
 }
 
-void BattlegroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
+void BattlegroundAV::DefendNode(AVNodeId node, uint16 team)
 {
     ASSERT(m_Nodes[node].TotalOwner == team);
     ASSERT(m_Nodes[node].Owner != team);
@@ -1449,44 +1437,3 @@ void BattlegroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
     m_Nodes[node].State      = POINT_CONTROLED;
     m_Nodes[node].Timer      = 0;
 }
-
-void BattlegroundAV::ResetBGSubclass()
-{
-    m_MaxLevel=0;
-    for (uint8 i=0; i<2; i++) //forloop for both teams (it just make 0 == alliance and 1 == horde also for both mines 0=north 1=south
-    {
-        for (uint8 j=0; j<9; j++)
-            m_Team_QuestStatus[i][j]=0;
-    m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
-        m_IsInformedNearVictory[i]=false;
-        m_CaptainAlive[i] = true;
-        m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
-        m_Mine_Owner[i] = AV_NEUTRAL_TEAM;
-        m_Mine_PrevOwner[i] = m_Mine_Owner[i];
-    }
-    for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_STONEHEART_GRAVE; ++i) //alliance graves
-        InitNode(i, ALLIANCE, false);
-    for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) //alliance towers
-        InitNode(i, ALLIANCE, true);
-    for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_GRAVE; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i) //horde graves
-        InitNode(i, HORDE, false);
-    for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) //horde towers
-        InitNode(i, HORDE, true);
-    InitNode(BG_AV_NODES_SNOWFALL_GRAVE, AV_NEUTRAL_TEAM, false); //give snowfall neutral owner
-
-    m_Mine_Timer=AV_MINE_TICK_TIMER;
-    for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
-        if (m_BgCreatures[i])
-            DeleteCreature(i);
-
-}
-
-void BattlegroundAV::InitializeTextIds()
-{
-    PreparationPhaseTextIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AV_START_TWO_MINUTES;
-    PreparationPhaseTextIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AV_START_ONE_MINUTE;
-    PreparationPhaseTextIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AV_START_HALF_MINUTE;
-    PreparationPhaseTextIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AV_HAS_BEGUN;
-}
-
-
