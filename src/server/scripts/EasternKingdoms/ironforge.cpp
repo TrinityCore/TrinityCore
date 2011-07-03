@@ -19,13 +19,14 @@
 /* ScriptData
 SDName: Ironforge
 SD%Complete: 100
-SDComment: Quest support: 3702, 25229
+SDComment: Quest support: 3702, 25229, 25199
 SDCategory: Ironforge
 EndScriptData */
 
 /* ContentData
 npc_royal_historian_archesonus
 npc_gnome_citizen
+npc_steamcrank
 spell_motivate_a_tron
 EndContentData */
 
@@ -96,6 +97,7 @@ public:
 /*######
 ## npc_gnome_citizen
 ## spell_motivate_a_tron
+## npc_steamcrank
 ######*/
 
 enum Spells
@@ -109,6 +111,12 @@ enum Spells
 
     SPELL_TURNIN                        = 75078,
     SPELL_AOE_TURNIN                    = 73955,
+
+    // Basic Orders
+    SPELL_SALUTE_CREDIT                 = 73771,
+    SPELL_DANCE_CREDIT                  = 73830,
+    SPELL_ROAR_CREDIT                   = 73832,
+    SPELL_CHEER_CREDIT                  = 73833,
 };
 
 enum Creatures
@@ -120,6 +128,9 @@ enum Creatures
 
     NPC_MOTIVATED_CITIZEN_1             = 39466,
     NPC_MOTIVATED_CITIZEN_2             = 39624,
+
+    // Basic Orders
+    NPC_TRAINEE                         = 39349,
 };
 
 enum Points
@@ -220,6 +231,216 @@ class npc_gnome_citizen : public CreatureScript
         }
 };
 
+#define STEAM_0     "Ну, бесполезная куча шестеренок, давайте-ка приниматься за работу!"
+#define STEAM_1     "Я научу вас всему, что должен уметь настоящий солдат!"
+#define STEAM_2     "Прежде всего, вам необходимо пройти строевую подготовку."
+#define STEAM_3     "По сигналу покажите мне, как надо приветствовать командира по уставу!"
+#define STEAM_4     "Итак, рекруты, отдайте честь своему командиру!"
+#define STEAM_5     "Отличная работа!"
+#define STEAM_6     "На поле боя важно устрашить врага бешеным боевым ревом!"
+#define STEAM_7     "Как только я дам сигнал, покажите мне, что такое настоящее бешенство!"
+#define STEAM_8     "Покажите мне настоящее бешенство!"
+#define STEAM_9     "Ух ты, славно!"
+#define STEAM_10    "Помните, что важнейший фактор в любой битве - это дух!"
+#define STEAM_11    "Приготовьтесь показать мне как солдат должен быть рад победе!"
+#define STEAM_12    "Давайте! Выразите свой восторг!"
+#define STEAM_13    "Потрясающе!"
+#define STEAM_14    "Однако, самое в сражении - уметь правильно отметить заработанную потом и кровью победу!"
+#define STEAM_15    "Исполните для меня свой самый лучший победный танец! Начинайте по сигналу!"
+#define STEAM_16    "А теперь - танцевать!"
+#define STEAM_17    "Великолепно!"
+#define STEAM_18    "Вы - лучший отряд новобранцев, который я когда-либо видел! Давайте-ка всё повторим!"
+
+class npc_steamcrank : public CreatureScript
+{
+    public:
+        npc_steamcrank() : CreatureScript("npc_steamcrank") { }
+
+        struct npc_steamcrankAI : public ScriptedAI
+        {
+            npc_steamcrankAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                /*_step = 0;
+                _stepTimer = 1000;*/
+            }
+
+            void JumpToNextStep(uint32 uiTimer)
+            {
+                _stepTimer = uiTimer;
+                ++_step;
+                if (_step > 26)
+                {
+                    _step = 0;
+                    _stepTimer = 2000;
+                }
+            }
+
+            void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
+            {
+                switch(uiTextEmote)
+                {
+                    case TEXT_EMOTE_SALUTE:
+                        if (_step >= 5 && _step < 8)
+                            me->CastSpell(pPlayer, SPELL_SALUTE_CREDIT, true);
+                        break;
+                    case TEXT_EMOTE_ROAR:
+                        if (_step >= 11 && _step < 14)
+                            me->CastSpell(pPlayer, SPELL_ROAR_CREDIT, true);
+                        break;
+                    case TEXT_EMOTE_CHEER:
+                        if (_step >= 17 && _step < 20)
+                            me->CastSpell(pPlayer, SPELL_CHEER_CREDIT, true);
+                        break;
+                    case TEXT_EMOTE_DANCE:
+                        if (_step >= 23 && _step < 26)
+                            me->CastSpell(pPlayer, SPELL_DANCE_CREDIT, true);
+                        break;
+                }
+            }
+
+            void ForceEmote(uint32 uiEmote)
+            {
+                std::list<Creature*> Trainees;
+                GetCreatureListWithEntryInGrid(Trainees, me, NPC_TRAINEE, 15.0f);
+                if (!Trainees.empty())
+                {
+                    for (std::list<Creature*>::iterator itr = Trainees.begin(); itr != Trainees.end(); ++itr)
+                        (*itr)->SetUInt32Value(UNIT_NPC_EMOTESTATE, uiEmote);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (_stepTimer <= diff)
+                {
+                    switch (_step)
+                    {
+                        case 0:
+                            me->MonsterSay(STEAM_0, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 1:
+                            me->MonsterSay(STEAM_1, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 2:
+                            me->MonsterSay(STEAM_2, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 3:
+                            me->MonsterSay(STEAM_3, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 4:
+                            me->MonsterSay(STEAM_4, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(1000);
+                            break;
+                        case 5:
+                            ForceEmote(EMOTE_ONESHOT_SALUTE);
+                            JumpToNextStep(1500);
+                            break;
+                        case 6:
+                            ForceEmote(EMOTE_ONESHOT_NONE);
+                            JumpToNextStep(3000);
+                        case 7:
+                            me->MonsterSay(STEAM_5, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 8:
+                            me->MonsterSay(STEAM_6, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 9:
+                            me->MonsterSay(STEAM_7, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 10:
+                            me->MonsterSay(STEAM_8, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(1000);
+                            break;
+                        case 11:
+                            ForceEmote(EMOTE_ONESHOT_ROAR);
+                            JumpToNextStep(2000);
+                            break;
+                        case 12:
+                            ForceEmote(EMOTE_ONESHOT_NONE);
+                            JumpToNextStep(3000);
+                            break;
+                        case 13:
+                            me->MonsterSay(STEAM_9, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 14:
+                            me->MonsterSay(STEAM_10, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 15:
+                            me->MonsterSay(STEAM_11, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 16:
+                            me->MonsterSay(STEAM_12, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(1000);
+                            break;
+                        case 17:
+                            ForceEmote(EMOTE_ONESHOT_CHEER);
+                            JumpToNextStep(1500);
+                            break;
+                        case 18:
+                            ForceEmote(EMOTE_ONESHOT_NONE);
+                            JumpToNextStep(3000);
+                            break;
+                        case 19:
+                            me->MonsterSay(STEAM_13, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 20:
+                            me->MonsterSay(STEAM_14, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 21:
+                            me->MonsterSay(STEAM_15, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 22:
+                            me->MonsterSay(STEAM_16, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(1000);
+                            break;
+                        case 23:
+                            ForceEmote(EMOTE_ONESHOT_DANCE);
+                            JumpToNextStep(2500);
+                            break;
+                        case 24:
+                            ForceEmote(EMOTE_ONESHOT_NONE);
+                            JumpToNextStep(3000);
+                            break;
+                        case 25:
+                            me->MonsterSay(STEAM_17, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                        case 26:
+                            me->MonsterSay(STEAM_18, LANG_UNIVERSAL, NULL);
+                            JumpToNextStep(5000);
+                            break;
+                    }
+                }
+                else
+                    _stepTimer -= diff;
+            }
+
+        private:
+            uint32 _step;
+            uint32 _stepTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_steamcrankAI(creature);
+        }
+};
+
 class spell_motivate_a_tron : public SpellScriptLoader
 {
     public:
@@ -268,5 +489,6 @@ void AddSC_ironforge()
 {
     new npc_royal_historian_archesonus();
     new npc_gnome_citizen();
+    new npc_steamcrank();
     new spell_motivate_a_tron();
 }

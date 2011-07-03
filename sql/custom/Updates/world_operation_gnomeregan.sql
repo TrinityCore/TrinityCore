@@ -34,6 +34,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 ('39623', '0', '0', '0', '8', '0', '100', '0', '74080', '0', '0', '0', '41', '1000', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', 'Operation Gnomeregan: On spellhit - force despawn');
 
 /*######
+## Basic Orders
+######*/
+
+UPDATE `creature_template` SET `ScriptName` = 'npc_steamcrank' WHERE `entry` = 39368;
+
+/*######
 ## Operation 'Gnomeregan'
 ######*/
 

@@ -157,7 +157,7 @@ class example_creature : public CreatureScript
                         DoScriptText(SAY_SALUTE, me);
                         break;
                 }
-             }
+            }
 
             // *** HANDLED FUNCTION ***
             //Update AI is called Every single map update (roughly once every 50ms if a player is within the grid)
