@@ -117,6 +117,9 @@ enum Spells
     SPELL_DANCE_CREDIT                  = 73830,
     SPELL_ROAR_CREDIT                   = 73832,
     SPELL_CHEER_CREDIT                  = 73833,
+
+    // Press Fire
+    SPELL_SHOOT_VISUAL                  = 74179,
 };
 
 enum Creatures
@@ -485,10 +488,44 @@ class spell_motivate_a_tron : public SpellScriptLoader
         }
 };
 
+class spell_shoot : public SpellScriptLoader
+{
+    public:
+        spell_shoot() : SpellScriptLoader("spell_shoot") {}
+
+        class spell_shoot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_shoot_SpellScript)
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_SHOOT_VISUAL))
+                    return false;
+               return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, SPELL_SHOOT_VISUAL, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_shoot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_shoot_SpellScript();
+        }
+};
+
 void AddSC_ironforge()
 {
     new npc_royal_historian_archesonus();
     new npc_gnome_citizen();
     new npc_steamcrank();
     new spell_motivate_a_tron();
+    //new spell_shoot();
 }

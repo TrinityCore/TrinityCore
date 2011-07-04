@@ -52,6 +52,15 @@ UPDATE `creature_template` SET `npcflag` = '16777216', `VehicleId` = '745', `spe
 UPDATE `creature_template` SET `spell1` = '74157', `spell2` = '74159', `spell3` = '74160', `spell4` = '74153' WHERE `entry` = '39713';
 
 /*######
+## Press Fire
+######*/
+
+UPDATE `creature_template` SET `spell4` = '74174', `spell6` = '74153' WHERE `entry` = '39714';
+/*DELETE FROM `spell_script_names` WHERE spell_id = '74182';
+INSERT INTO `spell_script_names` VALUES
+('74182', 'spell_shoot');*/
+
+/*######
 ## Operation 'Gnomeregan'
 ######*/
 
