@@ -27285,7 +27285,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (465, 'Teleport location deleted.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (466, 'No taxinodes found!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (467, 'Target unit has %d auras:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(468, 'id: %d effmask: %d charges: %d stack: %d slot %d duration: %d maxduration: %d', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(468, 'id: %d %s effmask: %d charges: %d stack: %d slot %d duration: %d maxduration: %d %s %s caster: %s guid: %d', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (469, 'Target unit has %d auras of type %d:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (470, 'id: %d eff: %d amount: %d', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (471, 'Quest %u not found.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
