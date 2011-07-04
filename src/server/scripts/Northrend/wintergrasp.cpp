@@ -419,6 +419,30 @@ class npc_wg_quest_giver : public CreatureScript
     }
 };
 
+class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
+{
+public:
+    achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
+
+    bool OnCheck(Player* source, Unit* target)
+    {
+        if (!target)
+            return false;
+
+        if (Player* victim = target->ToPlayer())
+        {
+            if (!victim->IsMounted())
+                return false;
+
+            if (Vehicle* vehicle = source->GetVehicle())
+                if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                    return true;
+        }
+
+        return false;
+    }
+};
+
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -426,4 +450,5 @@ void AddSC_wintergrasp()
     new npc_wg_demolisher_engineer();
     new go_wg_vehicle_teleporter();
     new npc_wg_quest_giver();
+    new achievement_wg_didnt_stand_a_chance();
 }
