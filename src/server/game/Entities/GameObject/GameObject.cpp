@@ -461,7 +461,7 @@ void GameObject::Update(uint32 diff)
                         {
                             //Battleground gameobjects case
                             if (ok->ToPlayer()->InBattleground())
-                                if (Battleground *bg = ok->ToPlayer()->GetBattleground())
+                                if (BattlegroundMap* bg = ok->ToPlayer()->GetBattleground())
                                     bg->HandleTriggerBuff(GetGUID());
                         }
                     }

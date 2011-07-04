@@ -167,7 +167,13 @@ void BattlegroundMap::ProcessPreparation(uint32 const& diff)
 
 void BattlegroundMap::ProcessInProgress(uint32 const& diff)
 {
-    if ((EndTimer && EndTimer <= diff) || (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
+    if ((EndTimer && EndTimer <= diff))
+    {
+        OnTimeoutReached();
+        _status = STATUS_WAIT_LEAVE;
+        _postEndTimer = TIME_TO_AUTOREMOVE:
+    }
+    else if (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
     {
         // This method will be overridden by inherited classes
         // and it will define the winner of the battleground
@@ -212,7 +218,7 @@ void BattlegroundMap::RemoveAllPlayers()
     }
 }
 
-void BattlegroundMap::SendMessageToAll(int32 entry, ChatMsg type)
+void BattlegroundMap::SendMessageToAll(int32 entry, ChatMsg type, Unit* source /*=NULL*/, Language language /*= LANG_UNIVERSAL*/)
 {
     const char *format = sObjectMgr->GetTrinityStringForDBCLocale(entry);
 
@@ -222,10 +228,10 @@ void BattlegroundMap::SendMessageToAll(int32 entry, ChatMsg type)
     vsnprintf(str, 1024, format, ap);
     va_end(ap);
 
-    SendMessageToAll(str, type);
+    SendMessageToAll(str, type, source, language);
 }
 
-void BattlegroundMap::SendMessageToAll(char const* string, ChatMsg type)
+void BattlegroundMap::SendMessageToAll(char const* string, ChatMsg type, Unit* source /*=NULL*/, Language language /*= LANG_UNIVERSAL*/)
 {
     size_t stringLength = strlen(str) + 1;
     size_t packetSize = 1 + 4 + 8 + 4 + 4 + 1 + 8 + 4 + stringLength + 1;
@@ -233,7 +239,7 @@ void BattlegroundMap::SendMessageToAll(char const* string, ChatMsg type)
     uint64 targetGuid = source ? source->GetGUID() : 0;
     WorldPacket data(SMSG_MESSAGECHAT, packetSize);
     data << uint8(type);
-    data << uint32(LANG_UNIVERSAL);
+    data << uint32(language);
     data << uint64(targetGuid);
     data << uint32(0);                                // 2.1.0
     data << uint32(1);
@@ -278,7 +284,7 @@ void BattlegroundMap::OnPlayerExit(Player* player)
 
     SendPlayerLeftPacket(player);
 
-    --_participantCount[player->GetBGTeam()];
+    --ParticipantCount[player->GetBGTeam()];
 
     if (_status == STATUS_IN_PROGRESS && !AreTeamsInBalance())
         _prematureCountdownTimer = sBattlegroundMgr->GetPrematureFinishTime();
@@ -298,8 +304,8 @@ void BattlegroundMap::OnPlayerKill(Player* victim, Player* killer)
 
 bool BattlegroundMap::AreTeamsInBalance() const
 {
-    return !(_participantCount[BG_TEAM_HORDE] < _template.MinPlayersPerTeam ||
-             _participantCount[BG_TEAM_ALLIANCE] < _template.MinPlayersPerTeam);
+    return !(ParticipantCount[BG_TEAM_HORDE] < _template.MinPlayersPerTeam ||
+             ParticipantCount[BG_TEAM_ALLIANCE] < _template.MinPlayersPerTeam);
 }
 
 GameObject* BattlegroundMap::AddGameObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime /*= 0*/)

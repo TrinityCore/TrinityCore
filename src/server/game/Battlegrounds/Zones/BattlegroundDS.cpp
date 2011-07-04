@@ -84,23 +84,6 @@ void BattlegroundDS::ProcessInProgress(uint32 const& diff)
         SetWaterFallTimer(GetWaterFallTimer() - diff);
 }
 
-void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError("BattlegroundDS: Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
 void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -120,7 +103,7 @@ void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
 
 bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
+    player->TeleportTo(GetId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
     return true;
 }
 

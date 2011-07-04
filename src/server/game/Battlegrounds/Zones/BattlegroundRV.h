@@ -95,49 +95,30 @@ enum BattlegroundRVData
     BG_RV_WORLD_STATE                            = 0xe1a,
 };
 
-class BattlegroundRV;
-
-class BattlegroundRVScore : public BattlegroundScore
-{
-    friend class BattlegroundRV;
-    protected:
-        BattlegroundRVScore() {};
-        virtual ~BattlegroundRVScore() {};
-};
-
 class ArenaMap;
 
 class BattlegroundRV : public ArenaMap
 {
     friend class BattlegroundMgr;
 
-    public:
+    protected:
         BattlegroundRV();
         ~BattlegroundRV();
-        void Update(uint32 diff);
 
-        /* inherited from BattlegroundClass */
-        virtual void OnPlayerJoin(Player *plr);
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
+        void ProcessInProgress(uint32 const& diff);
+
         void StartBattleground();
         void InitializeObjects();
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
+        void FillInitialWorldStates(WorldPacket& data);
+
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         bool SetupBattleground();
-        void HandleKillPlayer(Player* player, Player* killer);
+
         bool HandlePlayerUnderMap(Player* plr);
 
     private:
-        uint32 Timer;
-        uint32 State;
-
-    protected:
-        uint32 getTimer() { return Timer; };
-        void setTimer(uint32 timer) { Timer = timer; };
-
-        uint32 getState() { return State; };
-        void setState(uint32 state) { State = state; };
+        uint32 _timer;
+        uint32 _state;
 };
 #endif

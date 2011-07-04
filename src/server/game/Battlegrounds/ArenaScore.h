@@ -40,20 +40,22 @@ class ArenaScore : public BattlegroundScore
         uint8 TeamId;   // TEAM_ALLIANCE or ''_HORDE 
 };
 
-struct ArenaTeamScore
+class ArenaTeamScore
 {
-    ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) {};
+    friend class ArenaMap;
+    protected:
+        ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) {};
 
-    void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
-    {
-        RatingChange = ratingChange;
-        MatchmakerRating = matchMakerRating;
-        TeamName = teamName;
-    }
+        void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
+        {
+            RatingChange = ratingChange;
+            MatchmakerRating = matchMakerRating;
+            TeamName = teamName;
+        }
 
-    int32 RatingChange;
-    uint32 MatchmakerRating;
-    std::string TeamName;
+        int32 RatingChange;
+        uint32 MatchmakerRating;
+        std::string TeamName;
 };
 
 #endif

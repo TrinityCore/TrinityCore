@@ -24,23 +24,20 @@
 #include "Player.h"
 #include "WorldPacket.h"
 
-BattlegroundRL::BattlegroundRL()
+void BattlegroundRL::InitializeObjects()
 {
-    m_BgObjects.resize(BG_RL_OBJECT_MAX);
-}
+    ObjectGUIDsByType.resize(BG_RL_OBJECT_MAX);
+    AddGameObject(BG_RL_OBJECT_DOOR_1, BG_RL_OBJECT_TYPE_DOOR_1, 1293.561f, 1601.938f, 31.60557f, -1.457349f, 0, 0, -0.6658813f, 0.7460576f, RESPAWN_IMMEDIATELY);
+    AddGameObject(BG_RL_OBJECT_DOOR_2, BG_RL_OBJECT_TYPE_DOOR_2, 1278.648f, 1730.557f, 31.60557f, 1.684245f, 0, 0, 0.7460582f, 0.6658807f, RESPAWN_IMMEDIATELY);
+    // buffs
+    AddGameObject(BG_RL_OBJECT_BUFF_1, BG_RL_OBJECT_TYPE_BUFF_1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, BUFF_RESPAWN_TIME);
+    AddGameObject(BG_RL_OBJECT_BUFF_2, BG_RL_OBJECT_TYPE_BUFF_2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, BUFF_RESPAWN_TIME);
 
-BattlegroundRL::~BattlegroundRL()
-{
-
-}
-
-void BattlegroundRL::StartingEventCloseDoors()
-{
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundRL::StartingEventOpenDoors()
+void BattlegroundRL::StartBattleground()
 {
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
@@ -49,46 +46,9 @@ void BattlegroundRL::StartingEventOpenDoors()
         SpawnGameObject(i, 60);
 }
 
-void BattlegroundRL::OnPlayerJoin(Player *plr)
-{
-    Battleground::OnPlayerJoin(plr);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundRLScore* sc = new BattlegroundRLScore;
-
-    m_PlayerScores[plr->GetGUID()] = sc;
-
-    UpdateArenaWorldState();
-}
-
-void BattlegroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
-void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError("Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
 bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), 1285.810547f, 1667.896851f, 39.957642f, player->GetOrientation(), false);
+    player->TeleportTo(GetId(), 1285.810547f, 1667.896851f, 39.957642f, player->GetOrientation(), false);
     return true;
 }
 
@@ -119,28 +79,6 @@ void BattlegroundRL::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0xbba) << uint32(1);           // 9
     UpdateArenaWorldState();
-}
-
-void BattlegroundRL::Reset()
-{
-    //call parent's reset
-    Battleground::Reset();
-}
-
-bool BattlegroundRL::SetupBattleground()
-{
-    // gates
-    if (!AddGameObject(BG_RL_OBJECT_DOOR_1, BG_RL_OBJECT_TYPE_DOOR_1, 1293.561f, 1601.938f, 31.60557f, -1.457349f, 0, 0, -0.6658813f, 0.7460576f, RESPAWN_IMMEDIATELY)
-        || !AddGameObject(BG_RL_OBJECT_DOOR_2, BG_RL_OBJECT_TYPE_DOOR_2, 1278.648f, 1730.557f, 31.60557f, 1.684245f, 0, 0, 0.7460582f, 0.6658807f, RESPAWN_IMMEDIATELY)
-    // buffs
-        || !AddGameObject(BG_RL_OBJECT_BUFF_1, BG_RL_OBJECT_TYPE_BUFF_1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
-        || !AddGameObject(BG_RL_OBJECT_BUFF_2, BG_RL_OBJECT_TYPE_BUFF_2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
-    {
-        sLog->outErrorDb("BatteGroundRL: Failed to spawn some object!");
-        return false;
-    }
-
-    return true;
 }
 
 /*

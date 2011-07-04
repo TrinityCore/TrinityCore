@@ -57,9 +57,9 @@ bool BattlegroundSA::ResetObjs()
 {
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player *plr = sObjectMgr->GetPlayer(itr->first))
-                SendTransportsRemove(plr);
+        for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+            if (Player* player = itr->getSource())
+                SendTransportsRemove(player);
 
     uint32 atF = BG_SA_Factions[Attackers];
     uint32 defF = BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE];
@@ -110,8 +110,8 @@ bool BattlegroundSA::ResetObjs()
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-    GetObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
-    GetObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
+    GetGameObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
+    GetGameObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
     SpawnGameObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
     SpawnGameObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
@@ -131,11 +131,11 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
     {
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
-        GetObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
+        GetGameObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
-    GetObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
-    GetObject(BG_SA_TITAN_RELIC)->Refresh();
+    GetGameObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+    GetGameObject(BG_SA_TITAN_RELIC)->Refresh();
 
     for (uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
@@ -175,7 +175,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+        GetGameObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     }
 
     for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
@@ -184,7 +184,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
+        GetGameObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
     for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
@@ -193,7 +193,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetObject(i)->setFaction(atF);
+        GetGameObject(i)->setFaction(atF);
     }
 
     //Player may enter BEFORE we set up bG - lets update his worldstates anyway...
@@ -240,9 +240,9 @@ bool BattlegroundSA::ResetObjs()
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player *plr = sObjectMgr->GetPlayer(itr->first))
-                SendTransportInit(plr);
+        for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+            if (Player* player = itr->getSource())
+                SendTransportInit(player);
 
     TeleportPlayers();
     return true;
@@ -258,13 +258,13 @@ void BattlegroundSA::StartShips()
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
+        for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         {
-            if (Player* p = sObjectMgr->GetPlayer(itr->first))
+            if (Player* player = itr->getSource())
             {
                 UpdateData data;
                 WorldPacket pkt;
-                GetObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
+                GetGameObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
                 data.BuildPacket(&pkt);
                 p->GetSession()->SendPacket(&pkt);
             }
@@ -488,34 +488,34 @@ void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 
 void BattlegroundSA::TeleportPlayers()
 {
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
-        if (Player *plr = sObjectMgr->GetPlayer(itr->first))
+        if (Player* player = itr->getSource())
         {
             // should remove spirit of redemption
-            if (plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-                plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+            if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+                player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
-            if (!plr->isAlive())
+            if (!player->isAlive())
             {
-                plr->ResurrectPlayer(1.0f);
-                plr->SpawnCorpseBones();
+                player->ResurrectPlayer(1.0f);
+                player->SpawnCorpseBones();
             }
 
-            plr->ResetAllPowers();
-            plr->CombatStopWithPets(true);
+            player->ResetAllPowers();
+            player->CombatStopWithPets(true);
 
-            if (plr->GetTeamId() == Attackers)
+            if (player->GetTeamId() == Attackers)
             {
-                plr->CastSpell(plr, 12438, true);     //Without this player falls before boat loads...
+                player->CastSpell(player, 12438, true);     //Without this player falls before boat loads...
 
                 if (urand(0, 1))
-                    plr->TeleportTo(607, 2682.936f, -830.368f, 50.0f, 2.895f, 0);
+                    player->TeleportTo(607, 2682.936f, -830.368f, 50.0f, 2.895f, 0);
                 else
-                    plr->TeleportTo(607, 2577.003f, 980.261f, 50.0f, 0.807f, 0);
+                    player->TeleportTo(607, 2577.003f, 980.261f, 50.0f, 0.807f, 0);
             }
             else
-                plr->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
+                player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
         }
     }
 }
@@ -600,7 +600,7 @@ void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroye
     if (!GateStatus[i])
         return;
 
-    if (GameObject* g = GetObject(i))
+    if (GameObject* g = GetGameObject(i))
     {
         if (g->GetGOValue()->building.health == 0)
         {
@@ -793,12 +793,10 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 RoundScores[0].winner = Attackers;
                 RoundScores[0].time = TotalTime;
                 //Achievement Storm the Beach (1310)
-                for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                {
-                    if (Player *plr = sObjectMgr->GetPlayer(itr->first))
-                        if (plr->GetTeamId() == Attackers)
-                            plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
-                }
+                for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+                    if (Player* player = itr->getSource())
+                        if (player->GetTeamId() == Attackers)
+                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
 
                 Attackers = (Attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
                 Status = BG_SA_SECOND_WARMUP;
@@ -817,12 +815,10 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 RoundScores[1].time = TotalTime;
                 ToggleTimer();
                 //Achievement Storm the Beach (1310)
-                for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                {
-                    if (Player *plr = sObjectMgr->GetPlayer(itr->first))
-                        if (plr->GetTeamId() == Attackers && RoundScores[1].winner == Attackers)
-                            plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
-                }
+                for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+                    if (Player* player = itr->getSource())
+                        if (player->GetTeamId() == Attackers && RoundScores[1].winner == Attackers)
+                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
 
                 if (RoundScores[0].time == RoundScores[1].time)
                     EndBattleground(0);
@@ -899,9 +895,9 @@ void BattlegroundSA::SendTransportInit(Player* player)
     {
         UpdateData transData;
         if (m_BgObjects[BG_SA_BOAT_ONE])
-            GetObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
+            GetGameObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
         if (m_BgObjects[BG_SA_BOAT_TWO])
-            GetObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
+            GetGameObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
         WorldPacket packet;
         transData.BuildPacket(&packet);
         player->GetSession()->SendPacket(&packet);
@@ -914,9 +910,9 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
     {
         UpdateData transData;
         if (m_BgObjects[BG_SA_BOAT_ONE])
-            GetObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
+            GetGameObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
         if (m_BgObjects[BG_SA_BOAT_TWO])
-            GetObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
+            GetGameObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket packet;
         transData.BuildPacket(&packet);
         player->GetSession()->SendPacket(&packet);

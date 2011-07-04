@@ -20,6 +20,12 @@
 
 #include "BattlegroundMap.h"
 
+enum ArenaWorldStates
+{
+    WORLD_STATE_ARENA_TEAM_A = 0xE10,   // Amount of players alive
+    WORLD_STATE_ARENA_TEAM_H = 0xE11,   // Amount of players alive
+};
+
 class ArenaTeam;
 class ArenaTeamScore;
 
@@ -36,8 +42,12 @@ class ArenaMap : public BattlegroundMap
         void StartBattleground();
         void DestroyBattleground();
 
+        void UpdateArenaWorldState();
+        void CheckArenaWinConditions();
+
         void OnPlayerJoin(Player* player);
         void OnPlayerExit(Player* player);
+        void OnPlayerKill(Player* victim, Player* killer);
 
         void EndBattleground(uint32 winner);
         Group* GetGroupForTeam(uint32 team) const;  // Needed for GetAverageMMR
@@ -46,6 +56,7 @@ class ArenaMap : public BattlegroundMap
         bool _rated;
         ArenaTeam* _arenaTeams[BG_TEAMS_COUNT];
         ArenaTeamScore* _arenaTeamScores[BG_TEAMS_COUNT];
+        uint32 _playersAlive[BG_TEAMS_COUNT];
         
 };
 

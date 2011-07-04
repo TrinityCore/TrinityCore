@@ -132,6 +132,25 @@ const uint32 BuffEntries[3] =
     BG_OBJECTID_BERSERKERBUFF_ENTRY
 };
 
+enum BattlegroundSpells
+{
+    SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
+    SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
+    SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
+    SPELL_RESURRECTION_VISUAL       = 24171,                // Resurrection Impact Visual
+    SPELL_ARENA_PREPARATION         = 32727,                // use this one, 32728 not correct
+    SPELL_ALLIANCE_GOLD_FLAG        = 32724,
+    SPELL_ALLIANCE_GREEN_FLAG       = 32725,
+    SPELL_HORDE_GOLD_FLAG           = 35774,
+    SPELL_HORDE_GREEN_FLAG          = 35775,
+    SPELL_PREPARATION               = 44521,                // Preparation
+    SPELL_SPIRIT_HEAL_MANA          = 44535,                // Spirit Heal
+    SPELL_RECENTLY_DROPPED_FLAG     = 42792,                // Recently Dropped Flag
+    SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
+    SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
+    SPELL_HONORABLE_DEFENDER_60Y    = 66157                 // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+};
+
 class BattlegroundScore;
 
 class BattlegroundMap : public Map
@@ -186,8 +205,8 @@ class BattlegroundMap : public Map
 
         virtual void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool addHonor = true);
         void UpdateWorldState(uint32 type, uint32 value);
-        void SendMessageToAll(int32 entry, ChatMsg type, Player* source = NULL);
-        void SendMessageToAll(char const* string, ChatMsg type, Player* source = NULL);
+        void SendMessageToAll(int32 entry, ChatMsg type, Unit* source = NULL, Language language = LANG_UNIVERSAL);
+        void SendMessageToAll(char const* string, ChatMsg type, Unit* source = NULL, Language language = LANG_UNIVERSAL);
         char const* ParseStrings(int32 mainEntry, int32 args1, int32 args2);
 
         // Entity management - GameObject
@@ -213,6 +232,7 @@ class BattlegroundMap : public Map
 
         // Misc. hooks
         virtual void OnPlayerKill(Player* victim, Player* killer);
+        virtual void OnTimeoutReached() { EndBattleground(WINNER_NONE); };        // Must be overwritten for subclasses with bg-specific rules on who wins on a draw
         
         uint32 EndTimer;        // Battleground specific time limit. Must be overwritten in subclass.
         uint32 PreparationPhaseTextIds[BG_STARTING_EVENT_COUNT];   // Must be initialized for each battleground
@@ -220,6 +240,7 @@ class BattlegroundMap : public Map
 
         BattlegroundScoreMap PlayerScores;                  // Player scores
         int32 TeamScores[BG_TEAMS_COUNT];                   // Team scores - unused for arena's
+        uint16 ParticipantCount[BG_TEAMS_COUNT];            // Players actually in the battleground
 
     private:
         // Private initializers, non overridable 
@@ -244,11 +265,7 @@ class BattlegroundMap : public Map
         uint32 _prematureCountdownTimer; // If teams are imbalanced the battleground will close after a certain delay
         uint32 _postEndTimer;       // Time between battleground ending and closing of the map
 
-        uint16 _participantCount[BG_TEAMS_COUNT];   // Players actually in the battleground
         uint16 _invitedCount[BG_TEAMS_COUNT];       // Players invited to join the battleground
-        
-
-        
 };
 
 #endif
