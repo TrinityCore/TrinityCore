@@ -44,7 +44,7 @@ namespace FactorySelector
         // AIname in db
         std::string ainame=creature->GetAIName();
         if (!ai_factory && !ainame.empty())
-            ai_factory = ai_registry.GetRegistryItem(ainame.c_str());
+            ai_factory = ai_registry.GetRegistryItem(ainame);
 
         // select by NPC flags
         if (!ai_factory)
