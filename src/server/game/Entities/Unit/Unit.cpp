@@ -16282,6 +16282,22 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
+void Unit::SendPlaySpellVisual(uint32 id)
+{
+    WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 8 + 4);
+    data << uint64(GetGUID());
+    data << uint32(id); // SpellVisualKit.dbc index
+    SendMessageToSet(&data, false);
+}
+
+void Unit::SendPlaySpellImpact(uint64 guid, uint32 id)
+{
+    WorldPacket data(SMSG_PLAY_SPELL_IMPACT, 8 + 4);
+    data << uint64(guid); // target
+    data << uint32(id); // SpellVisualKit.dbc index
+    SendMessageToSet(&data, false);
+}
+
 void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool isCrit, CombatRating type) const
 {
     // player mounted on multi-passenger mount is also classified as vehicle

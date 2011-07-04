@@ -1485,6 +1485,8 @@ class Unit : public WorldObject
         Aura * AddAura(uint32 spellId, Unit* target);
         Aura * AddAura(SpellEntry const *spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
+        void SendPlaySpellVisual(uint32 id);
+        void SendPlaySpellImpact(uint64 guid, uint32 id);
 
         bool IsDamageToThreatSpell(SpellEntry const* spellInfo) const;
 
