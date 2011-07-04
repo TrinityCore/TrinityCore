@@ -33,15 +33,15 @@ class icecrown_citadel_teleport : public GameObjectScript
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
             if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
+                if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE || player->isGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
-                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
+                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE || player->isGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
-                if (instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
+                if (instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE || player->isGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
                 if (instance->GetData(DATA_COLDFLAME_JETS) == DONE || player->isGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
-                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE || player->isGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
             }
 
@@ -87,7 +87,7 @@ class at_frozen_throne_teleport : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && instance->GetBossState(DATA_SINDRAGOSA) == DONE)
+                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && instance->GetBossState(DATA_SINDRAGOSA) == DONE || player->isGameMaster())
                     player->CastSpell(player, FROZEN_THRONE_TELEPORT, true);
 
             return true;

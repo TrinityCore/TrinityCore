@@ -4236,6 +4236,15 @@ void SpellMgr::LoadSpellCustomAttr()
 			break;
         // ULDUAR SPELLS
         //
+        case 62968:     // Brightleaf's Essence
+            spellInfo->DurationIndex = 39;
+            count++;
+            break;
+        case 62713:     // Ironbranch's Essence
+            spellInfo->DurationIndex = 39;
+			mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
+            count++;
+            break;
         case 62016: // Thorim - Charge Orb
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_LOS;
             spellInfo->MaxAffectedTargets = 1;

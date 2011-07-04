@@ -348,7 +348,6 @@ class boss_freya : public CreatureScript
                     me->DeleteThreatList();
                     me->CombatStop(true);
                     me->DespawnOrUnsummon(7500);
-                    me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 
                     Creature* Elder[3];
                     for (uint8 n = 0; n < 3; ++n)
@@ -366,6 +365,8 @@ class boss_freya : public CreatureScript
                     }
 					//summon chest
 					CAST_AI(boss_freya::boss_freyaAI,me->AI())->SummonChest();
+					//Achievement Cast
+					me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 					_JustDied();
 				}
             }
@@ -381,7 +382,6 @@ class boss_freya : public CreatureScript
                     if (Elder[n] && Elder[n]->isAlive())
                     {
                         me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
-                        Elder[n]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
                         Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT);
                         Elder[n]->AI()->AttackStart(who);
                         Elder[n]->AddThreat(who, 250.0f);
@@ -1329,12 +1329,12 @@ class npc_ancient_conservator : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                DoCast(who, SPELL_CONSERVATOR_GRIP, true);
+                DoCast(SPELL_CONSERVATOR_GRIP);
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
                 if (healthySporeTimer <= diff)
@@ -1349,7 +1349,6 @@ class npc_ancient_conservator : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_NATURE_FURY))
                         DoCast(target, SPELL_NATURE_FURY);
-                    me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                     natureFuryTimer = 5000;
                 }
                 else

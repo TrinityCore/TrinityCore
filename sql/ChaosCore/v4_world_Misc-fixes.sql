@@ -94,3 +94,6 @@ UPDATE `creature_template` SET `mechanic_immune_mask` = 617299803 WHERE `entry` 
  35278, -- Nether Portal 10H
  35279, -- Nether Portal 25N
  35280); -- Nether Portal 25H
+ 
+ -- Immune Mask Ancient Conservator
+ UPDATE `creature_template` SET `mechanic_immune_mask` = 650853983 WHERE `entry` IN (33203,33376);
