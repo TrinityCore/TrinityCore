@@ -38,14 +38,14 @@ class boss_doctor_theolen_krastinov : public CreatureScript
 public:
     boss_doctor_theolen_krastinov() : CreatureScript("boss_doctor_theolen_krastinov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_theolenkrastinovAI (pCreature);
+        return new boss_theolenkrastinovAI (creature);
     }
 
     struct boss_theolenkrastinovAI : public ScriptedAI
     {
-        boss_theolenkrastinovAI(Creature *c) : ScriptedAI(c) {}
+        boss_theolenkrastinovAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 m_uiRend_Timer;
         uint32 m_uiBackhand_Timer;
@@ -58,7 +58,7 @@ public:
             m_uiFrenzy_Timer = 1000;
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             InstanceScript* pInstance = me->GetInstanceScript();
             if (pInstance)

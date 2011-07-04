@@ -188,8 +188,8 @@ class mob_faerlina_add : public CreatureScript
 
         struct mob_faerlina_addAI : public ScriptedAI
         {
-            mob_faerlina_addAI(Creature* pCreature) : ScriptedAI(pCreature),
-                _instance(pCreature->GetInstanceScript())
+            mob_faerlina_addAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
             {
             }
 
@@ -212,9 +212,9 @@ class mob_faerlina_add : public CreatureScript
             InstanceScript* const _instance;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_faerlina_addAI(pCreature);
+            return new mob_faerlina_addAI(creature);
         }
 };
 

@@ -36,14 +36,14 @@ class boss_illucia_barov : public CreatureScript
 public:
     boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_illuciabarovAI (pCreature);
+        return new boss_illuciabarovAI (creature);
     }
 
     struct boss_illuciabarovAI : public ScriptedAI
     {
-        boss_illuciabarovAI(Creature *c) : ScriptedAI(c) {}
+        boss_illuciabarovAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CurseOfAgony_Timer;
         uint32 ShadowShock_Timer;
@@ -89,9 +89,9 @@ public:
             //ShadowShock_Timer
             if (ShadowShock_Timer <= diff)
             {
-                Unit *pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget) DoCast(pTarget, SPELL_SHADOWSHOCK);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target) DoCast(target, SPELL_SHADOWSHOCK);
 
                 ShadowShock_Timer = 12000;
             } else ShadowShock_Timer -= diff;

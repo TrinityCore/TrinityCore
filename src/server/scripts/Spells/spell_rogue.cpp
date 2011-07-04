@@ -162,7 +162,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
@@ -226,18 +226,18 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
-            Unit* pTarget = GetTarget();
-            Unit* pVictim = pTarget->getVictim();
-            if (pVictim && (pTarget->GetHealthPct() > pVictim->GetHealthPct()))
+            Unit* target = GetTarget();
+            Unit* victim = target->getVictim();
+            if (victim && (target->GetHealthPct() > victim->GetHealthPct()))
             {
-                if (!pTarget->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
+                if (!target->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
                 {
                     int32 bp = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
-                    pTarget->CastCustomSpell(pTarget, ROGUE_SPELL_PREY_ON_THE_WEAK, &bp, 0, 0, true);
+                    target->CastCustomSpell(target, ROGUE_SPELL_PREY_ON_THE_WEAK, &bp, 0, 0, true);
                 }
             }
             else
-                pTarget->RemoveAurasDueToSpell(ROGUE_SPELL_PREY_ON_THE_WEAK);
+                target->RemoveAurasDueToSpell(ROGUE_SPELL_PREY_ON_THE_WEAK);
         }
 
         void Register()
@@ -269,11 +269,11 @@ class spell_rog_shiv : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                     caster->CastSpell(unitTarget, ROGUE_SPELL_SHIV_TRIGGERED, true);
             }
 

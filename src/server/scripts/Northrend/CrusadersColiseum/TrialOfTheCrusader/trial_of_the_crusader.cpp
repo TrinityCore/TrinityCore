@@ -104,9 +104,9 @@ class npc_announcer_toc10 : public CreatureScript
 
         struct npc_announcer_toc10AI : public ScriptedAI
         {
-            npc_announcer_toc10AI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature)
             {
-                m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+                m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             }
 
             InstanceScript* m_pInstance;
@@ -114,13 +114,13 @@ class npc_announcer_toc10 : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_THRALL, 300.0f))
+                if (Creature* pAlly = GetClosestCreatureWithEntry(me, NPC_THRALL, 300.0f))
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_PROUDMOORE, 300.0f))
+                if (Creature* pAlly = GetClosestCreatureWithEntry(me, NPC_PROUDMOORE, 300.0f))
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
         };
 
         bool OnGossipHello(Player* player, Creature* creature)
@@ -237,9 +237,9 @@ class boss_lich_king_toc : public CreatureScript
 
         struct boss_lich_king_tocAI : public ScriptedAI
         {
-            boss_lich_king_tocAI(Creature *pCreature) : ScriptedAI(pCreature)
+            boss_lich_king_tocAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+                m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             }
 
             InstanceScript* m_pInstance;
@@ -249,10 +249,10 @@ class boss_lich_king_toc : public CreatureScript
             {
                 m_uiUpdateTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
-                if (Creature* pSummoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 {
-                    pSummoned->CastSpell(pSummoned, 51807, false);
-                    pSummoned->SetDisplayId(11686);
+                    summoned->CastSpell(summoned, 51807, false);
+                    summoned->SetDisplayId(11686);
                 }
                 if (m_pInstance) m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -339,9 +339,9 @@ class boss_lich_king_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_lich_king_tocAI(pCreature);
+            return new boss_lich_king_tocAI(creature);
         }
 };
 
@@ -353,7 +353,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
         struct npc_fizzlebang_tocAI : public ScriptedAI
         {
-            npc_fizzlebang_tocAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+            npc_fizzlebang_tocAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -364,9 +364,9 @@ class npc_fizzlebang_toc : public CreatureScript
             uint64 m_uiPortalGUID;
             uint64 m_uiTriggerGUID;
 
-            void JustDied(Unit* pKiller)
+            void JustDied(Unit* killer)
             {
-                DoScriptText(SAY_STAGE_1_06, me, pKiller);
+                DoScriptText(SAY_STAGE_1_06, me, killer);
                 m_pInstance->SetData(TYPE_EVENT, 1180);
                 if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_JARAXXUS)))
                 {
@@ -401,9 +401,9 @@ class npc_fizzlebang_toc : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(pSummoned);
+                Summons.Summon(summoned);
             }
 
             void UpdateAI(const uint32 uiDiff)
@@ -506,9 +506,9 @@ class npc_fizzlebang_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_fizzlebang_tocAI(pCreature);
+            return new npc_fizzlebang_tocAI(creature);
         }
 };
 
@@ -520,7 +520,7 @@ class npc_tirion_toc : public CreatureScript
 
         struct npc_tirion_tocAI : public ScriptedAI
         {
-            npc_tirion_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_tirion_tocAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -530,7 +530,7 @@ class npc_tirion_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -820,9 +820,9 @@ class npc_tirion_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_tirion_tocAI(pCreature);
+            return new npc_tirion_tocAI(creature);
         }
 };
 
@@ -834,7 +834,7 @@ class npc_garrosh_toc : public CreatureScript
 
         struct npc_garrosh_tocAI : public ScriptedAI
         {
-            npc_garrosh_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_garrosh_tocAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -844,7 +844,7 @@ class npc_garrosh_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -898,9 +898,9 @@ class npc_garrosh_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_garrosh_tocAI(pCreature);
+            return new npc_garrosh_tocAI(creature);
         }
 };
 
@@ -912,7 +912,7 @@ class npc_varian_toc : public CreatureScript
 
         struct npc_varian_tocAI : public ScriptedAI
         {
-            npc_varian_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_varian_tocAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_pInstance = (InstanceScript*)me->GetInstanceScript();
             }
@@ -922,7 +922,7 @@ class npc_varian_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* /*pWho*/) {}
+            void AttackStart(Unit* /*who*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -976,9 +976,9 @@ class npc_varian_toc : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_varian_tocAI(pCreature);
+            return new npc_varian_tocAI(creature);
         }
 };
 

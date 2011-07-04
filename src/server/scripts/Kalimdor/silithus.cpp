@@ -49,57 +49,57 @@ class npc_highlord_demitrian : public CreatureScript
 public:
     npc_highlord_demitrian() : CreatureScript("npc_highlord_demitrian") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(6842, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(6842, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(6843, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->SEND_GOSSIP_MENU(6843, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            pPlayer->SEND_GOSSIP_MENU(6844, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            player->SEND_GOSSIP_MENU(6844, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            pPlayer->SEND_GOSSIP_MENU(6867, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            player->SEND_GOSSIP_MENU(6867, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(6868, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            player->SEND_GOSSIP_MENU(6868, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-            pPlayer->SEND_GOSSIP_MENU(6869, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+            player->SEND_GOSSIP_MENU(6869, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+6:
-            pPlayer->SEND_GOSSIP_MENU(6870, pCreature->GetGUID());
+            player->SEND_GOSSIP_MENU(6870, creature->GetGUID());
 
             ItemPosCountVec dest;
-            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
+            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
             if (msg == EQUIP_ERR_OK)
-                pPlayer->StoreNewItem(dest, 19016, true);
+                player->StoreNewItem(dest, 19016, true);
             break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
-            (pPlayer->HasItemCount(18563, 1, false) || pPlayer->HasItemCount(18564, 1, false)))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
+            (player->HasItemCount(18563, 1, false) || player->HasItemCount(18564, 1, false)))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        pPlayer->SEND_GOSSIP_MENU(6812, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(6812, creature->GetGUID());
             return true;
     }
 
@@ -134,86 +134,86 @@ class npcs_rutgar_and_frankal : public CreatureScript
 public:
     npcs_rutgar_and_frankal() : CreatureScript("npcs_rutgar_and_frankal") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                pPlayer->SEND_GOSSIP_MENU(7755, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(7755, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                pPlayer->SEND_GOSSIP_MENU(7756, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(7756, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                pPlayer->SEND_GOSSIP_MENU(7757, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                player->SEND_GOSSIP_MENU(7757, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                pPlayer->SEND_GOSSIP_MENU(7758, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                player->SEND_GOSSIP_MENU(7758, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                pPlayer->SEND_GOSSIP_MENU(7759, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                player->SEND_GOSSIP_MENU(7759, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                pPlayer->SEND_GOSSIP_MENU(7760, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                player->SEND_GOSSIP_MENU(7760, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6:
-                pPlayer->SEND_GOSSIP_MENU(7761, pCreature->GetGUID());
+                player->SEND_GOSSIP_MENU(7761, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                pPlayer->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
+                player->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 9:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                pPlayer->SEND_GOSSIP_MENU(7762, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                player->SEND_GOSSIP_MENU(7762, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 10:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM12, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                pPlayer->SEND_GOSSIP_MENU(7763, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM12, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                player->SEND_GOSSIP_MENU(7763, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 11:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM13, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-                pPlayer->SEND_GOSSIP_MENU(7764, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM13, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                player->SEND_GOSSIP_MENU(7764, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 12:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM14, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-                pPlayer->SEND_GOSSIP_MENU(7765, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM14, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+                player->SEND_GOSSIP_MENU(7765, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 13:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM15, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-                pPlayer->SEND_GOSSIP_MENU(7766, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM15, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+                player->SEND_GOSSIP_MENU(7766, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 14:
-                pPlayer->SEND_GOSSIP_MENU(7767, pCreature->GetGUID());
+                player->SEND_GOSSIP_MENU(7767, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                pPlayer->KilledMonsterCredit(TRIGGER_FRANKAL, 0);
+                player->KilledMonsterCredit(TRIGGER_FRANKAL, 0);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
-            pCreature->GetEntry() == 15170 &&
-            !pPlayer->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        if (player->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
+            creature->GetEntry() == 15170 &&
+            !player->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        if (pPlayer->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
-            pCreature->GetEntry() == 15171 &&
-            pPlayer->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
+        if (player->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
+            creature->GetEntry() == 15171 &&
+            player->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
 
-        pPlayer->SEND_GOSSIP_MENU(7754, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(7754, creature->GetGUID());
 
         return true;
     }
@@ -522,14 +522,14 @@ public:
 
         void HandleAnimation()
         {
-            Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-            if (!plr)
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            if (!player)
                 return;
 
-            Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
-            Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100.0f, me);
-            Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
-            Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100.0f, me);
+            Unit* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
+            Unit* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f, me);
+            Unit* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
+            Unit* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f, me);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
@@ -659,19 +659,19 @@ public:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8050, 1473, 65, 15);
                         break; //Text: sands will stop
                     case 34:
-                        DoCast(plr, 23017, true);//Arcane Channeling
+                        DoCast(player, 23017, true);//Arcane Channeling
                         break;
                     case 35:
                         me->CastSpell(-8088, 1520.43f, 2.67f, 25158, true);
                         break;
                     case 36:
-                        DoCast(plr, 25159, true);
+                        DoCast(player, 25159, true);
                         break;
                     case 37:
                         me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 38:
-                        DoCast(plr, 25166, true);
+                        DoCast(player, 25166, true);
                         me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 39:
@@ -719,11 +719,11 @@ public:
                         uint32 entries[4] = { 15423, 15424, 15414, 15422 };
                         for (uint8 i = 0; i < 4; ++i)
                         {
-                            mob = plr->FindNearestCreature(entries[i], 50, me);
+                            mob = player->FindNearestCreature(entries[i], 50, me);
                             while (mob)
                             {
                                 mob->RemoveFromWorld();
-                                mob = plr->FindNearestCreature(15423, 50, me);
+                                mob = player->FindNearestCreature(15423, 50, me);
                             }
                         }
                         break;
@@ -755,14 +755,14 @@ public:
                         me->GetMotionMaster()->MoveCharge(-8117.99f, 1532.24f, 3.94f, 4);
                         break;
                     case 60:
-                        if (plr)
-                            DoScriptText(ANACHRONOS_SAY_10, me, plr);
+                        if (player)
+                            DoScriptText(ANACHRONOS_SAY_10, me, player);
                         me->GetMotionMaster()->MoveCharge(-8113.46f, 1524.16f, 2.89f, 4);
                         break;
                     case 61:
                         me->GetMotionMaster()->MoveCharge(-8057.1f, 1470.32f, 2.61f, 6);
-                        if (plr->IsInRange(me, 0, 15))
-                            plr->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD , me);
+                        if (player->IsInRange(me, 0, 15))
+                            player->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD , me);
                         break;
                     case 62:
                         me->SetDisplayId(15500);
@@ -841,8 +841,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            Unit *pTarget = NULL;
-            //Player* plr = me->GetPlayer(PlayerGUID);
+            Unit* target = NULL;
+            //Player* player = me->GetPlayer(PlayerGUID);
 
             if (!Timers)
             {
@@ -888,21 +888,21 @@ public:
             if (!hasTarget)
             {
                 if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
-                    pTarget = me->FindNearestCreature(15423, 20, true);
+                    target = me->FindNearestCreature(15423, 20, true);
                 if (me->GetEntry() == 15423)
                 {
                     uint8 tar = urand(0, 2);
 
                     if (tar == 0)
-                        pTarget = me->FindNearestCreature(15422, 20, true);
+                        target = me->FindNearestCreature(15422, 20, true);
                     else if (tar == 1)
-                        pTarget = me->FindNearestCreature(15424, 20, true);
+                        target = me->FindNearestCreature(15424, 20, true);
                     else if (tar == 2)
-                        pTarget = me->FindNearestCreature(15414, 20, true);
+                        target = me->FindNearestCreature(15414, 20, true);
                 }
                 hasTarget = true;
-                if (pTarget)
-                    me->AI()->AttackStart(pTarget);
+                if (target)
+                    me->AI()->AttackStart(target);
             }
             if (!(me->FindNearestCreature(15379, 60)))
                 DoCast(me, 33652);
@@ -998,12 +998,12 @@ public:
 
         void CheckEventFail()
         {
-            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
-            if (Group *EventGroup = pPlayer->GetGroup())
+            if (Group *EventGroup = player->GetGroup())
             {
                 Player* GroupMember;
 
@@ -1029,7 +1029,7 @@ public:
                         ++DeadMemberCount;
                 }
 
-                if (GroupMemberCount == FailedMemberCount || !pPlayer->IsWithinDistInMap(me, EVENT_AREA_RADIUS))
+                if (GroupMemberCount == FailedMemberCount || !player->IsWithinDistInMap(me, EVENT_AREA_RADIUS))
                     Failed = true; //only so event can restart
             }
         }
@@ -1083,19 +1083,19 @@ class go_crystalline_tear : public GameObjectScript
 public:
     go_crystalline_tear() : GameObjectScript("go_crystalline_tear") { }
 
-    bool OnQuestAccept(Player* plr, GameObject* go, Quest const* quest)
+    bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
 
-            if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
+            if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, player))
             {
 
-                Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                /* Unit* Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Creature* Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
 
                 if (Merithra)
                 {
@@ -1123,9 +1123,9 @@ public:
 
                 if (Anachronos)
                 {
-                    CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = plr->GetGUID();
+                    CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = player->GetGUID();
                     CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
+                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = player->GetGUID();
                     CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
                     CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
                 }

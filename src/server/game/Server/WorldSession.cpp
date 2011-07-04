@@ -755,7 +755,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
         data >> mi->splineElevation;
 
-    // This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,  
+    // This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,
     // and when used in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD
     // it will freeze clients that receive this player's movement info.
     if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT))

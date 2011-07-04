@@ -35,14 +35,14 @@ class boss_princess_theradras : public CreatureScript
 public:
     boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ptheradrasAI (pCreature);
+        return new boss_ptheradrasAI (creature);
     }
 
     struct boss_ptheradrasAI : public ScriptedAI
     {
-        boss_ptheradrasAI(Creature *c) : ScriptedAI(c) {}
+        boss_ptheradrasAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Dustfield_Timer;
         uint32 Boulder_Timer;
@@ -81,10 +81,10 @@ public:
             //Boulder_Timer
             if (Boulder_Timer <= diff)
             {
-                Unit *pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
-                    DoCast(pTarget, SPELL_BOULDER);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target)
+                    DoCast(target, SPELL_BOULDER);
                 Boulder_Timer = 10000;
             } else Boulder_Timer -= diff;
 

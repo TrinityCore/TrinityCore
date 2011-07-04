@@ -1092,7 +1092,7 @@ void GameObject::Use(Unit* user)
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (!ChairListSlots.size())        // this is called once at first chair use to make list of available slots
+            if (ChairListSlots.empty())        // this is called once at first chair use to make list of available slots
             {
                 if (info->chair.slots > 0)     // sometimes chairs in DB have error in fields and we dont know number of slots
                     for (uint32 i = 0; i < info->chair.slots; ++i)
