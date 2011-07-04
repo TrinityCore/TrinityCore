@@ -49,7 +49,7 @@ class ArenaMap : public BattlegroundMap
         void OnPlayerExit(Player* player);
         void OnPlayerKill(Player* victim, Player* killer);
 
-        void EndBattleground(uint32 winner);
+        void EndBattleground(BattlegroundWinner winner);
         Group* GetGroupForTeam(uint32 team) const;  // Needed for GetAverageMMR
 
     private:

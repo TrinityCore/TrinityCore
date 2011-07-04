@@ -199,7 +199,7 @@ void BattlegroundAB::ProcessInProgress(uint32 const& diff)
             }
             if (_honorScoreTicks[team] >= _honorTicks)
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(1), (team == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(1), team);
                 _honorScoreTicks[team] -= _honorTicks;
             }
             if (!_isInformedNearVictory && TeamScores[team] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
@@ -228,9 +228,9 @@ void BattlegroundAB::ProcessInProgress(uint32 const& diff)
 
     // Test win condition
     if (TeamScores[BG_TEAM_ALLIANCE] >= BG_AB_MAX_TEAM_SCORE)
-        EndBattleground(ALLIANCE);
+        EndBattleground(WINNER_ALLIANCE);
     if (TeamScores[BG_TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
-        EndBattleground(HORDE);
+        EndBattleground(WINNER_HORDE);
 }
 
 void BattlegroundAB::OnPlayerJoin(Player *plr)
@@ -598,14 +598,14 @@ void BattlegroundAB::StartBattleground()
     DoorOpen(BG_AB_OBJECT_GATE_H);
 }
 
-void BattlegroundAB::EndBattleground(uint32 winner)
+void BattlegroundAB::EndBattleground(BattlegroundWinner winner)
 {
     //win reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), winner);
 
     //complete map reward
-    RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
-    RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
+    RewardHonorToTeam(GetBonusHonorFromKill(1), BG_TEAM_ALLIANCE);
+    RewardHonorToTeam(GetBonusHonorFromKill(1), BG_TEAM_HORDE);
 
     BattlegroundMap::EndBattleground(winner);
 }

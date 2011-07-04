@@ -889,9 +889,9 @@ class BattlegroundIC : public BattlegroundMap
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
-        void HandleKillUnit(Creature* unit, Player* killer);
-        void HandleKillPlayer(Player* player, Player* killer);
-        void EndBattleground(uint32 winner);
+        void OnUnitKill(Creature* unit, Player* killer);
+        void OnPlayerKill(Player* player, Player* killer);
+        void EndBattleground(BattlegroundWinner winner);
         void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
 
         void EventPlayerDamagedGO(Player* /*plr*/, GameObject* go, uint32 eventType);

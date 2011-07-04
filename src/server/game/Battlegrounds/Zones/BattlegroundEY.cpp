@@ -392,7 +392,7 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
         UpdateWorldState(EY_HORDE_RESOURCES, score);
 }
 
-void BattlegroundEY::EndBattleground(uint32 winner)
+void BattlegroundEY::EndBattleground(BattlegroundWinner winner)
 {
     //win reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), winner);

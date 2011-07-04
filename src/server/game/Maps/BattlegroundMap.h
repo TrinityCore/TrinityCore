@@ -163,12 +163,15 @@ class BattlegroundMap : public Map
         typedef std::map<uint32, BattlegroundScore*> BattlegroundScoreMap;
 
     protected:
+        /* Template related methods */
         uint32 GetMaxPlayers() const { return _template.MaxPlayersPerTeam * 2; }
         uint32 GetMinPlayers() const { return _template.MinPlayersPerTeam * 2; }
         uint32 GetMinLevel() const { return _template.MinLevel; }
         uint32 GetMaxLevel() const { return _template.MaxLevel; }
 
-        uint32 GetStatus() const { return _status; }
+        uint32 GetStatus() const { return Status; }
+
+        uint32 GetBonusHonorFromKill(uint32 kills) const;
 
     protected:
         /* Methods called by upper level code */
@@ -179,6 +182,7 @@ class BattlegroundMap : public Map
         void Remove(Player*, bool);
 
         void Update(uint32 const& diff);
+
         // processing methods
         virtual void ProcessPreparation(uint32 const& diff);
         virtual void ProcessInProgress(uint32 const& diff);
@@ -190,6 +194,13 @@ class BattlegroundMap : public Map
         // Packet builders
         virtual void BuildPVPLogDataPacket(WorldPacket& data);
 
+        // Achievement related methods
+        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+
+        // Rewarding related methods
+        void RewardHonorToTeam(uint32 amount, BattlegroundTeamId team);
+        void RewardReputationToTeam(uint32 targetFaction, uint32 amount, BattlegroundTeamId team);
+
         /* Methods and attributes accessed by subclasses */
         // Initialization
         virtual void InitializeObjects() {}                 // Resize ObjectGUIDsByType and spawn objects
@@ -199,15 +210,16 @@ class BattlegroundMap : public Map
         
         virtual void InstallBattleground() {};  // Calls all overridable InitializeXX() methods and other variables
         virtual void StartBattleground() {};    // Initializes EndTimer and opens gameobjects
-        virtual uint32 GetWinningTeam() const { return WINNER_NONE; }  // Contains rules on which team to pick as winner
-        virtual void EndBattleground(uint32 winner) {};  // Handles out rewards etc
+        virtual void EndBattleground(BattlegroundWinner winner) {};  // Handles out rewards etc
         virtual void DestroyBattleground() {};  // Contains battleground specific cleanup method calls.
+        uint32 GetWinningTeam() const { return _winner; }  // Returns winning team (for packet)
 
         virtual void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool addHonor = true);
         void UpdateWorldState(uint32 type, uint32 value);
         void SendMessageToAll(int32 entry, ChatMsg type, Unit* source = NULL, Language language = LANG_UNIVERSAL);
         void SendMessageToAll(char const* string, ChatMsg type, Unit* source = NULL, Language language = LANG_UNIVERSAL);
         char const* ParseStrings(int32 mainEntry, int32 args1, int32 args2);
+        char const* ParseStrings(int32 mainEntry, char const* args1, char const* args2 = NULL);
 
         // Entity management - GameObject
         GameObject* AddGameObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
@@ -219,6 +231,7 @@ class BattlegroundMap : public Map
         void DoorClose(uint32 type);
 
         // Entity management - Creature
+        void AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0); // Adds and spawns creatures to map
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, Position* pos, uint32 respawntime = 0); // Adds and spawns creatures to map
         Creature* GetCreature(uint32 type);
@@ -231,9 +244,17 @@ class BattlegroundMap : public Map
         virtual void OnPlayerExit(Player* player);  // Remove battleground specific auras etc.
 
         // Misc. hooks
-        virtual void OnPlayerKill(Player* victim, Player* killer);
+        virtual void OnPlayerKill(Player* victim, Player* killer) {};
+        virtual void OnUnitKill(Creature* victim, Player* killer) {};
         virtual void OnTimeoutReached() { EndBattleground(WINNER_NONE); };        // Must be overwritten for subclasses with bg-specific rules on who wins on a draw
         
+        // Status and overridable timers
+        BattlegroundStatus Status;
+        uint8 PreparationPhase;
+        uint32 PreparationTimer;   // Time between map creation and start of the battleground
+        uint32 PrematureCountdownTimer; // If teams are imbalanced the battleground will close after a certain delay
+        uint32 PostEndTimer;       // Time between battleground ending and closing of the map
+
         uint32 EndTimer;        // Battleground specific time limit. Must be overwritten in subclass.
         uint32 PreparationPhaseTextIds[BG_STARTING_EVENT_COUNT];   // Must be initialized for each battleground
         uint32 PreparationDelayTimers[BG_STARTING_EVENT_COUNT];  //
@@ -258,14 +279,9 @@ class BattlegroundMap : public Map
         bool AreTeamsInBalance() const;
     
         BattlegroundTemplate _template;
-        BattlegroundStatus _status;
-
-        uint8 _preparationPhase;
-        uint32 _preparationTimer;   // Time between map creation and start of the battleground
-        uint32 _prematureCountdownTimer; // If teams are imbalanced the battleground will close after a certain delay
-        uint32 _postEndTimer;       // Time between battleground ending and closing of the map
 
         uint16 _invitedCount[BG_TEAMS_COUNT];       // Players invited to join the battleground
+        BattlegroundWinner _winner;
 };
 
 #endif

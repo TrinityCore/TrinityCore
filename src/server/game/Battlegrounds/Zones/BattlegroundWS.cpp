@@ -137,7 +137,7 @@ void BattlegroundWS::StartBattleground()
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
 }
 
-void BattlegroundWS::EndBattleground(uint32 winner)
+void BattlegroundWS::EndBattleground(BattlegroundWinner winner)
 {
     //win reward
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), winner);
@@ -306,7 +306,7 @@ void BattlegroundWS::OnTimeoutReached()
     }
 
     else if (GetTeamScore(TEAM_HORDE) == 0)
-        EndBattleground(BG_TEAM_ALLIANCE);             // Alliance has > 0, Horde has 0, alliance wins
+        EndBattleground(WINNER_ALLIANCE);             // Alliance has > 0, Horde has 0, alliance wins
 
     else if (GetTeamScore(TEAM_HORDE) == GetTeamScore(BG_TEAM_ALLIANCE)) // Team score equal, winner is team that scored the last flag
         EndBattleground(_lastFlagCaptureTime);
@@ -314,7 +314,7 @@ void BattlegroundWS::OnTimeoutReached()
     else if (GetTeamScore(TEAM_HORDE) > GetTeamScore(BG_TEAM_ALLIANCE))  // Last but not least, check who has the higher score
         EndBattleground(TEAM_HORDE);
     else
-        EndBattleground(BG_TEAM_ALLIANCE);
+        EndBattleground(WINNER_ALLIANCE);
 }
 
 void BattlegroundWS::RespawnFlag(uint32 Team, bool captured)

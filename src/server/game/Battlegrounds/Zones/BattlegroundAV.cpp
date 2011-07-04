@@ -226,7 +226,7 @@ void BattlegroundAV::StartBattleground()
     DoorOpen(BG_AV_OBJECT_DOOR_A);
 }
 
-void BattlegroundAV::EndBattleground(uint32 winner)
+void BattlegroundAV::EndBattleground(BattlegroundWinner winner)
 {
     //calculate bonuskills for both teams:
     //first towers:
@@ -236,7 +236,7 @@ void BattlegroundAV::EndBattleground(uint32 winner)
     {
         if (m_Nodes[i].State == POINT_CONTROLED)
         {
-            if (m_Nodes[i].Owner == ALLIANCE)
+            if (m_Nodes[i].Owner == BG_TEAM_ALLIANCE)
             {
                 rep[0]   += BG_AV_REP_SURVIVING_TOWER;
                 kills[0] += BG_AV_KILL_SURVIVING_TOWER;
@@ -257,9 +257,9 @@ void BattlegroundAV::EndBattleground(uint32 winner)
             rep[i]   += BG_AV_REP_SURVIVING_CAPTAIN;
         }
         if (rep[i] != 0)
-            RewardReputationToTeam((i == 0)?730:729, rep[i], (i == 0)?ALLIANCE:HORDE);
+            RewardReputationToTeam((i == 0)?730:729, rep[i], (i == 0)? BG_TEAM_ALLIANCE : BG_TEAM_HORDE);
         if (kills[i] != 0)
-            RewardHonorToTeam(GetBonusHonor(kills[i]), (i == 0)?ALLIANCE:HORDE);
+            RewardHonorToTeam(GetBonusHonor(kills[i]), (i == 0)?BG_TEAM_ALLIANCE : BG_TEAM_HORDE);
     }
 
     //TODO add enterevademode for all attacking creatures
@@ -301,16 +301,16 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     {
         CastSpellOnTeam(23658, HORDE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(729, BG_AV_REP_BOSS, HORDE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), HORDE);
-        EndBattleground(HORDE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), BG_TEAM_HORDE);
+        EndBattleground(WINNER_HORDE);
         DeleteCreature(AV_CPLACE_TRIGGER17);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_BOSS][0])
     {
-        CastSpellOnTeam(23658, ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
+        CastSpellOnTeam(23658, BG_TEAM_ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(730, BG_AV_REP_BOSS, ALLIANCE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), ALLIANCE);
-        EndBattleground(ALLIANCE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), BG_TEAM_ALLIANCE);
+        EndBattleground(WINNER_ALLIANCE);
         DeleteCreature(AV_CPLACE_TRIGGER19);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN][0])
@@ -321,9 +321,9 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             return;
         }
         _captainAlive[0]=false;
-        RewardReputationToTeam(729, BG_AV_REP_CAPTAIN, HORDE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), HORDE);
-        UpdateScore(ALLIANCE, (-1)*BG_AV_RES_CAPTAIN);
+        RewardReputationToTeam(729, BG_AV_REP_CAPTAIN, BG_TEAM_HORDE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), BG_TEAM_HORDE);
+        UpdateScore(BG_TEAM_ALLIANCE, (-1)*BG_AV_RES_CAPTAIN);
         //spawn destroyed aura
         for (uint8 i=0; i <= 9; i++)
             SpawnGameObject(BG_AV_OBJECT_BURN_BUILDING_ALLIANCE+i, RESPAWN_IMMEDIATELY);
@@ -340,9 +340,9 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             return;
         }
         _captainAlive[1]=false;
-        RewardReputationToTeam(730, BG_AV_REP_CAPTAIN, ALLIANCE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), ALLIANCE);
-        UpdateScore(HORDE, (-1)*BG_AV_RES_CAPTAIN);
+        RewardReputationToTeam(730, BG_AV_REP_CAPTAIN, BG_TEAM_ALLIANCE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), BG_TEAM_ALLIANCE);
+        UpdateScore(BG_TEAM_HORDE, (-1)*BG_AV_RES_CAPTAIN);
         //spawn destroyed aura
         for (uint8 i=0; i <= 9; i++)
             SpawnGameObject(BG_AV_OBJECT_BURN_BUILDING_HORDE+i, RESPAWN_IMMEDIATELY);
@@ -387,21 +387,21 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
         case AV_QUEST_A_COMMANDER1:
         case AV_QUEST_H_COMMANDER1:
             m_Team_QuestStatus[team][1]++;
-            RewardReputationToTeam(team, 1, player->GetTeam());
+            RewardReputationToTeam(team, 1, BattlegroundTeamId(player->GetBGTeam()));
             if (m_Team_QuestStatus[team][1] == 30)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER2:
         case AV_QUEST_H_COMMANDER2:
             m_Team_QuestStatus[team][2]++;
-            RewardReputationToTeam(team, 1, player->GetTeam());
+            RewardReputationToTeam(team, 1, BattlegroundTeamId(player->GetBGTeam()));
             if (m_Team_QuestStatus[team][2] == 60)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER3:
         case AV_QUEST_H_COMMANDER3:
             m_Team_QuestStatus[team][3]++;
-            RewardReputationToTeam(team, 1, player->GetTeam());
+            RewardReputationToTeam(team, 1, BattlegroundTeamId(player->GetBGTeam()));
             if (m_Team_QuestStatus[team][1] == 120)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
@@ -463,23 +463,22 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 
 void BattlegroundAV::UpdateScore(uint16 team, int16 points)
 { //note: to remove reinforcementpoints points must be negative, for adding reinforcements points must be positive
-    ASSERT(team == ALLIANCE || team == HORDE);
-    uint8 teamindex = GetTeamIndexByTeamId(team); //0=ally 1=horde
-    TeamScores[teamindex] += points;
+    ASSERT(team == BG_TEAM_ALLIANCE || team == BG_TEAM_HORDE);
+    TeamScores[team] += points;
 
-    UpdateWorldState(((teamindex == BG_TEAM_HORDE)?AV_Horde_Score:AV_Alliance_Score), TeamScores[teamindex]);
+    UpdateWorldState(((team == BG_TEAM_HORDE) ? AV_Horde_Score : AV_Alliance_Score), TeamScores[team]);
     if (points < 0)
     {
-        if (TeamScores[teamindex] < 1)
+        if (TeamScores[team] < 1)
         {
-            TeamScores[teamindex]=0;
-            EndBattleground(((teamindex == BG_TEAM_HORDE)?ALLIANCE:HORDE));
+            TeamScores[team] = 0;
+            EndBattleground((team == BG_TEAM_HORDE) ? WINNER_ALLIANCE : WINNER_HORDE);
         }
-        else if (!_isInformedNearVictory[teamindex] && TeamScores[teamindex] < SEND_MSG_NEAR_LOSE)
+        else if (!_isInformedNearVictory[team] && TeamScores[team] < SEND_MSG_NEAR_LOSE)
         {
-            SendMessageToAll(teamindex == BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, teamindex == BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
+            SendMessageToAll(teamindex == BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, team == BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
             PlaySoundToAll(AV_SOUND_NEAR_VICTORY);
-            _isInformedNearVictory[teamindex] = true;
+            _isInformedNearVictory[team] = true;
         }
     }
 }
@@ -777,9 +776,9 @@ void BattlegroundAV::EventPlayerDestroyedPoint(AVNodeId node)
     //send a nice message to all :)
     char buf[256];
     if (IsTower(node))
-        sprintf(buf, GetTrinityString(LANG_BG_AV_TOWER_TAKEN) , GetNodeName(node), (owner == ALLIANCE) ? GetTrinityString(LANG_BG_AV_ALLY) : GetTrinityString(LANG_BG_AV_HORDE));
+        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_TOWER_TAKEN), GetNodeName(node), (owner == ALLIANCE) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
     else
-        sprintf(buf, GetTrinityString(LANG_BG_AV_GRAVE_TAKEN) , GetNodeName(node), (owner == ALLIANCE) ? GetTrinityString(LANG_BG_AV_ALLY) :GetTrinityString(LANG_BG_AV_HORDE));
+        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_GRAVE_TAKEN), GetNodeName(node), (owner == ALLIANCE) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
 
     Creature* creature = GetCreature(AV_CPLACE_HERALD);
     if (creature)
@@ -1207,7 +1206,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
     //send a nice message to all :)
     char buf[256];
-    sprintf(buf, (IsTower(node)) ? GetTrinityString(LANG_BG_AV_TOWER_ASSAULTED) : GetTrinityString(LANG_BG_AV_GRAVE_ASSAULTED), GetNodeName(node),  (team == ALLIANCE) ?  GetTrinityString(LANG_BG_AV_ALLY) : GetTrinityString(LANG_BG_AV_HORDE));
+    sprintf(buf, (IsTower(node)) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_TOWER_ASSAULTED) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_GRAVE_ASSAULTED), GetNodeName(node),  (team == ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
     Creature* creature = GetCreature(AV_CPLACE_HERALD);
     if (creature)
         SendMessageToAll(buf, CHAT_MSG_MONSTER_YELL, creature);
@@ -1350,21 +1349,21 @@ const char* BattlegroundAV::GetNodeName(AVNodeId node)
 {
     switch (node)
     {
-        case BG_AV_NODES_FIRSTAID_STATION:  return GetTrinityString(LANG_BG_AV_NODE_GRAVE_STORM_AID);
-        case BG_AV_NODES_DUNBALDAR_SOUTH:   return GetTrinityString(LANG_BG_AV_NODE_TOWER_DUN_S);
-        case BG_AV_NODES_DUNBALDAR_NORTH:   return GetTrinityString(LANG_BG_AV_NODE_TOWER_DUN_N);
-        case BG_AV_NODES_STORMPIKE_GRAVE:   return GetTrinityString(LANG_BG_AV_NODE_GRAVE_STORMPIKE);
-        case BG_AV_NODES_ICEWING_BUNKER:    return GetTrinityString(LANG_BG_AV_NODE_TOWER_ICEWING);
-        case BG_AV_NODES_STONEHEART_GRAVE:  return GetTrinityString(LANG_BG_AV_NODE_GRAVE_STONE);
-        case BG_AV_NODES_STONEHEART_BUNKER: return GetTrinityString(LANG_BG_AV_NODE_TOWER_STONE);
-        case BG_AV_NODES_SNOWFALL_GRAVE:    return GetTrinityString(LANG_BG_AV_NODE_GRAVE_SNOW);
-        case BG_AV_NODES_ICEBLOOD_TOWER:    return GetTrinityString(LANG_BG_AV_NODE_TOWER_ICE);
-        case BG_AV_NODES_ICEBLOOD_GRAVE:    return GetTrinityString(LANG_BG_AV_NODE_GRAVE_ICE);
-        case BG_AV_NODES_TOWER_POINT:       return GetTrinityString(LANG_BG_AV_NODE_TOWER_POINT);
-        case BG_AV_NODES_FROSTWOLF_GRAVE:   return GetTrinityString(LANG_BG_AV_NODE_GRAVE_FROST);
-        case BG_AV_NODES_FROSTWOLF_ETOWER:  return GetTrinityString(LANG_BG_AV_NODE_TOWER_FROST_E);
-        case BG_AV_NODES_FROSTWOLF_WTOWER:  return GetTrinityString(LANG_BG_AV_NODE_TOWER_FROST_W);
-        case BG_AV_NODES_FROSTWOLF_HUT:     return GetTrinityString(LANG_BG_AV_NODE_GRAVE_FROST_HUT);
+        case BG_AV_NODES_FIRSTAID_STATION:  return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_STORM_AID);
+        case BG_AV_NODES_DUNBALDAR_SOUTH:   return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_DUN_S);
+        case BG_AV_NODES_DUNBALDAR_NORTH:   return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_DUN_N);
+        case BG_AV_NODES_STORMPIKE_GRAVE:   return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_STORMPIKE);
+        case BG_AV_NODES_ICEWING_BUNKER:    return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_ICEWING);
+        case BG_AV_NODES_STONEHEART_GRAVE:  return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_STONE);
+        case BG_AV_NODES_STONEHEART_BUNKER: return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_STONE);
+        case BG_AV_NODES_SNOWFALL_GRAVE:    return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_SNOW);
+        case BG_AV_NODES_ICEBLOOD_TOWER:    return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_ICE);
+        case BG_AV_NODES_ICEBLOOD_GRAVE:    return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_ICE);
+        case BG_AV_NODES_TOWER_POINT:       return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_POINT);
+        case BG_AV_NODES_FROSTWOLF_GRAVE:   return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_FROST);
+        case BG_AV_NODES_FROSTWOLF_ETOWER:  return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_FROST_E);
+        case BG_AV_NODES_FROSTWOLF_WTOWER:  return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_TOWER_FROST_W);
+        case BG_AV_NODES_FROSTWOLF_HUT:     return sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_NODE_GRAVE_FROST_HUT);
         default:
             sLog->outError("tried to get name for node %u", node);
             break;

@@ -1564,7 +1564,7 @@ class BattlegroundAV : public BattlegroundMap
 
         void InstallBattleground();
         void StartBattleground();
-        void EndBattleground(uint32 winner);
+        void EndBattleground(BattlegroundWinner winner);
 
         /* inherited from BattlegroundClass */
         virtual void OnPlayerJoin(Player *plr);

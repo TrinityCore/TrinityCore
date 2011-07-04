@@ -647,7 +647,7 @@ void Battleground::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player*
     Source->GetSession()->SendPacket(&data);
 }
 
-void Battleground::EndBattleground(uint32 winner)
+void Battleground::EndBattleground(BattlegroundWinner winner)
 {
     RemoveFromBGFreeSlotQueue();
 

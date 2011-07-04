@@ -43,6 +43,7 @@ class BattlegroundSAScore : public BattlegroundScore
 
 #define BG_SA_FLAG_AMOUNT 3
 #define BG_SA_DEMOLISHER_AMOUNT 4
+#define BG_SA_GATE_COUNT 6
 
 enum BG_SA_Status
 {
@@ -414,7 +415,7 @@ const float BG_SA_GYOrientation[BG_SA_MAX_GY] =
 
 struct BG_SA_RoundScore
 {
-    TeamId winner;
+    BattlegroundTeamId winner;
     uint32 time;
 };
 
@@ -425,51 +426,52 @@ class BattlegroundSA : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
-    public:
+    protected:
         /// Constructor
         BattlegroundSA();
         /// Destructor
         ~BattlegroundSA();
 
         void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
+        void InitializeObjects();
 
-        /**
-         * \brief Called every time for update battle data
-         * -Update timer
-         * -Round switch
-         */
-        void Update(uint32 diff);
+        void InstallBattleground();
+        void ResetObjectsAndWorldstates();
+        void StartBattleground();
+        void EndBattleground(BattlegroundWinner winner);
 
-        /* inherited from BattlegroundClass */
-        /// Called when a player join battle
-        virtual void OnPlayerJoin(Player *plr);
-        /// Called for ini battleground, after that the first player be entered
-        virtual bool SetupBattleground();
-        virtual void Reset();
-        /// Called for generate packet contain worldstate data
-        virtual void FillInitialWorldStates(WorldPacket& data);
-        /// Called when a player deal damage to building (door)
-        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 eventType);
-        /// Called when a player kill a unit in bg
-        virtual void HandleKillUnit(Creature* unit, Player* killer);
-        /// Return the nearest graveyard where player can respawn
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        /// Called when a player click on flag (graveyard flag)
-        virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
-        /// Called when a player use a gamobject (relic)
-        virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
+        void OnPlayerJoin(Player* player);
+        void OnUnitKill(Creature* unit, Player* killer);    /// Called when a player kill a unit in bg
+        void OnTimeoutReached();
+
+        void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 eventType);   /// Called when a player deal damage to building (door)
+        void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);  /// Called when a player click on flag (graveyard flag)
+        void EventPlayerUsedGO(Player* Source, GameObject* object);        /// Called when a player use a gamobject (relic)
+
+        void ProcessPreparation(uint32 const& diff);    // Both warmup rounds
+        void ProcessInProgress(uint32 const& diff);
+
+        void FillInitialWorldStates(WorldPacket& data);
+
+        void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool adHonor = true); /// Called for generate packet contain worldstate data
+
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);  /// Return the nearest graveyard where player can respawn
+
+        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+
+    private:
         /// Return gate id, relative to bg data, according to gameobject id
         uint32 GetGateIDFromDestroyEventID(uint32 id)
         {
             uint32 i = 0;
             switch(id)
             {
-                case 19046: i = BG_SA_GREEN_GATE;   break; //Green gate destroyed
-                case 19045: i = BG_SA_BLUE_GATE;    break; //blue gate
-                case 19047: i = BG_SA_RED_GATE;     break; //red gate
-                case 19048: i = BG_SA_PURPLE_GATE;  break; //purple gate
-                case 19049: i = BG_SA_YELLOW_GATE;  break; //yellow gate
-                case 19837: i = BG_SA_ANCIENT_GATE; break; //ancient gate
+            case 19046: i = BG_SA_GREEN_GATE;   break; //Green gate destroyed
+            case 19045: i = BG_SA_BLUE_GATE;    break; //blue gate
+            case 19047: i = BG_SA_RED_GATE;     break; //red gate
+            case 19048: i = BG_SA_PURPLE_GATE;  break; //purple gate
+            case 19049: i = BG_SA_YELLOW_GATE;  break; //yellow gate
+            case 19837: i = BG_SA_ANCIENT_GATE; break; //ancient gate
             }
             return i;
         }
@@ -477,40 +479,18 @@ class BattlegroundSA : public BattlegroundMap
         uint32 GetWorldStateFromGateID(uint32 id)
         {
             uint32 uws = 0;
-            switch(id)
+            switch (id)
             {
-                case BG_SA_GREEN_GATE:   uws = BG_SA_GREEN_GATEWS;   break;
-                case BG_SA_YELLOW_GATE:  uws = BG_SA_YELLOW_GATEWS;  break;
-                case BG_SA_BLUE_GATE:    uws = BG_SA_BLUE_GATEWS;    break;
-                case BG_SA_RED_GATE:     uws = BG_SA_RED_GATEWS;     break;
-                case BG_SA_PURPLE_GATE:  uws = BG_SA_PURPLE_GATEWS;  break;
-                case BG_SA_ANCIENT_GATE: uws = BG_SA_ANCIENT_GATEWS; break;
+            case BG_SA_GREEN_GATE:   uws = BG_SA_GREEN_GATEWS;   break;
+            case BG_SA_YELLOW_GATE:  uws = BG_SA_YELLOW_GATEWS;  break;
+            case BG_SA_BLUE_GATE:    uws = BG_SA_BLUE_GATEWS;    break;
+            case BG_SA_RED_GATE:     uws = BG_SA_RED_GATEWS;     break;
+            case BG_SA_PURPLE_GATE:  uws = BG_SA_PURPLE_GATEWS;  break;
+            case BG_SA_ANCIENT_GATE: uws = BG_SA_ANCIENT_GATEWS; break;
             }
             return uws;
         }
 
-        void StartBattleground();
-        void InitializeObjects();
-
-        /// Called on battleground ending
-        void EndBattleground(uint32 winner);
-
-        /// CAlled when a player leave battleground
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
-
-        /* Scorekeeping */
-        /// Update score board
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
-
-    private:
-
-        /**
-         * \brief Called on setup and between the two round
-         * -Delete all gameobject / creature
-         * -Respawn all gameobject / creature to have good faction
-         */
-        bool ResetObjs();
         /// Called for start ship movement
         void StartShips();
         /**
@@ -532,10 +512,11 @@ class BattlegroundSA : public BattlegroundMap
          * -Delete gameobject in front of door (lighting object, with different colours for each door)
          */
         void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
-        /// Update timer worldstate
-        void SendTime();
+        
+        void SendTime();    /// Update timer worldstate
+
         /**
-         * \brief Called when a graveyard is capture
+         * \brief Called when a graveyard is captured
          * -Update spiritguide
          * -Update gameobject (flag)
          * -Update Worldstate
@@ -544,44 +525,26 @@ class BattlegroundSA : public BattlegroundMap
          * \param Source : Player who capture gy
          */
         void CaptureGraveyard(BG_SA_Graveyards i, Player *Source);
-        /// Switch on/off timer worldstate
-        void ToggleTimer();
+        
+        void ToggleTimer(); /// Switch on/off timer worldstate
+        
+        void UpdateDemolisherSpawns();  /// Respawn dead demolisher
+        
+        void SendTransportInit(Player* player); /// Send packet to player for create boats (client part)
+        void SendTransportsRemove(Player* player);  /// Send packet to player for destroy boats (client part)
 
-        /// Respawn dead demolisher
-        void UpdateDemolisherSpawns();
+        
+        uint32 _attackers;  /// Id of attacker team (BattlegroundTeamId)        
+        bool _shipsStarted; /// For know if boats has start moving or not yet
+        BG_SA_GateState _gateStatus[BG_SA_GATE_COUNT];  /// Status of each gate (Destroy/Damage/Intact)
+        uint32 _graveyardStatus[BG_SA_MAX_GY];  /// Team witch conntrol each graveyard (BattlegroundTeamId)
+        BG_SA_RoundScore _roundScores[2];   /// Score of each round
+        bool _timerEnabled;  /// used for know we are in timer phase or not (used for worldstate update)
 
-        /// Send packet to player for create boats (client part)
-        void SendTransportInit(Player* player);
-        /// Send packet to player for destroy boats (client part)
-        void SendTransportsRemove(Player* player);
+        uint8 _round;   // Round 1 or 2
+        uint32 _timerBoats;
+        uint32 _timerWorldStateUpdate;
 
-        /// Id of attacker team
-        TeamId Attackers;
-        /// Totale elapsed time of current round
-        uint32 TotalTime;
-        /// Max time of round
-        uint32 EndRoundTimer;
-        /// For know if boats has start moving or not yet
-        bool ShipsStarted;
-        /// Status of each gate (Destroy/Damage/Intact)
-        BG_SA_GateState GateStatus[6];
-        /// Statu of battle (Start or not, and what round)
-        BG_SA_Status Status;
-        /// Team witch conntrol each graveyard
-        TeamId GraveyardStatus[BG_SA_MAX_GY];
-        /// Score of each round
-        BG_SA_RoundScore RoundScores[2];
-        /// used for know we are in timer phase or not (used for worldstate update)
-        bool TimerEnabled;
-        /// 5secs before starting the 1min countdown for second round
-        uint32 UpdateWaitTimer;
-        /// for know if warning about second round start has been sent
-        bool SignaledRoundTwo;
-        /// for know if warning about second round start has been sent
-        bool SignaledRoundTwoHalfMin;
-        /// for know if second round has been init
-        bool InitSecondRound;
         std::map<uint32/*id*/, uint32/*timer*/> DemoliserRespawnList;
-
 };
 #endif

@@ -415,7 +415,7 @@ bool BattlegroundIC::SetupBattleground()
     return true;
 }
 
-void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundIC::OnUnitKill(Creature* unit, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
@@ -423,13 +423,13 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
     uint32 entry = unit->GetEntry();
     if (entry == NPC_HIGH_COMMANDER_HALFORD_WYRMBANE)
     {
-        RewardHonorToTeam(WINNER_HONOR_AMOUNT, HORDE);
-        EndBattleground(HORDE);
+        RewardHonorToTeam(WINNER_HONOR_AMOUNT, BG_TEAM_HORDE);
+        EndBattleground(WINNER_HORDE);
     }
     else if (entry == NPC_OVERLORD_AGMAR)
     {
-        RewardHonorToTeam(WINNER_HONOR_AMOUNT, ALLIANCE);
-        EndBattleground(ALLIANCE);
+        RewardHonorToTeam(WINNER_HONOR_AMOUNT, BG_TEAM_ALLIANCE);
+        EndBattleground(WINNER_ALLIANCE);
     }
 
     //Achievement Mowed Down
@@ -438,12 +438,12 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
         killer->CastSpell(killer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
 }
 
-void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
+void BattlegroundIC::OnPlayerKill(Player* player, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    Battleground::HandleKillPlayer(player, killer);
+    BattlegroundMap::OnPlayerKill(player, killer);
 
     factionReinforcements[player->GetTeamId()] -= 1;
 
@@ -451,14 +451,14 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
     // we must end the battleground
     if (factionReinforcements[player->GetTeamId()] < 1)
-        EndBattleground(killer->GetTeam());
+        EndBattleground( killer->GetBGTeam() == BG_TEAM_ALLIANCE ? WINNER_ALLIANCE : WINNER_HORDE);
 }
 
-void BattlegroundIC::EndBattleground(uint32 winner)
+void BattlegroundIC::EndBattleground(BattlegroundWinner winner)
 {
-    SendMessage2ToAll(LANG_BG_IC_TEAM_WINS, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (winner == ALLIANCE ? LANG_BG_IC_ALLIANCE : LANG_BG_IC_HORDE));
+    SendMessage2ToAll(LANG_BG_IC_TEAM_WINS, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (winner == WINNER_ALLIANCE ? LANG_BG_IC_ALLIANCE : LANG_BG_IC_HORDE));
 
-    Battleground::EndBattleground(winner);
+    BattlegroundMap::EndBattleground(winner);
 }
 
 void BattlegroundIC::RealocatePlayers(ICNodePointType nodeType)

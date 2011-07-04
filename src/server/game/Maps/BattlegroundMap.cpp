@@ -22,11 +22,12 @@
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Formulas.h"
 
 BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, uint8 spawnMode, BattlegroundTemplate* bgTemplate)
     : Map(id, expiry, instanceId, spawnMode, parent),
     _template(bgTemplate),
-    _preparationPhase(BG_STARTING_EVENT_FIRST)
+    PreparationPhase(BG_STARTING_EVENT_FIRST)
 {
     InitializeTextIds();                // Subclasses define textIds 
     InitializePreparationDelayTimes();  // Subclasses define timers or choose default
@@ -56,7 +57,7 @@ void BattlegroundMap::InitializePreparationDelayTimes()
 
 void BattlegroundMap::InitializePreparationDelayTimer()
 {
-    _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_FIRST] - PreparationDelayTimers[BG_STARTING_EVENT_SECOND];
+    PreparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_FIRST] - PreparationDelayTimers[BG_STARTING_EVENT_SECOND];
 }
 
 bool BattlegroundMap::CanEnter(Player* player)
@@ -102,12 +103,12 @@ void BattlegroundMap::Update(uint32 const& diff)
     {
         // If no one has been invited and is pending to join
         if (!_invitedCount[BG_TEAM_ALLIANCE] && !_invitedCount[BG_TEAM_HORDE])
-            _status = STATUS_WAIT_LEAVE;
+            Status = STATUS_WAIT_LEAVE;
 
         return;
     }
 
-    switch (_status)
+    switch (Status)
     {
         // Statuses in chronological order
         case STATUS_WAIT_JOIN:
@@ -129,37 +130,37 @@ void BattlegroundMap::Update(uint32 const& diff)
 
 void BattlegroundMap::ProcessPreparation(uint32 const& diff)
 {
-    ASSERT(_preparationTimer);
-    if (_preparationTimer <= diff)
-        _preparationTimer = 0;
+    ASSERT(PreparationTimer);
+    if (PreparationTimer <= diff)
+        PreparationTimer = 0;
     else
-        _preparationTimer -= diff;
+        PreparationTimer -= diff;
     
     // No timer has passed yet, nothing to do
-    if (_preparationTimer)
+    if (PreparationTimer)
         return;
     
     // Send message to the players
-    SendMessageToAll(PreparationPhaseTextIds[_preparationPhase, 
-        _preparationPhase < BG_STARTING_EVENT_FOURTH ? CHAT_MSG_BG_SYSTEM_NEUTRAL : CHAT_MSG_RAID_BOSS_EMOTE);
+    SendMessageToAll(PreparationPhaseTextIds[PreparationPhase, 
+        PreparationPhase < BG_STARTING_EVENT_FOURTH ? CHAT_MSG_BG_SYSTEM_NEUTRAL : CHAT_MSG_RAID_BOSS_EMOTE);
 
     // Initialize timer for the next sub-phase of preparation.
-    switch (_preparationPhase)
+    switch (PreparationPhase)
     {
         case BG_STARTING_EVENT_FIRST:
-            _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_SECOND] - PreparationDelayTimers[BG_STARTING_EVENT_THIRD];
-            _preparationPhase = BG_STARTING_EVENT_SECOND;
+            PreparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_SECOND] - PreparationDelayTimers[BG_STARTING_EVENT_THIRD];
+            PreparationPhase = BG_STARTING_EVENT_SECOND;
             break;
         case BG_STARTING_EVENT_SECOND:
-            _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_THIRD] - PreparationDelayTimers[BG_STARTING_EVENT_FOURTH];
-            _preparationPhase = BG_STARTING_EVENT_THIRD;
+            PreparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_THIRD] - PreparationDelayTimers[BG_STARTING_EVENT_FOURTH];
+            PreparationPhase = BG_STARTING_EVENT_THIRD;
             break;
         case BG_STARTING_EVENT_THIRD:
-            _preparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_FOURTH];
-            _preparationPhase = BG_STARTING_EVENT_FOURTH;
+            PreparationTimer = PreparationDelayTimers[BG_STARTING_EVENT_FOURTH];
+            PreparationPhase = BG_STARTING_EVENT_FOURTH;
             break;
         case BG_STARTING_EVENT_FOURTH:
-            _status = STATUS_IN_PROGRESS;
+            Status = STATUS_IN_PROGRESS;
             StartBattleground();
             break;
     }
@@ -170,16 +171,16 @@ void BattlegroundMap::ProcessInProgress(uint32 const& diff)
     if ((EndTimer && EndTimer <= diff))
     {
         OnTimeoutReached();
-        _status = STATUS_WAIT_LEAVE;
-        _postEndTimer = TIME_TO_AUTOREMOVE:
+        Status = STATUS_WAIT_LEAVE;
+        PostEndTimer = TIME_TO_AUTOREMOVE:
     }
-    else if (_prematureCountdownTimer && _prematureCountdownTimer <= diff))
+    else if (PrematureCountdownTimer && PrematureCountdownTimer <= diff))
     {
         // This method will be overridden by inherited classes
         // and it will define the winner of the battleground
         EndBattleground(WINNER_NONE);
-        _status = STATUS_WAIT_LEAVE;
-        _postEndTimer = TIME_TO_AUTOREMOVE:
+        Status = STATUS_WAIT_LEAVE;
+        PostEndTimer = TIME_TO_AUTOREMOVE:
     }
     else
     {
@@ -193,14 +194,14 @@ void BattlegroundMap::ProcessInProgress(uint32 const& diff)
 
 void BattlegroundMap::ProcessEnded(uint32 const& diff)
 {
-    ASSERT(_postEndTimer);
-    if (_postEndTimer <= diff)
+    ASSERT(PostEndTimer);
+    if (PostEndTimer <= diff)
     {
         RemoveAllPlayers();
         DestroyBattleground();
     }    
     else
-        _postEndTimer -= diff;
+        PostEndTimer -= diff;
 }
 
 void BattlegroundMap::RemoveAllPlayers()
@@ -252,7 +253,7 @@ void BattlegroundMap::SendMessageToAll(char const* string, ChatMsg type, Unit* s
     SendPacketToAll(&data);
 }
 
-char const* BattlegroundMap::ParseStrings(int32 mainEntry, int32 args1, int32 args2)
+inline char const* BattlegroundMap::ParseStrings(int32 mainEntry, int32 args1, int32 args2)
 {
     char const* text = sObjectMgr->GetTrinityStringForDBCLocale(mainEntry);
     char const* arg1str = args1 ? sObjectMgr->GetTrinityStringForDBCLocale(args1) : "";
@@ -264,10 +265,20 @@ char const* BattlegroundMap::ParseStrings(int32 mainEntry, int32 args1, int32 ar
     return &str;
 }
 
+inline char const* BattlegroundMap::ParseStrings(int32 mainEntry, char const* args1, char const* args2/* = NULL*/)
+{
+    char const* text = sObjectMgr->GetTrinityStringForDBCLocale(mainEntry);
+
+    char str[1024];
+    snprintf(str, 1024, text, args1, args2);
+
+    return &str;
+}
+
 void BattlegroundMap::OnPlayerJoin(Player* player)
 {
     ASSERT(player);
-    ASSERT(_status != STATUS_WAIT_LEAVE);
+    ASSERT(Status != STATUS_WAIT_LEAVE);
 
     SendPlayerJoinedPacket(player);)
 
@@ -286,20 +297,14 @@ void BattlegroundMap::OnPlayerExit(Player* player)
 
     --ParticipantCount[player->GetBGTeam()];
 
-    if (_status == STATUS_IN_PROGRESS && !AreTeamsInBalance())
-        _prematureCountdownTimer = sBattlegroundMgr->GetPrematureFinishTime();
+    if (Status == STATUS_IN_PROGRESS && !AreTeamsInBalance())
+        PrematureCountdownTimer = sBattlegroundMgr->GetPrematureFinishTime();
 
-    if (_status != STATUS_WAIT_LEAVE)
+    if (Status != STATUS_WAIT_LEAVE)
     {
         delete PlayerScores[player->GetGUIDLow()];
         PlayerScores.erase(player->GetGUIDLow());
     }
-}
-
-void BattlegroundMap::OnPlayerKill(Player* victim, Player* killer)
-{
-    ASSERT(victim);
-    ASSERT(killer);
 }
 
 bool BattlegroundMap::AreTeamsInBalance() const
@@ -427,6 +432,25 @@ void BattlegroundMap::DoorOpen(uint32 type)
     else
         sLog->outError("BattlegroundMap::DoorOpen: door gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
         type, GUID_LOPART(ObjectGUIDsByType[type]), m_MapId, m_InstanceID);
+}
+
+void BattlegroundMap::AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team)
+{
+    uint32 entry = (team == BG_TEAM_ALLIANCE) ?
+        BG_CREATURE_ENTRY_A_SPIRITGUIDE :
+        BG_CREATURE_ENTRY_H_SPIRITGUIDE;
+
+    Creature* pCreature = AddCreature(entry, type, team, x, y, z, o);
+    pCreature->setDeathState(DEAD);
+    pCreature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pCreature->GetGUID());
+    // aura
+    // TODO: Fix display here
+    // pCreature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
+    // casting visual effect
+    pCreature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+    // correct cast speed
+    pCreature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+    //pCreature->CastSpell(pCreature, SPELL_SPIRIT_HEAL_CHANNEL, true);
 }
 
 Creature* BattlegroundMap::AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime /*= 0*/)
@@ -609,4 +633,31 @@ void BattlegroundMap::SendPacketToTeam(WorldPacket* data, uint32 team, Player* e
         if (Player* player = itr->getSource())
             if (player->GetSession() && team == player->GetBGTeam() && player != exclude))
                 player->GetSession()->SendPacket(&data);
+}
+
+inline uint32 BattlegroundMap::GetBonusHonorFromKill uint32 kills) const
+{
+    //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
+    return Trinity::Honor::hk_honor_at_level(std::min(GetMaxLevel(), 80U), float(kills));
+}
+
+inline void BattlegroundMap::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+{
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        if (Player* player = itr->getSource())
+            player->GetAchievementMgr().StartTimedAchievement(type, entry);
+}
+
+void BattlegroundMap::RewardHonorToTeam(uint32 amount, BattlegroundTeamId team)
+{
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        if (Player* player = itr->getSource() && player->GetBGTeam() == team)
+            UpdatePlayerScore(player, SCORE_BONUS_HONOR, amount);
+}
+
+void BattlegroundMap::RewardReputationToTeam(uint32 targetFaction, uint32 amount, BattlegroundTeamId team)
+{
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        if (Player* player = itr->getSource() && player->GetBGTeam() == team)
+            player->GetReputationMgr().ModifyReputation(targetFaction, amount);
 }
