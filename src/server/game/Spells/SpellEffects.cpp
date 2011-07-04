@@ -2343,6 +2343,13 @@ void Spell::SpellDamageHeal(SpellEffIndex /*effIndex*/)
         // Death Pact - return pct of max health to caster
         else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, int32(caster->CountPctFromMaxHealth(damage)), HEAL);
+		else if(m_spellInfo->Id == 57143 && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsVehicle())    // Life Burst
+        {
+            if(uint8 combo = m_caster->GetVehicleKit()->GetPassenger(0)->ToPlayer()->GetComboPoints())
+            {
+                addhealth *= int32(combo+1)/2;
+            }
+        }
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 
