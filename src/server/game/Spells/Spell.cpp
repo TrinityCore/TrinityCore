@@ -4819,7 +4819,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_BEHIND;
 
             // Target must be facing you
-            if ((m_customAttr & SPELL_ATTR0_CU_REQ_TAGRET_FACING_CASTER) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
+            if ((m_customAttr & SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
                 return SPELL_FAILED_NOT_INFRONT;
 
             // Target must not be in combat

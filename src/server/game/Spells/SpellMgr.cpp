@@ -3803,7 +3803,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 38764:
         case 38863:
         case 52743: // Head Smack
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_TAGRET_FACING_CASTER;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
             ++count;
             break;
         case 53: // Backstab
@@ -3830,9 +3830,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 21987: // Lash of Pain
         case 23959: // Test Stab R50
         case 24825: // Test Backstab
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
-            ++count;
-            break;
         case 58563: // Assassinate Restless Lookout
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
             ++count;
