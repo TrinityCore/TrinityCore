@@ -3785,8 +3785,58 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
         }
 
+        // TODO: this REALLY needs to be moved to db (so it can be blamed on db guys)
         switch (i)
         {
+        case 1776: // Gouge
+        case 1777:
+        case 8629:
+        case 11285:
+        case 11286:
+        case 12540:
+        case 13579:
+        case 24698:
+        case 28456:
+        case 29425:
+        case 34940:
+        case 36862:
+        case 38764:
+        case 38863:
+        case 52743: // Head Smack
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_TAGRET_FACING_CASTER;
+            ++count;
+            break;
+        case 53: // Backstab
+        case 2589:
+        case 2590:
+        case 2591:
+        case 8721:
+        case 11279:
+        case 11280:
+        case 11281:
+        case 25300:
+        case 26863:
+        case 48656:
+        case 48657:
+        case 5221: // Shred
+        case 6800:
+        case 8992:
+        case 9829:
+        case 9830:
+        case 27001:
+        case 27002:
+        case 48571:
+        case 48572:
+        case 21987: // Lash of Pain
+        case 23959: // Test Stab R50
+        case 24825: // Test Backstab
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
+            ++count;
+            break;
+        case 58563: // Assassinate Restless Lookout
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
+            ++count;
+            break;
         case 36350: //They Must Burn Bomb Aura (self)
             spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
             ++count;
