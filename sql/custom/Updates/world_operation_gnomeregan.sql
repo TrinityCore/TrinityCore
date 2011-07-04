@@ -3,8 +3,7 @@
 ######*/
 
 DELETE FROM `spell_script_names` WHERE `spell_id` = '74035';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-('74035', 'spell_motivate_a_tron');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('74035', 'spell_motivate_a_tron');
 UPDATE `creature_template` SET `ScriptName` = 'npc_gnome_citizen', `InhabitType` = '3', `flags_extra` = '2', `modelid1` = '2590', `modelid2` = '2581' WHERE `entry` IN ('39466', '39624');
 UPDATE `creature` SET `spawntimesecs` = '30' WHERE `id` IN ('39253', '39623');
 
@@ -59,6 +58,16 @@ UPDATE `creature_template` SET `spell4` = '74174', `spell6` = '74153' WHERE `ent
 /*DELETE FROM `spell_script_names` WHERE spell_id = '74182';
 INSERT INTO `spell_script_names` VALUES
 ('74182', 'spell_shoot');*/
+
+/*######
+## Vent Horizon
+######*/
+
+UPDATE `conditions` SET `ConditionValue1` = '25212' WHERE (`SourceTypeOrReferenceId`='15') AND (`SourceGroup`='11211') AND (`SourceEntry`='0') AND (`ElseGroup`='0') AND (`ConditionTypeOrReference`='9') AND (`ConditionValue1`='25283') AND (`ConditionValue2`='0') AND (`ConditionValue3`='0');
+DELETE FROM `creature_template_addon` WHERE (`entry` = '39420');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39420', '0', '0', '65536', '1', '0', '75779');
+UPDATE `creature_template` SET `scale` = '2' WHERE `entry` = '39420';
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES ('13', '73082', '18', '1', '39420');
 
 /*######
 ## Operation 'Gnomeregan'
