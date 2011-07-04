@@ -444,7 +444,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     if (flags & UPDATEFLAG_HIGHGUID)
     {
         // not high guid
-        *data << uint32(0x00000000);                // unk
+        *data << uint32(GetUInt32Value(OBJECT_FIELD_GUID));                // unk
     }
 
     // 0x4
