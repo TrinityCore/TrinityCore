@@ -562,11 +562,7 @@ public:
 
     struct npc_freed_protodrakeAI : public ScriptedAI
     {
-<<<<<<< HEAD
         npc_freed_protodrakeAI(Creature* pCreature) : ScriptedAI(pCreature) { }
-=======
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 
         uint8 count;
         bool wp_reached;

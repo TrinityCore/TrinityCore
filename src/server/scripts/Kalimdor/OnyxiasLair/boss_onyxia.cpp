@@ -114,12 +114,8 @@ public:
     {
         boss_onyxiaAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-<<<<<<< HEAD
-            m_pInstance = pCreature->GetInstanceScript();
-=======
             m_pInstance = creature->GetInstanceScript();
             Reset();
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         }
 
         InstanceScript* m_pInstance;

@@ -1997,13 +1997,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-<<<<<<< HEAD
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
-=======
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_GET_ME_OUTA_HERE);
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         }
 
         void UpdateEscortAI(const uint32 /*diff*/)

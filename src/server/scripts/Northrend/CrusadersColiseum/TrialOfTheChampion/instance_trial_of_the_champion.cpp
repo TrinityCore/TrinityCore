@@ -115,8 +115,8 @@ public:
 
             if (!players.isEmpty())
             {
-                if (Player* player = players.begin()->getSource())
-                    TeamInInstance = player->GetTeam();
+                if (Player* pPlayer = players.begin()->getSource())
+                    TeamInInstance = pPlayer->GetTeam();
             }
 
             switch(creature->GetEntry())
@@ -260,23 +260,6 @@ public:
 				    if (Creature* pBlackKnight =  instance->GetCreature(uiBlackKnightGUID))
 					{
                         if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
-<<<<<<< HEAD
-=======
-                            pAnnouncer->AI()->SetData(DATA_IN_POSITION, 0);
-                    }
-                    break;
-                case BOSS_GRAND_CHAMPIONS:
-                    m_auiEncounter[0] = uiData;
-                    if (uiData == IN_PROGRESS)
-                    {
-                        for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
-                            if (Creature* summon = instance->GetCreature(*itr))
-                                summon->RemoveFromWorld();
-                    }else if (uiData == DONE)
-                    {
-                        ++uiGrandChampionsDeaths;
-                        if (uiGrandChampionsDeaths == 3)
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                         {
 					        if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             pBlackKnight->CastSpell(pAnnouncer,SPELL_DEATH_RESPITE,true);

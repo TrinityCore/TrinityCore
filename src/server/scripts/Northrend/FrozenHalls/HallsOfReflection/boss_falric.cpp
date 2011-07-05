@@ -52,7 +52,6 @@ class boss_falric : public CreatureScript
 public:
     boss_falric() : CreatureScript("boss_falric") { }
 
-<<<<<<< HEAD
     struct boss_falricAI : public ScriptedAI
     {
         boss_falricAI(Creature *pCreature) : ScriptedAI(pCreature)
@@ -74,16 +73,6 @@ public:
        uint32 m_uiLocNo;
        uint64 m_uiSummonGUID[16];
        uint32 m_uiCheckSummon;
-=======
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_falricAI(creature);
-    }
-
-    struct boss_falricAI : public boss_horAI
-    {
-        boss_falricAI(Creature* creature) : boss_horAI(creature) {}
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 
        uint8 SummonCount;
 
@@ -236,27 +225,8 @@ public:
 
             if(m_uiStrikeTimer < uiDiff)
             {
-<<<<<<< HEAD
                 DoCast(me->getVictim(), Regular ? SPELL_QUIVERING_STRIKE_N : SPELL_QUIVERING_STRIKE_H);
                 m_uiStrikeTimer = (urand(7000, 14000));
-=======
-                case EVENT_QUIVERING_STRIKE:
-                    DoCast(SPELL_QUIVERING_STRIKE);
-                    events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10000);
-                    break;
-                case EVENT_IMPENDING_DESPAIR:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                    {
-                        DoScriptText(SAY_IMPENDING_DESPAIR, me);
-                        DoCast(target, SPELL_IMPENDING_DESPAIR);
-                    }
-                    events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
-                    break;
-                case EVENT_DEFILING_HORROR:
-                    DoCast(SPELL_DEFILING_HORROR);
-                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
-                    break;
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
             }
             else m_uiStrikeTimer -= uiDiff;
 

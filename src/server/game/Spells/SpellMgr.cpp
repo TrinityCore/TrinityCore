@@ -4177,18 +4177,15 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectBasePoints[2] += 30000;
             ++count;
             break;
-<<<<<<< HEAD
         // some dummy spell only has dest, should push caster in this case
         case 62324: // Throw Passenger
-            spellInfo->Targets |= TARGET_FLAG_UNIT_CASTER;
+            spellInfo->Targets |= TARGET_FLAG_UNIT_ALLY;
             ++count;
             break;
         case 66665: // Burning Breath
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
             ++count;
             break;
-=======
->>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         case 16834: // Natural shapeshifter
         case 16835:
             spellInfo->DurationIndex = 21;
