@@ -5520,23 +5520,17 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-static ScriptInfo generateActivateCommand()
-{
-    ScriptInfo si;
-    si.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
-    return si;
-}
-
 void Spell::EffectActivateObject(SpellEffIndex effIndex)
 {
     if (!gameObjTarget)
         return;
 
-    static ScriptInfo activateCommand = generateActivateCommand();
+    ScriptInfo activateCommand;
+    activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
 
-    int32 delay_secs = m_spellInfo->EffectMiscValue[effIndex];
+    // int32 unk = m_spellInfo->EffectMiscValue[effIndex]; // This is set for EffectActivateObject spells; needs research
 
-    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, delay_secs, m_caster, gameObjTarget);
+    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
 }
 
 void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
