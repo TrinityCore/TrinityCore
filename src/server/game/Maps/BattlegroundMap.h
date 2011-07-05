@@ -18,6 +18,13 @@
 #ifndef TRINITY_BATTLEGROUND_MAP_H
 #define TRINITY_BATTLEGROUND_MAP_H
 
+enum BattlegroundTeamId
+{
+    BG_TEAM_ALLIANCE        = 0,
+    BG_TEAM_HORDE           = 1,
+    BG_TEAMS_COUNT          = 2
+};
+
 #include "BattlegroundTemplate.h"
 
 enum BattlegroundStartTimeIntervals
@@ -197,9 +204,11 @@ class BattlegroundMap : public Map
         // Achievement related methods
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
-        // Rewarding related methods
+        // Team event related methods
         void RewardHonorToTeam(uint32 amount, BattlegroundTeamId team);
         void RewardReputationToTeam(uint32 targetFaction, uint32 amount, BattlegroundTeamId team);
+        void CastSpellOnTeam(uint32 spell, BattlegroundTeamId team);
+        void RemoveAuraOnTeam(uint32 spell, BattlegroundTeamId team);
 
         /* Methods and attributes accessed by subclasses */
         // Initialization
@@ -218,8 +227,12 @@ class BattlegroundMap : public Map
         void UpdateWorldState(uint32 type, uint32 value);
         void SendMessageToAll(int32 entry, ChatMsg type, Unit* source = NULL, Language language = LANG_UNIVERSAL);
         void SendMessageToAll(char const* string, ChatMsg type, Unit* source = NULL, Language language = LANG_UNIVERSAL);
-        char const* ParseStrings(int32 mainEntry, int32 args1, int32 args2);
+        void PlaySoundToAll(uint32 soundId);
+
+        char const* ParseStrings(int32 mainEntry, int32 args1, int32 args2 = 0);
         char const* ParseStrings(int32 mainEntry, char const* args1, char const* args2 = NULL);
+        char const* ParseStrings(int32 mainEntry, int32 args1, const char* args2);
+        char const* ParseStrings(char* const mainString, int32 args);
 
         // Entity management - GameObject
         GameObject* AddGameObject(uint32 type, uint32 entry, float x, float y, float z, float o, float r0, float r1, float r2, float r3, uint32 respawnTime = 0);   // Adds GO's to the map but doesn't necessarily spawn them
@@ -237,6 +250,7 @@ class BattlegroundMap : public Map
         Creature* GetCreature(uint32 type);
         bool DeleteCreature(uint32 type);
 
+        int32 GetObjectType(uint64 const& guid) const;
         std::vector<uint64> ObjectGUIDsByType;      // Stores object GUIDs per enum-defined arbitrary type
 
         // Hooks called after Map methods
@@ -246,6 +260,7 @@ class BattlegroundMap : public Map
         // Misc. hooks
         virtual void OnPlayerKill(Player* victim, Player* killer) {};
         virtual void OnUnitKill(Creature* victim, Player* killer) {};
+        virtual void OnPlayerResurrect(Player* player) {};
         virtual void OnTimeoutReached() { EndBattleground(WINNER_NONE); };        // Must be overwritten for subclasses with bg-specific rules on who wins on a draw
         
         // Status and overridable timers
@@ -263,6 +278,7 @@ class BattlegroundMap : public Map
         int32 TeamScores[BG_TEAMS_COUNT];                   // Team scores - unused for arena's
         uint16 ParticipantCount[BG_TEAMS_COUNT];            // Players actually in the battleground
 
+        std::map<uint64, std::vector<uint64>>  ReviveQueue; // Spirit Guide guid + Player list GUIDS
     private:
         // Private initializers, non overridable 
         void InitVisibilityDistance();  // Overwritten from class Map

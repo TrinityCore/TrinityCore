@@ -171,9 +171,9 @@ enum BattlegroundWinner
 enum BattlegroundTeamId
 {
     BG_TEAM_ALLIANCE        = 0,
-    BG_TEAM_HORDE           = 1
+    BG_TEAM_HORDE           = 1,
+    BG_TEAMS_COUNT          = 2
 };
-#define BG_TEAMS_COUNT  2
 
 enum BattlegroundStartingEvents
 {

@@ -22,6 +22,8 @@
 
 class BattlegroundScore
 {
+    friend class BattlegroundMap;
+    friend class ArenaMap;
     protected:
         BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
             BonusHonor(0), DamageDone(0), HealingDone(0) {};

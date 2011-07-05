@@ -872,32 +872,29 @@ class BattlegroundIC : public BattlegroundMap
 {
     friend class BattlegroundMgr;
 
-    public:
-        BattlegroundIC();
-        ~BattlegroundIC();
-        void Update(uint32 diff);
+    protected:
+        void ProcessInProgress(uint32 const& diff);
 
         void InitializeTextIds();    // Initializes text IDs that are used in the battleground at any possible phase.
-
-
-        /* inherited from BattlegroundClass */
-        virtual void OnPlayerJoin(Player *plr);
-        void StartBattleground();
         void InitializeObjects();
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleground();
-        void SpawnLeader(uint32 teamid);
+        void InstallBattleground();
+        void StartBattleground();
+        void EndBattleground(BattlegroundWinner winner);
+        
+        void OnPlayerJoin(Player *plr);
+        void OnPlayerExit(Player *plr);
         void OnUnitKill(Creature* unit, Player* killer);
         void OnPlayerKill(Player* player, Player* killer);
-        void EndBattleground(BattlegroundWinner winner);
-        void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
+        void OnPlayerResurrect(Player* player);
 
+        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+
+        void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
         void EventPlayerDamagedGO(Player* /*plr*/, GameObject* go, uint32 eventType);
         void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
 
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
@@ -906,23 +903,20 @@ class BattlegroundIC : public BattlegroundMap
 
         void DoAction(uint32 action, uint64 const& var);
 
-        virtual void HandlePlayerResurrect(Player* player);
-
-        uint32 GetNodeState(uint8 nodeType) { return (uint8)nodePoint[nodeType].nodeState; }
-
-        virtual bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
+        bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
+    
     private:
-        uint32 closeFortressDoorsTimer;
-        bool doorsClosed;
-        uint32 docksTimer;
-        uint32 resourceTimer;
-        uint32 siegeEngineWorkshopTimer;
-        uint16 factionReinforcements[2];
-        BG_IC_GateState GateStatus[6];
-        ICNodePoint nodePoint[7];
+        uint32 _closeFortressDoorsTimer;
+        bool _doorsClosed;
+        uint32 _docksTimer;
+        uint32 _resourceTimer;
+        uint32 _siegeEngineWorkshopTimer;
+        uint16 _factionReinforcements[2];
+        BG_IC_GateState _gateStatus[6];
+        ICNodePoint _nodePoint[7];
 
-        Transport* gunshipAlliance;
-        Transport* gunshipHorde;
+        Transport* _gunshipAlliance;
+        Transport* _gunshipHorde;
 
         uint32 GetNextBanner(ICNodePoint* nodePoint, uint32 team, bool returnDefinitve);
 
@@ -975,5 +969,7 @@ class BattlegroundIC : public BattlegroundMap
         void HandleContestedNodes(ICNodePoint* nodePoint);
         Transport* CreateTransport(uint32 goEntry, uint32 period);
         void SendTransportInit(Player* player);
+        void SpawnLeader(uint32 teamid);
+        uint32 GetNodeState(uint8 nodeType) { return (uint8)_nodePoint[nodeType].nodeState; }
 };
 #endif

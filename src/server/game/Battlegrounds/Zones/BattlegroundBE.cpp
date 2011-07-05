@@ -56,23 +56,6 @@ void BattlegroundBE::StartBattleground()
         SpawnGameObject(i, 60);
 }
 
-void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError("Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
 bool BattlegroundBE::HandlePlayerUnderMap(Player* player)
 {
     player->TeleportTo(GetId(), 6238.930176f, 262.963470f, 0.889519f, player->GetOrientation(), false);

@@ -253,7 +253,14 @@ void BattlegroundMap::SendMessageToAll(char const* string, ChatMsg type, Unit* s
     SendPacketToAll(&data);
 }
 
-inline char const* BattlegroundMap::ParseStrings(int32 mainEntry, int32 args1, int32 args2)
+void BattlegroundMap::PlaySoundToAll(uint32 soundId)
+{
+    WorldPacket data(SMSG_PLAY_SOUND, 4);
+    data << uint32(soundId);
+    SendPacketToAll(&data);
+}
+
+inline char const* BattlegroundMap::ParseStrings(int32 mainEntry, int32 args1, int32 args2 /*=0*/)
 {
     char const* text = sObjectMgr->GetTrinityStringForDBCLocale(mainEntry);
     char const* arg1str = args1 ? sObjectMgr->GetTrinityStringForDBCLocale(args1) : "";
@@ -275,6 +282,27 @@ inline char const* BattlegroundMap::ParseStrings(int32 mainEntry, char const* ar
     return &str;
 }
 
+inline char const* BattlegroundMap::ParseStrings(char const* mainString, int32 args)
+{
+    char const* text = sObjectMgr->GetTrinityStringForDBCLocale(args);
+
+    char str[1024];
+    snprintf(str, 1024, mainString, text);
+
+    return &str;   
+}
+
+inline char const* BattlegroundMap::ParseStrings(int32 mainEntry, int32 args1, const char* args2 /*= NULL*/)
+{
+    char const* text = sObjectMgr->GetTrinityStringForDBCLocale(mainEntry);
+    char const* arg1str = args1 ? sObjectMgr->GetTrinityStringForDBCLocale(args1) : "";
+
+    char str[1024];
+    snprintf(str, 1024, text, arg1str, args2);
+
+    return &str;
+}
+
 void BattlegroundMap::OnPlayerJoin(Player* player)
 {
     ASSERT(player);
@@ -283,6 +311,7 @@ void BattlegroundMap::OnPlayerJoin(Player* player)
     SendPlayerJoinedPacket(player);)
 
     player->InstanceValid = true;
+    player->SetBGTeam(player->GetTeamId());
     ++_participantCount[player->GetBGTeam()];
 
     if (AreTeamsInBalance())
@@ -534,6 +563,15 @@ bool BattlegroundMap::DeleteCreature(uint32 type)
     return true;
 }
 
+int32 BattlegroundMap::GetObjectType(uint64 const& guid) const
+{
+    for (uint32 i = 0; i < ObjectGUIDsByType.size(); ++i)
+        if (ObjectGUIDsByType[i] == guid)
+            return i;
+
+    return -1;
+}
+
 void BattlegroundMap::UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool addHonor /*= true*/)
 {
     //this procedure is called from virtual function implemented in bg subclass
@@ -660,4 +698,18 @@ void BattlegroundMap::RewardReputationToTeam(uint32 targetFaction, uint32 amount
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         if (Player* player = itr->getSource() && player->GetBGTeam() == team)
             player->GetReputationMgr().ModifyReputation(targetFaction, amount);
+}
+
+void BattlegroundMap::CastSpellOnTeam(uint32 spell, BattlegroundTeamId team)
+{
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        if (Player* player = itr->getSource() && player->GetBGTeam() == team)
+            player->CastSpell(player, spell, true);
+}
+
+void BattlegroundMap::RemoveAuraOnTeam(uint32 spell, BattlegroundTeamId team)
+{
+    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        if (Player* player = itr->getSource() && player->GetBGTeam() == team)
+            player->RemoveAura(spell);
 }

@@ -534,7 +534,7 @@ class BattlegroundSA : public BattlegroundMap
         void SendTransportsRemove(Player* player);  /// Send packet to player for destroy boats (client part)
 
         
-        uint32 _attackers;  /// Id of attacker team (BattlegroundTeamId)        
+        BattlegroundTeamId _attackers;  /// Id of attacker team (BattlegroundTeamId)        
         bool _shipsStarted; /// For know if boats has start moving or not yet
         BG_SA_GateState _gateStatus[BG_SA_GATE_COUNT];  /// Status of each gate (Destroy/Damage/Intact)
         uint32 _graveyardStatus[BG_SA_MAX_GY];  /// Team witch conntrol each graveyard (BattlegroundTeamId)

@@ -91,7 +91,9 @@ void ArenaMap::EndBattleground(BattlegroundWinner winner)
 
 Group* ArenaMap::GetGroupForTeam(uint32 team) const
 {
-    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+    // Teams in arena's are in the same group
+    PlayerList const& players = GetPlayers();
+    for (MapRefManager::iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->getSource())
             if (player->GetBGTeam() == team)
                 return player->GetGroup();

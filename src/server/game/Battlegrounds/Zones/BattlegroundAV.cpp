@@ -36,26 +36,26 @@ void BattlegroundAV::InstallBattleground()
     for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i) //forloop for both teams (it just make 0 == alliance and 1 == horde also for both mines 0=north 1=south
     {
         for (uint8 j = 0; j < 9; ++j)
-            m_Team_QuestStatus[i][j] = 0;
+            _teamQuestStatus[i][j] = 0;
 
         TeamScores[i] = BG_AV_SCORE_INITIAL_POINTS;
         _isInformedNearVictory[i] = false;
         _captainAlive[i] = true;
         _captainBuffTimer[i] = 120000 + urand(0, 4) * MINUTE; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
-        _mineOwner[i] = AV_NEUTRAL_TEAM;
+        _mineOwner[i] = BG_TEAMS_COUNT;
         _minePreviousOwner[i] = _mineOwner[i];
     }
 
     for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_STONEHEART_GRAVE; ++i) //alliance graves
-        InitNode(i, ALLIANCE, false);
+        InitNode(i, BG_TEAM_ALLIANCE, false);
     for (AVNodeId i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) //alliance towers
-        InitNode(i, ALLIANCE, true);
+        InitNode(i, BG_TEAM_ALLIANCE, true);
     for (AVNodeId i = BG_AV_NODES_ICEBLOOD_GRAVE; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i) //horde graves
-        InitNode(i, HORDE, false);
+        InitNode(i, BG_TEAM_HORDE, false);
     for (AVNodeId i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) //horde towers
-        InitNode(i, HORDE, true);
+        InitNode(i, BG_TEAM_HORDE, true);
 
-    InitNode(BG_AV_NODES_SNOWFALL_GRAVE, AV_NEUTRAL_TEAM, false); //give snowfall neutral owner
+    InitNode(BG_AV_NODES_SNOWFALL_GRAVE, BG_TEAMS_COUNT, false); //give snowfall neutral owner
 
     _mineTimer = AV_MINE_TICK_TIMER;
 }
@@ -198,8 +198,8 @@ void BattlegroundAV::InitializeObjects()
         AddAVCreature(0, i+AV_CPLACE_MAX);
 
     //mainspiritguides:
-    AddSpiritGuide(7, BG_AV_CreaturePos[7][0], BG_AV_CreaturePos[7][1], BG_AV_CreaturePos[7][2], BG_AV_CreaturePos[7][3], ALLIANCE);
-    AddSpiritGuide(8, BG_AV_CreaturePos[8][0], BG_AV_CreaturePos[8][1], BG_AV_CreaturePos[8][2], BG_AV_CreaturePos[8][3], HORDE);
+    AddSpiritGuide(7, BG_AV_CreaturePos[7][0], BG_AV_CreaturePos[7][1], BG_AV_CreaturePos[7][2], BG_AV_CreaturePos[7][3], BG_TEAM_ALLIANCE);
+    AddSpiritGuide(8, BG_AV_CreaturePos[8][0], BG_AV_CreaturePos[8][1], BG_AV_CreaturePos[8][2], BG_AV_CreaturePos[8][3], BG_TEAM_HORDE);
 
     //spawn the marshals (those who get deleted, if a tower gets destroyed)
     for (i=AV_NPC_A_MARSHAL_SOUTH; i <= AV_NPC_H_MARSHAL_WTOWER; i++)
@@ -217,7 +217,7 @@ void BattlegroundAV::StartBattleground()
     for (uint16 i= BG_AV_OBJECT_MINE_SUPPLY_S_MIN; i <= BG_AV_OBJECT_MINE_SUPPLY_S_MAX; i++)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
     for (uint8 mine = AV_NORTH_MINE; mine <= AV_SOUTH_MINE; mine++) //mine population
-        ChangeMineOwner(mine, AV_NEUTRAL_TEAM, true);
+        ChangeMineOwner(mine, BG_TEAMS_COUNT, true);
 
     UpdateWorldState(AV_SHOW_H_SCORE, 1);
     UpdateWorldState(AV_SHOW_A_SCORE, 1);
@@ -299,8 +299,8 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     */
     if (entry == BG_AV_CreatureInfo[AV_NPC_A_BOSS][0])
     {
-        CastSpellOnTeam(23658, HORDE); //this is a spell which finishes a quest where a player has to kill the boss
-        RewardReputationToTeam(729, BG_AV_REP_BOSS, HORDE);
+        CastSpellOnTeam(23658, BG_TEAM_HORDE); //this is a spell which finishes a quest where a player has to kill the boss
+        RewardReputationToTeam(729, BG_AV_REP_BOSS, BG_TEAM_HORDE);
         RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), BG_TEAM_HORDE);
         EndBattleground(WINNER_HORDE);
         DeleteCreature(AV_CPLACE_TRIGGER17);
@@ -308,7 +308,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_BOSS][0])
     {
         CastSpellOnTeam(23658, BG_TEAM_ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
-        RewardReputationToTeam(730, BG_AV_REP_BOSS, ALLIANCE);
+        RewardReputationToTeam(730, BG_AV_REP_BOSS, BG_TEAM_ALLIANCE);
         RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), BG_TEAM_ALLIANCE);
         EndBattleground(WINNER_ALLIANCE);
         DeleteCreature(AV_CPLACE_TRIGGER19);
@@ -362,17 +362,18 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
-    uint8 team = GetTeamIndexByTeamId(player->GetTeam());
+
+    uint8 team = player->GetBGTeam();
     //TODO add reputation, events (including quest not available anymore, next quest availabe, go/npc de/spawning)and maybe honor
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed", questid);
-    switch(questid)
+    switch (questid)
     {
         case AV_QUEST_A_SCRAPS1:
         case AV_QUEST_A_SCRAPS2:
         case AV_QUEST_H_SCRAPS1:
         case AV_QUEST_H_SCRAPS2:
-            m_Team_QuestStatus[team][0]+=20;
-            if (m_Team_QuestStatus[team][0] == 500 || m_Team_QuestStatus[team][0] == 1000 || m_Team_QuestStatus[team][0] == 1500) //25, 50, 75 turn ins
+            _teamQuestStatus[team][0]+=20;
+            if (_teamQuestStatus[team][0] == 500 || _teamQuestStatus[team][0] == 1000 || _teamQuestStatus[team][0] == 1500) //25, 50, 75 turn ins
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed starting with unit upgrading..", questid);
                 for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
@@ -386,71 +387,71 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_COMMANDER1:
         case AV_QUEST_H_COMMANDER1:
-            m_Team_QuestStatus[team][1]++;
+            _teamQuestStatus[team][1]++;
             RewardReputationToTeam(team, 1, BattlegroundTeamId(player->GetBGTeam()));
-            if (m_Team_QuestStatus[team][1] == 30)
+            if (_teamQuestStatus[team][1] == 30)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER2:
         case AV_QUEST_H_COMMANDER2:
-            m_Team_QuestStatus[team][2]++;
+            _teamQuestStatus[team][2]++;
             RewardReputationToTeam(team, 1, BattlegroundTeamId(player->GetBGTeam()));
-            if (m_Team_QuestStatus[team][2] == 60)
+            if (_teamQuestStatus[team][2] == 60)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER3:
         case AV_QUEST_H_COMMANDER3:
-            m_Team_QuestStatus[team][3]++;
+            _teamQuestStatus[team][3]++;
             RewardReputationToTeam(team, 1, BattlegroundTeamId(player->GetBGTeam()));
-            if (m_Team_QuestStatus[team][1] == 120)
+            if (_teamQuestStatus[team][1] == 120)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_BOSS1:
         case AV_QUEST_H_BOSS1:
-            m_Team_QuestStatus[team][4] += 9; //you can turn in 10 or 1 item..
+            _teamQuestStatus[team][4] += 9; //you can turn in 10 or 1 item..
         case AV_QUEST_A_BOSS2:
         case AV_QUEST_H_BOSS2:
-            m_Team_QuestStatus[team][4]++;
-            if (m_Team_QuestStatus[team][4] >= 200)
+            _teamQuestStatus[team][4]++;
+            if (_teamQuestStatus[team][4] >= 200)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_NEAR_MINE:
         case AV_QUEST_H_NEAR_MINE:
-            m_Team_QuestStatus[team][5]++;
-            if (m_Team_QuestStatus[team][5] == 28)
+            _teamQuestStatus[team][5]++;
+            if (_teamQuestStatus[team][5] == 28)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][6] == 7)
+                if (_teamQuestStatus[team][6] == 7)
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
             }
             break;
         case AV_QUEST_A_OTHER_MINE:
         case AV_QUEST_H_OTHER_MINE:
-            m_Team_QuestStatus[team][6]++;
-            if (m_Team_QuestStatus[team][6] == 7)
+            _teamQuestStatus[team][6]++;
+            if (_teamQuestStatus[team][6] == 7)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][5] == 20)
+                if (_teamQuestStatus[team][5] == 20)
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
             }
             break;
         case AV_QUEST_A_RIDER_HIDE:
         case AV_QUEST_H_RIDER_HIDE:
-            m_Team_QuestStatus[team][7]++;
-            if (m_Team_QuestStatus[team][7] == 25)
+            _teamQuestStatus[team][7]++;
+            if (_teamQuestStatus[team][7] == 25)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][8] == 25)
+                if (_teamQuestStatus[team][8] == 25)
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
             }
             break;
         case AV_QUEST_A_RIDER_TAME:
         case AV_QUEST_H_RIDER_TAME:
-            m_Team_QuestStatus[team][8]++;
-            if (m_Team_QuestStatus[team][8] == 25)
+            _teamQuestStatus[team][8]++;
+            if (_teamQuestStatus[team][8] == 25)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][7] == 25)
+                if (_teamQuestStatus[team][7] == 25)
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
             }
             break;
@@ -476,7 +477,7 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
         }
         else if (!_isInformedNearVictory[team] && TeamScores[team] < SEND_MSG_NEAR_LOSE)
         {
-            SendMessageToAll(teamindex == BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, team == BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
+            SendMessageToAll(team == BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, team == BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
             PlaySoundToAll(AV_SOUND_NEAR_VICTORY);
             _isInformedNearVictory[team] = true;
         }
@@ -563,66 +564,63 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     return creature;
 }
 
-void BattlegroundAV::Update(uint32 diff)
+void BattlegroundAV::ProcessInProgress(uint32 const& diff)
 {
-    Battleground::Update(diff);
+    BattlegroundMap::ProcessInProgress(diff);
 
-    if (GetStatus() == STATUS_IN_PROGRESS)
+    for (uint8 i=0; i <= 1; i++)//0=alliance, 1=horde
     {
-        for (uint8 i=0; i <= 1; i++)//0=alliance, 1=horde
+        if (!_captainAlive[i])
+            continue;
+        if (_captainBuffTimer[i] > diff)
+            _captainBuffTimer[i] -= diff;
+        else
         {
-            if (!_captainAlive[i])
-                continue;
-            if (_captainBuffTimer[i] > diff)
-                _captainBuffTimer[i] -= diff;
+            if (i == 0)
+            {
+                CastSpellOnTeam(AV_BUFF_A_CAPTAIN, BG_TEAM_ALLIANCE);
+                Creature* creature = GetCreature(AV_CPLACE_MAX + 61);
+                if (creature)
+                    SendMessageToAll(LANG_BG_AV_A_CAPTAIN_BUFF, CHAT_MSG_MONSTER_YELL, creature, LANG_COMMON);
+            }
             else
             {
-                if (i == 0)
-                {
-                    CastSpellOnTeam(AV_BUFF_A_CAPTAIN, ALLIANCE);
-                    Creature* creature = GetCreature(AV_CPLACE_MAX + 61);
-                    if (creature)
-                        SendMessageToAll(LANG_BG_AV_A_CAPTAIN_BUFF, CHAT_MSG_MONSTER_YELL, creature, LANG_COMMON);
-                }
-                else
-                {
-                    CastSpellOnTeam(AV_BUFF_H_CAPTAIN, HORDE);
-                    Creature* creature = GetCreature(AV_CPLACE_MAX + 59); //TODO: make the captains a dynamic creature
-                    if (creature)
-                        SendMessageToAll(LANG_BG_AV_H_CAPTAIN_BUFF, CHAT_MSG_MONSTER_YELL, creature, LANG_ORCISH);
-                }
-                _captainBuffTimer[i] = 120000 + urand(0, 4)* 60000; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
+                CastSpellOnTeam(AV_BUFF_H_CAPTAIN, BG_TEAM_HORDE);
+                Creature* creature = GetCreature(AV_CPLACE_MAX + 59); //TODO: make the captains a dynamic creature
+                if (creature)
+                    SendMessageToAll(LANG_BG_AV_H_CAPTAIN_BUFF, CHAT_MSG_MONSTER_YELL, creature, LANG_ORCISH);
             }
+            _captainBuffTimer[i] = 120000 + urand(0, 4)* 60000; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
         }
-        //add points from mine owning, and look if he neutral team wanrts to reclaim the mine
-        _mineTimer -=diff;
-        for (uint8 mine=0; mine <2; mine++)
-        {
-            if (_mineOwner[mine] == ALLIANCE || _mineOwner[mine] == HORDE)
-            {
-                if (_mineTimer <= 0)
-                    UpdateScore(_mineOwner[mine], 1);
-
-                if (_mineReclaimTimer[mine] > diff)
-                    _mineReclaimTimer[mine] -= diff;
-                else{ //we don't need to set this timer to 0 cause this codepart wont get called when this thing is 0
-                    ChangeMineOwner(mine, AV_NEUTRAL_TEAM);
-                }
-            }
-        }
-        if (_mineTimer <= 0)
-            _mineTimer=AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
-
-        //looks for all timers of the nodes and destroy the building (for graveyards the building wont get destroyed, it goes just to the other team
-        for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
-            if (m_Nodes[i].State == POINT_ASSAULTED) //maybe remove this
-            {
-                if (m_Nodes[i].Timer > diff)
-                    m_Nodes[i].Timer -= diff;
-                else
-                     EventPlayerDestroyedPoint(i);
-            }
     }
+    //add points from mine owning, and look if he neutral team wanrts to reclaim the mine
+    _mineTimer -=diff;
+    for (uint8 mine=0; mine <2; mine++)
+    {
+        if (_mineOwner[mine] == BG_TEAM_ALLIANCE || _mineOwner[mine] == BG_TEAM_HORDE)
+        {
+            if (_mineTimer <= 0)
+                UpdateScore(_mineOwner[mine], 1);
+
+            if (_mineReclaimTimer[mine] > diff)
+                _mineReclaimTimer[mine] -= diff;
+            else{ //we don't need to set this timer to 0 cause this codepart wont get called when this thing is 0
+                ChangeMineOwner(mine, BG_TEAMS_COUNT);
+            }
+        }
+    }
+    if (_mineTimer <= 0)
+        _mineTimer=AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
+
+    //looks for all timers of the nodes and destroy the building (for graveyards the building wont get destroyed, it goes just to the other team
+    for (AVNodeId i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+        if (m_Nodes[i].State == POINT_ASSAULTED) //maybe remove this
+        {
+            if (m_Nodes[i].Timer > diff)
+                m_Nodes[i].Timer -= diff;
+            else
+                EventPlayerDestroyedPoint(i);
+        }
 }
 
 void BattlegroundAV::OnPlayerJoin(Player *plr)
@@ -661,13 +659,13 @@ void BattlegroundAV::HandleAreaTrigger(Player *Source, uint32 Trigger)
     {
         case 95:
         case 2608:
-            if (Source->GetTeam() != ALLIANCE)
+            if (Source->GetTeam() != BG_TEAM_ALLIANCE)
                 Source->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
             else
                 Source->LeaveBattleground();
             break;
         case 2606:
-            if (Source->GetTeam() != HORDE)
+            if (Source->GetTeam() != BG_TEAM_HORDE)
                 Source->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
             else
                 Source->LeaveBattleground();
@@ -739,46 +737,45 @@ void BattlegroundAV::EventPlayerDestroyedPoint(AVNodeId node)
     if (IsTower(node))
     {
         uint8 tmp = node-BG_AV_NODES_DUNBALDAR_SOUTH;
+
         //despawn marshal
-        if (m_BgCreatures[AV_CPLACE_A_MARSHAL_SOUTH + tmp])
-            DeleteCreature(AV_CPLACE_A_MARSHAL_SOUTH + tmp);
-        else
-            sLog->outError("BG_AV: playerdestroyedpoint: marshal %i doesn't exist", AV_CPLACE_A_MARSHAL_SOUTH + tmp);
+        DeleteCreature(AV_CPLACE_A_MARSHAL_SOUTH + tmp);
+
         //spawn destroyed aura
         for (uint8 i=0; i <= 9; i++)
             SpawnGameObject(BG_AV_OBJECT_BURN_DUNBALDAR_SOUTH + i + (tmp * 10), RESPAWN_IMMEDIATELY);
 
-        UpdateScore((owner == ALLIANCE) ? HORDE : ALLIANCE, (-1)*BG_AV_RES_TOWER);
-        RewardReputationToTeam((owner == ALLIANCE)?730:729, BG_AV_REP_TOWER, owner);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_TOWER), owner);
+        UpdateScore((owner == BG_TEAM_ALLIANCE) ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE, (-1)*BG_AV_RES_TOWER);
+        RewardReputationToTeam((owner == BG_TEAM_ALLIANCE)?730:729, BG_AV_REP_TOWER, BattlegroundTeamId(owner));
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_TOWER), BattlegroundTeamId(owner));
 
-        SpawnGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+GetTeamIndexByTeamId(owner)+(2*tmp), RESPAWN_ONE_DAY);
-        SpawnGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+GetTeamIndexByTeamId(owner)+(2*tmp), RESPAWN_ONE_DAY);
+        SpawnGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+ owner+(2*tmp), RESPAWN_ONE_DAY);
+        SpawnGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+ owner+(2*tmp), RESPAWN_ONE_DAY);
     }
     else
     {
-        if (owner == ALLIANCE)
+        if (owner == BG_TEAM_ALLIANCE)
             SpawnGameObject(object-11, RESPAWN_IMMEDIATELY);
         else
             SpawnGameObject(object+11, RESPAWN_IMMEDIATELY);
         SpawnGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_ONE_DAY);
-        SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(owner)+3*node, RESPAWN_IMMEDIATELY);
+        SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+owner+3*node, RESPAWN_IMMEDIATELY);
         PopulateNode(node);
         if (node == BG_AV_NODES_SNOWFALL_GRAVE) //snowfall eyecandy
         {
             for (uint8 i = 0; i < 4; i++)
             {
-                SpawnGameObject(((owner == ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_PA : BG_AV_OBJECT_SNOW_EYECANDY_PH)+i, RESPAWN_ONE_DAY);
-                SpawnGameObject(((owner == ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_A  : BG_AV_OBJECT_SNOW_EYECANDY_H)+i, RESPAWN_IMMEDIATELY);
+                SpawnGameObject(((owner == BG_TEAM_ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_PA : BG_AV_OBJECT_SNOW_EYECANDY_PH)+i, RESPAWN_ONE_DAY);
+                SpawnGameObject(((owner == BG_TEAM_ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_A  : BG_AV_OBJECT_SNOW_EYECANDY_H)+i, RESPAWN_IMMEDIATELY);
             }
         }
     }
     //send a nice message to all :)
     char buf[256];
     if (IsTower(node))
-        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_TOWER_TAKEN), GetNodeName(node), (owner == ALLIANCE) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
+        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_TOWER_TAKEN), GetNodeName(node), (owner == BG_TEAM_ALLIANCE) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
     else
-        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_GRAVE_TAKEN), GetNodeName(node), (owner == ALLIANCE) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
+        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_GRAVE_TAKEN), GetNodeName(node), (owner == BG_TEAM_ALLIANCE) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
 
     Creature* creature = GetCreature(AV_CPLACE_HERALD);
     if (creature)
@@ -789,10 +786,10 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
 { //mine=0 northmine mine=1 southmin
 //changing the owner results in setting respawntim to infinite for current creatures, spawning new mine owners creatures and changing the chest-objects so that the current owning team can use them
     ASSERT(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
-    if (team != ALLIANCE && team != HORDE)
-        team = AV_NEUTRAL_TEAM;
+    if (team != BG_TEAM_ALLIANCE && team != BG_TEAM_HORDE)
+        team = BG_TEAMS_COUNT;
     else
-        PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
+        PlaySoundToAll((team == BG_TEAM_ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
 
     if (_mineOwner[mine] == team && !initial)
         return;
@@ -816,9 +813,9 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
     //also neutral team exists.. after a big time, the neutral team tries to conquer the mine
     if (mine == AV_NORTH_MINE)
     {
-        if (team == ALLIANCE)
+        if (team == BG_TEAM_ALLIANCE)
             miner = AV_NPC_N_MINE_A_1;
-        else if (team == HORDE)
+        else if (team == BG_TEAM_HORDE)
             miner = AV_NPC_N_MINE_H_1;
         else
             miner = AV_NPC_N_MINE_N_1;
@@ -826,17 +823,17 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
     else
     {
         uint16 cinfo;
-        if (team == ALLIANCE)
+        if (team == BG_TEAM_ALLIANCE)
             miner = AV_NPC_S_MINE_A_1;
-        else if (team == HORDE)
+        else if (team == BG_TEAM_HORDE)
             miner = AV_NPC_S_MINE_H_1;
         else
             miner = AV_NPC_S_MINE_N_1;
        //vermin
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "spawning vermin");
-        if (team == ALLIANCE)
+        if (team == BG_TEAM_ALLIANCE)
             cinfo = AV_NPC_S_MINE_A_3;
-        else if (team == HORDE)
+        else if (team == BG_TEAM_HORDE)
             cinfo = AV_NPC_S_MINE_H_3;
         else
             cinfo = AV_NPC_S_MINE_N_S;
@@ -854,11 +851,11 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
 //    {
         //TODO: add gameobject-update code
 //    }
-    if (team == ALLIANCE || team == HORDE)
+    if (team == BG_TEAM_ALLIANCE || team == BG_TEAM_HORDE)
     {
         _mineReclaimTimer[mine]=AV_MINE_RECLAIM_TIMER;
         char buf[256];
-        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_MINE_TAKEN), sObjectMgr->GetTrinityStringForDBCLocale((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH), (team == ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
+        sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_MINE_TAKEN), sObjectMgr->GetTrinityStringForDBCLocale((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH), (team == BG_TEAM_ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
         Creature* creature = GetCreature(AV_CPLACE_HERALD);
         if (creature)
             SendMessageToAll(buf, CHAT_MSG_MONSTER_YELL, creature);
@@ -886,29 +883,27 @@ bool BattlegroundAV::PlayerCanDoMineQuest(int32 GOId, uint32 team)
 void BattlegroundAV::PopulateNode(AVNodeId node)
 {
     uint32 owner = m_Nodes[node].Owner;
-    ASSERT(owner);
+    ASSERT(owner == BG_TEAM_ALLIANCE || owner == BG_TEAM_HORDE);
 
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     uint32 creatureid;
     if (IsTower(node))
-        creatureid=(owner == ALLIANCE)?AV_NPC_A_TOWERDEFENSE:AV_NPC_H_TOWERDEFENSE;
+        creatureid=(owner == BG_TEAM_ALLIANCE)?AV_NPC_A_TOWERDEFENSE:AV_NPC_H_TOWERDEFENSE;
     else
     {
-        uint8 team2 = GetTeamIndexByTeamId(owner);
-    if (m_Team_QuestStatus[team2][0] < 500)
-            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE0 : AV_NPC_H_GRAVEDEFENSE0;
-        else if (m_Team_QuestStatus[team2][0] < 1000)
-            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE1 : AV_NPC_H_GRAVEDEFENSE1;
-        else if (m_Team_QuestStatus[team2][0] < 1500)
-            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE2 : AV_NPC_H_GRAVEDEFENSE2;
+        if (_teamQuestStatus[owner][0] < 500)
+            creatureid = (owner == BG_TEAM_ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE0 : AV_NPC_H_GRAVEDEFENSE0;
+        else if (_teamQuestStatus[owner][0] < 1000)
+            creatureid = (owner == BG_TEAM_ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE1 : AV_NPC_H_GRAVEDEFENSE1;
+        else if (_teamQuestStatus[owner][0] < 1500)
+            creatureid = (owner == BG_TEAM_ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE2 : AV_NPC_H_GRAVEDEFENSE2;
         else
-           creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
+            creatureid = (owner == BG_TEAM_ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
+        
         //spiritguide
-        if (m_BgCreatures[node])
-            DeleteCreature(node);
-        if (!AddSpiritGuide(node, BG_AV_CreaturePos[node][0], BG_AV_CreaturePos[node][1], BG_AV_CreaturePos[node][2], BG_AV_CreaturePos[node][3], owner))
-            sLog->outError("AV: couldn't spawn spiritguide at node %i", node);
+        DeleteCreature(node);
 
+        AddSpiritGuide(node, BG_AV_CreaturePos[node][0], BG_AV_CreaturePos[node][1], BG_AV_CreaturePos[node][2], BG_AV_CreaturePos[node][3], owner);
     }
     for (uint8 i=0; i<4; i++)
         AddAVCreature(creatureid, c_place+i);
@@ -924,12 +919,12 @@ void BattlegroundAV::PopulateNode(AVNodeId node)
     //aura should only apply to players who have accupied the node, set correct faction for trigger
     if (trigger)
     {
-        if (owner != ALLIANCE && owner != HORDE)//node can be neutral, remove trigger
+        if (owner != BG_TEAM_ALLIANCE && owner != BG_TEAM_HORDE)//node can be neutral, remove trigger
         {
             DeleteCreature(node + 302);
             return;
         }
-        trigger->setFaction(owner == ALLIANCE ? 84 : 83);
+        trigger->setFaction(owner == BG_TEAM_ALLIANCE ? 84 : 83);
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
@@ -937,10 +932,10 @@ void BattlegroundAV::DePopulateNode(AVNodeId node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     for (uint8 i=0; i<4; i++)
-        if (m_BgCreatures[c_place+i])
             DeleteCreature(c_place+i);
+    
     //spiritguide
-    if (!IsTower(node) && m_BgCreatures[node])
+    if (!IsTower(node))
         DeleteCreature(node);
 
     //remove bonus honor aura trigger creature when node is lost
@@ -973,7 +968,7 @@ AVNodeId BattlegroundAV::GetNodeThroughObject(uint32 object)
 uint32 BattlegroundAV::GetObjectThroughNode(AVNodeId node)
 { //this function is the counterpart to GetNodeThroughObject()
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_AV GetObjectThroughNode %i", node);
-    if (m_Nodes[node].Owner == ALLIANCE)
+    if (m_Nodes[node].Owner == BG_TEAM_ALLIANCE)
     {
         if (m_Nodes[node].State == POINT_ASSAULTED)
         {
@@ -986,7 +981,7 @@ uint32 BattlegroundAV::GetObjectThroughNode(AVNodeId node)
             if (node <= BG_AV_NODES_STONEHEART_BUNKER)
                 return node;
     }
-    else if (m_Nodes[node].Owner == HORDE)
+    else if (m_Nodes[node].Owner == BG_TEAM_HORDE)
     {
         if (m_Nodes[node].State == POINT_ASSAULTED)
         {
@@ -1001,7 +996,7 @@ uint32 BattlegroundAV::GetObjectThroughNode(AVNodeId node)
                 return node+29;
         }
     }
-    else if (m_Nodes[node].Owner == AV_NEUTRAL_TEAM)
+    else if (m_Nodes[node].Owner == BG_TEAMS_COUNT)
         return BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE;
     sLog->outError("BattlegroundAV: Error! GetPlaceNode couldn't resolve node %i", node);
     ASSERT(false);
@@ -1018,7 +1013,7 @@ void BattlegroundAV::EventPlayerClickedOnFlag(Player *source, GameObject* target
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV using gameobject %i with type %i", target_obj->GetEntry(), object);
     if (object < 0)
         return;
-    switch(target_obj->GetEntry())
+    switch (target_obj->GetEntry())
     {
         case BG_AV_OBJECTID_BANNER_A:
         case BG_AV_OBJECTID_BANNER_A_B:
@@ -1043,12 +1038,13 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     ASSERT(GetStatus() == STATUS_IN_PROGRESS);
     AVNodeId node = GetNodeThroughObject(object);
 
-    uint32 owner = m_Nodes[node].Owner; //maybe should name it prevowner
-    uint32 team = player->GetTeam();
+    BattlegroundTeamId owner = m_Nodes[node].Owner; //maybe should name it prevowner
+    BattlegroundTeamId team = BattlegroundTeamId(player->GetBGTeam());
 
-    if (owner == player->GetTeam() || m_Nodes[node].State != POINT_ASSAULTED)
+    if (owner == team || m_Nodes[node].State != POINT_ASSAULTED)
         return;
-    if (m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM)
+
+    if (m_Nodes[node].TotalOwner == BG_TEAMS_COUNT) // Neutral
     { //until snowfall doesn't belong to anyone it is better handled in assault-code
         ASSERT(node == BG_AV_NODES_SNOWFALL_GRAVE); //currently the only neutral grave
         EventPlayerAssaultsPoint(player, object);
@@ -1062,7 +1058,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     }
 
    //spawn new go :)
-    if (m_Nodes[node].Owner == ALLIANCE)
+    if (m_Nodes[node].Owner == BG_TEAM_ALLIANCE)
         SpawnGameObject(object+22, RESPAWN_IMMEDIATELY); //spawn horde banner
     else
         SpawnGameObject(object-22, RESPAWN_IMMEDIATELY); //spawn alliance banner
@@ -1070,7 +1066,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     if (!IsTower(node))
     {
         SpawnGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_ONE_DAY);
-        SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(team)+3*node, RESPAWN_IMMEDIATELY);
+        SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+team+3*node, RESPAWN_IMMEDIATELY);
     }
         // despawn old go
     SpawnGameObject(object, RESPAWN_ONE_DAY);
@@ -1082,22 +1078,22 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     if (IsTower(node))
     {
         //spawn big flag+aura on top of tower
-        SpawnGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-        SpawnGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-        SpawnGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-        SpawnGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+        SpawnGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+        SpawnGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+        SpawnGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+        SpawnGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
     }
     else if (node == BG_AV_NODES_SNOWFALL_GRAVE) //snowfall eyecandy
     {
         for (uint8 i = 0; i < 4; i++)
         {
-            SpawnGameObject(((owner == ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_PA : BG_AV_OBJECT_SNOW_EYECANDY_PH)+i, RESPAWN_ONE_DAY);
-            SpawnGameObject(((team == ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_A : BG_AV_OBJECT_SNOW_EYECANDY_H)+i, RESPAWN_IMMEDIATELY);
+            SpawnGameObject(((owner == BG_TEAM_ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_PA : BG_AV_OBJECT_SNOW_EYECANDY_PH)+i, RESPAWN_ONE_DAY);
+            SpawnGameObject(((team == BG_TEAM_ALLIANCE)?BG_AV_OBJECT_SNOW_EYECANDY_A : BG_AV_OBJECT_SNOW_EYECANDY_H)+i, RESPAWN_IMMEDIATELY);
         }
     }
     //send a nice message to all :)
     char buf[256];
-    sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale((IsTower(node)) ? LANG_BG_AV_TOWER_DEFENDED : LANG_BG_AV_GRAVE_DEFENDED), GetNodeName(node), (team == ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
+    sprintf(buf, sObjectMgr->GetTrinityStringForDBCLocale((IsTower(node)) ? LANG_BG_AV_TOWER_DEFENDED : LANG_BG_AV_GRAVE_DEFENDED), GetNodeName(node), (team == BG_TEAM_ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
     Creature* creature = GetCreature(AV_CPLACE_HERALD);
     if (creature)
         SendMessageToAll(buf, CHAT_MSG_MONSTER_YELL, creature);
@@ -1106,7 +1102,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     if (IsTower(node))
         PlaySoundToAll(AV_SOUND_BOTH_TOWER_DEFEND);
     else
-        PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
+        PlaySoundToAll((team == BG_TEAM_ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
 }
 
 void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
@@ -1114,8 +1110,8 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     ASSERT(GetStatus() == STATUS_IN_PROGRESS);
 
     AVNodeId node = GetNodeThroughObject(object);
-    uint32 owner = m_Nodes[node].Owner; //maybe name it prevowner
-    uint32 team  = player->GetTeam();
+    BattlegroundTeamId owner = m_Nodes[node].Owner; //maybe name it prevowner
+    BattlegroundTeamId team  = BattlegroundTeamId(player->GetBGTeam());
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_av: player assaults point object %i node %i", object, node);
     if (owner == team || team == m_Nodes[node].TotalOwner)
         return; //surely a gm used this object
@@ -1124,24 +1120,24 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     {
         if (object == BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE) //initial capping
         {
-            ASSERT(owner == AV_NEUTRAL_TEAM && m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM);
-            if (team == ALLIANCE)
+            ASSERT(owner == BG_TEAMS_COUNT && m_Nodes[node].TotalOwner == BG_TEAMS_COUNT);
+            if (team == BG_TEAM_ALLIANCE)
                 SpawnGameObject(BG_AV_OBJECT_FLAG_C_A_SNOWFALL_GRAVE, RESPAWN_IMMEDIATELY);
             else
                 SpawnGameObject(BG_AV_OBJECT_FLAG_C_H_SNOWFALL_GRAVE, RESPAWN_IMMEDIATELY);
             SpawnGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
         }
-        else if (m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM) //recapping, when no team owns this node realy
+        else if (m_Nodes[node].TotalOwner == BG_TEAMS_COUNT) //recapping, when no team owns this node realy
         {
             ASSERT(m_Nodes[node].State != POINT_CONTROLED);
-            if (team == ALLIANCE)
+            if (team == BG_TEAM_ALLIANCE)
                 SpawnGameObject(object-11, RESPAWN_IMMEDIATELY);
             else
                 SpawnGameObject(object+11, RESPAWN_IMMEDIATELY);
         }
         //eyecandy
         uint32 spawn, despawn;
-        if (team == ALLIANCE)
+        if (team == BG_TEAM_ALLIANCE)
         {
             despawn = (m_Nodes[node].State == POINT_ASSAULTED)?BG_AV_OBJECT_SNOW_EYECANDY_PH : BG_AV_OBJECT_SNOW_EYECANDY_H;
             spawn = BG_AV_OBJECT_SNOW_EYECANDY_PA;
@@ -1159,19 +1155,19 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     }
 
     //if snowfall gots capped it can be handled like all other graveyards
-    if (m_Nodes[node].TotalOwner != AV_NEUTRAL_TEAM)
+    if (m_Nodes[node].TotalOwner != BG_TEAMS_COUNT)
     {
-        ASSERT(m_Nodes[node].Owner != AV_NEUTRAL_TEAM);
-        if (team == ALLIANCE)
+        ASSERT(m_Nodes[node].Owner != BG_TEAMS_COUNT);
+        if (team == BG_TEAM_ALLIANCE)
             SpawnGameObject(object-22, RESPAWN_IMMEDIATELY);
         else
             SpawnGameObject(object+22, RESPAWN_IMMEDIATELY);
         if (IsTower(node))
         { //spawning/despawning of bigflag+aura
-            SpawnGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-            SpawnGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-            SpawnGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-            SpawnGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+            SpawnGameObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+            SpawnGameObject(BG_AV_OBJECT_TAURA_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+            SpawnGameObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_ALLIANCE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+            SpawnGameObject(BG_AV_OBJECT_TFLAG_H_DUNBALDAR_SOUTH+(2*(node-BG_AV_NODES_DUNBALDAR_SOUTH)), (team == BG_TEAM_HORDE)? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
         }
         else
         {
@@ -1179,7 +1175,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             SpawnGameObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
             SpawnGameObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+owner+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
             // Those who are waiting to resurrect at this object are taken to the closest own object's graveyard
-            std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
+            std::vector<uint64> ghost_list = ReviveQueue[ObjectGUIDsByType[node]];
             if (!ghost_list.empty())
             {
                 Player *plr;
@@ -1194,9 +1190,11 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
                     else
                         plr->TeleportTo(GetId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
                 }
-                m_ReviveQueue[m_BgCreatures[node]].clear();
+
+                ReviveQueue[ObjectGUIDsByType[node]].clear();
             }
         }
+
         DePopulateNode(node);
     }
 
@@ -1206,13 +1204,13 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
     //send a nice message to all :)
     char buf[256];
-    sprintf(buf, (IsTower(node)) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_TOWER_ASSAULTED) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_GRAVE_ASSAULTED), GetNodeName(node),  (team == ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
+    sprintf(buf, (IsTower(node)) ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_TOWER_ASSAULTED) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_GRAVE_ASSAULTED), GetNodeName(node),  (team == BG_TEAM_ALLIANCE) ?  sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_ALLY) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AV_HORDE));
     Creature* creature = GetCreature(AV_CPLACE_HERALD);
     if (creature)
         SendMessageToAll(buf, CHAT_MSG_MONSTER_YELL, creature);
     //update the statistic for the assaulting player
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
-    PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_ASSAULTS:AV_SOUND_HORDE_ASSAULTS);
+    PlaySoundToAll((team == BG_TEAM_ALLIANCE)?AV_SOUND_ALLIANCE_ASSAULTS:AV_SOUND_HORDE_ASSAULTS);
 }
 
 void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
@@ -1224,8 +1222,8 @@ void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
         for (uint8 j =1; j <= 3; j+=2)
         {//j=1=assaulted j=3=controled
             stateok = (m_Nodes[i].State == j);
-            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, ALLIANCE)]) << uint32((m_Nodes[i].Owner == ALLIANCE && stateok)?1:0);
-            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, HORDE)]) << uint32((m_Nodes[i].Owner == HORDE && stateok)?1:0);
+            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, BG_TEAM_ALLIANCE)]) << uint32((m_Nodes[i].Owner == BG_TEAM_ALLIANCE && stateok)?1:0);
+            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, BG_TEAM_HORDE)]) << uint32((m_Nodes[i].Owner == BG_TEAM_HORDE && stateok)?1:0);
         }
     }
 
@@ -1234,10 +1232,10 @@ void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
         for (uint8 j =1; j <= 3; j+=2)
         {//j=1=assaulted j=3=controled //i dont have j=2=destroyed cause destroyed is the same like enemy-team controll
             stateok = (m_Nodes[i].State == j || (m_Nodes[i].State == POINT_DESTROYED && j == 3));
-            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, ALLIANCE)]) << uint32((m_Nodes[i].Owner == ALLIANCE && stateok)?1:0);
-            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, HORDE)]) << uint32((m_Nodes[i].Owner == HORDE && stateok)?1:0);
+            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, BG_TEAM_ALLIANCE)]) << uint32((m_Nodes[i].Owner == BG_TEAM_ALLIANCE && stateok)?1:0);
+            data << uint32(BG_AV_NodeWorldStates[i][GetWorldStateType(j, BG_TEAM_HORDE)]) << uint32((m_Nodes[i].Owner == BG_TEAM_HORDE && stateok)?1:0);
         }
-    if (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM) //cause neutral teams aren't handled generic
+    if (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == BG_TEAMS_COUNT) //cause neutral teams aren't handled generic
         data << uint32(AV_SNOWFALL_N) << uint32(1);
     data << uint32(AV_Alliance_Score)  << uint32(TeamScores[0]);
     data << uint32(AV_Horde_Score) << uint32(TeamScores[1]);
@@ -1257,16 +1255,16 @@ void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
 uint8 BattlegroundAV::GetWorldStateType(uint8 state, uint16 team) //this is used for node worldstates and returns values which fit good into the worldstatesarray
 {
     //neutral stuff cant get handled (currently its only snowfall)
-    ASSERT(team != AV_NEUTRAL_TEAM);
+    ASSERT(team != BG_TEAMS_COUNT);
     //a_c a_a h_c h_a the positions in worldstate-array
-    if (team == ALLIANCE)
+    if (team == BG_TEAM_ALLIANCE)
     {
         if (state == POINT_CONTROLED || state == POINT_DESTROYED)
             return 0;
         if (state == POINT_ASSAULTED)
             return 1;
     }
-    if (team == HORDE)
+    if (team == BG_TEAM_HORDE)
     {
         if (state == POINT_DESTROYED || state == POINT_CONTROLED)
             return 2;
@@ -1280,7 +1278,7 @@ uint8 BattlegroundAV::GetWorldStateType(uint8 state, uint16 team) //this is used
 void BattlegroundAV::UpdateNodeWorldState(AVNodeId node)
 {
     UpdateWorldState(BG_AV_NodeWorldStates[node][GetWorldStateType(m_Nodes[node].State, m_Nodes[node].Owner)], 1);
-    if (m_Nodes[node].PrevOwner == AV_NEUTRAL_TEAM) //currently only snowfall is supported as neutral node (i don't want to make an extra row (neutral states) in worldstatesarray just for one node
+    if (m_Nodes[node].PrevOwner == BG_TEAMS_COUNT) //currently only snowfall is supported as neutral node (i don't want to make an extra row (neutral states) in worldstatesarray just for one node
         UpdateWorldState(AV_SNOWFALL_N, 0);
     else
         UpdateWorldState(BG_AV_NodeWorldStates[node][GetWorldStateType(m_Nodes[node].PrevState, m_Nodes[node].PrevOwner)], 0);
@@ -1290,20 +1288,20 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
 {
     ASSERT(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
 // currently i'm sure, that this works (:
-//    ASSERT(m_Mine_PrevOwner[mine] == ALLIANCE || m_Mine_PrevOwner[mine] == HORDE || m_Mine_PrevOwner[mine] == AV_NEUTRAL_TEAM);
-//    ASSERT(m_Mine_Owner[mine] == ALLIANCE || m_Mine_Owner[mine] == HORDE || m_Mine_Owner[mine] == AV_NEUTRAL_TEAM);
+//    ASSERT(m_Mine_PrevOwner[mine] == BG_TEAM_ALLIANCE || m_Mine_PrevOwner[mine] == BG_TEAM_HORDE || m_Mine_PrevOwner[mine] == BG_TEAMS_COUNT);
+//    ASSERT(m_Mine_Owner[mine] == BG_TEAM_ALLIANCE || m_Mine_Owner[mine] == BG_TEAM_HORDE || m_Mine_Owner[mine] == BG_TEAMS_COUNT);
 
     uint8 owner, prevowner, mine2; //those variables are needed to access the right worldstate in the BG_AV_MineWorldStates array
     mine2 = (mine == AV_NORTH_MINE)?0:1;
-    if (_minePreviousOwner[mine] == ALLIANCE)
+    if (_minePreviousOwner[mine] == BG_TEAM_ALLIANCE)
         prevowner = 0;
-    else if (_minePreviousOwner[mine] == HORDE)
+    else if (_minePreviousOwner[mine] == BG_TEAM_HORDE)
         prevowner = 2;
     else
         prevowner = 1;
-    if (_mineOwner[mine] == ALLIANCE)
+    if (_mineOwner[mine] == BG_TEAM_ALLIANCE)
         owner = 0;
-    else if (_mineOwner[mine] == HORDE)
+    else if (_mineOwner[mine] == BG_TEAM_HORDE)
         owner = 2;
     else
         owner = 1;
@@ -1323,7 +1321,7 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
 
     player->GetPosition(x, y);
 
-    pGraveyard = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
+    pGraveyard = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[player->GetBGTeam()+7]);
     minDist = (pGraveyard->x - x)*(pGraveyard->x - x)+(pGraveyard->y - y)*(pGraveyard->y - y);
 
     for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
@@ -1372,7 +1370,7 @@ const char* BattlegroundAV::GetNodeName(AVNodeId node)
     return "Unknown";
 }
 
-void BattlegroundAV::AssaultNode(AVNodeId node, uint16 team)
+void BattlegroundAV::AssaultNode(AVNodeId node, BattlegroundTeamId team)
 {
     if (m_Nodes[node].TotalOwner == team)
     {
@@ -1413,7 +1411,7 @@ void BattlegroundAV::DestroyNode(AVNodeId node)
     m_Nodes[node].Timer      = 0;
 }
 
-void BattlegroundAV::InitNode(AVNodeId node, uint16 team, bool tower)
+void BattlegroundAV::InitNode(AVNodeId node, BattlegroundTeamId team, bool tower)
 {
     m_Nodes[node].TotalOwner = team;
     m_Nodes[node].Owner      = team;
@@ -1425,7 +1423,7 @@ void BattlegroundAV::InitNode(AVNodeId node, uint16 team, bool tower)
     m_Nodes[node].Tower      = tower;
 }
 
-void BattlegroundAV::DefendNode(AVNodeId node, uint16 team)
+void BattlegroundAV::DefendNode(AVNodeId node, BattlegroundTeamId team)
 {
     ASSERT(m_Nodes[node].TotalOwner == team);
     ASSERT(m_Nodes[node].Owner != team);

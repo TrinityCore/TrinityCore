@@ -427,7 +427,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         DeleteCreature(node+7);//NULL checks are in DeleteCreature! 0-6 spirit guides
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
+    std::vector<uint64> ghost_list = ReviveQueue[m_BgCreatures[node]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const *ClosestGrave = NULL;

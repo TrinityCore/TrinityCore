@@ -18,12 +18,7 @@
 #ifndef BATTLEGROUND_TEMPLATE_H
 #define BATTLEGROUND_TEMPLATE_H
 
-enum BattlegroundTeamId
-{
-    BG_TEAM_ALLIANCE        = 0,
-    BG_TEAM_HORDE           = 1
-};
-#define BG_TEAMS_COUNT  2
+#include "BattlegroundMap.h"
 
 struct BattlegroundTemplate
 {

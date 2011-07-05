@@ -62,7 +62,8 @@ enum BattlegroundQueueGroupTypes
 };
 #define BG_QUEUE_GROUP_TYPES_COUNT 4
 
-class Battleground;
+class BattlegroundMap;
+struct BattlegroundTemplate;
 class BattlegroundQueue
 {
     public:
@@ -71,9 +72,9 @@ class BattlegroundQueue
 
         void Update(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
 
-        void FillPlayersToBG(Battleground* bg, BattlegroundBracketId bracket_id);
+        void FillPlayersToBG(BattlegroundMap* bg, BattlegroundBracketId bracket_id);
         bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
-        bool CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
+        bool CheckNormalMatch(BattlegroundTemplate* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
         GroupQueueInfo * AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 ArenaTeamId = 0);
         void RemovePlayer(const uint64& guid, bool decreaseInvitedCount);
@@ -118,7 +119,7 @@ class BattlegroundQueue
 
     private:
 
-        bool InviteGroupToBG(GroupQueueInfo * ginfo, Battleground* bg, uint32 side);
+        bool InviteGroupToBG(GroupQueueInfo * ginfo, BattlegroundMap* bg, uint32 side);
         uint32 m_WaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
         uint32 m_WaitTimeLastPlayer[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
         uint32 m_SumOfWaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
@@ -132,7 +133,7 @@ class BGQueueInviteEvent : public BasicEvent
 {
     public:
         BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime)
+          _playerGUID(pl_guid), _bgInstanceGUID(BgInstanceGUID), _bgTypeId(BgTypeId), _arenaType(arenaType), _removeTime(removeTime)
           {
           };
         virtual ~BGQueueInviteEvent() {};
@@ -140,11 +141,11 @@ class BGQueueInviteEvent : public BasicEvent
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
     private:
-        uint64 m_PlayerGuid;
-        uint32 m_BgInstanceGUID;
-        BattlegroundTypeId m_BgTypeId;
-        uint8  m_ArenaType;
-        uint32 m_RemoveTime;
+        uint64 _playerGUID;
+        uint32 _bgInstanceGUID;
+        BattlegroundTypeId _bgTypeId;
+        uint8  _arenaType;
+        uint32 _removeTime;
 };
 
 /*
@@ -156,7 +157,7 @@ class BGQueueRemoveEvent : public BasicEvent
 {
     public:
         BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
-            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
+            : _playerGUID(pl_guid), _bgInstanceGUID(bgInstanceGUID), _removeTime(removeTime), _bgTypeId(BgTypeId), _bgQueueTypeId(bgQueueTypeId)
         {}
 
         virtual ~BGQueueRemoveEvent() {}
@@ -164,11 +165,11 @@ class BGQueueRemoveEvent : public BasicEvent
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
     private:
-        uint64 m_PlayerGuid;
-        uint32 m_BgInstanceGUID;
-        uint32 m_RemoveTime;
-        BattlegroundTypeId m_BgTypeId;
-        BattlegroundQueueTypeId m_BgQueueTypeId;
+        uint64 _playerGUID;
+        uint32 _bgInstanceGUID;
+        uint32 _removeTime;
+        BattlegroundTypeId _bgTypeId;
+        BattlegroundQueueTypeId _bgQueueTypeId;
 };
 
 #endif
