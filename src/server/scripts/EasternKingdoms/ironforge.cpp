@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Ironforge
 SD%Complete: 100
-SDComment: Quest support: 3702, 25229, 25199
+SDComment: Quest support: 3702, 25229, 25199, 25283
 SDCategory: Ironforge
 EndScriptData */
 
@@ -27,6 +27,7 @@ EndScriptData */
 npc_royal_historian_archesonus
 npc_gnome_citizen
 npc_steamcrank
+npc_mekkatorque
 spell_motivate_a_tron
 EndContentData */
 
@@ -120,6 +121,12 @@ enum Spells
 
     // Press Fire
     SPELL_SHOOT_VISUAL                  = 74179,
+
+    // Prepping the Speech
+    SPELL_CREATE_TELEPORTER             = 74206,
+    SPELL_CREDIT_OZZIE                  = 74154,
+    SPELL_CREDIT_MILLI                  = 74155,
+    SPELL_CREDIT_TOG                    = 74156,
 };
 
 enum Creatures
@@ -134,6 +141,12 @@ enum Creatures
 
     // Basic Orders
     NPC_TRAINEE                         = 39349,
+
+    // Prepping Speech
+    NPC_OZZIE                           = 1268,
+    NPC_MILLI                           = 7955,
+    NPC_TOG                             = 6119,
+    NPC_SUMMONING_PAD                   = 39817,
 };
 
 enum Points
@@ -248,7 +261,7 @@ class npc_gnome_citizen : public CreatureScript
 #define STEAM_11    "Приготовьтесь показать мне как солдат должен быть рад победе!"
 #define STEAM_12    "Давайте! Выразите свой восторг!"
 #define STEAM_13    "Потрясающе!"
-#define STEAM_14    "Однако, самое в сражении - уметь правильно отметить заработанную потом и кровью победу!"
+#define STEAM_14    "Однако, самое важное в сражении - уметь правильно отметить заработанную потом и кровью победу!"
 #define STEAM_15    "Исполните для меня свой самый лучший победный танец! Начинайте по сигналу!"
 #define STEAM_16    "А теперь - танцевать!"
 #define STEAM_17    "Великолепно!"
@@ -265,8 +278,6 @@ class npc_steamcrank : public CreatureScript
 
             void Reset()
             {
-                /*_step = 0;
-                _stepTimer = 1000;*/
             }
 
             void JumpToNextStep(uint32 uiTimer)
@@ -444,6 +455,169 @@ class npc_steamcrank : public CreatureScript
         }
 };
 
+#define MEK_1_0    "Пусть они заберут наши жизни, но им никогда не забрать..."
+#define MEK_1_1    "...нашу ИЗОБРЕТАТЕЛЬНОСТЬ!"
+#define LIS_1_0    "Что? Я понятия не имею о чем он говорит! Это ужастно!"
+#define MEK_2_0    "Мы не позволим себя уничтожить! Мы не сдадимся без боя!"
+#define MEK_2_1    "Мы будем жить! Мы будем продолжать жить! Сегодня мы празднуем..."
+#define MEK_2_2    "...наш День Независимости!"
+#define LIS_2_0    "Кошмар! Хотя... может и ничего, если немного подчистить."
+#define MEK_3_0    "Вы должны тщательно обыскать каждую заправку, все дома, склады, фермы, уборные и конуры в этом районе."
+#define MEK_3_1    "Имя беглеца - Анжинер Термоштепсель."
+#define MEK_3_2    "Идите и задержите его."
+#define LIS_3_0    "Пожалуй, должно работать. Хотя чего-то ему явно не хватает."
+
+class npc_mekkatorque : public CreatureScript
+{
+    public:
+        npc_mekkatorque() : CreatureScript("npc_mekkatorque") { }
+
+        struct npc_mekkatorqueAI : public ScriptedAI
+        {
+            npc_mekkatorqueAI(Creature* creature) : ScriptedAI(creature)
+            {
+                if (Creature* ozzie = me->FindNearestCreature(NPC_OZZIE, 15.0f, true))
+                    _listener = ozzie;
+                else if (Creature* milli = me->FindNearestCreature(NPC_MILLI, 15.0f, true))
+                    _listener = milli;
+                else if(Creature* tog = me->FindNearestCreature(NPC_TOG, 15.0f, true))
+                    _listener = tog;
+                else
+                {
+                    me->ForcedDespawn();
+                    return;
+                }
+                _variation = urand (1,3);
+                me->CastSpell(me, SPELL_CREATE_TELEPORTER, true);
+            }
+
+            void Reset()
+            {
+            }
+
+            void JumpToNextStep(uint32 uiTimer)
+            {
+                _stepTimer = uiTimer;
+                ++_step;
+            }
+
+            void CastCredit()
+            {
+                Unit* owner = me->GetOwner();
+                switch (_listener->GetEntry())
+                {
+                    case NPC_OZZIE:
+                        me->CastSpell(owner, SPELL_CREDIT_OZZIE, true);
+                        break;
+                    case NPC_MILLI:
+                        me->CastSpell(owner, SPELL_CREDIT_MILLI, true);
+                        break;
+                    case NPC_TOG:
+                        me->CastSpell(owner, SPELL_CREDIT_TOG, true);
+                        break;
+                }
+                me->ForcedDespawn();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (_stepTimer <= diff)
+                {
+                    switch (_variation)
+                    {
+                        case 1:
+                            switch (_step)
+                            {
+                                case 0:
+                                    me->MonsterSay(MEK_1_0, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(5000);
+                                    break;
+                                case 1:
+                                    me->MonsterSay(MEK_1_1, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(5000);
+                                    break;
+                                case 2:
+                                    _listener->MonsterSay(LIS_1_0, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(3000);
+                                    break;
+                                case 3:
+                                    if (Creature* Pad = me->FindNearestCreature(NPC_SUMMONING_PAD, 1.0f, true))
+                                        Pad->ForcedDespawn();
+                                    CastCredit();
+                                    break;
+                            }
+                            break;
+                        case 2:
+                            switch (_step)
+                            {
+                                case 0:
+                                    me->MonsterSay(MEK_2_0, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(5000);
+                                    break;
+                                case 1:
+                                    me->MonsterSay(MEK_2_1, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(5000);
+                                    break;
+                                case 2:
+                                    me->MonsterSay(MEK_2_2, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(5000);
+                                    break;
+                                case 3:
+                                    _listener->MonsterSay(LIS_2_0, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(3000);
+                                    break;
+                                case 4:
+                                    if (Creature* Pad = me->FindNearestCreature(NPC_SUMMONING_PAD, 1.0f, true))
+                                        Pad->ForcedDespawn();
+                                    CastCredit();
+                                    break;
+                            }
+                            break;
+                        case 3:
+                            switch (_step)
+                            {
+                                case 0:
+                                    me->MonsterSay(MEK_3_0, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(7000);
+                                    break;
+                                case 1:
+                                    me->MonsterSay(MEK_3_1, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(3000);
+                                    break;
+                                case 2:
+                                    me->MonsterSay(MEK_3_2, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(3000);
+                                    break;
+                                case 3:
+                                    _listener->MonsterSay(LIS_3_0, LANG_UNIVERSAL, NULL);
+                                    JumpToNextStep(3000);
+                                    break;
+                                case 4:
+                                    if (Creature* Pad = me->FindNearestCreature(NPC_SUMMONING_PAD, 1.0f, true))
+                                        Pad->ForcedDespawn();
+                                    CastCredit();
+                                    break;
+                            }
+                            break;
+                    }
+                }
+                else
+                    _stepTimer -= diff;
+            }
+
+        private:
+            uint32 _step;
+            uint32 _stepTimer;
+            uint32 _variation;
+            Creature* _listener;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_mekkatorqueAI(creature);
+        }
+};
+
 class spell_motivate_a_tron : public SpellScriptLoader
 {
     public:
@@ -503,15 +677,16 @@ class spell_shoot : public SpellScriptLoader
                return true;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleTrigger(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_SHOOT_VISUAL, true);
+                if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
+                    if (Unit* driver = vehicle->GetPassenger(0))
+                        driver->CastSpell(driver, 74184, true);
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_shoot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_shoot_SpellScript::HandleTrigger, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
             }
         };
 
@@ -526,6 +701,7 @@ void AddSC_ironforge()
     new npc_royal_historian_archesonus();
     new npc_gnome_citizen();
     new npc_steamcrank();
+    new npc_mekkatorque();
     new spell_motivate_a_tron();
-    //new spell_shoot();
+    new spell_shoot();
 }

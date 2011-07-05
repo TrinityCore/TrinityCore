@@ -1239,13 +1239,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     unitTarget->Kill(unitTarget);
                     return;
                 }
-                case 74182:                                 // Shoot
-                {
-                    if (Vehicle *vehicle = m_caster->GetVehicleKit())
-                        if (Unit *driver = vehicle->GetPassenger(0))
-                            driver->CastSpell(driver, 74184, true);
-                    return;
-                }
                 case 73082:                                 // Deploy Radiageigatron
                 {
                     if (!unitTarget)
