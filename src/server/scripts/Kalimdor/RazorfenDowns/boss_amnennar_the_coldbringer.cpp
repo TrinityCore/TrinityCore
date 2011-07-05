@@ -48,7 +48,7 @@ public:
 
     struct boss_amnennar_the_coldbringerAI : public ScriptedAI
     {
-        boss_amnennar_the_coldbringerAI(Creature *c) : ScriptedAI(c) {}
+        boss_amnennar_the_coldbringerAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 AmnenarsWrath_Timer;
         uint32 FrostBolt_Timer;

@@ -83,7 +83,7 @@ public:
 
     struct boss_ingvar_the_plundererAI : public ScriptedAI
     {
-        boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
+        boss_ingvar_the_plundererAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -242,7 +242,7 @@ public:
                     if (!me->HasUnitState(UNIT_STAT_CASTING))
                     {
                         // Spawn target for Axe
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
                         if (pTarget)
                         {
                             me->SummonCreature(ENTRY_THROW_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
@@ -296,7 +296,7 @@ public:
 
     struct mob_annhylde_the_callerAI : public ScriptedAI
     {
-        mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c)
+        mob_annhylde_the_callerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -409,7 +409,7 @@ public:
 
     struct mob_ingvar_throw_dummyAI : public ScriptedAI
     {
-        mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
+        mob_ingvar_throw_dummyAI(Creature* c) : ScriptedAI(c)
         {
         }
 
@@ -417,7 +417,7 @@ public:
 
         void Reset()
         {
-            Unit *pTarget = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
+            Unit* pTarget = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
             if (pTarget)
             {
                 DoCast(me, SPELL_SHADOW_AXE_DAMAGE);

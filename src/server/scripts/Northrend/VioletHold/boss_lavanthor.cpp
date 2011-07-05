@@ -41,7 +41,7 @@ public:
 
     struct boss_lavanthorAI : public ScriptedAI
     {
-        boss_lavanthorAI(Creature *c) : ScriptedAI(c)
+        boss_lavanthorAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -72,7 +72,7 @@ public:
         {
             if (pInstance)
             {
-            if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_LAVANTHOR_CELL)))
+            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_LAVANTHOR_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();

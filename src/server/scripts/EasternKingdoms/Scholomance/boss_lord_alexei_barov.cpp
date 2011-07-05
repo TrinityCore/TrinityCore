@@ -41,7 +41,7 @@ public:
 
     struct boss_lordalexeibarovAI : public ScriptedAI
     {
-        boss_lordalexeibarovAI(Creature *c) : ScriptedAI(c) {}
+        boss_lordalexeibarovAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Immolate_Timer;
         uint32 VeilofShadow_Timer;
@@ -78,7 +78,7 @@ public:
             //Immolate_Timer
             if (Immolate_Timer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget) DoCast(pTarget, SPELL_IMMOLATE);
 

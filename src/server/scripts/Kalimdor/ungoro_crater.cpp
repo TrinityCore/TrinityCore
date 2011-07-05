@@ -74,7 +74,7 @@ public:
 
     struct npc_ameAI : public npc_escortAI
     {
-        npc_ameAI(Creature *c) : npc_escortAI(c) {}
+        npc_ameAI(Creature* c) : npc_escortAI(c) {}
 
         uint32 DEMORALIZINGSHOUT_Timer;
 
@@ -217,7 +217,7 @@ public:
             SpraggleGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit *pWho)
+        void MoveInLineOfSight(Unit* pWho)
         {
             FollowerAI::MoveInLineOfSight(pWho);
 
@@ -276,7 +276,7 @@ public:
                 {
                     if (m_uiEndEventTimer <= uiDiff)
                     {
-                        Unit *pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
+                        Unit* pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
                         if (!pSpraggle || !pSpraggle->isAlive())
                         {
                             SetFollowComplete();

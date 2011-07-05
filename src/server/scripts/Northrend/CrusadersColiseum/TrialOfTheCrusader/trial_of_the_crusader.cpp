@@ -114,9 +114,9 @@ class npc_announcer_toc10 : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_THRALL, 300.0f))
+                if (Creature* pAlly = GetClosestCreatureWithEntry(me, NPC_THRALL, 300.0f))
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_PROUDMOORE, 300.0f))
+                if (Creature* pAlly = GetClosestCreatureWithEntry(me, NPC_PROUDMOORE, 300.0f))
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
@@ -168,9 +168,6 @@ class npc_announcer_toc10 : public CreatureScript
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    if (Creature* icehowl = Unit::GetCreature(*player, instanceScript->GetData64(NPC_ICEHOWL)))
-                        icehowl->DespawnOrUnsummon();
-                                           
                     if (Creature* jaraxxus = Unit::GetCreature(*player, instanceScript->GetData64(NPC_JARAXXUS)))
                     {
                         jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
@@ -185,9 +182,6 @@ class npc_announcer_toc10 : public CreatureScript
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    if (Creature* jaraxxus = Unit::GetCreature(*player, instanceScript->GetData64(NPC_JARAXXUS)))
-                        jaraxxus->DespawnOrUnsummon();
-
                     if (instanceScript->GetData(TYPE_CRUSADERS) != DONE)
                     {
                         if (player->GetTeam() == ALLIANCE)
@@ -243,7 +237,7 @@ class boss_lich_king_toc : public CreatureScript
 
         struct boss_lich_king_tocAI : public ScriptedAI
         {
-            boss_lich_king_tocAI(Creature *pCreature) : ScriptedAI(pCreature)
+            boss_lich_king_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             }

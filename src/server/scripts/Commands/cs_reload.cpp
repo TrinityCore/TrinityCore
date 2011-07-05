@@ -98,7 +98,6 @@ public:
             { "gm_tickets",                   SEC_ADMINISTRATOR, true,  &HandleReloadGMTicketsCommand,                  "", NULL },
             { "gossip_menu",                  SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuCommand,                 "", NULL },
             { "gossip_menu_option",           SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
-            { "gossip_scripts",               SEC_ADMINISTRATOR, true,  &HandleReloadGossipScriptsCommand,              "", NULL },
             { "item_enchantment_template",    SEC_ADMINISTRATOR, true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",           SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
             { "item_set_names",               SEC_ADMINISTRATOR, true,  &HandleReloadItemSetNamesCommand,               "", NULL },
@@ -145,6 +144,7 @@ public:
             { "spell_linked_spell",           SEC_ADMINISTRATOR, true,  &HandleReloadSpellLinkedSpellCommand,           "", NULL },
             { "spell_pet_auras",              SEC_ADMINISTRATOR, true,  &HandleReloadSpellPetAurasCommand,              "", NULL },
             { "spell_proc_event",             SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcEventCommand,             "", NULL },
+            { "spell_proc",                   SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcsCommand,             "", NULL },
             { "spell_scripts",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellScriptsCommand,               "", NULL },
             { "spell_target_position",        SEC_ADMINISTRATOR, true,  &HandleReloadSpellTargetPositionCommand,        "", NULL },
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
@@ -257,7 +257,6 @@ public:
 
         sLog->outString("Re-Loading Scripts...");
         HandleReloadGameObjectScriptsCommand(handler, "a");
-        HandleReloadGossipScriptsCommand(handler, "a");
         HandleReloadEventScriptsCommand(handler, "a");
         HandleReloadQuestEndScriptsCommand(handler, "a");
         HandleReloadQuestStartScriptsCommand(handler, "a");
@@ -286,6 +285,7 @@ public:
         HandleReloadSpellLearnSpellCommand(handler, "a");
         HandleReloadSpellLinkedSpellCommand(handler, "a");
         HandleReloadSpellProcEventCommand(handler, "a");
+        HandleReloadSpellProcsCommand(handler, "a");
         HandleReloadSpellBonusesCommand(handler, "a");
         HandleReloadSpellTargetPositionCommand(handler, "a");
         HandleReloadSpellThreatsCommand(handler, "a");
@@ -299,7 +299,6 @@ public:
         HandleReloadGossipMenuCommand(handler, "a");
         HandleReloadGossipMenuOptionCommand(handler, "a");
         if(*args != 'a')                                          // already reload from all_scripts
-        HandleReloadGossipScriptsCommand(handler, "a");
         HandleReloadPointsOfInterestCommand(handler, "a");
         return true;
     }
@@ -855,6 +854,14 @@ public:
         return true;
     }
 
+    static bool HandleReloadSpellProcsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        sLog->outString("Re-Loading Spell Proc conditions and data...");
+        sSpellMgr->LoadSpellProcs();
+        handler->SendGlobalGMSysMessage("DB table `spell_proc` (spell proc conditions and data) reloaded.");
+        return true;
+    }
+
     static bool HandleReloadSpellBonusesCommand(ChatHandler* handler, const char* /*args*/)
     {
         sLog->outString("Re-Loading Spell Bonus Data...");
@@ -916,26 +923,6 @@ public:
         sLog->outString("Re-Loading Item set names...");
         LoadRandomEnchantmentsTable();
         handler->SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadGossipScriptsCommand(ChatHandler* handler, const char* args)
-    {
-        if (sScriptMgr->IsScriptScheduled())
-        {
-            handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (*args != 'a')
-            sLog->outString("Re-Loading Scripts from `gossip_scripts`...");
-
-        sObjectMgr->LoadGossipScripts();
-
-        if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB table `gossip_scripts` reloaded.");
-
         return true;
     }
 

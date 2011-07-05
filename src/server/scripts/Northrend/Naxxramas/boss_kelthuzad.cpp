@@ -302,7 +302,7 @@ public:
 
             FindGameObjects();
 
-            if (GameObject *pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
             {
                 pKTTrigger->ResetDoorOrButton();
                 pKTTrigger->SetPhaseMask(1, true);
@@ -310,7 +310,7 @@ public:
 
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                 {
                     if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
                         pPortal->ResetDoorOrButton();
@@ -352,7 +352,7 @@ public:
             FindGameObjects();
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                     pPortal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
@@ -415,7 +415,7 @@ public:
                                 events.PopEvent();
                             break;
                         case EVENT_TRIGGER:
-                            if (GameObject *pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+                            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
                                 pKTTrigger->SetPhaseMask(2, true);
                             events.PopEvent();
                             break;
@@ -457,7 +457,7 @@ public:
 
                         for (uint8 i = 0; i <= 3; ++i)
                         {
-                            if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                            if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                             {
                                 if (pPortal->getLootState() == GO_READY)
                                     pPortal->UseDoorOrButton();
@@ -498,7 +498,7 @@ public:
                             uint32 count = urand(1, 3);
                             for (uint8 i = 1; i <= count; i++)
                             {
-                                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
+                                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
                                 if (pTarget && !pTarget->isCharmed() && (chained.find(pTarget->GetGUID()) == chained.end()))
                                 {
                                     DoCast(pTarget, SPELL_CHAINS_OF_KELTHUZAD);
@@ -530,7 +530,7 @@ public:
                                         continue;
                                     }
 
-                                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
+                                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
                                     {
                                         switch(player->getClass())
                                         {
@@ -616,12 +616,12 @@ public:
                             break;
                         }
                         case EVENT_FISSURE:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, SPELL_SHADOW_FISURE);
                             events.RepeatEvent(urand(10000, 45000));
                             break;
                         case EVENT_BLAST:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(pTarget, SPELL_FROST_BLAST);
                             if (rand()%2)
                                 DoScriptText(SAY_FROST_BLAST, me);

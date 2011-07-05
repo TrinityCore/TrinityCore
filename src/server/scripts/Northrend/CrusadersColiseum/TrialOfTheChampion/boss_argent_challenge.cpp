@@ -152,8 +152,8 @@ public:
 
             bDone = false;
         }
-    		
-        void DamageTaken(Unit *done_by, uint32 &damage)
+
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage >= me->GetHealth())
             {		
@@ -290,7 +290,7 @@ public:
                 me->RemoveAura(SPELL_SHIELD);
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage >= me->GetHealth())
             {
@@ -306,9 +306,8 @@ public:
                 if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);		
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
-                if (IsHeroic())
-                    pInstance->DoCompleteAchievement(ACHIEV_CONF);
-    		}
+
+            }
         }
 
         void MovementInform(uint32 MovementType, uint32 Data)

@@ -127,11 +127,11 @@ public:
 
     struct npc_ragged_johnAI : public ScriptedAI
     {
-        npc_ragged_johnAI(Creature *c) : ScriptedAI(c) {}
+        npc_ragged_johnAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (who->HasAura(16468))
             {

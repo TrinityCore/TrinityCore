@@ -343,14 +343,12 @@ void Map::ScriptsProcess()
             switch (GUID_HIPART(step.targetGUID))
             {
                 case HIGHGUID_UNIT:
+                case HIGHGUID_VEHICLE:
                     target = HashMapHolder<Creature>::Find(step.targetGUID);
                     break;
                 case HIGHGUID_PET:
                     target = HashMapHolder<Pet>::Find(step.targetGUID);
                     break;
-                //case HIGHGUID_VEHICLE:
-                //    target = HashMapHolder<Vehicle>::Find(step.targetGUID);
-                //    break;
                 case HIGHGUID_PLAYER:                       // empty GUID case also
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;

@@ -45,7 +45,7 @@ public:
 
     struct boss_infinite_corruptorAI : public ScriptedAI
     {
-        boss_infinite_corruptorAI(Creature *c) : ScriptedAI(c)
+        boss_infinite_corruptorAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -78,9 +78,6 @@ public:
             if (pInstance)
             {
                 pInstance->SetData(DATA_INFINITE_EVENT, DONE);
-
-                if (IsHeroic())
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CULLING_OF_TIME);
             }
         }
     };

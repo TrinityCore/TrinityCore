@@ -72,7 +72,7 @@ public:
         return true;
     }
 
-    bool EffectDummyCreature(Unit *pCaster, uint32 spellId, uint32 effIndex, Creature *pCreatureTarget)
+    bool EffectDummyCreature(Unit* pCaster, uint32 spellId, uint32 effIndex, Creature* pCreatureTarget)
     {
         //always check spellid and effectindex
         if (spellId == SPELL_KODO_KOMBO_ITEM && effIndex == 0)
@@ -176,7 +176,7 @@ class go_iruxos : public GameObjectScript
 public:
     go_iruxos() : GameObjectScript("go_iruxos") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
     {
             if (pPlayer->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
                 pPlayer->SummonCreature(11876, pPlayer->GetInnPosX(), pPlayer->GetInnPosY(), pPlayer->GetInnPosZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);

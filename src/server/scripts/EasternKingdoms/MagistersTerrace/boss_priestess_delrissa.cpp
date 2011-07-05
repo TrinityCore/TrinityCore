@@ -256,7 +256,7 @@ public:
             if (HealTimer <= diff)
             {
                 uint32 health = me->GetHealth();
-                Unit *pTarget = me;
+                Unit* pTarget = me;
                 for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 {
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[i]))
@@ -272,7 +272,7 @@ public:
 
             if (RenewTimer <= diff)
             {
-                Unit *pTarget = me;
+                Unit* pTarget = me;
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
@@ -285,7 +285,7 @@ public:
 
             if (ShieldTimer <= diff)
             {
-                Unit *pTarget = me;
+                Unit* pTarget = me;
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
@@ -298,7 +298,7 @@ public:
 
             if (DispelTimer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* pTarget = NULL;
 
                 if (urand(0, 1))
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
@@ -494,7 +494,7 @@ public:
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
     {
         //Rogue
-        boss_kagani_nightstrikeAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_kagani_nightstrikeAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         uint32 Gouge_Timer;
         uint32 Kick_Timer;
@@ -599,7 +599,7 @@ public:
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
     {
         //Warlock
-        boss_ellris_duskhallowAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_ellris_duskhallowAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         uint32 Immolate_Timer;
         uint32 Shadow_Bolt_Timer;
@@ -691,7 +691,7 @@ public:
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
     {
         //Monk
-        boss_eramas_brightblazeAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_eramas_brightblazeAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         uint32 Knockdown_Timer;
         uint32 Snap_Kick_Timer;
@@ -753,7 +753,7 @@ public:
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
     {
         //Mage
-        boss_yazzaiAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_yazzaiAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         bool HasIceBlocked;
 
@@ -791,7 +791,7 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_POLYMORPH);
                     Polymorph_Timer = 20000;
@@ -836,7 +836,7 @@ public:
                 std::list<HostileReference*>& t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         //if in melee range
                         if (pTarget->IsWithinDistInMap(me, 5))
@@ -884,7 +884,7 @@ public:
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
     {
         //Warrior
-        boss_warlord_salarisAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_warlord_salarisAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         uint32 Intercept_Stun_Timer;
         uint32 Disarm_Timer;
@@ -923,7 +923,7 @@ public:
                 std::list<HostileReference*>& t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         //if in melee range
                         if (pTarget->IsWithinDistInMap(me, ATTACK_DISTANCE))
@@ -1005,7 +1005,7 @@ public:
     struct boss_garaxxasAI : public boss_priestess_lackey_commonAI
     {
         //Hunter
-        boss_garaxxasAI(Creature *c) : boss_priestess_lackey_commonAI(c) { m_uiPetGUID = 0; }
+        boss_garaxxasAI(Creature* c) : boss_priestess_lackey_commonAI(c) { m_uiPetGUID = 0; }
 
         uint64 m_uiPetGUID;
 
@@ -1125,7 +1125,7 @@ public:
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
     {
         //Shaman
-        boss_apokoAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_apokoAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         uint32 Totem_Timer;
         uint8  Totem_Amount;
@@ -1224,7 +1224,7 @@ public:
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI
     {
         //Engineer
-        boss_zelfanAI(Creature *c) : boss_priestess_lackey_commonAI(c) {}
+        boss_zelfanAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
 
         uint32 Goblin_Dragon_Gun_Timer;
         uint32 Rocket_Launch_Timer;

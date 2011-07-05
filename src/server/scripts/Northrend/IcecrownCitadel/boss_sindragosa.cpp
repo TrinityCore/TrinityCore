@@ -1140,7 +1140,6 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                PreventDefaultAction();
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
             }
@@ -1384,7 +1383,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
             void HandleTriggerMissile(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (Position* pos = GetTargetDest())
+                if (Position const* pos = GetTargetDest())
                     if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
                     {
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
@@ -1396,7 +1395,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             void MarkIcyBlastSpot()
             {
-                if (Position* pos = GetTargetDest())
+                if (WorldLocation const* pos = GetTargetDest())
                     if (TempSummon* summon = GetCaster()->SummonCreature(NPC_TRIGGER, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
                     {
                         summon->CastSpell(summon, 65686, true); //Just visual aura

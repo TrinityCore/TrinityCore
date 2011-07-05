@@ -190,7 +190,7 @@ class BattlegroundWS : public Battleground
         virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
         virtual void EventPlayerCapturedFlag(Player *Source);
 
-        void RemovePlayer(Player *plr, uint64 guid);
+        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();

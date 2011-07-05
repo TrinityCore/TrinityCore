@@ -52,7 +52,7 @@ public:
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
     {
-        boss_shirrak_the_dead_watcherAI(Creature *c) : ScriptedAI(c)
+        boss_shirrak_the_dead_watcherAI(Creature* c) : ScriptedAI(c)
         {
         }
 
@@ -75,7 +75,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         { }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             if (summoned && summoned->GetEntry() == ENTRY_FOCUS_FIRE)
             {
@@ -84,7 +84,7 @@ public:
                 summoned->SetLevel(me->getLevel());
                 summoned->AddUnitState(UNIT_STAT_ROOT);
 
-                if (Unit *pFocusedTarget = Unit::GetUnit(*me, FocusedTargetGUID))
+                if (Unit* pFocusedTarget = Unit::GetUnit(*me, FocusedTargetGUID))
                     summoned->AI()->AttackStart(pFocusedTarget);
             }
         }
@@ -136,7 +136,7 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                 {
                     FocusedTargetGUID = pTarget->GetGUID();
@@ -172,7 +172,7 @@ public:
 
     struct mob_focus_fireAI : public ScriptedAI
     {
-        mob_focus_fireAI(Creature *c) : ScriptedAI(c)
+        mob_focus_fireAI(Creature* c) : ScriptedAI(c)
         {
         }
 

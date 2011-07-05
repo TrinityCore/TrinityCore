@@ -51,7 +51,6 @@ ScriptMapMap sQuestStartScripts;
 ScriptMapMap sSpellScripts;
 ScriptMapMap sGameObjectScripts;
 ScriptMapMap sEventScripts;
-ScriptMapMap sGossipScripts;
 ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type)
@@ -65,7 +64,6 @@ std::string GetScriptsTableNameByType(ScriptsType type)
         case SCRIPTS_GAMEOBJECT:    res = "gameobject_scripts"; break;
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
         case SCRIPTS_WAYPOINT:      res = "waypoint_scripts";   break;
-        case SCRIPTS_GOSSIP:        res = "gossip_scripts";     break;
         default: break;
     }
     return res;
@@ -82,7 +80,6 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
         case SCRIPTS_GAMEOBJECT:    res = &sGameObjectScripts;  break;
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
         case SCRIPTS_WAYPOINT:      res = &sWaypointScripts;    break;
-        case SCRIPTS_GOSSIP:        res = &sGossipScripts;      break;
         default: break;
     }
     return res;
@@ -1437,8 +1434,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                                         0     1   2      3           4            5         6            7           8            9            10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //          11            12        13        14           15           16        17          18          19                 20                  21                   22
-        "currentwaypoint, curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags "
+    //          11            12        13        14           15           16        17          18          19                 20                  21
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1497,15 +1494,14 @@ void ObjectMgr::LoadCreatures()
         data.currentwaypoint= fields[11].GetUInt32();
         data.curhealth      = fields[12].GetUInt32();
         data.curmana        = fields[13].GetUInt32();
-        data.is_dead        = fields[14].GetBool();
-        data.movementType   = fields[15].GetUInt8();
-        data.spawnMask      = fields[16].GetUInt8();
-        data.phaseMask      = fields[17].GetUInt16();
-        int16 gameEvent     = fields[18].GetInt16();
-        uint32 PoolId       = fields[19].GetUInt32();
-        data.npcflag        = fields[20].GetUInt32();
-        data.unit_flags     = fields[21].GetUInt32();
-        data.dynamicflags   = fields[22].GetUInt32();
+        data.movementType   = fields[14].GetUInt8();
+        data.spawnMask      = fields[15].GetUInt8();
+        data.phaseMask      = fields[16].GetUInt16();
+        int16 gameEvent     = fields[17].GetInt16();
+        uint32 PoolId       = fields[18].GetUInt32();
+        data.npcflag        = fields[19].GetUInt32();
+        data.unit_flags     = fields[20].GetUInt32();
+        data.dynamicflags   = fields[21].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1727,7 +1723,6 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.currentwaypoint = 0;
     data.curhealth = stats->GenerateHealth(cInfo);
     data.curmana = stats->GenerateMana(cInfo);
-    data.is_dead = false;
     data.movementType = cInfo->MovementType;
     data.spawnMask = 1;
     data.phaseMask = PHASEMASK_NORMAL;
@@ -2007,7 +2002,7 @@ uint64 ObjectMgr::GetPlayerGUIDByName(std::string name) const
 {
     uint64 guid = 0;
 
-    CharacterDatabase.escape_string(name);
+    CharacterDatabase.EscapeString(name);
 
     // Player name safe to sending to DB (checked at login) and this function using
     QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE name = '%s'", name.c_str());
@@ -2935,48 +2930,6 @@ void ObjectMgr::LoadVehicleAccessories()
     while (result->NextRow());
 
     sLog->outString(">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
-void ObjectMgr::LoadVehicleScaling()
-{
-    uint32 oldMSTime = getMSTime();
-
-    m_VehicleScalingMap.clear();                           // needed for reload case
-
-    uint32 count = 0;
-
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `baseItemLevel`, `scalingFactor` FROM `vehicle_scaling_info`");
-
-    if (!result)
-    {
-        sLog->outString(">> Loaded 0 vehicle scaling entries. DB table `vehicle_scaling_info` is empty.");
-        sLog->outString();
-        return;
-    }
-
-    do
-    {
-        Field *fields = result->Fetch();
-
-        uint32 vehicleEntry       = fields[0].GetUInt32();
-        float baseItemLevel       = fields[1].GetFloat();
-        float scalingFactor       = fields[2].GetFloat();
-
-        if (!sVehicleStore.LookupEntry(vehicleEntry))
-        {
-            sLog->outErrorDb("Table `vehicle_scaling_info`: vehicle entry %u does not exist.", vehicleEntry);
-            continue;
-        }
-
-        m_VehicleScalingMap[vehicleEntry].ID = vehicleEntry;
-        m_VehicleScalingMap[vehicleEntry].baseItemLevel = baseItemLevel;
-        m_VehicleScalingMap[vehicleEntry].scalingFactor = scalingFactor;
-
-        ++count;
-    } while (result->NextRow());
-
-    sLog->outString(">> Loaded %u vehicle scaling entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -5089,13 +5042,6 @@ void ObjectMgr::ValidateSpellScripts()
 
     sLog->outString(">> Validated %u scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
-}
-
-void ObjectMgr::LoadGossipScripts()
-{
-    LoadScripts(SCRIPTS_GOSSIP);
-
-    // checks are done in LoadGossipMenuItems
 }
 
 void ObjectMgr::LoadPageTexts()
@@ -8515,7 +8461,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     QueryResult result = WorldDatabase.Query(
         "SELECT menu_id, id, option_icon, option_text, option_id, npc_option_npcflag, "
-        "action_menu_id, action_poi_id, action_script_id, box_coded, box_money, box_text "
+        "action_menu_id, action_poi_id, box_coded, box_money, box_text "
         "FROM gossip_menu_option ORDER BY menu_id, id");
 
     if (!result)
@@ -8527,14 +8473,8 @@ void ObjectMgr::LoadGossipMenuItems()
 
     uint32 count = 0;
 
-    std::set<uint32> gossipScriptSet;
-
-    for (ScriptMapMap::const_iterator itr = sGossipScripts.begin(); itr != sGossipScripts.end(); ++itr)
-        gossipScriptSet.insert(itr->first);
-
     do
     {
-
         Field* fields = result->Fetch();
 
         GossipMenuItems gMenuItem;
@@ -8547,10 +8487,9 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.OptionNpcflag         = fields[5].GetUInt32();
         gMenuItem.ActionMenuId          = fields[6].GetUInt32();
         gMenuItem.ActionPoiId           = fields[7].GetUInt32();
-        gMenuItem.ActionScriptId        = fields[8].GetUInt32();
-        gMenuItem.BoxCoded              = fields[9].GetBool();
-        gMenuItem.BoxMoney              = fields[10].GetUInt32();
-        gMenuItem.BoxText               = fields[11].GetString();
+        gMenuItem.BoxCoded              = fields[8].GetBool();
+        gMenuItem.BoxMoney              = fields[9].GetUInt32();
+        gMenuItem.BoxText               = fields[10].GetString();
 
         if (gMenuItem.OptionIcon >= GOSSIP_ICON_MAX)
         {
@@ -8567,33 +8506,10 @@ void ObjectMgr::LoadGossipMenuItems()
             gMenuItem.ActionPoiId = 0;
         }
 
-        if (gMenuItem.ActionScriptId)
-        {
-            if (gMenuItem.OptionType != GOSSIP_OPTION_GOSSIP)
-            {
-                sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u but option_id is not GOSSIP_OPTION_GOSSIP, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionScriptId);
-                continue;
-            }
-
-            if (sGossipScripts.find(gMenuItem.ActionScriptId) == sGossipScripts.end())
-            {
-                sLog->outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u that does not exist in `gossip_scripts`, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionScriptId);
-                continue;
-            }
-
-            gossipScriptSet.erase(gMenuItem.ActionScriptId);
-        }
-
         m_mGossipMenuItemsMap.insert(GossipMenuItemsMap::value_type(gMenuItem.MenuId, gMenuItem));
         ++count;
     }
     while (result->NextRow());
-
-    if (!gossipScriptSet.empty())
-    {
-        for (std::set<uint32>::const_iterator itr = gossipScriptSet.begin(); itr != gossipScriptSet.end(); ++itr)
-            sLog->outErrorDb("Table `gossip_scripts` contain unused script, id %u.", *itr);
-    }
 
     sLog->outString(">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();

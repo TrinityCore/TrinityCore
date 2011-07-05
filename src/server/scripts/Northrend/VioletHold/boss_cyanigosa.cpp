@@ -57,7 +57,7 @@ public:
 
     struct boss_cyanigosaAI : public ScriptedAI
     {
-        boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
+        boss_cyanigosaAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -111,7 +111,7 @@ public:
 
             if (uiBlizzardTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_BLIZZARD);
                 uiBlizzardTimer = 15000;
             } else uiBlizzardTimer -= diff;
@@ -159,7 +159,28 @@ public:
 
 };
 
+class achievement_defenseless : public AchievementCriteriaScript
+{
+    public:
+        achievement_defenseless() : AchievementCriteriaScript("achievement_defenseless")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            InstanceScript* instance = target->GetInstanceScript();
+            if (!instance)
+                return false;
+
+            if (!instance->GetData(DATA_DEFENSELESS))
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_boss_cyanigosa()
 {
     new boss_cyanigosa();
+    new achievement_defenseless();
 }

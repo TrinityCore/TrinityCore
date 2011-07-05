@@ -96,7 +96,7 @@ class mob_warp_splinter_treant : public CreatureScript
                 {
                     if (WarpGuid && check_Timer <= diff)
                     {
-                        if (Unit *Warp = Unit::GetUnit(*me, WarpGuid))
+                        if (Unit* Warp = Unit::GetUnit(*me, WarpGuid))
                         {
                             if (me->IsWithinMeleeRange(Warp, 2.5f))
                             {
@@ -184,7 +184,7 @@ class boss_warp_splinter : public CreatureScript
                     float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * sin(angle);
                     float O = - me->GetAngle(X, Y);
 
-                    if (Creature *pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                    if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                         CAST_AI(mob_warp_splinter_treant::mob_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
                 }
                 DoScriptText(RAND(SAY_SUMMON_1, SAY_SUMMON_2), me);

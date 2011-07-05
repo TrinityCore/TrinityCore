@@ -67,6 +67,7 @@ enum UlduarBosses
 
 enum UlduarNPCs
 {
+    // General
     NPC_LEVIATHAN                                = 33113,
     NPC_IGNIS                                    = 33118,
     NPC_RAZORSCALE                               = 33186,
@@ -79,7 +80,6 @@ enum UlduarNPCs
     NPC_MOLGEIM                                  = 32927,
     NPC_BRUNDIR                                  = 32857,
     NPC_KOLOGARN                                 = 32930,
-    NPC_KOLOGARN_BRIDGE                          = 34297,
     NPC_FOCUSED_EYEBEAM                          = 33632,
     NPC_FOCUSED_EYEBEAM_RIGHT                    = 33802,
     NPC_LEFT_ARM                                 = 32933,
@@ -93,6 +93,8 @@ enum UlduarNPCs
     NPC_VEZAX                                    = 33271,
     NPC_YOGGSARON                                = 33288,
     NPC_ALGALON                                  = 32871,
+
+    // Mimiron
     NPC_LEVIATHAN_MKII                           = 33432,
     NPC_VX_001                                   = 33651,
     NPC_AERIAL_COMMAND_UNIT                      = 33670,
@@ -127,6 +129,15 @@ enum UlduarNPCs
     NPC_YS_HODIR                                 = 33411,
     NPC_YOGGSARON_BRAIN                          = 33890,			 
 
+    // Freya's trash NPCs
+    NPC_CORRUPTED_SERVITOR                       = 33354,
+    NPC_MISGUIDED_NYMPH                          = 33355,
+    NPC_GUARDIAN_LASHER                          = 33430,
+    NPC_FOREST_SWARMER                           = 33431,
+    NPC_MANGROVE_ENT                             = 33525,
+    NPC_IRONROOT_LASHER                          = 33526,
+    NPC_NATURES_BLADE                            = 33527,
+    NPC_GUARDIAN_OF_LIFE                         = 33528,
 };
 
 enum UlduarGameObjects
@@ -154,6 +165,7 @@ enum UlduarGameObjects
     GO_RAZOR_BROKEN_HARPOON                      = 194565,
     GO_HODIR_DOOR                                = 194634,
     GO_HODIR_ICE_DOOR                            = 194441,
+    GO_ARCHIVUM_DOOR                             = 194556,
 };
 
 enum UlduarTowerEvents
@@ -164,22 +176,10 @@ enum UlduarTowerEvents
     EVENT_TOWER_OF_LIFE_DESTROYED                = 21030,
 };
 
-enum UlduarAchievementCriteria
+enum UlduarAchievementCriteriaIds
 {
-    ACHIEVEMENT_UNBROKEN_10                              = 10044, // Leviathan
-    ACHIEVEMENT_UNBROKEN_25                              = 10045,
-    ACHIEVEMENT_CRITERIA_SHUTOUT_10                      = 10054,
-    ACHIEVEMENT_CRITERIA_SHUTOUT_25                      = 10055,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_10         = 10046,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_10           = 10047,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_10      = 10048,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_25         = 10049,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_25           = 10050,
-    ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_25      = 10051,
-    ACHIEVEMENT_CRITERIA_HOT_POCKET_10                   = 10430, // Ignis
-    ACHIEVEMENT_CRITERIA_HOT_POCKET_25                   = 10431,
-    ACHIEVEMENT_CRITERIA_QUICK_SHAVE_10                  = 10062, // Razorscale
-    ACHIEVEMENT_CRITERIA_QUICK_SHAVE_25                  = 10063,
+    CRITERIA_CON_SPEED_ATORY                     = 21597,
+    CRITERIA_DISARMED                            = 21687,
 };
 
 template<class AI>
@@ -192,5 +192,18 @@ CreatureAI* GetUlduarAI(Creature* creature)
 
     return NULL;
 }
+
+class PlayerOrPetCheck
+{
+    public:
+        bool operator() (Unit* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->isPet())
+                    return true;
+
+            return false;
+        }
+};
 
 #endif

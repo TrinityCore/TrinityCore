@@ -225,7 +225,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
         if (citemName && citemName[0])
         {
             std::string itemName = citemName+1;
-            WorldDatabase.escape_string(itemName);
+            WorldDatabase.EscapeString(itemName);
             QueryResult result = WorldDatabase.PQuery("SELECT entry FROM item_template WHERE name = '%s'", itemName.c_str());
             if (!result)
             {
@@ -3203,7 +3203,7 @@ bool ChatHandler::HandleBanInfoIPCommand(const char *args)
 
     std::string IP = cIP;
 
-    LoginDatabase.escape_string(IP);
+    LoginDatabase.EscapeString(IP);
     QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '%s'", IP.c_str());
     if (!result)
     {
@@ -3312,7 +3312,7 @@ bool ChatHandler::HandleBanListAccountCommand(const char *args)
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
-    LoginDatabase.escape_string(filter);
+    LoginDatabase.EscapeString(filter);
 
     QueryResult result;
 
@@ -3346,7 +3346,7 @@ bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
         return false;
 
     std::string filter = cFilter;
-    LoginDatabase.escape_string(filter);
+    LoginDatabase.EscapeString(filter);
     QueryResult result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
     if (!result)
     {
@@ -3437,7 +3437,7 @@ bool ChatHandler::HandleBanListIPCommand(const char *args)
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
-    LoginDatabase.escape_string(filter);
+    LoginDatabase.EscapeString(filter);
 
     QueryResult result;
 

@@ -702,6 +702,12 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (9503,-1230000,'Ah, hits the spot!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'rocknot SAY_GOT_BEER'),
    (9019,-1230001,'Come to aid the Throne!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'dagran SAY_AGGRO'),
    (9019,-1230002,'Hail to the king, baby!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'dagran SAY_SLAY'),
+   (10096,-1230003,'You have been sentenced to death for crimes against the Dark Iron nation!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'npc_grimstone SCRIPT_TEXT1'),
+   (10096,-1230004,'The Sons of Thaurissan shall watch you perish in the Ring of the Law!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'npc_grimstone SCRIPT_TEXT2'),
+   (10096,-1230005,'Unleash the fury and let it be done!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'npc_grimstone SCRIPT_TEXT3'),
+   (10096,-1230006,'Haha! I bet you thought you were done!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'npc_grimstone SCRIPT_TEXT4'),
+   (10096,-1230007,'But your real punishment lies ahead.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'npc_grimstone SCRIPT_TEXT5'),
+   (10096,-1230008,'Good riddance!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'npc_grimstone SCRIPT_TEXT6'),
 
 -- -1 249 000 ONYXIA'S LAIR
    (10184,-1249000,'How fortuitous. Usually, I must leave my lair to feed.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'onyxia SAY_AGGRO'),
@@ -2423,6 +2429,8 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33515,-1603052,'There is no escape!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15475,1,0,0,'Auriaya SAY_SLAY_2'),
    (33515,-1603053,'Auriaya screams in agony.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,6,0,15476,'Auriaya SAY_DEATH'),
    (33515,-1603054,'You waste my time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15477,1,0,0,'Auriaya SAY_BERSERK'),
+   (33515,-1603055,'Auriaya begins to cast Terrifying Screech.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'Auriaya - EMOTE_FEAR'),
+   (33515,-1603056,'Auriaya begins to activate the Feral Defender!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'Auriaya - EMOTE_DEFENDER'),
 
 -- Flame Leviathan
    (33113,-1603060,'Hostile entities detected. Threat assessment protocol active. Primary target engaged. Time minus thirty seconds to re-evaluation.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15506,1,0,0,'Flame Leviathan SAY_AGGRO'),
