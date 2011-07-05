@@ -40,9 +40,9 @@ class boss_high_inquisitor_fairbanks : public CreatureScript
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_inquisitor_fairbanksAI (pCreature);
+        return new boss_high_inquisitor_fairbanksAI (creature);
     }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
@@ -87,8 +87,8 @@ public:
             //Fear_Timer
             if (Fear_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(pTarget, SPELL_FEAR);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    DoCast(target, SPELL_FEAR);
 
                 Fear_Timer = 40000;
             } else Fear_Timer -= diff;
@@ -96,8 +96,8 @@ public:
             //Sleep_Timer
             if (Sleep_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
-                    DoCast(pTarget, SPELL_SLEEP);
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                    DoCast(target, SPELL_SLEEP);
 
                 Sleep_Timer = 30000;
             } else Sleep_Timer -= diff;
@@ -112,8 +112,8 @@ public:
             //Dispel_Timer
             if (Dispel_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_DISPELMAGIC);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_DISPELMAGIC);
 
                 DispelMagic_Timer = 30000;
             } else DispelMagic_Timer -= diff;

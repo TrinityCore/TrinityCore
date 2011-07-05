@@ -71,9 +71,9 @@ class boss_the_lurker_below : public CreatureScript
 public:
     boss_the_lurker_below() : CreatureScript("boss_the_lurker_below") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_the_lurker_belowAI (pCreature);
+        return new boss_the_lurker_belowAI (creature);
     }
 
     struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
@@ -299,11 +299,11 @@ public:
 
                 if (GeyserTimer <= diff)
                 {
-                    Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (!pTarget && me->getVictim())
-                        pTarget = me->getVictim();
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_GEYSER, true);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                    if (!target && me->getVictim())
+                        target = me->getVictim();
+                    if (target)
+                        DoCast(target, SPELL_GEYSER, true);
                     GeyserTimer = rand()%5000 + 15000;
                 } else GeyserTimer -= diff;
 
@@ -311,11 +311,11 @@ public:
                 {
                     if (WaterboltTimer <= diff)
                     {
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!pTarget && me->getVictim())
-                            pTarget = me->getVictim();
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_WATERBOLT, true);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (!target && me->getVictim())
+                            target = me->getVictim();
+                        if (target)
+                            DoCast(target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
                     } else WaterboltTimer -= diff;
                 }
@@ -375,9 +375,9 @@ class mob_coilfang_guardian : public CreatureScript
 public:
     mob_coilfang_guardian() : CreatureScript("mob_coilfang_guardian") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI* ai = new SimpleAI (pCreature);
+        SimpleAI* ai = new SimpleAI (creature);
 
         ai->Spell[0].Enabled = true;
         ai->Spell[0].Spell_Id = SPELL_ARCINGSMASH;
@@ -401,9 +401,9 @@ class mob_coilfang_ambusher : public CreatureScript
 public:
     mob_coilfang_ambusher() : CreatureScript("mob_coilfang_ambusher") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_coilfang_ambusherAI (pCreature);
+        return new mob_coilfang_ambusherAI (creature);
     }
 
     struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
@@ -453,11 +453,11 @@ public:
 
             if (ShootBowTimer <= diff)
             {
-                Unit* pTarget = NULL;
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 int bp0 = 1100;
-                if (pTarget)
-                    me->CastCustomSpell(pTarget, SPELL_SHOOT, &bp0, NULL, NULL, true);
+                if (target)
+                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, NULL, NULL, true);
                 ShootBowTimer = 4000+rand()%5000;
                 MultiShotTimer += 1500;//add global cooldown
             } else ShootBowTimer -= diff;

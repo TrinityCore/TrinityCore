@@ -79,7 +79,7 @@ class boss_ragnaros : public CreatureScript
 
         struct boss_ragnarosAI : public BossAI
         {
-            boss_ragnarosAI(Creature* pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
+            boss_ragnarosAI(Creature* creature) : BossAI(creature, BOSS_RAGNAROS)
             {
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
@@ -259,9 +259,9 @@ class boss_ragnaros : public CreatureScript
 
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
-                                                    pSummoned->AI()->AttackStart(pTarget);
+                                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                                if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
+                                                    summoned->AI()->AttackStart(target);
 
                                         _hasSubmergedOnce = true;
                                         _isBanished = true;
@@ -274,9 +274,9 @@ class boss_ragnaros : public CreatureScript
                                         DoScriptText(SAY_REINFORCEMENTS2, me);
 
                                         for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
-                                                    pSummoned->AI()->AttackStart(pTarget);
+                                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                                if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
+                                                    summoned->AI()->AttackStart(target);
 
                                         _isBanished = true;
                                         //DoCast(me, SPELL_RAGSUBMERGE);
@@ -303,9 +303,9 @@ class boss_ragnaros : public CreatureScript
             bool _isBanished;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_ragnarosAI(pCreature);
+            return new boss_ragnarosAI(creature);
         }
 };
 
@@ -339,9 +339,9 @@ class mob_son_of_flame : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_son_of_flameAI(pCreature);
+            return new mob_son_of_flameAI(creature);
         }
 };
 

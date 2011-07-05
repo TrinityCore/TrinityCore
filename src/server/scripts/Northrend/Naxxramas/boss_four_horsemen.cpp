@@ -82,9 +82,9 @@ class boss_four_horsemen : public CreatureScript
 public:
     boss_four_horsemen() : CreatureScript("boss_four_horsemen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_four_horsemenAI (pCreature);
+        return new boss_four_horsemenAI (creature);
     }
 
     struct boss_four_horsemenAI : public BossAI
@@ -361,8 +361,8 @@ public:
 
                         if (caster)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
-                                DoCast(pTarget, SPELL_PRIMARY(id));
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                                DoCast(target, SPELL_PRIMARY(id));
                         }
                         else
                             DoCast(me->getVictim(), SPELL_PRIMARY(id));

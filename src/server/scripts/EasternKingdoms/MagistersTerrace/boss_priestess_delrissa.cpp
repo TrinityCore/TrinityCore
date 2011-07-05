@@ -92,9 +92,9 @@ class boss_priestess_delrissa : public CreatureScript
 public:
     boss_priestess_delrissa() : CreatureScript("boss_priestess_delrissa") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_priestess_delrissaAI(pCreature);
+        return new boss_priestess_delrissaAI(creature);
     }
 
     struct boss_priestess_delrissaAI : public ScriptedAI
@@ -256,72 +256,72 @@ public:
             if (HealTimer <= diff)
             {
                 uint32 health = me->GetHealth();
-                Unit* pTarget = me;
+                Unit* target = me;
                 for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 {
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[i]))
                     {
                         if (pAdd->isAlive() && pAdd->GetHealth() < health)
-                            pTarget = pAdd;
+                            target = pAdd;
                     }
                 }
 
-                DoCast(pTarget, SPELL_FLASH_HEAL);
+                DoCast(target, SPELL_FLASH_HEAL);
                 HealTimer = 15000;
             } else HealTimer -= diff;
 
             if (RenewTimer <= diff)
             {
-                Unit* pTarget = me;
+                Unit* target = me;
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                         if (pAdd->isAlive())
-                            pTarget = pAdd;
+                            target = pAdd;
 
-                DoCast(pTarget, SPELL_RENEW_NORMAL);
+                DoCast(target, SPELL_RENEW_NORMAL);
                 RenewTimer = 5000;
             } else RenewTimer -= diff;
 
             if (ShieldTimer <= diff)
             {
-                Unit* pTarget = me;
+                Unit* target = me;
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                         if (pAdd->isAlive() && !pAdd->HasAura(SPELL_SHIELD))
-                            pTarget = pAdd;
+                            target = pAdd;
 
-                DoCast(pTarget, SPELL_SHIELD);
+                DoCast(target, SPELL_SHIELD);
                 ShieldTimer = 7500;
             } else ShieldTimer -= diff;
 
             if (DispelTimer <= diff)
             {
-                Unit* pTarget = NULL;
+                Unit* target = NULL;
 
                 if (urand(0, 1))
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 else
                 {
                     if (urand(0, 1))
-                        pTarget = me;
+                        target = me;
                     else
                         if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                             if (pAdd->isAlive())
-                                pTarget = pAdd;
+                                target = pAdd;
                 }
 
-                if (pTarget)
-                    DoCast(pTarget, SPELL_DISPEL_MAGIC);
+                if (target)
+                    DoCast(target, SPELL_DISPEL_MAGIC);
 
                 DispelTimer = 12000;
             } else DispelTimer -= diff;
 
             if (SWPainTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_SW_PAIN_NORMAL);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_SW_PAIN_NORMAL);
 
                 SWPainTimer = 10000;
             } else SWPainTimer -= diff;
@@ -372,9 +372,9 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* who)
     {
-        if (!pWho)
+        if (!who)
             return;
 
         if (pInstance)
@@ -385,8 +385,8 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 {
                     if (!pAdd->getVictim() && pAdd != me)
                     {
-                        pWho->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(pWho, 0.0f);
+                        who->SetInCombatWith(pAdd);
+                        pAdd->AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -395,8 +395,8 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
             {
                 if (pDelrissa->isAlive() && !pDelrissa->getVictim())
                 {
-                    pWho->SetInCombatWith(pDelrissa);
-                    pDelrissa->AddThreat(pWho, 0.0f);
+                    who->SetInCombatWith(pDelrissa);
+                    pDelrissa->AddThreat(who, 0.0f);
                 }
             }
         }
@@ -486,9 +486,9 @@ class boss_kagani_nightstrike : public CreatureScript
 public:
     boss_kagani_nightstrike() : CreatureScript("boss_kagani_nightstrike") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kagani_nightstrikeAI(pCreature);
+        return new boss_kagani_nightstrikeAI(creature);
     }
 
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
@@ -591,9 +591,9 @@ class boss_ellris_duskhallow : public CreatureScript
 public:
     boss_ellris_duskhallow() : CreatureScript("boss_ellris_duskhallow") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ellris_duskhallowAI(pCreature);
+        return new boss_ellris_duskhallowAI(creature);
     }
 
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
@@ -618,7 +618,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_SUMMON_IMP);
         }
@@ -683,9 +683,9 @@ class boss_eramas_brightblaze : public CreatureScript
 public:
     boss_eramas_brightblaze() : CreatureScript("boss_eramas_brightblaze") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eramas_brightblazeAI(pCreature);
+        return new boss_eramas_brightblazeAI(creature);
     }
 
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
@@ -745,9 +745,9 @@ class boss_yazzai : public CreatureScript
 public:
     boss_yazzai() : CreatureScript("boss_yazzai") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_yazzaiAI(pCreature);
+        return new boss_yazzaiAI(creature);
     }
 
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
@@ -791,9 +791,9 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_POLYMORPH);
+                    DoCast(target, SPELL_POLYMORPH);
                     Polymorph_Timer = 20000;
                 }
             } else Polymorph_Timer -= diff;
@@ -836,10 +836,10 @@ public:
                 std::list<HostileReference*>& t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         //if in melee range
-                        if (pTarget->IsWithinDistInMap(me, 5))
+                        if (target->IsWithinDistInMap(me, 5))
                         {
                             InMeleeRange = true;
                             break;
@@ -876,9 +876,9 @@ class boss_warlord_salaris : public CreatureScript
 public:
     boss_warlord_salaris() : CreatureScript("boss_warlord_salaris") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_warlord_salarisAI(pCreature);
+        return new boss_warlord_salarisAI(creature);
     }
 
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
@@ -923,10 +923,10 @@ public:
                 std::list<HostileReference*>& t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         //if in melee range
-                        if (pTarget->IsWithinDistInMap(me, ATTACK_DISTANCE))
+                        if (target->IsWithinDistInMap(me, ATTACK_DISTANCE))
                         {
                             InMeleeRange = true;
                             break;
@@ -997,9 +997,9 @@ class boss_garaxxas : public CreatureScript
 public:
     boss_garaxxas() : CreatureScript("boss_garaxxas") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_garaxxasAI(pCreature);
+        return new boss_garaxxasAI(creature);
     }
 
     struct boss_garaxxasAI : public boss_priestess_lackey_commonAI
@@ -1032,9 +1032,9 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            m_uiPetGUID = pSummoned->GetGUID();
+            m_uiPetGUID = summoned->GetGUID();
         }
 
         void UpdateAI(const uint32 diff)
@@ -1117,9 +1117,9 @@ class boss_apoko : public CreatureScript
 public:
     boss_apoko() : CreatureScript("boss_apoko") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_apokoAI(pCreature);
+        return new boss_apokoAI(creature);
     }
 
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
@@ -1216,9 +1216,9 @@ class boss_zelfan : public CreatureScript
 public:
     boss_zelfan() : CreatureScript("boss_zelfan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_zelfanAI(pCreature);
+        return new boss_zelfanAI(creature);
     }
 
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI
@@ -1302,9 +1302,9 @@ class mob_high_explosive_sheep : public CreatureScript
 public:
     mob_high_explosive_sheep() : CreatureScript("mob_high_explosive_sheep") { }
 
-    //CreatureAI* GetAI(Creature* pCreature) const
+    //CreatureAI* GetAI(Creature* creature) const
     //{
-    //    return new mob_high_explosive_sheepAI (pCreature);
+    //    return new mob_high_explosive_sheepAI (creature);
     //};
 };
 */

@@ -38,9 +38,9 @@ class boss_kruul : public CreatureScript
 public:
     boss_kruul() : CreatureScript("boss_kruul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kruulAI (pCreature);
+        return new boss_kruulAI (creature);
     }
 
     struct boss_kruulAI : public ScriptedAI
@@ -76,10 +76,10 @@ public:
             DoCast(me, SPELL_CAPTURESOUL);
         }
 
-        void SummonHounds(Unit* pVictim)
+        void SummonHounds(Unit* victim)
         {
             if (Creature* Hound = DoSpawnCreature(19207, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
-                Hound->AI()->AttackStart(pVictim);
+                Hound->AI()->AttackStart(victim);
         }
 
         void UpdateAI(const uint32 diff)

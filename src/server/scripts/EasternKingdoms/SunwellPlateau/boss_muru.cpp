@@ -106,9 +106,9 @@ class boss_entropius : public CreatureScript
 public:
     boss_entropius() : CreatureScript("boss_entropius") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_entropiusAI (pCreature);
+        return new boss_entropiusAI (creature);
     }
 
     struct boss_entropiusAI : public ScriptedAI
@@ -206,9 +206,9 @@ class boss_muru : public CreatureScript
 public:
     boss_muru() : CreatureScript("boss_muru") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_muruAI (pCreature);
+        return new boss_muruAI (creature);
     }
 
     struct boss_muruAI : public Scripted_NoMovementAI
@@ -371,9 +371,9 @@ class npc_muru_portal : public CreatureScript
 public:
     npc_muru_portal() : CreatureScript("npc_muru_portal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_muru_portalAI (pCreature);
+        return new npc_muru_portalAI (creature);
     }
 
     struct npc_muru_portalAI : public Scripted_NoMovementAI
@@ -455,9 +455,9 @@ class npc_dark_fiend : public CreatureScript
 public:
     npc_dark_fiend() : CreatureScript("npc_dark_fiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dark_fiendAI (pCreature);
+        return new npc_dark_fiendAI (creature);
     }
 
     struct npc_dark_fiendAI : public ScriptedAI
@@ -518,9 +518,9 @@ class npc_void_sentinel : public CreatureScript
 public:
     npc_void_sentinel() : CreatureScript("npc_void_sentinel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_void_sentinelAI (pCreature);
+        return new npc_void_sentinelAI (creature);
     }
 
     struct npc_void_sentinelAI : public ScriptedAI
@@ -574,9 +574,9 @@ class npc_blackhole : public CreatureScript
 public:
     npc_blackhole() : CreatureScript("npc_blackhole") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_blackholeAI (pCreature);
+        return new npc_blackholeAI (creature);
     }
 
     struct npc_blackholeAI : public ScriptedAI

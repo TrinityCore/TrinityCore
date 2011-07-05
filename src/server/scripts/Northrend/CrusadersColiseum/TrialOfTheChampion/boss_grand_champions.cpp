@@ -97,18 +97,33 @@ void AggroAllPlayers(Creature* pTemp)
 
     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
+<<<<<<< HEAD
         if(Player* pPlayer = i->getSource())
         {
             if(pPlayer->isGameMaster())
                 continue;
 
             if(pPlayer->isAlive())
+=======
+        if (Player* player = i->getSource())
+        {
+            if (player->isGameMaster())
+                continue;
+
+            if (player->isAlive())
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
             {
                 pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 pTemp->SetReactState(REACT_AGGRESSIVE);
+<<<<<<< HEAD
                 pTemp->SetInCombatWith(pPlayer);
                 pPlayer->SetInCombatWith(pTemp);
                 pTemp->AddThreat(pPlayer, 100.0f);
+=======
+                pTemp->SetInCombatWith(player);
+                player->SetInCombatWith(pTemp);
+                pTemp->AddThreat(player, 0.0f);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
             }
         }
     }
@@ -153,11 +168,20 @@ public:
 
     struct generic_vehicleAI_toc5AI : public npc_escortAI
     {
+<<<<<<< HEAD
         generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature), vehicle(pCreature->GetVehicleKit())
         {
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
             pInstance = pCreature->GetInstanceScript();
+=======
+        generic_vehicleAI_toc5AI(Creature* creature) : npc_escortAI(creature)
+        {
+            SetDespawnAtEnd(false);
+            uiWaypointPath = 0;
+
+            pInstance = creature->GetInstanceScript();
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         }
 
         InstanceScript* pInstance;
@@ -230,7 +254,11 @@ public:
             }
         }
 
+<<<<<<< HEAD
         void EnterCombat(Unit* pWho)
+=======
+        void EnterCombat(Unit* /*who*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
             if (Unit* champ = vehicle->GetPassenger(SEAT_ID_0))
                 champ->ToCreature()->SetInCombatWithZone();
@@ -257,6 +285,29 @@ public:
                 uiBuffTimer = urand(30000,45000);
             }else uiBuffTimer -= uiDiff;
 
+<<<<<<< HEAD
+=======
+            if (uiChargeTimer <= uiDiff)
+            {
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        Player* player = itr->getSource();
+                        if (player && !player->isGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
+                        {
+                            DoResetThreat();
+                            me->AddThreat(player, 1.0f);
+                            DoCast(player, SPELL_CHARGE);
+                            break;
+                        }
+                    }
+                }
+                uiChargeTimer = 5000;
+            }else uiChargeTimer -= uiDiff;
+
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
             //dosen't work at all
             if (uiShieldBreakerTimer <= uiDiff)
             {
@@ -267,10 +318,17 @@ public:
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
+<<<<<<< HEAD
                             Player* pPlayer = itr->getSource();
                             if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,10.0f,30.0f,false))
                             {
                                 pPassenger->CastSpell(pPlayer,SPELL_SHIELD_BREAKER,true);
+=======
+                            Player* player = itr->getSource();
+                            if (player && !player->isGameMaster() && me->IsInRange(player, 10.0f, 30.0f, false))
+                            {
+                                pPassenger->CastSpell(player, SPELL_SHIELD_BREAKER, true);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                                 break;
                             }
                         }
@@ -282,6 +340,14 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new generic_vehicleAI_toc5AI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -298,10 +364,14 @@ public:
 	
     struct boss_warrior_toc5AI : public ScriptedAI
     {
+<<<<<<< HEAD
 
         boss_warrior_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+=======
+        boss_warrior_toc5AI(Creature* creature) : ScriptedAI(creature)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -385,12 +455,21 @@ public:
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
+<<<<<<< HEAD
                         Player* pPlayer = itr->getSource();
                         if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,8.0f,25.0f,false))
                         {
                             DoResetThreat();
                             me->AddThreat(pPlayer,5.0f);
                             DoCast(pPlayer,SPELL_INTERCEPT);
+=======
+                        Player* player = itr->getSource();
+                        if (player && !player->isGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
+                        {
+                            DoResetThreat();
+                            me->AddThreat(player, 5.0f);
+                            DoCast(player, SPELL_INTERCEPT);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                             break;
                         }
                     }
@@ -413,7 +492,11 @@ public:
             DoMeleeAttackIfReady();
         }
 
+<<<<<<< HEAD
         void JustDied(Unit* pKiller)
+=======
+        void JustDied(Unit* /*killer*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
     	 		DoScriptText(SAY_START_1, me);
             if (pInstance)
@@ -421,6 +504,14 @@ public:
 
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_warrior_toc5AI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -437,10 +528,14 @@ public:
 	
     struct boss_mage_toc5AI : public ScriptedAI
     {
+<<<<<<< HEAD
 
         boss_mage_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+=======
+        boss_mage_toc5AI(Creature* creature) : ScriptedAI(creature)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -526,9 +621,15 @@ public:
 
             if (uiPolymorphTimer <= uiDiff)
             {
+<<<<<<< HEAD
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_POLYMORPH);
                 uiPolymorphTimer = 22000;
+=======
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_POLYMORPH);
+                uiPolymorphTimer = 8000;
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
             } else uiPolymorphTimer -= uiDiff;
 
             if (uiBlastWaveTimer <= uiDiff)
@@ -548,7 +649,11 @@ public:
             DoMeleeAttackIfReady();
         }
 
+<<<<<<< HEAD
         void JustDied(Unit* pKiller)
+=======
+        void JustDied(Unit* /*killer*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
     	 		DoScriptText(SAY_START_1, me);
             if (pInstance)
@@ -556,6 +661,14 @@ public:
 
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_mage_toc5AI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -572,9 +685,9 @@ public:
 
     struct boss_shaman_toc5AI : public ScriptedAI
     {
-        boss_shaman_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_shaman_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -607,10 +720,15 @@ public:
             uiHexMendingTimer = urand(20000,25000);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
+<<<<<<< HEAD
             DoCast(me,SPELL_EARTH_SHIELD);
             DoCast(pWho,SPELL_HEX_OF_MENDING);
+=======
+            DoCast(me, SPELL_EARTH_SHIELD);
+            DoCast(who, SPELL_HEX_OF_MENDING);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         };
 
         void JustReachedHome()
@@ -660,8 +778,13 @@ public:
 
             if (uiChainLightningTimer <= uiDiff)
             {
+<<<<<<< HEAD
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_CHAIN_LIGHTNING);
+=======
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CHAIN_LIGHTNING);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 
                 uiChainLightningTimer = 23000;
             } else uiChainLightningTimer -= uiDiff;
@@ -697,7 +820,11 @@ public:
             DoMeleeAttackIfReady();
         }
 
+<<<<<<< HEAD
         void JustDied(Unit* pKiller)
+=======
+        void JustDied(Unit* /*killer*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
     	 		DoScriptText(SAY_START_1, me);
             if (pInstance)
@@ -705,6 +832,14 @@ public:
 
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_shaman_toc5AI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -721,9 +856,9 @@ public:
 
     struct boss_hunter_toc5AI : public ScriptedAI
     {
-        boss_hunter_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_hunter_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -829,10 +964,14 @@ public:
 
             if (uiShootTimer <= uiDiff)
             {
+<<<<<<< HEAD
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST,0,30.0f))
+=======
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                 {
-                    uiTargetGUID = pTarget->GetGUID();
-                    DoCast(pTarget, SPELL_SHOOT);
+                    uiTargetGUID = target->GetGUID();
+                    DoCast(target, SPELL_SHOOT);
                 }
                 uiShootTimer = 19000;
                 uiMultiShotTimer = 8000;
@@ -842,11 +981,17 @@ public:
             if (bShoot && uiMultiShotTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(true);
-                Unit* pTarget = Unit::GetUnit(*me, uiTargetGUID);
+                Unit* target = Unit::GetUnit(*me, uiTargetGUID);
 
+<<<<<<< HEAD
                 if (pTarget && me->IsInRange(pTarget,5.0f,30.0f,false))
                 {
                     DoCast(pTarget,SPELL_MULTI_SHOT);
+=======
+                if (target && me->IsInRange(target, 5.0f, 30.0f, false))
+                {
+                    DoCast(target, SPELL_MULTI_SHOT);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                 } else
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -854,10 +999,17 @@ public:
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
+<<<<<<< HEAD
                             Player* pPlayer = itr->getSource();
                             if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,5.0f,30.0f,false))
                             {
                                 DoCast(pTarget,SPELL_MULTI_SHOT);
+=======
+                            Player* player = itr->getSource();
+                            if (player && !player->isGameMaster() && me->IsInRange(player, 5.0f, 30.0f, false))
+                            {
+                                DoCast(target, SPELL_MULTI_SHOT);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                                 break;
                             }
                         }
@@ -869,7 +1021,11 @@ public:
             DoMeleeAttackIfReady();
         }
 
+<<<<<<< HEAD
         void JustDied(Unit* pKiller)
+=======
+        void JustDied(Unit* /*killer*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
     	 	DoScriptText(SAY_START_1, me);
             if (pInstance)
@@ -877,7 +1033,14 @@ public:
 
         }
 
+<<<<<<< HEAD
     };
+=======
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_hunter_toc5AI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -894,9 +1057,9 @@ public:
 
     struct boss_rouge_toc5AI : public ScriptedAI
     {
-        boss_rouge_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_rouge_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -985,16 +1148,25 @@ public:
 
             if (uiPosionBottleTimer <= uiDiff)
             {
+<<<<<<< HEAD
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_POISON_BOTTLE);
 
+=======
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_POISON_BOTTLE);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
 
+<<<<<<< HEAD
         void JustDied(Unit* pKiller)
+=======
+        void JustDied(Unit* /*killer*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
     	 	DoScriptText(SAY_START_1, me);
             if (pInstance)
@@ -1002,6 +1174,14 @@ public:
 
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_rouge_toc5AI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 

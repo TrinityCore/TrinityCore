@@ -108,9 +108,9 @@ class boss_kalecgos : public CreatureScript
 public:
     boss_kalecgos() : CreatureScript("boss_kalecgos") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecgosAI (pCreature);
+        return new boss_kalecgosAI (creature);
     }
 
     struct boss_kalecgosAI : public ScriptedAI
@@ -377,9 +377,9 @@ public:
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        Player* pPlayer = itr->getSource();
-                        if (pPlayer)
-                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
+                        Player* player = itr->getSource();
+                        if (player)
+                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
                     }
                 }
             }
@@ -441,9 +441,9 @@ class boss_kalec : public CreatureScript
 public:
     boss_kalec() : CreatureScript("boss_kalec") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kalecAI (pCreature);
+        return new boss_kalecAI (creature);
     }
 
     struct boss_kalecAI : public ScriptedAI
@@ -543,7 +543,7 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
         uint8 SpectralPlayers = 0;
         Map* pMap = pGo->GetMap();
@@ -557,10 +557,10 @@ public:
                 ++SpectralPlayers;
         }
         uint8 MaxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
-        if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MaxSpectralPlayers && SpectralPlayers >= MaxSpectralPlayers))
-            pPlayer->GetSession()->SendNotification(GO_FAILED);
+        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MaxSpectralPlayers && SpectralPlayers >= MaxSpectralPlayers))
+            player->GetSession()->SendNotification(GO_FAILED);
         else
-            pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_SPECTRAL, true);
+            player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
         return true;
     }
 
@@ -571,9 +571,9 @@ class boss_sathrovarr : public CreatureScript
 public:
     boss_sathrovarr() : CreatureScript("boss_sathrovarr") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sathrovarrAI (pCreature);
+        return new boss_sathrovarrAI (creature);
     }
 
     struct boss_sathrovarrAI : public ScriptedAI
@@ -645,9 +645,9 @@ public:
                 damage = 0;
         }
 
-        void KilledUnit(Unit* pTarget)
+        void KilledUnit(Unit* target)
         {
-            if (pTarget->GetGUID() == KalecGUID)
+            if (target->GetGUID() == KalecGUID)
             {
                 TeleportAllPlayersBack();
                 if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
@@ -783,9 +783,9 @@ public:
 
             if (AgonyCurseTimer <= diff)
             {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (!pTarget) pTarget = me->getVictim();
-                DoCast(pTarget, SPELL_AGONY_CURSE);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (!target) target = me->getVictim();
+                DoCast(target, SPELL_AGONY_CURSE);
                 AgonyCurseTimer = 20000;
             } else AgonyCurseTimer -= diff;
 

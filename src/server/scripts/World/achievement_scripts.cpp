@@ -89,13 +89,13 @@ class achievement_save_the_day : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            if (Player const* pTarget = target->ToPlayer())
+            if (Player const* player = target->ToPlayer())
             {
                 if (source->GetBattlegroundTypeId() != BATTLEGROUND_WS || !source->GetBattleground())
                     return false;
 
                 BattlegroundWS* pWSG = static_cast<BattlegroundWS*>(source->GetBattleground());
-                if (pWSG->GetFlagState(pTarget->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
+                if (pWSG->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
                     return true;
             }
             return false;
@@ -188,6 +188,24 @@ class achievement_arena_kills : public AchievementCriteriaScript
         uint8 const _arenaType;
 };
 
+class achievement_sickly_gazelle : public AchievementCriteriaScript
+{
+public:
+    achievement_sickly_gazelle() : AchievementCriteriaScript("achievement_sickly_gazelle") { }
+
+    bool OnCheck(Player* /*source*/, Unit* target)
+    {
+        if (!target)
+            return false;
+
+        if (Player* victim = target->ToPlayer())
+            if (victim->IsMounted())
+                return true;
+
+        return false;
+    }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_storm_glory();
@@ -198,6 +216,7 @@ void AddSC_achievement_scripts()
     new achievement_bg_ic_glaive_grave();
     new achievement_bg_ic_mowed_down();
     new achievement_bg_sa_artillery();
+    new achievement_sickly_gazelle();
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);

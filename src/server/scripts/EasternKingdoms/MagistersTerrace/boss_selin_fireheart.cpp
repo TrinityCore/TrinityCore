@@ -56,9 +56,9 @@ class boss_selin_fireheart : public CreatureScript
 public:
     boss_selin_fireheart() : CreatureScript("boss_selin_fireheart") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_selin_fireheartAI (pCreature);
+        return new boss_selin_fireheartAI (creature);
     };
 
     struct boss_selin_fireheartAI : public ScriptedAI
@@ -326,9 +326,9 @@ class mob_fel_crystal : public CreatureScript
 public:
     mob_fel_crystal() : CreatureScript("mob_fel_crystal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fel_crystalAI (pCreature);
+        return new mob_fel_crystalAI (creature);
     };
 
     struct mob_fel_crystalAI : public ScriptedAI

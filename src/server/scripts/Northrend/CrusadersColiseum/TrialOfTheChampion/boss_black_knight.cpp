@@ -107,9 +107,9 @@ public:
 
     struct boss_black_knightAI : public ScriptedAI
     {
-        boss_black_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -210,11 +210,16 @@ public:
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
+<<<<<<< HEAD
             SummonList.push_back(pSummon->GetGUID());
             pSummon->AI()->AttackStart(me->getVictim());
 
+=======
+            SummonList.push_back(summon->GetGUID());
+            summon->AI()->AttackStart(me->getVictim());
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -272,10 +277,23 @@ public:
                     {
                         if (!bSummonArmy)
                         {
+<<<<<<< HEAD
                             bSummonArmy = true;
                                 me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
             				me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                             DoCast(me, SPELL_ARMY_DEAD);
+=======
+                            if (uiDeathRespiteTimer <= uiDiff)
+                            {
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                {
+                                    if (target && target->isAlive())
+                                        DoCast(target, SPELL_DEATH_RESPITE);
+                                }
+                                uiDeathRespiteTimer = urand(15000, 16000);
+                            } else uiDeathRespiteTimer -= uiDiff;
+                            break;
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                         }
 
                         if (!bDeathArmyDone)
@@ -328,13 +346,33 @@ public:
                                 if (pTarget && pTarget->isAlive())
                                 DoCast(pTarget,SPELL_DEATH_RESPITE);
                             }
+<<<<<<< HEAD
                             uiDeathRespiteTimer = urand(15000,16000);
                         } else uiDeathRespiteTimer -= uiDiff;
+=======
+                            if (uiDesecration <= uiDiff)
+                            {
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                {
+                                    if (target && target->isAlive())
+                                        DoCast(target, SPELL_DESECRATION);
+                                }
+                                uiDesecration = urand(15000, 16000);
+                            } else uiDesecration -= uiDiff;
+                            if (uiGhoulExplodeTimer <= uiDiff)
+                            {
+                                DoCast(me, SPELL_GHOUL_EXPLODE);
+                                uiGhoulExplodeTimer = 8000;
+                            } else uiGhoulExplodeTimer -= uiDiff;
+                            break;
+                        }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                         break;
                     }
                     break;
                     case PHASE_GHOST:
                     {
+<<<<<<< HEAD
                             if (uiDeathBiteTimer <= uiDiff)
                         {
     	    	    		SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
@@ -353,6 +391,21 @@ public:
                         } else uiMarkedDeathTimer -= uiDiff;
                        break;
     		    	}
+=======
+                        DoCastAOE(SPELL_DEATH_BITE);
+                        uiDeathBiteTimer = urand (2000, 4000);
+                    } else uiDeathBiteTimer -= uiDiff;
+                    if (uiMarkedDeathTimer <= uiDiff)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        {
+                            if (target && target->isAlive())
+                                DoCast(target, SPELL_MARKED_DEATH);
+                        }
+                        uiMarkedDeathTimer = urand (5000, 7000);
+                    } else uiMarkedDeathTimer -= uiDiff;
+                    break;
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                 }
 
             if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
@@ -399,7 +452,11 @@ public:
             }
         }
 
+<<<<<<< HEAD
         void JustDied(Unit* pKiller)
+=======
+        void JustDied(Unit* /*killer*/)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
             DoScriptText(SAY_DEATH_3, me);
     	    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
@@ -411,6 +468,14 @@ public:
             }
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_black_knightAI (creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -426,7 +491,7 @@ public:
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
-        npc_risen_ghoulAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiAttackTimer;
 
@@ -442,10 +507,15 @@ public:
 
             if (uiAttackTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
+<<<<<<< HEAD
                     if (pTarget && pTarget->isAlive())
                     DoCast(pTarget,SPELL_LEAP);
+=======
+                    if (target && target->isAlive())
+                    DoCast(target, (SPELL_LEAP));
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;
@@ -453,6 +523,14 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+<<<<<<< HEAD
+=======
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_risen_ghoulAI(creature);
+    }
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 };
 
 
@@ -468,7 +546,11 @@ public:
 
     struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
     {
+<<<<<<< HEAD
         npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature), vehicle(pCreature->GetVehicleKit())
+=======
+        npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         {
             Start(false,true,0,NULL);
             pInstance = pCreature->GetInstanceScript();	
@@ -556,9 +638,13 @@ class npc_gr : public CreatureScript
 public:
     npc_gr() : CreatureScript("npc_gr") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
+<<<<<<< HEAD
         return new npc_grAI(pCreature);
+=======
+        return new npc_black_knight_skeletal_gryphonAI(creature);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
     }
 	
     struct npc_grAI : public npc_escortAI

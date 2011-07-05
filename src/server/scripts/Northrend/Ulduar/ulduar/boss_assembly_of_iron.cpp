@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Assembly of Iron encounter
 SD%Complete: 60%
-SDComment: Runes need DB support, chain lightning won't cast, supercharge won't cast (pTarget error?) - it worked before during debugging.
+SDComment: Runes need DB support, chain lightning won't cast, supercharge won't cast (target error?) - it worked before during debugging.
 SDCategory: Ulduar - Ulduar
 EndScriptData */
 

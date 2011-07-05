@@ -54,6 +54,7 @@ class boss_marwyn : public CreatureScript
 public:
     boss_marwyn() : CreatureScript("boss_marwyn") { }
 
+<<<<<<< HEAD
     struct boss_marwynAI : public ScriptedAI
     {
        boss_marwynAI(Creature *pCreature) : ScriptedAI(pCreature)
@@ -79,6 +80,16 @@ public:
        uint32 m_uiLocNo;
        uint64 m_uiSummonGUID[16];
        uint32 m_uiCheckSummon;
+=======
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_marwynAI(creature);
+    }
+
+    struct boss_marwynAI : public boss_horAI
+    {
+        boss_marwynAI(Creature* creature) : boss_horAI(creature) {}
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 
        uint8 SummonCount;
 
@@ -221,6 +232,7 @@ public:
 
             if(m_pInstance->GetData(TYPE_MARWYN) == SPECIAL) 
             {
+<<<<<<< HEAD
                if(m_uiSummonTimer < uiDiff) 
                {
                        ++SummonCount;
@@ -237,6 +249,26 @@ public:
                        else CallFallSoldier();
                        m_uiSummonTimer = 60000;
                } else m_uiSummonTimer -= uiDiff;
+=======
+                case EVENT_OBLITERATE:
+                    DoCast(SPELL_OBLITERATE);
+                    events.ScheduleEvent(EVENT_OBLITERATE, 30000);
+                    break;
+                case EVENT_WELL_OF_CORRUPTION:
+                    DoCast(SPELL_WELL_OF_CORRUPTION);
+                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+                    break;
+                case EVENT_CORRUPTED_FLESH:
+                    DoScriptText(RAND(SAY_CORRUPTED_FLESH_1, SAY_CORRUPTED_FLESH_2), me);
+                    DoCast(SPELL_CORRUPTED_FLESH);
+                    events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+                    break;
+                case EVENT_SHARED_SUFFERING:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        DoCast(target, SPELL_SHARED_SUFFERING);
+                    events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
+                    break;
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
             }
 
             if(!UpdateVictim())

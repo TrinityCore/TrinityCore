@@ -36,9 +36,9 @@ class boss_nerubenkan : public CreatureScript
 public:
     boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nerubenkanAI (pCreature);
+        return new boss_nerubenkanAI (creature);
     }
 
     struct boss_nerubenkanAI : public ScriptedAI
@@ -73,11 +73,11 @@ public:
                 pInstance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
-        void RaiseUndeadScarab(Unit* pVictim)
+        void RaiseUndeadScarab(Unit* victim)
         {
             if (Creature* pUndeadScarab = DoSpawnCreature(10876, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
                 if (pUndeadScarab->AI())
-                    pUndeadScarab->AI()->AttackStart(pVictim);
+                    pUndeadScarab->AI()->AttackStart(victim);
         }
 
         void UpdateAI(const uint32 diff)

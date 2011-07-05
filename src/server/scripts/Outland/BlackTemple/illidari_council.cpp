@@ -210,9 +210,9 @@ class mob_illidari_council : public CreatureScript
 public:
     mob_illidari_council() : CreatureScript("mob_illidari_council") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_illidari_councilAI (pCreature);
+        return new mob_illidari_councilAI (creature);
     }
 
     struct mob_illidari_councilAI : public ScriptedAI
@@ -275,12 +275,12 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void StartEvent(Unit* pTarget)
+        void StartEvent(Unit* target)
         {
             if (!pInstance)
                 return;
 
-            if (pTarget && pTarget->isAlive())
+            if (target && target->isAlive())
             {
                 Council[0] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
                 Council[1] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
@@ -301,7 +301,7 @@ public:
                     {
                         Member = Unit::GetUnit((*me), Council[i]);
                         if (Member && Member->isAlive())
-                            CAST_CRE(Member)->AI()->AttackStart(pTarget);
+                            CAST_CRE(Member)->AI()->AttackStart(target);
                     }
                 }
 
@@ -408,7 +408,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         }
         DoZoneInCombat();
         // Load GUIDs on first aggro because the Creature guids are only set as the creatures are created in world-
-        // this means that for each pCreature, it will attempt to LoadGUIDs even though some of the other creatures are
+        // this means that for each creature, it will attempt to LoadGUIDs even though some of the other creatures are
         // not in world, and thus have no GUID set in the instance data system. Putting it in aggro ensures that all the creatures
         // have been loaded and have their GUIDs set in the instance data system.
         if (!LoadedGUIDs)
@@ -468,9 +468,9 @@ class boss_gathios_the_shatterer : public CreatureScript
 public:
     boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gathios_the_shattererAI (pCreature);
+        return new boss_gathios_the_shattererAI (creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
@@ -557,12 +557,12 @@ public:
 
             if (HammerOfJusticeTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     // is in ~10-40 yd range
-                    if (me->IsInRange(pTarget, 10.0f, 40.0f, false))
+                    if (me->IsInRange(target, 10.0f, 40.0f, false))
                     {
-                        DoCast(pTarget, SPELL_HAMMER_OF_JUSTICE);
+                        DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                         HammerOfJusticeTimer = 20000;
                     }
                 }
@@ -595,9 +595,9 @@ class boss_high_nethermancer_zerevor : public CreatureScript
 public:
     boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_high_nethermancer_zerevorAI (pCreature);
+        return new boss_high_nethermancer_zerevorAI (creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
@@ -670,9 +670,9 @@ public:
 
             if (BlizzardTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_BLIZZARD);
+                    DoCast(target, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
                     FlamestrikeTimer += 10000;
                     Cooldown = 1000;
@@ -681,9 +681,9 @@ public:
 
             if (FlamestrikeTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_FLAMESTRIKE);
+                    DoCast(target, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
                     BlizzardTimer += 10000;
                     Cooldown = 2000;
@@ -699,9 +699,9 @@ class boss_lady_malande : public CreatureScript
 public:
     boss_lady_malande() : CreatureScript("boss_lady_malande") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_lady_malandeAI (pCreature);
+        return new boss_lady_malandeAI (creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
@@ -738,9 +738,9 @@ public:
 
             if (EmpoweredSmiteTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_EMPOWERED_SMITE);
+                    DoCast(target, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
                 }
             } else EmpoweredSmiteTimer -= diff;
@@ -753,9 +753,9 @@ public:
 
             if (DivineWrathTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pTarget, SPELL_DIVINE_WRATH);
+                    DoCast(target, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
                 }
             } else DivineWrathTimer -= diff;
@@ -777,9 +777,9 @@ class boss_veras_darkshadow : public CreatureScript
 public:
     boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_veras_darkshadowAI (pCreature);
+        return new boss_veras_darkshadowAI (creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
@@ -838,7 +838,7 @@ public:
 
                 if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         VanishTimer = 30000;
                         AppearEnvenomTimer= 28000;
@@ -847,8 +847,8 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoResetThreat();
                                                                 // Chase a unit. Check before DoMeleeAttackIfReady prevents from attacking
-                        me->AddThreat(pTarget, 500000.0f);
-                        me->GetMotionMaster()->MoveChase(pTarget);
+                        me->AddThreat(target, 500000.0f);
+                        me->GetMotionMaster()->MoveChase(target);
                     }
                 } else VanishTimer -= diff;
 
@@ -858,11 +858,11 @@ public:
             {
                 if (VanishTimer <= diff)                          // Become attackable and poison current target
                 {
-                    Unit* pTarget = me->getVictim();
-                    DoCast(pTarget, SPELL_DEADLY_POISON);
+                    Unit* target = me->getVictim();
+                    DoCast(target, SPELL_DEADLY_POISON);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoResetThreat();
-                    me->AddThreat(pTarget, 3000.0f);      // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
+                    me->AddThreat(target, 3000.0f);      // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
                     DeadlyPoisonTimer += 6000;
                     VanishTimer = 90000;
                     AppearEnvenomTimer = 4000;

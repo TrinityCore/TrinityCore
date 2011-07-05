@@ -111,8 +111,13 @@ public:
         {
             Map::PlayerList const &players = instance->GetPlayers();
             if (!players.isEmpty())
+<<<<<<< HEAD
                 if (Player* pPlayer = players.begin()->getSource())
                     m_uiTeamInInstance = pPlayer->GetTeam();
+=======
+                if (Player* player = players.begin()->getSource())
+                    uiTeamInInstance = player->GetTeam();
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
 
             switch(creature->GetEntry())
             {
@@ -365,8 +370,59 @@ public:
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
             }
+<<<<<<< HEAD
 
             OUT_LOAD_INST_DATA_COMPLETE;
+=======
+        }
+
+        // Wipe has been detected. Perform cleanup and reset.
+        void DoWipe()
+        {
+            uiWaveCount = 0;
+            events.Reset();
+            DoUpdateWorldState(WORLD_STATE_HOR, 1);
+            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
+            HandleGameObject(uiFrontDoor, true);
+
+            // TODO
+            // in case of wipe, the event is normally restarted by jumping into the center of the room.
+            // As I can't find a trigger area there, just respawn Jaina/Sylvanas so the event may be restarted.
+            if (Creature* pJaina = instance->GetCreature(uiJainaPart1))
+                pJaina->Respawn();
+            if (Creature* pSylvanas = instance->GetCreature(uiSylvanasPart1))
+                pSylvanas->Respawn();
+
+            if (Creature* pFalric = instance->GetCreature(uiFalric))
+                pFalric->SetVisible(false);
+            if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
+                pMarwyn->SetVisible(false);
+        }
+
+        // spawn a wave on behalf of the summoner.
+        void SpawnWave(Creature* summoner)
+        {
+            uint32 index;
+
+            summoner->SetVisible(true);
+
+            // TODO: do composition at random. # of spawn also depends on uiWaveCount
+            // As of now, it is just one of each.
+            index = urand(0, ENCOUNTER_WAVE_MERCENARY-1);
+            summoner->SummonCreature(NPC_WAVE_MERCENARY, MercenarySpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_FOOTMAN-1);
+            summoner->SummonCreature(NPC_WAVE_FOOTMAN, FootmenSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_RIFLEMAN-1);
+            summoner->SummonCreature(NPC_WAVE_RIFLEMAN, RiflemanSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_PRIEST-1);
+            summoner->SummonCreature(NPC_WAVE_PRIEST, PriestSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_MAGE-1);
+            summoner->SummonCreature(NPC_WAVE_MAGE, MageSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+>>>>>>> 0039ca5861b869d5dcb380470a434da0a7e2391a
         }
 
     };

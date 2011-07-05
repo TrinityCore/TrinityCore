@@ -45,9 +45,9 @@ class boss_shirrak_the_dead_watcher : public CreatureScript
 public:
     boss_shirrak_the_dead_watcher() : CreatureScript("boss_shirrak_the_dead_watcher") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_shirrak_the_dead_watcherAI (pCreature);
+        return new boss_shirrak_the_dead_watcherAI (creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
@@ -136,16 +136,16 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                 {
-                    FocusedTargetGUID = pTarget->GetGUID();
-                    me->SummonCreature(ENTRY_FOCUS_FIRE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
+                    FocusedTargetGUID = target->GetGUID();
+                    me->SummonCreature(ENTRY_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
 
                     // TODO: Find better way to handle emote
                     // Emote
                     std::string *emote = new std::string(EMOTE_FOCUSES_ON);
-                    emote->append(pTarget->GetName());
+                    emote->append(target->GetName());
                     emote->append("!");
                     const char* text = emote->c_str();
                     me->MonsterTextEmote(text, 0, true);
@@ -165,9 +165,9 @@ class mob_focus_fire : public CreatureScript
 public:
     mob_focus_fire() : CreatureScript("mob_focus_fire") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_focus_fireAI (pCreature);
+        return new mob_focus_fireAI (creature);
     }
 
     struct mob_focus_fireAI : public ScriptedAI

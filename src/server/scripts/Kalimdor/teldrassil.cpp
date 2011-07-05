@@ -48,37 +48,37 @@ class npc_mist : public CreatureScript
 public:
     npc_mist() : CreatureScript("npc_mist") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MIST)
         {
-            if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, pCreature->AI()))
-                pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
+            if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
+                pMistAI->StartFollow(player, FACTION_DARNASSUS, pQuest);
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_mistAI(pCreature);
+        return new npc_mistAI(creature);
     }
 
     struct npc_mistAI : public FollowerAI
     {
-        npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { }
+        npc_mistAI(Creature* creature) : FollowerAI(creature) { }
 
         void Reset() { }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_ARYNIA)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_ARYNIA)
             {
-                if (me->IsWithinDistInMap(pWho, 10.0f))
+                if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(SAY_AT_HOME, pWho);
+                    DoScriptText(SAY_AT_HOME, who);
                     DoComplete();
                 }
             }
@@ -88,10 +88,10 @@ public:
         {
             DoScriptText(EMOTE_AT_HOME, me);
 
-            if (Player* pPlayer = GetLeaderForFollower())
+            if (Player* player = GetLeaderForFollower())
             {
-                if (pPlayer->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
-                    pPlayer->GroupEventHappens(QUEST_MIST, me);
+                if (player->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
+                    player->GroupEventHappens(QUEST_MIST, me);
             }
 
             //The follow is over (and for later development, run off to the woods before really end)

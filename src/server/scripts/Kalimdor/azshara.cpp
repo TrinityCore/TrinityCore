@@ -43,9 +43,9 @@ class mobs_spitelashes : public CreatureScript
 public:
     mobs_spitelashes() : CreatureScript("mobs_spitelashes") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_spitelashesAI (pCreature);
+        return new mobs_spitelashesAI (creature);
     }
 
     struct mobs_spitelashesAI : public ScriptedAI
@@ -120,56 +120,56 @@ class npc_loramus_thalipedes : public CreatureScript
 public:
     npc_loramus_thalipedes() : CreatureScript("npc_loramus_thalipedes") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->AreaExploredOrEventHappens(2744);
+                player->CLOSE_GOSSIP_MENU();
+                player->AreaExploredOrEventHappens(2744);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
-                pPlayer->SEND_GOSSIP_MENU(1813, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+                player->SEND_GOSSIP_MENU(1813, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+21:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
-                pPlayer->SEND_GOSSIP_MENU(1814, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+                player->SEND_GOSSIP_MENU(1814, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+22:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
-                pPlayer->SEND_GOSSIP_MENU(1815, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+                player->SEND_GOSSIP_MENU(1815, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+23:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
-                pPlayer->SEND_GOSSIP_MENU(1816, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+                player->SEND_GOSSIP_MENU(1816, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+24:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);
-                pPlayer->SEND_GOSSIP_MENU(1817, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_LT5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);
+                player->SEND_GOSSIP_MENU(1817, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+25:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->AreaExploredOrEventHappens(3141);
+                player->CLOSE_GOSSIP_MENU();
+                player->AreaExploredOrEventHappens(3141);
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(2744) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_LT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(2744) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_LT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        if (pPlayer->GetQuestStatus(3141) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_LT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        if (player->GetQuestStatus(3141) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_LT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -267,31 +267,31 @@ class mob_rizzle_sprysprocket : public CreatureScript
 public:
     mob_rizzle_sprysprocket() : CreatureScript("mob_rizzle_sprysprocket") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1 && pPlayer->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
+        player->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1 && player->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
-            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, pCreature->AI())->Must_Die_Timer = 3000;
-            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, pCreature->AI())->Must_Die = true;
+            player->CLOSE_GOSSIP_MENU();
+            creature->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
+            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->Must_Die_Timer = 3000;
+            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->Must_Die = true;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(10994) != QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(10994) != QUEST_STATUS_INCOMPLETE)
             return true;
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(10811, pCreature->GetGUID());
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->SEND_GOSSIP_MENU(10811, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_rizzle_sprysprocketAI (pCreature);
+        return new mob_rizzle_sprysprocketAI (creature);
     }
 
     struct mob_rizzle_sprysprocketAI : public ScriptedAI
@@ -361,8 +361,8 @@ public:
                         me->AI_SendMoveToPacket(3706.39f, -3969.15f, 35.9118f, 0, 0, 0);
                     }
                     //begin swimming and summon depth charges
-                    Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                    SendText(MSG_ESCAPE_NOTICE, pPlayer);
+                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    SendText(MSG_ESCAPE_NOTICE, player);
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
                     me->SetSpeed(MOVE_RUN, 0.85f, true);
@@ -382,25 +382,25 @@ public:
 
             if (Grenade_Timer <= diff)
             {
-                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                if (pPlayer)
+                Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                if (player)
                 {
-                   DoScriptText(SAY_RIZZLE_GRENADE, me, pPlayer);
-                   DoCast(pPlayer, SPELL_RIZZLE_FROST_GRENADE, true);
+                   DoScriptText(SAY_RIZZLE_GRENADE, me, player);
+                   DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 Grenade_Timer = 30000;
             } else Grenade_Timer -= diff;
 
             if (Check_Timer <= diff)
             {
-                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                if (!pPlayer)
+                Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                if (!player)
                 {
                     me->DespawnOrUnsummon();
                     return;
                 }
 
-                if (me->IsWithinDist(pPlayer, 10) && me->GetPositionX() > pPlayer->GetPositionX() && !Reached)
+                if (me->IsWithinDist(player, 10) && me->GetPositionX() > player->GetPositionX() && !Reached)
                 {
                     DoScriptText(SAY_RIZZLE_FINAL, me);
                     me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
@@ -415,11 +415,11 @@ public:
 
         }
 
-        void SendText(int32 iTextEntry, Player* pPlayer)
+        void SendText(int32 iTextEntry, Player* player)
         {
-            LocaleConstant loc_idx = pPlayer->GetSession()->GetSessionDbLocaleIndex();
+            LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
             const char* text = sObjectMgr->GetTrinityString(iTextEntry, loc_idx);
-            sWorld->SendServerMessage(SERVER_MSG_STRING, text, pPlayer);
+            sWorld->SendServerMessage(SERVER_MSG_STRING, text, player);
         }
 
         void AttackStart(Unit* who)
@@ -463,9 +463,9 @@ class mob_depth_charge : public CreatureScript
 public:
     mob_depth_charge() : CreatureScript("mob_depth_charge") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_depth_chargeAI (pCreature);
+        return new mob_depth_chargeAI (creature);
     }
 
     struct mob_depth_chargeAI : public ScriptedAI
