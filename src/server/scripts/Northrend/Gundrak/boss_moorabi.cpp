@@ -50,16 +50,16 @@ class boss_moorabi : public CreatureScript
 public:
     boss_moorabi() : CreatureScript("boss_moorabi") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_moorabiAI(pCreature);
+        return new boss_moorabiAI(creature);
     }
 
     struct boss_moorabiAI : public ScriptedAI
     {
-        boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -83,7 +83,7 @@ public:
                 pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_MOJO_FRENZY, true);
@@ -151,7 +151,7 @@ public:
             return 0;
         }
 
-         void JustDied(Unit* /*pKiller*/)
+         void JustDied(Unit* /*killer*/)
          {
             DoScriptText(SAY_DEATH, me);
 
@@ -159,9 +159,9 @@ public:
                 pInstance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
-            if (pVictim == me)
+            if (victim == me)
                 return;
 
             DoScriptText(RAND(SAY_SLAY_2, SAY_SLAY_3), me);

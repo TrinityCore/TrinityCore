@@ -81,16 +81,16 @@ class boss_hazzarah : public CreatureScript
                 {
                     //We will summon 3 illusions that will spawn on a random gamer and attack this gamer
                     //We will just use one model for the beginning
-                    Unit* pTarget = NULL;
+                    Unit* target = NULL;
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!pTarget)
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (!target)
                             return;
 
-                        Creature* Illusion = me->SummonCreature(15163, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                        Creature* Illusion = me->SummonCreature(15163, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                         if (Illusion)
-                            Illusion->AI()->AttackStart(pTarget);
+                            Illusion->AI()->AttackStart(target);
                     }
 
                     Illusions_Timer = 15000 + rand()%10000;

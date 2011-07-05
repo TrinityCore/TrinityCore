@@ -95,9 +95,9 @@ class npc_unworthy_initiate : public CreatureScript
 public:
     npc_unworthy_initiate() : CreatureScript("npc_unworthy_initiate") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_unworthy_initiateAI(pCreature);
+        return new npc_unworthy_initiateAI(creature);
     }
 
     struct npc_unworthy_initiateAI : public ScriptedAI
@@ -155,7 +155,7 @@ public:
             }
         }
 
-        void EventStart(Creature* anchor, Player* pTarget)
+        void EventStart(Creature* anchor, Player* target)
         {
             wait_timer = 5000;
             phase = PHASE_TO_EQUIP;
@@ -167,8 +167,8 @@ public:
             float z;
             anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
 
-            playerGUID = pTarget->GetGUID();
-            DoScriptText(say_event_start[rand()%8], me, pTarget);
+            playerGUID = target->GetGUID();
+            DoScriptText(say_event_start[rand()%8], me, target);
         }
 
         void UpdateAI(const uint32 diff)
@@ -233,8 +233,8 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         phase = PHASE_ATTACKING;
 
-                        if (Player* pTarget = Unit::GetPlayer(*me, playerGUID))
-                            me->AI()->AttackStart(pTarget);
+                        if (Player* target = Unit::GetPlayer(*me, playerGUID))
+                            me->AI()->AttackStart(target);
                         wait_timer = 0;
                     }
                 }
@@ -286,9 +286,9 @@ class npc_unworthy_initiate_anchor : public CreatureScript
 public:
     npc_unworthy_initiate_anchor() : CreatureScript("npc_unworthy_initiate_anchor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_unworthy_initiate_anchorAI(pCreature);
+        return new npc_unworthy_initiate_anchorAI(creature);
     }
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
@@ -313,12 +313,12 @@ class go_acherus_soul_prison : public GameObjectScript
 public:
     go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
         if (Creature* anchor = pGo->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
-                if (Creature* prisoner = Creature::GetCreature(*pPlayer, prisonerGUID))
-                    CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, pPlayer);
+                if (Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
+                    CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
 
         return false;
     }
@@ -362,58 +362,58 @@ class npc_death_knight_initiate : public CreatureScript
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
+            player->CLOSE_GOSSIP_MENU();
 
-            if (pPlayer->isInCombat() || pCreature->isInCombat())
+            if (player->isInCombat() || creature->isInCombat())
                 return true;
 
-            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, pCreature->AI()))
+            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
             {
                 if (pInitiateAI->m_bIsDuelInProgress)
                     return true;
             }
 
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
             int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
-            DoScriptText(m_auiRandomSay[uiSayId], pCreature, pPlayer);
+            DoScriptText(m_auiRandomSay[uiSayId], creature, player);
 
-            pPlayer->CastSpell(pCreature, SPELL_DUEL, false);
-            pPlayer->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
+            player->CastSpell(creature, SPELL_DUEL, false);
+            player->CastSpell(player, SPELL_DUEL_FLAG, true);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && pCreature->IsFullHealth())
+        if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
         {
-            if (pPlayer->HealthBelowPct(10))
+            if (player->HealthBelowPct(10))
                 return true;
 
-            if (pPlayer->isInCombat() || pCreature->isInCombat())
+            if (player->isInCombat() || creature->isInCombat())
                 return true;
 
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_death_knight_initiateAI(pCreature);
+        return new npc_death_knight_initiateAI(creature);
     }
 
     struct npc_death_knight_initiateAI : public CombatAI
     {
-        npc_death_knight_initiateAI(Creature* pCreature) : CombatAI(pCreature)
+        npc_death_knight_initiateAI(Creature* creature) : CombatAI(creature)
         {
             m_bIsDuelInProgress = false;
         }
@@ -524,9 +524,9 @@ class npc_dark_rider_of_acherus : public CreatureScript
 public:
     npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dark_rider_of_acherusAI(pCreature);
+        return new npc_dark_rider_of_acherusAI(creature);
     }
 
     struct npc_dark_rider_of_acherusAI : public ScriptedAI
@@ -561,8 +561,8 @@ public:
                         Phase = 1;
                         break;
                     case 1:
-                        if (Unit* pTarget = Unit::GetUnit(*me, TargetGUID))
-                            DoCast(pTarget, DESPAWN_HORSE, true);
+                        if (Unit* target = Unit::GetUnit(*me, TargetGUID))
+                            DoCast(target, DESPAWN_HORSE, true);
                         PhaseTimer = 3000;
                         Phase = 2;
                         break;
@@ -616,9 +616,9 @@ class npc_salanar_the_horseman : public CreatureScript
 public:
     npc_salanar_the_horseman() : CreatureScript("npc_salanar_the_horseman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_salanar_the_horsemanAI(pCreature);
+        return new npc_salanar_the_horsemanAI(creature);
     }
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
@@ -685,9 +685,9 @@ class npc_ros_dark_rider : public CreatureScript
 public:
     npc_ros_dark_rider() : CreatureScript("npc_ros_dark_rider") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ros_dark_riderAI(pCreature);
+        return new npc_ros_dark_riderAI(creature);
     }
 
     struct npc_ros_dark_riderAI : public ScriptedAI
@@ -736,9 +736,9 @@ class npc_dkc1_gothik : public CreatureScript
 public:
     npc_dkc1_gothik() : CreatureScript("npc_dkc1_gothik") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dkc1_gothikAI(pCreature);
+        return new npc_dkc1_gothikAI(creature);
     }
 
     struct npc_dkc1_gothikAI : public ScriptedAI
@@ -778,9 +778,9 @@ class npc_scarlet_ghoul : public CreatureScript
 public:
     npc_scarlet_ghoul() : CreatureScript("npc_scarlet_ghoul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_scarlet_ghoulAI(pCreature);
+        return new npc_scarlet_ghoulAI(creature);
     }
 
     struct npc_scarlet_ghoulAI : public ScriptedAI
@@ -1057,21 +1057,21 @@ class go_inconspicuous_mine_car : public GameObjectScript
 public:
     go_inconspicuous_mine_car() : GameObjectScript("go_inconspicuous_mine_car") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (pPlayer->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
         {
             // Hack Why Trinity Dont Support Custom Summon Location
-            if (Creature* miner = pPlayer->SummonCreature(28841, 2383.869629f, -5900.312500f, 107.996086f, pPlayer->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
+            if (Creature* miner = player->SummonCreature(28841, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
             {
-                pPlayer->CastSpell(pPlayer, SPELL_CART_SUMM, true);
-                if (Creature* car = pPlayer->GetVehicleCreatureBase())
+                player->CastSpell(player, SPELL_CART_SUMM, true);
+                if (Creature* car = player->GetVehicleCreatureBase())
                 {
                     if (car->GetEntry() == 28817)
                     {
-                        pPlayer->setFaction(35);
+                        player->setFaction(35);
                         car->AI()->SetGUID(miner->GetGUID());
-                        CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(pPlayer);
+                        CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(player);
                     } else sLog->outError("TSCR: OnGossipHello vehicle entry is not correct.");
                 } else sLog->outError("TSCR: OnGossipHello player is not on the vehicle.");
             } else sLog->outError("TSCR: OnGossipHello Scarlet Miner cant be found by script.");

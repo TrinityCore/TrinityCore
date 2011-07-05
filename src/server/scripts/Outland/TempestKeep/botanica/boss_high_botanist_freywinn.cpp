@@ -59,7 +59,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
         struct boss_high_botanist_freywinnAI : public ScriptedAI
         {
-            boss_high_botanist_freywinnAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) {}
 
             std::list<uint64> Adds_List;
 

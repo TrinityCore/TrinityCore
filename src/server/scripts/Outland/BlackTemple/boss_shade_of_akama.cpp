@@ -114,9 +114,9 @@ class mob_ashtongue_channeler : public CreatureScript
 public:
     mob_ashtongue_channeler() : CreatureScript("mob_ashtongue_channeler") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ashtongue_channelerAI (pCreature);
+        return new mob_ashtongue_channelerAI (creature);
     }
 
     struct mob_ashtongue_channelerAI : public ScriptedAI
@@ -140,9 +140,9 @@ class mob_ashtongue_sorcerer : public CreatureScript
 public:
     mob_ashtongue_sorcerer() : CreatureScript("mob_ashtongue_sorcerer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ashtongue_sorcererAI (pCreature);
+        return new mob_ashtongue_sorcererAI (creature);
     }
 
     struct mob_ashtongue_sorcererAI : public ScriptedAI
@@ -195,9 +195,9 @@ class boss_shade_of_akama : public CreatureScript
 public:
     boss_shade_of_akama() : CreatureScript("boss_shade_of_akama") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_shade_of_akamaAI (pCreature);
+        return new boss_shade_of_akamaAI (creature);
     }
 
     struct boss_shade_of_akamaAI : public ScriptedAI
@@ -371,8 +371,8 @@ public:
                     {
                         Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                        Spawn->AI()->AttackStart(pTarget);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                        Spawn->AI()->AttackStart(target);
                     }
                 }
             }
@@ -541,32 +541,32 @@ class npc_akama_shade : public CreatureScript
 public:
     npc_akama_shade() : CreatureScript("npc_akama_shade") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_akama_shade::npc_akamaAI, pCreature->AI())->BeginEvent(pPlayer);
+            player->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_akama_shade::npc_akamaAI, creature->AI())->BeginEvent(player);
         }
 
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->isAlive())
+        if (player->isAlive())
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_akamaAI (pCreature);
+        return new npc_akamaAI (creature);
     }
 
     struct npc_akamaAI : public ScriptedAI

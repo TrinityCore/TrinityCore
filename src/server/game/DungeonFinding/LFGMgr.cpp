@@ -430,7 +430,7 @@ void LFGMgr::InitializeLockedDungeons(Player* plr)
 */
 void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeons, const std::string& comment)
 {
-    if (!plr || !plr->GetSession() || !selectedDungeons.size())
+    if (!plr || !plr->GetSession() || selectedDungeons.empty())
       return;
 
     Group* grp = plr->GetGroup();
@@ -477,7 +477,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
         joinData.result = LFG_JOIN_DESERTER;
     else if (plr->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
         joinData.result = LFG_JOIN_RANDOM_COOLDOWN;
-    else if (!dungeons.size())
+    else if (dungeons.empty())
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
     else if (grp)
     {
@@ -763,7 +763,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
 
     std::string strGuids = ConcatenateGuids(check);
 
-    if (check.size() > MAXGROUPSIZE || !check.size())
+    if (check.size() > MAXGROUPSIZE || check.empty())
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s): Size wrong - Not compatibles", strGuids.c_str());
         return false;
@@ -1163,7 +1163,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& pla
             }
         }
     }
-    if (dungeons.size())
+    if (!dungeons.empty())
         lockMap.clear();
 }
 
@@ -1176,7 +1176,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& pla
 */
 bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, bool removeLeaderFlag /*= true*/)
 {
-    if (!groles.size())
+    if (groles.empty())
         return false;
 
     uint8 damage = 0;

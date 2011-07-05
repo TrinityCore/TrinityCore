@@ -68,9 +68,9 @@ class boss_gal_darah : public CreatureScript
 public:
     boss_gal_darah() : CreatureScript("boss_gal_darah") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gal_darahAI (pCreature);
+        return new boss_gal_darahAI (creature);
     }
 
     struct boss_gal_darahAI : public ScriptedAI
@@ -228,10 +228,10 @@ public:
 
                         if (uiImpalingChargeTimer <= diff)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
-                                DoCast(pTarget, SPELL_IMPALING_CHARGE);
-                                CheckAchievement(pTarget->GetGUID());
+                                DoCast(target, SPELL_IMPALING_CHARGE);
+                                CheckAchievement(target->GetGUID());
                             }
                             uiImpalingChargeTimer = 31*IN_MILLISECONDS;
                             ++uiPhaseCounter;

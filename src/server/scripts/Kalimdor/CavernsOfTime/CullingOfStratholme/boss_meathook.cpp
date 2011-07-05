@@ -50,9 +50,9 @@ class boss_meathook : public CreatureScript
 public:
     boss_meathook() : CreatureScript("boss_meathook") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_meathookAI (pCreature);
+        return new boss_meathookAI (creature);
     }
 
     struct boss_meathookAI : public ScriptedAI
@@ -108,8 +108,8 @@ public:
 
             if (uiChainTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
                 uiChainTimer = urand(2000, 4000);
             } else uiChainTimer -= diff;
 

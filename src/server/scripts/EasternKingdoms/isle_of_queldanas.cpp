@@ -44,9 +44,9 @@ class npc_converted_sentry : public CreatureScript
 public:
     npc_converted_sentry() : CreatureScript("npc_converted_sentry") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_converted_sentryAI (pCreature);
+        return new npc_converted_sentryAI (creature);
     }
 
     struct npc_converted_sentryAI : public ScriptedAI
@@ -102,9 +102,9 @@ class npc_greengill_slave : public CreatureScript
 public:
     npc_greengill_slave() : CreatureScript("npc_greengill_slave") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_greengill_slaveAI(pCreature);
+        return new npc_greengill_slaveAI(creature);
     }
 
     struct npc_greengill_slaveAI : public ScriptedAI

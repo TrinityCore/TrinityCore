@@ -42,9 +42,9 @@ class boss_bloodmage_thalnos : public CreatureScript
 public:
     boss_bloodmage_thalnos() : CreatureScript("boss_bloodmage_thalnos") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_bloodmage_thalnosAI (pCreature);
+        return new boss_bloodmage_thalnosAI (creature);
     }
 
     struct boss_bloodmage_thalnosAI : public ScriptedAI

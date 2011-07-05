@@ -54,22 +54,22 @@ class npc_ame : public CreatureScript
 public:
     npc_ame() : CreatureScript("npc_ame") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_CHASING_AME)
         {
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
-            DoScriptText(SAY_READY, pCreature, pPlayer);
-            pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
+            DoScriptText(SAY_READY, creature, player);
+            creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             // Change faction so mobs attack
-            pCreature->setFaction(113);
+            creature->setFaction(113);
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ameAI(pCreature);
+        return new npc_ameAI(creature);
     }
 
     struct npc_ameAI : public npc_escortAI
@@ -80,32 +80,32 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            Player* pPlayer = GetPlayerForEscort();
+            Player* player = GetPlayerForEscort();
 
-            if (!pPlayer)
+            if (!player)
                 return;
 
             switch (i)
             {
                 case 19:
                     me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    DoScriptText(SAY_AGGRO1, me, pPlayer);
+                    DoScriptText(SAY_AGGRO1, me, player);
                     break;
                 case 28:
-                    DoScriptText(SAY_SEARCH, me, pPlayer);
+                    DoScriptText(SAY_SEARCH, me, player);
                     break;
                 case 38:
                     me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    DoScriptText(SAY_AGGRO2, me, pPlayer);
+                    DoScriptText(SAY_AGGRO2, me, player);
                     break;
                 case 49:
                     me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    DoScriptText(SAY_AGGRO3, me, pPlayer);
+                    DoScriptText(SAY_AGGRO3, me, player);
                     break;
                 case 55:
-                    DoScriptText(SAY_FINISH, me, pPlayer);
-                    if (pPlayer)
-                        pPlayer->GroupEventHappens(QUEST_CHASING_AME, me);
+                    DoScriptText(SAY_FINISH, me, player);
+                    if (player)
+                        player->GroupEventHappens(QUEST_CHASING_AME, me);
                     break;
             }
         }
@@ -122,8 +122,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(QUEST_CHASING_AME);
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(QUEST_CHASING_AME);
         }
 
         void UpdateAI(const uint32 diff)
@@ -180,28 +180,28 @@ class npc_ringo : public CreatureScript
 public:
     npc_ringo() : CreatureScript("npc_ringo") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
         {
-            if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, pCreature->AI()))
+            if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
             {
-                pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-                pRingoAI->StartFollow(pPlayer, FACTION_ESCORTEE, pQuest);
+                creature->SetStandState(UNIT_STAND_STATE_STAND);
+                pRingoAI->StartFollow(player, FACTION_ESCORTEE, pQuest);
             }
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ringoAI(pCreature);
+        return new npc_ringoAI(creature);
     }
 
     struct npc_ringoAI : public FollowerAI
     {
-        npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature) { }
+        npc_ringoAI(Creature* creature) : FollowerAI(creature) { }
 
         uint32 m_uiFaintTimer;
         uint32 m_uiEndEventProgress;
@@ -217,21 +217,21 @@ public:
             SpraggleGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            FollowerAI::MoveInLineOfSight(pWho);
+            FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_SPRAGGLE)
             {
-                if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
-                    if (Player* pPlayer = GetLeaderForFollower())
+                    if (Player* player = GetLeaderForFollower())
                     {
-                        if (pPlayer->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
-                            pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, me);
+                        if (player->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
+                            player->GroupEventHappens(QUEST_A_LITTLE_HELP, me);
                     }
 
-                    SpraggleGUID = pWho->GetGUID();
+                    SpraggleGUID = who->GetGUID();
                     SetFollowComplete(true);
                 }
             }

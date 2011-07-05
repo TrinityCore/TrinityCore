@@ -28,9 +28,9 @@ class npc_valkyr_battle_maiden : public CreatureScript
 public:
     npc_valkyr_battle_maiden() : CreatureScript("npc_valkyr_battle_maiden") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_valkyr_battle_maidenAI (pCreature);
+        return new npc_valkyr_battle_maidenAI (creature);
     }
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI

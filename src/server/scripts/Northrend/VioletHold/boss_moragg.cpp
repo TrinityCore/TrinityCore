@@ -30,9 +30,9 @@ class boss_moragg : public CreatureScript
 public:
     boss_moragg() : CreatureScript("boss_moragg") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_moraggAI (pCreature);
+        return new boss_moraggAI (creature);
     }
 
     struct boss_moraggAI : public ScriptedAI
@@ -78,17 +78,17 @@ public:
             }
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->AddThreat(pWho, 0.0f);
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
-                DoStartMovement(pWho);
+                me->AddThreat(who, 0.0f);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
+                DoStartMovement(who);
             }
         }
 
@@ -102,8 +102,8 @@ public:
 
             if (uiOpticLinkTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_OPTIC_LINK);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_OPTIC_LINK);
                 uiOpticLinkTimer = 15000;
             } else uiOpticLinkTimer -= diff;
 

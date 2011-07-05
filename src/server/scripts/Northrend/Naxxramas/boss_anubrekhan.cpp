@@ -56,9 +56,9 @@ class boss_anubrekhan : public CreatureScript
 public:
     boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_anubrekhanAI (pCreature);
+        return new boss_anubrekhanAI (creature);
     }
 
     struct boss_anubrekhanAI : public BossAI
@@ -155,8 +155,8 @@ public:
                         //Cast Impale on a random target
                         //Do NOT cast it when we are afflicted by locust swarm
                         if (!me->HasAura(RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25)))
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(pTarget, RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25));
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25));
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
                     case EVENT_LOCUST:

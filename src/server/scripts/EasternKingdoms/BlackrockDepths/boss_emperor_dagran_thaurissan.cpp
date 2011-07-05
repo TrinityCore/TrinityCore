@@ -42,9 +42,9 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
 public:
     boss_emperor_dagran_thaurissan() : CreatureScript("boss_emperor_dagran_thaurissan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_draganthaurissanAI (pCreature);
+        return new boss_draganthaurissanAI (creature);
     }
 
     struct boss_draganthaurissanAI : public ScriptedAI
@@ -81,8 +81,8 @@ public:
 
             if (HandOfThaurissan_Timer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_HANDOFTHAURISSAN);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_HANDOFTHAURISSAN);
 
                 //3 Hands of Thaurissan will be casted
                 //if (Counter < 3)

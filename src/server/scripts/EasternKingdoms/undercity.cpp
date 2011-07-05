@@ -66,24 +66,24 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
 
-    bool OnQuestReward(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*slot*/)
+    bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest *_Quest, uint32 /*slot*/)
     {
         if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
         {
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, pCreature->AI())->LamentEvent = true;
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, pCreature->AI())->DoPlaySoundToSet(pCreature, SOUND_CREDIT);
-            pCreature->CastSpell(pCreature, SPELL_SYLVANAS_CAST, false);
+            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->LamentEvent = true;
+            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->DoPlaySoundToSet(creature, SOUND_CREDIT);
+            creature->CastSpell(creature, SPELL_SYLVANAS_CAST, false);
 
             for (uint8 i = 0; i < 4; ++i)
-                pCreature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
+                creature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lady_sylvanas_windrunnerAI (pCreature);
+        return new npc_lady_sylvanas_windrunnerAI (creature);
     }
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
@@ -107,11 +107,11 @@ public:
         {
             if (summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY)
             {
-                if (Unit* pTarget = Unit::GetUnit(*summoned, targetGUID))
+                if (Unit* target = Unit::GetUnit(*summoned, targetGUID))
                 {
-                    pTarget->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f, 0);
-                    pTarget->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
-                    summoned->CastSpell(pTarget, SPELL_RIBBON_OF_SOULS, false);
+                    target->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0);
+                    target->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
+                    summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
                 summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -155,9 +155,9 @@ class npc_highborne_lamenter : public CreatureScript
 public:
     npc_highborne_lamenter() : CreatureScript("npc_highborne_lamenter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_highborne_lamenterAI (pCreature);
+        return new npc_highborne_lamenterAI (creature);
     }
 
     struct npc_highborne_lamenterAI : public ScriptedAI
@@ -219,36 +219,36 @@ class npc_parqual_fintallas : public CreatureScript
 public:
     npc_parqual_fintallas() : CreatureScript("npc_parqual_fintallas") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, SPELL_MARK_OF_SHAME, false);
+            player->CLOSE_GOSSIP_MENU();
+            creature->CastSpell(player, SPELL_MARK_OF_SHAME, false);
         }
         if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->AreaExploredOrEventHappens(6628);
+            player->CLOSE_GOSSIP_MENU();
+            player->AreaExploredOrEventHappens(6628);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasAura(SPELL_MARK_OF_SHAME))
+        if (player->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !player->HasAura(SPELL_MARK_OF_SHAME))
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(5822, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->SEND_GOSSIP_MENU(5822, creature->GetGUID());
         }
         else
-            pPlayer->SEND_GOSSIP_MENU(5821, pCreature->GetGUID());
+            player->SEND_GOSSIP_MENU(5821, creature->GetGUID());
 
         return true;
     }

@@ -175,12 +175,12 @@ class instance_uldaman : public InstanceMapScript
             {
                 for (std::vector<uint64>::const_iterator i = vStoneKeeper.begin(); i != vStoneKeeper.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (!pTarget || !pTarget->isAlive() || pTarget->getFaction() == 14)
+                    Creature* target = instance->GetCreature(*i);
+                    if (!target || !target->isAlive() || target->getFaction() == 14)
                         continue;
-                    pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    pTarget->setFaction(14);
-                    pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    target->setFaction(14);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     return;        // only want the first one we find
                 }
                 // if we get this far than all four are dead so open the door
@@ -196,11 +196,11 @@ class instance_uldaman : public InstanceMapScript
 
                 for (std::vector<uint64>::const_iterator i = vArchaedasWallMinions.begin(); i != vArchaedasWallMinions.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (!pTarget || !pTarget->isAlive() || pTarget->getFaction() == 14)
+                    Creature* target = instance->GetCreature(*i);
+                    if (!target || !target->isAlive() || target->getFaction() == 14)
                         continue;
-                    archaedas->CastSpell(pTarget, SPELL_AWAKEN_VAULT_WALKER, true);
-                    pTarget->CastSpell(pTarget, SPELL_ARCHAEDAS_AWAKEN, true);
+                    archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
+                    target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
                     return;        // only want the first one we find
                 }
             }
@@ -211,31 +211,31 @@ class instance_uldaman : public InstanceMapScript
                 // first despawn any aggroed wall minions
                 for (std::vector<uint64>::const_iterator i = vArchaedasWallMinions.begin(); i != vArchaedasWallMinions.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
+                    Creature* target = instance->GetCreature(*i);
+                    if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    pTarget->setDeathState(JUST_DIED);
-                    pTarget->RemoveCorpse();
+                    target->setDeathState(JUST_DIED);
+                    target->RemoveCorpse();
                 }
 
                 // Vault Walkers
                 for (std::vector<uint64>::const_iterator i = vVaultWalker.begin(); i != vVaultWalker.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
+                    Creature* target = instance->GetCreature(*i);
+                    if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    pTarget->setDeathState(JUST_DIED);
-                    pTarget->RemoveCorpse();
+                    target->setDeathState(JUST_DIED);
+                    target->RemoveCorpse();
                 }
 
                 // Earthen Guardians
                 for (std::vector<uint64>::const_iterator i = vEarthenGuardian.begin(); i != vEarthenGuardian.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
+                    Creature* target = instance->GetCreature(*i);
+                    if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    pTarget->setDeathState(JUST_DIED);
-                    pTarget->RemoveCorpse();
+                    target->setDeathState(JUST_DIED);
+                    target->RemoveCorpse();
                 }
             }
 
@@ -268,36 +268,36 @@ class instance_uldaman : public InstanceMapScript
                 // first respawn any aggroed wall minions
                 for (std::vector<uint64>::const_iterator i = vArchaedasWallMinions.begin(); i != vArchaedasWallMinions.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (pTarget && pTarget->isDead())
+                    Creature* target = instance->GetCreature(*i);
+                    if (target && target->isDead())
                     {
-                        pTarget->Respawn();
-                        pTarget->GetMotionMaster()->MoveTargetedHome();
-                        SetFrozenState(pTarget);
+                        target->Respawn();
+                        target->GetMotionMaster()->MoveTargetedHome();
+                        SetFrozenState(target);
                     }
                 }
 
                 // Vault Walkers
                 for (std::vector<uint64>::const_iterator i = vVaultWalker.begin(); i != vVaultWalker.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (pTarget && pTarget->isDead())
+                    Creature* target = instance->GetCreature(*i);
+                    if (target && target->isDead())
                     {
-                        pTarget->Respawn();
-                        pTarget->GetMotionMaster()->MoveTargetedHome();
-                        SetFrozenState(pTarget);
+                        target->Respawn();
+                        target->GetMotionMaster()->MoveTargetedHome();
+                        SetFrozenState(target);
                     }
                 }
 
                 // Earthen Guardians
                 for (std::vector<uint64>::const_iterator i = vEarthenGuardian.begin(); i != vEarthenGuardian.end(); ++i)
                 {
-                    Creature* pTarget = instance->GetCreature(*i);
-                    if (pTarget && pTarget->isDead())
+                    Creature* target = instance->GetCreature(*i);
+                    if (target && target->isDead())
                     {
-                        pTarget->Respawn();
-                        pTarget->GetMotionMaster()->MoveTargetedHome();
-                        SetFrozenState(pTarget);
+                        target->Respawn();
+                        target->GetMotionMaster()->MoveTargetedHome();
+                        SetFrozenState(target);
                     }
                 }
             }

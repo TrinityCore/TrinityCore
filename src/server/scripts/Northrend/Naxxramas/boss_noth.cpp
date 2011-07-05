@@ -68,9 +68,9 @@ class boss_noth : public CreatureScript
 public:
     boss_noth() : CreatureScript("boss_noth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nothAI (pCreature);
+        return new boss_nothAI (creature);
     }
 
     struct boss_nothAI : public BossAI

@@ -74,16 +74,16 @@ class boss_ichoron : public CreatureScript
 public:
     boss_ichoron() : CreatureScript("boss_ichoron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ichoronAI (pCreature);
+        return new boss_ichoronAI (creature);
     }
 
     struct boss_ichoronAI : public ScriptedAI
     {
-        boss_ichoronAI(Creature* pCreature) : ScriptedAI(pCreature), m_waterElements(pCreature)
+        boss_ichoronAI(Creature* creature) : ScriptedAI(creature), m_waterElements(creature)
         {
-            pInstance  = pCreature->GetInstanceScript();
+            pInstance  = creature->GetInstanceScript();
         }
 
         bool bIsExploded;
@@ -117,7 +117,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
@@ -138,17 +138,17 @@ public:
             }
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(pWho, true))
+            if (me->Attack(who, true))
             {
-                me->AddThreat(pWho, 0.0f);
-                me->SetInCombatWith(pWho);
-                pWho->SetInCombatWith(me);
-                DoStartMovement(pWho);
+                me->AddThreat(who, 0.0f);
+                me->SetInCombatWith(who);
+                who->SetInCombatWith(me);
+                DoStartMovement(who);
             }
         }
 
@@ -204,7 +204,7 @@ public:
             return 0;
         }
 
-        void MoveInLineOfSight(Unit* /*pWho*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -301,23 +301,23 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned)
+            if (summoned)
             {
-                pSummoned->SetSpeed(MOVE_RUN, 0.3f);
-                pSummoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-                m_waterElements.push_back(pSummoned->GetGUID());
-                pInstance->SetData64(DATA_ADD_TRASH_MOB, pSummoned->GetGUID());
+                summoned->SetSpeed(MOVE_RUN, 0.3f);
+                summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
+                m_waterElements.push_back(summoned->GetGUID());
+                pInstance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            if (pSummoned)
+            if (summoned)
             {
-                m_waterElements.remove(pSummoned->GetGUID());
-                pInstance->SetData64(DATA_DEL_TRASH_MOB, pSummoned->GetGUID());
+                m_waterElements.remove(summoned->GetGUID());
+                pInstance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
 
@@ -336,16 +336,16 @@ class mob_ichor_globule : public CreatureScript
 public:
     mob_ichor_globule() : CreatureScript("mob_ichor_globule") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ichor_globuleAI (pCreature);
+        return new mob_ichor_globuleAI (creature);
     }
 
     struct mob_ichor_globuleAI : public ScriptedAI
     {
-        mob_ichor_globuleAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -358,7 +358,7 @@ public:
             DoCast(me, SPELL_WATER_GLOBULE);
         }
 
-        void AttackStart(Unit* /*pWho*/)
+        void AttackStart(Unit* /*who*/)
         {
             return;
         }
@@ -384,7 +384,7 @@ public:
             else uiRangeCheck_Timer -= uiDiff;
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me, SPELL_SPLASH);
             if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))
