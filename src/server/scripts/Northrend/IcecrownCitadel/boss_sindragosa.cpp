@@ -278,7 +278,7 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat();
                         break;
                     case POINT_AIR_PHASE:
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 3, 6), false);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
                         break;
                     case POINT_LAND:
