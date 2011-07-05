@@ -31,9 +31,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_spirit_warden_icc' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='npc_shadow_trap' WHERE `entry` = 39137;
 
 UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 39137;
-UPDATE `creature_template` SET `unit_flags` = 0, `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
+UPDATE `creature_template` SET `unit_flags` = 512, mechanic_immune_mask=2, `vehicleid` = 533 WHERE `entry` IN (36609, 39120, 39121, 39122);
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (15214,36633, 39305, 39306, 39307);
-UPDATE `creature_template` SET `mechanic_immune_mask` = 12582928 WHERE `entry` IN (36609, 39120, 39121, 39122);
 
 -- Spell
 -- Linked spell
@@ -166,7 +165,7 @@ INSERT INTO script_texts (npc_entry,entry,content_default,content_loc1,content_l
 
 DELETE FROM script_texts WHERE entry <= -1810035 AND entry >= -1810037;
 INSERT INTO script_texts (npc_entry,entry,content_default,content_loc1,content_loc2,content_loc3,content_loc4,content_loc5,content_loc6,content_loc7,content_loc8,sound,type,language,emote,comment)VALUES
-(36823,-1810035, 'You have come to bring Arthas to justice? To see the Lich King destroyed?',null,null,null,null,null,null,null,'Вы пришли, чтобы вершить суд над Артасом? Что бы уничтожить Короля-лича?',17394,1,0,0,''),
+(36823,-1810035, 'You have come to bring Arthas to justice? To see the Lich King destroyed?',null,null,null,null,null,null,null,'Вы пришли, чтобы вершить суд над Артасом? Чтобы уничтожить Короля-лича?',17394,1,0,0,''),
 (36823,-1810036, 'First, you must escape Frostmourne''s hold or be damned as I am, trapped within this cursed blade for all eternity.',null,null,null,null,null,null,null,'Вы не должны оказаться во власти Ледяной Скорби. Иначе, как и я, будете навек порабощены этим проклятым клинком!',17395,1,0,0,''),
 (36823,-1810037, 'Aid me in destroying these tortured souls! Together we will loosen Frostmourne''s hold and weaken the Lich King from within!',null,null,null,null,null,null,null,'Помогите мне уничтожить эти истерзанные души! Вместе мы вытянем силу из Ледяной Скорби и ослабим Короля-лича!',17396,1,0,0,'');
 

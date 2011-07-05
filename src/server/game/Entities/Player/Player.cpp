@@ -8733,6 +8733,22 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
     if (IS_GAMEOBJECT_GUID(guid))
     {
         sLog->outDebug(LOG_FILTER_LOOT, "IS_GAMEOBJECT_GUID(guid)");
+        if (GetSession()->GetSecurity() > SEC_MODERATOR)
+        {
+            if (Group *grp = GetGroup())
+            {
+                std::string group;
+                if (grp->isRaidGroup())
+                    group = "in raid group";
+                else
+                    group = "in group";
+                sLog->outCommand(GetSession()->GetAccountId(), "GM %s (Account: %u) opened GO (GUID: %u) X: %f Y: %f Z: %f Map: %u [%s]",
+                    GetName(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), group.c_str());
+            }
+            else
+                sLog->outCommand(GetSession()->GetAccountId(), "GM %s (Account: %u) opened GO (GUID: %u) X: %f Y: %f Z: %f Map: %u",
+                    GetName(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+        }
         GameObject *go = GetMap()->GetGameObject(guid);
 
         // not check distance for GO in case owned GO (fishing bobber case, for example)
