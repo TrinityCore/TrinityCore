@@ -1,5 +1,6 @@
 -- Sara
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `flags_extra` = 1, `ScriptName` = 'boss_sara' WHERE `entry` IN (33134, 34332);
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 34332;
 UPDATE creature_model_info SET bounding_radius = 0.465, combat_reach = 45 WHERE modelid = 29117;
 UPDATE `creature` SET `spawndist` = 0 WHERE `id` = 33134;
 -- Ominous cloud
