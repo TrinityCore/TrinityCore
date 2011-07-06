@@ -1377,7 +1377,7 @@ class go_wind_stone : public GameObjectScript
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_EARTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                     if (item & AIR)
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_AIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-            	    break;
+                    break;
                 }
                 case GOSSIPID_WS:
                 {
