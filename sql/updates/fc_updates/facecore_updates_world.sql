@@ -82,7 +82,6 @@ DELETE FROM `creature_ai_scripts` WHERE creature_id = 25841;
 UPDATE `creature_template` SET IconName = 'Speak', npcflag = 1, gossip_menu_id = 0, AIName = '', ScriptName = 'npc_recon_pilot', unit_flags = 0x00000000, flags_extra = 2, dynamicflags = 36  WHERE entry = 25841;
 DELETE FROM `creature_template_addon` WHERE entry = 25841;
 INSERT INTO `creature_template_addon` VALUES (25841, 0, 0, 7, 0, 65, '');
-UPDATE `creature` SET DeathState = 0 WHERE id = 25841;
 
 -- Open Halls of Reflection without quest
 UPDATE `access_requirement` set `quest_done_A`=0, `quest_done_H`=0 where `mapId` = 668;
@@ -423,15 +422,6 @@ INSERT INTO `spell_proc_event` VALUES
 -- Fix Spring Fling achievement
 UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
 UPDATE achievement_criteria_data SET value1='186' WHERE (criteria_id='9199') AND (type='6');
-
--- Fix for Dual Specialisation learning
-DELETE FROM `gossip_scripts` WHERE id=50099;
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 3, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 3, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 1, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 1, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 2, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 2, 0, 0, 0, 0, 0);
 
 -- Fix drop for Damaged Necklace item (43297)
 DELETE FROM `creature_loot_template` WHERE `item` = 43297;
