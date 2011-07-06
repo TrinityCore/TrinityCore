@@ -1752,7 +1752,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // Cloak of Shadows
         case 35729:
         {
-            uint32 dispelMask = GetDispellMask(DISPEL_ALL);
+            uint32 dispelMask = GetDispelMask(DISPEL_ALL);
             Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
             for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
             {
@@ -3151,7 +3151,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
     // Create dispel mask by dispel type
     uint32 dispel_type = m_spellInfo->EffectMiscValue[effIndex];
-    uint32 dispelMask  = GetDispellMask(DispelType(dispel_type));
+    uint32 dispelMask  = GetDispelMask(DispelType(dispel_type));
 
     // we should not be able to dispel diseases if the target is affected by unholy blight
     if (dispelMask & (1 << DISPEL_DISEASE) && unitTarget->HasAura(50536))
@@ -6514,7 +6514,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     DispelChargesList steal_list;
 
     // Create dispel mask by dispel type
-    uint32 dispelMask  = GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[effIndex]));
+    uint32 dispelMask  = GetDispelMask(DispelType(m_spellInfo->EffectMiscValue[effIndex]));
     Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {

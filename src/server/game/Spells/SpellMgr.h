@@ -539,7 +539,7 @@ inline Mechanics GetEffectMechanic(SpellEntry const* spellInfo, int32 effect)
     return MECHANIC_NONE;
 }
 
-inline uint32 GetDispellMask(DispelType dispel)
+inline uint32 GetDispelMask(DispelType dispel)
 {
     // If dispel all
     if (dispel == DISPEL_ALL)

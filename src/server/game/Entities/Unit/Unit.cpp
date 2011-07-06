@@ -11964,7 +11964,7 @@ void Unit::ApplySpellDispelImmunity(const SpellEntry * spellProto, DispelType ty
     if (apply && spellProto->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
     {
         // Create dispel mask by dispel type
-        uint32 dispelMask = GetDispellMask(type);
+        uint32 dispelMask = GetDispelMask(type);
         // Dispel all existing auras vs current dispel type
         AuraApplicationMap& auras = GetAppliedAuras();
         for (AuraApplicationMap::iterator itr = auras.begin(); itr != auras.end();)
