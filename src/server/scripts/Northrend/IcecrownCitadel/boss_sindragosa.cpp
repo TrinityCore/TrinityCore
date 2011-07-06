@@ -318,14 +318,8 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat();
                         break;
                     case POINT_AIR_PHASE:
-                        me->RemoveAurasDueToSpell(SPELL_FROST_AURA);
-                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_AURA);
-                        me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, true);
-                        _bombsLanded = 0;
-                        //For debug purposes, just one target will be affected with Ice Tomb spell RAID_MODE<int32>(2, 5, 3, 6)
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, 1, false);
-                        //10 seconds instead of 8 because ice block affects players even after it's about to appear.
-                        events.ScheduleEvent(EVENT_FROST_BOMB, 10000);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
                         break;
                     case POINT_LAND:
                         me->SetFlying(false);
