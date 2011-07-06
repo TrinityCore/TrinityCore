@@ -129,7 +129,7 @@ void PlayerRelocationNotifier::Visit(PlayerMapType &m)
 
         vis_guids.erase(plr->GetGUID());
 
-        i_player.UpdateVisibilityOf(plr,i_data,i_visibleNow);
+        i_player.UpdateVisibilityOf(plr, i_data, i_visibleNow);
 
         if (plr->m_seer->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
             continue;
@@ -144,11 +144,11 @@ void PlayerRelocationNotifier::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        Creature * c = iter->getSource();
+        Creature* c = iter->getSource();
 
         vis_guids.erase(c->GetGUID());
 
-        i_player.UpdateVisibilityOf(c,i_data,i_visibleNow);
+        i_player.UpdateVisibilityOf(c, i_data, i_visibleNow);
 
         if (relocated_for_ai && !c->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
             CreatureUnitRelocationWorker(c, &i_player);
@@ -159,7 +159,7 @@ void CreatureRelocationNotifier::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        Player * pl = iter->getSource();
+        Player* pl = iter->getSource();
 
         if (!pl->m_seer->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
             pl->UpdateVisibilityOf(&i_creature);
@@ -187,7 +187,7 @@ void DelayedUnitRelocation::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        Creature * unit = iter->getSource();
+        Creature* unit = iter->getSource();
         if (!unit->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
             continue;
 
@@ -205,7 +205,7 @@ void DelayedUnitRelocation::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        Player * player = iter->getSource();
+        Player* player = iter->getSource();
         WorldObject const *viewPoint = player->m_seer;
 
         if (!viewPoint->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))

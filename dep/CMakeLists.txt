@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -27,7 +27,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
       add_subdirectory(mysqllite)
     endif()
   endif()
-  add_subdirectory(bzip2)
+  if(TOOLS)
+    add_subdirectory(bzip2)
+  endif()
   add_subdirectory(zlib)
 endif()
 

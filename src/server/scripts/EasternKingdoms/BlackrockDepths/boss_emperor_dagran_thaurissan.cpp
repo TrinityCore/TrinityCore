@@ -42,14 +42,14 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
 public:
     boss_emperor_dagran_thaurissan() : CreatureScript("boss_emperor_dagran_thaurissan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_draganthaurissanAI (pCreature);
+        return new boss_draganthaurissanAI (creature);
     }
 
     struct boss_draganthaurissanAI : public ScriptedAI
     {
-        boss_draganthaurissanAI(Creature *c) : ScriptedAI(c) {}
+        boss_draganthaurissanAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 HandOfThaurissan_Timer;
         uint32 AvatarOfFlame_Timer;
@@ -62,7 +62,7 @@ public:
             //Counter= 0;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             me->CallForHelp(VISIBLE_RANGE);
@@ -81,8 +81,8 @@ public:
 
             if (HandOfThaurissan_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(pTarget, SPELL_HANDOFTHAURISSAN);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_HANDOFTHAURISSAN);
 
                 //3 Hands of Thaurissan will be casted
                 //if (Counter < 3)
@@ -109,7 +109,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_draganthaurissan()
 {

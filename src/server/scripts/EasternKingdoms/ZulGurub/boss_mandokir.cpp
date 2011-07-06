@@ -55,7 +55,7 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public ScriptedAI
         {
-            boss_mandokirAI(Creature *c) : ScriptedAI(c)
+            boss_mandokirAI(Creature* c) : ScriptedAI(c)
             {
                 m_pInstance = c->GetInstanceScript();
             }
@@ -121,7 +121,7 @@ class boss_mandokir : public CreatureScript
                             uint64 JindoGUID = m_pInstance->GetData64(DATA_JINDO);
                             if (JindoGUID)
                             {
-                                if (Unit* jTemp = Unit::GetUnit(*me,JindoGUID))
+                                if (Unit* jTemp = Unit::GetUnit(*me, JindoGUID))
                                 {
                                     if (jTemp->isAlive())
                                         DoScriptText(SAY_GRATS_JINDO, jTemp);
@@ -134,7 +134,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
              DoScriptText(SAY_AGGRO, me);
             }
@@ -175,7 +175,7 @@ class boss_mandokir : public CreatureScript
                                 else
                                 {
                                     DoCast(pUnit, SPELL_CHARGE);
-                                    //me->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true,1);
+                                    //me->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true, 1);
                                     AttackStart(pUnit);
                                 }
                             }
@@ -186,7 +186,7 @@ class boss_mandokir : public CreatureScript
 
                     if ((Watch_Timer < 8000) && !someWatched)       //8 sec(cast time + expire time) before the check for the watch effect mandokir will cast watch debuff on a random target
                     {
-                        if (Unit* p = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        if (Unit* p = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             DoScriptText(SAY_WATCH, me, p);
                             DoCast(p, SPELL_WATCH);
@@ -258,7 +258,7 @@ class boss_mandokir : public CreatureScript
                     {
                         if (m_pInstance)
                         {
-                            if (m_pInstance->GetData(TYPE_OHGAN) == DONE)
+                            if (m_pInstance->GetData(DATA_OHGAN) == DONE)
                             {
                                 if (!RaptorDead)
                                 {
@@ -294,7 +294,7 @@ class mob_ohgan : public CreatureScript
 
         struct mob_ohganAI : public ScriptedAI
         {
-            mob_ohganAI(Creature *c) : ScriptedAI(c)
+            mob_ohganAI(Creature* c) : ScriptedAI(c)
             {
                 m_pInstance = c->GetInstanceScript();
             }
@@ -307,12 +307,12 @@ class mob_ohgan : public CreatureScript
                 SunderArmor_Timer = 5000;
             }
 
-            void EnterCombat(Unit * /*who*/) {}
+            void EnterCombat(Unit* /*who*/) {}
 
             void JustDied(Unit* /*Killer*/)
             {
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_OHGAN, DONE);
+                    m_pInstance->SetData(DATA_OHGAN, DONE);
             }
 
             void UpdateAI (const uint32 diff)

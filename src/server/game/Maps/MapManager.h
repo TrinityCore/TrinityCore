@@ -34,7 +34,7 @@ class MapManager
 {
     friend class ACE_Singleton<MapManager, ACE_Thread_Mutex>;
     typedef UNORDERED_MAP<uint32, Map*> MapMapType;
-    typedef std::pair<UNORDERED_MAP<uint32, Map*>::iterator, bool>  MapMapPair;
+    typedef std::vector<bool> InstanceIds;
 
     public:
 
@@ -49,15 +49,15 @@ class MapManager
         }
         uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
         {
-            return Map::GetAreaIdByAreaFlag(GetAreaFlag(mapid, x, y, z),mapid);
+            return Map::GetAreaIdByAreaFlag(GetAreaFlag(mapid, x, y, z), mapid);
         }
         uint32 GetZoneId(uint32 mapid, float x, float y, float z) const
         {
-            return Map::GetZoneIdByAreaFlag(GetAreaFlag(mapid, x, y, z),mapid);
+            return Map::GetZoneIdByAreaFlag(GetAreaFlag(mapid, x, y, z), mapid);
         }
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
         {
-            Map::GetZoneAndAreaIdByAreaFlag(zoneid,areaid,GetAreaFlag(mapid, x, y, z),mapid);
+            Map::GetZoneAndAreaIdByAreaFlag(zoneid, areaid, GetAreaFlag(mapid, x, y, z), mapid);
         }
 
         void Initialize(void);
@@ -84,21 +84,21 @@ class MapManager
         void UnloadAll();
 
         static bool ExistMapAndVMap(uint32 mapid, float x, float y);
-        static bool IsValidMAP(uint32 mapid);
+        static bool IsValidMAP(uint32 mapid, bool startUp);
 
-        static bool IsValidMapCoord(uint32 mapid, float x,float y)
+        static bool IsValidMapCoord(uint32 mapid, float x, float y)
         {
-            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y);
+            return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y);
         }
 
-        static bool IsValidMapCoord(uint32 mapid, float x,float y,float z)
+        static bool IsValidMapCoord(uint32 mapid, float x, float y, float z)
         {
-            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y,z);
+            return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y, z);
         }
 
-        static bool IsValidMapCoord(uint32 mapid, float x,float y,float z,float o)
+        static bool IsValidMapCoord(uint32 mapid, float x, float y, float z, float o)
         {
-            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y,z,o);
+            return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y, z, o);
         }
 
         static bool IsValidMapCoord(WorldLocation const& loc)
@@ -133,13 +133,22 @@ class MapManager
         TransportMap m_TransportsByMap;
 
         bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
-        uint32 GenerateInstanceId() { return ++i_MaxInstanceId; }
-        void InitMaxInstanceId();
         void InitializeVisibilityDistanceInfo();
 
         /* statistics */
         uint32 GetNumInstances();
         uint32 GetNumPlayersInInstances();
+
+        // Instance ID management
+        void InitInstanceIds();
+        uint32 GenerateInstanceId();
+        void RegisterInstanceId(uint32 instanceId);
+        void FreeInstanceId(uint32 instanceId);
+
+        uint32 GetNextInstanceId() { return _nextInstanceId; };
+        void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
+
+        MapUpdater * GetMapUpdater() { return &m_updater; }
 
     private:
         // debugging code, should be deleted some day
@@ -165,7 +174,8 @@ class MapManager
         MapMapType i_maps;
         IntervalTimer i_timer;
 
-        uint32 i_MaxInstanceId;
+        InstanceIds _instanceIds;
+        uint32 _nextInstanceId;
         MapUpdater m_updater;
 };
 #define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()

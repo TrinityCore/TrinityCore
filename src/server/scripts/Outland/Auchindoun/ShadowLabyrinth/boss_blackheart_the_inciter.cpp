@@ -59,14 +59,14 @@ class boss_blackheart_the_inciter : public CreatureScript
 public:
     boss_blackheart_the_inciter() : CreatureScript("boss_blackheart_the_inciter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_blackheart_the_inciterAI (pCreature);
+        return new boss_blackheart_the_inciterAI (creature);
     }
 
     struct boss_blackheart_the_inciterAI : public ScriptedAI
     {
-        boss_blackheart_the_inciterAI(Creature *c) : ScriptedAI(c)
+        boss_blackheart_the_inciterAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -91,12 +91,12 @@ public:
                 pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -104,9 +104,9 @@ public:
                 pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
             if (pInstance)
                 pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
@@ -136,9 +136,9 @@ public:
                 std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
-                        pTarget->CastSpell(pTarget,SPELL_INCITE_CHAOS_B,true);
+                    Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    if (target && target->GetTypeId() == TYPEID_PLAYER)
+                        target->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
                 }
 
                 DoResetThreat();
@@ -150,8 +150,8 @@ public:
             //Charge_Timer
             if (Charge_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_CHARGE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CHARGE);
                 Charge_Timer = 15000 + rand()%10000;
             } else Charge_Timer -= diff;
 

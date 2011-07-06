@@ -68,6 +68,7 @@ class DatabaseWorkerPool
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
+            bool res = true;
             m_connectionInfo = MySQLConnectionInfo(infoString);
 
             sLog->outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
@@ -77,7 +78,7 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < async_threads; ++i)
             {
                 T* t = new T(m_queue, m_connectionInfo);
-                t->Open();
+                res &= t->Open();
                 m_connections[IDX_ASYNC][i] = t;
                 ++m_connectionCount[IDX_ASYNC];
             }
@@ -87,13 +88,13 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < synch_threads; ++i)
             {
                 T* t = new T(m_connectionInfo);
-                t->Open();
+                res &= t->Open();
                 m_connections[IDX_SYNCH][i] = t;
                 ++m_connectionCount[IDX_SYNCH];
             }
 
             sLog->outSQLDriver("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
-            return true;
+            return res;
         }
 
         void Close()
@@ -369,6 +370,9 @@ class DatabaseWorkerPool
                 }
             }
 
+            // Clean up now.
+            transaction->Cleanup();
+
             con->Unlock();
         }
 
@@ -404,13 +408,13 @@ class DatabaseWorkerPool
         }
 
         //! Apply escape string'ing for current collation. (utf8)
-        void escape_string(std::string& str)
+        void EscapeString(std::string& str)
         {
             if (str.empty())
                 return;
 
             char* buf = new char[str.size()*2+1];
-            escape_string(buf,str.c_str(),str.size());
+            EscapeString(buf, str.c_str(), str.size());
             str = buf;
             delete[] buf;
         }
@@ -437,15 +441,12 @@ class DatabaseWorkerPool
         }
 
     private:
-        unsigned long escape_string(char *to, const char *from, unsigned long length)
+        unsigned long EscapeString(char *to, const char *from, unsigned long length)
         {
             if (!to || !from || !length)
                 return 0;
 
-            T* t = GetFreeConnection();
-            unsigned long ret = mysql_real_escape_string(t->GetHandle(), to, from, length);
-            t->Unlock();
-            return ret;
+            return mysql_real_escape_string(m_connections[IDX_SYNCH][0]->GetHandle(), to, from, length);
         }
 
         void Enqueue(SQLOperation* op)

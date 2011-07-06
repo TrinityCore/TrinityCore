@@ -53,14 +53,14 @@ class mobs_bladespire_ogre : public CreatureScript
 public:
     mobs_bladespire_ogre() : CreatureScript("mobs_bladespire_ogre") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_bladespire_ogreAI (pCreature);
+        return new mobs_bladespire_ogreAI (creature);
     }
 
     struct mobs_bladespire_ogreAI : public ScriptedAI
     {
-        mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {}
+        mobs_bladespire_ogreAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
 
@@ -84,8 +84,8 @@ enum eNetherdrake
     SAY_NIHIL_1                 = -1000169, //signed for 5955
     SAY_NIHIL_2                 = -1000170, //signed for 5955
     SAY_NIHIL_3                 = -1000171, //signed for 5955
-    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021,21817,21820,21821,21823
-    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021,21817,21820,21821,21823
+    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
+    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
 
     ENTRY_WHELP                 = 20021,
     ENTRY_PROTO                 = 21821,
@@ -105,14 +105,14 @@ class mobs_nether_drake : public CreatureScript
 public:
     mobs_nether_drake() : CreatureScript("mobs_nether_drake") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_nether_drakeAI (pCreature);
+        return new mobs_nether_drakeAI (creature);
     }
 
     struct mobs_nether_drakeAI : public ScriptedAI
     {
-        mobs_nether_drakeAI(Creature *c) : ScriptedAI(c) {}
+        mobs_nether_drakeAI(Creature* c) : ScriptedAI(c) {}
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -135,7 +135,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_T_PHASE_MODULATOR && caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -237,9 +237,9 @@ public:
 
             if (ManaBurn_Timer <= diff)
             {
-                Unit *pTarget = me->getVictim();
-                if (pTarget && pTarget->getPowerType() == POWER_MANA)
-                    DoCast(pTarget, SPELL_MANA_BURN);
+                Unit* target = me->getVictim();
+                if (target && target->getPowerType() == POWER_MANA)
+                    DoCast(target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000+rand()%8000;
             } else ManaBurn_Timer -= diff;
 
@@ -254,7 +254,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_daranelle
@@ -271,20 +270,20 @@ class npc_daranelle : public CreatureScript
 public:
     npc_daranelle() : CreatureScript("npc_daranelle") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_daranelleAI (pCreature);
+        return new npc_daranelleAI (creature);
     }
 
     struct npc_daranelleAI : public ScriptedAI
     {
-        npc_daranelleAI(Creature *c) : ScriptedAI(c) {}
+        npc_daranelleAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -302,7 +301,6 @@ public:
 
 };
 
-
 /*######
 ## npc_overseer_nuaar
 ######*/
@@ -314,29 +312,28 @@ class npc_overseer_nuaar : public CreatureScript
 public:
     npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->SEND_GOSSIP_MENU(10533, pCreature->GetGUID());
-            pPlayer->AreaExploredOrEventHappens(10682);
+            player->SEND_GOSSIP_MENU(10533, creature->GetGUID());
+            player->AreaExploredOrEventHappens(10682);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(10532, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(10532, creature->GetGUID());
 
         return true;
     }
 
 };
-
 
 /*######
 ## npc_saikkal_the_elder
@@ -350,35 +347,34 @@ class npc_saikkal_the_elder : public CreatureScript
 public:
     npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(10795, pCreature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(10795, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-                pPlayer->SEND_GOSSIP_MENU(10796, pCreature->GetGUID());
+                player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+                player->SEND_GOSSIP_MENU(10796, creature->GetGUID());
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(10794, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(10794, creature->GetGUID());
 
         return true;
     }
 
 };
-
 
 /*######
 ## go_legion_obelisk
@@ -389,9 +385,9 @@ class go_legion_obelisk : public GameObjectScript
 public:
     go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
-        if (pPlayer->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
         {
             switch(pGo->GetEntry())
             {
@@ -414,7 +410,7 @@ public:
 
             if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
             {
-                pGo->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+                pGo->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 //reset global var
                 obelisk_one = false;
                 obelisk_two = false;
@@ -429,17 +425,17 @@ public:
 
 };
 
-
 /*######
 ## npc_bloodmaul_brutebane
 ######*/
 
-
 enum eBloodmaul
 {
-    NPC_OGRE_BRUTE        = 19995,
-    NPC_QUEST_CREDIT      = 21241,
-    GO_KEG                = 184315
+    NPC_OGRE_BRUTE                              = 19995,
+    NPC_QUEST_CREDIT                            = 21241,
+    GO_KEG                                      = 184315,
+    QUEST_GETTING_THE_BLADESPIRE_TANKED         = 10512,
+    QUEST_BLADESPIRE_KEGGER                     = 10545,
 };
 
 class npc_bloodmaul_brutebane : public CreatureScript
@@ -447,14 +443,14 @@ class npc_bloodmaul_brutebane : public CreatureScript
 public:
     npc_bloodmaul_brutebane() : CreatureScript("npc_bloodmaul_brutebane") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_bloodmaul_brutebaneAI (pCreature);
+        return new npc_bloodmaul_brutebaneAI(creature);
     }
 
     struct npc_bloodmaul_brutebaneAI : public ScriptedAI
     {
-        npc_bloodmaul_brutebaneAI(Creature *c) : ScriptedAI(c)
+        npc_bloodmaul_brutebaneAI(Creature* creature) : ScriptedAI(creature)
         {
            if(Creature* Ogre = me->FindNearestCreature(NPC_OGRE_BRUTE, 50, true))
            {
@@ -475,7 +471,6 @@ public:
 
 };
 
-
 /*######
 ## npc_ogre_brute
 ######*/
@@ -485,14 +480,14 @@ class npc_ogre_brute : public CreatureScript
 public:
     npc_ogre_brute() : CreatureScript("npc_ogre_brute") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ogre_bruteAI(pCreature);
+        return new npc_ogre_bruteAI(creature);
     }
 
     struct npc_ogre_bruteAI : public ScriptedAI
     {
-        npc_ogre_bruteAI(Creature *c) : ScriptedAI(c) {}
+        npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 PlayerGUID;
 
@@ -501,19 +496,21 @@ public:
             PlayerGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || (!who->isAlive())) return;
 
-            if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && who->ToPlayer()->GetQuestStatus(10512) == QUEST_STATUS_INCOMPLETE)
+            if (me->IsWithinDistInMap(who, 50.0f))
             {
-                PlayerGUID = who->GetGUID();
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED || QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE)
+                        PlayerGUID = who->GetGUID();
             }
         }
 
         void MovementInform(uint32 /*type*/, uint32 id)
         {
-            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
             if (id == 1)
             {
                 GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20);
@@ -523,8 +520,8 @@ public:
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->GetMotionMaster()->MoveTargetedHome();
                 Creature* Credit = me->FindNearestCreature(NPC_QUEST_CREDIT, 50, true);
-                if (pPlayer && Credit)
-                    pPlayer->KilledMonster(Credit->GetCreatureInfo(), Credit->GetGUID());
+                if (player && Credit)
+                    player->KilledMonster(Credit->GetCreatureInfo(), Credit->GetGUID());
             }
         }
 
@@ -537,7 +534,6 @@ public:
     };
 
 };
-
 
 /*######
 ## AddSC

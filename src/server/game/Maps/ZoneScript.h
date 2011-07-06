@@ -28,15 +28,16 @@ class GameObject;
 class ZoneScript
 {
     public:
-        explicit ZoneScript() {}
+        ZoneScript() {}
+        virtual ~ZoneScript() {}
 
-        virtual uint32 GetCreatureEntry(uint32 /*guidlow*/, const CreatureData *data) { return data->id; }
+        virtual uint32 GetCreatureEntry(uint32 /*guidlow*/, CreatureData const* data) { return data->id; }
         virtual uint32 GetGameObjectEntry(uint32 /*guidlow*/, uint32 entry) { return entry; }
 
-        virtual void OnCreatureCreate(Creature *) {}
-        virtual void OnCreatureRemove(Creature *) {}
-        virtual void OnGameObjectCreate(GameObject *) {}
-        virtual void OnGameObjectRemove(GameObject *) {}
+        virtual void OnCreatureCreate(Creature* /*creature*/) {}
+        virtual void OnCreatureRemove(Creature* /*creature*/) {}
+        virtual void OnGameObjectCreate(GameObject* /*go*/) {}
+        virtual void OnGameObjectRemove(GameObject* /*go*/) {}
 
         virtual void OnCreatureDeath(Creature* /*creature*/) {}
 
@@ -48,7 +49,7 @@ class ZoneScript
         virtual uint32 GetData(uint32 /*DataId*/) { return 0; }
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) {}
 
-        virtual void ProcessEvent(GameObject * /*obj*/, uint32 /*eventId*/) {}
+        virtual void ProcessEvent(GameObject* /*obj*/, uint32 /*eventId*/) {}
         virtual void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/) {}
 };
 

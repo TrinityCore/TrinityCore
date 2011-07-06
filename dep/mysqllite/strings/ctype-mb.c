@@ -62,6 +62,17 @@ size_t my_casedn_str_mb(CHARSET_INFO * cs, char *str)
 }
 
 
+static inline MY_UNICASE_INFO*
+get_case_info_for_ch(CHARSET_INFO *cs, uint page, uint offs)
+{
+  MY_UNICASE_INFO *p;
+  return cs->caseinfo ? ((p= cs->caseinfo[page]) ? &p[offs] : NULL) :  NULL;
+}
+
+
+/*
+  For character sets which don't change octet length in case conversion.
+*/
 size_t my_caseup_mb(CHARSET_INFO * cs, char *src, size_t srclen,
                     char *dst __attribute__((unused)),
                     size_t dstlen __attribute__((unused)))
@@ -70,11 +81,23 @@ size_t my_caseup_mb(CHARSET_INFO * cs, char *src, size_t srclen,
   register char *srcend= src + srclen;
   register uchar *map= cs->to_upper;
 
+  DBUG_ASSERT(cs->caseup_multiply == 1);
   DBUG_ASSERT(src == dst && srclen == dstlen);
+  DBUG_ASSERT(cs->mbmaxlen == 2);
+  
   while (src < srcend)
   {
     if ((l=my_ismbchar(cs, src, srcend)))
-      src+= l;
+    {
+      MY_UNICASE_INFO *ch;
+      if ((ch= get_case_info_for_ch(cs, (uchar) src[0], (uchar) src[1])))
+      {
+        *src++= ch->toupper >> 8;
+        *src++= ch->toupper & 0xFF;
+      }
+      else
+        src+= l;
+    }
     else 
     {
       *src=(char) map[(uchar) *src];
@@ -93,11 +116,23 @@ size_t my_casedn_mb(CHARSET_INFO * cs, char *src, size_t srclen,
   register char *srcend= src + srclen;
   register uchar *map=cs->to_lower;
 
+  DBUG_ASSERT(cs->casedn_multiply == 1);
   DBUG_ASSERT(src == dst && srclen == dstlen);  
+  DBUG_ASSERT(cs->mbmaxlen == 2);
+  
   while (src < srcend)
   {
     if ((l= my_ismbchar(cs, src, srcend)))
-      src+= l;
+    {
+      MY_UNICASE_INFO *ch;
+      if ((ch= get_case_info_for_ch(cs, (uchar) src[0], (uchar) src[1])))
+      {
+        *src++= ch->tolower >> 8;
+        *src++= ch->tolower & 0xFF;
+      }
+      else
+        src+= l;
+    }
     else
     {
       *src= (char) map[(uchar)*src];
@@ -105,6 +140,75 @@ size_t my_casedn_mb(CHARSET_INFO * cs, char *src, size_t srclen,
     }
   }
   return srclen;
+}
+
+
+/*
+  Case folding functions for character set
+  where case conversion can change string octet length.
+  For example, in EUCKR,
+    _euckr 0xA9A5 == "LATIN LETTER DOTLESS I" (Turkish letter)
+  is upper-cased to to
+    _euckr 0x49 "LATIN CAPITAL LETTER I"  ('usual' letter I)
+  Length is reduced in this example from two bytes to one byte.
+*/
+static size_t
+my_casefold_mb_varlen(CHARSET_INFO *cs,
+                      char *src, size_t srclen,
+                      char *dst, size_t dstlen __attribute__((unused)),
+                      uchar *map,
+                      size_t is_upper)
+{
+  char *srcend= src + srclen, *dst0= dst;
+
+  DBUG_ASSERT(cs->mbmaxlen == 2);
+
+  while (src < srcend)
+  {
+    size_t mblen= my_ismbchar(cs, src, srcend);
+    if (mblen)
+    {
+      MY_UNICASE_INFO *ch;
+      if ((ch= get_case_info_for_ch(cs, (uchar) src[0], (uchar) src[1])))
+      {
+        int code= is_upper ? ch->toupper : ch->tolower;
+        src+= 2;
+        if (code > 0xFF)
+          *dst++= code >> 8;
+        *dst++= code & 0xFF;
+      }
+      else
+      {
+        *dst++= *src++;
+        *dst++= *src++;
+      }
+    }
+    else
+    {
+      *dst++= (char) map[(uchar) *src++];
+    }
+  }
+  return (size_t) (dst - dst0);
+}
+
+
+size_t
+my_casedn_mb_varlen(CHARSET_INFO * cs, char *src, size_t srclen,
+                    char *dst, size_t dstlen)
+{
+  DBUG_ASSERT(dstlen >= srclen * cs->casedn_multiply); 
+  DBUG_ASSERT(src != dst || cs->casedn_multiply == 1);
+  return my_casefold_mb_varlen(cs, src, srclen, dst, dstlen, cs->to_lower, 0);
+}
+
+
+size_t
+my_caseup_mb_varlen(CHARSET_INFO * cs, char *src, size_t srclen,
+                    char *dst, size_t dstlen)
+{
+  DBUG_ASSERT(dstlen >= srclen * cs->caseup_multiply);
+  DBUG_ASSERT(src != dst || cs->caseup_multiply == 1);
+  return my_casefold_mb_varlen(cs, src, srclen, dst, dstlen, cs->to_upper, 1);
 }
 
 
@@ -363,10 +467,11 @@ uint my_instr_mb(CHARSET_INFO *cs,
 
 /* BINARY collations handlers for MB charsets */
 
-static int my_strnncoll_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
-				const uchar *s, size_t slen,
-				const uchar *t, size_t tlen,
-                                my_bool t_is_prefix)
+int
+my_strnncoll_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
+                    const uchar *s, size_t slen,
+                    const uchar *t, size_t tlen,
+                    my_bool t_is_prefix)
 {
   size_t len=min(slen,tlen);
   int cmp= memcmp(s,t,len);
@@ -399,10 +504,11 @@ static int my_strnncoll_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
     0 if strings are equal
 */
 
-static int my_strnncollsp_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
-                                 const uchar *a, size_t a_length, 
-                                 const uchar *b, size_t b_length,
-                                 my_bool diff_if_only_endspace_difference)
+int
+my_strnncollsp_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
+                      const uchar *a, size_t a_length, 
+                      const uchar *b, size_t b_length,
+                      my_bool diff_if_only_endspace_difference)
 {
   const uchar *end;
   size_t length;
@@ -458,25 +564,25 @@ static size_t my_strnxfrm_mb_bin(CHARSET_INFO *cs __attribute__((unused)),
 }
 
 
-static int my_strcasecmp_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
-		      const char *s, const char *t)
+int
+my_strcasecmp_mb_bin(CHARSET_INFO * cs __attribute__((unused)),
+                     const char *s, const char *t)
 {
   return strcmp(s,t);
 }
 
-static void my_hash_sort_mb_bin(CHARSET_INFO *cs __attribute__((unused)),
-		      const uchar *key, size_t len,ulong *nr1, ulong *nr2)
+
+void
+my_hash_sort_mb_bin(CHARSET_INFO *cs __attribute__((unused)),
+                    const uchar *key, size_t len,ulong *nr1, ulong *nr2)
 {
   const uchar *pos = key;
-  
-  key+= len;
   
   /*
      Remove trailing spaces. We have to do this to be able to compare
     'A ' and 'A' as identical
   */
-  while (key > pos && key[-1] == ' ')
-    key--;
+  key= skip_trailing_space(key, len);
   
   for (; pos < (uchar*) key ; pos++)
   {
@@ -530,7 +636,7 @@ static void pad_max_char(CHARSET_INFO *cs, char *str, char *end)
   DBUG_ASSERT(buflen > 0);
   do
   {
-    if ((str + buflen) < end)
+    if ((str + buflen) <= end)
     {
       /* Enough space for the characer */
       memcpy(str, buf, buflen);
@@ -696,10 +802,197 @@ fill_max_and_min:
 }
 
 
-static int my_wildcmp_mb_bin(CHARSET_INFO *cs,
-		  const char *str,const char *str_end,
-		  const char *wildstr,const char *wildend,
-		  int escape, int w_one, int w_many)
+/**
+   Calculate min_str and max_str that ranges a LIKE string.
+   Generic function, currently used for ucs2, utf16, utf32,
+   but should be suitable for any other character sets with
+   cs->min_sort_char and cs->max_sort_char represented in
+   Unicode code points.
+
+   @param cs           Character set and collation pointer
+   @param ptr          Pointer to LIKE pattern.
+   @param ptr_length   Length of LIKE pattern.
+   @param escape       Escape character pattern,  typically '\'.
+   @param w_one        'One character' pattern,   typically '_'.
+   @param w_many       'Many characters' pattern, typically '%'.
+   @param res_length   Length of min_str and max_str.
+
+   @param[out] min_str Smallest string that ranges LIKE.
+   @param[out] max_str Largest string that ranges LIKE.
+   @param[out] min_len Length of min_str
+   @param[out] max_len Length of max_str
+
+   @return Optimization status.
+   @retval FALSE if LIKE pattern can be optimized
+   @rerval TRUE if LIKE can't be optimized.
+*/
+my_bool
+my_like_range_generic(CHARSET_INFO *cs,
+                      const char *ptr, size_t ptr_length,
+                      pbool escape, pbool w_one, pbool w_many,
+                      size_t res_length,
+                      char *min_str,char *max_str,
+                      size_t *min_length,size_t *max_length)
+{
+  const char *end= ptr + ptr_length;
+  const char *min_org= min_str;
+  const char *max_org= max_str;
+  char *min_end= min_str + res_length;
+  char *max_end= max_str + res_length;
+  size_t charlen= res_length / cs->mbmaxlen;
+  size_t res_length_diff;
+  my_bool have_contractions= my_cs_have_contractions(cs);
+
+  for ( ; charlen > 0; charlen--)
+  {
+    my_wc_t wc, wc2;
+    int res;
+    if ((res= cs->cset->mb_wc(cs, &wc, (uchar*) ptr, (uchar*) end)) <= 0)
+    {
+      if (res == MY_CS_ILSEQ) /* Bad sequence */
+        return TRUE; /* min_length and max_length are not important */
+      break; /* End of the string */
+    }
+    ptr+= res;
+
+    if (wc == (my_wc_t) escape)
+    {
+      if ((res= cs->cset->mb_wc(cs, &wc, (uchar*) ptr, (uchar*) end)) <= 0)
+      {
+        if (res == MY_CS_ILSEQ)
+          return TRUE; /* min_length and max_length are not important */
+        /*
+           End of the string: Escape is the last character.
+           Put escape as a normal character.
+           We'll will leave the loop on the next iteration.
+        */
+      }
+      else
+        ptr+= res;
+
+      /* Put escape character to min_str and max_str  */
+      if ((res= cs->cset->wc_mb(cs, wc,
+                                (uchar*) min_str, (uchar*) min_end)) <= 0)
+        goto pad_set_lengths; /* No space */
+      min_str+= res;
+
+      if ((res= cs->cset->wc_mb(cs, wc,
+                                (uchar*) max_str, (uchar*) max_end)) <= 0)
+        goto pad_set_lengths; /* No space */
+      max_str+= res;
+      continue;
+    }
+    else if (wc == (my_wc_t) w_one)
+    {
+      if ((res= cs->cset->wc_mb(cs, cs->min_sort_char,
+                                (uchar*) min_str, (uchar*) min_end)) <= 0)
+        goto pad_set_lengths;
+      min_str+= res;
+
+      if ((res= cs->cset->wc_mb(cs, cs->max_sort_char,
+                                (uchar*) max_str, (uchar*) max_end)) <= 0)
+        goto pad_set_lengths;
+      max_str+= res;
+      continue;
+    }
+    else if (wc == (my_wc_t) w_many)
+    {
+      /*
+        Calculate length of keys:
+        a\min\min... is the smallest possible string
+        a\max\max... is the biggest possible string
+      */
+      *min_length= ((cs->state & MY_CS_BINSORT) ?
+                    (size_t) (min_str - min_org) :
+                    res_length);
+      *max_length= res_length;
+      goto pad_min_max;
+    }
+
+    if (have_contractions &&
+        my_cs_can_be_contraction_head(cs, wc) &&
+        (res= cs->cset->mb_wc(cs, &wc2, (uchar*) ptr, (uchar*) end)) > 0)
+    {
+      uint16 *weight;
+      if ((wc2 == (my_wc_t) w_one || wc2 == (my_wc_t) w_many))
+      {
+        /* Contraction head followed by a wildcard */
+        *min_length= *max_length= res_length;
+        goto pad_min_max;
+      }
+
+      if (my_cs_can_be_contraction_tail(cs, wc2) &&
+          (weight= my_cs_contraction2_weight(cs, wc, wc2)) && weight[0])
+      {
+        /* Contraction found */
+        if (charlen == 1)
+        {
+          /* contraction does not fit to result */
+          *min_length= *max_length= res_length;
+          goto pad_min_max;
+        }
+
+        ptr+= res;
+        charlen--;
+
+        /* Put contraction head */
+        if ((res= cs->cset->wc_mb(cs, wc,
+                                  (uchar*) min_str, (uchar*) min_end)) <= 0)
+          goto pad_set_lengths;
+        min_str+= res;
+
+        if ((res= cs->cset->wc_mb(cs, wc,
+                                  (uchar*) max_str, (uchar*) max_end)) <= 0)
+          goto pad_set_lengths;
+        max_str+= res;
+        wc= wc2; /* Prepare to put contraction tail */
+      }
+    }
+
+    /* Normal character, or contraction tail */
+    if ((res= cs->cset->wc_mb(cs, wc,
+                              (uchar*) min_str, (uchar*) min_end)) <= 0)
+      goto pad_set_lengths;
+    min_str+= res;
+    if ((res= cs->cset->wc_mb(cs, wc,
+                              (uchar*) max_str, (uchar*) max_end)) <= 0)
+      goto pad_set_lengths;
+    max_str+= res;
+  }
+
+pad_set_lengths:
+  *min_length= (size_t) (min_str - min_org);
+  *max_length= (size_t) (max_str - max_org);
+
+pad_min_max:
+  /*
+    Fill up max_str and min_str to res_length.
+    fill() cannot set incomplete characters and
+    requires that "length" argument is divisible to mbminlen.
+    Make sure to call fill() with proper "length" argument.
+  */
+  res_length_diff= res_length % cs->mbminlen;
+  cs->cset->fill(cs, min_str, min_end - min_str - res_length_diff,
+                 cs->min_sort_char);
+  cs->cset->fill(cs, max_str, max_end - max_str - res_length_diff,
+                 cs->max_sort_char);
+
+  /* In case of incomplete characters set the remainder to 0x00's */
+  if (res_length_diff)
+  {
+    /* Example: odd res_length for ucs2 */
+    memset(min_end - res_length_diff, 0, res_length_diff);
+    memset(max_end - res_length_diff, 0, res_length_diff);
+  }
+  return FALSE;
+}
+
+
+int
+my_wildcmp_mb_bin(CHARSET_INFO *cs,
+                  const char *str,const char *str_end,
+                  const char *wildstr,const char *wildend,
+                  int escape, int w_one, int w_many)
 {
   int result= -1;				/* Not found, using wildcards */
 
@@ -1026,8 +1319,16 @@ size_t my_numcells_mb(CHARSET_INFO *cs, const char *b, const char *e)
       continue;
     }
     b+= mb_len;
-    pg= (wc >> 8) & 0xFF;
-    clen+= utr11_data[pg].p ? utr11_data[pg].p[wc & 0xFF] : utr11_data[pg].page;
+    if (wc > 0xFFFF)
+    {
+      if (wc >= 0x20000 && wc <= 0x3FFFD) /* CJK Ideograph Extension B, C */
+        clen+= 1;
+    }
+    else
+    {
+      pg= (wc >> 8) & 0xFF;
+      clen+= utr11_data[pg].p ? utr11_data[pg].p[wc & 0xFF] : utr11_data[pg].page;
+    }
     clen++;
   }
   return clen;
@@ -1039,7 +1340,7 @@ int my_mb_ctype_mb(CHARSET_INFO *cs, int *ctype,
 {
   my_wc_t wc;
   int res= cs->cset->mb_wc(cs, &wc, s, e);
-  if (res <= 0)
+  if (res <= 0 || wc > 0xFFFF)
     *ctype= 0;
   else
     *ctype= my_uni_ctype[wc>>8].ctype ?

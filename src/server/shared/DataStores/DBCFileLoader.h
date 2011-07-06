@@ -31,7 +31,7 @@ enum
     FT_INT='i',                                             //uint32
     FT_BYTE='b',                                            //uint8
     FT_SORT='d',                                            //sorted by this field, field is not included
-    FT_IND='n',                                             //the same,but parsed to data
+    FT_IND='n',                                             //the same, but parsed to data
     FT_LOGIC='l',                                            //Logical (boolean)
     FT_SQL_PRESENT='p',                                      //Used in sql format to mark column present in sql dbc
     FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc

@@ -48,9 +48,9 @@ class boss_broggok : public CreatureScript
 
         struct boss_broggokAI : public ScriptedAI
         {
-            boss_broggokAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_broggokAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -71,7 +71,7 @@ class boss_broggok : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
                 if (pInstance)
@@ -81,12 +81,12 @@ class boss_broggok : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature *summoned)
+            void JustSummoned(Creature* summoned)
             {
                 summoned->setFaction(16);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                summoned->CastSpell(summoned,SPELL_POISON,false,0,0,me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_POISON, false, 0, 0, me->GetGUID());
             }
 
             void UpdateAI(const uint32 diff)

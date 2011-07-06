@@ -89,7 +89,7 @@ public:
         if (!*args)
             return false;
 
-        Player *target =  handler->getSelectedPlayer();
+        Player* target =  handler->getSelectedPlayer();
         if (!target)
             target = handler->GetSession()->GetPlayer();
 
@@ -153,7 +153,7 @@ public:
     static bool HandleGMListFullCommand(ChatHandler* handler, const char* /*args*/)
     {
         ///- Get the accounts with GM Level >0
-        QueryResult result = LoginDatabase.Query("SELECT a.username,aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel > 0");
+        QueryResult result = LoginDatabase.Query("SELECT a.username, aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel > 0");
         if (result)
         {
             handler->SendSysMessage(LANG_GMLIST);

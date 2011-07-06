@@ -46,7 +46,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
         class spell_mage_blast_wave_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blast_wave_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
                     return false;
@@ -81,7 +81,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
             PrepareSpellScript(spell_mage_cold_snap_SpellScript)
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
 
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -126,7 +126,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript)
             static const uint32 spell_list[6];
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 // check if spell ids exist in dbc
                 for (int i = 0; i < 6; i++)
@@ -137,7 +137,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                     if (unitTarget->GetTypeId() == TYPEID_UNIT)
                         unitTarget->CastSpell(unitTarget, spell_list[urand(0, 5)], true);
             }
@@ -173,7 +173,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
                     return false;
@@ -186,7 +186,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                 {
                     // Glyph of Eternal Water
                     if (unitTarget->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
@@ -225,7 +225,7 @@ public:
             SPELL_MAGE_FROST_WARDING_R1 = 28332,
         };
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             return sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_TRIGGERED)
                 && sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_R1);
@@ -233,7 +233,7 @@ public:
 
         void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            Unit * target = GetTarget();
+            Unit* target = GetTarget();
             if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
             {
                 int32 chance = SpellMgr::CalculateSpellEffectAmount(talentAurEff->GetSpellProto(), EFFECT_1);
@@ -259,38 +259,42 @@ public:
     }
 };
 
+class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
+{
+public:
+    enum Spells
+    {
+        SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED = 44413,
+        SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
+    };
+
+    bool Validate(SpellEntry const* /*spellEntry*/)
+    {
+        return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
+            && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
+    }
+
+    void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+    {
+        Unit* target = GetTarget();
+
+        if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
+        {
+            int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
+            target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+        }
+    }
+};
+
 // Incanter's Absorption
 class spell_mage_incanters_absorbtion_absorb : public SpellScriptLoader
 {
 public:
     spell_mage_incanters_absorbtion_absorb() : SpellScriptLoader("spell_mage_incanters_absorbtion_absorb") { }
 
-    class spell_mage_incanters_absorbtion_absorb_AuraScript : public AuraScript
+    class spell_mage_incanters_absorbtion_absorb_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
     {
         PrepareAuraScript(spell_mage_incanters_absorbtion_absorb_AuraScript);
-
-        enum Spells
-        {
-            SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED = 44413,
-            SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
-        };
-
-        bool Validate(SpellEntry const * /*spellEntry*/)
-        {
-            return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-                && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
-        }
-
-        void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
-        {
-            Unit * target = GetTarget();
-
-            if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
-            {
-                int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
-                target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-            }
-        }
 
         void Register()
         {
@@ -310,32 +314,9 @@ class spell_mage_incanters_absorbtion_manashield : public SpellScriptLoader
 public:
     spell_mage_incanters_absorbtion_manashield() : SpellScriptLoader("spell_mage_incanters_absorbtion_manashield") { }
 
-    class spell_mage_incanters_absorbtion_manashield_AuraScript : public AuraScript
+    class spell_mage_incanters_absorbtion_manashield_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
     {
         PrepareAuraScript(spell_mage_incanters_absorbtion_manashield_AuraScript);
-
-        enum Spells
-        {
-            SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED = 44413,
-            SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
-        };
-
-        bool Validate(SpellEntry const * /*spellEntry*/)
-        {
-            return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-                && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
-        }
-
-        void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
-        {
-            Unit * target = GetTarget();
-
-            if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
-            {
-                int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
-                target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-            }
-        }
 
         void Register()
         {

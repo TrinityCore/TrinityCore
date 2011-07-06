@@ -65,28 +65,20 @@ public:
         boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT)
         {
             if (instance->GetBossState(DATA_DRAKOS_EVENT) != DONE)
-                DoCast(me,SPELL_CENTRIFUGE_SHIELD);
+                DoCast(me, SPELL_CENTRIFUGE_SHIELD);
         }
 
         void Reset()
         {
             _Reset();
 
-            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20,25) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
             // not sure if this is handled by a timer or hp percentage
-            events.ScheduleEvent(EVENT_CALL_AZURE, urand(15,30) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
 
             firstCoreEnergize = false;
             coreEnergizeOrientation = 0.0f;
-        }
-
-        void AttackStart(Unit* attacker)
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_UNK_9))
-                return;
-
-            BossAI::AttackStart(attacker);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -117,7 +109,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ENERGIZE_CORES:
-                        DoCast(me,SPELL_ENERGIZE_CORES);
+                        DoCast(me, SPELL_ENERGIZE_CORES);
                         events.CancelEvent(EVENT_ENERGIZE_CORES);
                         break;
                     case EVENT_ENERGIZE_CORES_VISUAL:
@@ -128,20 +120,20 @@ public:
                         } else
                             coreEnergizeOrientation = MapManager::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
 
-                        DoCast(me,SPELL_ENERGIZE_CORES_VISUAL);
+                        DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
                         events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
                         events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
                         break;
                     case EVENT_CALL_AZURE:
                         // not sure how blizz handles this, i cant see any pattern between the differnt spells
-                        DoCast(me,SPELL_CALL_AZURE_RING_CAPTAIN);
+                        DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
                         Talk(SAY_AZURE);
                         Talk(SAY_AZURE_EMOTE);
-                        events.ScheduleEvent(EVENT_CALL_AZURE, urand(20,25) * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     case EVENT_AMPLIFY_MAGIC:
-                        DoCast(me->getVictim(),SPELL_CALL_AMPLIFY_MAGIC);
-                        events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17,20) * IN_MILLISECONDS);
+                        DoCast(me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC);
+                        events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
                         break;
                 }
             }
@@ -185,12 +177,12 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 if (spell->Id == SPELL_ICE_BEAM)
                 {
-                    target->CastSpell(target,SPELL_SUMMON_ARCANE_BEAM,true);
+                    target->CastSpell(target, SPELL_SUMMON_ARCANE_BEAM, true);
                     me->DespawnOrUnsummon();
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -206,8 +198,8 @@ class npc_azure_ring_captain : public CreatureScript
 
                 me->GetMotionMaster()->MoveIdle();
 
-                if (Unit* target = ObjectAccessor::GetUnit(*me,targetGUID))
-                    DoCast(target,SPELL_ICE_BEAM);
+                if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
+                    DoCast(target, SPELL_ICE_BEAM);
             }
 
             void DoAction(const int32 action)
@@ -217,13 +209,13 @@ class npc_azure_ring_captain : public CreatureScript
                    case ACTION_CALL_DRAGON_EVENT:
                         if (instance)
                         {
-                            if (Creature* varos = ObjectAccessor::GetCreature(*me,instance->GetData64(DATA_VAROS)))
+                            if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROS)))
                             {
-                                if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM,0))
+                                if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
                                     me->SetReactState(REACT_PASSIVE);
                                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                    me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT,victim->GetPositionX(),victim->GetPositionY(),victim->GetPositionZ() + 20.0f);
+                                    me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 20.0f);
                                     targetGUID = victim->GetGUID();
                                 }
                             }
@@ -252,32 +244,38 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
         {
             PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript);
 
+            bool Load()
+            {
+                Unit* caster = GetCaster();
+                return (caster && caster->ToCreature());
+            }
+
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster()->ToCreature())
-                    return;
-
-                // flags taken from sniffs
-                // UNIT_FLAG_UNK_9 -> means passive but it is not yet implemented in core
-                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6))
+                if (Unit* caster = GetCaster())
                 {
-                    GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
-                    GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                    // flags taken from sniffs
+                    // UNIT_FLAG_UNK_9 -> means passive but it is not yet implemented in core
+                    if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6))
+                    {
+                        caster->ToCreature()->SetReactState(REACT_PASSIVE);
+                        caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                    }
                 }
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster()->ToCreature())
-                    return;
-
-                GetCaster()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                if (Unit* caster = GetCaster())
+                {
+                    caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                }
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_varos_centrifuge_shield_AuraScript::OnRemove, EFFECT_0,SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_varos_centrifuge_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectApply += AuraEffectApplyFn(spell_varos_centrifuge_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -306,14 +304,14 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
                 if (varos->GetEntry() != NPC_VAROS)
                     return;
 
-                float orientation = CAST_AI(boss_varos::boss_varosAI,varos->AI())->GetCoreEnergizeOrientation();
+                float orientation = CAST_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
 
                 for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
                 {
                     Position pos;
                     (*itr)->GetPosition(&pos);
 
-                    float angle = varos->GetAngle((*itr)->GetPositionX(),(*itr)->GetPositionY());
+                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = fabs(orientation - angle);
 
                     if (diff > 1.0f)
@@ -353,14 +351,14 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
                 if (varos->GetEntry() != NPC_VAROS)
                     return;
 
-                float orientation = CAST_AI(boss_varos::boss_varosAI,varos->AI())->GetCoreEnergizeOrientation();
+                float orientation = CAST_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
 
                 for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
                 {
                     Position pos;
                     (*itr)->GetPosition(&pos);
 
-                    float angle = varos->GetAngle((*itr)->GetPositionX(),(*itr)->GetPositionY());
+                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = fabs(orientation - angle);
 
                     if (diff > 1.0f)

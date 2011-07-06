@@ -244,7 +244,7 @@ struct Yells
 {
     uint32 sound;
     std::string text;
-    uint32 pCreature, timer, emote;
+    uint32 creature, timer, emote;
     bool Talk;
 };
 
@@ -259,17 +259,17 @@ static const Yells Conversation[22] =
     {0,     "", AKAMA, 2000, 15, true},
     {11466, "You are not prepared!", ILLIDAN_STORMRAGE, 3000, 406, true},
     {0,     "", EMPTY, 1000, 0, true},
-    {0,     "", EMPTY, 0, 0, false},//9
+    {0,     "", EMPTY, 0, 0, false}, //9
     {11476, "Is this it, mortals? Is this all the fury you can muster?", ILLIDAN_STORMRAGE, 8000, 0, true},
     {11491, "Their fury pales before mine, Illidan. We have some unsettled business between us.", MAIEV_SHADOWSONG, 8000, 5, true},
     {11477, "Maiev... How is this even possible?", ILLIDAN_STORMRAGE, 5000, 1, true},
     {11492, "Ah... my long hunt is finally over. Today, Justice will be done!", MAIEV_SHADOWSONG, 8000, 15, true},
-    {11470, "Feel the hatred of ten thousand years!", ILLIDAN_STORMRAGE, 1000, 0, false},//14
-    {11496, "Ahh... It is finished. You are beaten.", MAIEV_SHADOWSONG, 6000, 0, true},//15
+    {11470, "Feel the hatred of ten thousand years!", ILLIDAN_STORMRAGE, 1000, 0, false}, //14
+    {11496, "Ahh... It is finished. You are beaten.", MAIEV_SHADOWSONG, 6000, 0, true}, //15
     {11478, "You have won... Maiev...but the huntress... is nothing...without the hunt... you... are nothing... without me..", ILLIDAN_STORMRAGE, 30000, 65, true}, // Emote dead for now. Kill him later
     {11497, "He is right. I feel nothing... I am nothing... Farewell, champions.", MAIEV_SHADOWSONG, 9000, 0, true},
     {11498, "", MAIEV_SHADOWSONG, 5000, 0, true},
-    {11498, "", EMPTY, 1000, 0, true},//19 Maiev disappear
+    {11498, "", EMPTY, 1000, 0, true}, //19 Maiev disappear
     {11387, "The Light will fill these dismal halls once again. I swear it.", AKAMA, 8000, 0, true},
     {0,     "", EMPTY, 1000, 0, false}//21
 };
@@ -306,14 +306,14 @@ static const Locations HoverPosition[4]=
 static const Locations GlaivePosition[4]=
 {
     {695.105f, 305.303f, 354.256f},
-    {659.338f, 305.303f, 354.256f},//the distance between two glaives is 36
+    {659.338f, 305.303f, 354.256f}, //the distance between two glaives is 36
     {700.105f, 305.303f, 354.256f},
     {664.338f, 305.303f, 354.256f}
 };
 
 static const Locations EyeBlast[2]=
 {
-    {677.0f, 350.0f, 354.0f},//start point, pass through glaive point
+    {677.0f, 350.0f, 354.0f}, //start point, pass through glaive point
     {677.0f, 260.0f, 354.0f}
 };
 
@@ -350,7 +350,7 @@ static const Animation DemonTransformation[10]=
 {
     {SPELL_DEMON_TRANSFORM_1, 0, 1000, 0, 0, 6, true},
     {SPELL_DEMON_TRANSFORM_2, SPELL_DEMON_TRANSFORM_1, 4000, 0, 0, 6, true},
-    {0, 0, 3000, 1073741824, 21322, 6, false},//stunned, cannot cast demon form
+    {0, 0, 3000, 1073741824, 21322, 6, false}, //stunned, cannot cast demon form
     {SPELL_DEMON_TRANSFORM_3, SPELL_DEMON_TRANSFORM_2, 3500, 0, 0, 6, false},
     {SPELL_DEMON_FORM, SPELL_DEMON_TRANSFORM_3, 0, 0, 0, 4, false},
     {SPELL_DEMON_TRANSFORM_1, 0, 1000, 0, 0, 6, false},
@@ -368,14 +368,14 @@ class mob_flame_of_azzinoth : public CreatureScript
 public:
     mob_flame_of_azzinoth() : CreatureScript("mob_flame_of_azzinoth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new flame_of_azzinothAI (pCreature);
+        return new flame_of_azzinothAI (creature);
     }
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature *c) : ScriptedAI(c) {}
+        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
@@ -388,17 +388,17 @@ public:
             GlaiveGUID = 0;
         }
 
-        void EnterCombat(Unit * /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
 
         void ChargeCheck()
         {
-            Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
-            if (pTarget && (!me->IsWithinCombatRange(pTarget, FLAME_CHARGE_DISTANCE)))
+            Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
+            if (target && (!me->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
             {
-                me->AddThreat(pTarget, 5000000.0f);
-                AttackStart(pTarget);
-                DoCast(pTarget, SPELL_CHARGE);
-                me->MonsterTextEmote(EMOTE_SETS_GAZE_ON, pTarget->GetGUID());
+                me->AddThreat(target, 5000000.0f);
+                AttackStart(target);
+                DoCast(target, SPELL_CHARGE);
+                me->MonsterTextEmote(EMOTE_SETS_GAZE_ON, target->GetGUID());
             }
         }
 
@@ -411,8 +411,8 @@ public:
                     Glaive->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_FLAME_ENRAGE, true);
                     DoResetThreat();
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget && pTarget->isAlive())
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target && target->isAlive())
                     {
                         me->AddThreat(me->getVictim(), 5000000.0f);
                         AttackStart(me->getVictim());
@@ -460,9 +460,9 @@ class boss_illidan_stormrage : public CreatureScript
 public:
     boss_illidan_stormrage() : CreatureScript("boss_illidan_stormrage") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_illidan_stormrageAI (pCreature);
+        return new boss_illidan_stormrageAI (creature);
     }
 
     struct boss_illidan_stormrageAI : public ScriptedAI
@@ -532,13 +532,13 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 1000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->setActive(true);
             DoZoneInCombat();
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             if (!who || Phase >= PHASE_TALK_SEQUENCE)
                 return;
@@ -549,9 +549,9 @@ public:
                 ScriptedAI::AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit *) {}
+        void MoveInLineOfSight(Unit* ) {}
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -564,11 +564,11 @@ public:
                 pInstance->HandleGameObject(pInstance->GetData64(i), true);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me) return;
             // TODO: Find better way to handle emote
-            switch (urand(0,1))
+            switch (urand(0, 1))
             {
             case 0:
                 me->MonsterYell(SAY_KILL1, LANG_UNIVERSAL, victim->GetGUID());
@@ -581,7 +581,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
@@ -589,7 +589,7 @@ public:
                 done_by->AddThreat(me, -(3*(float)damage)/4); // do not let maiev tank him
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
             {
@@ -617,22 +617,22 @@ public:
         {
             Timer[EVENT_TALK_SEQUENCE] = Conversation[count].timer;
 
-            Creature* pCreature = NULL;
-            if (Conversation[count].pCreature == ILLIDAN_STORMRAGE)
-                pCreature = me;
-            else if (Conversation[count].pCreature == AKAMA)
-                pCreature = (Unit::GetCreature((*me), AkamaGUID));
-            else if (Conversation[count].pCreature == MAIEV_SHADOWSONG)
-                pCreature = (Unit::GetCreature((*me), MaievGUID));
+            Creature* creature = NULL;
+            if (Conversation[count].creature == ILLIDAN_STORMRAGE)
+                creature = me;
+            else if (Conversation[count].creature == AKAMA)
+                creature = (Unit::GetCreature((*me), AkamaGUID));
+            else if (Conversation[count].creature == MAIEV_SHADOWSONG)
+                creature = (Unit::GetCreature((*me), MaievGUID));
 
-            if (pCreature)
+            if (creature)
             {
                 if (Conversation[count].emote)
-                    pCreature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
+                    creature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
                 if (Conversation[count].text.size())
-                    pCreature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
                 if (Conversation[count].sound)
-                    DoPlaySoundToSet(pCreature, Conversation[count].sound); // Play some sound on the creature
+                    DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
             }
         }
 
@@ -1038,8 +1038,8 @@ public:
 
                 case EVENT_PARASITIC_SHADOWFIEND:
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
-                            DoCast(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
+                            DoCast(target, SPELL_PARASITIC_SHADOWFIEND, true);
                         Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                     }
                     break;
@@ -1055,7 +1055,7 @@ public:
 
                     //PHASE_NORMAL_2
                 case EVENT_AGONIZING_FLAMES:
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AGONIZING_FLAMES);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_AGONIZING_FLAMES);
                     Timer[EVENT_AGONIZING_FLAMES] = 0;
                     break;
 
@@ -1080,12 +1080,12 @@ public:
                 switch(Event)
                 {
                 case EVENT_FIREBALL:
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
                     Timer[EVENT_FIREBALL] = 3000;
                     break;
 
                 case EVENT_DARK_BARRAGE:
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DARK_BARRAGE);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DARK_BARRAGE);
                     Timer[EVENT_DARK_BARRAGE] = 0;
                     break;
 
@@ -1150,14 +1150,14 @@ class boss_maiev_shadowsong : public CreatureScript
 public:
     boss_maiev_shadowsong() : CreatureScript("boss_maiev_shadowsong") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_maievAI (pCreature);
+        return new boss_maievAI (creature);
     }
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature *c) : ScriptedAI(c) {};
+        boss_maievAI(Creature* c) : ScriptedAI(c) {};
 
         uint64 IllidanGUID;
 
@@ -1178,12 +1178,12 @@ public:
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
         void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -1197,7 +1197,7 @@ public:
             }
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             if (!who || Timer[EVENT_MAIEV_STEALTH])
                 return;
@@ -1271,9 +1271,9 @@ public:
         {
             if (GETCRE(Illidan, IllidanGUID))
             {
-                Unit *pTarget = CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, Illidan->AI())->SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit* target = Illidan->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (!pTarget || !me->IsWithinDistInMap(pTarget, 80) || Illidan->IsWithinDistInMap(pTarget, 20))
+                if (!target || !me->IsWithinDistInMap(target, 80) || Illidan->IsWithinDistInMap(target, 20))
                 {
                     uint8 pos = rand()%4;
                     BlinkTo(HoverPosition[pos].x, HoverPosition[pos].y, HoverPosition[pos].z);
@@ -1281,7 +1281,7 @@ public:
                 else
                 {
                     float x, y, z;
-                    pTarget->GetPosition(x, y, z);
+                    target->GetPosition(x, y, z);
                     BlinkTo(x, y, z);
                 }
             }
@@ -1457,7 +1457,7 @@ public:
             me->CombatStop(true);
         }
 
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void MovementInform(uint32 MovementType, uint32 /*Data*/)
@@ -1466,7 +1466,7 @@ public:
                 Timer = 1;
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (damage > me->GetHealth() || done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -1655,8 +1655,8 @@ public:
                 break;
             case 2: // spirit help
                 DoCast(Channel, SPELL_AKAMA_DOOR_CHANNEL);
-                Spirit[0]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL,false);
-                Spirit[1]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL,false);
+                Spirit[0]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL, false);
+                Spirit[1]->CastSpell(Channel, SPELL_DEATHSWORN_DOOR_CHANNEL, false);
                 Timer = 5000;
                 break;
             case 3: //open the gate
@@ -1800,28 +1800,28 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_akama_illidan::npc_akama_illidanAI, pCreature->AI())->EnterPhase(PHASE_CHANNEL);
+            player->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_akama_illidan::npc_akama_illidanAI, creature->AI())->EnterPhase(PHASE_CHANNEL);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        pPlayer->SEND_GOSSIP_MENU(10465, pCreature->GetGUID());
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->SEND_GOSSIP_MENU(10465, creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_akama_illidanAI(pCreature);
+        return new npc_akama_illidanAI(creature);
     }
 
 };
@@ -1886,19 +1886,19 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
                 summon->setDeathState(JUST_DIED);
                 return;
             }
-            Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
-            if (!pTarget || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND)
-                || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-            if (pTarget)
-                summon->AI()->AttackStart(pTarget);
+            Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
+            if (!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
+            if (target)
+                summon->AI()->AttackStart(target);
         }
         break;
     case SHADOW_DEMON:
-        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
         {
-            summon->AddThreat(pTarget, 5000000.0f);
-            summon->AI()->AttackStart(pTarget);
+            summon->AddThreat(target, 5000000.0f);
+            summon->AI()->AttackStart(target);
         }
         break;
     case MAIEV_SHADOWSONG:
@@ -1991,7 +1991,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         {
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true);
             Maiev->setDeathState(JUST_DIED);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
         }
         break;
     case 21: // Kill ourself.
@@ -2010,14 +2010,14 @@ class mob_cage_trap_trigger : public CreatureScript
 public:
     mob_cage_trap_trigger() : CreatureScript("mob_cage_trap_trigger") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new cage_trap_triggerAI (pCreature);
+        return new cage_trap_triggerAI (creature);
     }
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature *c) : ScriptedAI(c) {}
+        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 IllidanGUID;
         uint32 DespawnTimer;
@@ -2037,9 +2037,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!Active)
                 return;
@@ -2088,10 +2088,10 @@ class gameobject_cage_trap : public GameObjectScript
 public:
     gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
         float x, y, z;
-        pPlayer->GetPosition(x, y, z);
+        player->GetPosition(x, y, z);
 
         // Grid search for nearest live Creature of entry 23304 within 10 yards
         if (Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))
@@ -2107,18 +2107,18 @@ class mob_shadow_demon : public CreatureScript
 public:
     mob_shadow_demon() : CreatureScript("mob_shadow_demon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new shadow_demonAI (pCreature);
+        return new shadow_demonAI (creature);
     }
 
     struct shadow_demonAI : public ScriptedAI
     {
-        shadow_demonAI(Creature *c) : ScriptedAI(c) {}
+        shadow_demonAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 TargetGUID;
 
-        void EnterCombat(Unit * /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
 
         void Reset()
         {
@@ -2126,10 +2126,10 @@ public:
             DoCast(me, SPELL_SHADOW_DEMON_PASSIVE, true);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
-            if (Unit *pTarget = Unit::GetUnit((*me), TargetGUID))
-                pTarget->RemoveAurasDueToSpell(SPELL_PARALYZE);
+            if (Unit* target = Unit::GetUnit((*me), TargetGUID))
+                target->RemoveAurasDueToSpell(SPELL_PARALYZE);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -2158,16 +2158,16 @@ class mob_blade_of_azzinoth : public CreatureScript
 public:
     mob_blade_of_azzinoth() : CreatureScript("mob_blade_of_azzinoth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new blade_of_azzinothAI (pCreature);
+        return new blade_of_azzinothAI (creature);
     }
 
     struct blade_of_azzinothAI : public NullCreatureAI
     {
         blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
                 me->SetDisplayId(21431);//appear when hit by Illidan's glaive
@@ -2181,9 +2181,9 @@ class mob_parasitic_shadowfiend : public CreatureScript
 public:
     mob_parasitic_shadowfiend() : CreatureScript("mob_parasitic_shadowfiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_parasitic_shadowfiendAI (pCreature);
+        return new mob_parasitic_shadowfiendAI (creature);
     }
 
     // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
@@ -2218,7 +2218,7 @@ public:
                 if (!me->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
                     && !me->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 {
-                    if (Creature* illidan = Unit::GetCreature((*me),IllidanGUID))//summon only in 1. phase
+                    if (Creature* illidan = Unit::GetCreature((*me), IllidanGUID))//summon only in 1. phase
                         if (CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)
                             me->CastSpell(me->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack
                 }
@@ -2231,8 +2231,8 @@ public:
         {
             if (!me->getVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
-                    AttackStart(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
+                    AttackStart(target);
                 else
                 {
                     me->SetVisible(false);

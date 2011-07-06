@@ -28,7 +28,7 @@
 class GameObjectAI
 {
     protected:
-        GameObject * const go;
+        GameObject* const go;
     public:
         explicit GameObjectAI(GameObject *g) : go(g) {}
         virtual ~GameObjectAI() {}

@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Boss_Mekgineer_Steamrigger
 SD%Complete: 60
-SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards pTarget to repair.
+SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards target to repair.
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
@@ -53,14 +53,14 @@ class boss_mekgineer_steamrigger : public CreatureScript
 public:
     boss_mekgineer_steamrigger() : CreatureScript("boss_mekgineer_steamrigger") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_mekgineer_steamriggerAI (pCreature);
+        return new boss_mekgineer_steamriggerAI (creature);
     }
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
     {
-        boss_mekgineer_steamriggerAI(Creature *c) : ScriptedAI(c)
+        boss_mekgineer_steamriggerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -98,12 +98,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
 
             if (pInstance)
                 pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
@@ -114,14 +114,14 @@ public:
         {
             DoScriptText(SAY_MECHANICS, me);
 
-            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,5,5,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,-5,5,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,-5,-5,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
 
             if (rand()%2)
-                DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,5,-7,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
             if (rand()%2)
-                DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,7,-5,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -137,8 +137,8 @@ public:
 
             if (Saw_Blade_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    DoCast(pTarget, SPELL_SAW_BLADE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    DoCast(target, SPELL_SAW_BLADE);
                 else
                     DoCast(me->getVictim(), SPELL_SAW_BLADE);
 
@@ -185,7 +185,6 @@ public:
 
 };
 
-
 #define SPELL_DISPEL_MAGIC          17201
 #define SPELL_REPAIR                31532
 #define H_SPELL_REPAIR              37936
@@ -198,14 +197,14 @@ class mob_steamrigger_mechanic : public CreatureScript
 public:
     mob_steamrigger_mechanic() : CreatureScript("mob_steamrigger_mechanic") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_steamrigger_mechanicAI (pCreature);
+        return new mob_steamrigger_mechanicAI (creature);
     }
 
     struct mob_steamrigger_mechanicAI : public ScriptedAI
     {
-        mob_steamrigger_mechanicAI(Creature *c) : ScriptedAI(c)
+        mob_steamrigger_mechanicAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -224,7 +223,7 @@ public:
             //react only if attacked
         }
 
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(const uint32 diff)
         {
@@ -249,7 +248,7 @@ public:
                         else
                         {
                             //me->GetMotionMaster()->MovementExpired();
-                            //me->GetMotionMaster()->MoveFollow(pMekgineer,0,0);
+                            //me->GetMotionMaster()->MoveFollow(pMekgineer, 0, 0);
                         }
                     }
                 } else Repair_Timer = 5000;
@@ -263,7 +262,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_mekgineer_steamrigger()
 {

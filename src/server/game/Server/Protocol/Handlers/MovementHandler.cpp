@@ -23,7 +23,6 @@
 #include "Log.h"
 #include "Corpse.h"
 #include "Player.h"
-#include "Vehicle.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
@@ -34,7 +33,7 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog->outDebug("WORLD: got MSG_MOVE_WORLDPORT_ACK.");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -43,6 +42,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // ignore unexpected far teleports
     if (!GetPlayer()->IsBeingTeleportedFar())
         return;
+
+    GetPlayer()->SetSemaphoreTeleportFar(false);
 
     // get the teleport destination
     WorldLocation &loc = GetPlayer()->GetTeleportDest();
@@ -56,13 +57,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // get the destination map entry, not the current one, this will fix homebind and reset greeting
     MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
-    InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(loc.GetMapId());
+    InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
 
     // reset instance validity, except if going to an instance inside an instance
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
         GetPlayer()->m_InstanceValid = true;
-
-    GetPlayer()->SetSemaphoreTeleportFar(false);
 
     Map * oldMap = GetPlayer()->GetMap();
     ASSERT(oldMap);
@@ -142,7 +141,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     {
         if (mEntry->IsDungeon())
         {
-            GetPlayer()->ResurrectPlayer(0.5f,false);
+            GetPlayer()->ResurrectPlayer(0.5f, false);
             GetPlayer()->SpawnCorpseBones();
         }
     }
@@ -162,7 +161,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 }
             }
         }
-        allowMount = mInstance->allowMount;
+        allowMount = mInstance->AllowMount;
     }
 
     // mount allow check
@@ -179,7 +178,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 
     // in friendly area
-    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP))
+    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
 
     // resummon pet
@@ -191,7 +190,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
-    sLog->outDebug("MSG_MOVE_TELEPORT_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
     uint64 guid;
 
     recv_data.readPackGUID(guid);
@@ -216,7 +215,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 
     WorldLocation const& dest = plMover->GetTeleportDest();
 
-    plMover->SetPosition(dest,true);
+    plMover->SetPosition(dest, true);
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
@@ -230,7 +229,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
             plMover->CastSpell(plMover, 2479, true);
 
         // in friendly area
-        else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP))
+        else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
     }
 
@@ -395,7 +394,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 {
     uint32 opcode = recv_data.GetOpcode();
-    sLog->outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
 
     /* extract packet */
     uint64 guid;
@@ -460,12 +459,12 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
         {
             sLog->outError("%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
                 move_type_name[move_type], _player->GetName(), _player->GetSpeed(move_type), newspeed);
-            _player->SetSpeed(move_type,_player->GetSpeedRate(move_type),true);
+            _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
             sLog->outBasic("Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
-                _player->GetName(),_player->GetSession()->GetAccountId(),_player->GetSpeed(move_type), newspeed);
+                _player->GetName(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
             _player->GetSession()->KickPlayer();
         }
     }
@@ -473,7 +472,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 {
-    sLog->outDebug("WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
     uint64 guid;
     recv_data >> guid;
@@ -501,7 +500,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
 {
-    sLog->outDebug("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
     uint64 old_mover_guid;
     recv_data.readPackGUID(old_mover_guid);
@@ -511,206 +510,6 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     ReadMovementInfo(recv_data, &mi);
 
     _player->m_movementInfo = mi;
-}
-
-void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
-{
-    sLog->outDebug("WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
-    recv_data.hexlike();
-
-    uint64 vehicleGUID = _player->GetCharmGUID();
-
-    if (!vehicleGUID)                                        // something wrong here...
-    {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
-        return;
-    }
-
-    uint64 guid;
-
-    recv_data.readPackGUID(guid);
-
-    MovementInfo mi;
-    mi.guid = guid;
-    ReadMovementInfo(recv_data, &mi);
-
-    _player->m_movementInfo = mi;
-
-    _player->ExitVehicle();
-}
-
-void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
-{
-    sLog->outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
-    recv_data.hexlike();
-
-    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
-    if (!vehicle_base)
-        return;
-
-    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
-    if (!seat->CanSwitchFromSeat())
-    {
-        sLog->outError("HandleChangeSeatsOnControlledVehicle, Opcode: %u, Player %u tried to switch seats but current seatflags %u don't permit that.",
-            recv_data.GetOpcode(), GetPlayer()->GetGUIDLow(), seat->m_flags);
-        return;
-    }
-
-    switch (recv_data.GetOpcode())
-    {
-        case CMSG_REQUEST_VEHICLE_PREV_SEAT:
-            GetPlayer()->ChangeSeat(-1, false);
-            break;
-        case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
-            GetPlayer()->ChangeSeat(-1, true);
-            break;
-        case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
-            {
-                uint64 guid;        // current vehicle guid
-                recv_data.readPackGUID(guid);
-
-                ReadMovementInfo(recv_data, &vehicle_base->m_movementInfo);
-
-                uint64 accessory;        //  accessory guid
-                recv_data.readPackGUID(accessory);
-
-                int8 seatId;
-                recv_data >> seatId;
-
-                if (vehicle_base->GetGUID() != guid)
-                    return;
-
-                if (!accessory)
-                    GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-                else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
-                {
-                    if (Vehicle *vehicle = vehUnit->GetVehicleKit())
-                        if (vehicle->HasEmptySeat(seatId))
-                            GetPlayer()->EnterVehicle(vehicle, seatId);
-                }
-            }
-            break;
-        case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
-            {
-                uint64 guid;        // current vehicle guid
-                recv_data.readPackGUID(guid);
-
-                int8 seatId;
-                recv_data >> seatId;
-
-                if (vehicle_base->GetGUID() == guid)
-                    GetPlayer()->ChangeSeat(seatId);
-                else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), guid))
-                    if (Vehicle *vehicle = vehUnit->GetVehicleKit())
-                        if (vehicle->HasEmptySeat(seatId))
-                            GetPlayer()->EnterVehicle(vehicle, seatId);
-            }
-            break;
-        default:
-            break;
-    }
-}
-
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
-{
-    // Read guid
-    uint64 guid;
-    data >> guid;
-
-    if (Player* pl=ObjectAccessor::FindPlayer(guid))
-    {
-        if (!pl->GetVehicleKit())
-            return;
-        if (!pl->IsInRaidWith(_player))
-            return;
-        if (!pl->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
-            return;
-        _player->EnterVehicle(pl);
-    }
-}
-
-void WorldSession::HandleEjectPassenger(WorldPacket &data)
-{
-    Vehicle* vehicle = _player->GetVehicleKit();
-    if (!vehicle)
-    {
-        sLog->outError("HandleEjectPassenger: Player %u is not in a vehicle!", GetPlayer()->GetGUIDLow());
-        return;
-    }
-
-    uint64 guid;
-    data >> guid;
-
-    if (IS_PLAYER_GUID(guid))
-    {
-        Player *plr = ObjectAccessor::FindPlayer(guid);
-        if (!plr)
-        {
-            sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
-            return;
-        }
-
-        if (!plr->IsOnVehicle(vehicle->GetBase()))
-        {
-            sLog->outError("Player %u tried to eject player %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
-            return;
-        }
-
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(plr);
-        ASSERT(seat);
-        if (seat->IsEjectable())
-            plr->ExitVehicle();
-        else
-            sLog->outError("Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
-    }
-
-    else if (IS_CREATURE_GUID(guid))
-    {
-        Unit *unit = ObjectAccessor::GetUnit(*_player, guid);
-        if (!unit) // creatures can be ejected too from player mounts
-        {
-            sLog->outError("Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
-            return;
-        }
-
-        if (!unit->IsOnVehicle(vehicle->GetBase()))
-        {
-            sLog->outError("Player %u tried to eject unit %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
-            return;
-        }
-
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(unit);
-        ASSERT(seat);
-        if (seat->IsEjectable())
-        {
-            ASSERT(GetPlayer() == vehicle->GetBase());
-            unit->ExitVehicle();
-            unit->ToCreature()->DespawnOrUnsummon(1000);
-            ASSERT(!unit->IsOnVehicle(vehicle->GetBase()));
-        }
-        else
-            sLog->outError("Player %u attempted to eject creature GUID %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
-    }
-    else
-        sLog->outError("HandleEjectPassenger: Player %u tried to eject invalid GUID "UI64FMTD, GetPlayer()->GetGUIDLow(), guid);
-}
-
-void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
-{
-    sLog->outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
-    recv_data.hexlike();
-
-    if (Vehicle* vehicle = GetPlayer()->GetVehicle())
-    {
-        if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
-        {
-            if (seat->CanEnterOrExit())
-                GetPlayer()->ExitVehicle();
-            else
-                sLog->outError("Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                    GetPlayer()->GetGUIDLow(), seat->m_ID, seat->m_flags);
-        }
-    }
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recv_data*/)
@@ -723,7 +522,7 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recv_data*/)
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 {
-    sLog->outDebug("CMSG_MOVE_KNOCK_BACK_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
 
     uint64 guid;                                            // guid - unused
     recv_data.readPackGUID(guid);
@@ -736,7 +535,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)
 {
-    sLog->outDebug("CMSG_MOVE_HOVER_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
 
     uint64 guid;                                            // guid - unused
     recv_data.readPackGUID(guid);
@@ -751,7 +550,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)
 
 void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recv_data)
 {
-    sLog->outDebug("CMSG_MOVE_WATER_WALK_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_WATER_WALK_ACK");
 
     uint64 guid;                                            // guid - unused
     recv_data.readPackGUID(guid);

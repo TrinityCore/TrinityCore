@@ -36,14 +36,14 @@ class boss_baroness_anastari : public CreatureScript
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_baroness_anastariAI (pCreature);
+        return new boss_baroness_anastariAI (creature);
     }
 
     struct boss_baroness_anastariAI : public ScriptedAI
     {
-        boss_baroness_anastariAI(Creature *c) : ScriptedAI(c)
+        boss_baroness_anastariAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -63,14 +63,14 @@ public:
             //Possess_Timer = 35000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
          void JustDied(Unit* /*Killer*/)
          {
              if (pInstance)
-                 pInstance->SetData(TYPE_BARONESS,IN_PROGRESS);
+                 pInstance->SetData(TYPE_BARONESS, IN_PROGRESS);
          }
 
         void UpdateAI(const uint32 diff)
@@ -111,9 +111,9 @@ public:
             //Cast
               if (rand()%100 < 65)
             {
-            Unit *pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)DoCast(pTarget, SPELL_POSSESS);
+            Unit* target = NULL;
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (target)DoCast(target, SPELL_POSSESS);
             }
             //50 seconds until we should cast this again
             Possess_Timer = 50000;

@@ -35,14 +35,14 @@ class boss_ebonroc : public CreatureScript
 public:
     boss_ebonroc() : CreatureScript("boss_ebonroc") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ebonrocAI (pCreature);
+        return new boss_ebonrocAI (creature);
     }
 
     struct boss_ebonrocAI : public ScriptedAI
     {
-        boss_ebonrocAI(Creature *c) : ScriptedAI(c) {}
+        boss_ebonrocAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowFlame_Timer;
         uint32 WingBuffet_Timer;
@@ -57,7 +57,7 @@ public:
             Heal_Timer = 1000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
         }
@@ -71,7 +71,7 @@ public:
             if (ShadowFlame_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOWFLAME);
-                ShadowFlame_Timer = urand(12000,15000);
+                ShadowFlame_Timer = urand(12000, 15000);
             } else ShadowFlame_Timer -= diff;
 
             //Wing Buffet Timer
@@ -85,7 +85,7 @@ public:
             if (ShadowOfEbonroc_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOWOFEBONROC);
-                ShadowOfEbonroc_Timer = urand(25000,350000);
+                ShadowOfEbonroc_Timer = urand(25000, 350000);
             } else ShadowOfEbonroc_Timer -= diff;
 
             if (me->getVictim()->HasAura(SPELL_SHADOWOFEBONROC))
@@ -93,7 +93,7 @@ public:
                 if (Heal_Timer <= diff)
                 {
                     DoCast(me, SPELL_HEAL);
-                    Heal_Timer = urand(1000,3000);
+                    Heal_Timer = urand(1000, 3000);
                 } else Heal_Timer -= diff;
             }
 

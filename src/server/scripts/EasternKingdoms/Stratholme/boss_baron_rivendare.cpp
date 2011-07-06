@@ -82,14 +82,14 @@ class boss_baron_rivendare : public CreatureScript
 public:
     boss_baron_rivendare() : CreatureScript("boss_baron_rivendare") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_baron_rivendareAI (pCreature);
+        return new boss_baron_rivendareAI (creature);
     }
 
     struct boss_baron_rivendareAI : public ScriptedAI
     {
-        boss_baron_rivendareAI(Creature *c) : ScriptedAI(c)
+        boss_baron_rivendareAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -110,26 +110,26 @@ public:
             //        RaiseDead_Timer = 30000;
             SummonSkeletons_Timer = 34000;
             if (pInstance && pInstance->GetData(TYPE_RAMSTEIN) == DONE)
-                pInstance->SetData(TYPE_BARON,NOT_STARTED);
+                pInstance->SetData(TYPE_BARON, NOT_STARTED);
         }
 
         void AttackStart(Unit* who)
         {
             if (pInstance)//can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
-                pInstance->SetData(TYPE_BARON,IN_PROGRESS);
+                pInstance->SetData(TYPE_BARON, IN_PROGRESS);
             ScriptedAI::AttackStart(who);
         }
 
         void JustSummoned(Creature* summoned)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                summoned->AI()->AttackStart(pTarget);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                summoned->AI()->AttackStart(target);
         }
 
          void JustDied(Unit* /*Killer*/)
          {
              if (pInstance)
-                 pInstance->SetData(TYPE_BARON,DONE);
+                 pInstance->SetData(TYPE_BARON, DONE);
          }
 
         void UpdateAI(const uint32 diff)
@@ -140,7 +140,7 @@ public:
             //ShadowBolt
             if (ShadowBolt_Timer <= diff)
             {
-                if (SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(me->getVictim(), SPELL_SHADOWBOLT);
 
                 ShadowBolt_Timer = 10000;
@@ -171,12 +171,12 @@ public:
             //SummonSkeletons
             if (SummonSkeletons_Timer <= diff)
             {
-                me->SummonCreature(11197,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,29000);
-                me->SummonCreature(11197,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,29000);
-                me->SummonCreature(11197,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,29000);
-                me->SummonCreature(11197,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,29000);
-                me->SummonCreature(11197,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,29000);
-                me->SummonCreature(11197,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,29000);
+                me->SummonCreature(11197, ADD_1X, ADD_1Y, ADD_1Z, ADD_1O, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_2X, ADD_2Y, ADD_2Z, ADD_2O, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_3X, ADD_3Y, ADD_3Z, ADD_3O, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_4X, ADD_4Y, ADD_4Z, ADD_4O, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_5X, ADD_5Y, ADD_5Z, ADD_5O, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_6X, ADD_6Y, ADD_6Z, ADD_6O, TEMPSUMMON_TIMED_DESPAWN, 29000);
 
                 //34 seconds until we should cast this again
                 SummonSkeletons_Timer = 40000;
@@ -187,7 +187,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_baron_rivendare()
 {

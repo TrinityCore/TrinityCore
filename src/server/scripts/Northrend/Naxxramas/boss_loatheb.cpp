@@ -41,16 +41,16 @@ class boss_loatheb : public CreatureScript
 public:
     boss_loatheb() : CreatureScript("boss_loatheb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_loathebAI (pCreature);
+        return new boss_loathebAI (creature);
     }
 
     struct boss_loathebAI : public BossAI
     {
-        boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
+        boss_loathebAI(Creature* c) : BossAI(c, BOSS_LOATHEB) {}
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_AURA, 10000);
@@ -76,11 +76,11 @@ public:
                     case EVENT_BLOOM:
                         // TODO : Add missing text
                         DoCastAOE(SPELL_SUMMON_SPORE, true);
-                        DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
+                        DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM, H_SPELL_DEATHBLOOM));
                         events.ScheduleEvent(EVENT_BLOOM, 30000);
                         break;
                     case EVENT_DOOM:
-                        DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
+                        DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM, H_SPELL_INEVITABLE_DOOM));
                         events.ScheduleEvent(EVENT_DOOM, events.GetTimer() < 5*60000 ? 30000 : 15000);
                         break;
                 }
@@ -92,37 +92,7 @@ public:
 
 };
 
-
-enum SporeSpells
-{
-    SPELL_FUNGAL_CREEP                                     = 29232
-};
-
-class mob_loatheb_spore : public CreatureScript
-{
-public:
-    mob_loatheb_spore() : CreatureScript("mob_loatheb_spore") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_loatheb_sporeAI (pCreature);
-    }
-
-    struct mob_loatheb_sporeAI : public ScriptedAI
-    {
-        mob_loatheb_sporeAI(Creature *c) : ScriptedAI(c) {}
-
-        void JustDied(Unit* killer)
-        {
-            DoCast(killer, SPELL_FUNGAL_CREEP);
-        }
-    };
-
-};
-
-
 void AddSC_boss_loatheb()
 {
     new boss_loatheb();
-    new mob_loatheb_spore();
 }

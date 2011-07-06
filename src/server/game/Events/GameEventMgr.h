@@ -104,17 +104,18 @@ class GameEventMgr
         void LoadFromDB();
         uint32 Update();
         bool IsActiveEvent(uint16 event_id) { return (m_ActiveEvents.find(event_id) != m_ActiveEvents.end()); }
-        uint32 Initialize();
+        uint32 StartSystem();
+        void Initialize();
         void StartArenaSeason();
         void StartInternalEvent(uint16 event_id);
         bool StartEvent(uint16 event_id, bool overwrite = false);
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
-        void HandleWorldEventGossip(Player * plr, Creature * c);
-        uint32 GetNPCFlag(Creature * cr);
+        void HandleWorldEventGossip(Player* plr, Creature* c);
+        uint32 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
     private:
-        void SendWorldStateUpdate(Player * plr, uint16 event_id);
+        void SendWorldStateUpdate(Player* plr, uint16 event_id);
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
         void RemoveActiveEvent(uint16 event_id) { m_ActiveEvents.erase(event_id); }
         void ApplyNewEvent(uint16 event_id);
@@ -133,7 +134,7 @@ class GameEventMgr
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasCreatureActiveEventExcept(uint32 creature_guid, uint16 event_id);
         bool hasGameObjectActiveEventExcept(uint32 go_guid, uint16 event_id);
-    protected:
+protected:
         typedef std::list<uint32> GuidList;
         typedef std::list<uint32> IdList;
         typedef std::vector<GuidList> GameEventGuidMap;

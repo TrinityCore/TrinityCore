@@ -38,14 +38,14 @@ class boss_ouro : public CreatureScript
 public:
     boss_ouro() : CreatureScript("boss_ouro") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ouroAI (pCreature);
+        return new boss_ouroAI (creature);
     }
 
     struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature *c) : ScriptedAI(c) {}
+        boss_ouroAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Sweep_Timer;
         uint32 SandBlast_Timer;
@@ -70,7 +70,7 @@ public:
             Submerged = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me->getVictim(), SPELL_BIRTH);
         }
@@ -111,11 +111,11 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                Unit *pTarget = NULL;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Unit* target = NULL;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (pTarget)
-                    DoTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+                if (target)
+                    DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = 10000 + rand()%10000;
             } else ChangeTarget_Timer -= diff;
@@ -137,7 +137,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_ouro()
 {

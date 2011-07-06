@@ -228,11 +228,11 @@ struct GuildBankRightsAndSlots
     GuildBankRightsAndSlots() : rights(0), slots(0) { }
     GuildBankRightsAndSlots(uint8 _rights, uint32 _slots) : rights(_rights), slots(_slots) { }
 
-    inline bool IsEqual(const GuildBankRightsAndSlots& rhs) const { return rights == rhs.rights && slots == rhs.slots; }
+    inline bool IsEqual(GuildBankRightsAndSlots const& rhs) const { return rights == rhs.rights && slots == rhs.slots; }
     void SetGuildMasterValues()
     {
         rights = GUILD_BANK_RIGHT_FULL;
-        slots = GUILD_WITHDRAW_SLOT_UNLIMITED;
+        slots = uint32(GUILD_WITHDRAW_SLOT_UNLIMITED);
     }
 
     uint8  rights;
@@ -387,7 +387,7 @@ private:
     class LogHolder
     {
     public:
-        LogHolder(uint32 guildId, uint32 maxRecords) : m_guildId(guildId), m_maxRecords(maxRecords), m_nextGUID(GUILD_EVENT_LOG_GUID_UNDEFINED) { }
+        LogHolder(uint32 guildId, uint32 maxRecords) : m_guildId(guildId), m_maxRecords(maxRecords), m_nextGUID(uint32(GUILD_EVENT_LOG_GUID_UNDEFINED)) { }
         ~LogHolder();
 
         uint8 GetSize() const { return uint8(m_log.size()); }
@@ -417,7 +417,7 @@ private:
         RankInfo(uint32 guildId, uint8 rankId, const std::string& name, uint32 rights, uint32 money) :
             m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
 
-        bool LoadFromDB(Field* fields);
+        void LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
         void WritePacket(WorldPacket& data) const;
 
@@ -506,7 +506,7 @@ private:
         // Defines if player has rights to withdraw item from container
         virtual bool HasWithdrawRights(MoveItemData* /*pOther*/) const { return true; }
         // Checks if container can store specified item
-        uint8 CanStore(Item* pItem, bool swap, bool sendError);
+        bool CanStore(Item* pItem, bool swap, bool sendError);
         // Clones stored item
         bool CloneItem(uint32 count);
         // Remove item from container (if splited update items fields)
@@ -524,7 +524,7 @@ private:
         uint8 GetContainer() const { return m_container; }
         uint8 GetSlotId() const { return m_slotId; }
     protected:
-        virtual uint8 _CanStore(Item* pItem, bool swap) = 0;
+        virtual InventoryResult _CanStore(Item* pItem, bool swap) = 0;
 
         Guild* m_pGuild;
         Player *m_pPlayer;
@@ -547,7 +547,7 @@ private:
         Item* StoreItem(SQLTransaction& trans, Item* pItem);
         void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
     protected:
-        uint8 _CanStore(Item* pItem, bool swap);
+        InventoryResult _CanStore(Item* pItem, bool swap);
     };
 
     class BankMoveItemData : public MoveItemData
@@ -566,7 +566,7 @@ private:
         void LogAction(MoveItemData* pFrom) const;
 
     protected:
-        uint8 _CanStore(Item* pItem, bool swap);
+        InventoryResult _CanStore(Item* pItem, bool swap);
 
     private:
         Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item *pItem, ItemPosCount& pos, bool clone) const;
@@ -631,10 +631,10 @@ public:
 
     // Load from DB
     bool LoadFromDB(Field* fields);
-    bool LoadRankFromDB(Field* fields);
+    void LoadRankFromDB(Field* fields);
     bool LoadMemberFromDB(Field* fields);
     bool LoadEventLogFromDB(Field* fields);
-    bool LoadBankRightFromDB(Field* fields);
+    void LoadBankRightFromDB(Field* fields);
     bool LoadBankTabFromDB(Field* fields);
     bool LoadBankEventLogFromDB(Field* fields);
     bool LoadBankItemFromDB(Field* fields);
@@ -642,14 +642,14 @@ public:
 
     // Broadcasts
     void BroadcastToGuild(WorldSession *session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;
-    void BroadcastPacketToRank(WorldPacket *packet, uint8 rankId) const;
-    void BroadcastPacket(WorldPacket *packet) const;
+    void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
+    void BroadcastPacket(WorldPacket* packet) const;
 
     template<class Do>
     void BroadcastWorker(Do& _do, Player* except = NULL)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-            if (Player *player = itr->second->FindPlayer())
+            if (Player* player = itr->second->FindPlayer())
                 if (player != except)
                     _do(player);
     }

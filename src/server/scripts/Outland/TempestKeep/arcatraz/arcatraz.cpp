@@ -76,9 +76,9 @@ class npc_millhouse_manastorm : public CreatureScript
         }
         struct npc_millhouse_manastormAI : public ScriptedAI
         {
-            npc_millhouse_manastormAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -111,25 +111,25 @@ class npc_millhouse_manastorm : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* pWho)
+            void AttackStart(Unit* who)
             {
-                if (me->Attack(pWho, true))
+                if (me->Attack(who, true))
                 {
-                    me->AddThreat(pWho, 0.0f);
-                    me->SetInCombatWith(pWho);
-                    pWho->SetInCombatWith(me);
-                    me->GetMotionMaster()->MoveChase(pWho, 25.0f);
+                    me->AddThreat(who, 0.0f);
+                    me->SetInCombatWith(who);
+                    who->SetInCombatWith(me);
+                    me->GetMotionMaster()->MoveChase(who, 25.0f);
                 }
             }
 
-            void EnterCombat(Unit * /*who*/){}
+            void EnterCombat(Unit* /*who*/){}
 
-            void KilledUnit(Unit * /*victim*/)
+            void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
-            void JustDied(Unit * /*victim*/)
+            void JustDied(Unit* /*victim*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
@@ -177,7 +177,7 @@ class npc_millhouse_manastorm : public CreatureScript
                                 break;
                             case 7:
                                 if (pInstance)
-                                    pInstance->SetData(TYPE_WARDEN_2,DONE);
+                                    pInstance->SetData(TYPE_WARDEN_2, DONE);
                                 Init = true;
                                 break;
                             }
@@ -280,9 +280,9 @@ class npc_warden_mellichar : public CreatureScript
         }
         struct npc_warden_mellicharAI : public ScriptedAI
         {
-            npc_warden_mellicharAI(Creature* pCreature) : ScriptedAI(pCreature)
+            npc_warden_mellicharAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -301,16 +301,16 @@ class npc_warden_mellichar : public CreatureScript
                 EventProgress_Timer = 22000;
                 Phase = 1;
 
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(me, SPELL_TARGET_OMEGA);
 
                 if (pInstance)
-                    pInstance->SetData(TYPE_HARBINGERSKYRISS,NOT_STARTED);
+                    pInstance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
             }
 
             void AttackStart(Unit* /*who*/) {}
 
-            void MoveInLineOfSight(Unit *who)
+            void MoveInLineOfSight(Unit* who)
             {
                 if (IsRunning)
                     return;
@@ -328,14 +328,14 @@ class npc_warden_mellichar : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(YELL_INTRO1, me);
                 DoCast(me, SPELL_BUBBLE_VISUAL);
 
                 if (pInstance)
                 {
-                    pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
+                    pInstance->SetData(TYPE_HARBINGERSKYRISS, IN_PROGRESS);
                     pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), false);
                     IsRunning = true;
                 }
@@ -375,23 +375,23 @@ class npc_warden_mellichar : public CreatureScript
                     {
                     case 2:
                         DoCast(me, SPELL_TARGET_ALPHA);
-                        pInstance->SetData(TYPE_WARDEN_1,IN_PROGRESS);
+                        pInstance->SetData(TYPE_WARDEN_1, IN_PROGRESS);
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), false);
                         break;
                     case 3:
                         DoCast(me, SPELL_TARGET_BETA);
-                        pInstance->SetData(TYPE_WARDEN_2,IN_PROGRESS);
+                        pInstance->SetData(TYPE_WARDEN_2, IN_PROGRESS);
                         break;
                     case 5:
                         DoCast(me, SPELL_TARGET_DELTA);
-                        pInstance->SetData(TYPE_WARDEN_3,IN_PROGRESS);
+                        pInstance->SetData(TYPE_WARDEN_3, IN_PROGRESS);
                         break;
                     case 6:
                         DoCast(me, SPELL_TARGET_GAMMA);
-                        pInstance->SetData(TYPE_WARDEN_4,IN_PROGRESS);
+                        pInstance->SetData(TYPE_WARDEN_4, IN_PROGRESS);
                         break;
                     case 7:
-                        pInstance->SetData(TYPE_WARDEN_5,IN_PROGRESS);
+                        pInstance->SetData(TYPE_WARDEN_5, IN_PROGRESS);
                         break;
                     }
                     CanSpawn = true;
@@ -423,46 +423,46 @@ class npc_warden_mellichar : public CreatureScript
                         switch(Phase)
                         {
                         case 2:
-                            switch (urand(0,1))
+                            switch (urand(0, 1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_TRICKSTER,478.326f,-148.505f,42.56f,3.19f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_TRICKSTER, 478.326f, -148.505f, 42.56f, 3.19f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_PH_HUNTER,478.326f,-148.505f,42.56f,3.19f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_PH_HUNTER, 478.326f, -148.505f, 42.56f, 3.19f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                                 break;
                             }
                             break;
                         case 3:
-                            me->SummonCreature(ENTRY_MILLHOUSE,413.292f,-148.378f,42.56f,6.27f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                            me->SummonCreature(ENTRY_MILLHOUSE, 413.292f, -148.378f, 42.56f, 6.27f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             break;
                         case 4:
                             DoScriptText(YELL_RELEASE2B, me);
                             break;
                         case 5:
-                            switch (urand(0,1))
+                            switch (urand(0, 1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_AKKIRIS,420.179f,-174.396f,42.58f,0.02f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_AKKIRIS, 420.179f, -174.396f, 42.58f, 0.02f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_SULFURON,420.179f,-174.396f,42.58f,0.02f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_SULFURON, 420.179f, -174.396f, 42.58f, 0.02f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                                 break;
                             }
                             break;
                         case 6:
-                            switch (urand(0,1))
+                            switch (urand(0, 1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_TW_DRAK,471.795f,-174.58f,42.58f,3.06f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_TW_DRAK, 471.795f, -174.58f, 42.58f, 3.06f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_BL_DRAK,471.795f,-174.58f,42.58f,3.06f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_BL_DRAK, 471.795f, -174.58f, 42.58f, 3.06f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                                 break;
                             }
                             break;
                         case 7:
-                            me->SummonCreature(ENTRY_SKYRISS,445.763f,-191.639f,44.64f,1.60f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                            me->SummonCreature(ENTRY_SKYRISS, 445.763f, -191.639f, 44.64f, 1.60f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             DoScriptText(YELL_WELCOME, me);
                             break;
                         }
@@ -536,11 +536,11 @@ class mob_zerekethvoidzone : public CreatureScript
         }
         struct mob_zerekethvoidzoneAI : public ScriptedAI
         {
-            mob_zerekethvoidzoneAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            mob_zerekethvoidzoneAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
-                me->SetUInt32Value(UNIT_NPC_FLAGS,0);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
                 me->setFaction(16);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 

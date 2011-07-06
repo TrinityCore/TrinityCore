@@ -44,14 +44,14 @@ class npc_converted_sentry : public CreatureScript
 public:
     npc_converted_sentry() : CreatureScript("npc_converted_sentry") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_converted_sentryAI (pCreature);
+        return new npc_converted_sentryAI (creature);
     }
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature *c) : ScriptedAI(c) {}
+        npc_converted_sentryAI(Creature* c) : ScriptedAI(c) {}
 
         bool Credit;
         uint32 Timer;
@@ -62,7 +62,7 @@ public:
             Timer = 2500;
         }
 
-        void MoveInLineOfSight(Unit * /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
@@ -71,7 +71,7 @@ public:
             {
                 if (Timer <= diff)
                 {
-                    uint32 i = urand(1,2);
+                    uint32 i = urand(1, 2);
                     if (i == 1)
                         DoScriptText(SAY_CONVERTED_1, me);
                     else
@@ -79,7 +79,7 @@ public:
 
                     DoCast(me, SPELL_CONVERT_CREDIT);
                     if (me->isPet())
-                        CAST_PET(me)->SetDuration(7500);
+                        me->ToPet()->SetDuration(7500);
                     Credit = true;
                 } else Timer -= diff;
             }
@@ -102,9 +102,9 @@ class npc_greengill_slave : public CreatureScript
 public:
     npc_greengill_slave() : CreatureScript("npc_greengill_slave") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_greengill_slaveAI(pCreature);
+        return new npc_greengill_slaveAI(creature);
     }
 
     struct npc_greengill_slaveAI : public ScriptedAI
@@ -130,9 +130,9 @@ public:
                 PlayerGUID = caster->GetGUID();
                 if (PlayerGUID)
                 {
-                    Unit* plr = Unit::GetUnit((*me), PlayerGUID);
-                    if (plr && CAST_PLR(plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-                        DoCast(plr, 45110, true);
+                    Unit* player = Unit::GetUnit((*me), PlayerGUID);
+                    if (player && CAST_PLR(player)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
+                        DoCast(player, 45110, true);
                 }
                 DoCast(me, ENRAGE);
                 Unit* Myrmidon = me->FindNearestCreature(DM, 70);

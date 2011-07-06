@@ -58,7 +58,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             // Gatewatcher Iron-Hand AI
             struct boss_gatewatcher_iron_handAI : public ScriptedAI
             {
-                boss_gatewatcher_iron_handAI(Creature* pCreature) : ScriptedAI(pCreature)
+                boss_gatewatcher_iron_handAI(Creature* creature) : ScriptedAI(creature)
                 {
                 }
 
@@ -73,7 +73,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     Stream_of_Machine_Fluid_Timer = 55000;
 
                 }
-                void EnterCombat(Unit * /*who*/)
+                void EnterCombat(Unit* /*who*/)
                 {
                     DoScriptText(SAY_AGGRO_1, me);
                 }
@@ -83,7 +83,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     if (rand()%2)
                         return;
 
-                    DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
                 }
 
                 void JustDied(Unit* /*Killer*/)
@@ -118,7 +118,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                         if (rand()%2)
                                             return;
 
-                        DoScriptText(RAND(SAY_HAMMER_1,SAY_HAMMER_2), me);
+                        DoScriptText(RAND(SAY_HAMMER_1, SAY_HAMMER_2), me);
                         Jackhammer_Timer = 30000;
                     }
                     else

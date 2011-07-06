@@ -79,7 +79,7 @@ public:
 
     struct instance_blackrock_depths_InstanceMapScript : public InstanceScript
     {
-        instance_blackrock_depths_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_blackrock_depths_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -214,7 +214,7 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            sLog->outDebug("TSCR: Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
+            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
             switch(type)
             {
@@ -230,7 +230,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            sLog->outDebug("TSCR: Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
+            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
             switch(type)
             {
@@ -378,16 +378,16 @@ public:
                 {
                     boss->setFaction(FACTION_HOSTILE);
                     boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    if (Unit *pTarget = boss->SelectNearestTarget(500))
-                        boss->AI()->AttackStart(pTarget);
+                    if (Unit* target = boss->SelectNearestTarget(500))
+                        boss->AI()->AttackStart(target);
                 }
             }
         }
 
         void TombOfSevenReset()
         {
-            HandleGameObject(GoTombExitGUID,false);//event reseted, close exit door
-            HandleGameObject(GoTombEnterGUID,true);//event reseted, open entrance door
+            HandleGameObject(GoTombExitGUID, false);//event reseted, close exit door
+            HandleGameObject(GoTombEnterGUID, true);//event reseted, open entrance door
             for (uint8 i = 0; i < 7; ++i)
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
@@ -414,16 +414,16 @@ public:
 
         void TombOfSevenStart()
         {
-            HandleGameObject(GoTombExitGUID,false);//event started, close exit door
-            HandleGameObject(GoTombEnterGUID,false);//event started, close entrance door
+            HandleGameObject(GoTombExitGUID, false);//event started, close exit door
+            HandleGameObject(GoTombEnterGUID, false);//event started, close entrance door
             SetData(TYPE_TOMB_OF_SEVEN, IN_PROGRESS);
         }
 
         void TombOfSevenEnd()
         {
-            DoRespawnGameObject(GoChestGUID,DAY);
-            HandleGameObject(GoTombExitGUID,true);//event done, open exit door
-            HandleGameObject(GoTombEnterGUID,true);//event done, open entrance door
+            DoRespawnGameObject(GoChestGUID, DAY);
+            HandleGameObject(GoTombExitGUID, true);//event done, open exit door
+            HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
             TombEventStarterGUID = 0;
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }
@@ -456,8 +456,7 @@ public:
 
 };
 
-
-   void AddSC_instance_blackrock_depths()
+void AddSC_instance_blackrock_depths()
 {
     new instance_blackrock_depths();
 }

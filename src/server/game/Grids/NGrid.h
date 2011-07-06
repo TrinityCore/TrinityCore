@@ -33,17 +33,17 @@ class GridInfo
 {
 public:
     GridInfo()
-        : i_timer(0), vis_Update(0, irand(0,DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
+        : i_timer(0), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
           i_unloadActiveLockCount(0), i_unloadExplicitLock(false), i_unloadReferenceLock(false) {}
     GridInfo(time_t expiry, bool unload = true )
-        : i_timer(expiry), vis_Update(0, irand(0,DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
+        : i_timer(expiry), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
           i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload), i_unloadReferenceLock(false) {}
     const TimeTracker& getTimeTracker() const { return i_timer; }
     bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock || i_unloadReferenceLock; }
-    void setUnloadExplicitLock( bool on ) { i_unloadExplicitLock = on; }
-    void setUnloadReferenceLock( bool on ) { i_unloadReferenceLock = on; }
+    void setUnloadExplicitLock(bool on) { i_unloadExplicitLock = on; }
+    void setUnloadReferenceLock(bool on) { i_unloadReferenceLock = on; }
     void incUnloadActiveLock() { ++i_unloadActiveLockCount; }
-    void decUnloadActiveLock() { if(i_unloadActiveLockCount) --i_unloadActiveLockCount; }
+    void decUnloadActiveLock() { if (i_unloadActiveLockCount) --i_unloadActiveLockCount; }
 
     void setTimer(const TimeTracker& pTimer) { i_timer = pTimer; }
     void ResetTimeTracker(time_t interval) { i_timer.Reset(interval); }
@@ -116,8 +116,8 @@ class NGrid
         GridInfo* getGridInfoRef() { return &i_GridInfo; }
         const TimeTracker& getTimeTracker() const { return i_GridInfo.getTimeTracker(); }
         bool getUnloadLock() const { return i_GridInfo.getUnloadLock(); }
-        void setUnloadExplicitLock( bool on ) { i_GridInfo.setUnloadExplicitLock(on); }
-        void setUnloadReferenceLock( bool on ) { i_GridInfo.setUnloadReferenceLock(on); }
+        void setUnloadExplicitLock(bool on) { i_GridInfo.setUnloadExplicitLock(on); }
+        void setUnloadReferenceLock(bool on) { i_GridInfo.setUnloadReferenceLock(on); }
         void incUnloadActiveLock() { i_GridInfo.incUnloadActiveLock(); }
         void decUnloadActiveLock() { i_GridInfo.decUnloadActiveLock(); }
         void ResetTimeTracker(time_t interval) { i_GridInfo.ResetTimeTracker(interval); }

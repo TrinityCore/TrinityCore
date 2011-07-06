@@ -56,9 +56,9 @@ class boss_selin_fireheart : public CreatureScript
 public:
     boss_selin_fireheart() : CreatureScript("boss_selin_fireheart") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_selin_fireheartAI (pCreature);
+        return new boss_selin_fireheartAI (creature);
     };
 
     struct boss_selin_fireheartAI : public ScriptedAI
@@ -75,7 +75,7 @@ public:
                 for (uint8 i = 0; i < size; ++i)
                 {
                     uint64 guid = pInstance->GetData64(DATA_FEL_CRYSTAL);
-                    sLog->outDebug("TSCR: Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
                 }
             }
@@ -203,7 +203,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -253,7 +253,7 @@ public:
                 {
                     if (DrainLifeTimer <= diff)
                     {
-                        DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_LIFE);
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_LIFE);
                         DrainLifeTimer = 10000;
                     } else DrainLifeTimer -= diff;
 
@@ -262,7 +262,7 @@ public:
                     {
                         if (DrainManaTimer <= diff)
                         {
-                            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_DRAIN_MANA);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_DRAIN_MANA);
                             DrainManaTimer = 10000;
                         } else DrainManaTimer -= diff;
                     }
@@ -321,20 +321,19 @@ public:
 
 };
 
-
 class mob_fel_crystal : public CreatureScript
 {
 public:
     mob_fel_crystal() : CreatureScript("mob_fel_crystal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fel_crystalAI (pCreature);
+        return new mob_fel_crystalAI (creature);
     };
 
     struct mob_fel_crystalAI : public ScriptedAI
     {
-        mob_fel_crystalAI(Creature *c) : ScriptedAI(c) {}
+        mob_fel_crystalAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -367,7 +366,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_selin_fireheart()
 {

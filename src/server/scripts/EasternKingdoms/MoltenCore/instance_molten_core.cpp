@@ -29,7 +29,7 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "molten_core.h"
 
-const Position SummonPositions[10] =
+Position const SummonPositions[10] =
 {
     {737.850f, -1145.35f, -120.288f, 4.71368f},
     {744.162f, -1151.63f, -119.726f, 4.58204f},
@@ -56,21 +56,40 @@ class instance_molten_core : public InstanceMapScript
                 _golemaggTheIncineratorGUID = 0;
                 _majordomoExecutusGUID = 0;
                 _cacheOfTheFirelordGUID = 0;
+                _executusSchedule = NULL;
                 _deadBossCount = 0;
                 _ragnarosAddDeaths = 0;
+                _isLoading = false;
                 _summonedExecutus = false;
+            }
+
+            ~instance_molten_core_InstanceMapScript()
+            {
+                delete _executusSchedule;
+            }
+
+            void OnPlayerEnter(Player* /*player*/)
+            {
+                if (_executusSchedule)
+                {
+                    SummonMajordomoExecutus(*_executusSchedule);
+                    delete _executusSchedule;
+                    _executusSchedule = NULL;
+                }
             }
 
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
-                case NPC_GOLEMAGG_THE_INCINERATOR:
-                    _golemaggTheIncineratorGUID = creature->GetGUID();
-                    break;
-                case NPC_MAJORDOMO_EXECUTUS:
-                    _majordomoExecutusGUID = creature->GetGUID();
-                    break;
+                    case NPC_GOLEMAGG_THE_INCINERATOR:
+                        _golemaggTheIncineratorGUID = creature->GetGUID();
+                        break;
+                    case NPC_MAJORDOMO_EXECUTUS:
+                        _majordomoExecutusGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -80,6 +99,8 @@ class instance_molten_core : public InstanceMapScript
                 {
                     case GO_CACHE_OF_THE_FIRELORD:
                         _cacheOfTheFirelordGUID = go->GetGUID();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -125,8 +146,13 @@ class instance_molten_core : public InstanceMapScript
                     return false;
 
                 if (state == DONE && bossId < BOSS_MAJORDOMO_EXECUTUS)
-                    if (++_deadBossCount == 8)
-                        SummonMajordomoExecutus(false);
+                    ++_deadBossCount;
+
+                if (_isLoading)
+                    return true;
+
+                if (_deadBossCount == 8)
+                    SummonMajordomoExecutus(false);
 
                 if (bossId == BOSS_MAJORDOMO_EXECUTUS && state == DONE)
                     DoRespawnGameObject(_cacheOfTheFirelordGUID, 7 * DAY);
@@ -175,6 +201,7 @@ class instance_molten_core : public InstanceMapScript
                     return;
                 }
 
+                _isLoading = true;
                 OUT_LOAD_INST_DATA(data);
 
                 char dataHead1, dataHead2;
@@ -201,7 +228,7 @@ class instance_molten_core : public InstanceMapScript
                    }
 
                     if (executusCounter >= 8 && states[BOSS_RAGNAROS] != DONE)
-                        SummonMajordomoExecutus(states[BOSS_MAJORDOMO_EXECUTUS] == DONE);
+                        _executusSchedule = new bool(states[BOSS_MAJORDOMO_EXECUTUS] == DONE);
 
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                         SetBossState(i, states[i]);
@@ -210,14 +237,17 @@ class instance_molten_core : public InstanceMapScript
                     OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
+                _isLoading = false;
             }
 
         private:
             uint64 _golemaggTheIncineratorGUID;
             uint64 _majordomoExecutusGUID;
             uint64 _cacheOfTheFirelordGUID;
+            bool* _executusSchedule;
             uint8 _deadBossCount;
             uint8 _ragnarosAddDeaths;
+            bool _isLoading;
             bool _summonedExecutus;
         };
 
@@ -226,7 +256,6 @@ class instance_molten_core : public InstanceMapScript
             return new instance_molten_core_InstanceMapScript(map);
         }
 };
-
 
 void AddSC_instance_molten_core()
 {

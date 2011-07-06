@@ -21,16 +21,18 @@
 #include "ObjectMgr.h"
 #include "DatabaseEnv.h"
 
+ScriptPointVector const SystemMgr::_empty;
+
 void SystemMgr::LoadVersion()
 {
-    //Get Version information
-    QueryResult Result = WorldDatabase.Query("SELECT script_version FROM version LIMIT 1");
+    // Get Version information
+    QueryResult result = WorldDatabase.Query("SELECT script_version FROM version LIMIT 1");
 
-    if (Result)
+    if (result)
     {
-        Field* pFields = Result->Fetch();
+        Field* fields = result->Fetch();
 
-        sLog->outString("TSCR: Database version is: %s", pFields[0].GetCString());
+        sLog->outString("TSCR: Database version is: %s", fields[0].GetCString());
         sLog->outString();
     }
     else
@@ -43,7 +45,7 @@ void SystemMgr::LoadVersion()
 void SystemMgr::LoadScriptTexts()
 {
     sLog->outString("TSCR: Loading Script Texts...");
-    LoadTrinityStrings("script_texts",TEXT_SOURCE_RANGE,1+(TEXT_SOURCE_RANGE*2));
+    LoadTrinityStrings("script_texts", TEXT_SOURCE_RANGE, 1+(TEXT_SOURCE_RANGE*2));
 
     sLog->outString("TSCR: Loading Script Texts additional data...");
     uint32 oldMSTime = getMSTime();
@@ -105,7 +107,7 @@ void SystemMgr::LoadScriptTexts()
 void SystemMgr::LoadScriptTextsCustom()
 {
     sLog->outString("TSCR: Loading Custom Texts...");
-    LoadTrinityStrings("custom_texts",TEXT_SOURCE_RANGE*2,1+(TEXT_SOURCE_RANGE*3));
+    LoadTrinityStrings("custom_texts", TEXT_SOURCE_RANGE*2, 1+(TEXT_SOURCE_RANGE*3));
 
     sLog->outString("TSCR: Loading Custom Texts additional data...");
 
@@ -203,7 +205,7 @@ void SystemMgr::LoadScriptWaypoints()
         pTemp.fZ                = pFields[4].GetFloat();
         pTemp.uiWaitTime        = pFields[5].GetUInt32();
 
-        CreatureInfo const* pCInfo = GetCreatureTemplateStore(pTemp.uiCreatureEntry);
+        CreatureTemplate const* pCInfo = sObjectMgr->GetCreatureTemplate(pTemp.uiCreatureEntry);
 
         if (!pCInfo)
         {

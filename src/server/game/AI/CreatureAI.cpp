@@ -34,13 +34,12 @@ void CreatureAI::OnCharmed(bool /*apply*/)
 AISpellInfoType * UnitAI::AISpellInfo;
  AISpellInfoType * GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
 
-
 void CreatureAI::Talk(uint8 id, uint64 WhisperGuid)
 {
     sCreatureTextMgr->SendChat(me, id, WhisperGuid);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature)
+void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/)
 {
     if (!creature)
         creature = me;
@@ -57,13 +56,13 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        if (Unit *target = creature->SelectNearestTarget(50))
+        if (Unit* target = creature->SelectNearestTarget(50))
             creature->AI()->AttackStart(target);
         else if (creature->isSummon())
         {
             if (Unit *summoner = creature->ToTempSummon()->GetSummoner())
             {
-                Unit *target = summoner->getAttackerForHelper();
+                Unit* target = summoner->getAttackerForHelper();
                 if (!target && summoner->CanHaveThreatList() && !summoner->getThreatManager().isThreatListEmpty())
                     target = summoner->getThreatManager().getHostilTarget();
                 if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
@@ -140,7 +139,7 @@ void CreatureAI::EnterEvadeMode()
     if (!_EnterEvadeMode())
         return;
 
-    sLog->outDebug("Creature %u enters evade mode.", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_UNITS, "Creature %u enters evade mode.", me->GetEntry());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
@@ -156,7 +155,7 @@ void CreatureAI::EnterEvadeMode()
     Reset();
 
     if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
-        me->GetVehicleKit()->Reset();
+        me->GetVehicleKit()->Reset(true);
 }
 
 /*void CreatureAI::AttackedBy(Unit* attacker)

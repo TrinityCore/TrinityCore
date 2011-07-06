@@ -1,1 +1,0 @@
-#define SSLeay_version yaSSLeay_version

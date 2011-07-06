@@ -36,14 +36,14 @@ class boss_jandice_barov : public CreatureScript
 public:
     boss_jandice_barov() : CreatureScript("boss_jandice_barov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_jandicebarovAI (pCreature);
+        return new boss_jandicebarovAI (creature);
     }
 
     struct boss_jandicebarovAI : public ScriptedAI
     {
-        boss_jandicebarovAI(Creature *c) : ScriptedAI(c) {}
+        boss_jandicebarovAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CurseOfBlood_Timer;
         uint32 Illusion_Timer;
@@ -59,13 +59,13 @@ public:
             Invisible = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
         void SummonIllusions(Unit* victim)
         {
-            if (Creature *Illusion = DoSpawnCreature(11439, float(irand(-9,9)), float(irand(-9,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+            if (Creature* Illusion = DoSpawnCreature(11439, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
                 Illusion->AI()->AttackStart(victim);
         }
 
@@ -108,15 +108,15 @@ public:
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetDisplayId(11686);  // Invisible Model
-                DoModifyThreatPercent(me->getVictim(),-99);
+                DoModifyThreatPercent(me->getVictim(), -99);
 
                 //Summon 10 Illusions attacking random gamers
-                Unit *pTarget = NULL;
+                Unit* target = NULL;
                 for (uint8 i = 0; i < 10; ++i)
                 {
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (pTarget)
-                        SummonIllusions(pTarget);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
+                        SummonIllusions(target);
                 }
                 Invisible = true;
                 Invisible_Timer = 3000;
@@ -158,14 +158,14 @@ class mob_illusionofjandicebarov : public CreatureScript
 public:
     mob_illusionofjandicebarov() : CreatureScript("mob_illusionofjandicebarov") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_illusionofjandicebarovAI (pCreature);
+        return new mob_illusionofjandicebarovAI (creature);
     }
 
     struct mob_illusionofjandicebarovAI : public ScriptedAI
     {
-        mob_illusionofjandicebarovAI(Creature *c) : ScriptedAI(c) {}
+        mob_illusionofjandicebarovAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Cleave_Timer;
 
@@ -175,7 +175,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
@@ -200,8 +200,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_boss_jandicebarov()
 {

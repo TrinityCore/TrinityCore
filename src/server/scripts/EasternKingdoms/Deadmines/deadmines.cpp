@@ -47,8 +47,7 @@ public:
         }
         if (pInstance->GetData(EVENT_STATE)!= CANNON_NOT_USED)
             return false;
-        if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
-           targets.getGOTarget()->GetEntry() == GO_DEFIAS_CANNON)
+        if (targets.GetGOTarget() && targets.GetGOTarget()->GetEntry() == GO_DEFIAS_CANNON)
         {
             pInstance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
         }

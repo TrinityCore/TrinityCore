@@ -54,7 +54,7 @@ void WorldRunnable::run()
         ++World::m_worldLoopCounter;
         realCurrTime = getMSTime();
 
-        uint32 diff = getMSTimeDiff(realPrevTime,realCurrTime);
+        uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
 
         sWorld->Update( diff );
         realPrevTime = realCurrTime;
@@ -92,4 +92,5 @@ void WorldRunnable::run()
 
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
+    sScriptMgr->Unload();
 }

@@ -34,6 +34,7 @@
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_reconnecting(false),
+m_prepareError(false),
 m_queue(NULL),
 m_worker(NULL),
 m_Mysql(NULL),
@@ -44,6 +45,7 @@ m_connectionFlags(CONNECTION_SYNCH)
 
 MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
 m_reconnecting(false),
+m_prepareError(false),
 m_queue(queue),
 m_Mysql(NULL),
 m_connectionInfo(connInfo),
@@ -137,7 +139,7 @@ bool MySQLConnection::Open()
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
         mysql_set_character_set(m_Mysql, "utf8");
-        return true;
+        return PrepareStatements();
     }
     else
     {
@@ -145,6 +147,14 @@ bool MySQLConnection::Open()
         mysql_close(mysqlInit);
         return false;
     }
+}
+
+bool MySQLConnection::PrepareStatements()
+{
+    DoPrepareStatements();
+    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
+        PrepareStatement(itr->first, itr->second.first, itr->second.second);
+    return !m_prepareError;
 }
 
 bool MySQLConnection::Execute(const char* sql)
@@ -330,7 +340,7 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         }
         else if (sLog->GetSQLDriverQueryLogging())
         {
-            sLog->outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
+            sLog->outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
         }
 
         *pResult = mysql_store_result(m_Mysql);
@@ -369,15 +379,17 @@ void MySQLConnection::CommitTransaction()
 
 bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
 {
-    std::queue<SQLElementData> &queries = transaction->m_queries;
+    std::list<SQLElementData> const& queries = transaction->m_queries;
     if (queries.empty())
         return false;
 
     BeginTransaction();
-    while (!queries.empty())
+
+    std::list<SQLElementData>::const_iterator itr;
+    for (itr = queries.begin(); itr != queries.end(); ++itr)
     {
-        SQLElementData data = queries.front();
-        switch (data.type)
+        SQLElementData const& data = *itr;
+        switch (itr->type)
         {
             case SQL_ELEMENT_PREPARED:
             {
@@ -389,7 +401,6 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
                     RollbackTransaction();
                     return false;
                 }
-                delete data.element.stmt;
             }
             break;
             case SQL_ELEMENT_RAW:
@@ -402,12 +413,15 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
                     RollbackTransaction();
                     return false;
                 }
-                free((void*)const_cast<char*>(sql));
             }
             break;
         }
-        queries.pop();
     }
+
+    // we might encounter errors during certain queries, and depending on the kind of error
+    // we might want to restart the transaction. So to prevent data loss, we only clean up when it's all done.
+    // This is done in calling functions DatabaseWorkerPool<T>::DirectCommitTransaction and TransactionTask::Execute,
+    // and not while iterating over every element.
 
     CommitTransaction();
     return true;
@@ -444,19 +458,23 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql, Connection
     {
         sLog->outSQLDriver("[ERROR]: In mysql_stmt_init() id: %u, sql: \"%s\"", index, sql);
         sLog->outSQLDriver("[ERROR]: %s", mysql_error(m_Mysql));
-        exit(1);
+        m_prepareError = true;
     }
-
-    if (mysql_stmt_prepare(stmt, sql, static_cast<unsigned long>(strlen(sql))))
+    else
     {
-        sLog->outSQLDriver("[ERROR]: In mysql_stmt_prepare() id: %u, sql: \"%s\"", index, sql);
-        sLog->outSQLDriver("[ERROR]: %s", mysql_stmt_error(stmt));
-        mysql_stmt_close(stmt);
-        exit(1);
+        if (mysql_stmt_prepare(stmt, sql, static_cast<unsigned long>(strlen(sql))))
+        {
+            sLog->outSQLDriver("[ERROR]: In mysql_stmt_prepare() id: %u, sql: \"%s\"", index, sql);
+            sLog->outSQLDriver("[ERROR]: %s", mysql_stmt_error(stmt));
+            mysql_stmt_close(stmt);
+            m_prepareError = true;
+        }
+        else
+        {
+            MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt);
+            m_stmts[index] = mStmt;
+        }
     }
-
-    MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt);
-    m_stmts[index] = mStmt;
 }
 
 PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
@@ -477,8 +495,6 @@ PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
 
 bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
 {
-    sLog->outDebug("%s", __FUNCTION__);
-
     switch (errNo)
     {
         case 2006:  // "MySQL server has gone away"
@@ -507,8 +523,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
         }
 
         case 1213:      // "Deadlock found when trying to get lock; try restarting transaction"
-            return true;    // Implemented in TransactionTask::Execute and DatabaseWorkerPool<T>::DirectCommitTransaction
-
+            return false;    // Implemented in TransactionTask::Execute and DatabaseWorkerPool<T>::DirectCommitTransaction
         // Query related errors - skip query
         case 1058:      // "Column count doesn't match value count"
         case 1062:      // "Duplicate entry '%s' for key '%d'"

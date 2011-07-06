@@ -34,14 +34,14 @@ class boss_eck : public CreatureScript
 public:
     boss_eck() : CreatureScript("boss_eck") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eckAI (pCreature);
+        return new boss_eckAI (creature);
     }
 
     struct boss_eckAI : public ScriptedAI
     {
-        boss_eckAI(Creature *c) : ScriptedAI(c)
+        boss_eckAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -57,7 +57,7 @@ public:
 
         void Reset()
         {
-            uiBerserkTimer = urand(60*IN_MILLISECONDS,90*IN_MILLISECONDS); //60-90 secs according to wowwiki
+            uiBerserkTimer = urand(60*IN_MILLISECONDS, 90*IN_MILLISECONDS); //60-90 secs according to wowwiki
             uiBiteTimer = 5*IN_MILLISECONDS;
             uiSpitTimer = 10*IN_MILLISECONDS;
             uiSpringTimer = 8*IN_MILLISECONDS;
@@ -83,22 +83,22 @@ public:
             if (uiBiteTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ECK_BITE);
-                uiBiteTimer = urand(8*IN_MILLISECONDS,12*IN_MILLISECONDS);
+                uiBiteTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
             } else uiBiteTimer -= diff;
 
             if (uiSpitTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ECK_SPIT);
-                uiSpitTimer = urand(6*IN_MILLISECONDS,14*IN_MILLISECONDS);
+                uiSpitTimer = urand(6*IN_MILLISECONDS, 14*IN_MILLISECONDS);
             } else uiSpitTimer -= diff;
 
             if (uiSpringTimer <= diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(pTarget, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
-                    uiSpringTimer = urand(5*IN_MILLISECONDS,10*IN_MILLISECONDS);
+                    DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
+                    uiSpringTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 }
             } else uiSpringTimer -= diff;
 
@@ -133,31 +133,30 @@ public:
 
 };
 
-
 class npc_ruins_dweller : public CreatureScript
 {
 public:
     npc_ruins_dweller() : CreatureScript("npc_ruins_dweller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ruins_dwellerAI (pCreature);
+        return new npc_ruins_dwellerAI (creature);
     }
 
     struct npc_ruins_dwellerAI : public ScriptedAI
     {
-        npc_ruins_dwellerAI(Creature *c) : ScriptedAI(c)
+        npc_ruins_dwellerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
 
-        void JustDied(Unit * /*who*/)
+        void JustDied(Unit* /*who*/)
         {
             if (pInstance)
             {
-                pInstance->SetData64(DATA_RUIN_DWELLER_DIED,me->GetGUID());
+                pInstance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
                 if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
                     me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
             }
@@ -165,7 +164,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_eck()
 {

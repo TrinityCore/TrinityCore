@@ -15,16 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_ICECROWN_CITADEL_H
-#define DEF_ICECROWN_CITADEL_H
+#ifndef ICECROWN_CITADEL_H_
+#define ICECROWN_CITADEL_H_
+
+#include "SpellScript.h"
+#include "Map.h"
+#include "Creature.h"
 
 #define ICCScriptName "instance_icecrown_citadel"
 
-// Shared spells used by every boss
+uint32 const EncounterCount = 13;
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
+
+extern Position const ValithriaSpawnPos;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
+
+// Shared spells used by more than one script
 enum SharedSpells
 {
-    SPELL_BERSERK   = 26662,
-    SPELL_BERSERK2  = 47008
+    SPELL_BERSERK               = 26662,
+    SPELL_BERSERK2              = 47008,
+
+    // Deathbound Ward
+    SPELL_STONEFORM             = 70733,
+
+    // Residue Rendezvous
+    SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
+    SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
 };
 
 enum TeleporterSpells
@@ -35,7 +54,7 @@ enum TeleporterSpells
     DEATHBRINGER_S_RISE_TELEPORT    = 70858,
     UPPER_SPIRE_TELEPORT            = 70859,
     FROZEN_THRONE_TELEPORT          = 70860,
-    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
+    SINDRAGOSA_S_LAIR_TELEPORT      = 70861,
 };
 
 enum DataTypes
@@ -50,32 +69,44 @@ enum DataTypes
     DATA_PROFESSOR_PUTRICIDE        = 6,
     DATA_BLOOD_PRINCE_COUNCIL       = 7,
     DATA_BLOOD_QUEEN_LANA_THEL      = 8,
-    DATA_VALITHRIA_DREAMWALKER      = 9,
-    DATA_SINDRAGOSA                 = 10,
-    DATA_THE_LICH_KING              = 11,
+    DATA_SISTER_SVALNA              = 9,
+    DATA_VALITHRIA_DREAMWALKER      = 10,
+    DATA_SINDRAGOSA                 = 11,
+    DATA_THE_LICH_KING              = 12,
 
     // Additional data
-    DATA_SAURFANG_EVENT_NPC         = 12,
-    DATA_BONED_ACHIEVEMENT          = 13,
-    DATA_OOZE_DANCE_ACHIEVEMENT     = 14,
-    DATA_PUTRICIDE_TABLE            = 15,
-    DATA_NAUSEA_ACHIEVEMENT         = 16,
-    DATA_ORB_WHISPERER_ACHIEVEMENT  = 17,
-    DATA_PRINCE_KELESETH_GUID       = 18,
-    DATA_PRINCE_TALDARAM_GUID       = 19,
-    DATA_PRINCE_VALANAR_GUID        = 20,
-    DATA_BLOOD_PRINCES_CONTROL      = 21,
-    DATA_SINDRAGOSA_FROSTWYRMS      = 22,
-    DATA_SPINESTALKER               = 23,
-    DATA_RIMEFANG                   = 24,
-    DATA_COLDFLAME_JETS             = 25,
+    DATA_SAURFANG_EVENT_NPC         = 13,
+    DATA_BONED_ACHIEVEMENT          = 14,
+    DATA_OOZE_DANCE_ACHIEVEMENT     = 15,
+    DATA_PUTRICIDE_TABLE            = 16,
+    DATA_NAUSEA_ACHIEVEMENT         = 17,
+    DATA_ORB_WHISPERER_ACHIEVEMENT  = 18,
+    DATA_PRINCE_KELESETH_GUID       = 19,
+    DATA_PRINCE_TALDARAM_GUID       = 20,
+    DATA_PRINCE_VALANAR_GUID        = 21,
+    DATA_BLOOD_PRINCES_CONTROL      = 22,
+    DATA_SINDRAGOSA_FROSTWYRMS      = 23,
+    DATA_SPINESTALKER               = 24,
+    DATA_RIMEFANG                   = 25,
+    DATA_COLDFLAME_JETS             = 26,
+    DATA_TEAM_IN_INSTANCE           = 27,
+    DATA_BLOOD_QUICKENING_STATE     = 28,
+    DATA_HEROIC_ATTEMPTS            = 29,
+    DATA_CROK_SCOURGEBANE           = 30,
+    DATA_CAPTAIN_ARNATH             = 31,
+    DATA_CAPTAIN_BRANDON            = 32,
+    DATA_CAPTAIN_GRONDEL            = 33,
+    DATA_CAPTAIN_RUPERT             = 34,
+    DATA_VALITHRIA_TRIGGER          = 35,
+    DATA_VALITHRIA_LICH_KING        = 36,
 };
-
-#define MAX_ENCOUNTER 12
 
 enum CreaturesIds
 {
     // At Light's Hammer
+    NPC_HIGHLORD_TIRION_FORDRING_LH             = 37119,
+    NPC_THE_LICH_KING_LH                        = 37181,
+    NPC_HIGHLORD_BOLVAR_FORDRAGON_LH            = 37183,
     NPC_KOR_KRON_GENERAL                        = 37189,
     NPC_ALLIANCE_COMMANDER                      = 37190,
     NPC_TORTUNOK                                = 37992,    // Druid Armor H
@@ -92,13 +123,18 @@ enum CreaturesIds
     NPC_NIBY_THE_ALMIGHTY                       = 38182,    // Warlock Armor N
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
+    NPC_DEATHBOUND_WARD                         = 37007,
 
-    // Weekly questgivers
+    // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
     NPC_KOR_KRON_LIEUTENANT                     = 38491,
     NPC_SKYBREAKER_LIEUTENANT                   = 38492,
+    NPC_ROTTING_FROST_GIANT_10                  = 38490,
+    NPC_ROTTING_FROST_GIANT_25                  = 38494,
     NPC_ALCHEMIST_ADRIANNA                      = 38501,
     NPC_ALRIN_THE_AGILE                         = 38551,
+    NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
+    NPC_MINCHAR_BEAM_STALKER                    = 38557,
     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
@@ -164,6 +200,40 @@ enum CreaturesIds
     // Blood-Queen Lana'thel
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
 
+    // Frostwing Halls gauntlet event
+    NPC_CROK_SCOURGEBANE                        = 37129,
+    NPC_CAPTAIN_ARNATH                          = 37122,
+    NPC_CAPTAIN_BRANDON                         = 37123,
+    NPC_CAPTAIN_GRONDEL                         = 37124,
+    NPC_CAPTAIN_RUPERT                          = 37125,
+    NPC_CAPTAIN_ARNATH_UNDEAD                   = 37491,
+    NPC_CAPTAIN_BRANDON_UNDEAD                  = 37493,
+    NPC_CAPTAIN_GRONDEL_UNDEAD                  = 37494,
+    NPC_CAPTAIN_RUPERT_UNDEAD                   = 37495,
+    NPC_YMIRJAR_BATTLE_MAIDEN                   = 37132,
+    NPC_YMIRJAR_DEATHBRINGER                    = 38125,
+    NPC_YMIRJAR_FROSTBINDER                     = 37127,
+    NPC_YMIRJAR_HUNTRESS                        = 37134,
+    NPC_YMIRJAR_WARLORD                         = 37133,
+    NPC_SISTER_SVALNA                           = 37126,
+    NPC_IMPALING_SPEAR                          = 38248,
+
+    // Valithria Dreamwalker
+    NPC_VALITHRIA_DREAMWALKER                   = 36789,
+    NPC_GREEN_DRAGON_COMBAT_TRIGGER             = 38752,
+    NPC_RISEN_ARCHMAGE                          = 37868,
+    NPC_BLAZING_SKELETON                        = 36791,
+    NPC_SUPPRESSER                              = 37863,
+    NPC_BLISTERING_ZOMBIE                       = 37934,
+    NPC_GLUTTONOUS_ABOMINATION                  = 37886,
+    NPC_MANA_VOID                               = 38068,
+    NPC_COLUMN_OF_FROST                         = 37918,
+    NPC_THE_LICH_KING_VALITHRIA                 = 16980,
+    NPC_DREAM_PORTAL_PRE_EFFECT                 = 38186,
+    NPC_NIGHTMARE_PORTAL_PRE_EFFECT             = 38429,
+    NPC_DREAM_PORTAL                            = 37945,
+    NPC_NIGHTMARE_PORTAL                        = 38430,
+
     // Sindragosa
     NPC_SINDRAGOSA                              = 36853,
     NPC_SPINESTALKER                            = 37534,
@@ -173,10 +243,19 @@ enum CreaturesIds
     NPC_ICY_BLAST                               = 38223,
     NPC_FROST_BOMB                              = 37186,
     NPC_ICE_TOMB                                = 36980,
+
+    // The Lich King
+    NPC_THE_LICH_KING                           = 36597,
 };
 
 enum GameObjectsIds
 {
+    // Lower Spire Trash
+    GO_SPIRIT_ALARM_1                       = 201814,
+    GO_SPIRIT_ALARM_2                       = 201815,
+    GO_SPIRIT_ALARM_3                       = 201816,
+    GO_SPIRIT_ALARM_4                       = 201817,
+
     // Lord Marrogar
     GO_DOODAD_ICECROWN_ICEWALL02            = 201910,
     GO_ICEWALL                              = 201911,
@@ -204,6 +283,7 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_GREENTUBES02         = 201618,
     GO_SCIENTIST_ENTRANCE                   = 201372,
     GO_DRINK_ME                             = 201584,
+    GO_PLAGUE_SIGIL                         = 202182,
 
     // Blood Prince Council
     GO_CRIMSON_HALL_DOOR                    = 201376,
@@ -213,10 +293,15 @@ enum GameObjectsIds
     // Blood-Queen Lana'thel
     GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01  = 201746,
     GO_DOODAD_ICECROWN_GRATE_01             = 201755,
+    GO_BLOODWING_SIGIL                      = 202183,
 
     // Valithria Dreamwalker
     GO_GREEN_DRAGON_BOSS_ENTRANCE           = 201375,
     GO_GREEN_DRAGON_BOSS_EXIT               = 201374,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_01   = 201380,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
+    GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
@@ -224,6 +309,7 @@ enum GameObjectsIds
     GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR        = 201379,
     GO_ICE_WALL                             = 202396,
     GO_ICE_BLOCK                            = 201722,
+    GO_SIGIL_OF_THE_FROSTWING               = 202181,
 };
 
 enum AchievementCriteriaIds
@@ -277,12 +363,89 @@ enum SharedActions
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
 
+    // Blood-Queen Lana'thel
+    ACTION_KILL_MINCHAR         = -379550,
+
+    // Frostwing Halls gauntlet event
+    ACTION_VRYKUL_DEATH         = 37129,
+
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
 };
 
-// Declaration
-extern Position const SindragosaSpawnPos;
+enum WeekliesICC
+{
+    QUEST_DEPROGRAMMING_10                  = 24869,
+    QUEST_DEPROGRAMMING_25                  = 24875,
+    QUEST_SECURING_THE_RAMPARTS_10          = 24870,
+    QUEST_SECURING_THE_RAMPARTS_25          = 24877,
+    QUEST_RESIDUE_RENDEZVOUS_10             = 24873,
+    QUEST_RESIDUE_RENDEZVOUS_25             = 24878,
+    QUEST_BLOOD_QUICKENING_10               = 24874,
+    QUEST_BLOOD_QUICKENING_25               = 24879,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880,
+};
 
-#endif // DEF_ICECROWN_CITADEL_H
+enum WorldStatesICC
+{
+    WORLDSTATE_SHOW_TIMER           = 4903,
+    WORLDSTATE_EXECUTION_TIME       = 4904,
+    WORLDSTATE_SHOW_ATTEMPTS        = 4940,
+    WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
+    WORLDSTATE_ATTEMPTS_MAX         = 4942,
+};
+
+class spell_trigger_spell_from_caster : public SpellScriptLoader
+{
+    public:
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId) : SpellScriptLoader(scriptName), _triggerId(triggerId) { }
+
+        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
+
+        public:
+            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(_triggerId))
+                    return false;
+                return true;
+            }
+
+            void HandleTrigger()
+            {
+                GetCaster()->CastSpell(GetHitUnit(), _triggerId, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
+            }
+
+            uint32 _triggerId;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_trigger_spell_from_caster_SpellScript(_triggerId);
+        }
+
+    private:
+        uint32 _triggerId;
+};
+
+template<class AI>
+CreatureAI* GetIcecrownCitadelAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == GetScriptId(ICCScriptName))
+                return new AI(creature);
+    return NULL;
+}
+
+#endif // ICECROWN_CITADEL_H_

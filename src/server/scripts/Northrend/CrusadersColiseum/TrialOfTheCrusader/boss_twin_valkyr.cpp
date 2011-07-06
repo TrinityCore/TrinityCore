@@ -88,13 +88,19 @@ enum BossSpells
     SPELL_BERSERK               = 64238,
     SPELL_NONE                  = 0,
 
-    SPELL_EMPOWERED_DARK        = 67215,
-    SPELL_EMPOWERED_LIGHT       = 67218,
+    SPELL_EMPOWERED_DARK        = 65724,
+    SPELL_EMPOWERED_LIGHT       = 65748,
 
     SPELL_UNLEASHED_DARK        = 65808,
     SPELL_UNLEASHED_LIGHT       = 65795,
     //PowerUp 67604
 };
+
+#define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
+#define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
+
+#define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
+#define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
 
 enum Actions
 {
@@ -102,16 +108,15 @@ enum Actions
     ACTION_PACT
 };
 
-
 /*######
 ## boss_twin_base
 ######*/
 
 struct boss_twin_baseAI : public ScriptedAI
 {
-    boss_twin_baseAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+    boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
     {
-        m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
     InstanceScript* m_pInstance;
@@ -126,8 +131,8 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiTouchTimer;
     uint32 m_uiBerserkTimer;
 
-    uint32 m_uiVortexSay;
-    uint32 m_uiVortexEmote;
+    int32 m_uiVortexSay;
+    int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
     uint32 m_uiColorballNpcId;
     uint32 m_uiEssenceNpcId;
@@ -190,9 +195,9 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* pWho)
+    void KilledUnit(Unit* who)
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER)
+        if (who->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
             if (m_pInstance)
@@ -200,39 +205,30 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* pSummoned)
+    void JustSummoned(Creature* summoned)
     {
-        switch (pSummoned->GetEntry())
+        switch (summoned->GetEntry())
         {
             case NPC_UNLEASHED_DARK:
             case NPC_UNLEASHED_LIGHT:
-                pSummoned->SetCorpseDelay(0);
+                summoned->SetCorpseDelay(0);
                 break;
         }
-        Summons.Summon(pSummoned);
+        Summons.Summon(summoned);
     }
 
-    void SummonedCreatureDespawn(Creature* pSummoned)
+    void SummonedCreatureDespawn(Creature* summoned)
     {
-        switch (pSummoned->GetEntry())
+        switch (summoned->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
+                m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
+                break;
             case NPC_DARK_ESSENCE:
-                Map* pMap = me->GetMap();
-                Map::PlayerList const &lPlayers = pMap->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-                {
-                    Unit* pPlayer = itr->getSource();
-                    if (!pPlayer) continue;
-                    if (pPlayer->isAlive())
-                        if (pSummoned->GetEntry() == NPC_LIGHT_ESSENCE)
-                            pPlayer->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
-                        if (pSummoned->GetEntry() == NPC_DARK_ESSENCE)
-                            pPlayer->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
-                }
+                m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
                 break;
         }
-        Summons.Despawn(pSummoned);
+        Summons.Despawn(summoned);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -281,7 +277,7 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*pKiller*/)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
@@ -306,7 +302,7 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me), m_pInstance->GetData64(m_uiSisterNpcId));
     }
 
-    void EnterCombat(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
         if (m_pInstance)
@@ -394,8 +390,8 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (IsHeroic() && m_uiTouchTimer <= uiDiff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
-                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, pTarget, false);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
+                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
             m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         }
         else
@@ -440,14 +436,14 @@ class boss_fjola : public CreatureScript
 public:
     boss_fjola() : CreatureScript("boss_fjola") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fjolaAI(pCreature);
+        return new boss_fjolaAI(creature);
     }
 
     struct boss_fjolaAI : public boss_twin_baseAI
     {
-        boss_fjolaAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
+        boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
         void Reset() {
             boss_twin_baseAI::Reset();
@@ -458,9 +454,9 @@ public:
             m_uiSisterNpcId = NPC_DARKBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_LIGHT;
             m_uiEssenceNpcId = NPC_LIGHT_ESSENCE;
-            m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE;
-            m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE;
-            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK;
+            m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
+            m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK_HELPER;
             m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
             m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
             m_uiShieldSpellId = SPELL_LIGHT_SHIELD;
@@ -478,9 +474,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            boss_twin_baseAI::EnterCombat(pWho);
+            boss_twin_baseAI::EnterCombat(who);
             if (m_pInstance)
             {
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
@@ -489,7 +485,6 @@ public:
     };
 
 };
-
 
 /*######
 ## boss_eydis
@@ -500,14 +495,14 @@ class boss_eydis : public CreatureScript
 public:
     boss_eydis() : CreatureScript("boss_eydis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eydisAI(pCreature);
+        return new boss_eydisAI(creature);
     }
 
     struct boss_eydisAI : public boss_twin_baseAI
     {
-        boss_eydisAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
+        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
         void Reset() {
             boss_twin_baseAI::Reset();
@@ -518,9 +513,9 @@ public:
             m_uiSisterNpcId = NPC_LIGHTBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_DARK;
             m_uiEssenceNpcId = NPC_DARK_ESSENCE;
-            m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE;
-            m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE;
-            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT;
+            m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+            m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
+            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT_HELPER;
             m_uiSurgeSpellId = SPELL_DARK_SURGE;
             m_uiVortexSpellId = SPELL_DARK_VORTEX;
             m_uiShieldSpellId = SPELL_DARK_SHIELD;
@@ -536,38 +531,56 @@ public:
 
 };
 
+#define ESSENCE_REMOVE 0
+#define ESSENCE_APPLY 1
 
 class mob_essence_of_twin : public CreatureScript
 {
-public:
-    mob_essence_of_twin() : CreatureScript("mob_essence_of_twin") { }
+    public:
+        mob_essence_of_twin() : CreatureScript("mob_essence_of_twin") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        switch (creature->GetEntry())
+        struct mob_essence_of_twinAI : public ScriptedAI
         {
-            case NPC_LIGHT_ESSENCE:
-                player->RemoveAura(SPELL_DARK_ESSENCE);
-                player->CastSpell(player, SPELL_LIGHT_ESSENCE, true);
-                break;
-            case NPC_DARK_ESSENCE:
-                player->RemoveAura(SPELL_LIGHT_ESSENCE);
-                player->CastSpell(player, SPELL_DARK_ESSENCE, true);
-                break;
-            default:
-                break;
-        }
-        player->CLOSE_GOSSIP_MENU();
-        return true;
-    }
-};
+            mob_essence_of_twinAI(Creature* creature) : ScriptedAI(creature) { }
 
+            uint32 GetData(uint32 data)
+            {
+                uint32 spellReturned = 0;
+                switch (me->GetEntry())
+                {
+                    case NPC_LIGHT_ESSENCE:
+                        spellReturned = data == ESSENCE_REMOVE? SPELL_DARK_ESSENCE_HELPER : SPELL_LIGHT_ESSENCE_HELPER;
+                        break;
+                    case NPC_DARK_ESSENCE:
+                        spellReturned = data == ESSENCE_REMOVE? SPELL_LIGHT_ESSENCE_HELPER : SPELL_DARK_ESSENCE_HELPER;
+                        break;
+                    default:
+                        break;
+                }
+
+                return spellReturned;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_essence_of_twinAI(creature);
+        };
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->RemoveAurasDueToSpell(creature->GetAI()->GetData(ESSENCE_REMOVE));
+            player->CastSpell(player, creature->GetAI()->GetData(ESSENCE_APPLY), true);
+            player->CLOSE_GOSSIP_MENU();
+            return true;
+        }
+};
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
-    mob_unleashed_ballAI(Creature *pCreature) : ScriptedAI(pCreature)
+    mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
     InstanceScript* m_pInstance;
@@ -617,21 +630,21 @@ class mob_unleashed_dark : public CreatureScript
 public:
     mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unleashed_darkAI(pCreature);
+        return new mob_unleashed_darkAI(creature);
     }
 
     struct mob_unleashed_darkAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_darkAI(Creature *pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit *pTarget = me->SelectNearestTarget(2.0f))
-                    if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
+                if (Unit* target = me->SelectNearestTarget(2.0f))
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
@@ -645,27 +658,26 @@ public:
 
 };
 
-
 class mob_unleashed_light : public CreatureScript
 {
 public:
     mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unleashed_lightAI(pCreature);
+        return new mob_unleashed_lightAI(creature);
     }
 
     struct mob_unleashed_lightAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_lightAI(Creature *pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit *pTarget = me->SelectNearestTarget(2.0f))
-                    if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
+                if (Unit* target = me->SelectNearestTarget(2.0f))
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
@@ -678,7 +690,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_twin_valkyr()
 {

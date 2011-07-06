@@ -91,10 +91,10 @@ class SmartAI : public CreatureAI
         void KilledUnit(Unit* victim);
 
         // Called when the creature summon successfully other creature
-        void JustSummoned(Creature* pUnit);
+        void JustSummoned(Creature* creature);
 
         // Tell creature to attack and follow the victim
-        void AttackStart(Unit *who);
+        void AttackStart(Unit* who);
 
         // Called if IsVisible(Unit *who) is true at each *who move, reaction at visibility zone enter
         void MoveInLineOfSight(Unit *who);
@@ -124,7 +124,7 @@ class SmartAI : public CreatureAI
         void IsSummonedBy(Unit* summoner);
 
         // Called at any Damage to any victim (before damage apply)
-        void DamageDealt(Unit * done_to, uint32 & damage, DamageEffectType /*damagetype*/);
+        void DamageDealt(Unit* done_to, uint32 & damage, DamageEffectType /*damagetype*/);
 
         // Called when a summoned creature dissapears (UnSommoned)
         void SummonedCreatureDespawn(Creature* unit);
@@ -251,7 +251,7 @@ public:
     void SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker);
 
 protected:
-    GameObject * const go;
+    GameObject* const go;
     SmartScript mScript;
 };
 #endif

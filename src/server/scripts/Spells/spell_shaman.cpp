@@ -33,7 +33,7 @@ enum ShamanSpells
 
     //For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM  = 6474, //Spell casted by totem
-    SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566,//Spell witch remove snare effect
+    SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566, //Spell witch remove snare effect
 };
 
 // 51474 - Astral shift
@@ -54,7 +54,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -63,7 +63,7 @@ public:
         void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             // reduces all damage taken while stun, fear or silence
-            if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED))
+            if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
                 absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
         }
 
@@ -89,7 +89,7 @@ public:
     class spell_sha_fire_nova_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_sha_fire_nova_SpellScript)
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const* spellEntry)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_FIRE_NOVA_R1))
                 return false;
@@ -102,24 +102,33 @@ public:
             return true;
         }
 
+        SpellCastResult CheckFireTotem()
+        {
+            // fire totem
+            if (!GetCaster()->m_SummonSlot[1])
+            {
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* caster = GetCaster())
+            Unit* caster = GetCaster();
+            uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+            if (uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank))
             {
-                uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
-                uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank);
-                // fire slot
-                if (spellId && caster->m_SummonSlot[1])
-                {
-                    Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
-                    if (totem && totem->isTotem())
-                        totem->CastSpell(totem, spellId, true);
-                }
+                Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
+                if (totem && totem->isTotem())
+                    totem->CastSpell(totem, spellId, true);
             }
         }
 
         void Register()
         {
+            OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova_SpellScript::CheckFireTotem);
             OnEffect += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
@@ -139,7 +148,7 @@ public:
     class spell_sha_mana_tide_totem_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_sha_mana_tide_totem_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE))
                 return false;
@@ -157,7 +166,7 @@ public:
                 {
                     int32 effValue = GetEffectValue();
                     // Glyph of Mana Tide
-                    if (Unit *owner = caster->GetOwner())
+                    if (Unit* owner = caster->GetOwner())
                         if (AuraEffect *dummy = owner->GetAuraEffect(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE, 0))
                             effValue += dummy->GetAmount();
                     // Regenerate 6% of Total Mana Every 3 secs
@@ -189,7 +198,7 @@ public:
     {
         PrepareAuraScript(spell_sha_earthbind_totem_AuraScript);
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM))
                 return false;
@@ -198,10 +207,10 @@ public:
             return true;
         }
 
-        void HandleEffectPeriodic(AuraEffect const * aurEff)
+        void HandleEffectPeriodic(AuraEffect const* aurEff)
         {
             Unit* target = GetTarget();
-            if (Unit *caster = aurEff->GetBase()->GetCaster())
+            if (Unit* caster = aurEff->GetBase()->GetCaster())
                 if (AuraEffect* aur = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
                     if (roll_chance_i(aur->GetBaseAmount()))
                         target->CastSpell(target, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);

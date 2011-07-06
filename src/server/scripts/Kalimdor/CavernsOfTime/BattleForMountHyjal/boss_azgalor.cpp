@@ -48,14 +48,14 @@ class boss_azgalor : public CreatureScript
 public:
     boss_azgalor() : CreatureScript("boss_azgalor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_azgalorAI (pCreature);
+        return new boss_azgalorAI (creature);
     }
 
     struct boss_azgalorAI : public hyjal_trashAI
     {
-        boss_azgalorAI(Creature *c) : hyjal_trashAI(c)
+        boss_azgalorAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             pGo = false;
@@ -89,29 +89,29 @@ public:
                 pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (pInstance && IsEvent)
                 pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
             DoPlaySoundToSet(me, SOUND_ONAGGRO);
-            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
+            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
-            switch (urand(0,2))
+            switch (urand(0, 2))
             {
                 case 0:
                     DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
                     DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
                     break;
                 case 2:
                     DoPlaySoundToSet(me, SOUND_ONSLAY3);
-                    me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
                     break;
             }
         }
@@ -121,13 +121,13 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
-                if (pTarget && pTarget->isAlive())
-                    me->AddThreat(pTarget,0.0f);
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                if (target && target->isAlive())
+                    me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             hyjal_trashAI::JustDied(victim);
             if (pInstance && IsEvent)
@@ -166,13 +166,13 @@ public:
 
             if (RainTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,30,true), SPELL_RAIN_OF_FIRE);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), SPELL_RAIN_OF_FIRE);
                 RainTimer = 20000+rand()%15000;
             } else RainTimer -= diff;
 
             if (DoomTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,100,true), SPELL_DOOM);//never on tank
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true), SPELL_DOOM);//never on tank
                 DoomTimer = 45000+rand()%5000;
             } else DoomTimer -= diff;
 
@@ -202,7 +202,6 @@ public:
 
 };
 
-
 #define SPELL_THRASH 12787
 #define SPELL_CRIPPLE 31406
 #define SPELL_WARSTOMP 31408
@@ -212,14 +211,14 @@ class mob_lesser_doomguard : public CreatureScript
 public:
     mob_lesser_doomguard() : CreatureScript("mob_lesser_doomguard") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_lesser_doomguardAI (pCreature);
+        return new mob_lesser_doomguardAI (creature);
     }
 
     struct mob_lesser_doomguardAI : public hyjal_trashAI
     {
-        mob_lesser_doomguardAI(Creature *c) : hyjal_trashAI(c)
+        mob_lesser_doomguardAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)
@@ -240,11 +239,11 @@ public:
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
         }
 
@@ -252,13 +251,13 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
                 AttackStart(who);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
         }
 
@@ -268,7 +267,7 @@ public:
             {
                 if (AzgalorGUID)
                 {
-                    Creature* boss = Unit::GetCreature((*me),AzgalorGUID);
+                    Creature* boss = Unit::GetCreature((*me), AzgalorGUID);
                     if (!boss || (boss && boss->isDead()))
                     {
                         me->setDeathState(JUST_DIED);
@@ -300,7 +299,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_azgalor()
 {

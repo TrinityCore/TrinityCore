@@ -45,7 +45,7 @@ public:
 
     struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
     {
-        instance_scarlet_monastery_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_scarlet_monastery_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint64 PumpkinShrineGUID;
         uint64 HorsemanGUID;
@@ -154,7 +154,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_scarlet_monastery()
 {

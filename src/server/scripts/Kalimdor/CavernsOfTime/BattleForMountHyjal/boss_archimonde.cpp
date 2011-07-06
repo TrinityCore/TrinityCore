@@ -79,9 +79,9 @@ class mob_ancient_wisp : public CreatureScript
 public:
     mob_ancient_wisp() : CreatureScript("mob_ancient_wisp") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ancient_wispAI(pCreature);
+        return new mob_ancient_wispAI(creature);
     }
 
     struct mob_ancient_wispAI : public ScriptedAI
@@ -135,9 +135,9 @@ class mob_doomfire : public CreatureScript
 public:
     mob_doomfire() : CreatureScript("mob_doomfire") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_doomfireAI(pCreature);
+        return new mob_doomfireAI(creature);
     }
 
     struct mob_doomfireAI : public ScriptedAI
@@ -148,21 +148,21 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage) { damage = 0; }
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
     };
 
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
-   travels in random directions if pTarget cannot be found. */
+   travels in random directions if target cannot be found. */
 class mob_doomfire_targetting : public CreatureScript
 {
 public:
     mob_doomfire_targetting() : CreatureScript("mob_doomfire_targetting") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_doomfire_targettingAI(pCreature);
+        return new mob_doomfire_targettingAI(creature);
     }
 
     struct mob_doomfire_targettingAI : public ScriptedAI
@@ -188,15 +188,15 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage) { damage = 0; }
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
 
         void UpdateAI(const uint32 diff)
         {
             if (ChangeTargetTimer <= diff)
             {
-                if (Unit *temp = Unit::GetUnit(*me,TargetGUID))
+                if (Unit* temp = Unit::GetUnit(*me, TargetGUID))
                 {
-                    me->GetMotionMaster()->MoveFollow(temp,0.0f,0.0f);
+                    me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
                     TargetGUID = 0;
                 }
                 else
@@ -216,24 +216,24 @@ public:
 /* Finally, Archimonde's script. His script isn't extremely complex, most are simply spells on timers.
    The only complicated aspect of the battle is Finger of Death and Doomfire, with Doomfire being the
    hardest bit to code. Finger of Death is simply a distance check - if no one is in melee range, then
-   select a random pTarget and cast the spell on them. However, if someone IS in melee range, and this
+   select a random target and cast the spell on them. However, if someone IS in melee range, and this
    is NOT the main tank (creature's victim), then we aggro that player and they become the new victim.
    For Doomfire, we summon a mob (Doomfire Spirit) for the Doomfire mob to follow. It's spirit will
-   randomly select it's pTarget to follow and then we create the random movement making it unpredictable. */
+   randomly select it's target to follow and then we create the random movement making it unpredictable. */
 
 class boss_archimonde : public CreatureScript
 {
 public:
     boss_archimonde() : CreatureScript("boss_archimonde") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_archimondeAI (pCreature);
+        return new boss_archimondeAI (creature);
     }
 
     struct boss_archimondeAI : public hyjal_trashAI
     {
-        boss_archimondeAI(Creature *c) : hyjal_trashAI(c)
+        boss_archimondeAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -274,9 +274,9 @@ public:
             DrainNordrassilTimer = 0;
             FearTimer = 42000;
             AirBurstTimer = 30000;
-            GripOfTheLegionTimer = urand(5000,25000);
+            GripOfTheLegionTimer = urand(5000, 25000);
             DoomfireTimer = 20000;
-            SoulChargeTimer = urand(2000,30000);
+            SoulChargeTimer = urand(2000, 30000);
             SoulChargeCount = 0;
             MeleeRangeCheckTimer = 15000;
             HandOfDeathTimer = 2000;
@@ -291,7 +291,7 @@ public:
             IsChanneling = false;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             DoScriptText(SAY_AGGRO, me);
@@ -301,9 +301,9 @@ public:
                 pInstance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
 
             if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
                 GainSoulCharge(CAST_PLR(victim));
@@ -330,11 +330,11 @@ public:
                     break;
             }
 
-            SoulChargeTimer = urand(2000,30000);
+            SoulChargeTimer = urand(2000, 30000);
             ++SoulChargeCount;
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             hyjal_trashAI::JustDied(victim);
             DoScriptText(SAY_DEATH, me);
@@ -367,19 +367,19 @@ public:
                 return false;
 
             targets.sort(Trinity::ObjectDistanceOrderPred(me));
-            Unit *pTarget = targets.front();
-            if (pTarget)
+            Unit* target = targets.front();
+            if (target)
             {
-                if (!me->IsWithinDistInMap(pTarget, me->GetAttackDistance(pTarget)))
+                if (!me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
                     return true;                                // Cast Finger of Death
                 else                                            // This target is closest, he is our new tank
-                    me->AddThreat(pTarget, me->getThreatManager().getThreat(me->getVictim()));
+                    me->AddThreat(target, me->getThreatManager().getThreat(me->getVictim()));
             }
 
             return false;
         }
 
-        void JustSummoned(Creature *summoned)
+        void JustSummoned(Creature* summoned)
         {
             if (summoned->GetEntry() == CREATURE_ANCIENT_WISP)
                 summoned->AI()->AttackStart(me);
@@ -397,26 +397,26 @@ public:
 
             if (summoned->GetEntry() == CREATURE_DOOMFIRE)
             {
-                summoned->CastSpell(summoned,SPELL_DOOMFIRE_SPAWN,false);
-                summoned->CastSpell(summoned,SPELL_DOOMFIRE,true,0,0,me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
+                summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
 
-                if (Unit *DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
+                if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
                 {
-                    summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit,0.0f,0.0f);
+                    summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
                     DoomfireSpiritGUID = 0;
                 }
             }
         }
 
         //this is code doing close to what the summoning spell would do (spell 31903)
-        void SummonDoomfire(Unit *pTarget)
+        void SummonDoomfire(Unit* target)
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
-                pTarget->GetPositionX()+15.0f,pTarget->GetPositionY()+15.0f,pTarget->GetPositionZ(),0,
+                target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
-                pTarget->GetPositionX()-15.0f,pTarget->GetPositionY()-15.0f,pTarget->GetPositionZ(),0,
+                target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
@@ -428,7 +428,7 @@ public:
             uint32 chargeSpell = 0;
             uint32 unleashSpell = 0;
 
-            switch (urand(0,2))
+            switch (urand(0, 2))
             {
                 case 0:
                     chargeSpell = SPELL_SOUL_CHARGE_RED;
@@ -453,7 +453,7 @@ public:
             }
 
             if (HasCast)
-                SoulChargeTimer = urand(2000,30000);
+                SoulChargeTimer = urand(2000, 30000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -479,12 +479,12 @@ public:
                 {
                     if (!IsChanneling)
                     {
-                        Creature *temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 1200000);
 
                         if (temp)
                             WorldTreeGUID = temp->GetGUID();
 
-                        if (Unit *Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
+                        if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
                         {
                             Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             Nordrassil->SetDisplayId(11686);
@@ -493,7 +493,7 @@ public:
                         }
                     }
 
-                    if (Unit *Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
+                    if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
                     {
                         Nordrassil->CastSpell(me, SPELL_DRAIN_WORLD_TREE_2, true);
                         DrainNordrassilTimer = 1000;
@@ -583,19 +583,19 @@ public:
 
             if (GripOfTheLegionTimer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
-                GripOfTheLegionTimer = urand(5000,25000);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
+                GripOfTheLegionTimer = urand(5000, 25000);
             } else GripOfTheLegionTimer -= diff;
 
             if (AirBurstTimer <= diff)
             {
-                if (urand(0,1))
+                if (urand(0, 1))
                     DoScriptText(SAY_AIR_BURST1, me);
                 else
                     DoScriptText(SAY_AIR_BURST2, me);
 
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
-                AirBurstTimer = urand(25000,40000);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
+                AirBurstTimer = urand(25000, 40000);
             } else AirBurstTimer -= diff;
 
             if (FearTimer <= diff)
@@ -606,12 +606,12 @@ public:
 
             if (DoomfireTimer <= diff)
             {
-                if (urand(0,1))
+                if (urand(0, 1))
                     DoScriptText(SAY_DOOMFIRE1, me);
                 else
                     DoScriptText(SAY_DOOMFIRE2, me);
 
-                Unit *temp = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!temp)
                     temp = me->getVictim();
 
@@ -626,7 +626,7 @@ public:
             {
                 if (CanUseFingerOfDeath())
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
                     MeleeRangeCheckTimer = 1000;
                 }
 
@@ -639,10 +639,6 @@ public:
     };
 
 };
-
-
-
-
 
 void AddSC_boss_archimonde()
 {

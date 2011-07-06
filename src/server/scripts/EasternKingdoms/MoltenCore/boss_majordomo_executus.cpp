@@ -76,7 +76,7 @@ class boss_majordomo : public CreatureScript
 
         struct boss_majordomoAI : public BossAI
         {
-            boss_majordomoAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAJORDOMO_EXECUTUS)
+            boss_majordomoAI(Creature* creature) : BossAI(creature, BOSS_MAJORDOMO_EXECUTUS)
             {
             }
 
@@ -139,7 +139,7 @@ class boss_majordomo : public CreatureScript
                                 events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
                                 break;
                             case EVENT_TELEPORT:
-                                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     DoCast(target, SPELL_TELEPORT);
                                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
                                 break;

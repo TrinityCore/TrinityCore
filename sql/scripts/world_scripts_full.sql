@@ -9,7 +9,7 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649,5729,5616,5617,5618,5718);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (822, 'at_map_chamber'),
@@ -45,7 +45,12 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5633, 'at_tyrannus_event_starter'),
 (5604, 'at_sindragosa_lair'),
 (5698, 'at_icc_saurfang_portal'),
-(5649, 'at_icc_shutdown_traps');
+(5649, 'at_icc_shutdown_traps'),
+(5729, 'at_icc_start_blood_quickening'),
+(5616, 'at_icc_start_frostwing_gauntlet'),
+(5617, 'at_icc_start_frostwing_gauntlet'),
+(5618, 'at_icc_start_frostwing_gauntlet'),
+(5718, 'at_frozen_throne_teleport');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -94,6 +99,8 @@ UPDATE `gameobject_template` SET `ScriptName`='go_dragonflayer_cage' WHERE entry
 UPDATE `gameobject_template` SET `ScriptName`='go_black_cage' WHERE `entry`=195310;
 UPDATE `gameobject_template` SET `ScriptName`='go_massive_seaforium_charge' WHERE `entry`=190752;
 UPDATE `gameobject_template` SET `ScriptName`='go_harpoon_launcher' WHERE `entry` IN (192175,192176,192177);
+UPDATE `gameobject_template` SET `ScriptName`='go_wind_stone' WHERE `entry` IN (180456,180461,180466,180518,180529,180534,180539,180544,180549,180554,180559,180564);
+
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `entry` IN (68,1976,3218,3296,3502,4624,9460,11190,15184);
@@ -111,7 +118,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_innkeeper' WHERE `entry` IN
 
 /* ITEM */
 UPDATE `item_template` SET `ScriptName`='item_draenei_fishing_net' WHERE `entry`=23654;
-UPDATE `item_template` SET `ScriptName`='item_flying_machine' WHERE `entry` IN (34060,34061);
 UPDATE `item_template` SET `ScriptName`='item_gor_dreks_ointment' WHERE `entry`=30175;
 UPDATE `item_template` SET `ScriptName`='item_nether_wraith_beacon' WHERE `entry`=31742;
 UPDATE `item_template` SET `ScriptName`='item_tainted_core' WHERE `entry`=31088;
@@ -119,7 +125,6 @@ UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN 
 UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 UPDATE `item_template` SET `ScriptName`='item_mysterious_egg' WHERE `entry` IN(39878);
 UPDATE `item_template` SET `ScriptName`='item_disgusting_jar' WHERE `entry` IN(44717);
-UPDATE `item_template` SET `ScriptName`='item_harvesters_gift' WHERE `entry`=39253;
 UPDATE `item_template` SET `ScriptName`='item_petrov_cluster_bombs' WHERE `entry`=33098;
 UPDATE `item_template` SET `ScriptName`='item_Trident_of_Nazjan' WHERE `entry`=35850;
 UPDATE `item_template` SET `ScriptName`='item_captured_frog' WHERE `entry`=53510;
@@ -170,7 +175,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner_cart' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner' WHERE `entry`=28841;
 UPDATE `creature_template` SET `ScriptName`='npc_crusade_persuaded' WHERE `entry` IN (28939,28940,28610);
 UPDATE `creature_template` SET `ScriptName`='mob_scarlet_courier' WHERE `entry`=29076;
-UPDATE `creature_template` SET `AIName`='ArchorAI', `ScriptName`='' WHERE `entry` IN (29102,29103);
+UPDATE `creature_template` SET `AIName`='ArcherAI', `ScriptName`='' WHERE `entry` IN (29102,29103);
 UPDATE `creature_template` SET `AIName`='TurretAI', `ScriptName`='' WHERE `entry`=29104;
 UPDATE `creature_template` SET `ScriptName`='npc_highlord_darion_mograine' WHERE `entry`=29173;
 UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_tirion_dawn' WHERE `entry` IN (29183,29175);
@@ -276,7 +281,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_engineer_spark_overgrind' WHERE
 UPDATE `creature_template` SET `ScriptName`='npc_injured_draenei' WHERE `entry`=16971;
 UPDATE `creature_template` SET `ScriptName`='npc_magwin' WHERE `entry`=17312;
 UPDATE `creature_template` SET `ScriptName`='npc_geezle' WHERE `entry`=17318;
-UPDATE `creature_template` SET `ScriptName`='npc_nestlewood_owlkin' WHERE `entry`=16518;
 UPDATE `creature_template` SET `ScriptName`='npc_draenei_survivor' WHERE `entry`=16483;
 UPDATE `creature_template` SET `ScriptName`='npc_death_ravager' WHERE `entry`=17556;
 UPDATE `creature_template` SET `ScriptName`='npc_stillpine_capitive' where `entry`=17375;
@@ -365,6 +369,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_phalanx' WHERE `entry`=9502;
 UPDATE `gameobject_template` SET `ScriptName`='go_shadowforge_brazier' WHERE `entry` IN (174744,174745);
 
 /* BLACKROCK SPIRE */
+UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
 /* BLACKROCK SPIRE Lower bosses */
 UPDATE `creature_template` SET `ScriptName`='boss_highlord_omokk' WHERE `entry`=9196;
 UPDATE `creature_template` SET `ScriptName`='boss_shadow_hunter_voshgajin' WHERE `entry`=9236;
@@ -410,6 +415,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_fallen_hero_of_horde' WHERE `en
 /* BLOODMYST ISLE */
 UPDATE `creature_template` SET `ScriptName`='mob_webbed_creature' WHERE `entry`=17680;
 UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `entry`=17824;
+UPDATE `creature_template` SET `ScriptName`='npc_princess_stillpine' WHERE `entry`=17682;
+UPDATE `gameobject_template` SET `ScriptName`='go_princess_stillpines_cage' WHERE `entry`=181928;
 
 /* BOREAN TUNDRA */
 UPDATE `creature_template` SET `ScriptName`='npc_fizzcrank_fullthrottle' WHERE `entry`=25590;
@@ -462,6 +469,7 @@ UPDATE `creature_template` SET `Scriptname`='boss_meathook' WHERE `entry`=26529;
 UPDATE `creature_template` SET `Scriptname`='boss_epoch' WHERE `entry`=26532;
 UPDATE `creature_template` SET `Scriptname`='boss_mal_ganis' WHERE `entry`=26533;
 UPDATE `creature_template` SET `Scriptname`='boss_infinite_corruptor' WHERE `entry`=32273;
+UPDATE `creature_template` SET `ScriptName`='npc_create_helper_cot' WHERE `entry`=27827;
 
 /* CRYSTALSONG FOREST */
 UPDATE `creature_template` SET `ScriptName`='npc_warmage_violetstand' WHERE `entry` IN (32369,32371,32372);
@@ -591,14 +599,15 @@ UPDATE `creature_template` SET `ScriptName`='npc_aged_dying_ancient_kodo' WHERE 
 UPDATE `gameobject_template` SET `ScriptName`='go_iruxos' WHERE `entry`=176581;
 UPDATE `creature_template` SET `ScriptName`='npc_dalinda' WHERE `entry`=5644;
 
-
 /* DIRE MAUL */
 
 /* DUN MOROGH */
-UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 
 /* DUROTAR */
 UPDATE `creature_template` SET `ScriptName`='npc_lazy_peon' WHERE `entry`=10556;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tiger_matriarch_credit' WHERE `entry`=40301;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tiger_matriarch' WHERE `entry`=40312;
+UPDATE `creature_template` SET `ScriptName`= 'npc_troll_volunteer' WHERE `entry` IN (40260,40264);
 
 /* DUSKWOOD */
 DELETE FROM `areatrigger_scripts` WHERE `entry`=4017;
@@ -610,11 +619,11 @@ UPDATE `creature_template` SET `ScriptName`='mobs_risen_husk_spirit' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_deserter_agitator' WHERE `entry`=23602;
 UPDATE `creature_template` SET `ScriptName`='npc_lady_jaina_proudmoore' WHERE `entry`=4968;
 UPDATE `creature_template` SET `ScriptName`='npc_nat_pagle' WHERE `entry`=12919;
-UPDATE `creature_template` SET `ScriptName`='npc_restless_apparition' WHERE `entry`=23861;
 UPDATE `creature_template` SET `ScriptName`='npc_private_hendel' WHERE `entry`=4966;
 UPDATE `creature_template` SET `ScriptName`='npc_zelfrax' WHERE `entry`=23864;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky' WHERE `entry`=4880;
 UPDATE `creature_template` SET `ScriptName`='npc_theramore_guard' WHERE `entry`=4979;
+
 /* EASTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='mobs_ghoul_flayer' WHERE `entry` IN (8530,8531,8532);
 UPDATE `creature_template` SET `ScriptName`='npc_augustus_the_touched' WHERE `entry`=12384;
@@ -622,7 +631,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_darrowshire_spirit' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_tirion_fordring' WHERE `entry`=1855;
 
 /* ELWYNN FOREST */
-UPDATE `creature_template` SET `ScriptName`='npc_henze_faulk' WHERE `entry`=6172;
 
 /* EVERSONG WOODS */
 UPDATE `creature_template` SET `ScriptName`='npc_prospector_anvilward' WHERE `entry`=15420;
@@ -631,6 +639,16 @@ UPDATE `creature_template` SET `ScriptName`='npc_second_trial_controller' WHERE 
 UPDATE `creature_template` SET `ScriptName`='npc_apprentice_mirveda' WHERE `entry`=15402;
 UPDATE `creature_template` SET `ScriptName`='npc_infused_crystal' WHERE `entry`=16364;
 UPDATE `gameobject_template` SET `ScriptName`='go_second_trial' WHERE `entry` IN (182052);
+
+/* EYE OF ETERNITY */
+UPDATE `instance_template` SET `script`='instance_eye_of_eternity' WHERE `map`=616;
+UPDATE `creature_template` SET `ScriptName`='boss_malygos' WHERE `entry`=28859;
+UPDATE `creature_template` SET `ScriptName`='npc_power_spark' WHERE `entry`=30084;
+UPDATE `creature_template` SET `ScriptName`='npc_portal_eoe' WHERE `entry`=30118;
+UPDATE `creature_template` SET `ScriptName`='npc_hover_disk' WHERE `entry` IN (30234,30248);
+UPDATE `creature_template` SET `ScriptName`='npc_arcane_overload' WHERE `entry`=30282;
+UPDATE `creature_template` SET `ScriptName`='npc_wyrmrest_skytalon' WHERE `entry`=30161;
+UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_eoe' WHERE `entry`=32295;
 
 /* FELWOOD */
 UPDATE `creature_template` SET `ScriptName`='npcs_riverbreeze_and_silversky' WHERE `entry` IN (9528,9529);
@@ -770,7 +788,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_vazruden_the_herald' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='boss_vazruden' WHERE `entry`=17537;
 UPDATE `creature_template` SET `ScriptName`='boss_nazan' WHERE `entry`=17536;
 UPDATE `creature_template` SET `ScriptName`='mob_hellfire_sentry' WHERE `entry`=17517;
-	
+
 /* SHATTERED HALLS */
 /* Nethekurse and his spawned shadow fissure */
 UPDATE `creature_template` SET `ScriptName`='boss_grand_warlock_nethekurse' WHERE `entry`=16807;
@@ -829,13 +847,13 @@ UPDATE `creature_template` SET `ScriptName`='npc_arete' WHERE `entry`=29344;
 UPDATE `creature_template` SET `ScriptName`='npc_dame_evniki_kapsalis' WHERE `entry`=34885;
 UPDATE `creature_template` SET `ScriptName`='npc_squire_david' WHERE `entry`=33447;
 UPDATE `creature_template` SET `ScriptName`='npc_argent_valiant' WHERE `entry`=33448;
-UPDATE `creature_template` SET `ScriptName`='npc_argent_tournament_post' WHERE `entry`=35473;
 UPDATE `creature_template` SET `ScriptName`='npc_alorah_and_grimmin' WHERE `entry` IN (36101,36102);
 UPDATE `creature_template` SET `ScriptName`='npc_guardian_pavilion' WHERE `entry` IN (33543,33643);
 
 /* ICECROWN CITADEL */
 UPDATE `instance_template` SET `script`='instance_icecrown_citadel' WHERE `map`=631;
 UPDATE `gameobject_template` SET `ScriptName`='icecrown_citadel_teleport' WHERE `entry` IN (202223,202235,202242,202243,202244,202245,202246);
+UPDATE `creature_template` SET `ScriptName`='npc_highlord_tirion_fordring_lh' WHERE `entry`=37119;
 UPDATE `creature_template` SET `ScriptName`='boss_lord_marrowgar' WHERE `entry`=36612;
 UPDATE `creature_template` SET `ScriptName`='npc_coldflame' WHERE `entry`=36672;
 UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry` IN (36619,38711,38712);
@@ -850,6 +868,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_high_overlord_saurfang_icc' WHE
 UPDATE `creature_template` SET `ScriptName`='npc_muradin_bronzebeard_icc' WHERE `entry`=37200;
 UPDATE `creature_template` SET `ScriptName`='npc_saurfang_event' WHERE `entry` IN (37920,37830);
 UPDATE `creature_template` SET `ScriptName`='npc_frost_freeze_trap' WHERE `entry`=37744;
+UPDATE `creature_template` SET `ScriptName`='npc_alchemist_adrianna' WHERE `entry`=38501;
 UPDATE `creature_template` SET `ScriptName`='boss_festergut' WHERE `entry`=36626;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky_icc' WHERE `entry`=37025;
 UPDATE `creature_template` SET `ScriptName`='boss_rotface' WHERE `entry`=36627;
@@ -867,6 +886,24 @@ UPDATE `creature_template` SET `ScriptName`='npc_kinetic_bomb' WHERE `entry`=384
 UPDATE `creature_template` SET `ScriptName`='npc_dark_nucleus' WHERE `entry`=38369;
 UPDATE `creature_template` SET `ScriptName`='npc_ball_of_flame' WHERE `entry` IN (38332,38451);
 UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lana_thel' WHERE `entry`=37955;
+UPDATE `creature_template` SET `ScriptName`='boss_sister_svalna' WHERE `entry`=37126;
+UPDATE `creature_template` SET `ScriptName`='npc_crok_scourgebane' WHERE `entry`=37129;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_arnath' WHERE `entry`=37122;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_brandon' WHERE `entry`=37123;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_grondel' WHERE `entry`=37124;
+UPDATE `creature_template` SET `ScriptName`='npc_captain_rupert' WHERE `entry`=37125;
+UPDATE `creature_template` SET `ScriptName`='npc_frostwing_vrykul' WHERE `entry` IN (37132,38125,37127,37134,37133);
+UPDATE `creature_template` SET `ScriptName`='npc_impaling_spear' WHERE `entry`=38248;
+UPDATE `creature_template` SET `ScriptName`='boss_valithria_dreamwalker' WHERE `entry`=36789;
+UPDATE `creature_template` SET `ScriptName`='npc_green_dragon_combat_trigger' WHERE `entry`=38752;
+UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_controller' WHERE `entry`=16980;
+UPDATE `creature_template` SET `ScriptName`='npc_risen_archmage' WHERE `entry`=37868;
+UPDATE `creature_template` SET `ScriptName`='npc_blazing_skeleton' WHERE `entry`=36791;
+UPDATE `creature_template` SET `ScriptName`='npc_suppresser' WHERE `entry`=37863;
+UPDATE `creature_template` SET `ScriptName`='npc_blistering_zombie' WHERE `entry`=37934;
+UPDATE `creature_template` SET `ScriptName`='npc_gluttonous_abomination' WHERE `entry`=37886;
+UPDATE `creature_template` SET `ScriptName`='npc_dream_portal' WHERE `entry` IN (37945,38430);
+UPDATE `creature_template` SET `ScriptName`='npc_dream_cloud' WHERE `entry` IN (37985,38421);
 UPDATE `creature_template` SET `ScriptName`='boss_sindragosa' WHERE `entry`=36853;
 UPDATE `creature_template` SET `ScriptName`='npc_ice_tomb' WHERE `entry`=36980;
 UPDATE `creature_template` SET `ScriptName`='npc_spinestalker' WHERE `entry`=37534;
@@ -997,6 +1034,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_lantresor_of_the_blade' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_creditmarker_visit_with_ancestors' WHERE `entry` IN (18840,18841,18842,18843);
 UPDATE `creature_template` SET `ScriptName`='mob_sparrowhawk' WHERE `entry`=22979;
 UPDATE `creature_template` SET `ScriptName`='npc_maghar_captive' WHERE `entry`=18210;
+UPDATE `creature_template` SET `ScriptName`='npc_corki' WHERE `entry` IN (18445,20812,18369);
+UPDATE `gameobject_template` SET `ScriptName`='go_corkis_prison' WHERE `entry` IN (182349,182350,182521);
 
 /* NAXXRAMAS */
 UPDATE `instance_template` SET `script`='instance_naxxramas' WHERE `map`=533;
@@ -1008,7 +1047,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_webwrap' WHERE `entry`=16486;
 UPDATE `creature_template` SET `ScriptName`='boss_noth' WHERE `entry`=15954;
 UPDATE `creature_template` SET `ScriptName`='boss_heigan' WHERE `entry`=15936;
 UPDATE `creature_template` SET `ScriptName`='boss_loatheb' WHERE `entry`=16011;
-UPDATE `creature_template` SET `ScriptName`='mob_loatheb_spore' WHERE `entry`=16286;
 UPDATE `creature_template` SET `ScriptName`='boss_razuvious' WHERE `entry`=16061;
 UPDATE `creature_template` SET `ScriptName`='boss_gothik' WHERE `entry`=16060;
 UPDATE `creature_template` SET `ScriptName`='mob_gothik_minion' where `entry` IN (16124,16125,16126,16127,16148,16149,16150);
@@ -1171,7 +1209,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_drake_dealer_hurlunk' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='npc_invis_legion_teleporter' WHERE `entry`=21807;
 UPDATE `creature_template` SET `ScriptName`='npcs_flanis_swiftwing_and_kagrosh' WHERE `entry` IN (21725,21727);
 UPDATE `creature_template` SET `ScriptName`='npc_murkblood_overseer' WHERE `entry`=23309;
-UPDATE `creature_template` SET `ScriptName`='npc_neltharaku' WHERE `entry`=21657;
 UPDATE `creature_template` SET `ScriptName`='npc_oronok_tornheart' WHERE `entry`=21183;
 UPDATE `creature_template` SET `ScriptName`='mob_mature_netherwing_drake' WHERE `entry`=21648;
 UPDATE `creature_template` SET `ScriptName`='mob_enslaved_netherwing_drake' WHERE `entry`=21722;
@@ -1508,12 +1545,15 @@ UPDATE `creature_template` SET `AIName`='TurretAI',`ScriptName`='' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_seat' WHERE `entry`=33114;
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_defense_turret' WHERE `entry`=33142;
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_overload_device' WHERE `entry`=33143;
+UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_defense_cannon' WHERE `entry`=33139;
 UPDATE `creature_template` SET `ScriptName`='npc_colossus' WHERE `entry`=33237;
-UPDATE `creature_template` SET `ScriptName`='spell_pool_of_tar' WHERE `entry`=33090;
+UPDATE `creature_template` SET `ScriptName`='npc_pool_of_tar' WHERE `entry`=33090;
 UPDATE `creature_template` SET `ScriptName`='boss_ignis' WHERE `entry`=33118;
 UPDATE `creature_template` SET `ScriptName`='npc_iron_construct' WHERE `entry`=33121;
 UPDATE `creature_template` SET `ScriptName`='npc_scorch_ground' WHERE `entry`=33221;
 UPDATE `creature_template` SET `ScriptName`='boss_razorscale' WHERE `entry`=33186;
+UPDATE `creature_template` SET `ScriptName`='boss_razorscale_controller' WHERE `entry`=33233;
+UPDATE `gameobject_template` SET `ScriptName`='go_razorscale_harpoon' WHERE `entry` IN(194519,194541,194542,194543);
 UPDATE `creature_template` SET `ScriptName`='npc_devouring_flame' WHERE `entry`=34188;
 UPDATE `creature_template` SET `ScriptName`='npc_mole_machine_trigger' WHERE `entry`=33245;
 UPDATE `creature_template` SET `ScriptName`='npc_expedition_commander' WHERE `entry`=33210;
@@ -1534,8 +1574,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
 UPDATE `creature_template` SET `ScriptName`= 'mob_rune_of_power' WHERE entry = 33705;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
-UPDATE `creature_template` SET `ScriptName`='npc_right_arm' WHERE `entry`=32934;
-UPDATE `creature_template` SET `ScriptName`='npc_left_arm' WHERE `entry`=32933;
 UPDATE `creature_template` SET `ScriptName`='boss_general_vezax' WHERE `entry`=33271;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_vapors' WHERE `entry`=33488;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_animus' WHERE `entry`=33524;
@@ -1554,6 +1592,34 @@ UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=1
 UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=194371;
 UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=194370;
 UPDATE `gameobject_template` SET `ScriptName`= 'go_ulduar_tower' WHERE `entry`=194377;
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_priest' WHERE `entry` IN (32897,33326,32948,33330);
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_shaman' WHERE `entry` IN (33328,32901,33332,32950);
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_druid' WHERE `entry` IN (33325,32900,32941,33333);
+UPDATE `creature_template` SET `ScriptName`='npc_hodir_mage' WHERE `entry` IN (32893,33327,33331,32946);
+UPDATE `creature_template` SET `ScriptName`='npc_toasty_fire' WHERE `entry`=33342;
+UPDATE `creature_template` SET `ScriptName`='npc_flash_freeze' WHERE `entry`=32926;
+UPDATE `creature_template` SET `ScriptName`='npc_icicle' WHERE `entry` IN (33169,33173);
+UPDATE `creature_template` SET `ScriptName`='npc_snowpacked_icicle' WHERE `entry`=33174;
+UPDATE `creature_template` SET `ScriptName`='npc_ice_block' WHERE `entry`=32938;
+UPDATE `creature_template` SET `ScriptName`='boss_hodir' WHERE `entry`=32845;
+UPDATE `creature_template` SET `ScriptName`='boss_freya' WHERE `entry`=32906;
+UPDATE `creature_template` SET `ScriptName`='boss_elder_brightleaf' WHERE `entry`=32915;
+UPDATE `creature_template` SET `ScriptName`='boss_elder_ironbranch' WHERE `entry`=32913;
+UPDATE `creature_template` SET `ScriptName`='boss_elder_stonebark' WHERE `entry`=32914;
+UPDATE `creature_template` SET `ScriptName`='npc_ancient_conservator' WHERE `entry`=33203;
+UPDATE `creature_template` SET `ScriptName`='npc_snaplasher' WHERE `entry`=32916;
+UPDATE `creature_template` SET `ScriptName`='npc_storm_lasher' WHERE `entry`=32919;
+UPDATE `creature_template` SET `ScriptName`='npc_ancient_water_spirit' WHERE `entry`=33202;
+UPDATE `creature_template` SET `ScriptName`='npc_detonating_lasher' WHERE `entry`=32918;
+UPDATE `creature_template` SET `ScriptName`='npc_sun_beam' WHERE `entry`=33170;
+UPDATE `creature_template` SET `ScriptName`='npc_nature_bomb' WHERE `entry`=34129;
+UPDATE `creature_template` SET `ScriptName`='npc_eonars_gift' WHERE `entry`=33228;
+UPDATE `creature_template` SET `ScriptName`='npc_healthy_spore' WHERE `entry`=33215;
+UPDATE `creature_template` SET `ScriptName`='npc_unstable_sun_beam' WHERE `entry`=33050;
+UPDATE `creature_template` SET `ScriptName`='npc_iron_roots' WHERE `entry` IN (33088,33168);
+UPDATE `creature_template` SET `ScriptName`='npc_feral_defender' WHERE `entry`=34035;
+UPDATE `creature_template` SET `ScriptName`='npc_sanctum_sentry' WHERE `entry`=34014;
+UPDATE `creature_template` SET `ScriptName`='npc_auriaya_seeping_trigger' WHERE `entry` =34098;
 
 
 /* UN'GORO CRATER */
@@ -1764,13 +1830,9 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980,7598,7587,7264,7548,10068,10069,10173,10306,10451,10462,10447,10448,10449,10459,10460,10461,7316,7317,7318,7583,4240,6803,7319,7577,7320,7590,7361) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
-(6641,11,0,0, 'achievement_school_of_hard_knocks'),
-(6642,11,0,0, 'achievement_school_of_hard_knocks'),
-(6643,11,0,0, 'achievement_school_of_hard_knocks'),
-(6644,11,0,0, 'achievement_school_of_hard_knocks'),
 (3804,11,0,0, 'achievement_resilient_victory'),
 (3805,11,0,0, 'achievement_resilient_victory'),
 (3806,11,0,0, 'achievement_resilient_victory'),
@@ -1785,6 +1847,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (1239,11,0,0, 'achievement_bg_control_all_nodes'),
 (5605,11,0,0, 'achievement_save_the_day'),
 (5606,11,0,0, 'achievement_save_the_day'),
+(6800,11,0,0, 'achievement_sickly_gazelle'),
 (12993,11,0,0, 'achievement_doesnt_go_to_eleven'),
 (12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
@@ -1809,15 +1872,69 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12822,11,0,0, 'achievement_all_you_can_eat'),
 (12996,11,0,0, 'achievement_all_you_can_eat'),
 (12972,11,0,0, 'achievement_all_you_can_eat'),
-(12989,11,0,0, 'achievement_all_you_can_eat');
+(12989,11,0,0, 'achievement_all_you_can_eat'),
+(10044,11,0,0, 'achievement_unbroken'),
+(10045,11,0,0, 'achievement_unbroken'),
+(10054,11,0,0, 'achievement_shutout'),
+(10055,11,0,0, 'achievement_shutout'),
+(10046,11,0,0, 'achievement_three_car_garage_chopper'),
+(10047,11,0,0, 'achievement_three_car_garage_siege'),
+(10048,11,0,0, 'achievement_three_car_garage_demolisher'),
+(10049,11,0,0, 'achievement_three_car_garage_chopper'),
+(10050,11,0,0, 'achievement_three_car_garage_siege'),
+(10051,11,0,0, 'achievement_three_car_garage_demolisher'),
+(10062,11,0,0, 'achievement_quick_shave'),
+(10063,11,0,0, 'achievement_quick_shave'),
+(7625,11,0,0, 'achievement_bg_sa_artillery'),
+(7628,11,0,0, 'achievement_bg_sa_artillery'),
+(5541,11,0,0,'achievement_arena_2v2_kills'),
+(5542,11,0,0,'achievement_arena_3v3_kills'),
+(5543,11,0,0,'achievement_arena_5v5_kills'),
+(7573,11,0,0,'achievement_denyin_the_scion'),
+(7574,11,0,0,'achievement_denyin_the_scion'),
+(7265,11,0,0,'achievement_momma_said_knock_you_out'),
+(7549,11,0,0,'achievement_momma_said_knock_you_out'),
+(12978,11,0,0,'achievement_portal_jockey'),
+(12979,11,0,0,'achievement_portal_jockey'),
+(12971,11,0,0,'achievement_portal_jockey'),
+(12980,11,0,0,'achievement_portal_jockey'),
+(7598,11,0,0,'achievement_kings_bane'),
+(7587,11,0,0,'achievement_void_dance'),
+(7264,11,0,0,'achievement_safety_dance'),
+(7548,11,0,0,'achievement_safety_dance'),
+(10068,11,0,0,'achievement_ignis_shattered'),
+(10069,11,0,0,'achievement_ignis_shattered'),
+(10173,11,0,0,'achievement_shadowdodger'),
+(10306,11,0,0,'achievement_shadowdodger'),
+(10451,11,0,0,'achievement_smell_saronite'),
+(10462,11,0,0,'achievement_smell_saronite'),
+(10447,11,0,0,'achievement_knock_on_wood'),
+(10448,11,0,0,'achievement_knock_knock_on_wood'),
+(10449,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10459,11,0,0,'achievement_knock_on_wood'),
+(10460,11,0,0,'achievement_knock_knock_on_wood'),
+(10461,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10445,11,0,0,'achievement_getting_back_to_nature'),
+(10758,11,0,0,'achievement_getting_back_to_nature'),
+(7317,11,0,0,'achievement_respect_your_elders'),
+(7318,11,0,0,'achievement_king_dred'),
+(7316,11,0,0,'achievement_chaos_theory'),
+(7583,11,0,0,'achievement_share_the_love'),
+(4240,11,0,0,'achievement_watch_him_die'),
+(6803,11,0,0,'achievement_defenseless'),
+(7319,11,0,0,'achievement_less_rabi'),
+(7577,11,0,0,'achievement_split_personality'),
+(7320,11,0,0,'achievement_dehydration'),
+(7590,11,0,0,'achievement_brann_sparklin_news'),
+(7361,11,0,0,'achievement_oh_novos');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
+( 66218, 'spell_gen_launch'),
 ( 39228, 'spell_gen_absorb0_hitlimit1'),
 ( 60218, 'spell_gen_absorb0_hitlimit1'),
 (  6962, 'spell_gen_pet_summoned'),
-( 10848, 'spell_gen_shroud_of_death'),
 ( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
@@ -1850,6 +1967,37 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72706, 'spell_gen_dungeon_credit'),
 ( 72830, 'spell_gen_dungeon_credit'),
 ( 72959, 'spell_gen_dungeon_credit'),
+( 60893, 'spell_gen_profession_research'),
+( 61177, 'spell_gen_profession_research'),
+( 61288, 'spell_gen_profession_research'),
+( 61756, 'spell_gen_profession_research'),
+( 45785, 'spell_generic_clone'),
+( 49889, 'spell_generic_clone'),
+( 50218, 'spell_generic_clone'),
+( 51719, 'spell_generic_clone'),
+( 57528, 'spell_generic_clone'),
+( 69828, 'spell_generic_clone'),
+( 41055, 'spell_generic_clone_weapon'),
+( 63416, 'spell_generic_clone_weapon'),
+( 69891, 'spell_generic_clone_weapon'),
+( 45206, 'spell_generic_clone_weapon'),
+( 69892, 'spell_generic_clone_weapon'),
+( 57593, 'spell_generic_clone_weapon'),
+( 52408, 'spell_gen_seaforium_blast'),
+( 25281, 'spell_gen_turkey_marker'),
+(-55428, 'spell_gen_lifeblood'),
+( 65917, 'spell_gen_magic_rooster'),
+( 4073,  'spell_gen_allow_cast_from_item_only'),
+( 19804, 'spell_gen_allow_cast_from_item_only'),
+( 12749, 'spell_gen_allow_cast_from_item_only'),
+( 13258, 'spell_gen_allow_cast_from_item_only'),
+( 13166, 'spell_gen_allow_cast_from_item_only'),
+ (65266, 'spell_gen_vehicle_scaling'),
+ (65635, 'spell_gen_vehicle_scaling'),
+ (65636, 'spell_gen_vehicle_scaling'),
+ (66666, 'spell_gen_vehicle_scaling'),
+ (66667, 'spell_gen_vehicle_scaling'),
+ (66668, 'spell_gen_vehicle_scaling'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -1911,10 +2059,12 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72440, 'spell_deathbringer_blood_nova'),
 ( 72378, 'spell_deathbringer_blood_nova_targeting'),
 ( 73058, 'spell_deathbringer_blood_nova_targeting'),
-( 72255, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72444, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72445, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72446, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72385, 'spell_deathbringer_boiling_blood'),
+( 72441, 'spell_deathbringer_boiling_blood'),
+( 72442, 'spell_deathbringer_boiling_blood'),
+( 72443, 'spell_deathbringer_boiling_blood'),
+( 72155, 'spell_icc_harvest_blight_specimen'),
+( 72162, 'spell_icc_harvest_blight_specimen'),
 ( 71123, 'spell_stinky_precious_decimate'),
 ( 73032, 'spell_festergut_pungent_blight'),
 ( 73031, 'spell_festergut_pungent_blight'),
@@ -1928,6 +2078,18 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71222, 'spell_festergut_blighted_spores'),
 ( 73033, 'spell_festergut_blighted_spores'),
 ( 73034, 'spell_festergut_blighted_spores'),
+( 69159, 'spell_festergut_gaseous_blight'),
+( 70135, 'spell_festergut_gaseous_blight'),
+( 70136, 'spell_festergut_gaseous_blight'),
+( 70137, 'spell_festergut_gaseous_blight'),
+( 69161, 'spell_festergut_gaseous_blight'),
+( 70138, 'spell_festergut_gaseous_blight'),
+( 70139, 'spell_festergut_gaseous_blight'),
+( 70140, 'spell_festergut_gaseous_blight'),
+( 69163, 'spell_festergut_gaseous_blight'),
+( 70468, 'spell_festergut_gaseous_blight'),
+( 70469, 'spell_festergut_gaseous_blight'),
+( 70470, 'spell_festergut_gaseous_blight'),
 ( 69782, 'spell_rotface_ooze_flood'),
 ( 69796, 'spell_rotface_ooze_flood'),
 ( 69798, 'spell_rotface_ooze_flood'),
@@ -1938,6 +2100,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69839, 'spell_rotface_unstable_ooze_explosion_init'),
 ( 69832, 'spell_rotface_unstable_ooze_explosion'),
 ( 71441, 'spell_rotface_unstable_ooze_explosion_suicide'),
+( 69507, 'spell_rotface_slime_spray'),
+( 71213, 'spell_rotface_slime_spray'),
+( 73189, 'spell_rotface_slime_spray'),
+( 73190, 'spell_rotface_slime_spray'),
 ( 70701, 'spell_putricide_expunged_gas'),
 ( 70343, 'spell_putricide_slime_puddle'),
 ( 70351, 'spell_putricide_unstable_experiment'),
@@ -1950,6 +2116,14 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72455, 'spell_putricide_gaseous_bloat'),
 ( 72832, 'spell_putricide_gaseous_bloat'),
 ( 72833, 'spell_putricide_gaseous_bloat'),
+( 70447, 'spell_putricide_ooze_channel'),
+( 72836, 'spell_putricide_ooze_channel'),
+( 72837, 'spell_putricide_ooze_channel'),
+( 72838, 'spell_putricide_ooze_channel'),
+( 70672, 'spell_putricide_ooze_channel'),
+( 72455, 'spell_putricide_ooze_channel'),
+( 72832, 'spell_putricide_ooze_channel'),
+( 72833, 'spell_putricide_ooze_channel'),
 ( 70459, 'spell_putricide_ooze_eruption_searcher'),
 ( 71255, 'spell_putricide_choking_gas_bomb'),
 ( 70920, 'spell_putricide_unbound_plague'),
@@ -1986,6 +2160,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72784, 'spell_taldaram_ball_of_inferno_flame'),
 ( 72080, 'spell_valanar_kinetic_bomb'),
 ( 72087, 'spell_valanar_kinetic_bomb_knockback'),
+( 72054, 'spell_valanar_kinetic_bomb_absorb'),
 ( 73001, 'spell_blood_council_shadow_prison'),
 ( 72999, 'spell_blood_council_shadow_prison_damage'),
 ( 70877, 'spell_blood_queen_frenzied_bloodthirst'),
@@ -2001,6 +2176,24 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71390, 'spell_blood_queen_pact_of_the_darkfallen'),
 ( 71340, 'spell_blood_queen_pact_of_the_darkfallen_dmg'),
 ( 71341, 'spell_blood_queen_pact_of_the_darkfallen_dmg_target'),
+( 70078, 'spell_svalna_caress_of_death'),
+( 70053, 'spell_svalna_revive_champion'),
+( 71462, 'spell_svalna_remove_spear'),
+( 71085, 'spell_dreamwalker_mana_void'),
+( 70915, 'spell_dreamwalker_decay_periodic_timer'),
+( 70912, 'spell_dreamwalker_decay_periodic_timer'),
+( 70916, 'spell_dreamwalker_decay_periodic_timer'),
+( 70913, 'spell_dreamwalker_decay_periodic_timer'),
+( 70921, 'spell_dreamwalker_summoner'),
+( 70912, 'spell_dreamwalker_summon_suppresser'),
+( 71032, 'spell_dreamwalker_summoner'),
+( 71078, 'spell_dreamwalker_summoner'),
+( 70933, 'spell_dreamwalker_summoner'),
+( 72224, 'spell_dreamwalker_summon_dream_portal'),
+( 72480, 'spell_dreamwalker_summon_nightmare_portal'),
+( 71970, 'spell_dreamwalker_nightmare_cloud'),
+( 72868, 'spell_putricide_slime_puddle_aura'),
+( 72869, 'spell_putricide_slime_puddle_aura'),
 ( 71357, 'spell_frostwarden_handler_order_whelp'),
 ( 71350, 'spell_frostwarden_handler_focus_fire'),
 ( 71376, 'spell_rimefang_icy_blast'),
@@ -2039,12 +2232,54 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 67630, 'spell_gen_leeching_swarm'),
 ( 68646, 'spell_gen_leeching_swarm'),
 ( 68647, 'spell_gen_leeching_swarm'),
+-- Trial of the Champion
+( 66862, 'spell_eadric_radiance'),
+( 67681, 'spell_eadric_radiance'),
 -- Ulduar
+( 63308, 'spell_razorscale_devouring_flame'),
 ( 62717, 'spell_ignis_slag_pot'),
 ( 63477, 'spell_ignis_slag_pot'),
 ( 62521, 'spell_attuned_to_nature_dose_reduction'),
 ( 62524, 'spell_attuned_to_nature_dose_reduction'),
 ( 62525, 'spell_attuned_to_nature_dose_reduction'),
+( 63633, 'spell_ulduar_rubble_summon'),
+( 65594, 'spell_ulduar_cancel_stone_grip'),
+( 62056, 'spell_ulduar_stone_grip'),
+( 63985, 'spell_ulduar_stone_grip'),
+( 64224, 'spell_ulduar_stone_grip_absorb'),
+( 64225, 'spell_ulduar_stone_grip_absorb'),
+( 62166, 'spell_ulduar_stone_grip_cast_target'),
+( 63981, 'spell_ulduar_stone_grip_cast_target'),
+( 64702, 'spell_ulduar_squeezed_lifeless'),
+ (63720, 'spell_kologarn_stone_shout'),
+ (64004, 'spell_kologarn_stone_shout'),
+( 63027, 'spell_ulduar_proximity_mines'),
+( 63276, 'spell_mark_of_the_faceless'),
+( 63489, 'spell_shield_of_runes'),
+( 62274, 'spell_shield_of_runes'),
+( 63018, 'spell_xt002_searing_light_spawn_life_spark'),
+( 65121, 'spell_xt002_searing_light_spawn_life_spark'),
+( 64234, 'spell_xt002_gravity_bomb_aura'),
+( 63024, 'spell_xt002_gravity_bomb_aura'),
+( 64233, 'spell_xt002_gravity_bomb_damage'),
+( 63025, 'spell_xt002_gravity_bomb_damage'),
+( 62791, 'spell_xt002_heart_overload_periodic'),
+( 62775, 'spell_xt002_tympanic_tantrum'),
+( 37751, 'spell_xt002_submerged'),
+( 37752, 'spell_xt002_stand'),
+( 64381, 'spell_auriaya_strenght_of_the_pack'),
+( 64679, 'spell_auriaya_sentinel_blast'),
+( 64392, 'spell_auriaya_sentinel_blast'),
+-- Eye Of Eternity
+( 56105, 'spell_malygos_vortex_dummy'),
+( 55873, 'spell_malygos_vortex_visual'),
+-- Zalazane's Fall
+( 75420, 'spell_mount_check'),
+( 75102, 'spell_voljin_war_drums'),
+-- Dustwallow Marsh
+( 42489, 'spell_ooze_zap'),
+( 42485, 'spell_ooze_zap_channel_end'),
+( 42492, 'spell_energize_aoe'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
@@ -2061,6 +2296,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 52308, 'spell_q12683_take_sputum_sample'),
 ( 55804, 'spell_q12937_relief_for_the_fallen'),
 ( 54798, 'spell_q12851_going_bearback'),
+(  8593, 'spell_symbol_of_life_dummy'),
+( 52090, 'spell_q12659_ahunaes_knife'),
 -- item
 ( 23074, 'spell_item_arcanite_dragonling'),
 (  8063, 'spell_item_deviate_fish'),
@@ -2079,6 +2316,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71905, 'spell_item_shadowmourne'),
 ( 67533, 'spell_item_red_rider_air_rifle'),
 ( 26678, 'spell_item_create_heart_candy'),
+( 64323, 'spell_item_book_of_glyph_mastery'),
+( 52481, 'spell_item_gift_of_the_harvester'),
+( 45853, 'spell_item_map_of_the_geyser_fields'),
+( 64981, 'spell_item_vanquished_clutches'),
+( 28441, 'spell_item_ashbringer'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),
@@ -2106,6 +2348,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (  5938, 'spell_rog_shiv'),
 ( 14185, 'spell_rog_preparation'),
 (-51685, 'spell_rog_prey_on_the_weak'),
+( -2818, 'spell_rog_deadly_poison'),
 -- priest
 (-47788, 'spell_pri_guardian_spirit'),
 ( -8129, 'spell_pri_mana_burn'),
@@ -2123,6 +2366,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-49145, 'spell_dk_spell_deflection'),
 (-52284, 'spell_dk_will_of_the_necropolis'),
 ( 48743, 'spell_dk_death_pact'),
+( 52751, 'spell_dk_death_gate'),
 -- shaman
 (-51474, 'spell_sha_astral_shift'),
 ( 39610, 'spell_sha_mana_tide_totem'),
@@ -2150,6 +2394,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-33851, 'spell_dru_primal_tenacity'),
 ( 62606, 'spell_dru_savage_defense'),
 ( 70691, 'spell_dru_t10_restoration_4p_bonus'),
+(-50294, 'spell_dru_starfall_aoe'),
 -- example
 ( 66244, 'spell_ex_66244'), 
 ( 5581,  'spell_ex_5581'),

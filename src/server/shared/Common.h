@@ -20,7 +20,7 @@
 #define TRINITYCORE_COMMON_H
 
 // config.h needs to be included 1st
-// TODO this thingy looks like hack ,but its not, need to
+// TODO this thingy looks like hack , but its not, need to
 // make separate header however, because It makes mess here.
 #ifdef HAVE_CONFIG_H
 // Remove Some things that we will define
@@ -180,7 +180,7 @@ const uint8 TOTAL_LOCALES = 9;
 const LocaleConstant DEFAULT_LOCALE = LOCALE_enUS;
 
 #define MAX_LOCALES 8
-#define MAX_CHARACTER_TUTORIAL_VALUES 8
+#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 extern char const* localeNames[TOTAL_LOCALES];
 

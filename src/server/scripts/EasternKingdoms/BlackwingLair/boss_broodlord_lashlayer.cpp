@@ -38,14 +38,14 @@ class boss_broodlord : public CreatureScript
 public:
     boss_broodlord() : CreatureScript("boss_broodlord") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_broodlordAI (pCreature);
+        return new boss_broodlordAI (creature);
     }
 
     struct boss_broodlordAI : public ScriptedAI
     {
-        boss_broodlordAI(Creature *c) : ScriptedAI(c) {}
+        boss_broodlordAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Cleave_Timer;
         uint32 BlastWave_Timer;
@@ -60,7 +60,7 @@ public:
             KnockBack_Timer = 30000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();
@@ -82,14 +82,14 @@ public:
             if (BlastWave_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_BLASTWAVE);
-                BlastWave_Timer = urand(8000,16000);
+                BlastWave_Timer = urand(8000, 16000);
             } else BlastWave_Timer -= diff;
 
             //MortalStrike_Timer
             if (MortalStrike_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = urand(25000,35000);
+                MortalStrike_Timer = urand(25000, 35000);
             } else MortalStrike_Timer -= diff;
 
             if (KnockBack_Timer <= diff)
@@ -97,9 +97,9 @@ public:
                 DoCast(me->getVictim(), SPELL_KNOCKBACK);
                 //Drop 50% aggro
                 if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(),-50);
+                    DoModifyThreatPercent(me->getVictim(), -50);
 
-                KnockBack_Timer = urand(15000,30000);
+                KnockBack_Timer = urand(15000, 30000);
             } else KnockBack_Timer -= diff;
 
             if (EnterEvadeIfOutOfCombatArea(diff))

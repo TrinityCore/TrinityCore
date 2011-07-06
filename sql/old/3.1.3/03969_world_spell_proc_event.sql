@@ -1,10 +1,10 @@
 DELETE FROM `spell_proc_event` WHERE `entry` IN (35553, 35552, 35551, 35550, 35541);
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
-(35553,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00800000,	0x00000000,	0,	0,	0), -- Combat Potency
-(35552,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00800000,	0x00000000,	0,	0,	0), -- Combat Potency
-(35551,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00800000,	0x00000000,	0,	0,	0), -- Combat Potency
-(35550,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00800000,	0x00000000,	0,	0,	0), -- Combat Potency
-(35541,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00800000,	0x00000000,	0,	0,	0); -- Combat Potency
+(35553, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00800000, 0x00000000, 0, 0, 0), -- Combat Potency
+(35552, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00800000, 0x00000000, 0, 0, 0), -- Combat Potency
+(35551, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00800000, 0x00000000, 0, 0, 0), -- Combat Potency
+(35550, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00800000, 0x00000000, 0, 0, 0), -- Combat Potency
+(35541, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00800000, 0x00000000, 0, 0, 0); -- Combat Potency
 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (20375, 50781, 51414, 54695, 54838, 54841, 55747, 57352, 58442, 58444, 58901, 59345, 60061, 60063, 60066, 60221, 60301, 60306, 60317, 60436, 60473, 60482, 60487, 60490, 60519, 60537, 38347, 34320, 33297, 38299, 59630, 61356);
 INSERT INTO `spell_proc_event`(`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`)  VALUES

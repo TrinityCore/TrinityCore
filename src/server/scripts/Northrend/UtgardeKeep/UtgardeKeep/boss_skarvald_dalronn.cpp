@@ -27,14 +27,14 @@ EndScriptData */
 
 enum eEnums
 {
-    //signed for 24200, but used by 24200,27390
+    //signed for 24200, but used by 24200, 27390
     YELL_SKARVALD_AGGRO                         = -1574011,
     YELL_SKARVALD_DAL_DIED                      = -1574012,
     YELL_SKARVALD_SKA_DIEDFIRST                 = -1574013,
     YELL_SKARVALD_KILL                          = -1574014,
     YELL_SKARVALD_DAL_DIEDFIRST                 = -1574015,
 
-    //signed for 24201, but used by 24201,27389
+    //signed for 24201, but used by 24201, 27389
     YELL_DALRONN_AGGRO                          = -1574016,
     YELL_DALRONN_SKA_DIED                       = -1574017,
     YELL_DALRONN_DAL_DIEDFIRST                  = -1574018,
@@ -62,14 +62,14 @@ class boss_skarvald_the_constructor : public CreatureScript
 public:
     boss_skarvald_the_constructor() : CreatureScript("boss_skarvald_the_constructor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_skarvald_the_constructorAI (pCreature);
+        return new boss_skarvald_the_constructorAI (creature);
     }
 
     struct boss_skarvald_the_constructorAI : public ScriptedAI
     {
-        boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c)
+        boss_skarvald_the_constructorAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -93,7 +93,7 @@ public:
             ghost = (me->GetEntry() == MOB_SKARVALD_GHOST);
             if (!ghost && pInstance)
             {
-                Unit* dalronn = Unit::GetUnit((*me),pInstance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit((*me), pInstance->GetData64(DATA_DALRONN));
                 if (dalronn && dalronn->isDead())
                     CAST_CRE(dalronn)->Respawn();
 
@@ -101,15 +101,15 @@ public:
             }
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who)
         {
             if (!ghost && pInstance)
             {
-                DoScriptText(YELL_SKARVALD_AGGRO,me);
+                DoScriptText(YELL_SKARVALD_AGGRO, me);
 
-                Unit* dalronn = Unit::GetUnit((*me),pInstance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit((*me), pInstance->GetData64(DATA_DALRONN));
                 if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
-                    dalronn->getThreatManager().addThreat(who,0.0f);
+                    dalronn->getThreatManager().addThreat(who, 0.0f);
 
                 pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
             }
@@ -119,25 +119,25 @@ public:
         {
             if (!ghost && pInstance)
             {
-                Unit* dalronn = Unit::GetUnit((*me),pInstance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit((*me), pInstance->GetData64(DATA_DALRONN));
                 if (dalronn)
                 {
                     if (dalronn->isDead())
                     {
-                        DoScriptText(YELL_SKARVALD_DAL_DIED,me);
+                        DoScriptText(YELL_SKARVALD_DAL_DIED, me);
 
                         pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                     }
                     else
                     {
-                        DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST,me);
+                        DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST, me);
 
                         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                         //DoCast(me, SPELL_SUMMON_SKARVALD_GHOST, true);
-                        Creature* temp = me->SummonCreature(MOB_SKARVALD_GHOST,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
+                        Creature* temp = me->SummonCreature(MOB_SKARVALD_GHOST, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 5000);
                         if (temp)
                         {
-                            temp->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             temp->AI()->AttackStart(Killer);
                         }
                     }
@@ -145,11 +145,11 @@ public:
             }
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (!ghost)
             {
-                DoScriptText(YELL_SKARVALD_KILL,me);
+                DoScriptText(YELL_SKARVALD_KILL, me);
             }
         }
 
@@ -184,7 +184,7 @@ public:
                 {
                     if (Response_Timer <= diff)
                     {
-                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,me);
+                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST, me);
 
                         Response_Timer = 0;
                     } else Response_Timer -= diff;
@@ -193,7 +193,7 @@ public:
 
             if (Charge_Timer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
                 Charge_Timer = 5000+rand()%5000;
             } else Charge_Timer -= diff;
 
@@ -209,20 +209,19 @@ public:
 
 };
 
-
 class boss_dalronn_the_controller : public CreatureScript
 {
 public:
     boss_dalronn_the_controller() : CreatureScript("boss_dalronn_the_controller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_dalronn_the_controllerAI (pCreature);
+        return new boss_dalronn_the_controllerAI (creature);
     }
 
     struct boss_dalronn_the_controllerAI : public ScriptedAI
     {
-        boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c)
+        boss_dalronn_the_controllerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -251,7 +250,7 @@ public:
             ghost = me->GetEntry() == MOB_DALRONN_GHOST;
             if (!ghost && pInstance)
             {
-                Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit((*me), pInstance->GetData64(DATA_SKARVALD));
                 if (skarvald && skarvald->isDead())
                     CAST_CRE(skarvald)->Respawn();
 
@@ -259,13 +258,13 @@ public:
             }
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who)
         {
             if (!ghost && pInstance)
             {
-                Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit((*me), pInstance->GetData64(DATA_SKARVALD));
                 if (skarvald && skarvald->isAlive() && !skarvald->getVictim())
-                    skarvald->getThreatManager().addThreat(who,0.0f);
+                    skarvald->getThreatManager().addThreat(who, 0.0f);
 
                 AggroYell_Timer = 5000;
 
@@ -278,26 +277,26 @@ public:
         {
             if (!ghost && pInstance)
             {
-                Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit((*me), pInstance->GetData64(DATA_SKARVALD));
                 if (skarvald)
                 {
                     if (skarvald->isDead())
                     {
-                        DoScriptText(YELL_DALRONN_SKA_DIED,me);
+                        DoScriptText(YELL_DALRONN_SKA_DIED, me);
 
                         if (pInstance)
                             pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                     }
                     else
                     {
-                        DoScriptText(YELL_DALRONN_DAL_DIEDFIRST,me);
+                        DoScriptText(YELL_DALRONN_DAL_DIEDFIRST, me);
 
                         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                         //DoCast(me, SPELL_SUMMON_DALRONN_GHOST, true);
-                        Creature* temp = me->SummonCreature(MOB_DALRONN_GHOST,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
+                        Creature* temp = me->SummonCreature(MOB_DALRONN_GHOST, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 5000);
                         if (temp)
                         {
-                            temp->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             temp->AI()->AttackStart(Killer);
                         }
                     }
@@ -305,11 +304,11 @@ public:
             }
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (!ghost)
             {
-                DoScriptText(YELL_DALRONN_KILL,me);
+                DoScriptText(YELL_DALRONN_KILL, me);
             }
         }
 
@@ -328,7 +327,7 @@ public:
             {
                 if (AggroYell_Timer <= diff)
                 {
-                    DoScriptText(YELL_DALRONN_AGGRO,me);
+                    DoScriptText(YELL_DALRONN_AGGRO, me);
 
                     AggroYell_Timer = 0;
                 } else AggroYell_Timer -= diff;
@@ -355,7 +354,7 @@ public:
                 {
                     if (Response_Timer <= diff)
                     {
-                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,me);
+                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST, me);
                         Response_Timer = 0;
                     } else Response_Timer -= diff;
                 }
@@ -365,7 +364,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
                     ShadowBolt_Timer = 2100;//give a 100ms pause to try cast other spells
                 }
             } else ShadowBolt_Timer -= diff;
@@ -374,7 +373,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
                     Debilitate_Timer = 5000+rand()%5000;
                 }
             } else Debilitate_Timer -= diff;
@@ -396,7 +395,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_skarvald_dalronn()
 {

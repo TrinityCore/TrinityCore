@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
@@ -60,6 +59,7 @@ enum Spells
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
+    SPELL_ANNIHILATE                        = 71322,
 };
 
 enum Shadowmourne
@@ -71,18 +71,18 @@ enum Shadowmourne
     SPELL_THIRST_QUENCHED                   = 72154,
 };
 
-static const uint32 vampireAuras[3][MAX_DIFFICULTY] =
+uint32 const vampireAuras[3][MAX_DIFFICULTY] =
 {
     {70867, 71473, 71532, 71533},
     {70879, 71525, 71530, 71531},
     {70877, 71474, 70877, 71474},
 };
 
-#define ESSENCE_OF_BLOOD_QUEEN     RAID_MODE<uint32>(70867,71473,71532,71533)
-#define ESSENCE_OF_BLOOD_QUEEN_PLR RAID_MODE<uint32>(70879,71525,71530,71531)
-#define FRENZIED_BLOODTHIRST       RAID_MODE<uint32>(70877,71474,70877,71474)
+#define ESSENCE_OF_BLOOD_QUEEN     RAID_MODE<uint32>(70867, 71473, 71532, 71533)
+#define ESSENCE_OF_BLOOD_QUEEN_PLR RAID_MODE<uint32>(70879, 71525, 71530, 71531)
+#define FRENZIED_BLOODTHIRST       RAID_MODE<uint32>(70877, 71474, 70877, 71474)
 
-enum eEvents
+enum Events
 {
     EVENT_BERSERK                   = 1,
     EVENT_VAMPIRIC_BITE             = 2,
@@ -101,15 +101,17 @@ enum eEvents
 
 #define GUID_VAMPIRE 1
 
-enum ePoints
+enum Points
 {
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
     POINT_GROUND    = 3,
+    POINT_MINCHAR   = 4,
 };
 
-static const Position centerPos = {4595.7090f, 2769.4190f, 400.6368f, 0.0000f};
-static const Position airPos    = {4595.7090f, 2769.4190f, 422.3893f, 0.0000f};
+Position const centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};
+Position const airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
+Position const mincharPos = {4629.3711f, 2782.6089f, 424.6390f, 0.000000f};
 
 bool IsVampire(Unit const* unit)
 {
@@ -130,14 +132,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
             {
             }
 
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset()
             {
                 _Reset();
@@ -149,9 +143,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
-                offtank = NULL;
-                vampires.clear();
+                _offtank = NULL;
+                _vampires.clear();
+                _creditBloodQuickening = false;
+                _killMinchar = false;
             }
 
             void EnterCombat(Unit* who)
@@ -170,9 +167,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 DoCast(me, SPELL_SHROUD_OF_SORROW, true);
                 DoCast(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
+                _creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* killer)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -185,10 +183,65 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DELIRIOUS_SLASH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
+                // Blah, credit the quest
+                if (_creditBloodQuickening)
+                {
+                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, DONE);
+                    if (Player* player = killer->ToPlayer())
+                        player->RewardPlayerAndGroupAtEvent(NPC_INFILTRATOR_MINCHAR_BQ, player);
+                    if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
+                    {
+                        minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                        minchar->SetFlying(false);
+                        minchar->SendMovementFlagUpdate();
+                        minchar->RemoveAllAuras();
+                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE/3.0f);
+                    }
+                }
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action != ACTION_KILL_MINCHAR)
+                    return;
+
+                if (instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == IN_PROGRESS)
+                    _killMinchar = true;
+                else
+                {
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                    me->SetFlying(true);
+                    me->SendMovementFlagUpdate();
+                    me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
+                }
+            }
+
+            void EnterEvadeMode()
+            {
+                _EnterEvadeMode();
+                if (_killMinchar)
+                {
+                    _killMinchar = false;
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                    me->SetFlying(true);
+                    me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
+                }
+                else
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    Reset();
+                }
             }
 
             void JustReachedHome()
             {
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                me->SetFlying(false);
+                me->SetReactState(REACT_AGGRESSIVE);
                 _JustReachedHome();
                 Talk(SAY_WIPE);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, FAIL);
@@ -200,10 +253,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(const uint64& guid, int32 type = 0)
+            void SetGUID(uint64 const& guid, int32 type = 0)
             {
                 if (type == GUID_VAMPIRE)
-                    vampires.insert(guid);
+                    _vampires.insert(guid);
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -229,17 +282,23 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                         me->SetFlying(false);
+                        me->SendMovementFlagUpdate();
                         me->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit *victim = me->SelectVictim())
+                        if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
                         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                         break;
+                    case POINT_MINCHAR:
+                        DoCast(me, SPELL_ANNIHILATE, true);
+                        // already in evade mode
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        Reset();
                     default:
                         break;
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -259,30 +318,35 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             DoCast(me, SPELL_BERSERK);
                             break;
                         case EVENT_VAMPIRIC_BITE:
-                            if (Player* target = SelectRandomTarget(false))
+                        {
+                            std::list<Player*> targets;
+                            SelectRandomTarget(false, &targets);
+                            if (!targets.empty())
                             {
+                                Unit* target = targets.front();
                                 DoCast(target, SPELL_VAMPIRIC_BITE);
                                 Talk(SAY_VAMPIRIC_BITE);
-                                vampires.insert(target->GetGUID());
+                                _vampires.insert(target->GetGUID());
                             }
                             break;
+                        }
                         case EVENT_BLOOD_MIRROR:
                         {
                             // victim can be NULL when this is processed in the same update tick as EVENT_AIR_PHASE
                             if (me->getVictim())
                             {
                                 Player* newOfftank = SelectRandomTarget(true);
-                                if (offtank != newOfftank)
+                                if (_offtank != newOfftank)
                                 {
-                                    offtank = newOfftank;
-                                    if (offtank)
+                                    _offtank = newOfftank;
+                                    if (_offtank)
                                     {
-                                        offtank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                        me->getVictim()->CastSpell(offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
+                                        _offtank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                        me->getVictim()->CastSpell(_offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                         DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
-                                        if (Item* shadowsEdge = offtank->GetWeaponForAttack(BASE_ATTACK, true))
-                                            if (!offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !offtank->HasAura(SPELL_GUSHING_WOUND))
-                                                offtank->CastSpell(offtank, SPELL_GUSHING_WOUND, true);
+                                        if (Item* shadowsEdge = _offtank->GetWeaponForAttack(BASE_ATTACK, true))
+                                            if (!_offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !_offtank->HasAura(SPELL_GUSHING_WOUND))
+                                                _offtank->CastSpell(_offtank, SPELL_GUSHING_WOUND, true);
 
                                     }
                                 }
@@ -291,8 +355,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
-                            if (offtank && !me->HasByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03))
-                                DoCast(offtank, SPELL_DELIRIOUS_SLASH);
+                            if (_offtank && !me->HasByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03))
+                                DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
                             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_PACT_OF_THE_DARKFALLEN:
@@ -339,13 +403,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             DoStopAttack();
                             me->SetReactState(REACT_PASSIVE);
                             events.DelayEvents(7000, EVENT_GROUP_NORMAL);
-                            events.CancelEventsByGCD(EVENT_GROUP_CANCELLABLE);
+                            events.CancelEventGroup(EVENT_GROUP_CANCELLABLE);
                             me->GetMotionMaster()->MovePoint(POINT_CENTER, centerPos);
                             break;
                         case EVENT_AIR_START_FLYING:
                             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                             me->SetFlying(true);
+                            me->SendMovementFlagUpdate();
                             me->GetMotionMaster()->MovePoint(POINT_AIR, airPos);
                             break;
                         case EVENT_AIR_FLY_DOWN:
@@ -361,14 +426,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             bool WasVampire(uint64 guid)
             {
-                return vampires.count(guid) != 0;
+                return _vampires.count(guid) != 0;
             }
 
         private:
             // offtank for this encounter is the player standing closest to main tank
             Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = NULL)
             {
-                const std::list<HostileReference*> &threatlist = me->getThreatManager().getThreatList();
+                std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
                 std::list<Player*> tempTargets;
 
                 if (threatlist.empty())
@@ -376,7 +441,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     if (Unit* refTarget = (*itr)->getTarget())
-                        if (refTarget != me->getVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank ? true : (refTarget != offtank)))
+                        if (refTarget != me->getVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank ? true : (refTarget != _offtank)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())
@@ -395,17 +460,19 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
 
                 std::list<Player*>::iterator itr = tempTargets.begin();
-                std::advance(itr, urand(0, tempTargets.size()-1));
+                std::advance(itr, urand(0, tempTargets.size() - 1));
                 return *itr;
             }
 
-            Player* offtank;
-            std::set<uint64> vampires;
+            std::set<uint64> _vampires;
+            Player* _offtank;
+            bool _creditBloodQuickening;
+            bool _killMinchar;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_blood_queen_lana_thelAI(creature);
+            return GetIcecrownCitadelAI<boss_blood_queen_lana_thelAI>(creature);
         }
 };
 
@@ -432,22 +499,24 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckTarget()
+            {
+                if (IsVampire(GetTargetUnit()))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TARGET_VAMPIRES);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
             void OnCast()
             {
                 if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (IsVampire(GetHitUnit()))
-                {
-                    PreventHitDamage();
-                    PreventHitDefaultEffect(EFFECT_1);
-                    Spell::SendCastResult(GetCaster()->ToPlayer(), GetSpellInfo(), 0, SPELL_FAILED_BAD_TARGETS);
-                    return;
-                }
-
-                SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_FRENZIED_BLOODTHIRST);
-                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, GetCaster());
-                GetCaster()->RemoveAura(spell->Id, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_FRENZIED_BLOODTHIRST, GetCaster());
+                GetCaster()->RemoveAura(spellId, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, true);
                 // Presence of the Darkfallen buff on Blood-Queen
                 if (GetCaster()->GetMap()->IsHeroic())
@@ -473,6 +542,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_blood_queen_vampiric_bite_SpellScript::CheckTarget);
                 BeforeHit += SpellHitFn(spell_blood_queen_vampiric_bite_SpellScript::OnCast);
             }
         };
@@ -496,7 +566,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
-                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST);
+                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget()->GetGUID());
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -517,7 +587,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_blood_queen_frenzied_bloodthirst_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_blood_queen_frenzied_bloodthirst_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -645,7 +715,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 SpellEntry const* damageSpell = sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = SpellMgr::CalculateSpellEffectAmount(damageSpell, EFFECT_0);
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-                damage = uint32(damage * multiplier);
+                damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }
 

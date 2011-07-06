@@ -40,7 +40,7 @@ class ConfusedMovementGenerator
         bool GetDestination(float &x, float &y, float &z) const
         {
             if (i_destinationHolder.HasArrived()) return false;
-            i_destinationHolder.GetDestination(x,y,z);
+            i_destinationHolder.GetDestination(x, y, z);
             return true;
         }
 
@@ -53,5 +53,4 @@ class ConfusedMovementGenerator
         uint32 i_nextMove;
 };
 #endif
-
 

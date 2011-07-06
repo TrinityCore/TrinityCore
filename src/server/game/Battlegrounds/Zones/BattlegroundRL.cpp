@@ -84,7 +84,7 @@ void BattlegroundRL::AddPlayer(Player *plr)
     UpdateArenaWorldState();
 }
 
-void BattlegroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
+void BattlegroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -93,7 +93,7 @@ void BattlegroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
     CheckArenaWinConditions();
 }
 
-void BattlegroundRL::HandleKillPlayer(Player *player, Player *killer)
+void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -104,15 +104,15 @@ void BattlegroundRL::HandleKillPlayer(Player *player, Player *killer)
         return;
     }
 
-    Battleground::HandleKillPlayer(player,killer);
+    Battleground::HandleKillPlayer(player, killer);
 
     UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
-bool BattlegroundRL::HandlePlayerUnderMap(Player *player)
+bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(),1285.810547f,1667.896851f,39.957642f,player->GetOrientation(),false);
+    player->TeleportTo(GetMapId(), 1285.810547f, 1667.896851f, 39.957642f, player->GetOrientation(), false);
     return true;
 }
 
@@ -136,7 +136,7 @@ void BattlegroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
     }
 
     //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid,Source);
+    //    HandleTriggerBuff(buff_guid, Source);
 }
 
 void BattlegroundRL::FillInitialWorldStates(WorldPacket &data)

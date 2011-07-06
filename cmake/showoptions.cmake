@@ -1,6 +1,6 @@
 # output generic information about the core and buildtype chosen
-
-message("* TrinityCore revision   : ${rev_id_str} (${rev_hash_str})")
+message("")
+message("* TrinityCore commithash : ${rev_hash_str}")
 if( UNIX )
   message("* Build binaries in      : ${CMAKE_BUILD_TYPE} mode")
 endif()
@@ -76,11 +76,5 @@ if( WIN32 )
     message("* Use MySQL sourcetree   : No")
   endif()
 endif( WIN32 )
-
-if( WITH_SQL )
-  message("* Install SQL-files      : Yes")
-else()
-  message("* Install SQL-files      : No  (default)")
-endif()
 
 message("")

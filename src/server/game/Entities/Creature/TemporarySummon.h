@@ -29,12 +29,13 @@ class TempSummon : public Creature
         void Update(uint32 time);
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
-        void UnSummon();
+        void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld();
         void SetTempSummonType(TempSummonType type);
         void SaveToDB(uint32 /*mapid*/, uint8 /*spawnMask*/, uint32 /*phaseMask*/) {}
         Unit* GetSummoner() const;
         uint64 const& GetSummonerGUID() { return m_summonerGUID; }
+        TempSummonType const& GetSummonType() { return m_type; }
 
         const SummonPropertiesEntry * const m_Properties;
     private:
@@ -56,7 +57,7 @@ class Minion : public TempSummon
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
         bool IsGuardianPet() const;
     protected:
-        Unit * const m_owner;
+        Unit* const m_owner;
         float m_followAngle;
 };
 
@@ -96,5 +97,14 @@ class Puppet : public Minion
         Player *m_owner;
 };
 
+class ForcedUnsummonDelayEvent : public BasicEvent
+{
+public:
+    ForcedUnsummonDelayEvent(TempSummon& owner) : BasicEvent(), m_owner(owner) { }
+    bool Execute(uint64 e_time, uint32 p_time);
+
+private:
+    TempSummon& m_owner;
+};
 #endif
 

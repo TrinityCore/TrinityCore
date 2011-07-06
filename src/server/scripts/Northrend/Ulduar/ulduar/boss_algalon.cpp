@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ulduar.h"
 
 #define GAMEOBJECT_GIVE_OF_THE_OBSERVER 194821
@@ -73,14 +74,14 @@ class boss_algalon : public CreatureScript
 public:
     boss_algalon() : CreatureScript("boss_algalon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_algalonAI(pCreature);
+        return GetUlduarAI<boss_algalonAI>(creature);
     }
 
     struct boss_algalonAI : public ScriptedAI
     {
-        boss_algalonAI(Creature *c) : ScriptedAI(c)
+        boss_algalonAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             Summon = false; // not in reset. intro speech done only once.
@@ -122,12 +123,12 @@ public:
             }
 
             if (pInstance)
-                pInstance->SetData(TYPE_ALGALON, IN_PROGRESS);
+                pInstance->SetData(BOSS_ALGALON, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void Reset()
@@ -136,7 +137,7 @@ public:
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             if (pInstance)
-                pInstance->SetData(TYPE_ALGALON, NOT_STARTED);
+                pInstance->SetData(BOSS_ALGALON, NOT_STARTED);
 
             BlackHoleGUID = 0;
 
@@ -173,22 +174,22 @@ public:
             m_lCollapsingStarGUIDList.clear();
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summoned)
         {
-            if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
+            if (summoned->GetEntry() == CREATURE_COLLAPSING_STAR)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (me->getVictim())
-                    pSummoned->AI()->AttackStart(pTarget ? pTarget : me->getVictim());
-                m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
+                    summoned->AI()->AttackStart(target ? target : me->getVictim());
+                m_lCollapsingStarGUIDList.push_back(summoned->GetGUID());
             }
         }
 
         void SummonCollapsingStar(Unit* target)
         {
             DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
-            me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-            me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
+            me->SummonCreature(CREATURE_COLLAPSING_STAR, target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 100000);
+            me->SummonCreature(CREATURE_BLACK_HOLE, target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -205,7 +206,7 @@ public:
 
             if (HealthBelowPct(2))
             {
-                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667f, -295.101166f,417.321381f,0,0,0,0,0,0);
+                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667f, -295.101166f, 417.321381f, 0, 0, 0, 0, 0, 0);
 
                 // All of them. or random?
                 DoScriptText(SAY_DEATH_1, me);
@@ -217,7 +218,7 @@ public:
                 me->DisappearAndDie();
 
                 if (pInstance)
-                    pInstance->SetData(TYPE_ALGALON, DONE);
+                    pInstance->SetData(BOSS_ALGALON, DONE);
 
                 return;
             }
@@ -259,36 +260,36 @@ public:
 
                 if (QuantumStrike_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE), true);
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE, H_SPELL_QUANTUM_STRIKE), true);
 
                     QuantumStrike_Timer = urand(4000, 14000);
                 } else QuantumStrike_Timer -= diff;
 
                 if (BigBang_Timer <= diff)
                 {
-                    DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), me);
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG), true);
+                    DoScriptText(RAND(SAY_BIG_BANG_1, SAY_BIG_BANG_2), me);
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG, H_SPELL_BIG_BANG), true);
 
                     BigBang_Timer = 90000;
                 } else BigBang_Timer -= diff;
 
                 if (Ascend_Timer <= diff)
                 {
-                    DoCast(me->getVictim(),SPELL_ASCEND, true);
+                    DoCast(me->getVictim(), SPELL_ASCEND, true);
 
                     Ascend_Timer = 480000;
                 } else Ascend_Timer -= diff;
 
                 if (PhasePunch_Timer <= diff)
                 {
-                    DoCast(me->getVictim(),SPELL_PHASE_PUNCH, true);
+                    DoCast(me->getVictim(), SPELL_PHASE_PUNCH, true);
 
                     PhasePunch_Timer = 8000;
                 } else PhasePunch_Timer -= diff;
 
                 if (CosmicSmash_Timer <= diff)
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH,H_SPELL_COSMIC_SMASH), true);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH, H_SPELL_COSMIC_SMASH), true);
 
                     CosmicSmash_Timer = urand(30000, 60000);
                 } else CosmicSmash_Timer -= diff;
@@ -296,7 +297,7 @@ public:
                 if (Berserk_Timer <= diff)
                 {
                     DoScriptText(SAY_BERSERK, me);
-                    DoCast(me->getVictim(),SPELL_BERSERK, true);
+                    DoCast(me->getVictim(), SPELL_BERSERK, true);
 
                     Berserk_Timer = 360000;
                 } else Berserk_Timer -= diff;
@@ -314,7 +315,7 @@ public:
                     {
                         DoCast(me, SPELL_ASCEND);
                         DoScriptText(SAY_BERSERK, me);
-                        Ascend_Timer = urand(360000,365000);
+                        Ascend_Timer = urand(360000, 365000);
                         Enrage = false;
                     } else Ascend_Timer -= diff;
                 }
@@ -332,16 +333,16 @@ class mob_collapsing_star : public CreatureScript
 public:
     mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_collapsing_starAI(pCreature);
+        return new mob_collapsing_starAI(creature);
     }
 
     struct mob_collapsing_starAI : public ScriptedAI
     {
-        mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
+        mob_collapsing_starAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

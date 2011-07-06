@@ -80,7 +80,7 @@ class MySQLConnection
     public:
         MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchronous connections.
         MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
-        ~MySQLConnection();
+        virtual ~MySQLConnection();
 
         virtual bool Open();
         void Close();
@@ -121,10 +121,14 @@ class MySQLConnection
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
         void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
 
+        bool PrepareStatements();
+        virtual void DoPrepareStatements() = 0;
+
     protected:
         std::vector<MySQLPreparedStatement*> m_stmts;         //! PreparedStatements storage
         PreparedStatementMap                 m_queries;       //! Query storage
         bool                                 m_reconnecting;  //! Are we reconnecting?
+        bool                                 m_prepareError;  //! Was there any error while preparing statements?
 
     private:
         bool _HandleMySQLErrno(uint32 errNo);

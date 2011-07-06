@@ -49,16 +49,16 @@ class boss_ambassador_hellmaw : public CreatureScript
 public:
     boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ambassador_hellmawAI(pCreature);
+        return new boss_ambassador_hellmawAI(creature);
     }
 
     struct boss_ambassador_hellmawAI : public npc_escortAI
     {
-        boss_ambassador_hellmawAI(Creature* pCreature) : npc_escortAI(pCreature)
+        boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -94,12 +94,12 @@ public:
                 m_pInstance->SetData(TYPE_HELLMAW, FAIL);
         }
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->HasAura(SPELL_BANISH))
                 return;
 
-            npc_escortAI::MoveInLineOfSight(pWho);
+            npc_escortAI::MoveInLineOfSight(who);
         }
 
         void WaypointReached(uint32 /*i*/)
@@ -126,17 +126,17 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -203,7 +203,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_ambassador_hellmaw()
 {

@@ -76,11 +76,11 @@ public:
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
 
-            uiAcidTimer = urand(10*IN_MILLISECONDS,14*IN_MILLISECONDS);
-            uiLeechTimer = urand(3*IN_MILLISECONDS,9*IN_MILLISECONDS);
-            uiPierceTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
-            uiGrabTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
-            uiDoorsTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+            uiAcidTimer = urand(10*IN_MILLISECONDS, 14*IN_MILLISECONDS);
+            uiLeechTimer = urand(3*IN_MILLISECONDS, 9*IN_MILLISECONDS);
+            uiPierceTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
+            uiGrabTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
+            uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
             if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
@@ -118,7 +118,7 @@ public:
                 return;
 
             float x=0.0f, y=0.0f, z=0.0f;
-            me->GetRespawnCoord(x,y,z);
+            me->GetRespawnCoord(x, y, z);
 
             if (uiCheckDistanceTimer <= uiDiff)
                 uiCheckDistanceTimer = 5*IN_MILLISECONDS;
@@ -129,7 +129,7 @@ public:
             }
             if (me->IsInEvadeMode() || !me->getVictim())
                 return;
-            if (me->GetDistance(x,y,z) > dist)
+            if (me->GetDistance(x, y, z) > dist)
                 EnterEvadeMode();
         }
 
@@ -143,10 +143,10 @@ public:
 
             if (me->HasAura(SPELL_WEB_FRONT_DOORS) || me->HasAura(SPELL_WEB_SIDE_DOORS))
             {
-                if (IsCombatMovement())
+                if (IsCombatMovementAllowed())
                     SetCombatMovement(false);
             }
-            else if (!IsCombatMovement())
+            else if (!IsCombatMovementAllowed())
                 SetCombatMovement(true);
 
             if (uiPierceTimer <= diff)
@@ -157,38 +157,38 @@ public:
 
             if (uiAcidTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_ACID_CLOUD);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_ACID_CLOUD);
 
-                uiAcidTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                uiAcidTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiAcidTimer -= diff;
 
             if (uiLeechTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_LEECH_POISON);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_LEECH_POISON);
 
-                uiLeechTimer = urand(11*IN_MILLISECONDS,14*IN_MILLISECONDS);
+                uiLeechTimer = urand(11*IN_MILLISECONDS, 14*IN_MILLISECONDS);
             } else uiLeechTimer -= diff;
 
             if (uiGrabTimer <= diff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
-                    DoCast(pTarget, SPELL_WEB_GRAB);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
+                    DoCast(target, SPELL_WEB_GRAB);
 
-                uiGrabTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                uiGrabTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiGrabTimer -= diff;
 
             if (uiDoorsTimer <= diff)
             {
-                uiDoorsTimer = urand(30*IN_MILLISECONDS,60*IN_MILLISECONDS);
+                uiDoorsTimer = urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             } else uiDoorsTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_hadronoxAI(creature);
     }

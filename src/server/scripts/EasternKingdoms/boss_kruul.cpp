@@ -38,14 +38,14 @@ class boss_kruul : public CreatureScript
 public:
     boss_kruul() : CreatureScript("boss_kruul") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kruulAI (pCreature);
+        return new boss_kruulAI (creature);
     }
 
     struct boss_kruulAI : public ScriptedAI
     {
-        boss_kruulAI(Creature *c) : ScriptedAI(c) {}
+        boss_kruulAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowVolley_Timer;
         uint32 Cleave_Timer;
@@ -66,20 +66,20 @@ public:
             Hound_Timer = 8000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            // When a player, pet or totem gets killed, Lord Kazzak casts this spell to instantly regenerate 70,000 health.
+            // When a player, pet or totem gets killed, Lord Kazzak casts this spell to instantly regenerate 70, 000 health.
             DoCast(me, SPELL_CAPTURESOUL);
         }
 
-        void SummonHounds(Unit* pVictim)
+        void SummonHounds(Unit* victim)
         {
-            if (Creature *Hound = DoSpawnCreature(19207, float(irand(-9,9)), float(irand(-9,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
-                Hound->AI()->AttackStart(pVictim);
+            if (Creature* Hound = DoSpawnCreature(19207, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+                Hound->AI()->AttackStart(victim);
         }
 
         void UpdateAI(const uint32 diff)
@@ -91,7 +91,7 @@ public:
             //ShadowVolley_Timer
             if (ShadowVolley_Timer <= diff)
             {
-                if (urand(0,99) < 45)
+                if (urand(0, 99) < 45)
                     DoCast(me->getVictim(), SPELL_SHADOWVOLLEY);
 
                 ShadowVolley_Timer = 5000;
@@ -100,7 +100,7 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                if (urand(0,1))
+                if (urand(0, 1))
                     DoCast(me->getVictim(), SPELL_CLEAVE);
 
                 Cleave_Timer = 10000;
@@ -109,7 +109,7 @@ public:
             //ThunderClap_Timer
             if (ThunderClap_Timer <= diff)
             {
-                if (urand(0,9) < 2)
+                if (urand(0, 9) < 2)
                     DoCast(me->getVictim(), SPELL_THUNDERCLAP);
 
                 ThunderClap_Timer = 12000;
@@ -125,7 +125,7 @@ public:
             //VoidBolt_Timer
             if (VoidBolt_Timer <= diff)
             {
-                if (urand(0,9) < 4)
+                if (urand(0, 9) < 4)
                     DoCast(me->getVictim(), SPELL_VOIDBOLT);
 
                 VoidBolt_Timer = 18000;

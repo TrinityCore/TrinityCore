@@ -52,6 +52,7 @@ enum VehicleSeatFlags
     VEHICLE_SEAT_FLAG_HIDE_PASSENGER             = 0x00000200,           // Passenger is hidden
     VEHICLE_SEAT_FLAG_UNK11                      = 0x00000400,           // needed for CGCamera__SyncFreeLookFacing
     VEHICLE_SEAT_FLAG_CAN_CONTROL                = 0x00000800,           // Lua_UnitInVehicleControlSeat
+    VEHICLE_SEAT_FLAG_UNCONTROLLED               = 0x00002000,           // can override !& VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT
     VEHICLE_SEAT_FLAG_CAN_ATTACK                 = 0x00004000,           // Can attack, cast spells and use items from vehicle?
     VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT          = 0x02000000,           // Lua_CanExitVehicle - can enter and exit at free will
     VEHICLE_SEAT_FLAG_CAN_SWITCH                 = 0x04000000,           // Lua_CanSwitchVehicleSeats
@@ -72,35 +73,30 @@ enum VehicleSeatFlagsB
 
 enum VehicleSpells
 {
+    VEHICLE_SPELL_RIDE_HARDCODED                 = 46598,
     VEHICLE_SPELL_PARACHUTE                      = 45472
 };
 
-
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(NULL) {}
-    VehicleSeatEntry const *seatInfo;
-    uint64 passenger;
+    explicit VehicleSeat(VehicleSeatEntry const *seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
+    VehicleSeatEntry const *SeatInfo;
+    uint64 Passenger;
 };
 
 struct VehicleAccessory
 {
-    explicit VehicleAccessory(uint32 _uiAccessory, int8 _uiSeat, bool _bMinion) : uiAccessory(_uiAccessory), uiSeat(_uiSeat), bMinion(_bMinion) {}
-    uint32 uiAccessory;
-    int8 uiSeat;
-    uint32 bMinion;
-};
-
-struct VehicleScalingInfo
-{
-    uint32 ID;
-    float baseItemLevel;
-    float scalingFactor;
+    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
+        AccessoryEntry(entry), SeatId(seatId), IsMinion(isMinion), SummonedType(summonType), SummonTime(summonTime) {}
+    uint32 AccessoryEntry;
+    int8 SeatId;
+    uint32 IsMinion;
+    uint8 SummonedType;
+    uint32 SummonTime;
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
-typedef std::map<uint32, VehicleScalingInfo> VehicleScalingMap;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle
@@ -109,31 +105,33 @@ class Vehicle
     friend class WorldSession;
 
     public:
-        explicit Vehicle(Unit *unit, VehicleEntry const *vehInfo);
+        explicit Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
         virtual ~Vehicle();
 
         void Install();
         void Uninstall();
-        void Reset();
-        void Die();
-        void InstallAllAccessories(uint32 entry);
+        void Reset(bool evading = false);
+        void InstallAllAccessories(bool evading);
+        void ApplyAllImmunities();
 
-        Unit *GetBase() const { return me; }
-        VehicleEntry const *GetVehicleInfo() const { return m_vehicleInfo; }
+        Unit* GetBase() const { return _me; }
+        VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
+        uint32 const& GetCreatureEntry() const { return _creatureEntry; }
 
         bool HasEmptySeat(int8 seatId) const;
-        Unit *GetPassenger(int8 seatId) const;
-        int8 GetNextEmptySeat(int8 seatId, bool next, bool byAura = false) const;
+        Unit* GetPassenger(int8 seatId) const;
+        int8 GetNextEmptySeat(int8 seatId, bool next) const;
+        uint8 GetAvailableSeatCount() const;
 
-        bool AddPassenger(Unit *passenger, int8 seatId = -1, bool byAura = false);
+        bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
         void RemovePassenger(Unit *passenger);
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
-        bool IsVehicleInUse() { return m_Seats.begin() != m_Seats.end(); }
+        bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
 
-        SeatMap m_Seats;
+        SeatMap Seats;
 
     protected:
         uint16 GetExtraMovementFlagsForBase() const;
@@ -141,13 +139,12 @@ class Vehicle
 
     private:
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
+        void InitMovementInfoForBase();
+        void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);
 
-    protected:
-        Unit *me;
-        VehicleEntry const *m_vehicleInfo;
-        uint32 m_usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
-        uint32 m_bonusHP;
-
-        void InstallAccessory(uint32 entry, int8 seatId, bool minion = true);
+        Unit* _me;
+        VehicleEntry const* _vehicleInfo;
+        uint32 _usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
+        uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
 };
 #endif

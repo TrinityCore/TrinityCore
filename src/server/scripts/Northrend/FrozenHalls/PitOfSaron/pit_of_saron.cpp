@@ -79,12 +79,12 @@ class mob_ymirjar_flamebearer : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIREBALL:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_FIREBALL);
                             _events.RescheduleEvent(EVENT_FIREBALL, 5000);
                             break;
                         case EVENT_TACTICAL_BLINK:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_TACTICAL_BLINK);
                             DoCast(me, SPELL_HELLFIRE);
                             _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12000);
@@ -114,7 +114,7 @@ class mob_iceborn_protodrake : public CreatureScript
 
         struct mob_iceborn_protodrakeAI: public ScriptedAI
         {
-            mob_iceborn_protodrakeAI(Creature *creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
+            mob_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }
@@ -284,7 +284,7 @@ class spell_trash_mob_glacial_strike : public SpellScriptLoader
         {
             PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetTarget()->IsFullHealth())
                 {

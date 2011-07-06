@@ -42,14 +42,14 @@ class boss_razorgore : public CreatureScript
 public:
     boss_razorgore() : CreatureScript("boss_razorgore") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_razorgoreAI (pCreature);
+        return new boss_razorgoreAI (creature);
     }
 
     struct boss_razorgoreAI : public ScriptedAI
     {
-        boss_razorgoreAI(Creature *c) : ScriptedAI(c) {}
+        boss_razorgoreAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Cleave_Timer;
         uint32 WarStomp_Timer;
@@ -64,7 +64,7 @@ public:
             Conflagration_Timer = 12000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
         }
@@ -83,21 +83,21 @@ public:
             if (Cleave_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = urand(7000,10000);
+                Cleave_Timer = urand(7000, 10000);
             } else Cleave_Timer -= diff;
 
             //WarStomp_Timer
             if (WarStomp_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WARSTOMP);
-                WarStomp_Timer = urand(15000,25000);
+                WarStomp_Timer = urand(15000, 25000);
             } else WarStomp_Timer -= diff;
 
             //FireballVolley_Timer
             if (FireballVolley_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FIREBALLVOLLEY);
-                FireballVolley_Timer = urand(12000,15000);
+                FireballVolley_Timer = urand(12000, 15000);
             } else FireballVolley_Timer -= diff;
 
             //Conflagration_Timer
@@ -107,22 +107,21 @@ public:
                 //We will remove this threat reduction and add an aura check.
 
                 //if (DoGetThreat(me->getVictim()))
-                //DoModifyThreatPercent(me->getVictim(),-50);
+                //DoModifyThreatPercent(me->getVictim(), -50);
 
                 Conflagration_Timer = 12000;
             } else Conflagration_Timer -= diff;
 
             // Aura Check. If the gamer is affected by confliguration we attack a random gamer.
             if (me->getVictim() && me->getVictim()->HasAura(SPELL_CONFLAGRATION))
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                    me->TauntApply(pTarget);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                    me->TauntApply(target);
 
             DoMeleeAttackIfReady();
         }
     };
 
 };
-
 
 void AddSC_boss_razorgore()
 {

@@ -38,7 +38,7 @@ public:
 
     struct instance_nexus_InstanceMapScript : public InstanceScript
     {
-        instance_nexus_InstanceMapScript(Map *pMap) : InstanceScript(pMap) { Initialize(); }
+        instance_nexus_InstanceMapScript(Map *pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
@@ -66,8 +66,8 @@ public:
 
             if (!players.isEmpty())
             {
-                if (Player* pPlayer = players.begin()->getSource())
-                    TeamInInstance = pPlayer->GetTeam();
+                if (Player* player = players.begin()->getSource())
+                    TeamInInstance = player->GetTeam();
             }
             switch (creature->GetEntry())
             {
@@ -256,7 +256,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_nexus()
 {

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2004 MySQL AB
+/* Copyright (C) 2002, 2004 MySQL AB, 2008-2009 Sun Microsystems, Inc
    
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
@@ -78,9 +78,7 @@ struct hostent *my_gethostbyname_r(const char *name,
 
 #else /* !HAVE_GETHOSTBYNAME_R */
 
-#ifdef THREAD
-extern pthread_mutex_t LOCK_gethostbyname_r;
-#endif
+extern mysql_mutex_t LOCK_gethostbyname_r;
 
 /*
   No gethostbyname_r() function exists.
@@ -92,11 +90,13 @@ extern pthread_mutex_t LOCK_gethostbyname_r;
 */
 
 struct hostent *my_gethostbyname_r(const char *name,
-				   struct hostent *result, char *buffer,
-				   int buflen, int *h_errnop)
+                                   struct hostent *res __attribute__((unused)),
+                                   char *buffer __attribute__((unused)),
+                                   int buflen __attribute__((unused)),
+                                   int *h_errnop)
 {
   struct hostent *hp;
-  pthread_mutex_lock(&LOCK_gethostbyname_r);
+  mysql_mutex_lock(&LOCK_gethostbyname_r);
   hp= gethostbyname(name);
   *h_errnop= h_errno;
   return hp;
@@ -104,7 +104,7 @@ struct hostent *my_gethostbyname_r(const char *name,
 
 void my_gethostbyname_r_free()
 {
-  pthread_mutex_unlock(&LOCK_gethostbyname_r);  
+  mysql_mutex_unlock(&LOCK_gethostbyname_r);
 }
 
 #endif /* !HAVE_GETHOSTBYNAME_R */

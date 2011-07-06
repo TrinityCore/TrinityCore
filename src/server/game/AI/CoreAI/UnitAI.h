@@ -49,9 +49,9 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit *, bool>
+struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
 {
-    const Unit *me;
+    const Unit* me;
     float m_dist;
     bool m_playerOnly;
     int32 m_aura;
@@ -60,35 +60,35 @@ struct DefaultTargetSelector : public std::unary_function<Unit *, bool>
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(const Unit *pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
+    DefaultTargetSelector(Unit const* pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
-    bool operator() (const Unit *pTarget)
+    bool operator()(Unit const* target) const
     {
         if (!me)
             return false;
 
-        if (!pTarget)
+        if (!target)
             return false;
 
-        if (m_playerOnly && (pTarget->GetTypeId() != TYPEID_PLAYER))
+        if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
             return false;
 
-        if (m_dist > 0.0f && !me->IsWithinCombatRange(pTarget, m_dist))
+        if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
             return false;
 
-        if (m_dist < 0.0f && me->IsWithinCombatRange(pTarget, -m_dist))
+        if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
             return false;
 
         if (m_aura)
         {
             if (m_aura > 0)
             {
-                if (!pTarget->HasAura(m_aura))
+                if (!target->HasAura(m_aura))
                     return false;
             }
             else
             {
-                if (pTarget->HasAura(-m_aura))
+                if (target->HasAura(-m_aura))
                     return false;
             }
         }
@@ -100,14 +100,14 @@ struct DefaultTargetSelector : public std::unary_function<Unit *, bool>
 class UnitAI
 {
     protected:
-        Unit * const me;
+        Unit* const me;
     public:
-        explicit UnitAI(Unit *u) : me(u) {}
+        explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(const Unit * /*who*/) const { return true; }
-        virtual void AttackStart(Unit *);
-        virtual void UpdateAI(const uint32 diff) = 0;
+        virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
+        virtual void AttackStart(Unit* /*target*/);
+        virtual void UpdateAI(uint32 const diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
@@ -117,14 +117,89 @@ class UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(const int32 /*param*/ = 0) {}
+        virtual void DoAction(int32 const /*param*/) {}
         virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(const uint64 &/*guid*/, int32 /*id*/ = 0) {}
+        virtual void SetGUID(uint64 const&/*guid*/, int32 /*id*/ = 0) {}
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        // Select the targets satifying the predicate.
+        // predicate shall extend std::unary_function<Unit* , bool>
+        template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
+        {
+            const std::list<HostileReference* > &threatlist = me->getThreatManager().getThreatList();
+            if (position >= threatlist.size())
+                return NULL;
+
+            std::list<Unit*> targetList;
+            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                if (predicate((*itr)->getTarget()))
+                    targetList.push_back((*itr)->getTarget());
+
+            if (position >= targetList.size())
+                return NULL;
+
+            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+
+            switch (targetType)
+            {
+                case SELECT_TARGET_NEAREST:
+                case SELECT_TARGET_TOPAGGRO:
+                {
+                    std::list<Unit*>::iterator itr = targetList.begin();
+                    std::advance(itr, position);
+                    return *itr;
+                }
+                case SELECT_TARGET_FARTHEST:
+                case SELECT_TARGET_BOTTOMAGGRO:
+                {
+                    std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+                    std::advance(ritr, position);
+                    return *ritr;
+                }
+                case SELECT_TARGET_RANDOM:
+                {
+                    std::list<Unit*>::iterator itr = targetList.begin();
+                    std::advance(itr, urand(position, targetList.size()-1));
+                    return *itr;
+                }
+                default:
+                    break;
+            }
+
+            return NULL;
+        }
+
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+
+        // Select the targets satifying the predicate.
+        // predicate shall extend std::unary_function<Unit* , bool>
+        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        {
+            std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
+            if (threatlist.empty())
+                return;
+
+            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                if (predicate((*itr)->getTarget()))
+                    targetList.push_back((*itr)->getTarget());
+
+            if (targetList.size() < maxTargets)
+                return;
+
+            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+
+            if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
+                targetList.reverse();
+
+            if (targetType == SELECT_TARGET_RANDOM)
+                Trinity::RandomResizeList(targetList, maxTargets);
+            else
+                targetList.resize(maxTargets);
+        }
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
@@ -140,62 +215,7 @@ class UnitAI
         // Called when the unit heals
         virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
 
-        // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit *, bool>
-        template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
-        {
-            const std::list<HostileReference *> &threatlist = me->getThreatManager().getThreatList();
-            std::list<Unit*> targetList;
-
-            if (position >= threatlist.size())
-                return NULL;
-
-            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-            {
-                HostileReference* ref = (*itr);
-                if (predicate(ref->getTarget()))
-                    targetList.push_back(ref->getTarget());
-            }
-
-            if (position >= targetList.size())
-                return NULL;
-
-            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
-
-            switch(targetType)
-            {
-                case SELECT_TARGET_NEAREST:
-                case SELECT_TARGET_TOPAGGRO:
-                    {
-                        std::list<Unit*>::iterator itr = targetList.begin();
-                        advance(itr, position);
-                        return *itr;
-                    }
-                    break;
-
-                case SELECT_TARGET_FARTHEST:
-                case SELECT_TARGET_BOTTOMAGGRO:
-                    {
-                        std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
-                        advance(ritr, position);
-                        return *ritr;
-                    }
-                    break;
-
-                case SELECT_TARGET_RANDOM:
-                    {
-                        std::list<Unit*>::iterator itr = targetList.begin();
-                        advance(itr, urand(position, targetList.size()-1));
-                        return *itr;
-                    }
-                    break;
-            }
-
-            return NULL;
-        }
-
-        void AttackStartCaster(Unit *victim, float dist);
+        void AttackStartCaster(Unit* victim, float dist);
 
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
         void DoCast(uint32 spellId);
@@ -209,12 +229,12 @@ class UnitAI
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spell);
 
-        static AISpellInfoType *AISpellInfo;
+        static AISpellInfoType* AISpellInfo;
         static void FillAISpellInfo();
 
         virtual void sGossipHello(Player* /*player*/) {}
         virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}
-        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {}
+        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) {}
         virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
@@ -227,7 +247,7 @@ class PlayerAI : public UnitAI
     protected:
         Player* const me;
     public:
-        explicit PlayerAI(Player *p) : UnitAI((Unit*)p), me(p) {}
+        explicit PlayerAI(Player* p) : UnitAI((Unit*)p), me(p) {}
 
         void OnCharmed(bool apply);
 };
@@ -235,8 +255,8 @@ class PlayerAI : public UnitAI
 class SimpleCharmedAI : public PlayerAI
 {
     public:
-        void UpdateAI(const uint32 diff);
-        SimpleCharmedAI(Player *p): PlayerAI(p) {}
+        void UpdateAI(uint32 const diff);
+        SimpleCharmedAI(Player* player): PlayerAI(player) {}
 };
 
 #endif

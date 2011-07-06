@@ -45,7 +45,7 @@ class instance_the_eye : public InstanceMapScript
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+            instance_the_eye_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint64 ThaladredTheDarkener;
             uint64 LordSanguinar;

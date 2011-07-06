@@ -36,14 +36,14 @@ class boss_nerubenkan : public CreatureScript
 public:
     boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nerubenkanAI (pCreature);
+        return new boss_nerubenkanAI (creature);
     }
 
     struct boss_nerubenkanAI : public ScriptedAI
     {
-        boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
+        boss_nerubenkanAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -63,21 +63,21 @@ public:
             RaiseUndeadScarab_Timer = 3000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
         void JustDied(Unit* /*Killer*/)
         {
             if (pInstance)
-                pInstance->SetData(TYPE_NERUB,IN_PROGRESS);
+                pInstance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
-        void RaiseUndeadScarab(Unit* pVictim)
+        void RaiseUndeadScarab(Unit* victim)
         {
-            if (Creature* pUndeadScarab = DoSpawnCreature(10876, float(irand(-9,9)), float(irand(-9,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+            if (Creature* pUndeadScarab = DoSpawnCreature(10876, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
                 if (pUndeadScarab->AI())
-                    pUndeadScarab->AI()->AttackStart(pVictim);
+                    pUndeadScarab->AI()->AttackStart(victim);
         }
 
         void UpdateAI(const uint32 diff)
@@ -95,7 +95,7 @@ public:
             //PierceArmor
             if (PierceArmor_Timer <= diff)
             {
-                if (urand(0,3) < 2)
+                if (urand(0, 3) < 2)
                     DoCast(me->getVictim(), SPELL_PIERCEARMOR);
                 PierceArmor_Timer = 35000;
             } else PierceArmor_Timer -= diff;

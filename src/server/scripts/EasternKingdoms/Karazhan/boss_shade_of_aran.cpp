@@ -86,14 +86,14 @@ class boss_shade_of_aran : public CreatureScript
 public:
     boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_aranAI (pCreature);
+        return new boss_aranAI (creature);
     }
 
     struct boss_aranAI : public ScriptedAI
     {
-        boss_aranAI(Creature *c) : ScriptedAI(c)
+        boss_aranAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -157,12 +157,12 @@ public:
             }
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL1,SAY_KILL2), me);
+            DoScriptText(RAND(SAY_KILL1, SAY_KILL2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -173,9 +173,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
             if (pInstance)
             {
@@ -195,10 +195,10 @@ public:
             //store the threat list in a different container
             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
-                if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                    targets.push_back(pTarget);
+                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    targets.push_back(target);
             }
 
             //cut down to size if we have more than 3 targets
@@ -309,8 +309,8 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (!pTarget)
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (!target)
                         return;
 
                     uint32 Spells[3];
@@ -337,7 +337,7 @@ public:
                     if (AvailableSpells)
                     {
                         CurrentNormalSpell = Spells[rand() % AvailableSpells];
-                        DoCast(pTarget, CurrentNormalSpell);
+                        DoCast(target, CurrentNormalSpell);
                     }
                 }
                 NormalCastTimer = 1000;
@@ -345,17 +345,17 @@ public:
 
             if (SecondarySpellTimer <= diff)
             {
-                switch (urand(0,1))
+                switch (urand(0, 1))
                 {
                     case 0:
                         DoCast(me, SPELL_AOE_CS);
                         break;
                     case 1:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_CHAINSOFICE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_CHAINSOFICE);
                         break;
                 }
-                SecondarySpellTimer = urand(5000,20000);
+                SecondarySpellTimer = urand(5000, 20000);
             } else SecondarySpellTimer -= diff;
 
             if (SuperCastTimer <= diff)
@@ -378,12 +378,12 @@ public:
                         break;
                 }
 
-                LastSuperSpell = Available[urand(0,1)];
+                LastSuperSpell = Available[urand(0, 1)];
 
                 switch (LastSuperSpell)
                 {
                     case SUPER_AE:
-                        DoScriptText(RAND(SAY_EXPLOSION1,SAY_EXPLOSION2), me);
+                        DoScriptText(RAND(SAY_EXPLOSION1, SAY_EXPLOSION2), me);
 
                         DoCast(me, SPELL_BLINK_CENTER, true);
                         DoCast(me, SPELL_PLAYERPULL, true);
@@ -392,7 +392,7 @@ public:
                         break;
 
                     case SUPER_FLAME:
-                        DoScriptText(RAND(SAY_FLAMEWREATH1,SAY_FLAMEWREATH2), me);
+                        DoScriptText(RAND(SAY_FLAMEWREATH1, SAY_FLAMEWREATH2), me);
 
                         FlameWreathTimer = 20000;
                         FlameWreathCheckTime = 500;
@@ -405,7 +405,7 @@ public:
                         break;
 
                     case SUPER_BLIZZARD:
-                        DoScriptText(RAND(SAY_BLIZZARD1,SAY_BLIZZARD2), me);
+                        DoScriptText(RAND(SAY_BLIZZARD1, SAY_BLIZZARD2), me);
 
                         if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                         {
@@ -415,7 +415,7 @@ public:
                         break;
                 }
 
-                SuperCastTimer = urand(35000,40000);
+                SuperCastTimer = urand(35000, 40000);
             } else SuperCastTimer -= diff;
 
             if (!ElementalsSpawned && HealthBelowPct(40))
@@ -516,14 +516,14 @@ class mob_aran_elemental : public CreatureScript
 public:
     mob_aran_elemental() : CreatureScript("mob_aran_elemental") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new water_elementalAI (pCreature);
+        return new water_elementalAI (creature);
     }
 
     struct water_elementalAI : public ScriptedAI
     {
-        water_elementalAI(Creature *c) : ScriptedAI(c) {}
+        water_elementalAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CastTimer;
 
@@ -542,7 +542,7 @@ public:
             if (CastTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WATERBOLT);
-                CastTimer = urand(2000,5000);
+                CastTimer = urand(2000, 5000);
             } else CastTimer -= diff;
         }
     };
@@ -555,10 +555,10 @@ class mob_shadow_of_aran : public CreatureScript
 public:
     mob_shadow_of_aran() : CreatureScript("mob_shadow_of_aran") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        sLog->outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
-        SimpleAI* ai = new SimpleAI (pCreature);
+        sLog->outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", creature->GetEntry());
+        SimpleAI* ai = new SimpleAI (creature);
 
         ai->Spell[0].Enabled = true;
         ai->Spell[0].Spell_Id = SPELL_SHADOW_PYRO;

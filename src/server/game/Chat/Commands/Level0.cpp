@@ -93,7 +93,7 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     std::string uptime = secsToTimeString(sWorld->GetUptime());
     uint32 updateTime = sWorld->GetUpdateTime();
 
-    PSendSysMessage(_FULLVERSION);
+    SendSysMessage(_FULLVERSION);
     PSendSysMessage(LANG_CONNECTED_PLAYERS, PlayersNum, MaxPlayersNum);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
@@ -126,12 +126,15 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 
 bool ChatHandler::HandleSaveCommand(const char* /*args*/)
 {
-    Player *player = m_session->GetPlayer();
+    Player* player = m_session->GetPlayer();
 
     // save GM account without delay and output message
     if (m_session->GetSecurity() > SEC_PLAYER)
     {
-        player->SaveToDB();
+        if (Player *target = getSelectedPlayer())
+            target->SaveToDB();
+        else
+            player->SaveToDB();
         SendSysMessage(LANG_PLAYER_SAVED);
         return true;
     }

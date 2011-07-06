@@ -40,7 +40,7 @@ public:
 
     struct npc_drakuru_shacklesAI : public ScriptedAI
     {
-        npc_drakuru_shacklesAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 RageclawGUID;
 
@@ -62,7 +62,7 @@ public:
 
         void LockRageclaw()
         {
-            Unit *Rageclaw = Unit::GetCreature(*me, RageclawGUID);
+            Unit* Rageclaw = Unit::GetCreature(*me, RageclawGUID);
             // pointer check not needed
             me->SetInFront(Rageclaw);
             Rageclaw->SetInFront(me);
@@ -71,12 +71,12 @@ public:
             DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
-        void UnlockRageclaw(Unit* pWho)
+        void UnlockRageclaw(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            Creature *Rageclaw = Unit::GetCreature(*me, RageclawGUID);
+            Creature* Rageclaw = Unit::GetCreature(*me, RageclawGUID);
             // pointer check not needed
             DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
 
@@ -92,7 +92,7 @@ public:
                     if (Creature* pRageclaw = Unit::GetCreature(*me, RageclawGUID))
                     {
                         UnlockRageclaw(pCaster);
-                        pCaster->ToPlayer()->KilledMonster(pRageclaw->GetCreatureInfo(),RageclawGUID);
+                        pCaster->ToPlayer()->KilledMonster(pRageclaw->GetCreatureInfo(), RageclawGUID);
                         me->DisappearAndDie();
                     }
                     else
@@ -102,8 +102,7 @@ public:
         }
     };
 
-
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_drakuru_shacklesAI(creature);
     }
@@ -123,7 +122,7 @@ const char * SAY_RAGECLAW_1 =      "I poop on you, trollses!";
 const char * SAY_RAGECLAW_2 =      "ARRRROOOOGGGGAAAA!";
 const char * SAY_RAGECLAW_3 =      "No more mister nice wolvar!";
 
-#define SAY_RAGECLAW RAND(SAY_RAGECLAW_1,SAY_RAGECLAW_2,SAY_RAGECLAW_3)
+#define SAY_RAGECLAW RAND(SAY_RAGECLAW_1, SAY_RAGECLAW_2, SAY_RAGECLAW_3)
 
 class npc_captured_rageclaw : public CreatureScript
 {
@@ -132,7 +131,7 @@ public:
 
     struct npc_captured_rageclawAI : public ScriptedAI
     {
-        npc_captured_rageclawAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_captured_rageclawAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 DespawnTimer;
         bool Despawn;
@@ -145,7 +144,7 @@ public:
             DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
-        void MoveInLineOfSight(Unit * /*who*/){}
+        void MoveInLineOfSight(Unit* /*who*/){}
 
         void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
         {
@@ -160,7 +159,7 @@ public:
                 me->setFaction(me->GetCreatureInfo()->faction_H);
 
                 DoCast(me, SPELL_UNSHACKLED, true);
-                me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, NULL);
+                me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, 0);
                 me->GetMotionMaster()->MoveRandom(10);
 
                 DespawnTimer = 10000;
@@ -185,7 +184,7 @@ public:
        }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_captured_rageclawAI(creature);
     }
@@ -208,29 +207,29 @@ class npc_gymer : public CreatureScript
 public:
     npc_gymer() : CreatureScript("npc_gymer") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(QUEST_STORM_KING_VENGEANCE) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_STORM_KING_VENGEANCE) == QUEST_STATUS_INCOMPLETE)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_G, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(13640, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_G, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(13640, creature->GetGUID());
         }
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer, SPELL_GYMER, true);
+            player->CLOSE_GOSSIP_MENU();
+            player->CastSpell(player, SPELL_GYMER, true);
         }
 
         return true;
@@ -293,10 +292,10 @@ struct BossAndAdd
 
 static BossAndAdd Boss[]=
 {
-    {NPC_GARGORAL,NPC_FIEND_WATER,SPELL_CRASHING_WAVE,SPELL_ORB_OF_WATER},
-    {NPC_AZ_BARIN,NPC_FIEND_AIR,SPELL_BLAST_OF_AIR,SPELL_ORB_OF_STORMS},
-    {NPC_DUKE_SINGEN,NPC_FIEND_FIRE,SPELL_MAGMA_WAVE,SPELL_ORB_OF_FLAME},
-    {NPC_ERATHIUS,NPC_FIEND_EARTH,SPELL_SHOCKWAVE,SPELL_BOULDER},
+    {NPC_GARGORAL, NPC_FIEND_WATER, SPELL_CRASHING_WAVE, SPELL_ORB_OF_WATER},
+    {NPC_AZ_BARIN, NPC_FIEND_AIR, SPELL_BLAST_OF_AIR, SPELL_ORB_OF_STORMS},
+    {NPC_DUKE_SINGEN, NPC_FIEND_FIRE, SPELL_MAGMA_WAVE, SPELL_ORB_OF_FLAME},
+    {NPC_ERATHIUS, NPC_FIEND_EARTH, SPELL_SHOCKWAVE, SPELL_BOULDER},
 };
 
 const Position SpawnPosition[] =
@@ -333,7 +332,7 @@ public:
 
     struct npc_gurgthockAI : public ScriptedAI
     {
-        npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 SummonGUID;
         uint64 uiPlayerGUID;
@@ -422,21 +421,21 @@ public:
 
             if (uiPhase)
             {
-                Player* pPlayer = me->GetPlayer(*me, uiPlayerGUID);
+                Player* player = me->GetPlayer(*me, uiPlayerGUID);
 
                 if (uiTimer <= uiDiff)
                 {
                     switch(uiPhase)
                     {
                         case 1:
-                            if (Creature* pSummon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                SummonGUID = pSummon->GetGUID();
+                            if (Creature* summon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                SummonGUID = summon->GetGUID();
                             uiPhase = 2;
                             uiTimer = 4000;
                             break;
                          case 2:
-                            if (Creature* pSummon = Unit::GetCreature(*me, SummonGUID))
-                                pSummon->GetMotionMaster()->MoveJump(5776.319824f, -2981.005371f, 273.100037f, 10.0f, 20.0f);
+                            if (Creature* summon = Unit::GetCreature(*me, SummonGUID))
+                                summon->GetMotionMaster()->MoveJump(5776.319824f, -2981.005371f, 273.100037f, 10.0f, 20.0f);
                             uiPhase = 0;
                             SummonGUID = 0;
                             break;
@@ -446,30 +445,30 @@ public:
                             uiPhase = 4;
                             break;
                         case 4:
-                            if (Creature* pSummon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                SummonGUID = pSummon->GetGUID();
+                            if (Creature* summon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                SummonGUID = summon->GetGUID();
                             uiTimer = 3000;
                             uiPhase = 0;
                             break;
                         case 6:
                             {
-                                if (!pPlayer)
+                                if (!player)
                                     return;
 
-                                std::string sText = ("The grand Amphitheater of Anguish awaits, " + std::string(pPlayer->GetName()) + ". Remember, once a battle starts you have to stay in the area. WIN OR DIE!");
+                                std::string sText = ("The grand Amphitheater of Anguish awaits, " + std::string(player->GetName()) + ". Remember, once a battle starts you have to stay in the area. WIN OR DIE!");
 
-                                me->MonsterSay(sText.c_str(),LANG_UNIVERSAL,0);
+                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
                                 uiTimer = 5000;
                                 uiPhase = 9;
                             }
                             break;
                         case 7:
                             {
-                               if (!pPlayer)
+                               if (!player)
                                    return;
 
-                                std::string sText = ("Prepare to make you stand, " + std::string(pPlayer->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                                me->MonsterSay(sText.c_str(),LANG_UNIVERSAL,0);
+                                std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
+                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
                                 uiTimer = 3000;
                                 uiPhase = 8;
                             }
@@ -481,45 +480,45 @@ public:
                             break;
                         case 9:
                             {
-                                if (!pPlayer)
+                                if (!player)
                                     return;
 
-                                std::string sText = ("Here we are once again, ladies and gentlemen. The epic struggle between life and death in the Amphitheater of Anguish! For this round we have " + std::string(pPlayer->GetName()) + " versus the hulking jormungar, Yg... Yggd? Yggdoze? Who comes up with these names?! " + std::string(pPlayer->GetName()) + " versus big worm!");
-                                me->MonsterYell(sText.c_str(),LANG_UNIVERSAL,0);
+                                std::string sText = ("Here we are once again, ladies and gentlemen. The epic struggle between life and death in the Amphitheater of Anguish! For this round we have " + std::string(player->GetName()) + " versus the hulking jormungar, Yg... Yggd? Yggdoze? Who comes up with these names?! " + std::string(player->GetName()) + " versus big worm!");
+                                me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
                                 uiTimer = 10000;
                                 uiPhase = 10;
                             }
                             break;
                         case 10:
                             me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
-                            DoScriptText(EMOTE_YGGDRAS_SPAWN,me);
+                            DoScriptText(EMOTE_YGGDRAS_SPAWN, me);
                             uiPhase = 0;
                             break;
                         case 11:
-                            if (Creature* pCreature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                DoScriptText(SAY_STINKBEARD_SPAWN,pCreature);
+                            if (Creature* creature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                DoScriptText(SAY_STINKBEARD_SPAWN, creature);
                             uiPhase = 0;
                             break;
                         case 12:
                         {
-                            if (!pPlayer)
+                            if (!player)
                                 return;
 
-                            std::string sText = ("Prepare to make you stand, " + std::string(pPlayer->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                            me->MonsterSay(sText.c_str(),LANG_UNIVERSAL,0);
+                            std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
+                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
                             uiTimer = 5000;
                             uiPhase = 13;
                         }
                         break;
                         case 13:
-                            DoScriptText(SAY_GURGTHOCK_ELEMENTAL_SPAWN,me);
+                            DoScriptText(SAY_GURGTHOCK_ELEMENTAL_SPAWN, me);
                             uiTimer = 3000;
                             uiPhase = 14;
                             break;
                         case 14:
-                            uiBossRandom = urand(0,3);
-                            if (Creature* pCreature = me->SummonCreature(Boss[uiBossRandom].uiBoss,SpawnPosition[2],TEMPSUMMON_CORPSE_DESPAWN, 1000))
-                                pCreature->AI()->SetData(1,uiBossRandom);
+                            uiBossRandom = urand(0, 3);
+                            if (Creature* creature = me->SummonCreature(Boss[uiBossRandom].uiBoss, SpawnPosition[2], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                creature->AI()->SetData(1, uiBossRandom);
                             uiPhase = 0;
                             break;
                     }
@@ -528,34 +527,34 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         switch (pQuest->GetQuestId())
         {
             case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
-                pCreature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, pQuest->GetQuestId());
                 break;
         }
 
-        pCreature->AI()->SetGUID(pPlayer->GetGUID());
+        creature->AI()->SetGUID(player->GetGUID());
 
         return false;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_gurgthockAI(creature);
     }
@@ -585,7 +584,7 @@ public:
 
     struct npc_orinoko_tuskbreakerAI : public ScriptedAI
     {
-        npc_orinoko_tuskbreakerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_orinoko_tuskbreakerAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
@@ -614,7 +613,7 @@ public:
 
         void EnterEvadeMode()
         {
-            if (Creature *pWhisker = me->GetCreature(*me, uiWhisker))
+            if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                 pWhisker->RemoveFromWorld();
         }
 
@@ -625,13 +624,13 @@ public:
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetReactState(REACT_AGGRESSIVE);
-            me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
             uiBattleShoutTimer  = 7000;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* who)
         {
-            DoCast(pWho, SPELL_IMPALE);
+            DoCast(who, SPELL_IMPALE);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -647,7 +646,7 @@ public:
 
             if (uiFishyScentTimer <= uiDiff)
             {
-                if (Unit *pAffected = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pAffected = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pAffected, SPELL_FISHY_SCENT);
                     AffectedGUID = pAffected->GetGUID();
@@ -657,10 +656,10 @@ public:
 
             if (!bSummoned && !HealthAbovePct(50))
             {
-                DoScriptText(SAY_CALL_FOR_HELP ,me);
+                DoScriptText(SAY_CALL_FOR_HELP , me);
                 //DoCast(me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
 
-                if (Creature *pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (Creature* pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     uiWhisker = pWhisker->GetGUID();
                 bSummoned = true;
             }
@@ -668,36 +667,36 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
-            switch(pSummon->GetEntry())
+            switch(summon->GetEntry())
             {
                 case NPC_WHISKER:
-                    pSummon->AI()->AttackStart(me->getVictim());
+                    summon->AI()->AttackStart(me->getVictim());
                     break;
                 case NPC_HUNGRY_PENGUIN:
-                    if (Unit *pAffected = Unit::GetUnit(*me, AffectedGUID))
+                    if (Unit* pAffected = Unit::GetUnit(*me, AffectedGUID))
                     {
                         if (pAffected->isAlive())
-                            pSummon->AI()->AttackStart(pAffected);
+                            summon->AI()->AttackStart(pAffected);
                     }
                     break;
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (uiWhisker)
-                if (Creature *pWhisker = me->GetCreature(*me, uiWhisker))
+                if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                     pWhisker->RemoveFromWorld();
 
-            if (pKiller->GetTypeId() == TYPEID_PLAYER)
-                pKiller->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, pKiller);
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, killer);
 
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_orinoko_tuskbreakerAI(creature);
     }
@@ -722,9 +721,9 @@ public:
 
     struct npc_korrak_bloodragerAI : public npc_escortAI
     {
-        npc_korrak_bloodragerAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_korrak_bloodragerAI(Creature* creature) : npc_escortAI(creature)
         {
-            Start(true,true, 0, NULL);
+            Start(true, true, 0, NULL);
             SetDespawnAtEnd(false);
         }
 
@@ -747,14 +746,14 @@ public:
             switch(uiI)
             {
                 case 6:
-                    me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), 0);
+                    me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     break;
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_GROW);
         }
@@ -768,15 +767,15 @@ public:
 
             if (uiUppercutTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_NEAREST, 0))
-                    DoCast(pTarget, SPELL_UPPERCUT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                    DoCast(target, SPELL_UPPERCUT);
                 uiUppercutTimer = 12000;
             } else uiUppercutTimer -= uiDiff;
 
             if (uiChargeTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_FARTHEST, 0))
-                    DoCast(pTarget, SPELL_CHARGE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
+                    DoCast(target, SPELL_CHARGE);
                 uiChargeTimer = 15000;
             } else uiChargeTimer -= uiDiff;
 
@@ -788,14 +787,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (Player* pPlayer = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                pPlayer->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, pKiller);
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, killer);
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_korrak_bloodragerAI(creature);
     }
@@ -819,7 +818,7 @@ public:
 
     struct npc_yggdrasAI : public ScriptedAI
     {
-        npc_yggdrasAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_yggdrasAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiCleaveTimer;
         uint32 uiCorrodeFleshTimer;
@@ -845,7 +844,7 @@ public:
                         if (pUnit->GetPositionZ() <= 286.276f)
                         {
                             me->getThreatManager().resetAllAggro();
-                            me->AddThreat(pUnit,5.0f);
+                            me->AddThreat(pUnit, 5.0f);
                             break;
                         }
                         EnterEvadeMode();
@@ -868,27 +867,26 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
+            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
             {
-                std::string sText = (std::string(pKiller->GetName()) + " has defeated Yg.. Yggg-really big worm!");
-                pSummoner->MonsterYell(sText.c_str(),LANG_UNIVERSAL,0);
+                std::string sText = (std::string(killer->GetName()) + " has defeated Yg.. Yggg-really big worm!");
+                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
             }
 
-
-            if (Player* pPlayer = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
-                pPlayer->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1, pKiller);
-                pPlayer->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2, pKiller);
+                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1, killer);
+                player->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2, killer);
             }
 
             for (uint8 i = 0; i < 3; ++i)
-                DoCast(pKiller, SPELL_JORMUNGAR_SPAWN, true);
+                DoCast(killer, SPELL_JORMUNGAR_SPAWN, true);
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_yggdrasAI(creature);
     }
@@ -914,11 +912,11 @@ public:
 
     struct npc_stinkbeardAI : public npc_escortAI
     {
-        npc_stinkbeardAI(Creature* pCreature) : npc_escortAI(pCreature)
+        npc_stinkbeardAI(Creature* creature) : npc_escortAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
-            Start(true,true, 0, NULL);
+            Start(true, true, 0, NULL);
             SetDespawnAtEnd(false);
         }
 
@@ -930,7 +928,7 @@ public:
 
         void Reset()
         {
-            me->AddAura(SPELL_THUNDERBLADE,me);
+            me->AddAura(SPELL_THUNDERBLADE, me);
             uiKnockAwayTimer   = 10000;
             uiStinkyBeardTimer = 15000;
             bEnrage = false;
@@ -968,7 +966,7 @@ public:
                             if (pUnit->GetPositionZ() <= 286.276f)
                             {
                                 me->getThreatManager().resetAllAggro();
-                                me->AddThreat(pUnit,5.0f);
+                                me->AddThreat(pUnit, 5.0f);
                                 break;
                             }
                             EnterEvadeMode();
@@ -985,20 +983,20 @@ public:
 
             if (uiKnockAwayTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget, SPELL_KNOCK_AWAY);
+                    if (target && target->isAlive())
+                        DoCast(target, SPELL_KNOCK_AWAY);
                 }
                 uiKnockAwayTimer = 10000;
             } else uiKnockAwayTimer -= uiDiff;
 
             if (uiStinkyBeardTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (pTarget && pTarget->isAlive())
-                        DoCast(pTarget, SPELL_STINKY_BEARD);
+                    if (target && target->isAlive())
+                        DoCast(target, SPELL_STINKY_BEARD);
                 }
                 uiStinkyBeardTimer = 15000;
             } else uiStinkyBeardTimer -= uiDiff;
@@ -1011,17 +1009,17 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            if (Player* pPlayer = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                pPlayer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, pKiller);
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, killer);
 
-            std::string sText = ("And with AUTHORITY, " + std::string(pKiller->GetName()) + " dominates the magnataur lord! Stinkbeard's clan is gonna miss him back home in the Dragonblight!");
-            me->MonsterYell(sText.c_str(),LANG_UNIVERSAL,0);
+            std::string sText = ("And with AUTHORITY, " + std::string(killer->GetName()) + " dominates the magnataur lord! Stinkbeard's clan is gonna miss him back home in the Dragonblight!");
+            me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_stinkbeardAI(creature);
     }
@@ -1038,7 +1036,7 @@ public:
 
     struct npc_elemental_lordAI : public ScriptedAI
     {
-        npc_elemental_lordAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) {}
 
         std::list<uint64> SummonList;
 
@@ -1053,7 +1051,7 @@ public:
         {
             uiBossRandom = 0;
             uiSpellEntry = 0;
-            uiElementalSpellTimer = urand(5000,8000);
+            uiElementalSpellTimer = urand(5000, 8000);
 
             bAddAttack = false;
         }
@@ -1076,10 +1074,10 @@ public:
 
             for (uint8 uiI = 0; uiI < 16 ; uiI++)
             {
-                if (Creature* pSummon = me->SummonCreature(Boss[uiBossRandom].uiAdd,AddSpawnPosition[uiI]))
+                if (Creature* summon = me->SummonCreature(Boss[uiBossRandom].uiAdd, AddSpawnPosition[uiI]))
                 {
-                    pSummon->AI()->SetData(1,uiBossRandom);
-                    SummonList.push_back(pSummon->GetGUID());
+                    summon->AI()->SetData(1, uiBossRandom);
+                    SummonList.push_back(summon->GetGUID());
                 }
             }
 
@@ -1113,7 +1111,7 @@ public:
                         if (pUnit->GetPositionZ() <= 286.276f)
                         {
                             me->getThreatManager().resetAllAggro();
-                            me->AddThreat(pUnit,5.0f);
+                            me->AddThreat(pUnit, 5.0f);
                             break;
                         }
                         EnterEvadeMode();
@@ -1125,7 +1123,7 @@ public:
             {
                 DoCastVictim(Boss[uiBossRandom].uiSpell);
 
-                uiElementalSpellTimer = urand(5000,8000);
+                uiElementalSpellTimer = urand(5000, 8000);
             } else uiElementalSpellTimer -= uiDiff;
 
             if (!bAddAttack && !HealthAbovePct(20))
@@ -1149,20 +1147,20 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                         pTemp->DespawnOrUnsummon();
 
-            if (Player* pPlayer = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                pPlayer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND, pKiller);
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND, killer);
 
-            std::string sText = (std::string(pKiller->GetName()) + " is victorious once more!");
+            std::string sText = (std::string(killer->GetName()) + " is victorious once more!");
 
-            if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
-                pSummoner->MonsterYell(sText.c_str(),LANG_UNIVERSAL,0);
+            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
         }
     };
 
@@ -1183,7 +1181,7 @@ public:
 
     struct npc_fiend_elementalAI : public ScriptedAI
     {
-        npc_fiend_elementalAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_fiend_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiMissleTimer;
         uint32 uiSpell;
@@ -1194,15 +1192,15 @@ public:
                 me->GetMotionMaster()->MoveIdle();
 
             uiSpell = 0;
-            uiMissleTimer = urand(2000,7000);
+            uiMissleTimer = urand(2000, 7000);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit* who)
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            AttackStartNoMove(pWho);
+            AttackStartNoMove(who);
         }
 
         void SetData(uint32 uiData, uint32 uiValue)
@@ -1221,8 +1219,8 @@ public:
             {
                 if (uiMissleTimer <= uiDiff)
                 {
-                    DoCast(me,uiSpell); // this spell is not supported ... YET!
-                    uiMissleTimer = urand(2000,7000);
+                    DoCast(me, uiSpell); // this spell is not supported ... YET!
+                    uiMissleTimer = urand(2000, 7000);
 
                 } else uiMissleTimer -= uiDiff;
             }
@@ -1231,7 +1229,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_fiend_elementalAI(creature);
     }
@@ -1248,7 +1246,7 @@ public:
 
     struct npc_released_offspring_harkoaAI : public ScriptedAI
     {
-        npc_released_offspring_harkoaAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_released_offspring_harkoaAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset()
         {
@@ -1265,7 +1263,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_released_offspring_harkoaAI(creature);
     }
@@ -1297,7 +1295,7 @@ public:
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
-        npc_crusade_recruitAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 m_uiPhase;                  //The current phase we are in
         uint32 m_uiTimer;                 //Timer until phase transition
@@ -1324,14 +1322,14 @@ public:
                             // say random text
                             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                            DoScriptText(RAND(SAY_RECRUIT_1,SAY_RECRUIT_2,SAY_RECRUIT_3), me);
+                            DoScriptText(RAND(SAY_RECRUIT_1, SAY_RECRUIT_2, SAY_RECRUIT_3), me);
                             m_uiTimer = 3000;
                             m_uiPhase = 2;
                             break;
                         case 2:
                             // walk forward
                             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            me->GetMotionMaster()->MovePoint(0,me->GetPositionX() + (cos(m_heading) * 10), me->GetPositionY() + (sin(m_heading) * 10), me->GetPositionZ());
+                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (cos(m_heading) * 10), me->GetPositionY() + (sin(m_heading) * 10), me->GetPositionZ());
                             m_uiTimer = 5000;
                             m_uiPhase = 3;
                             break;
@@ -1353,30 +1351,30 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_crusade_recruitAI(creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        if (player->GetQuestStatus(QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_CRUSADE_TEXT, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_CRUSADE_TEXT, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, SPELL_QUEST_CREDIT, true);
-            CAST_AI(npc_crusade_recruit::npc_crusade_recruitAI, (pCreature->AI()))->m_uiPhase = 1;
-            pCreature->SetInFront(pPlayer);
-            pCreature->SendMovementFlagUpdate();
+            player->CLOSE_GOSSIP_MENU();
+            creature->CastSpell(player, SPELL_QUEST_CREDIT, true);
+            CAST_AI(npc_crusade_recruit::npc_crusade_recruitAI, (creature->AI()))->m_uiPhase = 1;
+            creature->SetInFront(player);
+            creature->SendMovementFlagUpdate();
         }
 
         return true;
@@ -1399,15 +1397,15 @@ class go_scourge_enclosure : public GameObjectScript
 public:
     go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        if (pPlayer->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
         {
-            Creature* pGymerDummy = pGO->FindNearestCreature(NPC_GYMER_DUMMY,20.0f);
+            Creature* pGymerDummy = pGO->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
             if (pGymerDummy)
             {
                 pGO->UseDoorOrButton();
-                pPlayer->KilledMonsterCredit(pGymerDummy->GetEntry(),pGymerDummy->GetGUID());
+                player->KilledMonsterCredit(pGymerDummy->GetEntry(), pGymerDummy->GetGUID());
                 pGymerDummy->CastSpell(pGymerDummy, 55529, true);
                 pGymerDummy->DisappearAndDie();
             }

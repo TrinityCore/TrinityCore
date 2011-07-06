@@ -76,14 +76,14 @@ class boss_ingvar_the_plunderer : public CreatureScript
 public:
     boss_ingvar_the_plunderer() : CreatureScript("boss_ingvar_the_plunderer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ingvar_the_plundererAI(pCreature);
+        return new boss_ingvar_the_plundererAI(creature);
     }
 
     struct boss_ingvar_the_plundererAI : public ScriptedAI
     {
-        boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
+        boss_ingvar_the_plundererAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -121,7 +121,7 @@ public:
                 pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage >= me->GetHealth() && !bIsUndead)
             {
@@ -139,7 +139,7 @@ public:
                 bEventInProgress = true;
                 bIsUndead = true;
 
-                DoScriptText(YELL_DEAD_1,me);
+                DoScriptText(YELL_DEAD_1, me);
             }
 
             if (bEventInProgress)
@@ -157,12 +157,12 @@ public:
             me->SetInCombatWith(me->getVictim());
             me->GetMotionMaster()->MoveChase(me->getVictim());
 
-            DoScriptText(YELL_AGGRO_2,me);
+            DoScriptText(YELL_AGGRO_2, me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO_1,me);
+            DoScriptText(YELL_AGGRO_1, me);
 
             if (pInstance)
                 pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
@@ -170,18 +170,18 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(YELL_DEAD_2,me);
+            DoScriptText(YELL_DEAD_2, me);
 
             if (pInstance)
                 pInstance->SetData(DATA_INGVAR_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (bIsUndead)
-                DoScriptText(YELL_KILL_1,me);
+                DoScriptText(YELL_KILL_1, me);
             else
-                DoScriptText(YELL_KILL_2,me);
+                DoScriptText(YELL_KILL_2, me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -242,10 +242,10 @@ public:
                     if (!me->HasUnitState(UNIT_STAT_CASTING))
                     {
                         // Spawn target for Axe
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
-                        if (pTarget)
+                        Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        if (target)
                         {
-                            me->SummonCreature(ENTRY_THROW_TARGET,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
+                            me->SummonCreature(ENTRY_THROW_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
 
                             DoCast(me, SPELL_SHADOW_AXE_SUMMON);
                         }
@@ -272,7 +272,6 @@ public:
 
 };
 
-
 enum eSpells
 {
 //we don't have that text in db so comment it until we get this text
@@ -290,19 +289,19 @@ class mob_annhylde_the_caller : public CreatureScript
 public:
     mob_annhylde_the_caller() : CreatureScript("mob_annhylde_the_caller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_annhylde_the_callerAI (pCreature);
+        return new mob_annhylde_the_callerAI (creature);
     }
 
     struct mob_annhylde_the_callerAI : public ScriptedAI
     {
-        mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c)
+        mob_annhylde_the_callerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
 
-        float x,y,z;
+        float x, y, z;
         InstanceScript* pInstance;
         uint32 uiResurectTimer;
         uint32 uiResurectPhase;
@@ -315,15 +314,15 @@ public:
             me->SetSpeed(MOVE_WALK , 1.0f);
             //me->SetSpeed(MOVE_FLIGHT , 1.0f);
 
-            me->GetPosition(x,y,z);
-            DoTeleportTo(x+1,y,z+30);
+            me->GetPosition(x, y, z);
+            DoTeleportTo(x+1, y, z+30);
 
             Unit* ingvar = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
             if (ingvar)
             {
-                me->GetMotionMaster()->MovePoint(1,x,y,z+15);
+                me->GetMotionMaster()->MovePoint(1, x, y, z+15);
 
-    //            DoScriptText(YELL_RESSURECT,me);
+    //            DoScriptText(YELL_RESSURECT, me);
             }
         }
 
@@ -338,14 +337,14 @@ public:
                 {
                 case 1:
                     ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
-                    ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_DUMMY,true);
+                    ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_DUMMY, true);
                     DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
                     uiResurectTimer = 8000;
                     uiResurectPhase = 1;
                     break;
                 case 2:
                     me->SetVisible(false);
-                    me->DealDamage(me,me->GetHealth());
+                    me->DealDamage(me, me->GetHealth());
                     me->RemoveCorpse();
                     break;
                 }
@@ -354,7 +353,7 @@ public:
 
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
         {
             if (uiResurectTimer)
@@ -367,7 +366,7 @@ public:
                         if (ingvar)
                         {
                             ingvar->SetStandState(UNIT_STAND_STATE_STAND);
-                            ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_HEAL,false);
+                            ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_HEAL, false);
                         }
                         uiResurectTimer = 3000;
                         uiResurectPhase = 2;
@@ -381,7 +380,7 @@ public:
                             if (boss_ingvar_the_plunderer::boss_ingvar_the_plundererAI* pAI = CAST_AI(boss_ingvar_the_plunderer::boss_ingvar_the_plundererAI, ingvar->AI()))
                                 pAI->StartZombiePhase();
 
-                            me->GetMotionMaster()->MovePoint(2,x+1,y,z+30);
+                            me->GetMotionMaster()->MovePoint(2, x+1, y, z+30);
                             ++uiResurectPhase;
                             uiResurectTimer = 0;
                         }
@@ -391,7 +390,6 @@ public:
         }
     };
 };
-
 
 enum eShadowAxe
 {
@@ -404,14 +402,14 @@ class mob_ingvar_throw_dummy : public CreatureScript
 public:
     mob_ingvar_throw_dummy() : CreatureScript("mob_ingvar_throw_dummy") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ingvar_throw_dummyAI (pCreature);
+        return new mob_ingvar_throw_dummyAI (creature);
     }
 
     struct mob_ingvar_throw_dummyAI : public ScriptedAI
     {
-        mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
+        mob_ingvar_throw_dummyAI(Creature* c) : ScriptedAI(c)
         {
         }
 
@@ -419,24 +417,24 @@ public:
 
         void Reset()
         {
-            Unit *pTarget = me->FindNearestCreature(ENTRY_THROW_TARGET,50);
-            if (pTarget)
+            Unit* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
+            if (target)
             {
                 DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
-                float x,y,z;
-                pTarget->GetPosition(x,y,z);
-                me->GetMotionMaster()->MovePoint(0,x,y,z);
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                me->GetMotionMaster()->MovePoint(0, x, y, z);
             }
             uiDespawnTimer = 7000;
         }
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
         {
             if (uiDespawnTimer <= diff)
             {
-                me->DealDamage(me,me->GetHealth());
+                me->DealDamage(me, me->GetHealth());
                 me->RemoveCorpse();
                 uiDespawnTimer = 0;
             } else uiDespawnTimer -= diff;
@@ -444,7 +442,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_ingvar_the_plunderer()
 {

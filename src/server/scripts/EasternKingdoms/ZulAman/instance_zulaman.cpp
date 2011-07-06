@@ -61,7 +61,7 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+            instance_zulaman_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint64 HarkorsSatchelGUID;
             uint64 TanzarsTrunkGUID;

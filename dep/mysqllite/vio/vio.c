@@ -22,6 +22,33 @@
 
 #include "vio_priv.h"
 
+#if defined(__WIN__) || defined(HAVE_SMEM)
+
+/**
+  Stub poll_read method that defaults to indicate that there
+  is data to read.
+
+  Used for named pipe and shared memory VIO types.
+
+  @param vio      Unused.
+  @param timeout  Unused.
+
+  @retval FALSE   There is data to read.
+*/
+
+static my_bool no_poll_read(Vio *vio __attribute__((unused)),
+                            uint timeout __attribute__((unused)))
+{
+  return FALSE;
+}
+
+#endif
+
+static my_bool has_no_data(Vio *vio __attribute__((unused)))
+{
+  return FALSE;
+}
+
 /*
  * Helper to fill most of the Vio* with defaults.
  */
@@ -56,9 +83,12 @@ static void vio_init(Vio* vio, enum enum_vio_type type,
     vio->was_interrupted=vio_was_interrupted;
     vio->vioclose	=vio_close_pipe;
     vio->peer_addr	=vio_peer_addr;
-    vio->in_addr	=vio_in_addr;
     vio->vioblocking	=vio_blocking;
     vio->is_blocking	=vio_is_blocking;
+
+    vio->poll_read      =no_poll_read;
+    vio->is_connected   =vio_is_connected_pipe;
+    vio->has_data       =has_no_data;
 
     vio->timeout=vio_win32_timeout;
     /* Set default timeout */
@@ -81,9 +111,12 @@ static void vio_init(Vio* vio, enum enum_vio_type type,
     vio->was_interrupted=vio_was_interrupted;
     vio->vioclose	=vio_close_shared_memory;
     vio->peer_addr	=vio_peer_addr;
-    vio->in_addr	=vio_in_addr;
     vio->vioblocking	=vio_blocking;
     vio->is_blocking	=vio_is_blocking;
+
+    vio->poll_read      =no_poll_read;
+    vio->is_connected   =vio_is_connected_shared_memory;
+    vio->has_data       =has_no_data;
 
     /* Currently, shared memory is on Windows only, hence the below is ok*/
     vio->timeout= vio_win32_timeout; 
@@ -106,27 +139,32 @@ static void vio_init(Vio* vio, enum enum_vio_type type,
     vio->was_interrupted=vio_was_interrupted;
     vio->vioclose	=vio_ssl_close;
     vio->peer_addr	=vio_peer_addr;
-    vio->in_addr	=vio_in_addr;
     vio->vioblocking	=vio_ssl_blocking;
     vio->is_blocking	=vio_is_blocking;
     vio->timeout	=vio_timeout;
+    vio->poll_read      =vio_poll_read;
+    vio->is_connected   =vio_is_connected;
+    vio->has_data       =vio_ssl_has_data;
     DBUG_VOID_RETURN;
   }
 #endif /* HAVE_OPENSSL */
-  vio->viodelete	=vio_delete;
-  vio->vioerrno	=vio_errno;
-  vio->read= (flags & VIO_BUFFERED_READ) ? vio_read_buff : vio_read;
-  vio->write		=vio_write;
-  vio->fastsend	=vio_fastsend;
-  vio->viokeepalive	=vio_keepalive;
-  vio->should_retry	=vio_should_retry;
-  vio->was_interrupted=vio_was_interrupted;
-  vio->vioclose	=vio_close;
-  vio->peer_addr	=vio_peer_addr;
-  vio->in_addr	=vio_in_addr;
-  vio->vioblocking	=vio_blocking;
-  vio->is_blocking	=vio_is_blocking;
-  vio->timeout	=vio_timeout;
+  vio->viodelete        =vio_delete;
+  vio->vioerrno         =vio_errno;
+  vio->read=            (flags & VIO_BUFFERED_READ) ? vio_read_buff : vio_read;
+  vio->write            =vio_write;
+  vio->fastsend         =vio_fastsend;
+  vio->viokeepalive     =vio_keepalive;
+  vio->should_retry     =vio_should_retry;
+  vio->was_interrupted  =vio_was_interrupted;
+  vio->vioclose         =vio_close;
+  vio->peer_addr        =vio_peer_addr;
+  vio->vioblocking      =vio_blocking;
+  vio->is_blocking      =vio_is_blocking;
+  vio->timeout          =vio_timeout;
+  vio->poll_read        =vio_poll_read;
+  vio->is_connected     =vio_is_connected;
+  vio->has_data=        (flags & VIO_BUFFERED_READ) ?
+                            vio_buff_has_data : has_no_data;
   DBUG_VOID_RETURN;
 }
 
@@ -136,7 +174,7 @@ static void vio_init(Vio* vio, enum enum_vio_type type,
 void vio_reset(Vio* vio, enum enum_vio_type type,
                my_socket sd, HANDLE hPipe, uint flags)
 {
-  my_free(vio->read_buffer, MYF(MY_ALLOW_ZERO_PTR));
+  my_free(vio->read_buffer);
   vio_init(vio, type, sd, hPipe, flags);
 }
 
@@ -235,8 +273,8 @@ void vio_delete(Vio* vio)
 
   if (vio->type != VIO_CLOSED)
     vio->vioclose(vio);
-  my_free((uchar*) vio->read_buffer, MYF(MY_ALLOW_ZERO_PTR));
-  my_free((uchar*) vio,MYF(0));
+  my_free(vio->read_buffer);
+  my_free(vio);
 }
 
 

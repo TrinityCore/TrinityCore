@@ -62,7 +62,8 @@ enum eEnums
     MOB_FIRE_BOMB               = 23920,
 
 // -- Hatcher Spells
-    SPELL_HATCH_EGG             = 43734,   // 42471
+    SPELL_HATCH_EGG             = 42471,   // 43734
+    SPELL_SUMMON_HATCHLING      = 42493,
 
 // -- Hatchling Spells
     SPELL_FLAMEBUFFET           = 43299
@@ -87,18 +88,18 @@ float FireWallCoords[4][4] =
 float hatcherway[2][5][3] =
 {
     {
-        {-87.46f,1170.09f,6},
-        {-74.41f,1154.75f,6},
-        {-52.74f,1153.32f,19},
-        {-33.37f,1172.46f,19},
-        {-33.09f,1203.87f,19}
+        {-87.46f, 1170.09f, 6},
+        {-74.41f, 1154.75f, 6},
+        {-52.74f, 1153.32f, 19},
+        {-33.37f, 1172.46f, 19},
+        {-33.09f, 1203.87f, 19}
     },
     {
-        {-86.57f,1132.85f,6},
-        {-73.94f,1146.00f,6},
-        {-52.29f,1146.51f,19},
-        {-33.57f,1125.72f,19},
-        {-34.29f,1095.22f,19}
+        {-86.57f, 1132.85f, 6},
+        {-73.94f, 1146.00f, 6},
+        {-52.29f, 1146.51f, 19},
+        {-33.57f, 1125.72f, 19},
+        {-34.29f, 1095.22f, 19}
     }
 };
 class boss_janalai : public CreatureScript
@@ -112,16 +113,9 @@ class boss_janalai : public CreatureScript
 
         struct boss_janalaiAI : public ScriptedAI
         {
-            boss_janalaiAI(Creature *c) : ScriptedAI(c)
+            boss_janalaiAI(Creature* c) : ScriptedAI(c)
             {
-                pInstance =c->GetInstanceScript();
-
-                SpellEntry *TempSpell = GET_SPELL(SPELL_HATCH_EGG);
-                if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
-                {
-                    TempSpell->EffectImplicitTargetA[0] = 1;
-                    TempSpell->EffectImplicitTargetB[0] = 0;
-                }
+                pInstance = c->GetInstanceScript();
             }
 
             InstanceScript *pInstance;
@@ -175,10 +169,10 @@ class boss_janalai : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (pInstance)
                     pInstance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
@@ -187,11 +181,11 @@ class boss_janalai : public CreatureScript
         //        DoZoneInCombat();
             }
 
-            void DamageDealt(Unit *pTarget, uint32 &damage, DamageEffectType /*damagetype*/)
+            void DamageDealt(Unit* target, uint32 &damage, DamageEffectType /*damagetype*/)
             {
                 if (isFlameBreathing)
                 {
-                    if (!me->HasInArc(M_PI/6, pTarget))
+                    if (!me->HasInArc(M_PI/6, target))
                         damage = 0;
                 }
             }
@@ -210,9 +204,9 @@ class boss_janalai : public CreatureScript
                     for (uint8 j = 0; j < WallNum; j++)
                     {
                         if (WallNum == 3)
-                            wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0],FireWallCoords[i][1]+5*(j-1),FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
+                            wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0], FireWallCoords[i][1]+5*(j-1), FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);
                         else
-                            wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0]-2+4*j,FireWallCoords[i][1],FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
+                            wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0]-2+4*j, FireWallCoords[i][1], FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);
                         if (wall) wall->CastSpell(wall, SPELL_FIRE_WALL, true);
                     }
                 }
@@ -253,7 +247,7 @@ class boss_janalai : public CreatureScript
                 }
 
                 //sLog->outError("Eggs %d at middle", templist.size());
-                if (!templist.size())
+                if (templist.empty())
                     return false;
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
@@ -296,7 +290,7 @@ class boss_janalai : public CreatureScript
             {
                 if (BombCount < 40)
                 {
-                    if (Unit *FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
+                    if (Unit* FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
                     {
                         FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
@@ -312,7 +306,7 @@ class boss_janalai : public CreatureScript
                 {
                     Boom();
                     isBombing = false;
-                    BombTimer = urand(20000,40000);
+                    BombTimer = urand(20000, 40000);
                     me->RemoveAurasDueToSpell(SPELL_FIRE_BOMB_CHANNEL);
                     if (EnrageTimer <= 10000)
                         EnrageTimer = 0;
@@ -369,10 +363,10 @@ class boss_janalai : public CreatureScript
 
                     me->AttackStop();
                     me->GetMotionMaster()->Clear();
-                    DoTeleportTo(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2]);
+                    DoTeleportTo(JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2]);
                     me->StopMoving();
                     DoCast(me, SPELL_FIRE_BOMB_CHANNEL, false);
-                    //DoTeleportPlayer(me, JanalainPos[0][0], JanalainPos[0][1],JanalainPos[0][2], 0);
+                    //DoTeleportPlayer(me, JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2], 0);
                     //DoCast(me, SPELL_TELE_TO_CENTER, true);
 
                     FireWall();
@@ -400,7 +394,7 @@ class boss_janalai : public CreatureScript
 
                         me->AttackStop();
                         me->GetMotionMaster()->Clear();
-                        DoTeleportTo(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2]);
+                        DoTeleportTo(JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2]);
                         me->StopMoving();
                         DoCast(me, SPELL_HATCH_ALL, false);
                         HatchAllEggs(2);
@@ -411,8 +405,8 @@ class boss_janalai : public CreatureScript
                         if (HatchAllEggs(0))
                         {
                             DoScriptText(SAY_SUMMON_HATCHER, me);
-                            me->SummonCreature(MOB_AMANI_HATCHER,hatcherway[0][0][0],hatcherway[0][0][1],hatcherway[0][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
-                            me->SummonCreature(MOB_AMANI_HATCHER,hatcherway[1][0][0],hatcherway[1][0][1],hatcherway[1][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
+                            me->SummonCreature(MOB_AMANI_HATCHER, hatcherway[0][0][0], hatcherway[0][0][1], hatcherway[0][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                            me->SummonCreature(MOB_AMANI_HATCHER, hatcherway[1][0][0], hatcherway[1][0][1], hatcherway[1][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             HatcherTimer = 90000;
                         }
                         else
@@ -426,11 +420,11 @@ class boss_janalai : public CreatureScript
 
                 if (FireBreathTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         me->AttackStop();
                         me->GetMotionMaster()->Clear();
-                        DoCast(pTarget, SPELL_FLAME_BREATH, false);
+                        DoCast(target, SPELL_FLAME_BREATH, false);
                         me->StopMoving();
                         isFlameBreathing = true;
                     }
@@ -438,7 +432,6 @@ class boss_janalai : public CreatureScript
                 } else FireBreathTimer -= diff;
             }
         };
-
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -457,11 +450,11 @@ class mob_janalai_firebomb : public CreatureScript
 
         struct mob_janalai_firebombAI : public ScriptedAI
         {
-            mob_janalai_firebombAI(Creature *c) : ScriptedAI(c){}
+            mob_janalai_firebombAI(Creature* c) : ScriptedAI(c){}
 
             void Reset() {}
 
-            void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+            void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
@@ -493,7 +486,7 @@ class mob_janalai_hatcher : public CreatureScript
 
         struct mob_janalai_hatcherAI : public ScriptedAI
         {
-            mob_janalai_hatcherAI(Creature *c) : ScriptedAI(c)
+            mob_janalai_hatcherAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance =c->GetInstanceScript();
             }
@@ -579,7 +572,7 @@ class mob_janalai_hatcher : public CreatureScript
                     if (WaitTimer)
                     {
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(0,hatcherway[side][waypoint][0],hatcherway[side][waypoint][1],hatcherway[side][waypoint][2]);
+                        me->GetMotionMaster()->MovePoint(0, hatcherway[side][waypoint][0], hatcherway[side][waypoint][1], hatcherway[side][waypoint][2]);
                         ++waypoint;
                         WaitTimer = 0;
                     }
@@ -626,7 +619,7 @@ class mob_janalai_hatchling : public CreatureScript
 
         struct mob_janalai_hatchlingAI : public ScriptedAI
         {
-            mob_janalai_hatchlingAI(Creature *c) : ScriptedAI(c)
+            mob_janalai_hatchlingAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance =c->GetInstanceScript();
             }
@@ -638,14 +631,14 @@ class mob_janalai_hatchling : public CreatureScript
             {
                 BuffetTimer = 7000;
                 if (me->GetPositionY() > 1150)
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0]+rand()%4-2,1150.0f+rand()%4-2,hatcherway[0][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[0][3][2]);
                 else
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2,1150.0f+rand()%4-2,hatcherway[1][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[1][3][2]);
 
                 me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             }
 
-            void EnterCombat(Unit * /*who*/) {/*DoZoneInCombat();*/}
+            void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
 
             void UpdateAI(const uint32 diff)
             {
@@ -677,11 +670,7 @@ class mob_janalai_hatchling : public CreatureScript
 class mob_janalai_egg : public CreatureScript
 {
 public:
-
-    mob_janalai_egg()
-        : CreatureScript("mob_janalai_egg")
-    {
-    }
+    mob_janalai_egg(): CreatureScript("mob_janalai_egg") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -690,19 +679,17 @@ public:
 
     struct mob_janalai_eggAI : public ScriptedAI
     {
-        mob_janalai_eggAI(Creature *c) : ScriptedAI(c){}
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/) {}
+        mob_janalai_eggAI(Creature* creature) : ScriptedAI(creature){}
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        void Reset() {}
+
+        void UpdateAI(uint32 const /*diff*/) {}
+
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
         {
             if (spell->Id == SPELL_HATCH_EGG)
             {
-                DoSpawnCreature(MOB_HATCHLING, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-                me->SetDisplayId(11686);
+                DoCast(SPELL_SUMMON_HATCHLING);
             }
         }
     };

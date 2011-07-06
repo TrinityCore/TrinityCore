@@ -28,8 +28,9 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
+#include "WorldPacket.h"
 
-struct ItemPrototype;
+struct ItemTemplate;
 struct AuctionEntry;
 struct DeclinedName;
 struct MovementInfo;
@@ -44,10 +45,8 @@ class Quest;
 class WorldPacket;
 class WorldSocket;
 class LoginQueryHolder;
-class CharacterHandler;
 class SpellCastTargets;
 struct AreaTableEntry;
-struct GM_Ticket;
 struct LfgJoinResultData;
 struct LfgLockStatus;
 struct LfgPlayerBoot;
@@ -175,10 +174,45 @@ public:
     virtual bool Process(WorldPacket* packet);
 };
 
+// Proxy structure to contain data passed to callback function,
+// only to prevent bloating the parameter list
+class CharacterCreateInfo
+{
+    friend class WorldSession;
+    friend class Player;
+
+    protected:
+        CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId,
+        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair),
+        OutfitId(outfitId), Data(data), CharCount(0), Stage(0)
+        {}
+
+        /// User specified variables
+        std::string Name;
+        uint8 Race;
+        uint8 Class;
+        uint8 Gender;
+        uint8 Skin;
+        uint8 Face;
+        uint8 HairStyle;
+        uint8 HairColor;
+        uint8 FacialHair;
+        uint8 OutfitId;
+        WorldPacket Data;
+
+        /// Server side data
+        uint8 CharCount;
+
+        /// Internal
+        uint8 Stage;        // Stage of the callback chain
+
+    private:
+        virtual ~CharacterCreateInfo(){};
+};
+
 /// Player session in the World
 class WorldSession
 {
-    friend class CharacterHandler;
     public:
         WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter);
         ~WorldSession();
@@ -196,11 +230,11 @@ class WorldSession
         void WriteMovementInfo(WorldPacket *data, MovementInfo *mi);
 
         void SendPacket(WorldPacket const* packet);
-        void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
-        void SendNotification(uint32 string_id,...);
+        void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
+        void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);
+        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(uint32 phaseShift);
         void SendQueryTimeResponse();
 
@@ -250,7 +284,7 @@ class WorldSession
 
         void SendTrainerList(uint64 guid);
         void SendTrainerList(uint64 guid, const std::string& strTitle);
-        void SendListInventory(uint64 guid);
+        void SendListInventory(uint64 vendorGuid);
         void SendShowBank(uint64 guid);
         void SendTabardVendorActivate(uint64 guid);
         void SendSpiritResurrect();
@@ -278,37 +312,34 @@ class WorldSession
 
         // Account Data
         AccountData *GetAccountData(AccountDataType type) { return &m_accountData[type]; }
-        void SetAccountData(AccountDataType type, time_t time_, std::string data);
+        void SetAccountData(AccountDataType type, time_t tm, std::string data);
         void SendAccountDataTimes(uint32 mask);
         void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
+
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
-        uint32 GetTutorialInt(uint32 intId)
+        uint32 GetTutorialInt(uint8 index) { return m_Tutorials[index]; }
+        void SetTutorialInt(uint8 index, uint32 value)
         {
-            return m_Tutorials[intId];
-        }
-
-        void SetTutorialInt(uint32 intId, uint32 value)
-        {
-            if (m_Tutorials[intId] != value)
+            if (m_Tutorials[index] != value)
             {
-                m_Tutorials[intId] = value;
+                m_Tutorials[index] = value;
                 m_TutorialsChanged = true;
             }
         }
         //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
-        void SendAuctionHello(uint64 guid, Creature * unit);
+        void SendAuctionHello(uint64 guid, Creature* unit);
         void SendAuctionCommandResult(uint32 auctionId, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry * auction);
 
         //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster,uint32 ItemID,uint32 SpellID);
-        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid,uint32 slot,uint32 Duration);
+        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
+        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
         void SendTaxiStatus(uint64 guid);
@@ -322,7 +353,7 @@ class WorldSession
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
 
-        void BuildPartyMemberStatsChangedPacket(Player *player, WorldPacket *data);
+        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket *data);
 
         void DoLootRelease(uint64 lguid);
 
@@ -370,6 +401,7 @@ class WorldSession
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
+        void HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(QueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
@@ -428,8 +460,6 @@ class WorldSession
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
         void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
         void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
-        void SendGMTicketGetTicket(uint32 status, char const* text, GM_Ticket *ticket = NULL);
-        void SendGMTicketResponse(GM_Ticket *ticket);
         void HandleGMSurveySubmit(WorldPacket& recvPacket);
         void HandleReportLag(WorldPacket& recvPacket);
         void HandleGMResponseResolve(WorldPacket& recvPacket);
@@ -606,7 +636,7 @@ class WorldSession
         void HandleQueryNextMailTime(WorldPacket & recv_data);
         void HandleCancelChanneling(WorldPacket & recv_data);
 
-        void SendItemPageInfo(ItemPrototype *itemProto);
+        void SendItemPageInfo(ItemTemplate *itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
@@ -714,7 +744,6 @@ class WorldSession
         void HandlePetAbandon(WorldPacket & recv_data);
         void HandlePetRename(WorldPacket & recv_data);
         void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
-        void HandlePetUnlearnOpcode(WorldPacket& recvPacket);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
         void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
         void HandlePetLearnTalent(WorldPacket& recvPacket);
@@ -848,7 +877,7 @@ class WorldSession
         void HandleCalendarGetNumPending(WorldPacket& recv_data);
 
         void HandleSpellClick(WorldPacket& recv_data);
-        void HandleMirrrorImageDataRequest(WorldPacket & recv_data);
+        void HandleMirrorImageDataRequest(WorldPacket & recv_data);
         void HandleAlterAppearance(WorldPacket& recv_data);
         void HandleRemoveGlyph(WorldPacket& recv_data);
         void HandleCharCustomize(WorldPacket& recv_data);
@@ -862,28 +891,41 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recv_data);
         void HandleEjectPassenger(WorldPacket &data);
         void HandleEnterPlayerVehicle(WorldPacket &data);
+        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
 
     private:
+        void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
-        ACE_Future_Set<QueryResult> m_nameQueryCallbacks;
-        QueryResultFuture m_charEnumCallback;
-        QueryResultFuture m_addIgnoreCallback;
-        QueryResultFuture m_stablePetCallback;
-        QueryCallback<std::string> m_charRenameCallback;
-        QueryCallback<std::string> m_addFriendCallback;
-        QueryCallback<uint32> m_unstablePetCallback;
-        QueryCallback<uint32> m_stableSwapCallback;
-        QueryCallback<uint64> m_sendStabledPetCallback;
-        QueryResultHolderFuture m_charLoginCallback;
+        ACE_Future_Set<QueryResult> _nameQueryCallbacks;
+        QueryResultFuture _charEnumCallback;
+        QueryResultFuture _addIgnoreCallback;
+        QueryResultFuture _stablePetCallback;
+        QueryCallback<QueryResult, std::string> _charRenameCallback;
+        QueryCallback<QueryResult, std::string> _addFriendCallback;
+        QueryCallback<QueryResult, uint32> _unstablePetCallback;
+        QueryCallback<QueryResult, uint32> _stableSwapCallback;
+        QueryCallback<QueryResult, uint64> _sendStabledPetCallback;
+        QueryCallback<PreparedQueryResult, CharacterCreateInfo*> _charCreateCallback;
+        QueryResultHolderFuture _charLoginCallback;
 
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
 
         // logging helper
-        void LogUnexpectedOpcode(WorldPacket *packet, const char* status, const char *reason);
-        void LogUnprocessedTail(WorldPacket *packet);
+        void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
+        void LogUnprocessedTail(WorldPacket* packet);
+
+        // EnumData helpers
+        bool CharCanLogin(uint32 lowGUID)
+        {
+            return _allowedCharsToLogin.find(lowGUID) != _allowedCharsToLogin.end();
+        }
+
+        // this stores the GUIDs of the characters who can login
+        // characters who failed on Player::BuildEnumData shouldn't login
+        std::set<uint32> _allowedCharsToLogin;
 
         uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
         Player *_player;
@@ -904,7 +946,7 @@ class WorldSession
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 m_Tutorials[MAX_CHARACTER_TUTORIAL_VALUES];
+        uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
         AddonsList m_addonsList;
         uint32 recruiterId;

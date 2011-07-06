@@ -34,7 +34,7 @@ public:
 
     struct generic_creatureAI : public ScriptedAI
     {
-        generic_creatureAI(Creature *c) : ScriptedAI(c) {}
+        generic_creatureAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 GlobalCooldown;      //This variable acts like the global cooldown that players have (1.5 seconds)
         uint32 BuffTimer;           //This variable keeps track of buffs
@@ -47,7 +47,7 @@ public:
             IsSelfRooted = false;
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* who)
         {
             if (!me->IsWithinMeleeRange(who))
                 IsSelfRooted = true;
@@ -143,8 +143,8 @@ public:
                             IsSelfRooted = true;
 
                         //Cast spell
-                        if (Healing) DoCastSpell(me,info);
-                        else DoCastSpell(me->getVictim(),info);
+                        if (Healing) DoCastSpell(me, info);
+                        else DoCastSpell(me->getVictim(), info);
 
                         //Set our global cooldown
                         GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -161,7 +161,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new generic_creatureAI(creature);
     }
@@ -197,7 +197,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new trigger_periodicAI(creature);
     }
@@ -211,14 +211,14 @@ public:
     struct trigger_deathAI : public NullCreatureAI
     {
         trigger_deathAI(Creature* c) : NullCreatureAI(c) {}
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             if (me->m_spells[0])
                 me->CastSpell(killer, me->m_spells[0], true);
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new trigger_deathAI(creature);
     }

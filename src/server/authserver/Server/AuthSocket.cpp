@@ -50,11 +50,11 @@ enum eStatus
     STATUS_AUTHED
 };
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some paltform
+// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some paltform
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
-#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
 
 typedef struct AUTH_LOGON_CHALLENGE_C
@@ -169,7 +169,7 @@ public:
     Patches::const_iterator begin() const { return _patches.begin(); }
     Patches::const_iterator end() const { return _patches.end(); }
     void LoadPatchMD5(char*);
-    bool GetHash(char * pat,uint8 mymd5[16]);
+    bool GetHash(char * pat, uint8 mymd5[16]);
 
 private:
     void LoadPatchesInfo();
@@ -213,7 +213,7 @@ void AuthSocket::OnAccept(void)
 
 void AuthSocket::OnClose(void)
 {
-    sLog->outDebug("AuthSocket::OnClose");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "AuthSocket::OnClose");
 }
 
 // Read the packet from the client
@@ -420,7 +420,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     std::string databaseV = fields[5].GetString();
                     std::string databaseS = fields[6].GetString();
 
-                    sLog->outDebug("database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
 
                     // multiply with 2 since bytes are stored as hexstring
                     if (databaseV.size() != s_BYTE_SIZE * 2 || databaseS.size() != s_BYTE_SIZE * 2)
@@ -505,7 +505,7 @@ bool AuthSocket::_HandleLogonProof()
     if (_expversion == NO_VALID_EXP_FLAG)
     {
         // Check if we have the appropriate patch on the disk
-        sLog->outDebug("Client with invalid version, patching is not implemented");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Client with invalid version, patching is not implemented");
         socket().shutdown();
         return true;
     }
@@ -909,7 +909,7 @@ bool AuthSocket::_HandleXferResume()
     // Launch a PatcherRunnable thread starting at given patch file offset
     uint64 start;
     socket().recv_skip(1);
-    socket().recv((char*)&start,sizeof(start));
+    socket().recv((char*)&start, sizeof(start));
     fseek(pPatch, long(start), 0);
 
     ACE_Based::Thread u(new PatcherRunnable(this));
@@ -1017,7 +1017,7 @@ void Patcher::LoadPatchMD5(char *szFileName)
     std::string path = "./patches/";
     path += szFileName;
     FILE *pPatch = fopen(path.c_str(), "rb");
-    sLog->outDebug("Loading patch info from %s\n", path.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Loading patch info from %s\n", path.c_str());
 
     if (!pPatch)
     {

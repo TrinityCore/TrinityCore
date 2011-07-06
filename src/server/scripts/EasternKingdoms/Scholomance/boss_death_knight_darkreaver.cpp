@@ -30,26 +30,26 @@ class boss_death_knight_darkreaver : public CreatureScript
 public:
     boss_death_knight_darkreaver() : CreatureScript("boss_death_knight_darkreaver") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_death_knight_darkreaverAI (pCreature);
+        return new boss_death_knight_darkreaverAI (creature);
     }
 
     struct boss_death_knight_darkreaverAI : public ScriptedAI
     {
-        boss_death_knight_darkreaverAI(Creature *c) : ScriptedAI(c) {}
+        boss_death_knight_darkreaverAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()
         {
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (me->GetHealth() <= damage)
                 DoCast(me, 23261, true);   //Summon Darkreaver's Fallen Charger
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
         }
     };

@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /* Script Data Start
 SDName: Boss epoch
 SDAuthor: Tartalo
@@ -54,14 +53,14 @@ class boss_epoch : public CreatureScript
 public:
     boss_epoch() : CreatureScript("boss_epoch") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_epochAI (pCreature);
+        return new boss_epochAI (creature);
     }
 
     struct boss_epochAI : public ScriptedAI
     {
-        boss_epochAI(Creature *c) : ScriptedAI(c)
+        boss_epochAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -105,8 +104,8 @@ public:
 
             if (uiCurseOfExertionTimer < diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CURSE_OF_EXERTION);
                 uiCurseOfExertionTimer = 9300;
             } else uiCurseOfExertionTimer -= diff;
 
@@ -124,7 +123,7 @@ public:
 
             if (uiTimeWarpTimer < diff)
             {
-                DoScriptText(RAND(SAY_TIME_WARP_1,SAY_TIME_WARP_2,SAY_TIME_WARP_3), me);
+                DoScriptText(RAND(SAY_TIME_WARP_1, SAY_TIME_WARP_2, SAY_TIME_WARP_3), me);
                 DoCastAOE(SPELL_TIME_WARP);
                 uiTimeWarpTimer = 25300;
             } else uiTimeWarpTimer -= diff;
@@ -140,17 +139,16 @@ public:
                 pInstance->SetData(DATA_EPOCH_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
 
 };
-
 
 void AddSC_boss_epoch()
 {

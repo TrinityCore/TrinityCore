@@ -21,11 +21,11 @@
 #define EMOTE_BREATH            -1533082
 #define EMOTE_ENRAGE            -1533083
 
-#define SPELL_FROST_AURA        RAID_MODE(28531,55799)
+#define SPELL_FROST_AURA        RAID_MODE(28531, 55799)
 #define SPELL_CLEAVE            19983
-#define SPELL_TAIL_SWEEP        RAID_MODE(55697,55696)
+#define SPELL_TAIL_SWEEP        RAID_MODE(55697, 55696)
 #define SPELL_SUMMON_BLIZZARD   28560
-#define SPELL_LIFE_DRAIN        RAID_MODE(28542,55665)
+#define SPELL_LIFE_DRAIN        RAID_MODE(28542, 55665)
 #define SPELL_ICEBOLT           28522
 #define SPELL_FROST_BREATH      29318
 #define SPELL_FROST_EXPLOSION   28524
@@ -33,7 +33,7 @@
 #define SPELL_BERSERK           26662
 #define SPELL_DIES              29357
 
-#define SPELL_CHILL             RAID_MODE(28547,55699)
+#define SPELL_CHILL             RAID_MODE(28547, 55699)
 
 #define MOB_BLIZZARD            16474
 #define GO_ICEBLOCK             181247
@@ -74,9 +74,9 @@ class boss_sapphiron : public CreatureScript
 public:
     boss_sapphiron() : CreatureScript("boss_sapphiron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sapphironAI (pCreature);
+        return new boss_sapphironAI (creature);
     }
 
     struct boss_sapphironAI : public BossAI
@@ -120,7 +120,7 @@ public:
             CheckFrostResistTimer = 5000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 
@@ -132,14 +132,14 @@ public:
             CheckPlayersFrostResist();
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
-                IceBlockMap::iterator itr = iceblocks.find(pTarget->GetGUID());
+                IceBlockMap::iterator itr = iceblocks.find(target->GetGUID());
                 if (itr != iceblocks.end() && !itr->second)
                 {
-                    if (GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                    if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                         itr->second = iceblock->GetGUID();
                 }
             }
@@ -213,8 +213,8 @@ public:
         {
             for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
             {
-                if (Player* pPlayer = Unit::GetPlayer(*me, itr->first))
-                    pPlayer->RemoveAura(SPELL_ICEBOLT);
+                if (Player* player = Unit::GetPlayer(*me, itr->first))
+                    player->RemoveAura(SPELL_ICEBOLT);
                 if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     pGo->Delete();
             }
@@ -265,9 +265,9 @@ public:
                         case EVENT_BLIZZARD:
                         {
                             //DoCastAOE(SPELL_SUMMON_BLIZZARD);
-                            if (Creature *pSummon = DoSummon(MOB_BLIZZARD, me, 0.0f, urand(25000,30000), TEMPSUMMON_TIMED_DESPAWN))
-                                pSummon->GetMotionMaster()->MoveRandom(40);
-                            events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20000,7000), 0, PHASE_GROUND);
+                            if (Creature* summon = DoSummon(MOB_BLIZZARD, me, 0.0f, urand(25000, 30000), TEMPSUMMON_TIMED_DESPAWN))
+                                summon->GetMotionMaster()->MoveRandom(40);
+                            events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20000, 7000), 0, PHASE_GROUND);
                             break;
                         }
                         case EVENT_FLIGHT:
@@ -295,7 +295,7 @@ public:
                             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                             me->SendMovementFlagUpdate();
                             events.ScheduleEvent(EVENT_ICEBOLT, 1500);
-                            iceboltCount = RAID_MODE(2,3);
+                            iceboltCount = RAID_MODE(2, 3);
                             return;
                         case EVENT_ICEBOLT:
                         {
@@ -360,14 +360,14 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (; i != me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit *pTarget = (*i)->getTarget();
-                if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                Unit* target = (*i)->getTarget();
+                if (target->GetTypeId() != TYPEID_PLAYER)
                     continue;
 
-                if (pTarget->HasAura(SPELL_ICEBOLT))
+                if (target->HasAura(SPELL_ICEBOLT))
                 {
-                    pTarget->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
-                    targets.push_back(pTarget);
+                    target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                    targets.push_back(target);
                     continue;
                 }
 
@@ -375,11 +375,11 @@ public:
                 {
                     if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, pTarget, 2.0f)
-                            && me->GetExactDist2d(pTarget->GetPositionX(), pTarget->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
+                        if (pGo->IsInBetween(me, target, 2.0f)
+                            && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                         {
-                            pTarget->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
-                            targets.push_back(pTarget);
+                            target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                            targets.push_back(target);
                             break;
                         }
                     }
@@ -394,7 +394,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_sapphiron()
 {

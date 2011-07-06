@@ -40,7 +40,7 @@ class boss_gahzranka : public CreatureScript
 
         struct boss_gahzrankaAI : public ScriptedAI
         {
-            boss_gahzrankaAI(Creature *c) : ScriptedAI(c) {}
+            boss_gahzrankaAI(Creature* c) : ScriptedAI(c) {}
             uint32 Frostbreath_Timer;
             uint32 MassiveGeyser_Timer;
             uint32 Slam_Timer;
@@ -52,7 +52,7 @@ class boss_gahzranka : public CreatureScript
                 Slam_Timer = 17000;
             }
 
-            void EnterCombat(Unit * /*who*/)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 

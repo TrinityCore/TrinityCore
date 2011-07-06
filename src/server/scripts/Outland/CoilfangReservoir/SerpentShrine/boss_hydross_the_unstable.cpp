@@ -81,14 +81,14 @@ class boss_hydross_the_unstable : public CreatureScript
 public:
     boss_hydross_the_unstable() : CreatureScript("boss_hydross_the_unstable") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_hydross_the_unstableAI (pCreature);
+        return new boss_hydross_the_unstableAI (creature);
     }
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
     {
-        boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(me)
+        boss_hydross_the_unstableAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -137,18 +137,18 @@ public:
 
         void SummonBeams()
         {
-            Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-258.333f,-356.34f,22.0499f,5.90835f,TEMPSUMMON_CORPSE_DESPAWN,0);
+            Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -258.333f, -356.34f, 22.0499f, 5.90835f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (beamer)
             {
-                beamer->CastSpell(me,SPELL_BLUE_BEAM,true);
+                beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[0]=beamer->GetGUID();
             }
-            beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-219.918f,-371.308f,22.0042f,2.73072f,TEMPSUMMON_CORPSE_DESPAWN,0);
+            beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -219.918f, -371.308f, 22.0042f, 2.73072f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (beamer)
             {
-                beamer->CastSpell(me,SPELL_BLUE_BEAM,true);
+                beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[1]=beamer->GetGUID();
@@ -158,7 +158,7 @@ public:
         {
             for (uint8 i=0; i<2; ++i)
             {
-                Creature* mob = Unit::GetCreature(*me,beams[i]);
+                Creature* mob = Unit::GetCreature(*me, beams[i]);
                 if (mob)
                 {
                     mob->setDeathState(DEAD);
@@ -166,7 +166,7 @@ public:
                 }
             }
         }
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
@@ -174,15 +174,15 @@ public:
                 pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (CorruptedForm)
             {
-                DoScriptText(RAND(SAY_CORRUPT_SLAY1,SAY_CORRUPT_SLAY2), me);
+                DoScriptText(RAND(SAY_CORRUPT_SLAY1, SAY_CORRUPT_SLAY2), me);
             }
             else
             {
-                DoScriptText(RAND(SAY_CLEAN_SLAY1,SAY_CLEAN_SLAY2), me);
+                DoScriptText(RAND(SAY_CLEAN_SLAY1, SAY_CLEAN_SLAY2), me);
             }
         }
 
@@ -191,23 +191,23 @@ public:
             if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
             {
                 summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-                summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
+                summoned->CastSpell(summoned, SPELL_ELEMENTAL_SPAWNIN, true);
                 Summons.Summon(summoned);
             }
             if (summoned->GetEntry() == ENTRY_TAINTED_SPAWN)
             {
                 summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
-                summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
+                summoned->CastSpell(summoned, SPELL_ELEMENTAL_SPAWNIN, true);
                 Summons.Summon(summoned);
             }
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             Summons.Despawn(summon);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             if (CorruptedForm)
                 DoScriptText(SAY_CORRUPT_DEATH, me);
@@ -262,9 +262,9 @@ public:
                 //VileSludge_Timer
                 if (VileSludge_Timer <= diff)
                 {
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_VILE_SLUDGE);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
+                        DoCast(target, SPELL_VILE_SLUDGE);
 
                     VileSludge_Timer = 15000;
                 } else VileSludge_Timer -= diff;
@@ -305,7 +305,7 @@ public:
                 {
                     if (MarkOfHydross_Count <= 5)
                     {
-                        uint32 mark_spell = NULL;
+                        uint32 mark_spell = 0;
 
                         switch(MarkOfHydross_Count)
                         {
@@ -329,9 +329,9 @@ public:
                 //WaterTomb_Timer
                 if (WaterTomb_Timer <= diff)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_WATER_TOMB);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (target)
+                        DoCast(target, SPELL_WATER_TOMB);
 
                     WaterTomb_Timer = 7000;
                 } else WaterTomb_Timer -= diff;

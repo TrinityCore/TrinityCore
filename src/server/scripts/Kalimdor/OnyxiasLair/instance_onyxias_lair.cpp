@@ -37,11 +37,11 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
-        std::map<uint64,uint32> FloorEruptionGUID[2];
+        std::map<uint64, uint32> FloorEruptionGUID[2];
         std::queue<uint64> FloorEruptionGUIDQueue;
 
         uint64 m_uiOnyxiasGUID;
@@ -81,7 +81,7 @@ public:
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
-                FloorEruptionGUID[0].insert(std::make_pair(go->GetGUID(),0));
+                FloorEruptionGUID[0].insert(std::make_pair(go->GetGUID(), 0));
                 return;
             }
 
@@ -90,7 +90,7 @@ public:
                 case GO_WHELP_SPAWNER:
                     Position goPos;
                     go->GetPosition(&goPos);
-                    if (Creature* pTemp = go->SummonCreature(NPC_WHELP,goPos,TEMPSUMMON_CORPSE_DESPAWN))
+                    if (Creature* pTemp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
                     {
                         pTemp->SetInCombatWithZone();
                         ++m_uiManyWhelpsCounter;
@@ -114,7 +114,7 @@ public:
             {
                 //THIS GOB IS A TRAP - What shall i do? =(
                 //Cast it spell? Copyed Heigan method
-                pFloorEruption->SendCustomAnim();
+                pFloorEruption->SendCustomAnim(pFloorEruption->GetGoAnimProgress());
                 pFloorEruption->CastSpell(NULL, Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
 
                 //Get all immediatly nearby floors
@@ -252,7 +252,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_onyxias_lair()
 {

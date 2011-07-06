@@ -242,8 +242,8 @@ void UpdateWorldState(Map *map, uint32 id, uint32 state)
     {
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
-            if (Player* pPlayer = itr->getSource())
-                pPlayer->SendUpdateWorldState(id,state);
+            if (Player* player = itr->getSource())
+                player->SendUpdateWorldState(id, state);
         }
     }
 }
@@ -287,41 +287,41 @@ class npc_highlord_darion_mograine : public CreatureScript
 public:
     npc_highlord_darion_mograine() : CreatureScript("npc_highlord_darion_mograine") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, pCreature->AI())->uiStep = 1;
-                CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, pCreature->AI())->Start(true, false, pPlayer->GetGUID());
+                player->CLOSE_GOSSIP_MENU();
+                CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, creature->AI())->uiStep = 1;
+                CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, creature->AI())->Start(true, false, player->GetGUID());
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->GetQuestStatus(12801) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(0, "I am ready.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(12801) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(0, "I am ready.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_highlord_darion_mograineAI(pCreature);
+        return new npc_highlord_darion_mograineAI(creature);
     }
 
     struct npc_highlord_darion_mograineAI : public npc_escortAI
     {
-        npc_highlord_darion_mograineAI(Creature *pCreature) : npc_escortAI(pCreature)
+        npc_highlord_darion_mograineAI(Creature* creature) : npc_escortAI(creature)
         {
             Reset();
         }
@@ -377,11 +377,11 @@ public:
                 uiTotal_scourge = ENCOUNTER_TOTAL_SCOURGE;
                 uiSummon_counter = 0;
 
-                uiAnti_magic_zone = urand(1000,6000);
-                uiDeath_strike = urand(5000,10000);
-                uiDeath_embrace = urand(5000,10000);
-                uiIcy_touch = urand(5000,10000);
-                uiUnholy_blight = urand(5000,10000);
+                uiAnti_magic_zone = urand(1000, 6000);
+                uiDeath_strike = urand(5000, 10000);
+                uiDeath_embrace = urand(5000, 10000);
+                uiIcy_touch = urand(5000, 10000);
+                uiUnholy_blight = urand(5000, 10000);
 
                 uiFight_speech = 15000;
                 uiSpawncheck = 1000;
@@ -406,11 +406,11 @@ public:
                 if (Creature* pTemp = Unit::GetCreature(*me, uiRayneGUID))
                     pTemp->setDeathState(JUST_DIED);
 
-                uiTirionGUID = NULL;
-                uiKorfaxGUID = NULL;
-                uiMaxwellGUID = NULL;
-                uiEligorGUID = NULL;
-                uiRayneGUID = NULL;
+                uiTirionGUID = 0;
+                uiKorfaxGUID = 0;
+                uiMaxwellGUID = 0;
+                uiEligorGUID = 0;
+                uiRayneGUID = 0;
 
                 for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
                 {
@@ -434,10 +434,10 @@ public:
                 if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
                     pTemp->Respawn();
 
-                uiKoltiraGUID = NULL;
-                uiOrbazGUID = NULL;
-                uiThassarianGUID = NULL;
-                uiLichKingGUID = NULL;
+                uiKoltiraGUID = 0;
+                uiOrbazGUID = 0;
+                uiThassarianGUID = 0;
+                uiLichKingGUID = 0;
                 for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                 {
                     if (Creature* pTemp = Unit::GetCreature(*me, uiAbominationGUID[i]))
@@ -1381,11 +1381,11 @@ public:
 
                 if (uiFight_speech <= diff)
                 {
-                    DoScriptText(RAND(SAY_LIGHT_OF_DAWN09,SAY_LIGHT_OF_DAWN10,SAY_LIGHT_OF_DAWN11,
-                                      SAY_LIGHT_OF_DAWN12,SAY_LIGHT_OF_DAWN13,SAY_LIGHT_OF_DAWN14,
-                                      SAY_LIGHT_OF_DAWN15,SAY_LIGHT_OF_DAWN16,SAY_LIGHT_OF_DAWN17,
-                                      SAY_LIGHT_OF_DAWN18,SAY_LIGHT_OF_DAWN19,SAY_LIGHT_OF_DAWN20,
-                                      SAY_LIGHT_OF_DAWN21,SAY_LIGHT_OF_DAWN22,SAY_LIGHT_OF_DAWN23,
+                    DoScriptText(RAND(SAY_LIGHT_OF_DAWN09, SAY_LIGHT_OF_DAWN10, SAY_LIGHT_OF_DAWN11,
+                                      SAY_LIGHT_OF_DAWN12, SAY_LIGHT_OF_DAWN13, SAY_LIGHT_OF_DAWN14,
+                                      SAY_LIGHT_OF_DAWN15, SAY_LIGHT_OF_DAWN16, SAY_LIGHT_OF_DAWN17,
+                                      SAY_LIGHT_OF_DAWN18, SAY_LIGHT_OF_DAWN19, SAY_LIGHT_OF_DAWN20,
+                                      SAY_LIGHT_OF_DAWN21, SAY_LIGHT_OF_DAWN22, SAY_LIGHT_OF_DAWN23,
                                       SAY_LIGHT_OF_DAWN24), me);
                     uiFight_speech = 15000 + rand()%5000;
                 } else uiFight_speech -= diff;
@@ -1535,7 +1535,7 @@ public:
         {
             if (Creature* pTemp = Unit::GetCreature(*me, ui_GUID))
                 if (pTemp->isAlive())
-                    if (Unit* pTarger = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarger = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         if (pTarger->isAlive())
                         {
                             // pTemp->DeleteThreatList();
@@ -1663,8 +1663,6 @@ public:
 
 };
 
-
-
 /*######
 ## npc the lich king in dawn of light
 ######*/
@@ -1673,23 +1671,21 @@ class npc_the_lich_king_tirion_dawn : public CreatureScript
 public:
     npc_the_lich_king_tirion_dawn() : CreatureScript("npc_the_lich_king_tirion_dawn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_the_lich_king_tirion_dawnAI (pCreature);
+        return new npc_the_lich_king_tirion_dawnAI (creature);
     }
 
     struct npc_the_lich_king_tirion_dawnAI : public ScriptedAI
     {
-        npc_the_lich_king_tirion_dawnAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+        npc_the_lich_king_tirion_dawnAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
         void Reset() {}
-        void AttackStart(Unit * /*who*/) {} // very sample, just don't make them aggreesive
+        void AttackStart(Unit* /*who*/) {} // very sample, just don't make them aggreesive
         void UpdateAI(const uint32 /*diff*/) {}
         void JustDied(Unit* /*killer*/) {}
     };
 
 };
-
-
 
 void AddSC_the_scarlet_enclave_c5()
 {

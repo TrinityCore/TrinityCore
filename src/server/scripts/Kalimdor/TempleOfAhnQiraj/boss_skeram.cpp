@@ -44,7 +44,7 @@ EndScriptData */
 class ov_mycoordinates
 {
     public:
-        float x,y,z,r;
+        float x, y, z, r;
         ov_mycoordinates(float cx, float cy, float cz, float cr)
         {
             x = cx; y = cy; z = cz; r = cr;
@@ -56,14 +56,14 @@ class boss_skeram : public CreatureScript
 public:
     boss_skeram() : CreatureScript("boss_skeram") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_skeramAI (pCreature);
+        return new boss_skeramAI (creature);
     }
 
     struct boss_skeramAI : public ScriptedAI
     {
-        boss_skeramAI(Creature *c) : ScriptedAI(c)
+        boss_skeramAI(Creature* c) : ScriptedAI(c)
         {
             IsImage = false;
         }
@@ -102,7 +102,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -111,11 +111,11 @@ public:
                 DoScriptText(SAY_DEATH, me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (IsImage || Images75)
                 return;
-            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
+            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -154,18 +154,18 @@ public:
             if (Blink_Timer <= diff)
             {
                 //DoCast(me, SPELL_BLINK);
-                switch (urand(0,2))
+                switch (urand(0, 2))
                 {
                     case 0:
-                        me->GetMap()->CreatureRelocation(me, -8340.782227f,2083.814453f,125.648788f,0.0f);
+                        me->GetMap()->CreatureRelocation(me, -8340.782227f, 2083.814453f, 125.648788f, 0.0f);
                         DoResetThreat();
                         break;
                     case 1:
-                        me->GetMap()->CreatureRelocation(me, -8341.546875f,2118.504639f,133.058151f,0.0f);
+                        me->GetMap()->CreatureRelocation(me, -8341.546875f, 2118.504639f, 133.058151f, 0.0f);
                         DoResetThreat();
                         break;
                     case 2:
-                        me->GetMap()->CreatureRelocation(me, -8318.822266f,2058.231201f,133.058151f,0.0f);
+                        me->GetMap()->CreatureRelocation(me, -8318.822266f, 2058.231201f, 133.058151f, 0.0f);
                         DoResetThreat();
                         break;
                 }
@@ -209,13 +209,13 @@ public:
         {
             DoScriptText(SAY_SPLIT, me);
 
-            ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227f,2083.814453f,125.648788f,0);
-            ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875f,2118.504639f,133.058151f,0);
-            ov_mycoordinates *place3 = new ov_mycoordinates(-8318.822266f,2058.231201f,133.058151f,0);
+            ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227f, 2083.814453f, 125.648788f, 0);
+            ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875f, 2118.504639f, 133.058151f, 0);
+            ov_mycoordinates *place3 = new ov_mycoordinates(-8318.822266f, 2058.231201f, 133.058151f, 0);
 
             ov_mycoordinates *bossc=place1, *i1=place2, *i2=place3;
 
-            switch (urand(0,2))
+            switch (urand(0, 2))
             {
                 case 0:
                     bossc=place1;
@@ -236,9 +236,9 @@ public:
 
             for (uint16 i = 0; i < 41; ++i)
             {
-                if (Player *pTarget = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
+                if (Player* target = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
                 {
-                    if (Group *pGrp = pTarget->GetGroup())
+                    if (Group *pGrp = target->GetGroup())
                         for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                         {
                             //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(
@@ -264,25 +264,25 @@ public:
                 case 25: Images25 = true; break;
             }
 
-            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-            Creature *Image1 = me->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
+            Creature* Image1 = me->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
             if (Image1)
             {
                 Image1->SetMaxHealth(me->GetMaxHealth() / 5);
                 Image1->SetHealth(me->GetHealth() / 5);
-                if (pTarget)
-                    Image1->AI()->AttackStart(pTarget);
+                if (target)
+                    Image1->AI()->AttackStart(target);
                 CAST_AI(boss_skeram::boss_skeramAI, Image1->AI())->IsImage = true;
             }
 
-            Creature *Image2 = me->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
+            Creature* Image2 = me->SummonCreature(15263, i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
             if (Image2)
             {
                 Image2->SetMaxHealth(me->GetMaxHealth() / 5);
                 Image2->SetHealth(me->GetHealth() / 5);
-                if (pTarget)
-                    Image2->AI()->AttackStart(pTarget);
+                if (target)
+                    Image2->AI()->AttackStart(target);
                 CAST_AI(boss_skeram::boss_skeramAI, Image2->AI())->IsImage = true;
             }
             Invisible = true;
@@ -294,7 +294,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_skeram()
 {

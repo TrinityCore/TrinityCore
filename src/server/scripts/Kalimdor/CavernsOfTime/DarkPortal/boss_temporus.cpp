@@ -47,14 +47,14 @@ class boss_temporus : public CreatureScript
 public:
     boss_temporus() : CreatureScript("boss_temporus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_temporusAI (pCreature);
+        return new boss_temporusAI (creature);
     }
 
     struct boss_temporusAI : public ScriptedAI
     {
-        boss_temporusAI(Creature *c) : ScriptedAI(c)
+        boss_temporusAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -74,30 +74,30 @@ public:
             WingBuffet_Timer = 25000+rand()%10000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
-                pInstance->SetData(TYPE_RIFT,SPECIAL);
+                pInstance->SetData(TYPE_RIFT, SPECIAL);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
             {
-                if (me->IsWithinDistInMap(who,20.0f))
+                if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     DoScriptText(SAY_BANISH, me);
 
@@ -149,7 +149,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_temporus()
 {

@@ -24,6 +24,16 @@
 #include <string>
 #include <vector>
 
+// Searcher for map of structs
+template<typename T, class S> struct Finder
+{
+    T val_;
+    T S::* idMember_;
+
+    Finder(T val, T S::* idMember) : val_(val), idMember_(idMember) {}
+    bool operator()(const std::pair<int, S> &obj) { return obj.second.*idMember_ == val_; }
+};
+
 struct Tokens: public std::vector<char*>
 {
     Tokens(const std::string &src, const char sep, uint32 vectorReserve = 0);
@@ -174,7 +184,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str);
 bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str);
 
 size_t utf8length(std::string& utf8str);                    // set string to "" if invalid utf8 sequence
-void utf8truncate(std::string& utf8str,size_t len);
+void utf8truncate(std::string& utf8str, size_t len);
 
 inline bool isBasicLatinCharacter(wchar_t wchar)
 {
@@ -356,7 +366,7 @@ inline void wstrToLower(std::wstring& str)
 std::wstring GetMainPartOfName(std::wstring wname, uint32 declension);
 
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
-bool consoleToUtf8(const std::string& conStr,std::string& utf8str);
+bool consoleToUtf8(const std::string& conStr, std::string& utf8str);
 bool Utf8FitTo(const std::string& str, std::wstring search);
 void utf8printf(FILE *out, const char *str, ...);
 void vutf8printf(FILE *out, const char *str, va_list* ap);
@@ -413,7 +423,7 @@ class flag96
 private:
     uint32 part[3];
 public:
-    flag96(uint32 p1=0,uint32 p2=0,uint32 p3=0)
+    flag96(uint32 p1=0, uint32 p2=0, uint32 p3=0)
     {
         part[0]=p1;
         part[1]=p2;
@@ -527,14 +537,14 @@ public:
     template<class type>
     inline flag96 operator & (type & right)
     {
-        flag96 ret(part[0] & right.part[0],part[1] & right.part[1],part[2] & right.part[2]);
+        flag96 ret(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
         return
             ret;
     };
     template<class type>
     inline flag96 operator & (type & right) const
     {
-        flag96 ret(part[0] & right.part[0],part[1] & right.part[1],part[2] & right.part[2]);
+        flag96 ret(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
         return
             ret;
     };
@@ -548,7 +558,7 @@ public:
     template<class type>
     inline flag96 operator | (type & right)
     {
-        flag96 ret(part[0] | right.part[0],part[1] | right.part[1],part[2] | right.part[2]);
+        flag96 ret(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
         return
             ret;
     };
@@ -556,7 +566,7 @@ public:
     template<class type>
     inline flag96 operator | (type & right) const
     {
-        flag96 ret(part[0] | right.part[0],part[1] | right.part[1],part[2] | right.part[2]);
+        flag96 ret(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
         return
             ret;
     };
@@ -577,7 +587,7 @@ public:
     template<class type>
     inline flag96 operator ^ (type & right)
     {
-        flag96 ret(part[0] ^ right.part[0],part[1] ^ right.part[1],part[2] ^ right.part[2]);
+        flag96 ret(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
         return
             ret;
     };
@@ -585,7 +595,7 @@ public:
     template<class type>
     inline flag96 operator ^ (type & right) const
     {
-        flag96 ret(part[0] ^ right.part[0],part[1] ^ right.part[1],part[2] ^ right.part[2]);
+        flag96 ret(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
         return
             ret;
     };

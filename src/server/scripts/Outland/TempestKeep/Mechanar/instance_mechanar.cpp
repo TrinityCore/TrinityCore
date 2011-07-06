@@ -38,7 +38,7 @@ class instance_mechanar : public InstanceMapScript
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
-            instance_mechanar_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { Initialize(); };
+            instance_mechanar_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -85,7 +85,6 @@ class instance_mechanar : public InstanceMapScript
             return new instance_mechanar_InstanceMapScript(pMap);
         }
 };
-
 
 void AddSC_instance_mechanar()
 {

@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "SkillDiscovery.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -41,7 +42,7 @@ public:
     public:
         spell_item_trigger_spell_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(_triggeredSpellId))
                 return false;
@@ -86,7 +87,7 @@ public:
     {
         PrepareSpellScript(spell_item_deviate_fish_SpellScript)
     public:
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_SLEEPY; spellId <= SPELL_HEALTHY_SPIRIT; ++spellId)
                 if (!sSpellStore.LookupEntry(spellId))
@@ -134,7 +135,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_flask_of_the_north_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_SP))
                 return false;
@@ -210,7 +211,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_GNOMISH_DEATH_RAY_SELF))
                 return false;
@@ -221,13 +222,13 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetHitUnit())
+            if (Unit* target = GetHitUnit())
             {
                 Unit* pCaster = GetCaster();
                 if (urand(0, 99) < 15)
                     pCaster->CastSpell(pCaster, SPELL_GNOMISH_DEATH_RAY_SELF, true, NULL);    // failure
                 else
-                    pCaster->CastSpell(pTarget, SPELL_GNOMISH_DEATH_RAY_TARGET, true, NULL);
+                    pCaster->CastSpell(target, SPELL_GNOMISH_DEATH_RAY_TARGET, true, NULL);
             }
         }
 
@@ -263,7 +264,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_make_a_wish_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_MR_PINCHYS_BLESSING))
                 return false;
@@ -380,7 +381,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_net_o_matic_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_NET_O_MATIC_TRIGGERED1))
                 return false;
@@ -393,7 +394,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetHitUnit())
+            if (Unit* target = GetHitUnit())
             {
                 uint32 spellId = SPELL_NET_O_MATIC_TRIGGERED3;
                 uint32 roll = urand(0, 99);
@@ -402,7 +403,7 @@ public:
                 else if (roll < 4)                       // 2% for 20 sec root, charge to target (off-like chance unknown)
                     spellId = SPELL_NET_O_MATIC_TRIGGERED2;
 
-                GetCaster()->CastSpell(pTarget, spellId, true, NULL);
+                GetCaster()->CastSpell(target, spellId, true, NULL);
             }
         }
 
@@ -436,7 +437,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_noggenfogger_elixir_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1))
                 return false;
@@ -494,7 +495,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_savory_deviate_delight_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_FLIP_OUT_MALE; spellId <= SPELL_YAAARRRR_FEMALE; ++spellId)
                 if (!sSpellStore.LookupEntry(spellId))
@@ -552,7 +553,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_six_demon_bag_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_FROSTBOLT))
                 return false;
@@ -571,7 +572,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetHitUnit())
+            if (Unit* target = GetHitUnit())
             {
                 Unit* pCaster = GetCaster();
 
@@ -587,17 +588,17 @@ public:
                 {
                     spellId = SPELL_POLYMORPH;
                     if (urand(0, 100) <= 30)        // 30% chance to self-cast
-                        pTarget = pCaster;
+                        target = pCaster;
                 }
                 else if (rand < 95)                 // Enveloping Winds (15% chance)
                     spellId = SPELL_ENVELOPING_WINDS;
                 else                                // Summon Felhund minion (5% chance)
                 {
                     spellId = SPELL_SUMMON_FELHOUND_MINION;
-                    pTarget = pCaster;
+                    target = pCaster;
                 }
 
-                pCaster->CastSpell(pTarget, spellId, true, GetCastItem());
+                pCaster->CastSpell(target, spellId, true, GetCastItem());
             }
         }
 
@@ -631,7 +632,7 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_underbelly_elixir_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const* /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1))
                 return false;
@@ -721,17 +722,14 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-
-            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_STACK)
-                return;
             target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_LOW);
             target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_HIGH);
         }
 
         void Register()
         {
-            OnEffectApply += AuraEffectApplyFn(spell_item_shadowmourne_AuraScript::OnStackChange, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_item_shadowmourne_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_item_shadowmourne_AuraScript::OnStackChange, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_item_shadowmourne_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -827,14 +825,15 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
+                PreventHitDefaultEffect(effIndex);
                 if (!GetHitUnit() || !GetHitUnit()->ToPlayer())
                     return;
 
                 Player* target = GetHitUnit()->ToPlayer();
 
-                static const uint32 items[] = {ITEM_HEART_CANDY_1,ITEM_HEART_CANDY_2,ITEM_HEART_CANDY_3,ITEM_HEART_CANDY_4,ITEM_HEART_CANDY_5,ITEM_HEART_CANDY_6,ITEM_HEART_CANDY_7,ITEM_HEART_CANDY_8};
+                static const uint32 items[] = {ITEM_HEART_CANDY_1, ITEM_HEART_CANDY_2, ITEM_HEART_CANDY_3, ITEM_HEART_CANDY_4, ITEM_HEART_CANDY_5, ITEM_HEART_CANDY_6, ITEM_HEART_CANDY_7, ITEM_HEART_CANDY_8};
 
-                target->AddItem(items[urand(0,7)],1);
+                target->AddItem(items[urand(0, 7)], 1);
             }
 
             void Register()
@@ -846,6 +845,225 @@ class spell_item_create_heart_candy : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_item_create_heart_candy_SpellScript();
+        }
+};
+
+class spell_item_book_of_glyph_mastery : public SpellScriptLoader
+{
+    public:
+        spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
+
+        class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_book_of_glyph_mastery_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER && HasDiscoveredAllSpells(GetSpellInfo()->Id, GetCaster()->ToPlayer()))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_LEARNED_EVERYTHING);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_book_of_glyph_mastery_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_book_of_glyph_mastery_SpellScript();
+        }
+};
+
+enum GiftOfTheHarvester
+{
+    NPC_GHOUL   = 28845,
+    MAX_GHOULS  = 5,
+};
+
+class spell_item_gift_of_the_harvester : public SpellScriptLoader
+{
+    public:
+        spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") {}
+
+        class spell_item_gift_of_the_harvester_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_gift_of_the_harvester_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                std::list<Creature*> ghouls;
+                GetCaster()->GetAllMinionsByEntry(ghouls, NPC_GHOUL);
+                if (ghouls.size() >= MAX_GHOULS)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_TOO_MANY_GHOULS);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_gift_of_the_harvester_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_gift_of_the_harvester_SpellScript();
+        }
+};
+
+enum Sinkholes
+{
+    NPC_SOUTH_SINKHOLE      = 25664,
+    NPC_NORTHEAST_SINKHOLE  = 25665,
+    NPC_NORTHWEST_SINKHOLE  = 25666,
+};
+
+class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
+{
+    public:
+        spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
+
+        class spell_item_map_of_the_geyser_fields_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_map_of_the_geyser_fields_SpellScript);
+
+            SpellCastResult CheckSinkholes()
+            {
+                Unit* caster = GetCaster();
+                if (caster->FindNearestCreature(NPC_SOUTH_SINKHOLE, 30.0f, true)     ||
+                    caster->FindNearestCreature(NPC_NORTHEAST_SINKHOLE, 30.0f, true) ||
+                    caster->FindNearestCreature(NPC_NORTHWEST_SINKHOLE, 30.0f, true))
+                    return SPELL_CAST_OK;
+
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_CLOSE_TO_SINKHOLE);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_map_of_the_geyser_fields_SpellScript::CheckSinkholes);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_map_of_the_geyser_fields_SpellScript();
+        }
+};
+
+enum VanquishedClutchesSpells
+{
+    SPELL_CRUSHER       = 64982,
+    SPELL_CONSTRICTOR   = 64983,
+    SPELL_CORRUPTOR     = 64984,
+};
+
+class spell_item_vanquished_clutches : public SpellScriptLoader
+{
+    public:
+        spell_item_vanquished_clutches() : SpellScriptLoader("spell_item_vanquished_clutches") { }
+
+        class spell_item_vanquished_clutches_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_vanquished_clutches_SpellScript);
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_CRUSHER))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_CONSTRICTOR))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_CORRUPTOR))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = RAND(SPELL_CRUSHER, SPELL_CONSTRICTOR, SPELL_CORRUPTOR);
+                GetCaster()->CastSpell(GetCaster(), spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_item_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_vanquished_clutches_SpellScript();
+        }
+};
+
+enum AshbringerSounds
+{
+    SOUND_ASHBRINGER_1  = 8906,                             // "I was pure once"
+    SOUND_ASHBRINGER_2  = 8907,                             // "Fought for righteousness"
+    SOUND_ASHBRINGER_3  = 8908,                             // "I was once called Ashbringer"
+    SOUND_ASHBRINGER_4  = 8920,                             // "Betrayed by my order"
+    SOUND_ASHBRINGER_5  = 8921,                             // "Destroyed by Kel'Thuzad"
+    SOUND_ASHBRINGER_6  = 8922,                             // "Made to serve"
+    SOUND_ASHBRINGER_7  = 8923,                             // "My son watched me die"
+    SOUND_ASHBRINGER_8  = 8924,                             // "Crusades fed his rage"
+    SOUND_ASHBRINGER_9  = 8925,                             // "Truth is unknown to him"
+    SOUND_ASHBRINGER_10 = 8926,                             // "Scarlet Crusade  is pure no longer"
+    SOUND_ASHBRINGER_11 = 8927,                             // "Balnazzar's crusade corrupted my son"
+    SOUND_ASHBRINGER_12 = 8928,                             // "Kill them all!"
+
+    SPELL_ASHBRINGER    = 28282,                            // Ashbringer - Inflicts the will of the Ashbringer upon the wielder
+    SPELL_ASHBRINGER_TR = 28441                             // AB Effect 000
+};
+
+class spell_item_ashbringer : public SpellScriptLoader
+{
+    public:
+        spell_item_ashbringer() : SpellScriptLoader("spell_item_ashbringer") {}
+
+        class spell_item_ashbringer_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_ashbringer_SpellScript)
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ASHBRINGER))
+                    return false;
+                return true;
+            }
+
+            void OnDummyEffect(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* caster = GetCaster();
+                if (Player* player = caster->ToPlayer())
+                {
+                    uint32 sound_id = RAND( SOUND_ASHBRINGER_1, SOUND_ASHBRINGER_2, SOUND_ASHBRINGER_3, SOUND_ASHBRINGER_4, SOUND_ASHBRINGER_5, SOUND_ASHBRINGER_6,
+                                    SOUND_ASHBRINGER_7, SOUND_ASHBRINGER_8, SOUND_ASHBRINGER_9, SOUND_ASHBRINGER_10, SOUND_ASHBRINGER_11, SOUND_ASHBRINGER_12 );
+
+                    // Ashbringers effect (spellID 28441) retriggers every 5 seconds, with a chance of making it say one of the above 12 sounds
+                    if (urand(0, 60) < 1)
+                        player->PlayDirectSound(sound_id, player);
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_item_ashbringer_SpellScript::OnDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_ashbringer_SpellScript();
         }
 };
 
@@ -874,4 +1092,10 @@ void AddSC_item_spell_scripts()
     new spell_item_red_rider_air_rifle();
 
     new spell_item_create_heart_candy();
+    new spell_item_book_of_glyph_mastery();
+    new spell_item_gift_of_the_harvester();
+    new spell_item_map_of_the_geyser_fields();
+    new spell_item_vanquished_clutches();
+
+    new spell_item_ashbringer();
 }

@@ -62,7 +62,7 @@ namespace VMAP
             void operator()(const Vector3& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
-                sLog->outDebug("AreaInfoCallback: trying to intersect '%s'", prims[entry].name.c_str());
+                sLog->outDebug(LOG_FILTER_MAPS, "AreaInfoCallback: trying to intersect '%s'", prims[entry].name.c_str());
 #endif
                 prims[entry].intersectPoint(point, aInfo);
             }
@@ -78,7 +78,7 @@ namespace VMAP
             void operator()(const Vector3& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
-                sLog->outDebug("LocationInfoCallback: trying to intersect '%s'", prims[entry].name.c_str());
+                sLog->outDebug(LOG_FILTER_MAPS, "LocationInfoCallback: trying to intersect '%s'", prims[entry].name.c_str());
 #endif
                 if (prims[entry].GetLocationInfo(point, locInfo))
                     result = true;
@@ -88,7 +88,6 @@ namespace VMAP
             LocationInfo &locInfo;
             bool result;
     };
-
 
     //=========================================================
 
@@ -227,7 +226,7 @@ namespace VMAP
     float StaticMapTree::getHeight(const Vector3& pPos, float maxSearchDist) const
     {
         float height = G3D::inf();
-        Vector3 dir = Vector3(0,0,-1);
+        Vector3 dir = Vector3(0, 0, -1);
         G3D::Ray ray(pPos, dir);   // direction with length of 1
         float maxDist = maxSearchDist;
         if (getIntersectionTime(ray, maxDist, false))
@@ -278,7 +277,7 @@ namespace VMAP
 
     bool StaticMapTree::InitMap(const std::string &fname, VMapManager2 *vm)
     {
-        sLog->outDebug("StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
+        sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
         bool success = true;
         std::string fullname = iBasePath + fname;
         FILE *rf = fopen(fullname.c_str(), "rb");
@@ -289,7 +288,7 @@ namespace VMAP
             char chunk[8];
             //general info
             if (!readChunk(rf, chunk, VMAP_MAGIC, 8)) success = false;
-            char tiled;
+            char tiled = '\0';
             if (success && fread(&tiled, sizeof(char), 1, rf) != 1) success = false;
             iIsTiled = bool(tiled);
             // Nodes
@@ -306,12 +305,12 @@ namespace VMAP
             // only non-tiled maps have them, and if so exactly one (so far at least...)
             ModelSpawn spawn;
 #ifdef VMAP_DEBUG
-            sLog->outDebug("StaticMapTree::InitMap() : map isTiled: %u", static_cast<uint32>(iIsTiled));
+            sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : map isTiled: %u", static_cast<uint32>(iIsTiled));
 #endif
             if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
             {
                 WorldModel *model = vm->acquireModelInstance(iBasePath, spawn.name);
-                sLog->outDebug("StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
+                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
                 if (model)
                 {
                     // assume that global model always is the first and only tree value (could be improved...)
@@ -357,7 +356,7 @@ namespace VMAP
         }
         if (!iTreeValues)
         {
-            sLog->outError("StaticMapTree::LoadMapTile() : tree has not been initialized [%u,%u]", tileX, tileY);
+            sLog->outError("StaticMapTree::LoadMapTile() : tree has not been initialized [%u, %u]", tileX, tileY);
             return false;
         }
         bool result = true;
@@ -370,7 +369,7 @@ namespace VMAP
 
             if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
                 result = false;
-            uint32 numSpawns;
+            uint32 numSpawns = 0;
             if (result && fread(&numSpawns, sizeof(uint32), 1, tf) != 1)
                 result = false;
             for (uint32 i=0; i<numSpawns && result; ++i)
@@ -383,7 +382,7 @@ namespace VMAP
                     // acquire model instance
                     WorldModel *model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
-                        sLog->outError("StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u,%u]", tileX, tileY);
+                        sLog->outError("StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
                     // update tree
                     uint32 referencedVal;
@@ -395,7 +394,7 @@ namespace VMAP
 #ifdef VMAP_DEBUG
                             if (referencedVal > iNTreeValues)
                             {
-                                sLog->outDebug("StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
+                                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
                                 continue;
                             }
 #endif
@@ -407,9 +406,9 @@ namespace VMAP
                             ++iLoadedSpawns[referencedVal];
 #ifdef VMAP_DEBUG
                             if (iTreeValues[referencedVal].ID != spawn.ID)
-                                sLog->outDebug("StaticMapTree::LoadMapTile() : trying to load wrong spawn in node");
+                                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::LoadMapTile() : trying to load wrong spawn in node");
                             else if (iTreeValues[referencedVal].name != spawn.name)
-                                sLog->outDebug("StaticMapTree::LoadMapTile() : name collision on GUID=%u", spawn.ID);
+                                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::LoadMapTile() : name collision on GUID=%u", spawn.ID);
 #endif
                         }
                     }

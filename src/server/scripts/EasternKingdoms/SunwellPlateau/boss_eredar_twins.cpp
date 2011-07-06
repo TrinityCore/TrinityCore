@@ -90,14 +90,14 @@ class boss_sacrolash : public CreatureScript
 public:
     boss_sacrolash() : CreatureScript("boss_sacrolash") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_sacrolashAI (pCreature);
+        return new boss_sacrolashAI (creature);
     };
 
     struct boss_sacrolashAI : public ScriptedAI
     {
-        boss_sacrolashAI(Creature *c) : ScriptedAI(c)
+        boss_sacrolashAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -120,13 +120,13 @@ public:
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
                 if (Temp)
                 {
                     if (Temp->isDead())
                         CAST_CRE(Temp)->Respawn();
                     else if (Temp->getVictim())
-                        me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
+                        me->getThreatManager().addThreat(Temp->getVictim(), 0.0f);
                 }
             }
 
@@ -146,13 +146,13 @@ public:
                 pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who)
         {
             DoZoneInCombat();
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -161,10 +161,10 @@ public:
                 pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (rand()%4 == 0)
-                DoScriptText(RAND(YELL_SAC_KILL_1,YELL_SAC_KILL_2), me);
+                DoScriptText(RAND(YELL_SAC_KILL_1, YELL_SAC_KILL_2), me);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -181,7 +181,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellEntry* spell)
         {
             switch(spell->Id)
             {
@@ -189,36 +189,36 @@ public:
             case SPELL_SHADOW_NOVA:
             case SPELL_CONFOUNDING_BLOW:
             case SPELL_SHADOW_FURY:
-                HandleTouchedSpells(pTarget, SPELL_DARK_TOUCHED);
+                HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
                 break;
             case SPELL_CONFLAGRATION:
-                HandleTouchedSpells(pTarget, SPELL_FLAME_TOUCHED);
+                HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
                 break;
             }
         }
 
-        void HandleTouchedSpells(Unit *pTarget, uint32 TouchedType)
+        void HandleTouchedSpells(Unit* target, uint32 TouchedType)
         {
             switch(TouchedType)
             {
             case SPELL_FLAME_TOUCHED:
-                if (!pTarget->HasAura(SPELL_DARK_FLAME))
+                if (!target->HasAura(SPELL_DARK_FLAME))
                 {
-                    if (pTarget->HasAura(SPELL_DARK_TOUCHED))
+                    if (target->HasAura(SPELL_DARK_TOUCHED))
                     {
-                        pTarget->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
-                        pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
-                    } else pTarget->CastSpell(pTarget, SPELL_FLAME_TOUCHED, true);
+                        target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
+                        target->CastSpell(target, SPELL_DARK_FLAME, true);
+                    } else target->CastSpell(target, SPELL_FLAME_TOUCHED, true);
                 }
                 break;
             case SPELL_DARK_TOUCHED:
-                if (!pTarget->HasAura(SPELL_DARK_FLAME))
+                if (!target->HasAura(SPELL_DARK_FLAME))
                 {
-                    if (pTarget->HasAura(SPELL_FLAME_TOUCHED))
+                    if (target->HasAura(SPELL_FLAME_TOUCHED))
                     {
-                        pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                        pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
-                    } else pTarget->CastSpell(pTarget, SPELL_DARK_TOUCHED, true);
+                        target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                        target->CastSpell(target, SPELL_DARK_FLAME, true);
+                    } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
                 }
                 break;
             }
@@ -231,7 +231,7 @@ public:
                 if (pInstance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
+                    Temp = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
@@ -252,10 +252,10 @@ public:
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        Unit *pTarget = NULL;
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_CONFLAGRATION);
+                        Unit* target = NULL;
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target)
+                            DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000+(rand()%5000);
                     }
                 } else ConflagrationTimer -= diff;
@@ -266,15 +266,15 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
-                        Unit *pTarget = NULL;
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_SHADOW_NOVA);
+                        Unit* target = NULL;
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target)
+                            DoCast(target, SPELL_SHADOW_NOVA);
 
                         if (!SisterDeath)
                         {
-                            if (pTarget)
-                                DoScriptText(EMOTE_SHADOW_NOVA, me, pTarget);
+                            if (target)
+                                DoScriptText(EMOTE_SHADOW_NOVA, me, target);
                             DoScriptText(YELL_SHADOW_NOVA, me);
                         }
                         ShadownovaTimer = 30000+(rand()%5000);
@@ -286,26 +286,26 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget)
-                        DoCast(pTarget, SPELL_CONFOUNDING_BLOW);
+                    Unit* target = NULL;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
+                        DoCast(target, SPELL_CONFOUNDING_BLOW);
                     ConfoundingblowTimer = 20000 + (rand()%5000);
                 }
             } else ConfoundingblowTimer -=diff;
 
             if (ShadowimageTimer <= diff)
             {
-                Unit *pTarget = NULL;
+                Unit* target = NULL;
                 Creature* temp = NULL;
                 for (uint8 i = 0; i<3; ++i)
                 {
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    temp = DoSpawnCreature(MOB_SHADOW_IMAGE,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN,10000);
-                    if (temp && pTarget)
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    temp = DoSpawnCreature(MOB_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
+                    if (temp && target)
                     {
-                        temp->AddThreat(pTarget,1000000);//don't change target(healers)
-                        temp->AI()->AttackStart(pTarget);
+                        temp->AddThreat(target, 1000000);//don't change target(healers)
+                        temp->AI()->AttackStart(target);
                     }
                 }
                 ShadowimageTimer = 20000;
@@ -343,20 +343,19 @@ public:
 
 };
 
-
 class boss_alythess : public CreatureScript
 {
 public:
     boss_alythess() : CreatureScript("boss_alythess") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_alythessAI (pCreature);
+        return new boss_alythessAI (creature);
     };
 
     struct boss_alythessAI : public Scripted_NoMovementAI
     {
-        boss_alythessAI(Creature *c) : Scripted_NoMovementAI(c)
+        boss_alythessAI(Creature* c) : Scripted_NoMovementAI(c)
         {
             pInstance = c->GetInstanceScript();
             IntroStepCounter = 10;
@@ -383,13 +382,13 @@ public:
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
                 if (Temp)
                 {
                     if (Temp->isDead())
                         CAST_CRE(Temp)->Respawn();
                     else if (Temp->getVictim())
-                        me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
+                        me->getThreatManager().addThreat(Temp->getVictim(), 0.0f);
                 }
             }
 
@@ -410,13 +409,13 @@ public:
                 pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who)
         {
             DoZoneInCombat();
 
             if (pInstance)
             {
-                Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -425,7 +424,7 @@ public:
                 pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             if (!me->isInCombat())
             {
@@ -433,7 +432,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || me->getVictim())
                 return;
@@ -456,11 +455,11 @@ public:
             }
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (rand()%4 == 0)
             {
-                DoScriptText(RAND(YELL_ALY_KILL_1,YELL_ALY_KILL_2), me);
+                DoScriptText(RAND(YELL_ALY_KILL_1, YELL_ALY_KILL_2), me);
             }
         }
 
@@ -477,48 +476,48 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellEntry* spell)
         {
             switch(spell->Id)
             {
 
             case SPELL_BLAZE:
-                pTarget->CastSpell(pTarget, SPELL_BLAZE_SUMMON, true);
+                target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
             case SPELL_CONFLAGRATION:
             case SPELL_FLAME_SEAR:
-                HandleTouchedSpells(pTarget, SPELL_FLAME_TOUCHED);
+                HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
                 break;
             case SPELL_SHADOW_NOVA:
-                HandleTouchedSpells(pTarget, SPELL_DARK_TOUCHED);
+                HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
                 break;
             }
         }
 
-        void HandleTouchedSpells(Unit *pTarget, uint32 TouchedType)
+        void HandleTouchedSpells(Unit* target, uint32 TouchedType)
         {
             switch(TouchedType)
             {
             case SPELL_FLAME_TOUCHED:
-                if (!pTarget->HasAura(SPELL_DARK_FLAME))
+                if (!target->HasAura(SPELL_DARK_FLAME))
                 {
-                    if (pTarget->HasAura(SPELL_DARK_TOUCHED))
+                    if (target->HasAura(SPELL_DARK_TOUCHED))
                     {
-                        pTarget->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
-                        pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
+                        target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
+                        target->CastSpell(target, SPELL_DARK_FLAME, true);
                     }else
                     {
-                        pTarget->CastSpell(pTarget, SPELL_FLAME_TOUCHED, true);
+                        target->CastSpell(target, SPELL_FLAME_TOUCHED, true);
                     }
                 }
                 break;
             case SPELL_DARK_TOUCHED:
-                if (!pTarget->HasAura(SPELL_DARK_FLAME))
+                if (!target->HasAura(SPELL_DARK_FLAME))
                 {
-                    if (pTarget->HasAura(SPELL_FLAME_TOUCHED))
+                    if (target->HasAura(SPELL_FLAME_TOUCHED))
                     {
-                        pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                        pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
-                    } else pTarget->CastSpell(pTarget, SPELL_DARK_TOUCHED, true);
+                        target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                        target->CastSpell(target, SPELL_DARK_FLAME, true);
+                    } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
                 }
                 break;
             }
@@ -569,7 +568,7 @@ public:
                 if (pInstance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
+                    Temp = Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
@@ -583,12 +582,12 @@ public:
             {
                 if (pInstance)
                 {
-                    Creature* sisiter = Unit::GetCreature((*me),pInstance->GetData64(DATA_SACROLASH));
+                    Creature* sisiter = Unit::GetCreature((*me), pInstance->GetData64(DATA_SACROLASH));
                     if (sisiter && !sisiter->isDead() && sisiter->getVictim())
                     {
-                        me->AddThreat(sisiter->getVictim(),0.0f);
+                        me->AddThreat(sisiter->getVictim(), 0.0f);
                         DoStartNoMovement(sisiter->getVictim());
-                        me->Attack(sisiter->getVictim(),false);
+                        me->Attack(sisiter->getVictim(), false);
                     }
                 }
             }
@@ -602,10 +601,10 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
-                        Unit *pTarget = NULL;
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_SHADOW_NOVA);
+                        Unit* target = NULL;
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target)
+                            DoCast(target, SPELL_SHADOW_NOVA);
                         ShadownovaTimer= 30000+(rand()%5000);
                     }
                 } else ShadownovaTimer -=diff;
@@ -617,16 +616,16 @@ public:
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        Unit *pTarget = NULL;
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_CONFLAGRATION);
+                        Unit* target = NULL;
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target)
+                            DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000+(rand()%5000);
 
                         if (!SisterDeath)
                         {
-                            if (pTarget)
-                                DoScriptText(EMOTE_CONFLAGRATION, me, pTarget);
+                            if (target)
+                                DoScriptText(EMOTE_CONFLAGRATION, me, target);
                             DoScriptText(YELL_CANFLAGRATION, me);
                         }
 
@@ -674,20 +673,19 @@ public:
 
 };
 
-
 class mob_shadow_image : public CreatureScript
 {
 public:
     mob_shadow_image() : CreatureScript("mob_shadow_image") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shadow_imageAI (pCreature);
+        return new mob_shadow_imageAI (creature);
     };
 
     struct mob_shadow_imageAI : public ScriptedAI
     {
-        mob_shadow_imageAI(Creature *c) : ScriptedAI(c) {}
+        mob_shadow_imageAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;
@@ -701,22 +699,22 @@ public:
             KillTimer = 15000;
         }
 
-        void EnterCombat(Unit * /*who*/){}
+        void EnterCombat(Unit* /*who*/){}
 
-        void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellEntry* spell)
         {
             switch(spell->Id)
             {
 
             case SPELL_SHADOW_FURY:
             case SPELL_DARK_STRIKE:
-                if (!pTarget->HasAura(SPELL_DARK_FLAME))
+                if (!target->HasAura(SPELL_DARK_FLAME))
                 {
-                    if (pTarget->HasAura(SPELL_FLAME_TOUCHED))
+                    if (target->HasAura(SPELL_FLAME_TOUCHED))
                     {
-                        pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                        pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
-                    } else pTarget->CastSpell(pTarget,SPELL_DARK_TOUCHED,true);
+                        target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                        target->CastSpell(target, SPELL_DARK_FLAME, true);
+                    } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
                 }
                 break;
             }
@@ -756,7 +754,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_eredar_twins()
 {

@@ -18,6 +18,11 @@
 #include "ScriptPCH.h"
 #include "pit_of_saron.h"
 
+// positions for Martin Victus (37591) and Gorkun Ironskull (37592)
+Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};
+// position for Jaina and Sylvanas
+Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
+
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -147,6 +152,44 @@ class instance_pit_of_saron : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state)
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_GARFROST:
+                        if(state == DONE)
+                        {
+                            if (Creature* summoner = instance->GetCreature(_garfrostGUID))
+                            {
+                                if (_teamInInstance == ALLIANCE)
+                                    summoner->SummonCreature(NPC_MARTIN_VICTUS_1, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
+                                else
+                                    summoner->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
+                            }
+                        }
+                        break;
+                    case DATA_TYRANNUS:
+                        if (state == DONE)
+                        {
+                            if (Creature* summoner = instance->GetCreature(_tyrannusGUID))
+                            {
+                                if (_teamInInstance == ALLIANCE)
+                                    summoner->SummonCreature(NPC_JAINA_PART2, EventLeaderPos2, TEMPSUMMON_MANUAL_DESPAWN);
+                                else
+                                    summoner->SummonCreature(NPC_SYLVANAS_PART2, EventLeaderPos2, TEMPSUMMON_MANUAL_DESPAWN);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
             }
 
             uint32 GetData(uint32 type)
