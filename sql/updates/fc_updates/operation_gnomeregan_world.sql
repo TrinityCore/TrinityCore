@@ -42,7 +42,7 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_steamcrank' WHERE `entry` = '
 ## In and Out
 ######*/
 
-UPDATE `creature_template` SET `npcflag` = '16777216', `VehicleId` = '745', `spell6` = '74153' WHERE `entry` = '39682';
+UPDATE `creature_template` SET `VehicleId` = '745', `spell6` = '74153' WHERE `entry` = '39682';
 
 /*######
 ## One Step Forward...
