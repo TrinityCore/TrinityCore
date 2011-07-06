@@ -1,3 +1,15 @@
+DROP TABLE IF EXISTS `custom_npc_tele_category`;
+-- ----------------------------
+-- Table structure for custom_npc_tele_category
+-- ----------------------------
+CREATE TABLE `custom_npc_tele_category` (
+  `id` int(6) unsigned NOT NULL default '0',
+  `name` varchar(255) NOT NULL default '',
+  `flag` tinyint(3) unsigned NOT NULL default '0',
+  `data0` bigint(20) unsigned NOT NULL default '0',
+  `data1` int(6) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 -- ----------------------------
 -- Records 
 -- ----------------------------
@@ -26,7 +38,6 @@ CREATE TABLE `custom_npc_tele_destination` (
   `cost` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=99 DEFAULT CHARSET=utf8;
-
 -- ----------------------------
 -- Records 
 -- ----------------------------

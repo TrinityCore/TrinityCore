@@ -24,7 +24,7 @@ UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (38752, 16980);
 
 -- Add lost data
 DELETE FROM `creature` WHERE `guid` in (85584, 85585, 85586);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(85584, 29836, 604, 3, 1, 0, 0, 1851.12, 743.221, 135.951, 3.1629, 7200, 0, 0, 45516, 0, 0, 0, 0, 0, 0),
-(85585, 29836, 604, 3, 1, 0, 0, 1874.55, 757.72, 136.039, 3.56345, 7200, 0, 0, 45516, 0, 0, 0, 0, 0, 0),
-(85586, 29836, 604, 3, 1, 0, 0, 1875.77, 726.76, 135.946, 2.61705, 7200, 0, 0, 45516, 0, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(85584, 29836, 604, 3, 1, 0, 0, 1851.12, 743.221, 135.951, 3.1629, 7200, 0, 0, 45516, 0, 0, 0, 0, 0),
+(85585, 29836, 604, 3, 1, 0, 0, 1874.55, 757.72, 136.039, 3.56345, 7200, 0, 0, 45516, 0, 0, 0, 0, 0),
+(85586, 29836, 604, 3, 1, 0, 0, 1875.77, 726.76, 135.946, 2.61705, 7200, 0, 0, 45516, 0, 0, 0, 0, 0);

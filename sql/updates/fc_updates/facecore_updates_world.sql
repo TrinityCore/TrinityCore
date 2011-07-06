@@ -423,15 +423,6 @@ INSERT INTO `spell_proc_event` VALUES
 UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
 UPDATE achievement_criteria_data SET value1='186' WHERE (criteria_id='9199') AND (type='6');
 
--- Fix for Dual Specialisation learning
-DELETE FROM `gossip_scripts` WHERE id=50099;
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 3, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 3, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 1, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 1, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63624, 2, 0, 0, 0, 0, 0);
-INSERT INTO `gossip_scripts` VALUES (50099, 0, 15, 63680, 2, 0, 0, 0, 0, 0);
-
 -- Fix drop for Damaged Necklace item (43297)
 DELETE FROM `creature_loot_template` WHERE `item` = 43297;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
