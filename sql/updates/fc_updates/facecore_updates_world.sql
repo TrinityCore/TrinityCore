@@ -82,7 +82,6 @@ DELETE FROM `creature_ai_scripts` WHERE creature_id = 25841;
 UPDATE `creature_template` SET IconName = 'Speak', npcflag = 1, gossip_menu_id = 0, AIName = '', ScriptName = 'npc_recon_pilot', unit_flags = 0x00000000, flags_extra = 2, dynamicflags = 36  WHERE entry = 25841;
 DELETE FROM `creature_template_addon` WHERE entry = 25841;
 INSERT INTO `creature_template_addon` VALUES (25841, 0, 0, 7, 0, 65, '');
-UPDATE `creature` SET DeathState = 0 WHERE id = 25841;
 
 -- Open Halls of Reflection without quest
 UPDATE `access_requirement` set `quest_done_A`=0, `quest_done_H`=0 where `mapId` = 668;
