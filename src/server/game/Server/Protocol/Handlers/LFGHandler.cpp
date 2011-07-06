@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
 #include "InstanceScript.h"
+#include "GameEventMgr.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, const LfgLockMap& lock)
 {
@@ -165,6 +166,31 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recv_data
         if (dungeon && dungeon->type == LFG_TYPE_RANDOM && dungeon->expansion <= expansion &&
             dungeon->minlevel <= level && level <= dungeon->maxlevel)
             randomDungeons.insert(dungeon->Entry());
+
+        if (dungeon && dungeon->grouptype == 11 && dungeon->expansion <= expansion && dungeon->minlevel <= level && level <= dungeon->maxlevel)
+        {
+            uint8 eventEntry = 0;
+            switch (dungeon->ID)
+            {
+                case 285: // The Headless Horseman
+                    eventEntry = 12; // Hallow's End
+                    break;
+                case 286: // The Frost Lord Ahune
+                    eventEntry = 1; // Midsummer Fire Festival
+                    break;
+                case 287: // Coren Direbrew
+                    eventEntry = 24; // Brewfest
+                    break;
+                case 288: // The Crown Chemical Co.
+                    eventEntry = 8; // Love is in the Air
+                    break;
+                default:
+                    break;
+            }
+
+            if (eventEntry && sGameEventMgr->IsActiveEvent(eventEntry))
+                randomDungeons.insert(dungeon->Entry());
+        }
     }
 
     // Get player locked Dungeons
