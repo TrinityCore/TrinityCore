@@ -859,6 +859,9 @@ typedef UNORDERED_MAP<uint32, SpellTargetPosition> SpellTargetPositionMap;
 // Spell pet auras
 class PetAura
 {
+    private:
+        typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
+
     public:
         PetAura()
         {
@@ -873,10 +876,10 @@ class PetAura
 
         uint32 GetAura(uint32 petEntry) const
         {
-            std::map<uint32, uint32>::const_iterator itr = auras.find(petEntry);
+            PetAuraMap::const_iterator itr = auras.find(petEntry);
             if (itr != auras.end())
                 return itr->second;
-            std::map<uint32, uint32>::const_iterator itr2 = auras.find(0);
+            PetAuraMap::const_iterator itr2 = auras.find(0);
             if (itr2 != auras.end())
                 return itr2->second;
             return 0;
@@ -898,7 +901,7 @@ class PetAura
         }
 
     private:
-        std::map<uint32, uint32> auras;
+        PetAuraMap auras;
         bool removeOnChangePet;
         int32 damage;
 };
@@ -909,8 +912,8 @@ struct SpellArea
     uint32 spellId;
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
-    uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
-    int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it don't must be applied in other case
+    uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
+    int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
     uint32 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     bool questStartCanActive;                               // if true then quest start can be active (not only rewarded)
