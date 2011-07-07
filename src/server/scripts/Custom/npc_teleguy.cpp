@@ -796,12 +796,12 @@ public:
                 if (pPlayer->GetTeam() == ALLIANCE)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pPlayer->TeleportTo(1, 145.55f, 1211.82f, 166.246f, 5.2f);
+                    pPlayer->TeleportTo(530, -2244.01f 8698.61f -2.73f 5.16f);
                 }
                 else
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pPlayer->TeleportTo(0, -548.54f, -3853.85f, 230.56f, 5.41f);
+                    pPlayer->TeleportTo(530, -1236.92f, 7144.97f, 57.26f, 4.78f);
                 }
             break;
         }
