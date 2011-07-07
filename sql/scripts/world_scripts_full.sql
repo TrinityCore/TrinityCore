@@ -2276,6 +2276,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- Zalazane's Fall
 ( 75420, 'spell_mount_check'),
 ( 75102, 'spell_voljin_war_drums'),
+-- Durotar
+( 17009, 'spell_voodoo'),
 -- Dustwallow Marsh
 ( 42489, 'spell_ooze_zap'),
 ( 42485, 'spell_ooze_zap_channel_end'),
