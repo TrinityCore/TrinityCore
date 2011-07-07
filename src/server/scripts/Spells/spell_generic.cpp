@@ -1170,15 +1170,8 @@ class spell_gen_launch : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
-                PreventHitDefaultEffect(effIndex);
-
-                SpellEntry const* const spell = GetSpellInfo();
-
                 if (Player* player = GetHitPlayer())
-                {
-                    player->CastSpell(player,spell->EffectTriggerSpell[1],true); // changes the player's seat
                     player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE,player); // prevents falling damage
-                }
             }
 
             void Launch()
