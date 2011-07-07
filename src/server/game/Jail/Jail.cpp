@@ -23,6 +23,8 @@ bool Jail::LadeKonfiguration(bool reload)
 
     m_JailKonf.BanDauer = 168;  // 1 Woche
 
+    m_JailKonf.Amnestie = 3;    // 3 Monate
+
     m_JailKonf.GMAcc = 0;
 
     m_JailKonf.AllyPos.m_positionX = -8673.43f;
@@ -71,6 +73,7 @@ bool Jail::LadeKonfiguration(bool reload)
 
     m_JailKonf.GMAcc = fields[19].GetUInt32();
     m_JailKonf.GMChar = fields[20].GetString();
+    m_JailKonf.Amnestie = fields[21].GetUInt32();
 
     if (!reload)
         sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
@@ -592,6 +595,18 @@ void Jail::Kontrolle(Player * pPlayer, bool update)
     }
 }
 
+void Jail::Amnestie()
+{
+    time_t localtime = time(NULL);
+
+    for (JailMap::iterator itr = m_JailMap.begin(); itr != m_JailMap.end(); ++itr)
+        if (itr->second.Time+(m_JailKonf.Amnestie*MONTH) >= localtime)
+        {
+            CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", itr->first);
+            m_JailMap.erase(itr);
+        }
+}
+
 void Jail::Update()
 {
     sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_1));
@@ -601,6 +616,10 @@ void Jail::Update()
         sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_2));
         return;
     }
+
+    // Auf Amnestie prüfen, wenn m_JailKonf.Amnestie > 0 ist...
+    if (m_JailKonf.Amnestie)
+        Amnestie();
 
     uint32 cnt = 0;
     uint32 oldMSTime = getMSTime();

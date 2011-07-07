@@ -15,6 +15,7 @@ struct JailKonfStruktur
     uint32 BanDauer;    // Nach dieser Zeit (Std.) wird ein durch das Jail gebannter Account wieder freigeschaltet.
     uint32 Radius;      // Radius in dem der Knastbruder sich bewegen darf.
     uint32 GMAcc;       // Account der zum Bannen genutzt wird
+    uint32 Amnestie;    // Monate (nach dem letzten Vorfall), nach denen die Jaileinträge gelöscht werden.
 
     Position AllyPos;   // Koordinaten für den Allyknast
     Position HordePos;  // Koordinaten für den Hordeknast
@@ -55,6 +56,7 @@ private:
     JailKonfStruktur    m_JailKonf; // Konfiguration des Jails
     JailMap             m_JailMap;  // UNORDERED_MAP aller Jaileinträge
 
+    void Amnestie(); // Prüfen ob jemand Amnestie bekommen muss.
     bool SendeInaktiv(ChatHandler * handler);
     bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
     bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
