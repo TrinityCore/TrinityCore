@@ -1,9 +1,9 @@
 diff --git a/sql/jail/character_jail.sql b/sql/jail/character_jail.sql
 new file mode 100644
-index 0000000..37b9488
+index 0000000..4408327
 --- /dev/null
 +++ b/sql/jail/character_jail.sql
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,43 @@
 +﻿SET NAMES utf8;
 +
 +DROP TABLE IF EXISTS `jail`;
@@ -44,12 +44,18 @@ index 0000000..37b9488
 +  `enabled` tinyint(4) NOT NULL default '0' COMMENT 'Ein/ausschalten des Jails. Standardeinstellung ist aus.',
 +  `gm_acc` int(11) unsigned NOT NULL default '2019794' COMMENT 'Account der genutzt wird, um zu bannen.',
 +  `gm_char` varchar(13) NOT NULL default 'Robotron' COMMENT 'Charaktername der genutzt wird, um zu bannen.',
++  `amnesty` int(11) unsigned NOT NULL default '3' COMMENT 'Zeit in Monaten, nach denen die Jaileinträge verfallen.',
 +  PRIMARY KEY  (`max_jails`)
-+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Jail Konfigurations-Tabelle für UWoM-Server von WarHead.';
-+
-+INSERT INTO `jail_conf` (`max_jails`,`max_duration`,`min_reason`,`warn_player`,`ally_x`,`ally_y`,`ally_z`,`ally_o`,`ally_m`,
-+`horde_x`,`horde_y`,`horde_z`,`horde_o`,`horde_m`,`del_char`,`ban_acc`,`ban_duration`,`radius`,`enabled`) VALUES
-+(3,672,30,1,31.7282,135.794,-40.0508,4.73516,35,2179.85,-4763.96,54.911,4.44216,1,0,1,168,15,1);
++) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Jail Konfigurations-Tabelle für UWoM-Server von WarHead.';
+diff --git a/sql/jail/updates/character_07_07_2011.sql b/sql/jail/updates/character_07_07_2011.sql
+new file mode 100644
+index 0000000..0617012
+--- /dev/null
++++ b/sql/jail/updates/character_07_07_2011.sql
+@@ -0,0 +1,3 @@
++ALTER TABLE `jail_conf`
++ADD COLUMN `amnesty` int(11) NOT NULL DEFAULT 3 COMMENT 'Zeit in Monaten, nach denen die Jaileinträge verfallen.' AFTER `gm_char`,
++ROW_FORMAT=FIXED;
 diff --git a/sql/jail/world_command_jail.sql b/sql/jail/world_command_jail.sql
 new file mode 100644
 index 0000000..8e75c97
@@ -348,10 +354,10 @@ index 6520b67..1f3d398 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..65eacd9
+index 0000000..5883d9a
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,901 @@
+@@ -0,0 +1,919 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include "Jail.h"
@@ -376,6 +382,8 @@ index 0000000..65eacd9
 +    m_JailKonf.MapHorde = 1;
 +
 +    m_JailKonf.BanDauer = 168;  // 1 Woche
++
++    m_JailKonf.Amnestie = 3;    // 3 Monate
 +
 +    m_JailKonf.GMAcc = 0;
 +
@@ -425,6 +433,7 @@ index 0000000..65eacd9
 +
 +    m_JailKonf.GMAcc = fields[19].GetUInt32();
 +    m_JailKonf.GMChar = fields[20].GetString();
++    m_JailKonf.Amnestie = fields[21].GetUInt32();
 +
 +    if (!reload)
 +        sLog->outString(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
@@ -484,7 +493,7 @@ index 0000000..65eacd9
 +
 +    return true;
 +}
-+ 
++
 +bool Jail::GotoKommando(ChatHandler * handler, const char * args)
 +{
 +    if (!m_JailKonf.Enabled)
@@ -946,6 +955,18 @@ index 0000000..65eacd9
 +    }
 +}
 +
++void Jail::Amnestie()
++{
++    time_t localtime = time(NULL);
++
++    for (JailMap::iterator itr = m_JailMap.begin(); itr != m_JailMap.end(); ++itr)
++        if (itr->second.Time+(m_JailKonf.Amnestie*MONTH) >= localtime)
++        {
++            CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", itr->first);
++            m_JailMap.erase(itr);
++        }
++}
++
 +void Jail::Update()
 +{
 +    sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_1));
@@ -955,6 +976,9 @@ index 0000000..65eacd9
 +        sLog->outDebug(LOG_FILTER_NONE, sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_DEBUG_UPDATE_2));
 +        return;
 +    }
++    // Auf Amnestie prüfen, wenn m_JailKonf.Amnestie > 0 ist...
++    if (m_JailKonf.Amnestie)
++        Amnestie();
 +
 +    uint32 cnt = 0;
 +    uint32 oldMSTime = getMSTime();
@@ -1255,10 +1279,10 @@ index 0000000..65eacd9
 +}
 diff --git a/src/server/game/Jail/Jail.h b/src/server/game/Jail/Jail.h
 new file mode 100644
-index 0000000..d100a3e
+index 0000000..48008c0
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.h
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,105 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#ifndef _JAIL_H
@@ -1278,6 +1302,7 @@ index 0000000..d100a3e
 +    uint32 BanDauer;    // Nach dieser Zeit (Std.) wird ein durch das Jail gebannter Account wieder freigeschaltet.
 +    uint32 Radius;      // Radius in dem der Knastbruder sich bewegen darf.
 +    uint32 GMAcc;       // Account der zum Bannen genutzt wird
++    uint32 Amnestie;    // Monate (nach dem letzten Vorfall), nach denen die Jaileinträge gelöscht werden.
 +
 +    Position AllyPos;   // Koordinaten für den Allyknast
 +    Position HordePos;  // Koordinaten für den Hordeknast
@@ -1329,8 +1354,10 @@ index 0000000..d100a3e
 +    bool LadeKonfiguration(bool reload = false);
 +    // Inhaftierungen laden
 +    bool Init(bool reload = false);
-+    // Knast auf nicht mehr existierende Charaktere prüfen
++    // Knast auf nicht mehr existierende Charaktere prüfen.
 +    void KnastAufraeumen();
++    // Prüfen ob jemand Amnestie bekommen muss.
++    void Amnestie();
 +    // Jede Minute schauen, ob jemand entlassen werden muss.
 +    void Update();
 +
