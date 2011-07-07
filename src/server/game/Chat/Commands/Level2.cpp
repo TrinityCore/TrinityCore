@@ -771,14 +771,18 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
 
             uint64 guid = 0;
             std::string name;
+            std::string online;
 
             do
             {
                 Field* charfields = chars->Fetch();
                 guid = charfields[0].GetUInt64();
                 name = charfields[1].GetString();
+                if (Player* pl = sObjectMgr->GetPlayerByLowGUID(guid))
+                    if (pl->IsInWorld())
+                        online = "[online]";
 
-                PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid);
+                PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid, online.c_str());
                 ++i;
 
             } while (chars->NextRow() && (limit == -1 || i < limit));
