@@ -2409,27 +2409,14 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
         Aura const* aura = aurApp->GetBase();
         char const* name = aura->GetSpellProto()->SpellName[GetSessionDbcLocale()];
 
-        if (m_session)
-        {
-            std::ostringstream ss_name;
-            ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
+        std::ostringstream ss_name;
+        ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
 
-            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), aurApp->GetEffectMask(),
-                aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
-                aura->GetDuration(), aura->GetMaxDuration(),
-                ss_name.str().c_str(),
-                (aura->IsPassive() ? passiveStr : ""), (talent ? talentStr : ""),
-                IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature", GUID_LOPART(aura->GetCasterGUID()));
-        }
-        else
-        {
-            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), aurApp->GetEffectMask(),
-                aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
-                aura->GetDuration(), aura->GetMaxDuration(),
-                name,
-                (aura->IsPassive() ? passiveStr : ""), (talent ? talentStr : ""),
-                IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature", GUID_LOPART(aura->GetCasterGUID()));
-        }
+        PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (m_session ? ss_name.str().c_str() : name),
+		    aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
+            aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
+		    (talent ? talentStr : ""), IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",
+		    GUID_LOPART(aura->GetCasterGUID()));
     }
     for (uint16 i = 0; i < TOTAL_AURAS; ++i)
     {
@@ -2438,13 +2425,6 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
         PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, uAuraList.size(), i);
         for (Unit::AuraEffectList::const_iterator itr = uAuraList.begin(); itr != uAuraList.end(); ++itr)
         {
-            //bool talent = GetTalentSpellCost((*itr)->GetId()) > 0;
-
-            char const* name = (*itr)->GetSpellProto()->SpellName[GetSessionDbcLocale()];
-
-            std::ostringstream ss_name;
-            ss_name << "|cffffffff|Hspell:" << (*itr)->GetId() << "|h[" << name << "]|h|r";
-
             PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(),
                 (*itr)->GetAmount());
         }

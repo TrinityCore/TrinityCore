@@ -97,7 +97,7 @@ class ulduar_teleporter : public GameObjectScript
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, BASE_CAMP);
             if (InstanceScript* instance = gameObject->GetInstanceScript())
             {
-                if (instance->GetData(TYPE_COLOSSUS) == 2) //count of 2 collossus death
+                if (instance->GetData(DATA_COLOSSUS) == 2) //count of 2 collossus death
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Formation Grounds", GOSSIP_SENDER_MAIN, GROUNDS);
                 if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Colossal Forge", GOSSIP_SENDER_MAIN, FORGE);
