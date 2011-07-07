@@ -25,7 +25,10 @@ public:
             pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                         , GOSSIP_SENDER_MAIN, 1205);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."               , GOSSIP_SENDER_MAIN, 1288);
             if (sConfig->GetIntDefault("RealmID", 0) == 5)
+            {
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
+                pPlayer->ADD_GOSSIP_ITEM( 5, "Арена награнда."              , GOSSIP_SENDER_MAIN, 4040);
+            }
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                    , GOSSIP_SENDER_MAIN, 5550);
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"              , GOSSIP_SENDER_MAIN, 5554);
 
@@ -42,7 +45,10 @@ public:
             pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                         , GOSSIP_SENDER_MAIN, 1205);
             pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."               , GOSSIP_SENDER_MAIN, 1288);
             if (sConfig->GetIntDefault("RealmID", 0) == 5)
+            {
                 pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
+                pPlayer->ADD_GOSSIP_ITEM( 5, "Арена награнда."              , GOSSIP_SENDER_MAIN, 4040);
+            }
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                    , GOSSIP_SENDER_MAIN, 5550);
             pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"              , GOSSIP_SENDER_MAIN, 5554);
         }
@@ -161,7 +167,10 @@ public:
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                               , GOSSIP_SENDER_MAIN, 1205);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."                     , GOSSIP_SENDER_MAIN, 1288);
                     if (sConfig->GetIntDefault("RealmID", 0) == 5)
-                              pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
+                    {
+                        pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."                 , GOSSIP_SENDER_MAIN, 4039);
+                        pPlayer->ADD_GOSSIP_ITEM( 5, "Арена награнда."                    , GOSSIP_SENDER_MAIN, 4040);
+                    }
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                          , GOSSIP_SENDER_MAIN, 5550);
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"                    , GOSSIP_SENDER_MAIN, 5554);
 
@@ -178,7 +187,10 @@ public:
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Даларан."                               , GOSSIP_SENDER_MAIN, 1205);
                     pPlayer->ADD_GOSSIP_ITEM( 5, "Остров Кель'Данас."                     , GOSSIP_SENDER_MAIN, 1288);
                     if (sConfig->GetIntDefault("RealmID", 0) == 5)
-                              pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."           , GOSSIP_SENDER_MAIN, 4039);
+                    {
+                        pPlayer->ADD_GOSSIP_ITEM( 5, "Стартовая локация."                 , GOSSIP_SENDER_MAIN, 4039);
+                        pPlayer->ADD_GOSSIP_ITEM( 5, "Арена награнда."                    , GOSSIP_SENDER_MAIN, 4040);
+                    }
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы] ->"                          , GOSSIP_SENDER_MAIN, 5550);
                     pPlayer->ADD_GOSSIP_ITEM( 7, "[Инстансы WotLK] ->"                    , GOSSIP_SENDER_MAIN, 5554);
                 }
@@ -802,6 +814,19 @@ public:
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(530, -1236.92f, 7144.97f, 57.26f, 4.78f);
+                }
+            break;
+
+            case 4040: // Nagrand Arena
+                if (pPlayer->GetTeam() == ALLIANCE)
+                {
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->TeleportTo(530, -2106.58f, 6749.17f, -3.65f, 5.27f);
+                }
+                else
+                {
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->TeleportTo(530, -1971.01f, 6541.43f, 12.75f, 2.48f);
                 }
             break;
         }
