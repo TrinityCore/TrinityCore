@@ -6016,6 +6016,28 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                     caster->CastSpell(target, triggerSpellId, true, NULL, NULL, caster->GetGUID());
                 return;
             }
+            case 24745: // Summon Templar, Trigger
+            case 24747: // Summon Templar Fire, Trigger
+            case 24757: // Summon Templar Air, Trigger
+            case 24759: // Summon Templar Earth, Trigger
+            case 24761: // Summon Templar Water, Trigger
+            case 24762: // Summon Duke, Trigger
+            case 24766: // Summon Duke Fire, Trigger
+            case 24769: // Summon Duke Air, Trigger
+            case 24771: // Summon Duke Earth, Trigger
+            case 24773: // Summon Duke Water, Trigger
+            case 24785: // Summon Royal, Trigger
+            case 24787: // Summon Royal Fire, Trigger
+            case 24791: // Summon Royal Air, Trigger
+            case 24792: // Summon Royal Earth, Trigger
+            case 24793: // Summon Royal Water, Trigger
+            {
+                // All this spells trigger a spell that requires reagents; if the
+                // triggered spell is cast as "triggered", reagents are not consumed
+                if (caster)
+                    caster->CastSpell(target, triggerSpellId, false);
+                return;
+            }
         }
     }
 
