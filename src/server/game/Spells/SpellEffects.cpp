@@ -1649,7 +1649,7 @@ void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
     }
     int32 bp = damage;
 
-    unitTarget->CastCustomSpell(m_caster, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastCustomSpell(m_caster, spellInfo->Id, &bp, &bp, &bp, true);
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
