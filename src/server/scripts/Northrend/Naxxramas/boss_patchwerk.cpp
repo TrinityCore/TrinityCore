@@ -55,14 +55,14 @@ class boss_patchwerk : public CreatureScript
 public:
     boss_patchwerk() : CreatureScript("boss_patchwerk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_patchwerkAI (pCreature);
+        return new boss_patchwerkAI (creature);
     }
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) {}
 
         bool Enraged;
 
@@ -126,11 +126,11 @@ public:
 
                         for (; i != m_threatlist.end(); ++i)
                         {
-                            Unit *pTarget = (*i)->getTarget();
-                            if (pTarget->isAlive() && pTarget != me->getVictim() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
+                            Unit* target = (*i)->getTarget();
+                            if (target->isAlive() && target != me->getVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
                             {
-                                MostHP = pTarget->GetHealth();
-                                pMostHPTarget = pTarget;
+                                MostHP = target->GetHealth();
+                                pMostHPTarget = target;
                             }
                         }
 

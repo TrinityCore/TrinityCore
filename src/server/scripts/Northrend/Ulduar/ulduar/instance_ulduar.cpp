@@ -79,6 +79,7 @@ class instance_ulduar : public InstanceMapScript
             uint32 TeamInInstance;
             uint32 HodirRareCacheData;
             uint8 elderCount;
+            bool conSpeedAtory;
 
             std::set<uint64> mRubbleSpawns;
 
@@ -86,37 +87,38 @@ class instance_ulduar : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
-                IgnisGUID                            = 0;
-                RazorscaleGUID                       = 0;
-                RazorscaleController                 = 0;
-                ExpeditionCommanderGUID              = 0;
-                XT002GUID                            = 0;
-                KologarnGUID                         = 0;
-                LeftArmGUID                          = 0;
-                RightArmGUID                         = 0;
-                AuriayaGUID                          = 0;
-                MimironGUID                          = 0;
-                HodirGUID                            = 0;
-                ThorimGUID                           = 0;
-                FreyaGUID                            = 0;
-                VezaxGUID                            = 0;
-                YoggSaronGUID                        = 0;
-                AlgalonGUID                          = 0;
-                KologarnChestGUID                    = 0;
-                KologarnBridgeGUID                   = 0;
-                KologarnChestGUID                    = 0;
-                ThorimChestGUID                      = 0;
-                HodirRareCacheGUID                   = 0;
-                HodirChestGUID                       = 0;
-                FreyaChestGUID                       = 0;
-                LeviathanGateGUID                    = 0;
-                VezaxDoorGUID                        = 0;
-                HodirDoorGUID                        = 0;
-                HodirIceDoorGUID                     = 0;
-                ArchivumDoorGUID                     = 0;
-                TeamInInstance                       = 0;
-                HodirRareCacheData                   = 0;
-                elderCount                           = 0;
+                IgnisGUID                        = 0;
+                RazorscaleGUID                   = 0;
+                RazorscaleController             = 0;
+                ExpeditionCommanderGUID          = 0;
+                XT002GUID                        = 0;
+                KologarnGUID                     = 0;
+                LeftArmGUID                      = 0;
+                RightArmGUID                     = 0;
+                AuriayaGUID                      = 0;
+                MimironGUID                      = 0;
+                HodirGUID                        = 0;
+                ThorimGUID                       = 0;
+                FreyaGUID                        = 0;
+                VezaxGUID                        = 0;
+                YoggSaronGUID                    = 0;
+                AlgalonGUID                      = 0;
+                KologarnChestGUID                = 0;
+                KologarnBridgeGUID               = 0;
+                KologarnChestGUID                = 0;
+                ThorimChestGUID                  = 0;
+                HodirRareCacheGUID               = 0;
+                HodirChestGUID                   = 0;
+                FreyaChestGUID                   = 0;
+                LeviathanGateGUID                = 0;
+                VezaxDoorGUID                    = 0;
+                HodirDoorGUID                    = 0;
+                HodirIceDoorGUID                 = 0;
+                ArchivumDoorGUID                 = 0;
+                TeamInInstance                   = 0;
+                HodirRareCacheData               = 0;
+                elderCount                       = 0;
+                conSpeedAtory                    = false;
 
                 memset(Encounter, 0, sizeof(Encounter));
                 memset(XTToyPileGUIDs, 0, sizeof(XTToyPileGUIDs));
@@ -210,23 +212,6 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_KOLOGARN:
                         KologarnGUID = creature->GetGUID();
                         break;
-                    case NPC_KOLOGARN_BRIDGE:
-                        // The below hacks are courtesy of the grid/visibilitysystem
-                        if (GetBossState(BOSS_KOLOGARN) == DONE)
-                        {
-                            creature->SetDeadByDefault(true);
-                            creature->setDeathState(CORPSE);
-                            creature->DestroyForNearbyPlayers();
-                            creature->UpdateObjectVisibility(true);
-                        }
-                        else
-                        {
-                            creature->SetDeadByDefault(false);
-                            creature->setDeathState(CORPSE);
-                            creature->RemoveCorpse(true);
-                        }
-                        break;
-
                     case NPC_AURIAYA:
                         AuriayaGUID = creature->GetGUID();
                         break;
@@ -374,6 +359,29 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
+            void OnCreatureDeath(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_CORRUPTED_SERVITOR:
+                    case NPC_MISGUIDED_NYMPH:
+                    case NPC_GUARDIAN_LASHER:
+                    case NPC_FOREST_SWARMER:
+                    case NPC_MANGROVE_ENT:
+                    case NPC_IRONROOT_LASHER:
+                    case NPC_NATURES_BLADE:
+                    case NPC_GUARDIAN_OF_LIFE:
+                        if (!conSpeedAtory)
+                        {
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_CON_SPEED_ATORY);
+                            conSpeedAtory = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void ProcessEvent(GameObject* /*gameObject*/, uint32 eventId)
             {
                 // Flame Leviathan's Tower Event triggers
@@ -382,23 +390,20 @@ class instance_ulduar : public InstanceMapScript
                     switch (eventId)
                     {
                         case EVENT_TOWER_OF_STORM_DESTROYED:
-                            FlameLeviathan->AI()->DoAction(1);
+                            FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_STORM_DESTROYED);
                             break;
                         case EVENT_TOWER_OF_FROST_DESTROYED:
-                            FlameLeviathan->AI()->DoAction(2);
+                            FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_FROST_DESTROYED);
                             break;
                         case EVENT_TOWER_OF_FLAMES_DESTROYED:
-                            FlameLeviathan->AI()->DoAction(3);
+                            FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_FLAMES_DESTROYED);
                             break;
                         case EVENT_TOWER_OF_LIFE_DESTROYED:
-                            FlameLeviathan->AI()->DoAction(4);
+                            FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_LIFE_DESTROYED);
                             break;
                     }
             }
 
-            void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/)
-            {
-            }
 
             bool SetBossState(uint32 type, EncounterState state)
             {
@@ -440,7 +445,7 @@ class instance_ulduar : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                                if (GetData(DATA_HODIR_RARE_CACHE) == 1)
+                                if (GetData(DATA_HODIR_RARE_CACHE))
                                     HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                             if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
                                 HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
@@ -467,12 +472,12 @@ class instance_ulduar : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case TYPE_COLOSSUS:
-                        Encounter[TYPE_COLOSSUS] = data;
+                    case DATA_COLOSSUS:
+                        Encounter[DATA_COLOSSUS] = data;
                         if (data == 2)
                         {
                             if (Creature* Leviathan = instance->GetCreature(LeviathanGUID))
-                                Leviathan->AI()->DoAction(10);
+                                Leviathan->AI()->DoAction(ACTION_MOVE_TO_CENTER_POSITION);
                             if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
                                 gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                             SaveToDB();
@@ -480,9 +485,12 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case DATA_HODIR_RARE_CACHE:
                         HodirRareCacheData = data;
-                        break;
-                    case DATA_KNOCK_ON_WOOD_ACHIEVEMENTS:
-                        elderCount = data;
+                        if (!HodirRareCacheData)
+                        {
+                            if (Creature* Hodir = instance->GetCreature(HodirGUID))
+                                if (GameObject* gameObject = instance->GetGameObject(HodirRareCacheGUID))
+                                    Hodir->RemoveGameObject(gameObject, false);
+                        }
                         break;
                     default:
                         break;
@@ -580,35 +588,15 @@ class instance_ulduar : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case TYPE_COLOSSUS:
+                    case DATA_COLOSSUS:
                         return Encounter[type];
-                        break;
                     case DATA_HODIR_RARE_CACHE:
                         return HodirRareCacheData;
-                        break;
-                }
-
-                return 0;
-            }
-
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*player*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
-            {
-                switch (criteriaId)
-                {
-                    case CRITERIA_KNOCK_ON_WOOD_10:
-                    case CRITERIA_KNOCK_ON_WOOD_25:
-                        return elderCount >= 1;
-                    case CRITERIA_KNOCK_KNOCK_ON_WOOD_10:
-                    case CRITERIA_KNOCK_KNOCK_ON_WOOD_25:
-                        return elderCount >= 2;
-                    case CRITERIA_KNOCK_KNOCK_KNOCK_ON_WOOD_10:
-                    case CRITERIA_KNOCK_KNOCK_KNOCK_ON_WOOD_25:
-                        return elderCount == 3;
                     default:
                         break;
                 }
 
-                return false;
+                return 0;
             }
 
             std::string GetSaveData()
@@ -616,7 +604,7 @@ class instance_ulduar : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "U U " << GetBossSaveData() << GetData(TYPE_COLOSSUS);
+                saveStream << "U U " << GetBossSaveData() << GetData(DATA_COLOSSUS);
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -646,7 +634,7 @@ class instance_ulduar : public InstanceMapScript
                         if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                             tmpState = NOT_STARTED;
 
-                        if (i == TYPE_COLOSSUS)
+                        if (i == DATA_COLOSSUS)
                             SetData(i, tmpState);
                         else
                             SetBossState(i, EncounterState(tmpState));

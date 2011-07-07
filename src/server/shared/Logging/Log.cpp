@@ -29,7 +29,7 @@ extern LoginDatabaseWorkerPool LoginDatabase;
 
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL), wardenLogFile(NULL),
-    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), sqlLogFile(NULL),
+    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), sqlLogFile(NULL), sqlDevLogFile(NULL),
     m_gmlog_per_account(false), m_enableLogDBLater(false),
     m_enableLogDB(false), m_colored(false)
 {
@@ -69,6 +69,10 @@ Log::~Log()
     if (sqlLogFile != NULL)
         fclose(sqlLogFile);
     sqlLogFile = NULL;
+
+    if (sqlDevLogFile != NULL)
+        fclose(sqlDevLogFile);
+    sqlDevLogFile = NULL;
 }
 
 void Log::SetLogLevel(char *Level)
@@ -162,6 +166,7 @@ void Log::Initialize()
     arenaLogFile = openLogFile("ArenaLogFile", NULL, "a");
     sqlLogFile = openLogFile("SQLDriverLogFile", NULL, "a");
     wardenLogFile = openLogFile("WardenLogFile",NULL,"a");
+    sqlDevLogFile = openLogFile("SQLDeveloperLogFile", NULL, "a");
 
     // Main log file settings
     m_logLevel     = sConfig->GetIntDefault("LogLevel", LOGL_NORMAL);
@@ -360,7 +365,7 @@ void Log::outDB(LogTypes type, const char * str)
     std::string new_str(str);
     if (new_str.empty())
         return;
-    LoginDatabase.escape_string(new_str);
+    LoginDatabase.EscapeString(new_str);
 
     LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
         "VALUES (" UI64FMTD ", %u, %u, '%s');", uint64(time(0)), realm, type, new_str.c_str());
@@ -713,6 +718,32 @@ void Log::outDebugInLine(const char * str, ...)
             va_end(ap);
         }
     }
+}
+
+void Log::outSQLDev(const char* str, ...)
+{
+    if (!str)
+        return;
+
+    va_list ap;
+    va_start(ap, str);
+    vutf8printf(stdout, str, &ap);
+    va_end(ap);
+
+    printf("\n");
+
+    if (sqlDevLogFile)
+    {
+        va_list ap;
+        va_start(ap, str);
+        vfprintf(sqlDevLogFile, str, ap);
+        va_end(ap);
+
+        fprintf(sqlDevLogFile, "\n");
+        fflush(sqlDevLogFile);
+    }
+
+    fflush(stdout);
 }
 
 void Log::outDebug(DebugLogFilters f, const char * str, ...)

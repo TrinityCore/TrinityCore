@@ -52,7 +52,7 @@ class boss_jindo : public CreatureScript
 
         struct boss_jindoAI : public ScriptedAI
         {
-            boss_jindoAI(Creature *c) : ScriptedAI(c) {}
+            boss_jindoAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 BrainWashTotem_Timer;
             uint32 HealingWard_Timer;
@@ -108,13 +108,13 @@ class boss_jindo : public CreatureScript
                 //Casting the delusion curse with a shade. So shade will attack the same target with the curse.
                 if (Delusions_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(pTarget, SPELL_DELUSIONSOFJINDO);
+                        DoCast(target, SPELL_DELUSIONSOFJINDO);
 
-                        Creature *Shade = me->SummonCreature(14986, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        Creature* Shade = me->SummonCreature(14986, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Shade)
-                            Shade->AI()->AttackStart(pTarget);
+                            Shade->AI()->AttackStart(target);
                     }
 
                     Delusions_Timer = 4000 + rand()%8000;
@@ -123,43 +123,43 @@ class boss_jindo : public CreatureScript
                 //Teleporting a random gamer and spawning 9 skeletons that will attack this gamer
                 if (Teleport_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
+                    Unit* target = NULL;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target && target->GetTypeId() == TYPEID_PLAYER)
                     {
-                        DoTeleportPlayer(pTarget, -11583.7783f, -1249.4278f, 77.5471f, 4.745f);
+                        DoTeleportPlayer(target, -11583.7783f, -1249.4278f, 77.5471f, 4.745f);
 
                         if (DoGetThreat(me->getVictim()))
-                            DoModifyThreatPercent(pTarget, -100);
+                            DoModifyThreatPercent(target, -100);
 
-                        Creature *Skeletons;
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX()+2, pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        Creature* Skeletons;
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX()+2, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX()-2, pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX()-2, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX()+4, pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX()+4, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX()-4, pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX()-4, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX(), pTarget->GetPositionY()+2, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()+2, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX(), pTarget->GetPositionY()-2, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()-2, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX(), pTarget->GetPositionY()+4, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()+4, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX(), pTarget->GetPositionY()-4, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()-4, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
-                        Skeletons = me->SummonCreature(14826, pTarget->GetPositionX()+3, pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Skeletons->AI()->AttackStart(target);
+                        Skeletons = me->SummonCreature(14826, target->GetPositionX()+3, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Skeletons)
-                            Skeletons->AI()->AttackStart(pTarget);
+                            Skeletons->AI()->AttackStart(target);
                     }
 
                     Teleport_Timer = 15000 + rand()%8000;
@@ -187,7 +187,7 @@ class mob_healing_ward : public CreatureScript
 
         struct mob_healing_wardAI : public ScriptedAI
         {
-            mob_healing_wardAI(Creature *c) : ScriptedAI(c)
+            mob_healing_wardAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance = c->GetInstanceScript();
             }
@@ -212,7 +212,7 @@ class mob_healing_ward : public CreatureScript
                 {
                     if (pInstance)
                     {
-                        Unit *pJindo = Unit::GetUnit((*me), pInstance->GetData64(DATA_JINDO));
+                        Unit* pJindo = Unit::GetUnit((*me), pInstance->GetData64(DATA_JINDO));
                         if (pJindo)
                             DoCast(pJindo, SPELL_HEAL);
                     }
@@ -241,7 +241,7 @@ class mob_shade_of_jindo : public CreatureScript
 
         struct mob_shade_of_jindoAI : public ScriptedAI
         {
-            mob_shade_of_jindoAI(Creature *c) : ScriptedAI(c) {}
+            mob_shade_of_jindoAI(Creature* c) : ScriptedAI(c) {}
 
             uint32 ShadowShock_Timer;
 

@@ -264,16 +264,16 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 enum SpellAttr0
 {
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR0_REQ_AMMO                         = 0x00000002, //  1
-    SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2 on next swing
+    SPELL_ATTR0_REQ_AMMO                         = 0x00000002, //  1 on next ranged
+    SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2
     SPELL_ATTR0_UNK3                             = 0x00000008, //  3 not set in 3.0.3
-    SPELL_ATTR0_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells, will be added by client to a sublist of profession spell
+    SPELL_ATTR0_ABILITY                          = 0x00000010, //  4 client puts 'ability' instead of 'spell' in game strings for these spells
+    SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells (recipes), will be added by client to a sublist of profession spell
     SPELL_ATTR0_PASSIVE                          = 0x00000040, //  6 Passive spell
     SPELL_ATTR0_HIDDEN_CLIENTSIDE                = 0x00000080, //  7 Spells with this attribute are not visible in spellbook or aura bar
     SPELL_ATTR0_HIDE_IN_COMBAT_LOG               = 0x00000100, //  8 This attribite controls whether spell appears in combat logs
     SPELL_ATTR0_TARGET_MAINHAND_ITEM             = 0x00000200, //  9 Client automatically selects item from mainhand slot as a cast target
-    SPELL_ATTR0_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR0_ON_NEXT_SWING_2                  = 0x00000400, // 10
     SPELL_ATTR0_UNK11                            = 0x00000800, // 11
     SPELL_ATTR0_DAYTIME_ONLY                     = 0x00001000, // 12 only useable at daytime, not set in 2.4.2
     SPELL_ATTR0_NIGHT_ONLY                       = 0x00002000, // 13 only useable at night, not set in 2.4.2
@@ -281,11 +281,11 @@ enum SpellAttr0
     SPELL_ATTR0_OUTDOORS_ONLY                    = 0x00008000, // 15 Only useable outdoors.
     SPELL_ATTR0_NOT_SHAPESHIFT                   = 0x00010000, // 16 Not while shapeshifted
     SPELL_ATTR0_ONLY_STEALTHED                   = 0x00020000, // 17 Must be in stealth
-    SPELL_ATTR0_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE         = 0x00040000, // 18 client won't hide unit weapons in sheath on cast/channel
     SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION         = 0x00080000, // 19 spelldamage depends on caster level
     SPELL_ATTR0_STOP_ATTACK_TARGET               = 0x00100000, // 20 Stop attack after use this spell (and not begin attack if use)
     SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK     = 0x00200000, // 21 Cannot be dodged/parried/blocked
-    SPELL_ATTR0_FORCE_FACING_TARGET              = 0x00400000, // 22 Client automatically forces player to face target when casting
+    SPELL_ATTR0_CAST_TRACK_TARGET                = 0x00400000, // 22 Client automatically forces player to face target when casting
     SPELL_ATTR0_CASTABLE_WHILE_DEAD              = 0x00800000, // 23 castable while dead?
     SPELL_ATTR0_CASTABLE_WHILE_MOUNTED           = 0x01000000, // 24 castable while mounted
     SPELL_ATTR0_DISABLED_WHILE_ACTIVE            = 0x02000000, // 25 Activate and start cooldown after aura fade or remove summoned creature or go
@@ -299,21 +299,21 @@ enum SpellAttr0
 
 enum SpellAttr1
 {
-    SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 dismiss pet and not allow to summon new one?
+    SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 for spells without this flag client doesn't allow to summon pet if caster has a pet
     SPELL_ATTR1_DRAIN_ALL_POWER                  = 0x00000002, //  1 use all power (Only paladin Lay of Hands and Bunyanize)
-    SPELL_ATTR1_CHANNELED_1                      = 0x00000004, //  2
+    SPELL_ATTR1_CHANNELED_1                      = 0x00000004, //  2 clientside checked? cancelable?
     SPELL_ATTR1_PUT_CASTER_IN_COMBAT             = 0x00000008, //  3 spells that cause a caster to enter a combat
     SPELL_ATTR1_UNK4                             = 0x00000010, //  4 stealth and whirlwind
     SPELL_ATTR1_NOT_BREAK_STEALTH                = 0x00000020, //  5 Not break stealth
     SPELL_ATTR1_CHANNELED_2                      = 0x00000040, //  6
     SPELL_ATTR1_NEGATIVE                         = 0x00000080, //  7
     SPELL_ATTR1_NOT_IN_COMBAT_TARGET             = 0x00000100, //  8 Spell req target not to be in combat state
-    SPELL_ATTR1_UNK9                             = 0x00000200, //  9 melee spells
+    SPELL_ATTR1_MELEE_COMBAT_SPELL               = 0x00000200, //  9 spells with this flag can be cast only if caster is able to melee attack target
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
     SPELL_ATTR1_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR1_USE_RADIUS_AS_MAX_DISTANCE       = 0x00002000, // 13
-    SPELL_ATTR1_STACK_FOR_DIFF_CASTERS           = 0x00004000, // 14
+    SPELL_ATTR1_FARSIGHT                         = 0x00002000, // 13 Client removes farsight on aura loss
+    SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // 14 Client automatically forces player to face target when channeling
     SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // 15 remove auras on immunity
     SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE      = 0x00010000, // 16 on immuniy
     SPELL_ATTR1_UNAUTOCASTABLE_BY_PET            = 0x00020000, // 17
@@ -327,8 +327,8 @@ enum SpellAttr1
     SPELL_ATTR1_UNK25                            = 0x02000000, // 25
     SPELL_ATTR1_UNK26                            = 0x04000000, // 26 works correctly with [target=focus] and [target=mouseover] macros?
     SPELL_ATTR1_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR1_IGNORE_IMMUNITY                  = 0x10000000, // 28 removed from Chains of Ice 3.3.0
-    SPELL_ATTR1_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR         = 0x10000000, // 28 client doesn't display these spells in aura bar
+    SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // 29 spell name is displayed in cast bar instead of 'channeling' text
     SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // 30 Overpower, Wolverine Bite
     SPELL_ATTR1_UNK31                            = 0x80000000  // 31
 };
@@ -489,7 +489,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
     SPELL_ATTR6_IGNORE_CROWD_CONTROL_TARGETS     = 0x00000100, //  8
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
-    SPELL_ATTR6_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS     = 0x00000400, // 10 NYI!
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
     SPELL_ATTR6_UNK12                            = 0x00001000, // 12
     SPELL_ATTR6_UNK13                            = 0x00002000, // 13
@@ -502,15 +502,15 @@ enum SpellAttr6
     SPELL_ATTR6_UNK20                            = 0x00100000, // 20
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR6_UNK23                            = 0x00800000, // 23 not set in 3.0.3
-    SPELL_ATTR6_UNK24                            = 0x01000000, // 24 not set in 3.0.3
-    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 not set in 3.0.3
-    SPELL_ATTR6_UNK26                            = 0x04000000, // 26 not set in 3.0.3
-    SPELL_ATTR6_UNK27                            = 0x08000000, // 27 not set in 3.0.3
-    SPELL_ATTR6_UNK28                            = 0x10000000, // 28 not set in 3.0.3
-    SPELL_ATTR6_UNK29                            = 0x20000000, // 29 not set in 3.0.3
-    SPELL_ATTR6_UNK30                            = 0x40000000, // 30 not set in 3.0.3
-    SPELL_ATTR6_UNK31                            = 0x80000000  // 31 not set in 3.0.3
+    SPELL_ATTR6_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24 NYI!
+    SPELL_ATTR6_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR6_UNK26                            = 0x04000000, // 26
+    SPELL_ATTR6_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR6_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR6_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR6_UNK30                            = 0x40000000, // 30
+    SPELL_ATTR6_UNK31                            = 0x80000000  // 31
 };
 
 enum SpellAttr7
@@ -1281,54 +1281,52 @@ enum Targets
 {
     TARGET_UNIT_CASTER                 = 1,
     TARGET_UNIT_NEARBY_ENEMY           = 2,
-    TARGET_UNIT_NEARBY_ALLY            = 3,
-    TARGET_UNIT_NEARBY_ALLY_UNK        = 4,
+    TARGET_UNIT_NEARBY_PARTY           = 3,
+    TARGET_UNIT_NEARBY_ALLY            = 4,
     TARGET_UNIT_PET                    = 5,
     TARGET_UNIT_TARGET_ENEMY           = 6,
     TARGET_UNIT_AREA_ENTRY_SRC         = 7,
     TARGET_UNIT_AREA_ENTRY_DST         = 8,
-    TARGET_DST_HOME                    = 9,  // uses in teleport to innkeeper spells
+    TARGET_DST_HOME                    = 9,
     TARGET_UNIT_TARGET_DEST_CASTER     = 11, // teleport target to caster
     TARGET_UNIT_AREA_ENEMY_SRC         = 15,
     TARGET_UNIT_AREA_ENEMY_DST         = 16,
-    TARGET_DST_DB                      = 17, // uses in teleport spells and some other
+    TARGET_DST_DB                      = 17,
     TARGET_DST_CASTER                  = 18,
     TARGET_UNIT_PARTY_CASTER           = 20,
     TARGET_UNIT_TARGET_ALLY            = 21,
     TARGET_SRC_CASTER                  = 22,
     TARGET_GAMEOBJECT                  = 23,
-    //TARGET_OBJECT_OPEN
     TARGET_UNIT_CONE_ENEMY             = 24,
     TARGET_UNIT_TARGET_ANY             = 25,
     TARGET_GAMEOBJECT_ITEM             = 26,
-    //TARGET_OBJECT_ITEM_PICKLOCK
     TARGET_UNIT_MASTER                 = 27,
     TARGET_DEST_DYNOBJ_ENEMY           = 28,
-    TARGET_DEST_DYNOBJ_ALLY            = 29, // only for effect 27
-    TARGET_UNIT_AREA_ALLY_SRC          = 30, // in TargetB used only with TARGET_SRC_CASTER and in self casting range in TargetA
+    TARGET_DEST_DYNOBJ_ALLY            = 29,
+    TARGET_UNIT_AREA_ALLY_SRC          = 30,
     TARGET_UNIT_AREA_ALLY_DST          = 31,
     TARGET_MINION                      = 32,
     //TARGET_DEST_SUMMON
     TARGET_UNIT_AREA_PARTY_SRC         = 33,
-    TARGET_UNIT_AREA_PARTY_DST         = 34, // used in Tranquility
+    TARGET_UNIT_AREA_PARTY_DST         = 34,
     TARGET_UNIT_TARGET_PARTY           = 35,
     TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
-    TARGET_UNIT_PARTY_TARGET           = 37,
+    TARGET_UNIT_TARGET_ALLY_PARTY      = 37,
     TARGET_UNIT_NEARBY_ENTRY           = 38,
     TARGET_UNIT_CASTER_FISHING         = 39,
     TARGET_GAMEOBJECT_NEARBY_ENTRY     = 40,
-    TARGET_DEST_CASTER_FRONT_LEFT      = 41, //earth totem
-    TARGET_DEST_CASTER_BACK_LEFT       = 42, //water totem
-    TARGET_DEST_CASTER_BACK_RIGHT      = 43, //air totem
-    TARGET_DEST_CASTER_FRONT_RIGHT     = 44, //fire totem
+    TARGET_DEST_CASTER_FRONT_LEFT      = 41,
+    TARGET_DEST_CASTER_BACK_LEFT       = 42,
+    TARGET_DEST_CASTER_BACK_RIGHT      = 43,
+    TARGET_DEST_CASTER_FRONT_RIGHT     = 44,
     TARGET_UNIT_CHAINHEAL              = 45,
     TARGET_DST_NEARBY_ENTRY            = 46,
     TARGET_DEST_CASTER_FRONT           = 47,
     TARGET_DEST_CASTER_BACK            = 48,
     TARGET_DEST_CASTER_RIGHT           = 49,
     TARGET_DEST_CASTER_LEFT            = 50,
-    TARGET_GAMEOBJECT_AREA_SRC         = 51, // If used with SPELL_EFFECT_ACTIVATE_OBJECT, appliccable GO entries should be specified in conditions table
-    TARGET_GAMEOBJECT_AREA_DST         = 52, // If used with SPELL_EFFECT_ACTIVATE_OBJECT, appliccable GO entries should be specified in conditions table
+    TARGET_GAMEOBJECT_AREA_SRC         = 51,
+    TARGET_GAMEOBJECT_AREA_DST         = 52,
     TARGET_DST_TARGET_ENEMY            = 53, // set unit coordinates as dest, only 16 target B imlemented
     TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54, // 180 degree, or different angle
     TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
@@ -1337,11 +1335,11 @@ enum Targets
     TARGET_UNIT_NEARBY_RAID            = 58,
     TARGET_UNIT_CONE_ALLY              = 59,
     TARGET_UNIT_CONE_ENTRY             = 60,
-    TARGET_UNIT_CLASS_TARGET           = 61,
+    TARGET_UNIT_TARGET_CLASS_RAID      = 61,
     TARGET_TEST                        = 62, // for a test spell
     TARGET_DEST_TARGET_ANY             = 63,
     TARGET_DEST_TARGET_FRONT           = 64,
-    TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
+    TARGET_DEST_TARGET_BACK            = 65,
     TARGET_DEST_TARGET_RIGHT           = 66,
     TARGET_DEST_TARGET_LEFT            = 67,
     TARGET_DEST_TARGET_FRONT_LEFT      = 68,
@@ -1371,7 +1369,7 @@ enum Targets
     TARGET_UNIT_SUMMONER               = 92,
     TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93, // TODO
     TARGET_UNIT_VEHICLE                = 94,
-    TARGET_UNIT_DRIVER                 = 95,
+    TARGET_UNIT_TARGET_PASSENGER       = 95,
     TARGET_UNIT_PASSENGER_0            = 96,
     TARGET_UNIT_PASSENGER_1            = 97,
     TARGET_UNIT_PASSENGER_2            = 98,
@@ -1399,7 +1397,7 @@ enum SpellMissInfo
     SPELL_MISS_BLOCK                   = 5,
     SPELL_MISS_EVADE                   = 6,
     SPELL_MISS_IMMUNE                  = 7,
-    SPELL_MISS_IMMUNE2                 = 8,
+    SPELL_MISS_IMMUNE2                 = 8, // one of these 2 is MISS_TEMPIMMUNE
     SPELL_MISS_DEFLECT                 = 9,
     SPELL_MISS_ABSORB                  = 10,
     SPELL_MISS_REFLECT                 = 11

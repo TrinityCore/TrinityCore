@@ -40,14 +40,14 @@ class npc_lazy_peon : public CreatureScript
 public:
     npc_lazy_peon() : CreatureScript("npc_lazy_peon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lazy_peonAI(pCreature);
+        return new npc_lazy_peonAI(creature);
     }
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature *c) : ScriptedAI(c) {}
+        npc_lazy_peonAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 uiPlayerGUID;
 

@@ -76,7 +76,7 @@ public:
                 return false;
             }
 
-            target->CompletedAchievement(pAE, true);
+            target->CompletedAchievement(pAE);
         }
 
         return true;

@@ -36,14 +36,14 @@ class boss_gorosh_the_dervish : public CreatureScript
 public:
     boss_gorosh_the_dervish() : CreatureScript("boss_gorosh_the_dervish") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gorosh_the_dervishAI (pCreature);
+        return new boss_gorosh_the_dervishAI (creature);
     }
 
     struct boss_gorosh_the_dervishAI : public ScriptedAI
     {
-        boss_gorosh_the_dervishAI(Creature *c) : ScriptedAI(c) {}
+        boss_gorosh_the_dervishAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 WhirlWind_Timer;
         uint32 MortalStrike_Timer;
