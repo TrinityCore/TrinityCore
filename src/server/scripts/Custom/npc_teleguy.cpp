@@ -256,7 +256,7 @@ public:
                     pPlayer->TeleportTo(1, 1800.53f,-4394.68f,-17.93f,5.49f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 8!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 8!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -267,7 +267,7 @@ public:
                     pPlayer->TeleportTo(1, -722.53f,-2226.30f,16.94f,2.71f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 10!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 10!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -278,7 +278,7 @@ public:
                     pPlayer->TeleportTo(0, -11212.04f,1658.58f,25.67f,1.45f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 10!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 10!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -289,7 +289,7 @@ public:
                     pPlayer->TeleportTo(0, -254.47f,1524.68f,76.89f,1.56f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 15!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 15!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -300,7 +300,7 @@ public:
                     pPlayer->TeleportTo(1, 4254.58f,664.74f,-29.04f,1.97f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 15!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 15!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -311,7 +311,7 @@ public:
                     pPlayer->TeleportTo(0, -8769.76f,813.08f,97.63f,2.26f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 20!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 20!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -322,7 +322,7 @@ public:
                     pPlayer->TeleportTo(1, -4484.04f,-1739.40f,86.47f,1.23f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 24!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 24!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -333,7 +333,7 @@ public:
                     pPlayer->TeleportTo(0, -5162.62f,667.81f,248.05f,1.48f);   
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 20!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 20!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -344,7 +344,7 @@ public:
                     pPlayer->TeleportTo(1, -4645.08f,-2470.85f,85.53f,4.39f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 25!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 25!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -355,7 +355,7 @@ public:
                     pPlayer->TeleportTo(0, 2843.89f,-693.74f,139.32f,5.11f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 25!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 25!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -366,7 +366,7 @@ public:
                     pPlayer->TeleportTo(0, -6119.70f,-2957.30f,204.11f,0.03f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 35!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 35!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -377,7 +377,7 @@ public:
                     pPlayer->TeleportTo(1, -6839.39f,-2911.03f,8.87f,0.41f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 35!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 35!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -388,7 +388,7 @@ public:
                     pPlayer->TeleportTo(1, -1433.33f,2955.34f,96.21f,4.82f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 40!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 40!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -399,7 +399,7 @@ public:
                     pPlayer->TeleportTo(0, -10346.92f,-3851.90f,-43.41f,6.09f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 45!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 45!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -410,7 +410,7 @@ public:
                     pPlayer->TeleportTo(0, -7301.03f,-913.19f,165.37f,0.08f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 45!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 45!", LANG_UNIVERSAL, NULL);
                 }
                 break;
 
@@ -421,7 +421,7 @@ public:
                     pPlayer->TeleportTo(1, -3982.47f,1127.79f,161.02f,0.05f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -432,7 +432,7 @@ public:
                 pPlayer->TeleportTo(0, -7535.43f,-1212.04f,285.45f,5.29f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -443,7 +443,7 @@ public:
                     pPlayer->TeleportTo(0, 3263.54f,-3379.46f,143.59f,0.00f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -454,7 +454,7 @@ public:
                     pPlayer->TeleportTo(0, 1219.01f,-2604.66f,85.61f,0.50f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -465,7 +465,7 @@ public:
                     pPlayer->TeleportTo(530, -1850.209961f, 5435.821777f, -10.961435f, 3.403913f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 58!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 58!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -476,7 +476,7 @@ public:
                     pPlayer->TeleportTo(530, 12947.4f,-6893.31f,5.68398f,3.09154f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 65!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 65!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -487,7 +487,7 @@ public:
                     pPlayer->TeleportTo(0, -11118.8f, -2010.84f, 47.0807f, 0.0f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -498,7 +498,7 @@ public:
                     pPlayer->TeleportTo(530, 3539.007568f, 5082.357910f, 1.691071f, 0.0f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 65!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 65!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -519,7 +519,7 @@ public:
                     pPlayer->TeleportTo(530, 3089.579346f, 1399.046509f, 187.653458f, 4.794070f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -530,7 +530,7 @@ public:
                     pPlayer->TeleportTo(1, -8173.66f, -4746.36f, 33.8423f, 4.93989f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 66!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 66!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -541,7 +541,7 @@ public:
                     pPlayer->TeleportTo(530, 6846.95f, -7954.5f, 170.028f, 4.61501f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -552,7 +552,7 @@ public:
                     pPlayer->TeleportTo(530, -3610.719482f, 324.987579f, 37.400028f, 3.282981f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -563,7 +563,7 @@ public:
                     pPlayer->TeleportTo(530, 12884.6f, -7317.69f, 65.5023f, 4.799f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -574,7 +574,7 @@ public:
                     pPlayer->TeleportTo(530, 12574.1f, -6774.81f, 15.0904f, 3.13788f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -585,7 +585,7 @@ public:
                     pPlayer->TeleportTo(571, 1219.720f, -4865.28f, 41.25f, 0.31f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -596,7 +596,7 @@ public:
                     pPlayer->TeleportTo(571, 3776.950f, 6953.80f, 105.05f, 0.345f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -607,7 +607,7 @@ public:
                     pPlayer->TeleportTo(571, 3675.430f, 2169.00f, 35.90f, 2.29f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -618,7 +618,7 @@ public:
                     pPlayer->TeleportTo(571, 3646.760f, 2045.17f, 1.79f, 4.37f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -629,7 +629,7 @@ public:
                     pPlayer->TeleportTo(571, 4450.860f, -2045.25f, 162.83f, 0.00f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -640,7 +640,7 @@ public:
                     pPlayer->TeleportTo(571, 5679.820f, 486.80f, 652.40f, 4.08f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -651,7 +651,7 @@ public:
                     pPlayer->TeleportTo(571, 6937.540f, -4455.98f, 450.68f, 1.00f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -662,7 +662,7 @@ public:
                     pPlayer->TeleportTo(571, 1245.690f, -4856.59f, 216.86f, 3.45f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -673,7 +673,7 @@ public:
                     pPlayer->TeleportTo(571, 8976.240f, -1281.33f, 1059.01f, 0.58f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -684,7 +684,7 @@ public:
                     pPlayer->TeleportTo(571, 3625.780f, 280.40f, -120.14f, 3.25f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -695,7 +695,7 @@ public:
                     pPlayer->TeleportTo(571, 3668.719f, -1262.460f, 243.63f, 5.03f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -751,7 +751,7 @@ public:
                     pPlayer->TeleportTo(571, 5631.911f, 2011.72f, 798.26f, 4.59f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 70!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 70!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -762,7 +762,7 @@ public:
                     pPlayer->TeleportTo(0, -11916.153f, -1211.612f, 92.28f, 4.68f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -775,10 +775,10 @@ public:
                 if (pPlayer->getLevel() >= 60)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pPlayer->TeleportTo(0, -4712.451f, -3729.173f, 54.21f, 0.56f);
+                    pPlayer->TeleportTo(1, -4712.451f, -3729.173f, 54.21f, 0.56f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 60!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 60!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -789,7 +789,7 @@ public:
                     pPlayer->TeleportTo(0, -8254.271f, 1536.794f, -4.80f, 5.67f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
@@ -800,7 +800,7 @@ public:
                     pPlayer->TeleportTo(0, -3354.630f, 4930.559f, -99.97f, 0.33f);
                 } else {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Ваш уровень не должен быть ниже уровня 50!", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Ваш уровень должен превышать 50!", LANG_UNIVERSAL, NULL);
                 }
             break;
 
