@@ -361,7 +361,7 @@ bool IsAutocastableSpell(uint32 spellId)
     return true;
 }
 
-bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
+bool IsHigherRankOfSpell(uint32 spellId_1, uint32 spellId_2)
 {
     return sSpellMgr->GetSpellRank(spellId_1) < sSpellMgr->GetSpellRank(spellId_2);
 }
@@ -4411,6 +4411,11 @@ void SpellMgr::LoadSpellCustomAttr()
         case 75545: case 75536: // Explosion (prevent error message in console)
         case 75553:             // Emergency Recall [Camera trigger]
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+            ++count;
+            break;
+        case 74174: // Shoot
+        case 74182: // Shoot
+            spellInfo->EffectRadiusIndex[0] = 40;
             ++count;
             break;
         default:
