@@ -1614,27 +1614,22 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Id)
         {
+            case 52588: // Skeletal Gryphon Escape
             case 48598: // Ride Flamebringer Cue
                 unitTarget->RemoveAura(damage);
                 break;
-            case 52588: // Skeletal Gryphon Escape
-                unitTarget->RemoveAura(damage);
-                unitTarget->CastSpell(unitTarget, spellInfo, true);
-                return;
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
             case 72378: // Blood Nova
             case 73058: // Blood Nova
-                m_caster->CastSpell(unitTarget, 72380, true);   // additional spell cast
+                m_caster->CastSpell(unitTarget, damage, true);   // additional spell cast
                 break;
         }
     }
 
-    Unit* caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
-
-    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastSpell(m_caster, spellInfo, true);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
@@ -1653,9 +1648,8 @@ void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
         return;
     }
     int32 bp = damage;
-    Unit* caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastCustomSpell(unitTarget, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastCustomSpell(m_caster, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
