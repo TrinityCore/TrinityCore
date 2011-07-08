@@ -1525,8 +1525,14 @@ class Player : public Unit, public GridObject<Player>
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED);
         }
 
-        RewardedQuestSet& getRewardedQuests() { return m_RewardedQuests; }
+        const RewardedQuestSet& getRewardedQuests() const { return m_RewardedQuests; }
         QuestStatusMap& getQuestStatusMap() { return m_QuestStatus; };
+
+        size_t GetRewardedQuestCount() const { return m_RewardedQuests.size(); }
+        bool IsQuestRewarded(uint32 quest_id) const
+        {
+            return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
+        }
 
         const uint64& GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
