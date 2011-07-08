@@ -4130,6 +4130,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             ++count;
             break;
+        case 46363: // Midsummer - Beam Attack against Ahune
+            spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+            ++count;
+            break;
         case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
             spellInfo->EffectRadiusIndex[0] = 37;
             ++count;
