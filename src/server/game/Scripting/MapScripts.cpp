@@ -163,7 +163,7 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
             scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     else
     {
-        pUnit = dynamic_cast<Unit*>(obj);
+        pUnit = obj->ToUnit();
         if (!pUnit)
             sLog->outError("%s %s object could not be casted to unit.",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
@@ -257,7 +257,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
 
                 if (target && target->isType(TYPEMASK_GAMEOBJECT))
                 {
-                    GameObject* goTarget = dynamic_cast<GameObject*>(target);
+                    GameObject* goTarget = target->ToGameObject();
                     if (goTarget && goTarget->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
                         goTarget->UseDoorOrButton(nTimeToToggle);
                 }
@@ -678,7 +678,7 @@ void Map::ScriptsProcess()
                         break;
                     }
 
-                    if (GameObject *pGO = dynamic_cast<GameObject*>(target))
+                    if (GameObject *pGO = target->ToGameObject())
                         pGO->Use(pSource);
                 }
                 break;
@@ -707,24 +707,24 @@ void Map::ScriptsProcess()
                 switch (step.script->CastSpell.Flags)
                 {
                     case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target
-                        uSource = dynamic_cast<Unit*>(source);
-                        uTarget = dynamic_cast<Unit*>(target);
+                        uSource = source ? source->ToUnit() : NULL;
+                        uTarget = target ? target->ToUnit() : NULL;
                         break;
                     case SF_CASTSPELL_SOURCE_TO_SOURCE: // source -> source
-                        uSource = dynamic_cast<Unit*>(source);
+                        uSource = source ? source->ToUnit() : NULL;
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_TARGET: // target -> target
-                        uSource = dynamic_cast<Unit*>(target);
+                        uSource = target ? target->ToUnit() : NULL;
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_SOURCE: // target -> source
-                        uSource = dynamic_cast<Unit*>(target);
-                        uTarget = dynamic_cast<Unit*>(source);
+                        uSource = target ? target->ToUnit() : NULL;
+                        uTarget = source ? source->ToUnit() : NULL;
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
-                        uSource = dynamic_cast<Unit*>(source);
-                        uTarget = GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius);
+                        uSource = source ? source->ToUnit() : NULL;
+                        uTarget = uSource ? GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
                         break;
                 }
 
