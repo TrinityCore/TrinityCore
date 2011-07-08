@@ -812,12 +812,12 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 
                 RollId.push_back(r);
 
-                if (Creature* creature = dynamic_cast<Creature *>(pLootedObject))
+                if (Creature* creature = pLootedObject->ToCreature())
                 {
                     creature->m_groupLootTimer = 60000;
                     creature->lootingGroupLowGUID = GetLowGUID();
                 }
-                else if (GameObject* go = dynamic_cast<GameObject *>(pLootedObject))
+                else if (GameObject* go = pLootedObject->ToGameObject())
                 {
                     go->m_groupLootTimer = 60000;
                     go->lootingGroupLowGUID = GetLowGUID();
@@ -903,7 +903,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 
                 RollId.push_back(r);
 
-                if (Creature* creature = dynamic_cast<Creature *>(pLootedObject))
+                if (Creature* creature = pLootedObject->ToCreature())
                 {
                     creature->m_groupLootTimer = 60000;
                     creature->lootingGroupLowGUID = GetLowGUID();
