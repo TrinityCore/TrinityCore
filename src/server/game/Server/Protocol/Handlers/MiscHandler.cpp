@@ -1439,7 +1439,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket & recv_data)
             if (WorldObject *target = _player->GetViewpoint())
                 _player->SetSeer(target);
             else
-                sLog->outError("Player %s requests non-existing seer", _player->GetName());
+                sLog->outError("Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
             break;
         default:
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Unhandled mode in CMSG_FAR_SIGHT: %u", apply);

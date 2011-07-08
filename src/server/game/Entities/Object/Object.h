@@ -309,8 +309,6 @@ class Object
 
         void ClearUpdateMask(bool remove);
 
-        bool LoadValues(const char* data);
-
         uint16 GetValuesCount() const { return m_valuesCount; }
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
