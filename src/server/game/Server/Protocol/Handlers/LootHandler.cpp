@@ -177,7 +177,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4);
+                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
                 data << uint32(goldPerPlayer);
                 data << uint8(0);                       // Controls the text displayed 0 is "Your share is...", 1 "You loot..."
                 (*i)->GetSession()->SendPacket(&data);
@@ -188,7 +188,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
         }
         else
         {
-            WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4);
+            WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             data << uint32(loot->gold);
             data << uint8(1);
             SendPacket(&data);

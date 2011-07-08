@@ -16808,19 +16808,6 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
     GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-bool Unit::CheckPlayerCondition(Player* pPlayer)
-{
-    switch(GetEntry())
-    {
-            case 35644: // Argent Warhorse
-            case 36558: // Argent Battleworg
-                if (!pPlayer->HasItemOrGemWithIdEquipped(46106, 1)) // Check item Argent Lance
-                    return false;
-            default:
-                return true;
-    }
-}
-
 bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 {
     bool success = false;
