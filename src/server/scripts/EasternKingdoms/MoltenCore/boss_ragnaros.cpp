@@ -116,7 +116,13 @@ class boss_ragnaros_outdoor : public CreatureScript
                     if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
                         return;
 
-                BossAI::MoveInLineOfSight(who);
+                if (me->getVictim())
+                    return;
+
+                if (me->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good ;)
+                    return;
+
+                AttackStart(pTarget);
             }
 
             void EnterCombat(Unit * victim)
