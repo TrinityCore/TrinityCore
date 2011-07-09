@@ -41,6 +41,7 @@ class AuraEffect
         Aura * GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+        SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const { return m_spellProto->Id; }
