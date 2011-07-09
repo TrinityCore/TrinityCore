@@ -74,8 +74,7 @@ enum Events
     EVENT_INTRO_4,
     EVENT_INTRO_5,
 
-    EVENT_ENRAGE,
-    EVENT_TOGROUND
+    EVENT_ENRAGE
 };
 
 class boss_ragnaros_outdoor : public CreatureScript
@@ -131,7 +130,6 @@ class boss_ragnaros_outdoor : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGMA_BLAST, 2000);
                 events.ScheduleEvent(EVENT_SUBMERGE, 45000);
                 events.ScheduleEvent(EVENT_ENRAGE, 10*IN_MILLISECONDS*MINUTE);
-                events.ScheduleEvent(EVENT_TOGROUND, 1*IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit * victim)
@@ -139,26 +137,6 @@ class boss_ragnaros_outdoor : public CreatureScript
                 if (victim && victim->GetTypeId() == TYPEID_PLAYER)
                     if (urand(0, 4) == 2)
                         DoScriptText(SAY_KILL, me);
-            }
-
-            void MovementInform(uint32 type, uint32 point)
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                switch (point)
-                {
-                    case 1: me->GetMotionMaster()->MoveChase(me->getVictim()); break;
-                }
-            }
-
-            void ToGround() // Es sieht einfach affig aus, wenn Ragnaros den Spielern in der Luft folgt!
-            {
-                float x, y, z;
-                me->GetPosition(x, y, z);
-                z = me->GetMap()->GetHeight(x, y, z, false);
-                me->GetMotionMaster()->MovePoint(1, x, y, z);
-                me->GetMap()->CreatureRelocation(me, x, y, z, 0);
             }
 
             void UpdateAI(const uint32 diff)
@@ -281,10 +259,6 @@ class boss_ragnaros_outdoor : public CreatureScript
                             }
                             case EVENT_ENRAGE:
                                 DoCast(SPELL_ENRAGE);
-                                break;
-                            case EVENT_TOGROUND:
-                                ToGround();
-                                events.RescheduleEvent(EVENT_TOGROUND, 1000);
                                 break;
                             default:
                                 break;
