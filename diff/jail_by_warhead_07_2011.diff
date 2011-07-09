@@ -319,7 +319,7 @@ index 9eac54e..da3f368 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 6520b67..1f3d398 100755
+index c7bdf1a..c5f3f7e 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -354,10 +354,10 @@ index 6520b67..1f3d398 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..5883d9a
+index 0000000..a67dfaa
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,919 @@
+@@ -0,0 +1,921 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include "Jail.h"
@@ -877,6 +877,7 @@ index 0000000..5883d9a
 +bool Jail::EnableKommando(ChatHandler * handler)
 +{
 +    m_JailKonf.Enabled = true;
++    CharacterDatabase.PExecute("UPDATE `jail_conf` SET `enabled`=1");
 +    handler->SendSysMessage(LANG_JAIL_ENABLED);
 +    return Init(true);
 +}
@@ -884,6 +885,7 @@ index 0000000..5883d9a
 +bool Jail::DisableKommando(ChatHandler * handler)
 +{
 +    m_JailKonf.Enabled = false;
++    CharacterDatabase.PExecute("UPDATE `jail_conf` SET `enabled`=0");
 +    handler->SendSysMessage(LANG_JAIL_DISABLED);
 +    return true;
 +}
@@ -960,7 +962,7 @@ index 0000000..5883d9a
 +    time_t localtime = time(NULL);
 +
 +    for (JailMap::iterator itr = m_JailMap.begin(); itr != m_JailMap.end(); ++itr)
-+        if (itr->second.Time+(m_JailKonf.Amnestie*MONTH) >= localtime)
++        if (itr->second.Time+(m_JailKonf.Amnestie*MONTH) <= localtime)
 +        {
 +            CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", itr->first);
 +            m_JailMap.erase(itr);
