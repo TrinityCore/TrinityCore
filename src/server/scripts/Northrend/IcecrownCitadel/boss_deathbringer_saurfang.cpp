@@ -1138,9 +1138,9 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
                 return true;
             }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
+            void HandleScript(SpellEffIndex effIndex)
             {
-                PreventHitDefaultEffect(EFFECT_1);  // make this the default handler
+                PreventHitDefaultEffect(effIndex);  // make this the default handler
                 if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
                     GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, GetCaster(), true);
             }
