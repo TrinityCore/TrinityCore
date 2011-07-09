@@ -831,6 +831,12 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
         // reset charges
         SetCharges(CalcMaxCharges());
+        // FIXME: not a best way to synchronize charges, but works
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (AuraEffect* aurEff = GetEffect(i))
+                if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
+                    if (SpellModifier* mod = aurEff->GetSpellModifier())
+                        mod->charges = GetCharges();
     }
     SetNeedClientUpdateForTargets();
     return false;
