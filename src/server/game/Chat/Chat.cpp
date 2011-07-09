@@ -178,10 +178,17 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand instanceUnbindCommandTable[] =
+    {
+        { "self",       SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceUnbindSelfCommand>,       "", NULL },
+        { "",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,           "", NULL },
+        { NULL,             0,                  false, NULL,                                                "", NULL }
+    };
+
     static ChatCommand instanceCommandTable[] =
     {
         { "listbinds",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceListBindsCommand>,     "", NULL },
-        { "unbind",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,        "", NULL },
+        { "unbind",         SEC_ADMINISTRATOR,  false, NULL,                                               "", instanceUnbindCommandTable },
         { "stats",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceStatsCommand>,         "", NULL },
         { "savedata",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceSaveDataCommand>,      "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
