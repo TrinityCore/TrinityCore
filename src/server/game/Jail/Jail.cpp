@@ -517,6 +517,7 @@ bool Jail::ResetKommando(ChatHandler * handler, const char * args, bool force)
 bool Jail::EnableKommando(ChatHandler * handler)
 {
     m_JailKonf.Enabled = true;
+    CharacterDatabase.PExecute("UPDATE `jail_conf` SET `enabled`=1");
     handler->SendSysMessage(LANG_JAIL_ENABLED);
     return Init(true);
 }
@@ -524,6 +525,7 @@ bool Jail::EnableKommando(ChatHandler * handler)
 bool Jail::DisableKommando(ChatHandler * handler)
 {
     m_JailKonf.Enabled = false;
+    CharacterDatabase.PExecute("UPDATE `jail_conf` SET `enabled`=0");
     handler->SendSysMessage(LANG_JAIL_DISABLED);
     return true;
 }
@@ -600,7 +602,7 @@ void Jail::Amnestie()
     time_t localtime = time(NULL);
 
     for (JailMap::iterator itr = m_JailMap.begin(); itr != m_JailMap.end(); ++itr)
-        if (itr->second.Time+(m_JailKonf.Amnestie*MONTH) >= localtime)
+        if (itr->second.Time+(m_JailKonf.Amnestie*MONTH) <= localtime)
         {
             CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`=%u LIMIT 1", itr->first);
             m_JailMap.erase(itr);
