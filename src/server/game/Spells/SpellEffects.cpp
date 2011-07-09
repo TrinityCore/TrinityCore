@@ -1626,6 +1626,10 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 73058: // Blood Nova
                 m_caster->CastSpell(unitTarget, damage, true);   // additional spell cast
                 break;
+            case 51888: // Summon Eye of Acherus - a hack for GO cast
+                unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
+                return;
+
         }
     }
 
