@@ -20,6 +20,7 @@
 
 #include "BattlegroundMap.h"
 
+struct BattlemasterListEntry;
 struct BattlegroundTemplate
 {
     BattlegroundTypeId Id;
@@ -30,7 +31,7 @@ struct BattlegroundTemplate
     Position StartLocation[BG_TEAMS_COUNT];
     uint8 Weight;
     uint32 ScriptId;
-    // std::string Comment;
+    BattlemasterListEntry const* BattlemasterEntry;
 };
 
 #endif

@@ -53,7 +53,7 @@
 BattlegroundMgr::BattlegroundMgr() : m_AutoDistributionTimeChecker(0), m_ArenaTesting(false)
 {
     for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; i++)
-        m_Battlegrounds[i].clear();
+        _battlegrounds[i].clear();
     m_NextRatingDiscardUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATING_DISCARD_TIMER);
     m_Testing=false;
 }
@@ -67,10 +67,10 @@ void BattlegroundMgr::DeleteAllBattlegrounds()
 {
     for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; ++i)
     {
-        for (BattlegroundSet::iterator itr = m_Battlegrounds[i].begin(); itr != m_Battlegrounds[i].end();)
+        for (BattlegroundMap::iterator itr = _battlegrounds[i].begin(); itr != _battlegrounds[i].end();)
         {
             Battleground* bg = itr->second;
-            m_Battlegrounds[i].erase(itr++);
+            _battlegrounds[i].erase(itr++);
             if (!m_ClientBattlegroundIds[i][bg->GetBracketId()].empty())
                 m_ClientBattlegroundIds[i][bg->GetBracketId()].erase(bg->GetClientInstanceID());
             delete bg;
@@ -89,14 +89,14 @@ void BattlegroundMgr::DeleteAllBattlegrounds()
 // used to update running battlegrounds, and delete finished ones
 void BattlegroundMgr::Update(uint32 diff)
 {
-    BattlegroundSet::iterator itr, next;
+    BattlegroundMap::iterator itr, next;
     for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; ++i)
     {
-        itr = m_Battlegrounds[i].begin();
+        itr = _battlegrounds[i].begin();
         // skip updating battleground template
-        if (itr != m_Battlegrounds[i].end())
+        if (itr != _battlegrounds[i].end())
             ++itr;
-        for (; itr != m_Battlegrounds[i].end(); itr = next)
+        for (; itr != _battlegrounds[i].end(); itr = next)
         {
             next = itr;
             ++next;
@@ -106,7 +106,7 @@ void BattlegroundMgr::Update(uint32 diff)
             if (itr->second->m_SetDeleteThis)
             {
                 Battleground* bg = itr->second;
-                m_Battlegrounds[i].erase(itr);
+                _battlegrounds[i].erase(itr);
                 if (!m_ClientBattlegroundIds[i][bg->GetBracketId()].empty())
                     m_ClientBattlegroundIds[i][bg->GetBracketId()].erase(bg->GetClientInstanceID());
 
@@ -259,7 +259,7 @@ void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket *data, Pla
     *data << uint64(plr->GetGUID());
 }
 
-Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
+BattlegroundMap* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     //cause at HandleBattlegroundJoinOpcode the clients sends the instanceid he gets from
     //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
@@ -270,7 +270,7 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
     if (bg->isArena())
         return GetBattleground(instanceId, bgTypeId);
 
-    for (BattlegroundSet::iterator itr = m_Battlegrounds[bgTypeId].begin(); itr != m_Battlegrounds[bgTypeId].end(); ++itr)
+    for (BattlegroundMap::iterator itr = _battlegrounds[bgTypeId].begin(); itr != _battlegrounds[bgTypeId].end(); ++itr)
     {
         if (itr->second->GetClientInstanceID() == instanceId)
             return itr->second;
@@ -278,30 +278,32 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
     return NULL;
 }
 
-Battleground* BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId)
+BattlegroundMap* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
-    if (!InstanceID)
+    if (!instanceId)
         return NULL;
+
     //search if needed
-    BattlegroundSet::iterator itr;
+    BattlegroundMaps::const_iterator itr;
     if (bgTypeId == BATTLEGROUND_TYPE_NONE)
     {
-        for (uint32 i = BATTLEGROUND_AV; i < MAX_BATTLEGROUND_TYPE_ID; i++)
+        for (uint32 i = BATTLEGROUND_AV; i < MAX_BATTLEGROUND_TYPE_ID; ++i)
         {
-            itr = m_Battlegrounds[i].find(InstanceID);
-            if (itr != m_Battlegrounds[i].end())
+            itr = _battlegrounds[i].find(instanceId);
+            if (itr != _battlegrounds[i].end())
                 return itr->second;
         }
         return NULL;
     }
-    itr = m_Battlegrounds[bgTypeId].find(InstanceID);
-    return ((itr != m_Battlegrounds[bgTypeId].end()) ? itr->second : NULL);
+
+    itr = _battlegrounds[bgTypeId].find(instanceId);
+    return ((itr != _battlegrounds[bgTypeId].end()) ? itr->second : NULL);
 }
 
-Battleground* BattlegroundMgr::GetBattleground(BattlegroundTypeId bgTypeId)
+BattlegroundMap* BattlegroundMgr::GetBattleground(BattlegroundTypeId bgTypeId)
 {
     //map is sorted and we can be sure that lowest instance id has only BG template
-    return m_Battlegrounds[bgTypeId].empty() ? NULL : m_Battlegrounds[bgTypeId].begin()->second;
+    return _battlegrounds[bgTypeId].empty() ? NULL : _battlegrounds[bgTypeId].begin()->second;
 }
 
 uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
@@ -594,6 +596,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         *bgTemplate.StartLocation = *startLocation;
         bgTemplate.Weight = fields[9].GetUInt8();
         bgTemplate.ScriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
+        bgTemplate.BattlemasterEntry = bl;
         _battlegroundTemplates[bgTypeId] = bgTemplate;        
 
         if (isArena)
@@ -693,25 +696,17 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
     }
 }
 
-void BattlegroundMgr::SendToBattleground(Player *pl, uint32 instanceId, BattlegroundTypeId bgTypeId)
+void BattlegroundMgr::SendToBattleground(Player *pl, uint32 instanceId, Battleground* bg)
 {
-    Battleground *bg = GetBattleground(instanceId, bgTypeId);
-    if (bg)
-    {
-        uint32 mapid = bg->GetMapId();
-        float x, y, z, O;
-        uint32 team = pl->GetBGTeam();
-        if (team == 0)
-            team = pl->GetTeam();
-        bg->GetTeamStartLoc(team, x, y, z, O);
+    uint32 mapid = bg->MapId;
+    float x, y, z, O;
+    uint32 team = pl->GetBGTeam();
+    if (team == 0)
+        team = pl->GetTeam();
+    bg->GetTeamStartLoc(team, x, y, z, O);
 
-        sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", pl->GetName(), mapid, x, y, z, O);
-        pl->TeleportTo(mapid, x, y, z, O);
-    }
-    else
-    {
-        sLog->outError("player %u is trying to port to non-existent bg instance %u", pl->GetGUIDLow(), instanceId);
-    }
+    sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", pl->GetName(), mapid, x, y, z, O);
+    pl->TeleportTo(mapid, x, y, z, O);
 }
 
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player *pl, Battleground *bg, const uint64& guid)

@@ -24,19 +24,22 @@
 #include "Player.h"
 #include "Formulas.h"
 
-BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, uint8 spawnMode, BattlegroundTemplate* bgTemplate)
-    : Map(id, expiry, instanceId, spawnMode, parent),
+BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, BattlegroundTemplate* bgTemplate)
+    : MapInstanced(id, expiry),
     _template(bgTemplate),
+    _instanceId(instanceId),
     PreparationPhase(BG_STARTING_EVENT_FIRST)
 {
     InitializeTextIds();                // Subclasses define textIds 
     InitializePreparationDelayTimes();  // Subclasses define timers or choose default
     InitializePreparationDelayTimer();  // Assign value to the current timer
     InitializeObjects();                // Adds objects to storage
+    InstallBattleground();              // Initialize variables
 }
 
 BattlegroundMap::~BattlegroundMap()
 {
+    DestroyBattleground();              // Cleanup
 }
 
 void BattlegroundMap::InitVisibilityDistance()

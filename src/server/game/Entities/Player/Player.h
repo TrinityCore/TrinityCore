@@ -2088,6 +2088,11 @@ class Player : public Unit, public GridObject<Player>
         /***               BATTLEGROUND SYSTEM                 ***/
         /*********************************************************/
 
+        /// Accessor to BattlegroundQueue in BattlegroundQueueMgr
+        // This id is constructed as: uint8 index = (( uint8(arenaTypeOrPremade) << 8 ) | ( uint8(bracketId) ));
+        //                                                      HIGHPART                |  LOWPART
+        uint32 BattlegroundQueueId[PLAYER_MAX_BATTLEGROUND_QUEUES];
+
         bool InBattleground()       const                { return m_bgData.bgInstanceID != 0; }
         bool InArena()              const;
         uint32 GetBattlegroundId()  const                { return m_bgData.bgInstanceID; }

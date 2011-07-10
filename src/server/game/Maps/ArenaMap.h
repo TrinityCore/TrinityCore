@@ -18,6 +18,7 @@
 #ifndef TRINITY_ARENA_MAP_H
 #define TRINITY_ARENA_MAP_H
 
+#include "Define.h"
 #include "BattlegroundMap.h"
 
 enum ArenaWorldStates
@@ -28,19 +29,23 @@ enum ArenaWorldStates
 
 class ArenaTeam;
 class ArenaTeamScore;
+class Player;
 
 class ArenaMap : public BattlegroundMap
 {
-    public:
-        void BuildPVPLogDataPacket(WorldPacket& data);
+    friend class MapManager;
+    friend class WorldSession;
 
     protected:
+        ArenaMap(uint32 id, time_t expiry, uint32 instanceId, BattlegroundTemplate const* bgTemplate) : BattlegroundMap(id, expiry, instanceId, bgTemplate) {}
+
         void InitializeTextIds();                   // Initializes text IDs that are used in the battleground at any possible phase.
         void InitializePreparationDelayTimes();     // Initializes preparation delay timers.
 
         void InstallBattleground();
         void StartBattleground();
         void DestroyBattleground();
+        void EndBattleground(BattlegroundWinner winner);
 
         void UpdateArenaWorldState();
         void CheckArenaWinConditions();
@@ -49,10 +54,11 @@ class ArenaMap : public BattlegroundMap
         void OnPlayerExit(Player* player);
         void OnPlayerKill(Player* victim, Player* killer);
 
-        void EndBattleground(BattlegroundWinner winner);
-        Group* GetGroupForTeam(uint32 team) const;  // Needed for GetAverageMMR
+        void BuildPVPLogDataPacket(WorldPacket& data);
 
     private:
+        Group* GetGroupForTeam(uint32 team) const;  // Needed for GetAverageMMR
+
         bool _rated;
         ArenaTeam* _arenaTeams[BG_TEAMS_COUNT];
         ArenaTeamScore* _arenaTeamScores[BG_TEAMS_COUNT];

@@ -26,18 +26,26 @@
 #include "BattlegroundTemplate.h"
 #include <ace/Singleton.h>
 
-typedef std::map<uint32, Battleground*> BattlegroundSet;
-
 typedef UNORDERED_MAP<uint32, BattlegroundTypeId> BattleMastersMap;
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
 #define WS_ARENA_DISTRIBUTION_TIME 20001                    // Custom worldstate
+
+class Battleground
+{
+    public:
+        uint32 MapId;
+};
 
 class BattlegroundMgr
 {
     /// Todo: Thread safety?
     /* Construction */
     friend class ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>;
+
+    friend class MapManager;
+    friend class MapInstanced;
+
     BattlegroundMgr();
 
     public:
@@ -55,16 +63,16 @@ class BattlegroundMgr
         void SendAreaSpiritHealerQueryOpcode(Player *pl, Battleground *bg, const uint64& guid);
 
         /* Battlegrounds */
-        Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
-        Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
+        BattlegroundMap* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
+        BattlegroundMap* GetBattleground(uint32 instanceId, BattlegroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
 
-        Battleground* GetBattleground(BattlegroundTypeId bgTypeId);
-        Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
+        BattlegroundMap* GetBattleground(BattlegroundTypeId bgTypeId);
+        BattlegroundMap* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
 
         uint32 CreateBattleground(BattlegroundTypeId bgTypeId, bool IsArena, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattlegroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO, uint32 scriptId);
 
-        void AddBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId, Battleground* BG) { m_Battlegrounds[bgTypeId][InstanceID] = BG; };
-        void RemoveBattleground(uint32 instanceID, BattlegroundTypeId bgTypeId) { m_Battlegrounds[bgTypeId].erase(instanceID); }
+        void AddBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId, Battleground* BG) { _battlegrounds[bgTypeId][InstanceID] = BG; };
+        void RemoveBattleground(uint32 instanceID, BattlegroundTypeId bgTypeId) { _battlegrounds[bgTypeId].erase(instanceID); }
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
 
         void LoadBattlegroundTemplates();
@@ -114,7 +122,8 @@ class BattlegroundMgr
 
         typedef std::map<BattlegroundTypeId, uint8> BattlegroundSelectionWeightMap; // TypeId and its selectionWeight
         /* Battlegrounds */
-        BattlegroundSet m_Battlegrounds[MAX_BATTLEGROUND_TYPE_ID];
+        
+
         BattlegroundSelectionWeightMap m_ArenaSelectionWeights;
         BattlegroundSelectionWeightMap m_BGSelectionWeights;
         std::vector<uint64> m_QueueUpdateScheduler;
@@ -128,6 +137,7 @@ class BattlegroundMgr
     // REFACTOR from here
     protected:
         typedef std::map<BattlegroundTypeId, BattlegroundTemplate> BattlegroundTemplateMap;
+        typedef std::map<uint32, BattlegroundMap*> BattlegroundMaps;
 
         BattlegroundTemplate const* GetBattlegroundTemplate(BattlegroundTypeId id)
         {
@@ -138,8 +148,54 @@ class BattlegroundMgr
             return NULL;            
         }
 
+        uint32 FillSelectionWeights(BattlegroundTemplate const* bgTemplate)
+        {
+            BattlegroundSelectionWeightMap &const selectionWeights = bgTemplate->Id== BATTLEGROUND_AA ? m_ArenaSelectionWeights : m_BGSelectionWeights;
+            BattlegroundSelectionWeightMap::const_iterator itr;
+
+            // Get sum of weights
+            uint32 sumWeight = 0;
+            for (itr = selectionWeights.begin(); itr != selectionWeights.end(); ++itr)
+                sumWeight += itr->second;
+
+            // Reset iterator to begin
+            itr = selectionWeights.begin();
+
+            // Select a random weight
+            uint32 selectedWeight = urand(0, sumWeight-1);
+
+            // Get the right array accessor for it
+            uint32 curWeight = 0;
+            uint8 index = 0;    // Index used to access BattlegroundTemplate->BattleMasterListEntry->maps[8] 
+            for (itr = selectionWeights.begin(); itr != selectionWeights.end(); ++itr)
+            {
+                curWeight += itr->second;
+                ++index;
+                if (selectedWeight < curWeight)
+                    break;
+            }
+
+            return bgTemplate->BattlemasterEntry->mapid[index];
+        }
+
+        uint32 GetMapIdForBGType(BattlegroundTypeId type)
+        {
+            BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplate(type);
+            if (!bgTemplate)
+            {
+                sLog->outError("BattlegroundMgr::GetMapIdForBGType: No valid BattlegroundTemplate for Type=%u", type);
+                return -1;
+            }
+
+            if (type != BATTLEGROUND_AA && type != BATTLEGROUND_RB)
+                return bgTemplate->BattlemasterEntry->mapid[0];
+
+            return FillSelectionWeights(bgTemplate);
+        }
+
     private:
         BattlegroundTemplateMap _battlegroundTemplates;
+        BattlegroundMaps _battlegrounds[MAX_BATTLEGROUND_TYPE_ID];
 };
 
 #define sBattlegroundMgr ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>::instance()

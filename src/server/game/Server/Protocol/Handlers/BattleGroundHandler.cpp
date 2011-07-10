@@ -115,8 +115,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
         bg = sBattlegroundMgr->GetBattlegroundThroughClientInstance(instanceId, bgTypeId);
 
     if (!bg)
-        bg = sBattlegroundMgr->GetBattleground(bgTypeId);
-    if (!bg)
         return;
 
     // expected bracket entry

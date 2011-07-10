@@ -26,6 +26,7 @@ enum BattlegroundTeamId
 };
 
 #include "BattlegroundTemplate.h"
+#include "MapInstanced.h"
 
 enum BattlegroundStartTimeIntervals
 {
@@ -158,9 +159,18 @@ enum BattlegroundSpells
     SPELL_HONORABLE_DEFENDER_60Y    = 66157                 // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
 };
 
+
+// Todo: IN MGR?
+enum ArenaType
+{
+    ARENA_TYPE_2v2          = 2,
+    ARENA_TYPE_3v3          = 3,
+    ARENA_TYPE_5v5          = 5
+};
+
 class BattlegroundScore;
 
-class BattlegroundMap : public Map
+class BattlegroundMap : public MapInstanced
 {
     friend class WorldSession;
     friend class MapManager;
@@ -182,8 +192,8 @@ class BattlegroundMap : public Map
 
     protected:
         /* Methods called by upper level code */
-        BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, uint8 spawnMode);
-        ~BattlegroundMap();
+        BattlegroundMap(uint32 id, time_t expiry, uint32 instanceId, BattlegroundTemplate* bgtemplate);
+        virtual ~BattlegroundMap();
 
         bool Add(Player* player);
         void Remove(Player*, bool);
@@ -295,6 +305,7 @@ class BattlegroundMap : public Map
         bool AreTeamsInBalance() const;
     
         BattlegroundTemplate _template;
+        uint32 _instanceId;
 
         uint16 _invitedCount[BG_TEAMS_COUNT];       // Players invited to join the battleground
         BattlegroundWinner _winner;

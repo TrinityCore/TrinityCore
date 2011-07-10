@@ -54,20 +54,20 @@ class MapInstanced : public Map
                 SetUnloadReferenceLock(GridPair(63-p.x_coord, 63-p.y_coord), false);
         }
 
-        InstancedMaps &GetInstancedMaps() { return m_InstancedMaps; }
+        InstancedMaps &GetInstancedMaps() { return _instancedMaps; }
         virtual void InitVisibilityDistance();
 
     private:
 
         InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty);
-        BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
+        //BattlegroundMap* CreateBattlegroundOrArena(uint32 InstanceId, BattlegroundTypeId typeId);
 
-        InstancedMaps m_InstancedMaps;
+        InstancedMaps _instancedMaps;
 
         Map* _FindMap(uint32 InstanceId) const
         {
-            InstancedMaps::const_iterator i = m_InstancedMaps.find(InstanceId);
-            return(i == m_InstancedMaps.end() ? NULL : i->second);
+            InstancedMaps::const_iterator i = _instancedMaps.find(InstanceId);
+            return(i == _instancedMaps.end() ? NULL : i->second);
         }
 
         uint16 GridMapReference[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];

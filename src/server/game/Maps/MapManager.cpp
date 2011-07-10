@@ -34,6 +34,9 @@
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Group.h"
+#include "BattlegroundMap.h"
+#include "ArenaMap.h"
+#include "BattlegroundMgr.h"
 
 MapManager::MapManager()
 {
@@ -72,7 +75,7 @@ Map* MapManager::_createBaseMap(uint32 id)
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
-        if (const MapEntry* entry = sMapStore.LookupEntry(id))
+        if (MapEntry const* entry = sMapStore.LookupEntry(id))
         {
             if (entry->Instanceable())
                 m = new MapInstanced(id, i_gridCleanUpDelay);
