@@ -316,7 +316,7 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat();
                         break;
                     case POINT_AIR_PHASE:
-                        me->RemoveAurasDueToSpell(SPELL_FROST_AURA);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_AURA);
                         me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, true);
                         _bombsLanded = 0;

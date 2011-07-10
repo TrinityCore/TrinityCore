@@ -308,11 +308,11 @@ enum SpellAttr1
     SPELL_ATTR1_CHANNELED_2                      = 0x00000040, //  6
     SPELL_ATTR1_NEGATIVE                         = 0x00000080, //  7
     SPELL_ATTR1_NOT_IN_COMBAT_TARGET             = 0x00000100, //  8 Spell req target not to be in combat state
-    SPELL_ATTR1_UNK9                             = 0x00000200, //  9 melee spells
+    SPELL_ATTR1_MELEE_COMBAT_SPELL               = 0x00000200, //  9 spells with this flag can be cast only if caster is able to melee attack target
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
     SPELL_ATTR1_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR1_USE_RADIUS_AS_MAX_DISTANCE       = 0x00002000, // 13 Client removes farsight on aura loss
+    SPELL_ATTR1_FARSIGHT                         = 0x00002000, // 13 Client removes farsight on aura loss
     SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // 14 Client automatically forces player to face target when channeling
     SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // 15 remove auras on immunity
     SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE      = 0x00010000, // 16 on immuniy
@@ -327,7 +327,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK25                            = 0x02000000, // 25
     SPELL_ATTR1_UNK26                            = 0x04000000, // 26 works correctly with [target=focus] and [target=mouseover] macros?
     SPELL_ATTR1_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR1_IGNORE_IMMUNITY                  = 0x10000000, // 28 removed from Chains of Ice 3.3.0
+    SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR         = 0x10000000, // 28 client doesn't display these spells in aura bar
     SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // 29 spell name is displayed in cast bar instead of 'channeling' text
     SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // 30 Overpower, Wolverine Bite
     SPELL_ATTR1_UNK31                            = 0x80000000  // 31

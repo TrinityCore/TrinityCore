@@ -768,21 +768,6 @@ void Object::BuildFieldsUpdate(Player *pl, UpdateDataMapType &data_map) const
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
-bool Object::LoadValues(const char* data)
-{
-    if (!m_uint32Values) _InitValues();
-
-    Tokens tokens(data, ' ');
-
-    if (tokens.size() != m_valuesCount)
-        return false;
-
-    for (uint16 index = 0; index < m_valuesCount; ++index)
-        m_uint32Values[index] = atol(tokens[index]);
-
-    return true;
-}
-
 void Object::_LoadIntoDataField(const char* data, uint32 startOffset, uint32 count)
 {
     if (!data)

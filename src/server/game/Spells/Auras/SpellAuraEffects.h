@@ -41,6 +41,7 @@ class AuraEffect
         Aura * GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+        SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const { return m_spellProto->Id; }
@@ -82,6 +83,8 @@ class AuraEffect
 
         void SendTickImmune(Unit* target, Unit *caster) const;
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
+
+        void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
         void CleanupTriggeredSpells(Unit* target);
 
@@ -287,6 +290,13 @@ class AuraEffect
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
+
+        // aura effect proc handlers
+        void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 };
 
 namespace Trinity

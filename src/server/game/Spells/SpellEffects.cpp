@@ -1658,27 +1658,26 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Id)
         {
+            case 52588: // Skeletal Gryphon Escape
             case 48598: // Ride Flamebringer Cue
                 unitTarget->RemoveAura(damage);
                 break;
-            case 52588: // Skeletal Gryphon Escape
-                unitTarget->RemoveAura(damage);
-                unitTarget->CastSpell(unitTarget, spellInfo, true);
-                return;
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
             case 72378: // Blood Nova
             case 73058: // Blood Nova
-                m_caster->CastSpell(unitTarget, 72380, true);   // additional spell cast
+                m_caster->CastSpell(unitTarget, damage, true);   // additional spell cast
                 break;
+            case 51888: // Summon Eye of Acherus - a hack for GO cast
+                unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
+                return;
+
         }
     }
 
-    Unit* caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
-
-    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastSpell(m_caster, spellInfo, true);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
@@ -1697,9 +1696,8 @@ void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
         return;
     }
     int32 bp = damage;
-    Unit* caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastCustomSpell(unitTarget, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastCustomSpell(m_caster, spellInfo->Id, &bp, &bp, &bp, true);
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
@@ -1796,7 +1794,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // Cloak of Shadows
         case 35729:
         {
-            uint32 dispelMask = GetDispellMask(DISPEL_ALL);
+            uint32 dispelMask = GetDispelMask(DISPEL_ALL);
             Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
             for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
             {
@@ -3195,7 +3193,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
     // Create dispel mask by dispel type
     uint32 dispel_type = m_spellInfo->EffectMiscValue[effIndex];
-    uint32 dispelMask  = GetDispellMask(DispelType(dispel_type));
+    uint32 dispelMask  = GetDispelMask(DispelType(dispel_type));
 
     // we should not be able to dispel diseases if the target is affected by unholy blight
     if (dispelMask & (1 << DISPEL_DISEASE) && unitTarget->HasAura(50536))
@@ -4616,18 +4614,16 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 }
                 // Plant Warmaul Ogre Banner
                 case 32307:
-                {
-                    Player* p_caster = dynamic_cast<Player*>(m_caster);
-                    if (!p_caster)
-                        break;
-                    p_caster->RewardPlayerAndGroupAtEvent(18388, unitTarget);
-                    Creature* cTarget = dynamic_cast<Creature*>(unitTarget);
-                    if (!cTarget)
-                        break;
-                    cTarget->setDeathState(CORPSE);
-                    cTarget->RemoveCorpse();
+                    if (Player* caster = m_caster->ToPlayer())
+                    {
+                        caster->RewardPlayerAndGroupAtEvent(18388, unitTarget);
+                        if (Creature* target = unitTarget->ToCreature())
+                        {
+                            target->setDeathState(CORPSE);
+                            target->RemoveCorpse();
+                        }
+                    }
                     break;
-                }
                 case 48025:                                     // Headless Horseman's Mount
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -5212,8 +5208,10 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     {
                         if (Vehicle* seat = m_caster->GetVehicleKit())
                         {
-                            if (Creature* oldContainer = dynamic_cast<Creature*>(seat->GetPassenger(1)))
-                                oldContainer->DisappearAndDie();
+                            if (Unit* passenger = seat->GetPassenger(1))
+                                if (Creature* oldContainer = passenger->ToCreature())
+                                    oldContainer->DisappearAndDie();
+
                             // TODO: a hack, range = 11, should after some time cast, otherwise too far
                             m_caster->CastSpell(seat->GetBase(), 62496, true);
                             unitTarget->EnterVehicle(m_caster, 1);
@@ -6660,7 +6658,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     DispelChargesList steal_list;
 
     // Create dispel mask by dispel type
-    uint32 dispelMask  = GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[effIndex]));
+    uint32 dispelMask  = GetDispelMask(DispelType(m_spellInfo->EffectMiscValue[effIndex]));
     Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
