@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Ironforge
 SD%Complete: 100
-SDComment: Quest support: 3702, 25229, 25199, 25283
+SDComment: Quest support: 3702, 25229, 25199, 25283, 25295
 SDCategory: Ironforge
 EndScriptData */
 
@@ -28,6 +28,7 @@ npc_royal_historian_archesonus
 npc_gnome_citizen
 npc_steamcrank
 npc_mekkatorque
+npc_shoot_bunny
 spell_motivate_a_tron
 EndContentData */
 
@@ -97,8 +98,10 @@ public:
 
 /*######
 ## npc_gnome_citizen
-## spell_motivate_a_tron
 ## npc_steamcrank
+## npc_mekkatorque
+## npc_shoot_bunny
+## spell_motivate_a_tron
 ######*/
 
 enum Spells
@@ -120,6 +123,7 @@ enum Spells
     SPELL_CHEER_CREDIT                  = 73833,
 
     // Press Fire
+    SPELL_SHOOT_CREDIT                  = 74184,
     SPELL_SHOOT_VISUAL                  = 74179,
 
     // Prepping the Speech
@@ -141,6 +145,9 @@ enum Creatures
 
     // Basic Orders
     NPC_TRAINEE                         = 39349,
+
+    // Press Fire
+    NPC_TARGET                          = 39711,
 
     // Prepping Speech
     NPC_OZZIE                           = 1268,
@@ -618,6 +625,31 @@ class npc_mekkatorque : public CreatureScript
         }
 };
 
+class npc_shoot_bunny : public CreatureScript
+{
+    public:
+        npc_shoot_bunny() : CreatureScript("npc_shoot_bunny") { }
+
+        struct npc_shoot_bunnyAI : public ScriptedAI
+        {
+            npc_shoot_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                if (me->FindNearestCreature(NPC_TARGET, 3.0f, true))
+                    if (Unit* vehSummoner = me->ToTempSummon()->GetSummoner())
+                        if (Vehicle* vehicle = vehSummoner->GetVehicleKit())
+                            if (Unit* driver = vehicle->GetPassenger(0))
+                                driver->CastSpell(driver, SPELL_SHOOT_CREDIT, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_shoot_bunnyAI(creature);
+        }
+};
+
 class spell_motivate_a_tron : public SpellScriptLoader
 {
     public:
@@ -662,46 +694,12 @@ class spell_motivate_a_tron : public SpellScriptLoader
         }
 };
 
-class spell_shoot : public SpellScriptLoader
-{
-    public:
-        spell_shoot() : SpellScriptLoader("spell_shoot") {}
-
-        class spell_shoot_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_shoot_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_SHOOT_VISUAL))
-                    return false;
-               return true;
-            }
-
-            void HandleTrigger(SpellEffIndex /*effIndex*/)
-            {
-                if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
-                    if (Unit* driver = vehicle->GetPassenger(0))
-                        driver->CastSpell(driver, 74184, true);
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_shoot_SpellScript::HandleTrigger, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_shoot_SpellScript();
-        }
-};
-
 void AddSC_ironforge()
 {
     new npc_royal_historian_archesonus();
     new npc_gnome_citizen();
     new npc_steamcrank();
     new npc_mekkatorque();
+    new npc_shoot_bunny();
     new spell_motivate_a_tron();
-    new spell_shoot();
 }

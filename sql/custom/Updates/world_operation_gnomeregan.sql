@@ -55,8 +55,7 @@ UPDATE `creature_template` SET `spell1` = '74157', `spell2` = '74159', `spell3` 
 ######*/
 
 UPDATE `creature_template` SET `spell4` = '74174', `spell6` = '74153' WHERE `entry` = '39714';
-DELETE FROM `spell_script_names` WHERE spell_id = '74174';
-INSERT INTO `spell_script_names` VALUES ('74174', 'spell_shoot');
+UPDATE `creature_template` SET `ScriptName` = 'npc_shoot_bunny' WHERE `entry` = '39707';
 DELETE FROM `spell_scripts` WHERE `id` = '74182';
 INSERT INTO `spell_scripts` (`id`, `command`, `datalong`, `datalong2`) VALUES ('74182', '15', '74179', '2');
 
