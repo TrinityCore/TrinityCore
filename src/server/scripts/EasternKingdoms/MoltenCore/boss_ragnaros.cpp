@@ -104,25 +104,20 @@ class boss_ragnaros_outdoor : public CreatureScript
 
             void MoveInLineOfSight(Unit * who)
             {
-                if (!who)
+                if (!who || me->getVictim())
                     return;
 
                 Unit * pTarget = who;
                 // Keine NPCs angreifen, die nicht zu einem Spieler gehören!
-                if (who->GetTypeId() == TYPEID_UNIT && !who->GetOwner())
+                if (pTarget->GetTypeId() == TYPEID_UNIT && !pTarget->GetOwner())
                     return;
 
                 if (pTarget->GetTypeId() == TYPEID_PLAYER)
                     if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
                         return;
 
-                if (me->getVictim())
-                    return;
-
-                if (me->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good ;)
-                    return;
-
-                AttackStart(pTarget);
+                if (me->canStartAttack(pTarget, true))
+                    AttackStart(pTarget);
             }
 
             void EnterCombat(Unit * victim)
