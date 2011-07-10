@@ -1528,7 +1528,8 @@ void SpellMgr::LoadSpellProcs()
         baseProcEntry.attributesMask  = fields[10].GetUInt32();
         baseProcEntry.ratePerMinute   = fields[11].GetFloat();
         baseProcEntry.chance          = fields[12].GetFloat();
-        baseProcEntry.cooldown        = fields[13].GetFloat();
+        float cooldown                = fields[13].GetFloat();
+        baseProcEntry.cooldown        = uint32(cooldown);
         baseProcEntry.charges         = fields[14].GetUInt32();
 
         while(true)
@@ -1563,7 +1564,7 @@ void SpellMgr::LoadSpellProcs()
                 sLog->outErrorDb("`spell_proc` table entry for spellId %u has negative value in `ratePerMinute` field", spellId);
                 procEntry.ratePerMinute = 0;
             }
-            if (procEntry.cooldown < 0)
+            if (cooldown < 0)
             {
                 sLog->outErrorDb("`spell_proc` table entry for spellId %u has negative value in `cooldown` field", spellId);
                 procEntry.cooldown = 0;
@@ -1579,7 +1580,7 @@ void SpellMgr::LoadSpellProcs()
                 sLog->outErrorDb("`spell_proc` table entry for spellId %u doesn't have `typeMask` value defined, proc will not be triggered", spellId);
             if (procEntry.spellTypeMask & ~PROC_SPELL_PHASE_MASK_ALL)
                 sLog->outErrorDb("`spell_proc` table entry for spellId %u has wrong `spellTypeMask` set: %u", spellId, procEntry.spellTypeMask);
-            if (procEntry.spellTypeMask && !(procEntry.typeMask & SPELL_PROC_FLAG_MASK))
+            if (procEntry.spellTypeMask && !(procEntry.typeMask & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
                 sLog->outErrorDb("`spell_proc` table entry for spellId %u has `spellTypeMask` value defined, but it won't be used for defined `typeMask` value", spellId);
             if (!procEntry.spellPhaseMask && procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK)
                 sLog->outErrorDb("`spell_proc` table entry for spellId %u doesn't have `spellPhaseMask` value defined, but it's required for defined `typeMask` value, proc will not be triggered", spellId);
@@ -1607,6 +1608,71 @@ void SpellMgr::LoadSpellProcs()
 
     sLog->outString(">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
+}
+
+bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
+{
+    // proc type doesn't match
+    if (!(eventInfo.GetTypeMask() & procEntry.typeMask))
+        return false;
+
+    // check XP or honor target requirement
+    if (procEntry.attributesMask & PROC_ATTR_REQ_EXP_OR_HONOR)
+        if (Player* actor = eventInfo.GetActor()->ToPlayer())
+            if (eventInfo.GetActionTarget() && !actor->isHonorOrXPTarget(eventInfo.GetActionTarget()))
+                return false;
+
+    // always trigger for these types
+    if (eventInfo.GetTypeMask() & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
+        return true;
+
+    // check school mask (if set) for other trigger types
+    if (procEntry.schoolMask && !(eventInfo.GetSchoolMask() & procEntry.schoolMask))
+        return false;
+
+    // check spell family name/flags (if set) for spells
+    if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION))
+    {
+        if (procEntry.spellFamilyName && (procEntry.spellFamilyName != eventInfo.GetSpellInfo()->SpellFamilyName))
+            return false;
+
+        if (procEntry.spellFamilyMask && !(procEntry.spellFamilyMask & eventInfo.GetSpellInfo()->SpellFamilyFlags))
+            return false;
+    }
+
+    // check spell type mask (if set)
+    if (eventInfo.GetTypeMask() & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK))
+    {
+        if (procEntry.spellTypeMask && !(eventInfo.GetSpellTypeMask() & procEntry.spellTypeMask))
+            return false;
+    }
+
+    // check spell phase mask
+    if (eventInfo.GetTypeMask() & REQ_SPELL_PHASE_PROC_FLAG_MASK)
+    {
+        if (!(eventInfo.GetSpellPhaseMask() & procEntry.spellPhaseMask))
+            return false;
+    }
+
+    // check hit mask (on taken hit or on done hit, but not on spell cast phase)
+    if ((eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK) || ((eventInfo.GetTypeMask() & DONE_HIT_PROC_FLAG_MASK) && !(eventInfo.GetSpellPhaseMask() & PROC_SPELL_PHASE_CAST)))
+    {
+        uint32 hitMask = procEntry.hitMask;
+        // get default values if hit mask not set
+        if (!hitMask)
+        {
+            // for taken procs allow normal + critical hits by default
+            if (eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK)
+                hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL;
+            // for done procs allow normal + critical + absorbs by default
+            else
+                hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB;
+        }
+        if (!(eventInfo.GetHitMask() & hitMask))
+            return false;
+    }
+
+    return true;
 }
 
 void SpellMgr::LoadSpellBonusess()
