@@ -92,6 +92,52 @@ static bool isAlwaysTriggeredAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
+DamageInfo::DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellEntry const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType)
+: m_attacker(_attacker), m_victim(_victim), m_damage(_damage), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask),
+m_damageType(_damageType), m_attackType(BASE_ATTACK)
+{
+    m_absorb = 0;
+    m_resist = 0;
+    m_block = 0;
+}
+DamageInfo::DamageInfo(CalcDamageInfo& dmgInfo)
+: m_attacker(dmgInfo.attacker), m_victim(dmgInfo.target), m_damage(dmgInfo.damage), m_spellInfo(NULL), m_schoolMask(SpellSchoolMask(dmgInfo.damageSchoolMask)),
+m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.attackType)
+{
+    m_absorb = 0;
+    m_resist = 0;
+    m_block = 0;
+}
+void DamageInfo::ModifyDamage(int32 amount)
+{
+    amount = std::min(amount, int32(GetDamage()));
+    m_damage += amount;
+}
+void DamageInfo::AbsorbDamage(uint32 amount)
+{
+    amount = std::min(amount, GetDamage());
+    m_absorb += amount;
+    m_damage -= amount;
+}
+void DamageInfo::ResistDamage(uint32 amount)
+{
+    amount = std::min(amount, GetDamage());
+    m_resist += amount;
+    m_damage -= amount;
+}
+void DamageInfo::BlockDamage(uint32 amount)
+{
+    amount = std::min(amount, GetDamage());
+    m_block += amount;
+    m_damage -= amount;
+}
+
+ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
+:_actor(actor), _actionTarget(actionTarget), _procTarget(procTarget), _typeMask(typeMask), _spellTypeMask(spellTypeMask), _spellPhaseMask(spellPhaseMask),
+_hitMask(hitMask), _spell(spell), _damageInfo(damageInfo), _healInfo(healInfo)
+{
+}
+
 // we can disable this warning for this since it only
 // causes undefined behavior when passed to the base class constructor
 #ifdef _MSC_VER
@@ -1931,7 +1977,9 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
         DealDamageMods(pVictim, damageInfo.damage, &damageInfo.absorb);
         SendAttackStateUpdate(&damageInfo);
 
+        //TriggerAurasProcOnEvent(damageInfo);
         ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
+
         DealMeleeDamage(&damageInfo, true);
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -14294,7 +14342,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
         if (i->aura->IsRemoved())
             continue;
 
-        bool useCharges  = i->aura->GetCharges() > 0;
+        bool useCharges  = i->aura->IsUsingCharges();
+        // no more charges to use, prevent proc
+        if (useCharges && !i->aura->GetCharges())
+            continue;
+            
         bool takeCharges = false;
         SpellEntry const* spellInfo = i->aura->GetSpellProto();
         uint32 Id = i->aura->GetId();
@@ -14493,6 +14545,70 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
     // Cleanup proc requirements
     if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
         SetCantProc(false);
+}
+
+void Unit::GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTriggeringProc, std::list<AuraApplication*>* procAuras, ProcEventInfo eventInfo)
+{
+    // use provided list of auras which can proc
+    if (procAuras)
+    {
+        for (std::list<AuraApplication*>::iterator itr = procAuras->begin(); itr!= procAuras->end(); ++itr)
+        {
+            ASSERT((*itr)->GetTarget() == this);
+            if (!(*itr)->GetRemoveMode())
+                if ((*itr)->GetBase()->IsProcTriggeredOnEvent(*itr, eventInfo))
+                {
+                    (*itr)->GetBase()->PrepareProcToTrigger();
+                    aurasTriggeringProc.push_back(*itr);
+                }
+        }
+    }
+    // or generate one on our own
+    else
+    {
+        for (AuraApplicationMap::iterator itr = GetAppliedAuras().begin(); itr!= GetAppliedAuras().end(); ++itr)
+        {
+            if (itr->second->GetBase()->IsProcTriggeredOnEvent(itr->second, eventInfo))
+            {
+                itr->second->GetBase()->PrepareProcToTrigger();
+                aurasTriggeringProc.push_back(itr->second);
+            }
+        }
+    }
+}
+
+void Unit::TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo)
+{
+    DamageInfo dmgInfo = DamageInfo(damageInfo);
+    TriggerAurasProcOnEvent(NULL, NULL, damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, 0, 0, damageInfo.procEx, NULL, &dmgInfo, NULL);
+}
+
+void Unit::TriggerAurasProcOnEvent(std::list<AuraApplication*>* myProcAuras, std::list<AuraApplication*>* targetProcAuras, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
+{
+    // prepare data for self trigger
+    ProcEventInfo myProcEventInfo = ProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    std::list<AuraApplication*> myAurasTriggeringProc;
+    GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, myProcAuras, myProcEventInfo);
+
+    // prepare data for target trigger
+    ProcEventInfo targetProcEventInfo = ProcEventInfo(this, actionTarget, this, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    std::list<AuraApplication*> targetAurasTriggeringProc;
+    if (typeMaskActionTarget)
+        GetProcAurasTriggeredOnEvent(targetAurasTriggeringProc, targetProcAuras, targetProcEventInfo);
+
+    TriggerAurasProcOnEvent(myProcEventInfo, myAurasTriggeringProc);
+
+    if (typeMaskActionTarget)
+        TriggerAurasProcOnEvent(targetProcEventInfo, targetAurasTriggeringProc);
+}
+
+void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, std::list<AuraApplication*>& aurasTriggeringProc)
+{
+    for (std::list<AuraApplication*>::iterator itr = aurasTriggeringProc.begin(); itr != aurasTriggeringProc.end(); ++itr)
+    {
+        if (!(*itr)->GetRemoveMode())
+            (*itr)->GetBase()->TriggerProcOnEvent(*itr, eventInfo);
+    }
 }
 
 SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
@@ -15058,6 +15174,10 @@ bool Unit::InitTamedPet(Pet * pet, uint8 level, uint32 spell_id)
 bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const *& spellProcEvent)
 {
     SpellEntry const* spellProto = aura->GetSpellProto();
+
+    // let the aura be handled by new proc system if it has new entry
+    if (sSpellMgr->GetSpellProcEntry(spellProto->Id))
+        return false;
 
     // Get proc Event Entry
     spellProcEvent = sSpellMgr->GetSpellProcEvent(spellProto->Id);
