@@ -31,9 +31,6 @@
 #include "Battleground.h"
 #include "BattlegroundAV.h"
 #include "ScriptMgr.h"
-#include "ConditionMgr.h"
-#include "Creature.h"
-#include "CreatureAI.h"
 #include "GameObjectAI.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recv_data)
@@ -692,7 +689,7 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
             {
                 if (pPlayer->SatisfyQuestLevel(pQuest, false))
                 {
-                    if (pQuest->IsAutoComplete() || (pQuest->IsRepeatable() && pPlayer->getRewardedQuests().find(quest_id) != pPlayer->getRewardedQuests().end()))
+                    if (pQuest->IsAutoComplete() || (pQuest->IsRepeatable() && pPlayer->IsQuestRewarded(quest_id)))
                         result2 = DIALOG_STATUS_REWARD_REP;
                     else if (pPlayer->getLevel() <= ((pPlayer->GetQuestLevel(pQuest) == -1) ? pPlayer->getLevel() : pPlayer->GetQuestLevel(pQuest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
                     {
@@ -769,10 +766,13 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
 void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recv_data*/)
 {
-    WorldPacket data(SMSG_QUERY_QUESTS_COMPLETED_RESPONSE, 4+4*_player->getRewardedQuests().size());
-    data << uint32(_player->getRewardedQuests().size());
+    size_t rew_count = _player->GetRewardedQuestCount();
 
-    for (RewardedQuestSet::const_iterator itr = _player->getRewardedQuests().begin(); itr != _player->getRewardedQuests().end(); ++itr)
+    WorldPacket data(SMSG_QUERY_QUESTS_COMPLETED_RESPONSE, 4 + 4 * rew_count);
+    data << uint32(rew_count);
+
+    const RewardedQuestSet &rewQuests = _player->getRewardedQuests();
+    for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
         data << uint32(*itr);
 
     SendPacket(&data);

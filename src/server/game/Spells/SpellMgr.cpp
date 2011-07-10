@@ -4132,12 +4132,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectMiscValue[0] = 127;
             ++count;
             break;
-        case 71189: // Dreamwalker's Rage
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
-            spellInfo->EffectRadiusIndex[0] = 12;
-            ++count;
-            break;
         case 70127: // Mystic Buffet
         case 72528:
         case 72529:

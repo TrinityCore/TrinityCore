@@ -353,10 +353,10 @@ class boss_valithria_dreamwalker : public CreatureScript
                     Talk(SAY_VALITHRIA_SUCCESS);
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
-                    //DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-                    _instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 60.0f, false))
-                        DoCast(target, SPELL_DREAMWALKERS_RAGE);
+                    DoCast(me, SPELL_ACHIEVEMENT_CHECK);
+                    float x, y, z;
+                    me->GetPosition(x, y, z);
+                    me->CastSpell(x, y, z, SPELL_DREAMWALKERS_RAGE, false);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
