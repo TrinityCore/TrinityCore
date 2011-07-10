@@ -32,11 +32,11 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 # ifdef _WIN64
-#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " Date: " _DATE " (Win64, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
+#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " / " _DATE " (Win64, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
 # else
-#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " Date: " _DATE " (Win32, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
+#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " / " _DATE " (Win32, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
 # endif
 #else
-#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " Date: " _DATE " (Unix, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
+#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " / " _DATE " (Unix, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
 #endif
 #endif
