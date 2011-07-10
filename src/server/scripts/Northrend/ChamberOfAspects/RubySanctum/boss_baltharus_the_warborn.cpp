@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +42,8 @@ enum Spells
     SPELL_REPELLING_WAVE        = 74509,
     SPELL_CLEAR_DEBUFFS         = 34098,
     SPELL_SPAWN_EFFECT          = 64195,
+
+    SPELL_ENRAGE                = 52262
 };
 
 enum Events
@@ -50,6 +53,8 @@ enum Events
     EVENT_ENERVATING_BRAND      = 3,
     EVENT_INTRO_TALK            = 4,
     EVENT_OOC_CHANNEL           = 5,
+
+    EVENT_ENRAGE
 };
 
 enum Actions
@@ -64,6 +69,184 @@ enum Phases
     PHASE_COMBAT    = 2,
 
     PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
+};
+
+class boss_baltharus_the_warborn_outdoor : public CreatureScript
+{
+    public:
+        boss_baltharus_the_warborn_outdoor() : CreatureScript("boss_baltharus_the_warborn_outdoor") { }
+
+        struct boss_baltharus_the_warborn_outdoorAI : public WorldBossAI
+        {
+            boss_baltharus_the_warborn_outdoorAI(Creature * creature) : WorldBossAI(creature)
+            {
+                _introDone = false;
+            }
+
+            void Reset()
+            {
+                _Reset();
+                _cloneCount = 3;
+            }
+
+            void DoAction(int32 const action)
+            {
+                switch(action)
+                {
+                    case ACTION_INTRO_BALTHARUS:
+                        if (_introDone)
+                            return;
+                        _introDone = true;
+                        me->setActive(true);
+                        events.ScheduleEvent(EVENT_INTRO_TALK, 7000, 0, PHASE_INTRO);
+                        break;
+                    case ACTION_CLONE:
+                        if (_cloneCount > 0)
+                        {
+                            Talk(SAY_CLONE);
+                            DoCast(me, SPELL_CLEAR_DEBUFFS);
+                            DoCast(me, SPELL_CLONE);
+                            DoCast(me, SPELL_REPELLING_WAVE);
+                            --_cloneCount;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void MoveInLineOfSight(Unit * who)
+            {
+                if (!who || me->getVictim())
+                    return;
+
+                Unit * pTarget = who;
+
+                if (!_introDone && pTarget->GetDistance(me) <= 50)
+                {
+                    DoAction(ACTION_INTRO_BALTHARUS);
+                    return;
+                }
+                // Keine NPCs angreifen, die nicht zu einem Spieler gehören!
+                if (pTarget->GetTypeId() == TYPEID_UNIT && !pTarget->GetOwner())
+                    return;
+                // Nur Spieler angreifen, die keine GMs sind!
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN)
+                        return;
+
+                if (!(events.GetPhaseMask() & PHASE_COMBAT))
+                    return;
+
+                if (me->canStartAttack(pTarget, true))
+                    AttackStart(pTarget);
+            }
+
+            void EnterCombat(Unit * /*who*/)
+            {
+                _EnterCombat();
+
+                Talk(SAY_AGGRO);
+
+                events.SetPhase(PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_CLEAVE, 11000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_ENERVATING_BRAND, 13000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BLADE_TEMPEST, 15000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_ENRAGE, 15*IN_MILLISECONDS*MINUTE);
+            }
+
+            void JustDied(Unit * /*killer*/)
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
+
+            void KilledUnit(Unit * victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
+            }
+
+            void JustSummoned(Creature * summon)
+            {
+                summons.Summon(summon);
+                summon->CastSpell(summon, SPELL_SPAWN_EFFECT, true);
+                summon->SetHealth(me->GetHealth());
+
+                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    summon->AI()->AttackStart(target);
+            }
+
+            void DamageTaken(Unit * /*attacker*/, uint32 & damage)
+            {
+                switch(_cloneCount)
+                {
+                    case 3:
+                        if (me->HealthBelowPctDamaged(75, damage))
+                            DoAction(ACTION_CLONE);
+                        break;
+                    case 2:
+                        if (me->HealthBelowPctDamaged(50, damage))
+                            DoAction(ACTION_CLONE);
+                        break;
+                    case 1:
+                        if (me->HealthBelowPctDamaged(25, damage))
+                            DoAction(ACTION_CLONE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING) && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_INTRO_TALK:
+                            Talk(SAY_BALTHARUS_INTRO);
+                            break;
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_CLEAVE);
+                            events.ScheduleEvent(EVENT_CLEAVE, 20000, 0, PHASE_COMBAT);
+                            break;
+                        case EVENT_BLADE_TEMPEST:
+                            DoCast(me, SPELL_BLADE_TEMPEST);
+                            events.ScheduleEvent(EVENT_BLADE_TEMPEST, 20000, 0, PHASE_COMBAT);
+                            break;
+                        case EVENT_ENERVATING_BRAND:
+                            for (uint8 i=0; i<10; ++i)
+                                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                                    DoCast(target, SPELL_ENERVATING_BRAND);
+                                events.ScheduleEvent(EVENT_ENERVATING_BRAND, 22000, 0, PHASE_COMBAT);
+                            break;
+                        case EVENT_ENRAGE:
+                            DoCast(SPELL_ENRAGE);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+            private:
+                uint8 _cloneCount;
+                bool _introDone;
+        };
+
+        CreatureAI * GetAI(Creature * creature) const
+        {
+            return new boss_baltharus_the_warborn_outdoorAI(creature);
+        }
 };
 
 class boss_baltharus_the_warborn : public CreatureScript
@@ -383,6 +566,7 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
 void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
+    new boss_baltharus_the_warborn_outdoor();
     new npc_baltharus_the_warborn_clone();
     new spell_baltharus_enervating_brand();
     new spell_baltharus_enervating_brand_trigger();
