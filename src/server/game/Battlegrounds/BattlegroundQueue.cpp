@@ -17,6 +17,7 @@
 
 #include "BattlegroundQueue.h"
 #include "BattlegroundMgr.h"
+#include "DBCStores.h"
 #include "Log.h"
 
 /*
@@ -25,8 +26,8 @@ Battleground Queue System
 ============================================================================================
 */
 
-namespace Battleground
-{
+//namespace Battleground
+//{
 /**********************************************************************************************//**
  * \fn  void BattlegroundQueue::Insert( BattlegroundQueueElement* element )
  *
@@ -90,10 +91,21 @@ void BattlegroundQueue::Insert( BattlegroundQueueElement* element )
         //! Prevent these teams from being re-scheduled for a different match
         //! whenever a new team queues.
         element->InviteScheduled = true;
-        front->InviteScheduled = true;
+        (*itr)->InviteScheduled = true;
 
+    }
+    else //! Battleground
+    {
+        element->Data.Faction == ALLIANCE ? 
+        _variables._ahCount.AllianceCount += element->Players.size() : 
+        _variables._ahCount.HordeCount += element->Players.size();
 
-    } // isArena
+        if (_variables._ahCount.AllianceCount >= _bgTemplate->MinPlayersPerTeam &&
+            _variables._ahCount.HordeCount >= _bgTemplate->MaxPlayersPerTeam)
+        {
+            //! Invite every player to the battleground
+        }
+    }
 }
 
 void BattlegroundQueue::Erase( BattlegroundQueueElement* element )
@@ -149,6 +161,19 @@ BattlegroundQueue::~BattlegroundQueue()
     }
 }
 
+BattlegroundQueue::BattlegroundQueue( BattlegroundQueueIndex hash, PvPDifficultyEntry const* entry ) 
+: _hash(hash), _pvpDifficultyEntry(entry)
+{
+    //! Complicated relations between DBCs and SQL tables.
+    for (uint32 i = 0; i < sBattlemasterListStore.GetNumRows(); ++i)
+        if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i)) 
+            if (bl->mapid[0] == entry->mapId)
+                _bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(BattlegroundTypeId(bl->id));
+
+    memset(&_variables, 0, sizeof(_variables));
+}
+
+
 /**********************************************************************************************//**
  * \fn  void BattlegroundQueueMgr::Initialize()
  *
@@ -163,7 +188,7 @@ void BattlegroundQueueMgr::Initialize()
 {
     for (uint8 rated = 0; rated <= 1; ++rated)
     {
-        for (uint8 arenaType = 2; arenaType <= 5; ++arenaType)
+        for (uint8 arenaType = ARENA_TYPE_2v2; arenaType <= ARENA_TYPE_5v5; ++arenaType)
         {
             if (arenaType == 4) // There's no such thing as ARENA_TYPE_4V4
                 continue;
@@ -171,7 +196,7 @@ void BattlegroundQueueMgr::Initialize()
             for (uint8 pvpDifficultyEntry = 1; pvpDifficultyEntry <= MAX_PVPDIFFICULTY_ENTRY; ++pvpDifficultyEntry)
             {
                 BattlegroundQueueIndex index(rated, arenaType, pvpDifficultyEntry);
-                Queues[index] = new BattlegroundQueue(index);
+                Queues[index] = new BattlegroundQueue(index, sPvPDifficultyStore.LookupEntry(pvpDifficultyEntry));
             }
         }
     }
@@ -237,4 +262,4 @@ bool BattlegroundQueue::ArenaInviteEvent::Execute( uint64 /*e_time*/, uint32 /*p
     //! TODO: Invite both arena teams to a match
 }
 
-}  // Namespace Battleground
+//}  // Namespace Battleground

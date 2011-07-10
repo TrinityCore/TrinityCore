@@ -125,6 +125,7 @@ extern DBCStorage <MapEntry>                     sMapStore;
 extern MapDifficultyMap                          sMapDifficultyMap;
 extern DBCStorage <MovieEntry>                   sMovieStore;
 extern DBCStorage <OverrideSpellDataEntry>       sOverrideSpellDataStore;
+extern DBCStorage <PvPDifficultyEntry>           sPvPDifficultyStore;
 extern DBCStorage <QuestSortEntry>               sQuestSortStore;
 extern DBCStorage <QuestXPEntry>                 sQuestXPStore;
 extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;

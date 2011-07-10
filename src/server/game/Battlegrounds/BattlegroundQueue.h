@@ -24,31 +24,8 @@
 #include "BattlegroundMap.h"
 #include "EventProcessor.h"
 
-/*
-    BattlegroundQueueMgr shall hold a collection of queues
-
-    Client join packet looks like: 
-        uint64 guid;
-        uint32 bgTypeId;
-        uint32 instanceId;
-        uint8 joinAsGroup;
-
-    bgTypeId will give us access to a unique bracketId that respects level ranges,
-    and holds min/maxlevels.
-
-    The index used for queues is a uint16 composed of:
-        uint16 index = ( (bool(rated) << 16) | ( uint8(arenaType) << 8 ) | ( uint8(bracketId) ));
-                        
-
-    bracketId: Id in PVPDifficultiy.dbc, has access to mapId and level restrictions
-
-    arenaType: See enum
-
-    rated: rated match or not
-*/
-
-namespace Battleground
-{
+//namespace Battleground
+//{
 
 #define MAX_PVPDIFFICULTY_ENTRY 108
 
@@ -68,11 +45,20 @@ struct BattlegroundQueueElement
 
     ///< The (collection of) player(s) per LowGUID
     std::vector<uint32> Players;
-    ///< The arena matchmaker rating (if applicable)
-    uint32 ArenaMMR;
+
+    ///< Union of data specific to arena's or battlegrounds
+    union
+    {
+        ///< The faction (A/H)
+        Team Faction;
+
+        ///< The arena matchmaker rating (if applicable)
+        uint32 ArenaMMR;
+    } Data;
+
     ///< Determines if this element was already scheduled for a delayed invite.
-    // If set to true, the element can still be scheduled for a MMR-selected match 
-    // and will be ignored for delayed invites.
+    //< If set to true, the element can still be scheduled for a MMR-selected match 
+    //< and will be ignored for delayed invites.
     bool InviteScheduled;   
 };
 
@@ -101,15 +87,14 @@ class BattlegroundQueueMgr
         BattlegroundQueueMgr() { Initialize(); }
         virtual ~BattlegroundQueueMgr() {}
 
-        ///> Generate queue types with a hashed index, because we don't like nested arrays
         void Initialize();
-
-        ///> Called from World::Update.
         void Update(uint32 const& diff);
-
-        ///> Called from WorldSession handler(s)
         void Insert(BattlegroundQueueElement* element, uint8 rated, ArenaType arenaType, uint8 difficultyEntryId);
 
+        ///< uint32 index = ( (bool(rated) << 16) | ( uint8(arenaType) << 8 ) | ( uint8(bracketId) ));
+        ///< bracketId: Id in PVPDifficultiy.dbc, has access to mapId and level restrictions
+        ///< arenaType: See enum
+        ///< rated: rated match or not
         typedef std::map<uint32 /*queueId*/, BattlegroundQueue*> QueueMap;
 
     protected:
@@ -122,7 +107,6 @@ class BattlegroundQueue : public std::set<BattlegroundQueueElement*>
     friend class BattlegroundQueueMgr;
 
     typedef std::set<BattlegroundQueueElement*> Base;
-
 
     class ArenaInviteEvent : public BasicEvent
     {
@@ -137,22 +121,43 @@ class BattlegroundQueue : public std::set<BattlegroundQueueElement*>
     };
 
     protected:
-        BattlegroundQueue(BattlegroundQueueIndex hash) : _hash(hash) {}
+        BattlegroundQueue(BattlegroundQueueIndex hash, PvPDifficultyEntry const* entry);
+
         ~BattlegroundQueue();
 
         void Insert(BattlegroundQueueElement* element);
-
         void Erase(BattlegroundQueueElement* element);
-
-        /// Will execute events asynchronously
         void Update(uint32 const& diff);
 
     private:
 
         char const* OutDebug();
 
-        BattlegroundQueueIndex _hash;   // Hash index BattlegroundQueueMgr uses to access pointer to this object.
-        EventProcessor _events;         // Asynchronous events
+        ///< Counter variables dependant on type (BG/Arena)
+        union
+        {
+            struct
+            {
+                uint8 AllianceCount;
+                uint8 HordeCount;
+            } _ahCount;
+
+        } _variables;
+
+        ///< Hash index BattlegroundQueueMgr uses to access pointer to this object.
+        BattlegroundQueueIndex _hash;
+
+        ///< Entry from PvPDifficultyEntry.dbc
+        PvPDifficultyEntry const* _pvpDifficultyEntry;
+
+        ///< Entry from BattleMasterListEntry.dbc
+        BattlemasterListEntry const* _battleMasterListEntry;
+
+        ///< The battleground_template
+        BattlegroundTemplate const* _bgTemplate;
+
+        ///< Asynchronous events
+        EventProcessor _events;
 };
 
 /*
@@ -202,6 +207,6 @@ class BGQueueRemoveEvent : public BasicEvent
         BattlegroundQueueTypeId _bgQueueTypeId;
 };
 
-} // namespace Battleground
+//} // namespace Battleground
 
 #endif

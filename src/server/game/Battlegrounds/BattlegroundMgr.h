@@ -139,6 +139,9 @@ class BattlegroundMgr
         typedef std::map<BattlegroundTypeId, BattlegroundTemplate> BattlegroundTemplateMap;
         typedef std::map<uint32, BattlegroundMap*> BattlegroundMaps;
 
+        friend class BattlegroundQueue;
+        friend class BattlegroundQueueMgr;
+
         BattlegroundTemplate const* GetBattlegroundTemplate(BattlegroundTypeId id)
         {
             BattlegroundTemplateMap::const_iterator itr = _battlegroundTemplates.find(id);
