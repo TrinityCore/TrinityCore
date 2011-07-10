@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "worldserver"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "worldserver"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2010"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2011"
             VALUE "OriginalFilename", "worldserver.exe"
             VALUE "ProductName", "worldserver"
             VALUE "ProductVersion", STRPRODUCTVER

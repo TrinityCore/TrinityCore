@@ -36,31 +36,44 @@ if(_GIT_VERSION_OK)
   execute_process(
     COMMAND "${_GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE rev_info
+    OUTPUT_VARIABLE rev_hash_info
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
+  string(REGEX REPLACE init-|[0-9]+-g "" rev_hash_str ${rev_hash_info})
+  string(REGEX REPLACE [+]+ "" rev_hash ${rev_hash_str})
+  execute_process(
+    COMMAND "${_GIT_EXEC}" show -s --format=%ci "${rev_hash}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE rev_date_info
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  set(rev_date_str ${rev_date_info})
+  set(rev_date_tmp ${rev_date_info})
+  string(REGEX REPLACE \\+ "" rev_date_tmp ${rev_date_tmp})
+  string(REGEX REPLACE "([0-9]+)-([0-9]+)-([0-9]+)(.*)" "\\1,\\2,\\3\\4" rev_date_tmp ${rev_date_tmp})
+  string(REGEX REPLACE "(.*)([0-9]+):([0-9]+):([0-9]+)(.*)" "\\1\\2\\3" rev_date_tmp ${rev_date_tmp})
+  string(REGEX REPLACE " " "," rev_date ${rev_date_tmp})
 else()
   message("")
   message(STATUS "WARNING - Missing or outdated git - did you forget to install a recent version?")
-  message(STATUS "WARNING - Observe that for revision ID/hash to work you need at least version ${_REQUIRED_GIT_VERSION}")
-  message(STATUS "WARNING - Continuing anyway, but setting the revision-ID and hash to Rev:0 Hash: Archive")
+  message(STATUS "WARNING - Observe that for date/hash to work you need at least version ${_REQUIRED_GIT_VERSION}")
+  message(STATUS "WARNING - Continuing anyway, but setting the date and hash to Date: 0 Hash: Archive")
   message("")
 endif()
 
 # Last minute check - ensure that we have a proper revision
 # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
-if(NOT rev_info)
-  # No valid ways available to find/set the revision/hash, so let's force some defaults
+if(NOT rev_hash_info)
+  # No valid ways available to find/set the date/hash, so let's force some defaults
   message("")
   message(STATUS "WARNING - Missing repository tags - you may need to pull tags with git fetch -t")
   message(STATUS "WARNING - Continuing, but the hash will be set to 'Archive'")
   set(rev_hash_str "Archive")
   set(rev_hash "0")
-else()
-  # Extract revision and hash from git
-  string(REGEX REPLACE init-|[0-9]+-g "" rev_hash_str ${rev_info})
-  string(REGEX REPLACE [+]+ "" rev_hash ${rev_hash_str})
+  set(rev_date_str "0")
+  set(rev_date "0")
 endif()
 
 # Its not set during initial run
