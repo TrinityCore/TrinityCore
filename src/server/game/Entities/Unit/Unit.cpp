@@ -10166,6 +10166,9 @@ Unit* Unit::SelectMagnetTarget(Unit* victim, SpellEntry const *spellInfo)
     // Magic case
     if (spellInfo && (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
     {
+        // Patch 1.2 notes: Spell Reflection no longer reflects abilities
+        if (spellInfo->Attributes & SPELL_ATTR0_ABILITY)
+            return victim;
         // I am not sure if this should be redirected.
         if (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
             return victim;
