@@ -275,14 +275,6 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 vmap.enableLOS    = 1
 vmap.enableHeight = 1
- 
-#    vmap.ignoreMapIds
-#        Map id that will be ignored by VMaps
-#        List of ids with delimiter ','
-#        If more then one id is defined and spaces are included, the string has to be enclosed by "
-#        Example: "369,0,1,530,571"
-
-vmap.ignoreMapIds = ""
 
 #
 #    vmap.ignoreSpellIds
@@ -2488,10 +2480,10 @@ Arena.ArenaStartMatchmakerRating = 1500
 ###################################################################################################
 
 ###################################################################################################
-# TAUSENDWINTERSEE KONFIGURATION (für eigene Implementation)
+# TAUSENDWINTERSEE KONFIGURATION (fÃ¼r eigene Implementation)
 #
 #   Tausendwinter.Aktiviert
-#       Gibt an, ob OutdoorPvP für Tausendwinter aktiviert sein soll.
+#       Gibt an, ob OutdoorPvP fÃ¼r Tausendwinter aktiviert sein soll.
 #       Default: 1 = Aktiviert
 #                0 = Deaktiviert
 
@@ -2499,7 +2491,7 @@ Tausendwinter.Aktiviert = 1
 
 #
 #   Tausendwinter.Automatisch
-#       Gibt an, ob OutdoorPvP für Tausendwinter den Kampf überspringen, und nur automatisch den Besitzer wechseln soll.
+#       Gibt an, ob OutdoorPvP fÃ¼r Tausendwinter den Kampf Ã¼berspringen, und nur automatisch den Besitzer wechseln soll.
 #       Default: 1 = Aktiviert (da TW zur Zeit noch Crashes verursachen kann)
 #                0 = Deaktiviert
 
@@ -2539,7 +2531,7 @@ Tausendwinter.TeleportDalaran = 0
 
 #
 #   Tausendwinter.VerschiebeNPCs
-#       Gibt an, ob Questgeber / Händler etc. entsprechend des Verteidigerteams verschoeben werden sollen.
+#       Gibt an, ob Questgeber / HÃ¤ndler etc. entsprechend des Verteidigerteams verschoeben werden sollen.
 #       Default: 0 = Deaktiviert
 #                1 = Aktiviert
 
@@ -2561,7 +2553,7 @@ Tausendwinter.Kampfdauer = 30
 
 #
 #   Tausendwinter.KampfIntervall
-#       Gibt die Zeit (in Minuten) zwischen den Kämpfen an.
+#       Gibt die Zeit (in Minuten) zwischen den KÃ¤mpfen an.
 #       Default: 130
 
 Tausendwinter.KampfIntervall = 130
