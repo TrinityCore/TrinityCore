@@ -931,7 +931,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
     // Select a random dungeon from the compatible list
     // TODO - Select the dungeon based on group item Level, not just random
     LfgDungeonSet::const_iterator itDungeon = compatibleDungeons.begin();
-    for (uint8 i = 0; i < urand(0, compatibleDungeons.size() - 1); ++i)
+    for (uint8 i = urand(0, compatibleDungeons.size() - 1); i > 0 ; --i)
         ++itDungeon;
 
     // Create a new proposal
