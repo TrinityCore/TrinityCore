@@ -33,7 +33,7 @@ enum eAchievements
     ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25    = 4621,
     ACHIEV_NECK_DEEP_IN_VILE_10                    = 4581,
     ACHIEV_NECK_DEEP_IN_VILE_25                    = 4622,
-    ACHIEV_THE_FROZEN_THRONE_10	                   = 4530,
+    ACHIEV_THE_FROZEN_THRONE_10                    = 4530,
     ACHIEV_THE_FROZEN_THRONE_25                    = 4597
 };
 
@@ -260,7 +260,8 @@ enum Spells
     SPELL_ENRAGE                                           = 72143,
     SPELL_FRENZY                                           = 28747,
     SPELL_SOUL_SHRIEK                                      = 69242,
-    SPELL_FURY_OF_FROSTMOURNE_NORES                        = 72351
+    SPELL_FURY_OF_FROSTMOURNE_NORES                        = 72351,
+    SPELL_KNOCKDOWN                                        = 68848,
 };
 
 enum eActions
@@ -309,7 +310,7 @@ struct Position StartEvent[]=
 
 struct Position MovePos[]=
 {
-    {461.792f, -2125.85f, 1040.860f, 0.0f}, // move
+    {459.039f, -2124.21f, 1040.860f, 0.0f}, // move
     {503.156f, -2124.51f, 1040.860f, 0.0f}, // move center X: 505.2118 Y: -2124.353 Z: 840.9403
     {490.110f, -2124.98f, 1040.860f, 0.0f}, // move tirion frostmourne
     {467.069f, -2123.58f, 1040.857f, 0.0f}, // move tirion attack
@@ -317,7 +318,10 @@ struct Position MovePos[]=
     {489.297f, -2124.84f, 1040.857f, 0.0f}, //start event tirion move 1
     {503.682f, -2126.63f, 1040.940f, 0.0f}, //boss escapes after wipe
     {508.989f, -2124.55f, 1045.356f, 0.0f}, //boss levitates above the frostmourne
-    {505.212f, -2124.35f, 1040.94f, 3.14159f}
+    {505.212f, -2124.35f, 1040.94f, 3.14159f},
+    {491.759f, -2124.86f, 1040.86f, 0.0f},  // tirion talk position
+    {517.482f, -2124.91f, 1040.86f, 0.0f}, // Jump position
+    {529.413f, -2124.94f, 1040.86f, 0.0f}, // Knockback position
 };
 struct Position FrostmourneRoom[] = 
 {
@@ -400,6 +404,7 @@ class boss_the_lich_king : public CreatureScript
 
                 if (SpellEntry* furyOfFrostmourne = GET_SPELL(SPELL_FURY_OF_FROSTMOURNE))
                 {
+                    furyOfFrostmourne->Effect[0] = SPELL_EFFECT_APPLY_AURA;
                     furyOfFrostmourne->Effect[1] = SPELL_EFFECT_INSTAKILL;
                     furyOfFrostmourne->EffectRadiusIndex[0] = 22;
                     furyOfFrostmourne->EffectRadiusIndex[1] = 22;
@@ -410,6 +415,17 @@ class boss_the_lich_king : public CreatureScript
                 if (SpellEntry *furyOfFrostmournenores = GET_SPELL(SPELL_FURY_OF_FROSTMOURNE_NORES))
                 {
                     furyOfFrostmournenores->EffectRadiusIndex[0] = 22;
+                }
+                if (SpellEntry* riseDead = GET_SPELL(SPELL_RAISE_DEAD))
+                {
+                    riseDead->EffectRadiusIndex[0] = 22;
+                    riseDead->EffectRadiusIndex[1] = 22;
+                    riseDead->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+                    riseDead->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
+                    riseDead->EffectImplicitTargetA[1] = TARGET_SRC_CASTER;
+                    riseDead->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENEMY_SRC;
+                    riseDead->EffectAmplitude[0] = 50000;
+                    riseDead->EffectAmplitude[1] = 50000;
                 }
                 if (SpellEntry* massResurrection = GET_SPELL(SPELL_REVIVE))
                 {
@@ -423,7 +439,7 @@ class boss_the_lich_king : public CreatureScript
                     defileDamage->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
                 }
 
-				if (SpellEntry* remorselessWinter = GET_SPELL(SPELL_REMORSELESS_WINTER_10N || SPELL_REMORSELESS_WINTER_10H || SPELL_REMORSELESS_WINTER_25N || SPELL_REMORSELESS_WINTER_25H))
+                if (SpellEntry* remorselessWinter = GET_SPELL(SPELL_REMORSELESS_WINTER_10N || SPELL_REMORSELESS_WINTER_10H || SPELL_REMORSELESS_WINTER_25N || SPELL_REMORSELESS_WINTER_25H))
                     remorselessWinter->Effect[2] = 0;
 
                 if (instance)
@@ -431,10 +447,10 @@ class boss_the_lich_king : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
-				{
-					tirion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				}
+                if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                {
+                    tirion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
 
                 uiStage = 1;
             }
@@ -445,10 +461,10 @@ class boss_the_lich_king : public CreatureScript
                 BossAI::EnterEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
-				{
-					tirion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				}
+                if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                {
+                    tirion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
             }
 
             void EnterCombat(Unit* /*pWho*/)
@@ -463,6 +479,7 @@ class boss_the_lich_king : public CreatureScript
                 uiTirionGUID = 0;
                 isSwitching = false;
                 imSummoning = false;
+                isAboutToDie = false;
                 events.Reset();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_BERSERK, 900000, PHASE_1);
@@ -485,17 +502,17 @@ class boss_the_lich_king : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 10000, 0, PHASE_1);
 
-                DoScriptText(SAY_AGGRO, me);
+                //DoScriptText(SAY_AGGRO, me);
                 DoCast(me, SPELL_NECROTIC_PLAGUE_IMMUNITY);
 
                 if (instance)
                     uiTirionGUID = instance->GetData64(DATA_TIRION);
 
                 if (instance)
-				{
+                {
                     instance->SetBossState(DATA_THE_LICH_KING, IN_PROGRESS);
-				    instance->SetData(DATA_THE_LICH_KING, IN_PROGRESS);
-				}
+                    instance->SetData(DATA_THE_LICH_KING, IN_PROGRESS);
+                }
             }
 
             void Cleanup()
@@ -515,8 +532,8 @@ class boss_the_lich_king : public CreatureScript
                     return;
 
                 instance->SetBossState(DATA_THE_LICH_KING, DONE);
-				instance->SetData(DATA_THE_LICH_KING, DONE);
-				//instance->DoCompleteAchievement(RAID_MODE<uint32>(ACHIEV_THE_FROZEN_THRONE_10, ACHIEV_BANE_OF_THE_FALLEN_KING, ACHIEV_THE_FROZEN_THRONE_25, ACHIEV_THE_LIGHT_OF_DAWN));
+                instance->SetData(DATA_THE_LICH_KING, DONE);
+                //instance->DoCompleteAchievement(RAID_MODE<uint32>(ACHIEV_THE_FROZEN_THRONE_10, ACHIEV_BANE_OF_THE_FALLEN_KING, ACHIEV_THE_FROZEN_THRONE_25, ACHIEV_THE_LIGHT_OF_DAWN));
 
                 if (instance->GetData(DATA_BEEN_WAITING_ACHIEVEMENT) == DONE)
                     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10,ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25));
@@ -537,6 +554,8 @@ class boss_the_lich_king : public CreatureScript
 
                 if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
                 {
+                    tirion->GetMotionMaster()->MovePoint(0, MovePos[1]);
+                    tirion->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                     tirion->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     tirion->SetReactState(REACT_PASSIVE);
                     tirion->RemoveAllAuras();
@@ -574,7 +593,7 @@ class boss_the_lich_king : public CreatureScript
                     return;
 
                 instance->SetBossState(DATA_THE_LICH_KING, FAIL);
-				instance->SetData(DATA_THE_LICH_KING, FAIL);
+                instance->SetData(DATA_THE_LICH_KING, FAIL);
                 Cleanup();
 
                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TIRION)))
@@ -767,6 +786,18 @@ class boss_the_lich_king : public CreatureScript
                             events.SetPhase(PHASE_6_ENDING);
                         }
                         break;
+                    case PHASE_6_ENDING:
+                        if(HealthBelowPct(1) && !isAboutToDie)
+                        {
+                            if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                            {
+                                isAboutToDie = true;
+                                me->RemoveAurasDueToSpell(34873);
+                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), tirion->GetPositionZ());
+                                me->SetPosition(me->GetPositionX(), me->GetPositionY(), tirion->GetPositionZ(), me->GetOrientation(), true);
+                            }
+                        }
+                        break;
                 }
             }
 
@@ -912,12 +943,9 @@ class boss_the_lich_king : public CreatureScript
                             {
                                 case EVENT_SUMMON_VAL_KYR_SHADOWGUARD:
                                 {
-									if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || RAID_DIFFICULTY_10MAN_HEROIC)
-									{
-										DoScriptText(SAY_SUMMON_VALKYR, me);
-										DoCast(me, SPELL_SUMMON_VALKYR);
-										events.ScheduleEvent(EVENT_SUMMON_VAL_KYR_SHADOWGUARD, urand(40000, 45000), 0, PHASE_3);
-									}
+                                    DoScriptText(SAY_SUMMON_VALKYR, me);
+                                    DoCast(me, SPELL_SUMMON_VALKYR);
+                                    events.ScheduleEvent(EVENT_SUMMON_VAL_KYR_SHADOWGUARD, urand(40000, 45000), 0, PHASE_3);
                                     break;
                                 }
                                 case EVENT_DEFILE:
@@ -1012,7 +1040,7 @@ class boss_the_lich_king : public CreatureScript
 
                 if (GetPhase(events) == PHASE_6_ENDING)
                 {
-                    if (uiStage > 22)
+                    if (uiStage > 25)
                         return;
 
                     if (uiEndingTimer <= diff)
@@ -1049,32 +1077,49 @@ class boss_the_lich_king : public CreatureScript
                                 break;
                             }
                             case 2:
-                                DoCast(me, SPELL_FURY_OF_FROSTMOURNE_NORES);
+                            {
                                 DoCast(me, SPELL_FURY_OF_FROSTMOURNE);
-                                uiEndingTimer = 11000;
+                                uiEndingTimer = 12000;
                                 break;
+                            }
                             case 3:
+                            {
                                 DoScriptText(SAY_ENDING_1_KING, me);
-                                uiEndingTimer = 24000;
+                                uiEndingTimer = 30000;
                                 break;
+                            }
                             case 4:
+                            {
+                                if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                                    me->SetFacingToObject(tirion);
                                 DoScriptText(SAY_ENDING_2_KING, me);
                                 uiEndingTimer = 25000;
                                 break;
+                            }
                             case 5:
+                            {
                                 me->GetMotionMaster()->MovePoint(0, MovePos[1]);
                                 uiEndingTimer = 4000;
                                 break;
+                            }
                             case 6:
+                            {
                                 DoScriptText(SAY_ENDING_3_KING, me);
+                                if (Creature* trigger = me->FindNearestCreature(37882, 50.0f, true))
+                                    me->SetFacingToObject(trigger);
                                 //DoCast(me, SPELL_RAISE_DEAD);
-                                me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                                // Temp fix for visual rising sword on spellcast
+                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 468);
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST_OMNI);
                                 uiEndingTimer = 28000;
                                 break;
+                            }
                             case 7:
+                            {
                                 DoScriptText(SAY_ENDING_4_KING, me);
                                 uiEndingTimer = 8000;
                                 break;
+                            }
                             case 8:
                             {
                                 if (uiTirionGUID)
@@ -1088,10 +1133,10 @@ class boss_the_lich_king : public CreatureScript
                             {
                                 if (uiTirionGUID)
                                     if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
-									{
-										tirion->CastSpell(tirion, SPELL_TIRION_LIGHT, true);
-										tirion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-									}
+                                    {
+                                        tirion->CastSpell(tirion, SPELL_TIRION_LIGHT, true);
+                                        tirion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    }
 
                                 uiEndingTimer = 7000;
                                 break;
@@ -1100,9 +1145,12 @@ class boss_the_lich_king : public CreatureScript
                             {
                                 if (uiTirionGUID)
                                     if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
-                                        tirion->GetMotionMaster()->MovePoint(0, MovePos[3]);
+                                    {
+                                        tirion->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                        tirion->GetMotionMaster()->MovePoint(0, MovePos[2]);
+                                    }
 
-                                uiEndingTimer = 2000;
+                                uiEndingTimer = 3000;
                                 break;
                             }
                             case 11:
@@ -1111,41 +1159,80 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
                                     {
-                                        tirion->GetMotionMaster()->MoveJump(517.482910f, -2124.905762f, 1040.861328f, 10.0f, 15.0f);
-                                        tirion->SetUInt32Value(UNIT_NPC_EMOTESTATE, 375);
+                                        tirion->GetMotionMaster()->MoveJump(MovePos[10].GetPositionX(), MovePos[10].GetPositionY(), MovePos[10].GetPositionZ(), 10.0f, 15.0f);
+                                        tirion->SetPosition(MovePos[10]);
                                     }
                                 }
                                 me->RemoveAura(SPELL_RAISE_DEAD);
-                                me->CastSpell(me, SPELL_BOOM_VISUAL, false);
-                                uiEndingTimer = 1000;
+
+                                uiEndingTimer = 600;
                                 break;
                             }
                             case 12:
+                            {
+                                if (uiTirionGUID)
+                                    if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                                        tirion->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK2HTIGHT);
+
+                                DoPlaySoundToSet(me, SOUND_ENDING_7_KING);
+                                //Equip broken Frostmourne
+                                SetEquipmentSlots(false, 50840, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+                                me->CastSpell(me, SPELL_BOOM_VISUAL, false);
+                                me->HandleEmoteCommand(EMOTE_STATE_CUSTOM_SPELL_01);
+                                uiEndingTimer = 3000;
+                                break;
+                            }
+                            case 13:
+                            {
+                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
+                                uiEndingTimer = 1000;
+                                break;
+                            }
+                            case 14:
                             {
                                 if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
                                     tirion->SetFacingToObject(me);
                                 uiEndingTimer = 1000;
                                 break;
                             }
-                            case 13:
-                                DoCast(me, SPELL_SOUL_EFFECT);
-                                DoPlaySoundToSet(me, SOUND_ENDING_7_KING);
-                                uiEndingTimer = 1000;
-                                break;
-                            case 14:
-                                SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-                                DoScriptText(SAY_ENDING_6_KING, me);
-                                uiEndingTimer = 1000;
-                                break;
                             case 15:
-                                DoCast(me, SPELL_SUMMON_FROSTMOURNE_TRIGGER);
-                                uiEndingTimer = 2000;
+                            {
+                                me->CastSpell(me, SPELL_DROP_FROSTMOURNE, false);
+                                SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+                                uiEndingTimer = 500;
                                 break;
+                            }
                             case 16:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 473);
+                            {
+                                // Here Tirion is knocked back to the teleport circle
+                                if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                                    tirion->GetMotionMaster()->MoveJump(MovePos[11].GetPositionX(), MovePos[11].GetPositionY(), MovePos[11].GetPositionZ(), 11.0f, 9.0f);
+
+                                uiEndingTimer = 800;
+                                break;
+                            }
+                            case 17:
+                            {
+                                if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                                    tirion->CastSpell(tirion, SPELL_KNOCKDOWN, true);
+
+                                DoScriptText(SAY_ENDING_6_KING, me);
                                 uiEndingTimer = 5000;
                                 break;
-                            case 17:
+                            }
+                            case 18:
+                            {
+                                me->CastSpell(me, SPELL_SOUL_EFFECT, true);
+                                if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 25.0f, true))
+                                {
+                                    me->GetMotionMaster()->MovePoint(0, frostmourne->GetPositionX(),frostmourne->GetPositionY(), frostmourne->GetPositionZ() + 3.0f);
+                                    me->SetPosition(frostmourne->GetPositionX(),frostmourne->GetPositionY(), frostmourne->GetPositionZ() + 3.0f, me->GetOrientation());
+                                }
+
+                                uiEndingTimer = 5000;
+                                break;
+                            }
+                            case 19:
                             {
                                 if (uiTirionGUID)
                                     if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
@@ -1154,20 +1241,29 @@ class boss_the_lich_king : public CreatureScript
                                 uiEndingTimer = 6000;
                                 break;
                             }
-                            case 18:
+                            case 20:
                             {
                                 if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 25.0f, true))
                                     frostmourne->CastSpell(frostmourne, SPELL_SUMMON_MENETHIL, true);
 
-                                uiEndingTimer = 3000;
+                                uiEndingTimer = 500;
                                 break;
                             }
-                            case 19:
+                            case 21:
+                            {
+                                if (Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
+                                {
+                                    DoScriptText(SAY_ENDING_9_FATHER, father);
+                                    father->SetFacingToObject(me);
+                                }
+                                uiEndingTimer = 11000;
+                                break;
+                            }
+                            case 22:
                             {
                                 if (Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
                                 {
                                     DoScriptText(SAY_ENDING_11_FATHER, father);
-                                    father->SetFacingToObject(me);
                                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FURY_OF_FROSTMOURNE_NORES);
                                     father->CastSpell(father, SPELL_MENETHIL_VISUAL, true);
                                     father->CastSpell(father, SPELL_REVIVE, true);
@@ -1176,7 +1272,7 @@ class boss_the_lich_king : public CreatureScript
                                 uiEndingTimer = 6000;
                                 break;
                             }
-                            case 20:
+                            case 23:
                             {
                                 if (uiTirionGUID)
                                     if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
@@ -1185,27 +1281,33 @@ class boss_the_lich_king : public CreatureScript
                                 uiEndingTimer = 5000;
                                 break;
                             }
-                            case 21:
+                            case 24:
                             {
                                 DoScriptText(SAY_ENDING_12_KING, me);
-                                me->GetMotionMaster()->MovePoint(0, MovePos[6]);
-
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                                me->SetReactState(REACT_AGGRESSIVE);
-								
                                 if (uiTirionGUID)
                                     if (Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
-                                        tirion->AI()->AttackStart(me);
+                                    {
+                                        if(Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 25.0f, true))
+                                            tirion->GetMotionMaster()->MoveChase(frostmourne, 2.0f, 1.5f);
+
+                                        tirion->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                    }
 
                                 if (Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
-                                    father->AI()->AttackStart(me);
+                                {
+                                    if(Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 25.0f, true))
+                                        father->GetMotionMaster()->MoveChase(frostmourne, 3.0f, 0.0f);
+                                    father->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                }
 
                                 uiEndingTimer = 10000;
                                 break;
                             }
-                            case 22:
+                            case 25:
+                            {
                                 DoScriptText(SAY_DEATH_KING, me);
                                 break;
+                            }
                         }
 
                         ++uiStage;
@@ -1225,11 +1327,21 @@ class boss_the_lich_king : public CreatureScript
 
             void PauseForSummoning(bool on)
             {
-                SetCombatMovement(!on);
                 imSummoning = on;
-                if(!on)
+
+                if(on)
+                    me->GetMotionMaster()->MoveIdle();
+                else
                     me->GetMotionMaster()->MoveChase(me->getVictim());
             }
+
+            // JUST FOR TESTING PROPUSES!!!!
+            void SpellHit(Unit* /*caster*/, const SpellEntry * spell)
+            {
+                if (spell->Id == 72400)
+                    events.SetPhase(PHASE_6_ENDING);
+            }
+
         private:
             InstanceScript* instance;
             uint8 uiStage;
@@ -1250,6 +1362,7 @@ class boss_the_lich_king : public CreatureScript
             uint64 uiTirionGUID;
             bool isSwitching;
             bool imSummoning;
+            bool isAboutToDie;
             SummonList summons;
             EventMap events;
         };
@@ -1362,7 +1475,7 @@ class npc_tirion_icc : public CreatureScript
                 if (!bIntro || !uiLichKingGUID)
                     return;
 
-                if (uiStage > 11)
+                if (uiStage > 12)
                     return;
 
                 if (uiIntroTimer <= diff)
@@ -1371,38 +1484,52 @@ class npc_tirion_icc : public CreatureScript
                     {
                         case 1:
                         {
-                            if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
-                            {
-                                lich->SetStandState(UNIT_STAND_STATE_STAND);
-                                lich->GetMotionMaster()->MovePoint(POINT_START_EVENT_1, MovePos[0]);
-                                me->SetFacingToObject(lich);
-                            }
-
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
-                            uiIntroTimer = 3000;
+                            // IntroStarts. Tirion moves to talk position
+                            me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                            me->GetMotionMaster()->MovePoint(0, MovePos[9]);
+                            uiIntroTimer = 8000;
                             break;
                         }
                         case 2:
                         {
+                            // Tirion reaches talk position, Arthas stands up
                             if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
-                            {
-                                lich->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
-                                DoScriptText(SAY_INTRO_1_KING, lich);
-                            }
+                                lich->SetStandState(UNIT_STAND_STATE_STAND);
 
-                            uiIntroTimer = 14000;
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                            uiIntroTimer = 1000;
                             break;
                         }
                         case 3:
                         {
+                            // Arthas talks
                             if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
-                                lich->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-
-                            DoScriptText(SAY_INTRO_2_TIRION, me);
-                            uiIntroTimer = 9000;
+                                DoScriptText(SAY_INTRO_1_KING, lich);
+                            uiIntroTimer = 2000;
                             break;
                         }
                         case 4:
+                        {
+                            // Arthas walks downstair
+                            if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
+                            {
+                                lich->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                                lich->GetMotionMaster()->MovePoint(POINT_START_EVENT_1, MovePos[0]);
+                            }
+                            uiIntroTimer = 13500;
+                            break;
+                        }
+                        case 5:
+                        {
+                            // Arthas has reached bottom of stairs, Tirion talks
+                            if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
+                                lich->SetFacingToObject(me);
+
+                            DoScriptText(SAY_INTRO_2_TIRION, me);
+                            uiIntroTimer = 8000;
+                            break;
+                        }
+                        case 6:
                         {
                             if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
                             {
@@ -1413,7 +1540,7 @@ class npc_tirion_icc : public CreatureScript
                             uiIntroTimer = 3000;
                             break;
                         }
-                        case 5:
+                        case 7:
                         {
                             if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
                                 lich->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_POINT_NOSHEATHE);
@@ -1421,7 +1548,7 @@ class npc_tirion_icc : public CreatureScript
                             uiIntroTimer = 2000;
                             break;
                         }
-                        case 6:
+                        case 8:
                         {
                             if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
                                 lich->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
@@ -1429,39 +1556,49 @@ class npc_tirion_icc : public CreatureScript
                             uiIntroTimer = 18000;
                             break;
                         }
-                        case 7:
+                        case 9:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_POINT_NOSHEATHE);
                             DoScriptText(SAY_INTRO_4_TIRION, me);
-                            uiIntroTimer = 1000;
-                            break;
-                        case 8:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                            me->GetMotionMaster()->MovePoint(0, MovePos[3]);
-                            uiIntroTimer = 2000;
-                            break;
-                        case 9:
-                            if(Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
-                                lich->CastSpell(me, SPELL_ICEBLOCK_TRIGGER, true);
-							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             uiIntroTimer = 2000;
                             break;
                         case 10:
-                        {
-                            if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_INTRO_5_KING, lich);
-
-                            uiIntroTimer = 18000;
+                            // Tirion runs to Arthas
+                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                            me->GetMotionMaster()->MovePoint(0, MovePos[3]);
+                            uiIntroTimer = 1600;
                             break;
-                        }
                         case 11:
+                            // Arthas freezes Tirion
+                            if(Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
+                            {
+                                lich->CastSpell(me, SPELL_ICEBLOCK_TRIGGER, true);
+                                me->GetMotionMaster()->MoveIdle();
+                                me->SetFacingToObject(lich);
+                            }
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                            // From here, Arthas is attackable
+                            if(Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
+                            {
+                                lich->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                lich->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                lich->SetReactState(REACT_AGGRESSIVE);
+                            }
+                            uiIntroTimer = 2000;
+                            break;
+                        case 12:
                         {
                             if (Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
                             {
-                                lich->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                                lich->SetReactState(REACT_AGGRESSIVE);
+                                DoScriptText(SAY_INTRO_5_KING, lich);
 
-                                if (Unit* target = lich->FindNearestPlayer(100.0f))
-                                    lich->AI()->AttackStart(target);
+                                // If Arthas stills not in combat, find nearest player and attack him
+                                if(!lich->isInCombat())
+                                {
+                                    if (Unit* target = lich->FindNearestPlayer(100.0f))
+                                        lich->AI()->AttackStart(target);
+                                }
                             }
                             break;
                         }
@@ -1485,36 +1622,9 @@ class npc_tirion_icc : public CreatureScript
             if (!instance)
                 return false;
 
-            Player* unfriendlyPlayer = NULL;
-            const Map::PlayerList& PlayerList = creature->GetMap()->GetPlayers();
-
-            if (!PlayerList.isEmpty())
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* player = i->getSource())
-                        if (!creature->IsFriendlyTo(player))
-                        {
-                            unfriendlyPlayer = player;
-                            break;
-                        }
-
-            if (unfriendlyPlayer)
-            {
-                char buf[255] = {0};
-                sprintf(buf, "Sorry, but everyone in raid should have at least friendly reputation with the Argent Crusade to participate in the final battle. Player '%s' doesn't meet this requirement.", unfriendlyPlayer->GetName());
-                creature->MonsterSay(buf, LANG_UNIVERSAL, player->GetGUID());
-                return true;
-            }
-
             if (instance->GetBossState(DATA_THE_LICH_KING) == DONE)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "The Lich King was already defeated here. Teleport me back to the Light's Hammer", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU, creature->GetGUID());
-                return true;
-            }
-
-            if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sorry, I'm not the raid leader", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 player->SEND_GOSSIP_MENU(GOSSIP_MENU, creature->GetGUID());
                 return true;
             }
@@ -1529,9 +1639,6 @@ class npc_tirion_icc : public CreatureScript
         {
             switch (uiAction)
             {
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    creature->MonsterSay("OK, I'll wait for raid leader", LANG_UNIVERSAL, player->GetGUID());
-                    break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
                     creature->CastSpell(player, LIGHT_S_HAMMER_TELEPORT, true);
                     break;
@@ -3657,6 +3764,42 @@ class spell_lich_king_harvest_soul : public SpellScriptLoader
         }
 };
 
+class spell_lich_king_fury_of_frostmourne : public SpellScriptLoader
+{
+    public:
+        spell_lich_king_fury_of_frostmourne() : SpellScriptLoader("spell_lich_king_fury_of_frostmourne") { }
+
+        class spell_lich_king_fury_of_frostmourneSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_lich_king_fury_of_frostmourneSpellScript);
+
+            // function called on server startup
+            // checks if script has data required for it to work
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_FURY_OF_FROSTMOURNE_NORES))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->AddAura(SPELL_FURY_OF_FROSTMOURNE_NORES, target);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_lich_king_fury_of_frostmourneSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_lich_king_fury_of_frostmourneSpellScript();
+        }
+};
+
 void AddSC_boss_lichking()
 {
     new boss_the_lich_king();
@@ -3688,4 +3831,5 @@ void AddSC_boss_lichking()
     new spell_lich_king_defile();
     new spell_lich_king_tirion_mass_resurrection();
     new spell_lich_king_harvest_soul();
+    new spell_lich_king_fury_of_frostmourne();
 }
