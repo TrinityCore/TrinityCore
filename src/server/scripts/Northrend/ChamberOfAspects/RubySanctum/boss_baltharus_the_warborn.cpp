@@ -43,7 +43,9 @@ enum Spells
     SPELL_CLEAR_DEBUFFS         = 34098,
     SPELL_SPAWN_EFFECT          = 64195,
 
-    SPELL_ENRAGE                = 52262
+    SPELL_ENRAGE                = 26662,
+    SPELL_FEURIGE_EINAESCHERUNG = 74562,
+    SPELL_GROSSBRAND            = 74456
 };
 
 enum Events
@@ -54,7 +56,9 @@ enum Events
     EVENT_INTRO_TALK            = 4,
     EVENT_OOC_CHANNEL           = 5,
 
-    EVENT_ENRAGE
+    EVENT_ENRAGE,
+    EVENT_FEURIGE_EINAESCHERUNG,
+    EVENT_GROSSBRAND
 };
 
 enum Actions
@@ -152,7 +156,9 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                 events.ScheduleEvent(EVENT_CLEAVE, 11000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_ENERVATING_BRAND, 13000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BLADE_TEMPEST, 15000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_ENRAGE, 15*IN_MILLISECONDS*MINUTE);
+                events.ScheduleEvent(EVENT_ENRAGE, 10*IN_MILLISECONDS*MINUTE);
+                events.ScheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, 10*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_GROSSBRAND, 30*IN_MILLISECONDS);
             }
 
             void JustDied(Unit * /*killer*/)
@@ -232,6 +238,15 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                         case EVENT_ENRAGE:
                             DoCast(SPELL_ENRAGE);
                             break;
+                        case EVENT_FEURIGE_EINAESCHERUNG:
+                            if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                                DoCast(target, SPELL_FEURIGE_EINAESCHERUNG);
+                            events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS), 0, PHASE_COMBAT);
+                        case EVENT_GROSSBRAND:
+                            for (uint8 i=0; i<4; ++i)
+                                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                                    DoCast(target, SPELL_GROSSBRAND);
+                            events.RescheduleEvent(EVENT_GROSSBRAND, urand(30*IN_MILLISECONDS,45*IN_MILLISECONDS), 0, PHASE_COMBAT);
                         default:
                             break;
                     }

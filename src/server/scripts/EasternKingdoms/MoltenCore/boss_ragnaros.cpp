@@ -55,7 +55,9 @@ enum Spells
     SPELL_ELEMENTAL_FIRE        = 20564,
     SPELL_ERRUPTION             = 17731,
 
-    SPELL_ENRAGE                = 52262
+    SPELL_ENRAGE                = 26662,
+    SPELL_FEURIGE_EINAESCHERUNG = 74562,
+    SPELL_GROSSBRAND            = 74456
 };
 
 enum Events
@@ -74,7 +76,9 @@ enum Events
     EVENT_INTRO_4,
     EVENT_INTRO_5,
 
-    EVENT_ENRAGE
+    EVENT_ENRAGE,
+    EVENT_FEURIGE_EINAESCHERUNG,
+    EVENT_GROSSBRAND
 };
 
 class boss_ragnaros_outdoor : public CreatureScript
@@ -131,6 +135,8 @@ class boss_ragnaros_outdoor : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGMA_BLAST, 2000);
                 events.ScheduleEvent(EVENT_SUBMERGE, 45000);
                 events.ScheduleEvent(EVENT_ENRAGE, 10*IN_MILLISECONDS*MINUTE);
+                events.ScheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, 10*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_GROSSBRAND, 30*IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit * victim)
@@ -261,6 +267,15 @@ class boss_ragnaros_outdoor : public CreatureScript
                             case EVENT_ENRAGE:
                                 DoCast(SPELL_ENRAGE);
                                 break;
+                            case EVENT_FEURIGE_EINAESCHERUNG:
+                                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                                    DoCast(target, SPELL_FEURIGE_EINAESCHERUNG);
+                                events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS));
+                            case EVENT_GROSSBRAND:
+                                for (uint8 i=0; i<4; ++i)
+                                    if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                                        DoCast(target, SPELL_GROSSBRAND);
+                                    events.RescheduleEvent(EVENT_GROSSBRAND, urand(30*IN_MILLISECONDS,45*IN_MILLISECONDS));
                             default:
                                 break;
                         }
