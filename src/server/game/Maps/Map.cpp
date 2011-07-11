@@ -2272,6 +2272,17 @@ bool InstanceMap::Add(Player* player)
         //if (!CanEnter(player))
             //return false;
 
+        // Check for avoiding players to exploit the max instance caps by loging out
+        if(!player->isGameMaster())
+        {
+            sLog->outDetail("%s entered in %s. Current ammount of players %u/%u.",player->GetName(), GetMapName(), GetPlayersCountExceptGMs(), ToInstanceMap()->GetMaxPlayers());
+            if(GetPlayersCountExceptGMs() > ToInstanceMap()->GetMaxPlayers())
+            {
+                sLog->outDetail("%s was kicked from %s for suprassing the instance player limit", player->GetName(), GetMapName());
+                return false;
+            }
+        }
+
         // Dungeon only code
         if (IsDungeon())
         {
@@ -2306,6 +2317,7 @@ bool InstanceMap::Add(Player* player)
                 {
                     // solo saves should be reset when entering a group
                     InstanceGroupBind *groupBind = group->GetBoundInstance(this);
+
                     if (playerBind)
                     {
                         sLog->outError("InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d, %d, %d, %d but he is in group %d and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), GUID_LOPART(group->GetLeaderGUID()), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());

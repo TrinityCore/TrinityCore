@@ -64,7 +64,7 @@ const MinionData minionData[] =
 enum eEnums
 {
     GO_HORSEMEN_CHEST_HERO  = 193426,
-    GO_HORSEMEN_CHEST       = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE
+    GO_HORSEMEN_CHEST       = 181366,
     GO_GOTHIK_GATE          = 181170,
     GO_KELTHUZAD_PORTAL01   = 181402,
     GO_KELTHUZAD_PORTAL02   = 181403,
@@ -89,11 +89,10 @@ enum eEnums
     GO_ROOM_HORSEMEN        = 181119,
     GO_PASSAGE_SAPPHIRON    = 181225,
     GO_ROOM_KELTHUZAD       = 181228,
-    // Portals
-    GO_ARAC_PORTAL              = 181575,
-    GO_PLAG_PORTAL              = 181577,
-    GO_MILI_PORTAL              = 181578,
-    GO_CONS_PORTAL              = 181576,
+    GO_ARAC_PORTAL          = 181575,
+    GO_PLAG_PORTAL          = 181577,
+    GO_MILI_PORTAL          = 181578,
+    GO_CONS_PORTAL          = 181576,
 
     SPELL_ERUPTION          = 29371,
     SPELL_SLIME             = 28801
@@ -325,15 +324,19 @@ public:
                 case GO_KELTHUZAD_TRIGGER: uiKelthuzadTrigger = pGo->GetGUID(); break;
                case GO_ARAC_PORTAL:
                     AracPortalGUID = pGo->GetGUID();
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                case GO_PLAG_PORTAL:
                     PlagPortalGUID = pGo->GetGUID();
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case GO_MILI_PORTAL:
                     MiliPortalGUID = pGo->GetGUID();
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case GO_CONS_PORTAL:
                     ConsPortalGUID = pGo->GetGUID();
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case GO_ROOM_ANUBREKHAN:
                     uiNaxxDoors[DOOR_ROOM_ANUBREKHAN] = pGo->GetGUID();
@@ -522,7 +525,7 @@ public:
 				}
 				DoTaunt();
 				if (GameObject *pMiliPortal = instance->GetGameObject(MiliPortalGUID))
-					pMiliPortal->SetPhaseMask(2,true);
+					pMiliPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
             }
             if(state == DONE)
                 SaveToDB();
@@ -552,7 +555,8 @@ public:
                 HandleGameObject(uiNaxxDoors[DOOR_ROOM_MAEXXNA],state != IN_PROGRESS);
             if (state == DONE)
             {
-                DoRespawnGameObject(AracPortalGUID, 30*MINUTE);
+			if (GameObject *pAracPortal = instance->GetGameObject(AracPortalGUID))
+			    pAracPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 DoTaunt();
             }
                 break;
@@ -570,7 +574,8 @@ public:
             if (state == DONE)
             {
                 DoTaunt();
-                DoRespawnGameObject(PlagPortalGUID, 30*MINUTE);
+                if (GameObject* pConsPortal = instance->GetGameObject(ConsPortalGUID))
+                    pConsPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
             }
                 break;
             case BOSS_PATCHWERK:
@@ -588,7 +593,8 @@ public:
             if (state == DONE)
             {
                 DoTaunt();
-                DoRespawnGameObject(ConsPortalGUID, 30*MINUTE);
+                if (GameObject* pPlagPortal = instance->GetGameObject(PlagPortalGUID))
+                    pPlagPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
             }
                 break;
             case BOSS_RAZUVIOUS:
@@ -894,69 +900,42 @@ class mr_bigglesworth_npc : public CreatureScript
     };
 };
 
-class GOHello_go_naxxramas_portal_1 : public GameObjectScript
+class GOHello_go_naxxramas_portal : public GameObjectScript
 {
     public:
-        GOHello_go_naxxramas_portal_1()
-            : GameObjectScript("go_naxxramas_portal_1")
+        GOHello_go_naxxramas_portal()
+            : GameObjectScript("go_naxxramas_portal")
         {}
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        bool OnGossipHello(Player* player, GameObject* go)
         {
-            player->TeleportTo(533, 2991.641602f, -3448.677490f, 302.143555f, 3.918837f);
-            return false;
-        }
-};
-
-class GOHello_go_naxxramas_portal_2 : public GameObjectScript
-{
-    public:
-        GOHello_go_naxxramas_portal_2()
-            : GameObjectScript("go_naxxramas_portal_2")
-        {}
-
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
-        {
-            player->TeleportTo(533, 2991.436279f, -3419.952881f, 302.091003f, 2.357990f);
-            return false;
-        }
-};
-
-class GOHello_go_naxxramas_portal_3 : public GameObjectScript
-{
-    public:
-        GOHello_go_naxxramas_portal_3()
-            : GameObjectScript("go_naxxramas_portal_3")
-        {}
-
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
-        {
-            player->TeleportTo(533, 3019.996094f, -3420.144531f, 302.172424f, 0.838341f);
-            return false;
-        }
-};
-
-class GOHello_go_naxxramas_portal_4 : public GameObjectScript
-{
-    public:
-        GOHello_go_naxxramas_portal_4()
-            : GameObjectScript("go_naxxramas_portal_4")
-        {}
-
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
-        {
-            player->TeleportTo(533, 3020.147949f, -3448.787109f, 302.068481f, 5.503996f);
-            return false;
-        }
-};
+             switch (go->GetEntry())
+             {
+              	case GO_ARAC_PORTAL:
+                {
+                     player->TeleportTo(533, 3019.996094f, -3420.144531f, 302.172424f, 0.838341f);
+                }
+                case GO_PLAG_PORTAL:
+                {
+                     player->TeleportTo(533, 2991.641602f, -3448.677490f, 302.143555f, 3.918837f);
+                }
+                case GO_MILI_PORTAL:
+                {
+                     player->TeleportTo(533, 3020.147949f, -3448.787109f, 302.068481f, 5.503996f);
+                }
+                case GO_CONS_PORTAL:
+                {
+                     player->TeleportTo(533, 2991.436279f, -3419.952881f, 302.091003f, 2.357990f);
+                }
+             }
+             return true;
+         }
+ };
 
 void AddSC_instance_naxxramas()
 {
     new instance_naxxramas();
     new AreaTrigger_at_naxxramas_frostwyrm_wing();
-    new GOHello_go_naxxramas_portal_1();
-    new GOHello_go_naxxramas_portal_2();
-    new GOHello_go_naxxramas_portal_3();
-    new GOHello_go_naxxramas_portal_4();
+    new GOHello_go_naxxramas_portal();
     new mr_bigglesworth_npc();
 }

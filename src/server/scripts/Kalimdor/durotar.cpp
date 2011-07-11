@@ -508,6 +508,60 @@ class spell_voljin_war_drums : public SpellScriptLoader
         }
 };
 
+enum VoodooSpells
+{
+    SPELL_BREW = 16712, // Special Brew
+    SPELL_GHOSTLY = 16713, // Ghostly
+    SPELL_HEX1 = 16707, // Hex
+    SPELL_HEX2 = 16708, // Hex
+    SPELL_HEX3 = 16709, // Hex
+    SPELL_GROW = 16711, // Grow
+    SPELL_LAUNCH = 16716, // Launch (Whee!)
+};
+
+// 17009
+class spell_voodoo : public SpellScriptLoader
+{
+    public:
+        spell_voodoo() : SpellScriptLoader("spell_voodoo") {}
+
+        class spell_voodoo_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_voodoo_SpellScript)
+
+            bool Validate(SpellEntry const* /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_BREW) || !sSpellStore.LookupEntry(SPELL_GHOSTLY) ||
+                    !sSpellStore.LookupEntry(SPELL_HEX1) || !sSpellStore.LookupEntry(SPELL_HEX2) ||
+                    !sSpellStore.LookupEntry(SPELL_HEX3) || !sSpellStore.LookupEntry(SPELL_GROW) ||
+                    !sSpellStore.LookupEntry(SPELL_LAUNCH))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    caster->CastSpell(target, RAND(SPELL_BREW, SPELL_GHOSTLY,
+                            RAND(SPELL_HEX1, SPELL_HEX2, SPELL_HEX3),
+                            SPELL_GROW, SPELL_LAUNCH), false);
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_voodoo_SpellScript();
+        }
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
@@ -516,4 +570,5 @@ void AddSC_durotar()
     new npc_troll_volunteer();
     new spell_mount_check();
     new spell_voljin_war_drums();
+    new spell_voodoo();
 }
