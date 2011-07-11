@@ -1489,6 +1489,7 @@ public:
                                 }else
                                 {
                                     if(Creature* yogg = me->GetCreature(*me,guidYogg))
+									{
                                         yogg->CastSpell(yogg,SPELL_SUMMON_CURRUPTOR_TENTACLE,true);
                                     }
                                 }
