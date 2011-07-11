@@ -2384,7 +2384,7 @@ bool InstanceMap::Add(Player* player)
     // this will acquire the same mutex so it cannot be in the previous block
     Map::Add(player);
 
-	if (i_data)
+    if (i_data)
         i_data->OnPlayerEnter(player);
 
     return true;
