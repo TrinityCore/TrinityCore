@@ -233,6 +233,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 
     m_corpseRemoveTime = time(NULL);
     setDeathState(DEAD);
+    RemoveAllAuras();
     UpdateObjectVisibility();
     loot.clear();
     uint32 respawnDelay = m_respawnDelay;
@@ -470,11 +471,15 @@ void Creature::Update(uint32 diff)
         }
         case CORPSE:
         {
+            m_Events.Update(diff);
+            _UpdateSpells(diff);
+
+            // deathstate changed on spells update, prevent problems
+            if (m_deathState != CORPSE)
+                break;
+
             if (m_groupLootTimer && lootingGroupLowGUID)
             {
-                // for delayed spells
-                m_Events.Update(diff);
-
                 if (m_groupLootTimer <= diff)
                 {
                     Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
@@ -490,12 +495,6 @@ void Creature::Update(uint32 diff)
                 RemoveCorpse(false);
                 sLog->outStaticDebug("Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
             }
-            else
-            {
-                // for delayed spells
-                m_Events.Update(diff);
-            }
-
             break;
         }
         case ALIVE:
