@@ -22,6 +22,7 @@
 
 #define MAXSTARS                        4
 #define POINT_OUTRO                     1
+#define DATA_HERALD						2
 
 enum Factions
 {
@@ -153,6 +154,7 @@ enum Phase
 
 enum Actions
 {
+	ACTION_HERALD					= 0,
     ACTION_ALGALON_INTRO            = -123456,
     ACTION_BRANN_INTRO              = -123457,
     ACTION_BRANN_LEAVE              = -123458,
@@ -224,6 +226,7 @@ class boss_algalon : public CreatureScript
             bool sendreplycode;
             bool outro;
             bool respawning;
+			bool herald;
 
             void InitializeAI()
             {
@@ -264,6 +267,9 @@ class boss_algalon : public CreatureScript
             {
                 switch(actionId)
                 {
+				case ACTION_HERALD:
+					SetData(DATA_HERALD, 0);
+					break;
                 case ACTION_ALGALON_INTRO:
                     StartIntro(7000);
                     break;
@@ -288,6 +294,7 @@ class boss_algalon : public CreatureScript
                 sendreplycode = false;
                 outro = false;
                 respawning = false;
+				herald = true;
 
                 staramount = 0;
 
@@ -318,6 +325,27 @@ class boss_algalon : public CreatureScript
 
                 if (instance->GetData(DATA_ALGALON_INTRO) == IN_PROGRESS && instance->GetData(DATA_ALGALON_TIMER) != FAIL)
                     StartIntro(20000); // respawn in 20 Seconds.
+            }
+			
+			uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_HERALD:
+                        return herald ? 2 : 0;
+                }
+
+                return 0;
+            }
+
+			void SetData(uint32 id, uint32 data)
+            {
+               switch (id)
+               {
+                   case DATA_HERALD:
+                        herald = data ? true : false;
+                        break;
+               }
             }
 
             void DamageTaken(Unit * /*who*/, uint32 &Damage)
@@ -467,6 +495,38 @@ class boss_algalon : public CreatureScript
                     }
                 }
             }
+
+			void HandleHeraldAchievement()
+			{
+				uint32 playercount;
+				uint32 playermatchedreq;
+				playermatchedreq = 0;
+				playercount = 0;
+
+				if(me->GetMap() && me->GetMap()->IsDungeon())
+				{
+					Map::PlayerList const& players = me->GetMap()->GetPlayers();
+					if (!players.isEmpty())
+					{
+						for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+						{
+							playercount++;
+							if (Player* plr = itr->getSource())
+							{
+								if(plr->GetAverageItemLevel() <= 232)
+								{
+									playermatchedreq++;
+								}
+							}
+						}
+					}
+				}
+				if (playermatchedreq != playercount) // check if the whole raid have an average ilvl of 232 or less
+				{
+					Creature* Algalon = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_ALGALON));
+					Algalon->AI()->DoAction(ACTION_HERALD);
+				}
+			}
 
             void HandleTalkingSequences()
             {
@@ -749,6 +809,7 @@ class boss_algalon : public CreatureScript
 
                 if (Phase == PHASE_2 && HealthBelowPct(3))
                 {
+					HandleHeraldAchievement();
                     Phase = PHASE_INTRO;
                     summons.DespawnAll();
                     instance->SetData(DATA_ALGALON_TIMER, DONE);
@@ -1494,6 +1555,26 @@ class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
         }
 };
 
+class achievement_herald_of_the_titans : public AchievementCriteriaScript
+{
+    public:
+        achievement_herald_of_the_titans() : AchievementCriteriaScript("achievement_herald_of_the_titans")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Algalon = target->ToCreature())
+                if (Algalon->AI()->GetData(DATA_HERALD))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_algalon()
 {
     new boss_algalon();
@@ -1509,4 +1590,5 @@ void AddSC_boss_algalon()
     new spell_algalon_black_hole();
     new spell_algalon_cosmic_smash_initial();
     new go_celestial_console();
+	new achievement_herald_of_the_titans();
 }
