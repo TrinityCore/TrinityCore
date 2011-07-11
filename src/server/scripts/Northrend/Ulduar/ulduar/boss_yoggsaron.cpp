@@ -217,6 +217,7 @@ enum Actions
     ACTION_YOGGSARON_KILLED = 7,
     ACTION_DEATH_RAY_MOVE = 8,
     ACTION_USED_MINDCONTROL = 9,
+    ACTION_MODIFY_SANITY = 10,
 };
 
 enum Spells
@@ -323,7 +324,7 @@ enum Spells
 
     //  Immortal Guardian - under 1% no damage
     SPELL_DRAIN_LIFE_10                         = 64159,
-    SPELL_DRAIN_LIFE_25                         = 33988,
+    SPELL_DRAIN_LIFE_25                         = 64160,
 
     SPELL_WEAKENED                              = 64162, // Dummy on low health for Titan Storm and Shadow Beacon
     SPELL_EMPOWERED                             = 65294, // stacks 9 times ... on 100% hp it have 9 stacks .. but with <10% it havent any
@@ -1489,9 +1490,7 @@ public:
                                 }else
                                 {
                                     if(Creature* yogg = me->GetCreature(*me,guidYogg))
-									{
                                         yogg->CastSpell(yogg,SPELL_SUMMON_CURRUPTOR_TENTACLE,true);
-                                    }
                                 }
                                 uiTentacle_Timer =  uiBrainEvents_Count < 4 ? urand(5000,10000) : urand(2000,5000);
                             }else uiTentacle_Timer -= diff;
@@ -1611,7 +1610,7 @@ public:
                         {
                             if(Creature* yogg = me->GetCreature(*me,guidYogg))
                             {
-                                if(yogg->IsNonMeleeSpellCasted(false))
+                                if(!yogg->IsNonMeleeSpellCasted(false))
                                 {
                                     DoScriptText(SAY_DEAFENING_ROAR,yogg,0);
                                     yogg->CastSpell(yogg,SPELL_DEAFENING_ROAR,false);
@@ -1624,14 +1623,10 @@ public:
                     {
                         if(Creature* yogg = me->GetCreature(*me,guidYogg))
                         {
-                            if(yogg->IsNonMeleeSpellCasted(false))
+                            if(!yogg->IsNonMeleeSpellCasted(false))
                             {
-                                if(Creature* guard = GetRandomGuardianTarget())
-                                {
-                                    if(guard->HasAura(SPELL_WEAKENED))
-                                            yogg->CastSpell(guard,SPELL_SHADOW_BEACON,false);
-                                }
-                                uiShadowBeacon_Timer = 10000;
+                                yogg->CastSpell(yogg,SPELL_SHADOW_BEACON,false);
+                                uiShadowBeacon_Timer = 30000;
                             }
                         }
                     }else uiShadowBeacon_Timer -= diff;
@@ -1653,6 +1648,10 @@ public:
             }
 
             if(m_Phase != PHASE_NONE && !IsEncounterInProgress())
+                EnterEvadeMode();
+
+            // temporary
+            if (m_Phase == PHASE_NONE && me->isInCombat())
                 EnterEvadeMode();
         }
     };
@@ -1712,6 +1711,7 @@ public:
         void Reset()
         {
             DoCast(me,SPELL_OMINOUS_CLOUD_EFFECT,true);
+            me->RemoveAurasDueToSpell(SPELL_SUMMON_GUARDIAN);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             //me->SetReactState(REACT_PASSIVE); //Prevent MoveInLineOfSight
@@ -1892,7 +1892,7 @@ public:
         {
             DoZoneInCombat();
 
-            uiTentacleSpell_Timer = urand(10000,15000);
+            uiTentacleSpell_Timer = urand(5000,10000);
             switch(t_Type)
             {
             case CRUSHER_TENTACLE:
@@ -1982,6 +1982,7 @@ public:
         {
             if(pPlayer)
             {
+                pPlayer->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
                 pCreature->AddAura(SPELL_ILLUSION_ROOM,pPlayer);
                 pPlayer->NearTeleportTo(posTeleportPosition.m_positionX,posTeleportPosition.m_positionY,posTeleportPosition.m_positionZ,posTeleportPosition.m_orientation,true);
                 //pPlayer->CastSpell(pPlayer,SPELL_TELEPORT,true);
@@ -2308,7 +2309,7 @@ public:
             if(Unit* target = SelectPlayerTargetInRange(100.0f))
                 me->AI()->AttackStart(target);
 
-            uint32 uiDrainLife_Timer = 10000;
+            uiDrainLife_Timer = 10000;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -2330,11 +2331,8 @@ public:
             if(dealer->GetGUID() == me->GetGUID())
                 return;
 
-            if(HealthBelowPct(1))
-                damage = 0;
-
             if(me->GetHealth() < damage)
-                damage = 0;
+                damage = me->GetHealth()-1;
         }
 
         void UpdateAI(const uint32 diff)
@@ -3034,9 +3032,8 @@ class spell_summon_tentacle_position : public SpellScriptLoader
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {
                 WorldLocation summonPos = *GetTargetDest();
-                Position offset = {0.0f, 0.0f, 20.0f, 0.0f};
-                summonPos.RelocateOffset(offset);
-                SetTargetDest(summonPos);
+                if(Unit* caster = GetCaster())
+                    summonPos.m_positionZ = caster->GetMap()->GetHeight(summonPos.GetPositionX(),summonPos.GetPositionY(),summonPos.GetPositionZ(),true,50.0f);
             }
 
             void Register()
@@ -3375,13 +3372,14 @@ VALUES
 (64172,'spell_titanic_storm_targeting');
 
 -- Condition because NPCs need this else no hit
-DELETE FROM conditions WHERE SourceEntry = 64172;
+DELETE FROM conditions WHERE SourceEntry in (64172,64465);
 INSERT INTO conditions
 (SourceTypeOrReferenceId,SourceGroup,SourceEntry,ElseGroup,
  ConditionTypeOrReference,ConditionValue1,ConditionValue2,ConditionValue3,
  ErrorTextId,ScriptName,COMMENT)
 VALUES
-(13,0,64172,0,18,1,33988,0,0,'','Effekt only for Immortal Guardians');
+(13,0,64172,0,18,1,33988,0,0,'','Effekt only for Immortal Guardians'),
+(13,0,64465,0,18,1,33988,0,0,'','Effekt only for Immortal Guardians');
 
 -- Hodir Secound Aura Script
 DELETE FROM spell_script_names WHERE spell_id IN (64174);
