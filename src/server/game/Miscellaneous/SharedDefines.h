@@ -341,7 +341,7 @@ enum SpellAttr2
     SPELL_ATTR2_UNK3                             = 0x00000008, //  3
     SPELL_ATTR2_ALWAYS_APPLY_MODIFIERS           = 0x00000010, //  4 ? spell modifiers are applied dynamically (even if aura is not passive)
     SPELL_ATTR2_AUTOREPEAT_FLAG                  = 0x00000020, //  5
-    SPELL_ATTR2_UNK6                             = 0x00000040, //  6
+    SPELL_ATTR2_CANT_TARGET_TAPPED               = 0x00000040, //  6 target must be tapped by caster
     SPELL_ATTR2_UNK7                             = 0x00000080, //  7
     SPELL_ATTR2_UNK8                             = 0x00000100, //  8 not set in 3.0.3
     SPELL_ATTR2_UNK9                             = 0x00000200, //  9
