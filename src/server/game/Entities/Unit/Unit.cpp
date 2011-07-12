@@ -10166,6 +10166,9 @@ Unit* Unit::SelectMagnetTarget(Unit* victim, SpellEntry const *spellInfo)
     // Magic case
     if (spellInfo && (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
     {
+        // Patch 1.2 notes: Spell Reflection no longer reflects abilities
+        if (spellInfo->Attributes & SPELL_ATTR0_ABILITY)
+            return victim;
         // I am not sure if this should be redirected.
         if (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
             return victim;
@@ -15745,10 +15748,10 @@ void Unit::SetStunned(bool apply)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         // MOVEMENTFLAG_ROOT cannot be used in conjunction with
-        // MOVEMENTFLAG_FORWARD, MOVEMENTFLAG_BACKWARD, MOVEMENTFLAG_STRAFE_LEFT, MOVEMENTFLAG_STRAFE RIGHT (tested 3.3.5a)
+        // MOVEMENTFLAG_FORWARD, MOVEMENTFLAG_BACKWARD, MOVEMENTFLAG_STRAFE_LEFT, MOVEMENTFLAG_STRAFE RIGHT, MOVEMENTFLAG_FALLING (tested 3.3.5a)
         // this will freeze clients. That's why we remove any current movement flags before
         // setting MOVEMENTFLAG_ROOT
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FALLING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         // Creature specific
@@ -15794,10 +15797,10 @@ void Unit::SetRooted(bool apply)
             m_rootTimes++;
 
         // MOVEMENTFLAG_ROOT cannot be used in conjunction with
-        // MOVEMENTFLAG_FORWARD, MOVEMENTFLAG_BACKWARD, MOVEMENTFLAG_STRAFE_LEFT, MOVEMENTFLAG_STRAFE RIGHT (tested 3.3.5a)
+        // MOVEMENTFLAG_FORWARD, MOVEMENTFLAG_BACKWARD, MOVEMENTFLAG_STRAFE_LEFT, MOVEMENTFLAG_STRAFE RIGHT, MOVEMENTFLAG_FALLING (tested 3.3.5a)
         // this will freeze clients. That's why we remove any current movement flags before
         // setting MOVEMENTFLAG_ROOT
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FALLING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         if (GetTypeId() == TYPEID_PLAYER)
