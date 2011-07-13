@@ -84,6 +84,8 @@ class AuraEffect
         void SendTickImmune(Unit* target, Unit *caster) const;
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
 
+        void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+
         void CleanupTriggeredSpells(Unit* target);
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
@@ -288,6 +290,13 @@ class AuraEffect
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
+
+        // aura effect proc handlers
+        void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 };
 
 namespace Trinity
