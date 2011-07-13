@@ -526,28 +526,11 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
 
     m_channelTargetEffectMask = 0;
 
-    // determine reflection
-    m_canReflect = false;
-
+    // Determine if spell can be reflected back to the caster
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
-    if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !IsAreaOfEffectSpell(m_spellInfo) && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CANT_REFLECTED) && !(m_spellInfo->Attributes & SPELL_ATTR0_ABILITY))
-    {
-        for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
-        {
-            if (m_spellInfo->Effect[j] == 0)
-                continue;
-
-            if (!IsPositiveTarget(m_spellInfo->EffectImplicitTargetA[j], m_spellInfo->EffectImplicitTargetB[j]))
-                m_canReflect = true;
-            else
-                m_canReflect = (m_spellInfo->AttributesEx & SPELL_ATTR1_NEGATIVE) ? true : false;
-
-            if (m_canReflect)
-                continue;
-            else
-                break;
-        }
-    }
+    m_canReflect = m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !(m_spellInfo->Attributes & SPELL_ATTR0_ABILITY) 
+        && !(m_spellInfo->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED) && !(m_spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+        && !IsPassiveSpell(m_spellInfo) && !IsPositiveSpell(m_spellInfo->Id);
 
     CleanupTargetList();
     CleanupEffectExecuteData();
