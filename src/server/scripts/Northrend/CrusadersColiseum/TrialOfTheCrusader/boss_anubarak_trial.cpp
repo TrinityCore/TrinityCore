@@ -160,6 +160,7 @@ public:
         bool   m_bReachedPhase3;
         uint64 m_uiTargetGUID;
         uint8  m_uiScarabSummoned;
+		uint64 m_uiSpikeGUID;
 
         void Reset()
         {
@@ -234,6 +235,7 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
+					m_uiSpikeGUID = summoned->GetGUID();
                     DoScriptText(EMOTE_SPIKE, me, target);
                     break;
             }
@@ -354,6 +356,8 @@ public:
                 case 3:
                     m_uiStage = 0;
                     DoCast(SPELL_SPIKE_TELE);
+					if (Creature* pSpike = Unit::GetCreature(*me, m_uiSpikeGUID))
+                        me->NearTeleportTo(pSpike->GetPositionX(), pSpike->GetPositionY(), pSpike->GetPositionZ(), pSpike->GetOrientation());
                     Summons.DespawnEntry(NPC_SPIKE);
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -622,8 +626,8 @@ public:
                     me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
                     me->SetDisplayId(11686);
                     me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+					DoCast(SPELL_PERMAFROST);
                     DoCast(SPELL_PERMAFROST_VISUAL);
-                    DoCast(SPELL_PERMAFROST);
                 } else m_uiPermafrostTimer -= uiDiff;
             }
         }
@@ -660,13 +664,6 @@ public:
             m_uiTargetGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit* _who)
-        {
-
-            _who = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0F, true, 0); 
-            AttackStart(_who);
-        }
-
         void EnterCombat(Unit* who)
         {
             m_uiTargetGUID = who->GetGUID();
@@ -685,12 +682,32 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
+            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) && target->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
-                    pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
-                me->DisappearAndDie();
-                return;
+                DoZoneInCombat();
+                if (target = SelectTarget(SELECT_TARGET_RANDOM))
+                {
+                    DoCast(target,SPELL_MARK);
+                    me->TauntApply(target);
+                    m_uiTargetGUID = target->GetGUID();
+                }
+            }
+
+            if (Creature* pFrostSphere = me->FindNearestCreature(NPC_FROST_SPHERE, 4.0f))
+            {
+                if (pFrostSphere->HasAura(SPELL_PERMAFROST_VISUAL))
+                {
+                    if (Creature* pAnubarak = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_ANUBARAK)))
+                    {
+                        pAnubarak->CastSpell(pAnubarak,SPELL_SPIKE_TELE,false);
+                        pAnubarak->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+                    }
+                    if (DynamicObject* pDynObject = pFrostSphere->GetDynObject(66193))
+                        pDynObject->Remove();
+                    pFrostSphere->DisappearAndDie();
+                    me->DisappearAndDie();
+                    return;
+                }
             }
 
             if (m_uiIncreaseSpeedTimer)

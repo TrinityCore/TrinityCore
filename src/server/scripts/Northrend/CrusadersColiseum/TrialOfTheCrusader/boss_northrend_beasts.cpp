@@ -84,12 +84,14 @@ enum BossSpells
 
     //Acidmaw & Dreadscale
     SPELL_ACID_SPIT         = 66880,
+	SPELL_PARALYTIC_TOXIN   = 66823,
     SPELL_PARALYTIC_SPRAY   = 66901,
     SPELL_ACID_SPEW         = 66819,
     SPELL_PARALYTIC_BITE    = 66824,
     SPELL_SWEEP_0           = 66794,
     SUMMON_SLIME_POOL       = 66883,
     SPELL_FIRE_SPIT         = 66796,
+	SPELL_BURNING_BILE      = 66869,
     SPELL_MOLTEN_SPEW       = 66821,
     SPELL_BURNING_BITE      = 66879,
     SPELL_BURNING_SPRAY     = 66902,
@@ -450,6 +452,11 @@ struct boss_jormungarAI : public ScriptedAI
                 if (biteTimer <= uiDiff)
                 {
                     DoCastVictim(biteSpell);
+					Unit* victim = me->getVictim();
+					if (victim && biteSpell == SPELL_BURNING_BITE && victim->HasAura(SPELL_PARALYTIC_TOXIN))
+						victim->RemoveAura(SPELL_PARALYTIC_TOXIN);
+					if (victim && biteSpell == SPELL_PARALYTIC_BITE && victim->HasAura(SPELL_BURNING_BILE))
+						victim->RemoveAura(SPELL_BURNING_BILE);
                     biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else biteTimer -= uiDiff;
 
@@ -501,8 +508,12 @@ struct boss_jormungarAI : public ScriptedAI
             case 4: // Stationary
                 if (sprayTimer <= uiDiff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, spraySpell);
+					Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+					DoCast(target, spraySpell);
+					if (target && spraySpell == SPELL_BURNING_SPRAY && target->HasAura(SPELL_PARALYTIC_TOXIN))
+						target->RemoveAura(SPELL_PARALYTIC_TOXIN);
+					if (target && spraySpell == SPELL_PARALYTIC_SPRAY && target->HasAura(SPELL_BURNING_BILE))
+						target->RemoveAura(SPELL_BURNING_BILE);
                     sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else sprayTimer -= uiDiff;
 
