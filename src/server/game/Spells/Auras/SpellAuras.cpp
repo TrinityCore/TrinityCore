@@ -193,8 +193,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
         flags |= AFLAG_DURATION;
     data << uint8(flags);
     data << uint8(aura->GetCasterLevel());
+    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetStackAmount() > 1 ? aura->GetStackAmount() : (aura->IsUsingCharges()) ? aura->GetCharges() : 0);
+    data << uint8(aura->GetSpellProto()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
 
     if (!(flags & AFLAG_CASTER))
         data.appendPackGUID(aura->GetCasterGUID());
