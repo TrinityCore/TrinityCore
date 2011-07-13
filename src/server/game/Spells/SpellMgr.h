@@ -777,7 +777,7 @@ struct SpellProcEntry
     uint32      attributesMask;                             // bitmask, see ProcAttributes
     float       ratePerMinute;                              // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
     float       chance;                                     // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if perMinuteRate set
-    float       cooldown;                                   // if nonzero - cooldown in secs for aura proc, applied to aura
+    uint32      cooldown;                                   // if nonzero - cooldown in secs for aura proc, applied to aura
     uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
@@ -1155,6 +1155,17 @@ class SpellMgr
 
             return itr->second;
         }
+
+        // spell proc table
+        SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const
+        {
+            SpellProcMap::const_iterator itr = mSpellProcMap.find(spellId);
+            if (itr != mSpellProcMap.end())
+                return &itr->second;
+            return NULL;
+        }
+
+        bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
 
         // Spell proc events
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const
