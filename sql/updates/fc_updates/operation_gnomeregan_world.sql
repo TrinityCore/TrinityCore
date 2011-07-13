@@ -55,9 +55,9 @@ UPDATE `creature_template` SET `spell1` = '74157', `spell2` = '74159', `spell3` 
 ######*/
 
 UPDATE `creature_template` SET `spell4` = '74174', `spell6` = '74153' WHERE `entry` = '39714';
-/*DELETE FROM `spell_script_names` WHERE spell_id = '74182';
-INSERT INTO `spell_script_names` VALUES
-('74182', 'spell_shoot');*/
+UPDATE `creature_template` SET `ScriptName` = 'npc_shoot_bunny' WHERE `entry` = '39707';
+DELETE FROM `spell_scripts` WHERE `id` = '74182';
+INSERT INTO `spell_scripts` (`id`, `command`, `datalong`, `datalong2`) VALUES ('74182', '15', '74179', '2');
 
 /*######
 ## Vent Horizon
@@ -68,6 +68,23 @@ DELETE FROM `creature_template_addon` WHERE (`entry` = '39420');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39420', '0', '0', '65536', '1', '0', '75779');
 UPDATE `creature_template` SET `scale` = '2' WHERE `entry` = '39420';
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES ('13', '73082', '18', '1', '39420');
+
+/*######
+## Prepping the Speech
+######*/
+
+UPDATE `quest_template` SET `PrevQuestId` = '25283', `NextQuestId` = '25287' WHERE `entry` = '25286';
+UPDATE `quest_template` SET `NextQuestId` = '25286' WHERE `entry` = '25283';
+UPDATE `creature_template` SET `ScriptName` = 'npc_mekkatorque', `scale` = '0.6', `unit_flags` = '33554752' WHERE `entry` = '39712';
+DELETE FROM `creature_template_addon` WHERE (`entry` = '39712');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39712', '0', '0', '0', '0', '0', '8326');
+--Cleanup [delete unused quest]
+DELETE FROM `quest_template` WHERE (`entry` = '25500');
+DELETE FROM `creature_questrelation` WHERE (`quest` = '25500');
+DELETE FROM `gameobject_questrelation` WHERE (`quest` = '25500');
+DELETE FROM `creature_involvedrelation` WHERE (`quest` = '25500');
+DELETE FROM `gameobject_involvedrelation` WHERE (`quest` = '25500');
+DELETE FROM `areatrigger_involvedrelation` WHERE (`quest` = '25500');
 
 /*######
 ## Operation 'Gnomeregan'
