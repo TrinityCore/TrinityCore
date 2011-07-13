@@ -200,7 +200,7 @@ class boss_sindragosa : public CreatureScript
             {
                 Cleanup();
                 BossAI::Reset();
-                me->SetReactState(REACT_DEFENSIVE);
+                //me->SetReactState(REACT_DEFENSIVE);
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
@@ -324,7 +324,7 @@ class boss_sindragosa : public CreatureScript
                     case POINT_LAND:
                         me->SetFlying(false);
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        me->SetReactState(REACT_DEFENSIVE);
+                        //me->SetReactState(REACT_DEFENSIVE);
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
                         DoStartMovement(me->getVictim());
@@ -678,7 +678,7 @@ class npc_spinestalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
                 _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
-                me->SetReactState(REACT_DEFENSIVE);
+                //me->SetReactState(REACT_DEFENSIVE);
 
                 if (_instance->GetData(DATA_SPINESTALKER) != 255)
                 {
@@ -792,7 +792,7 @@ class npc_rimefang : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
                 _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
-                me->SetReactState(REACT_DEFENSIVE);
+                //me->SetReactState(REACT_DEFENSIVE);
                 _icyBlastCounter = 0;
 
                 if (_instance->GetData(DATA_RIMEFANG) != 255)
@@ -893,7 +893,7 @@ class npc_rimefang : public CreatureScript
                             }
                             else if (Unit* victim = me->SelectVictim())
                             {
-                                me->SetReactState(REACT_DEFENSIVE);
+                                //me->SetReactState(REACT_DEFENSIVE);
                                 AttackStart(victim);
                                 me->SetFlying(false);
                             }
