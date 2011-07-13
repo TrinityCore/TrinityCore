@@ -1141,7 +1141,6 @@ void World::LoadConfigSettings(bool reload)
     bool enableHeight = sConfig->GetBoolDefault("vmap.enableHeight", true);
     bool enablePetLOS = sConfig->GetBoolDefault("vmap.petLOS", true);
     std::string ignoreSpellIds = sConfig->GetStringDefault("vmap.ignoreSpellIds", "");
-    std::string ignoreMapIds = sConfig->GetStringDefault("vmap.ignoreMapIds", "");
 
     if (!enableHeight)
         sLog->outError("VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
@@ -1149,11 +1148,8 @@ void World::LoadConfigSettings(bool reload)
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
     VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
-    VMAP::VMapFactory::createOrGetVMapManager()->preventMapsFromBeingUsed(ignoreMapIds.c_str());
-
     sLog->outString("WORLD: VMap support included. LineOfSight:%i, getHeight:%i, indoorCheck:%i PetLOS:%i", enableLOS, enableHeight, enableIndoor, enablePetLOS);
     sLog->outString("WORLD: VMap data directory is: %svmaps", m_dataPath.c_str());
-    sLog->outString("WORLD: VMap config keys are: vmap.enableLOS, vmap.enableHeight, vmap.ignoreMapIds, vmap.ignoreSpellIds");
 
     m_int_configs[CONFIG_MAX_WHO] = sConfig->GetIntDefault("MaxWhoListReturns", 49);
     m_bool_configs[CONFIG_PET_LOS] = sConfig->GetBoolDefault("vmap.petLOS", true);
