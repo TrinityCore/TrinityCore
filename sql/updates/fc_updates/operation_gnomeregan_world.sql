@@ -67,6 +67,7 @@ UPDATE `conditions` SET `ConditionValue1` = '25212' WHERE (`SourceTypeOrReferenc
 DELETE FROM `creature_template_addon` WHERE (`entry` = '39420');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39420', '0', '0', '65536', '1', '0', '75779');
 UPDATE `creature_template` SET `scale` = '2' WHERE `entry` = '39420';
+DELETE FROM `conditions` WHERE `SourceEntry`=73082;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES ('13', '73082', '18', '1', '39420');
 
 /*######
@@ -78,7 +79,7 @@ UPDATE `quest_template` SET `NextQuestId` = '25286' WHERE `entry` = '25283';
 UPDATE `creature_template` SET `ScriptName` = 'npc_mekkatorque', `scale` = '0.6', `unit_flags` = '33554752' WHERE `entry` = '39712';
 DELETE FROM `creature_template_addon` WHERE (`entry` = '39712');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39712', '0', '0', '0', '0', '0', '8326');
---Cleanup [delete unused quest]
+-- Cleanup [delete unused quest]
 DELETE FROM `quest_template` WHERE (`entry` = '25500');
 DELETE FROM `creature_questrelation` WHERE (`quest` = '25500');
 DELETE FROM `gameobject_questrelation` WHERE (`quest` = '25500');
