@@ -723,28 +723,20 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         Player* killer = ToPlayer();
 
         // in bg, count dmg if victim is also a player
-<<<<<<< HEAD
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-=======
+
         if (victim->GetTypeId() == TYPEID_PLAYER)
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
+        {
             if (Battleground *bg = killer->GetBattleground())
             {
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
-<<<<<<< HEAD
                 /** World of Warcraft Armory **/
                 if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
-                    if (Battleground *bgV = ((Player*)pVictim)->GetBattleground())
-                        bgV->UpdatePlayerScore(((Player*)pVictim), SCORE_DAMAGE_TAKEN, damage);
+                    if (Battleground *bgV = ((Player*)victim)->GetBattleground())
+                        bgV->UpdatePlayerScore(((Player*)victim), SCORE_DAMAGE_TAKEN, damage);
                 /** World of Warcraft Armory **/
             }
         }
-        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, pVictim);
-=======
-
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, victim);
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
     }
 
@@ -2806,12 +2798,7 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
     else
         crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
-<<<<<<< HEAD
-    crit += pVictim->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-    crit += pVictim->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-=======
     crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
 
     // reduce crit chance from Rating for players
     if (attackType != RANGED_ATTACK)
@@ -5082,11 +5069,7 @@ bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 33735:
                 {
                     target = SelectNearbyTarget();
-<<<<<<< HEAD
-                    if (!target)
-=======
                     if (!target || target == victim)
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
                         return false;
                     basepoints0 = damage;
                     triggered_spell_id = 22482;
@@ -6077,11 +6060,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return false;
 
                 target = SelectNearbyTarget();
-<<<<<<< HEAD
-                if (!target)
-=======
                 if (!target || target == victim)
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
                     return false;
 
                 CastSpell(target, 58567, true);
@@ -6814,13 +6793,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 25742;
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
-<<<<<<< HEAD
-                             SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, pVictim);
-                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + holy * 0.044f) / 1000;
-=======
                              SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, victim);
                 basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + 0.044f * holy) / 1000;
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
                 break;
             }
             // Light's Beacon - Beacon of Light
@@ -7130,7 +7104,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 case 199997: // Divine Storm Helper (SERVERSIDE)
                 {
-                    if (pVictim == this)
+                    if (victim == this)
                         return false;
 
                     triggeredByAura->SetAmount(triggeredByAura->GetAmount() + damage);
@@ -10342,18 +10316,13 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
 
     if (Player* player = victim->ToPlayer())
     {
-<<<<<<< HEAD
-        pVictim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED, gain);
-        pVictim->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);
-        /** World of Warcraft Armory **/
-        if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
-            if (Battleground *bgV = pVictim->ToPlayer()->GetBattleground())
-                bgV->UpdatePlayerScore((Player*)pVictim, SCORE_HEALING_TAKEN, gain);
-        /** World of Warcraft Armory **/
-=======
         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED, gain);
         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
+        /** World of Warcraft Armory **/
+        if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+            if (Battleground *bgV = victim->ToPlayer()->GetBattleground())
+                bgV->UpdatePlayerScore((Player*)victim, SCORE_HEALING_TAKEN, gain);
+        /** World of Warcraft Armory **/
     }
 
     return gain;
@@ -11189,14 +11158,8 @@ bool Unit::isSpellCrit(Unit* victim, SpellEntry const* spellProto, SpellSchoolMa
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
-<<<<<<< HEAD
-                    crit_chance += pVictim->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-                    crit_chance += pVictim->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-                    ApplyResilience(pVictim, &crit_chance, NULL, false, CR_CRIT_TAKEN_SPELL);
-=======
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
                     ApplyResilience(victim, &crit_chance, NULL, false, CR_CRIT_TAKEN_SPELL);
->>>>>>> 2400a8a1dd9d1b58e21562834e600517b9e703e2
                 }
                 // scripted (increase crit chance ... against ... target by x%
                 AuraEffectList const& mOverrideClassScript = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
