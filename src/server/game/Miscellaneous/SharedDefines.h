@@ -308,7 +308,7 @@ enum SpellAttr1
     SPELL_ATTR1_CHANNELED_2                      = 0x00000040, //  6
     SPELL_ATTR1_NEGATIVE                         = 0x00000080, //  7
     SPELL_ATTR1_NOT_IN_COMBAT_TARGET             = 0x00000100, //  8 Spell req target not to be in combat state
-    SPELL_ATTR1_MELEE_COMBAT_SPELL               = 0x00000200, //  9 spells with this flag can be cast only if caster is able to melee attack target
+    SPELL_ATTR1_MELEE_COMBAT_SPELL               = 0x00000200, //  9 player starts melee combat after this spell is cast
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
     SPELL_ATTR1_UNK12                            = 0x00001000, // 12
@@ -365,7 +365,7 @@ enum SpellAttr2
     SPELL_ATTR2_UNK27                            = 0x08000000, // 27
     SPELL_ATTR2_UNK28                            = 0x10000000, // 28 no breaks stealth if it fails??
     SPELL_ATTR2_CANT_CRIT                        = 0x20000000, // 29 Spell can't crit
-    SPELL_ATTR2_TRIGGERED_CAN_TRIGGER            = 0x40000000, // 30 spell can trigger even if triggered
+    SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC       = 0x40000000, // 30 spell can trigger even if triggered
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
 };
 
@@ -380,14 +380,14 @@ enum SpellAttr3
     SPELL_ATTR3_UNK6                             = 0x00000040, //  6
     SPELL_ATTR3_STACK_FOR_DIFF_CASTERS           = 0x00000080, //  7 separate stack for every caster
     SPELL_ATTR3_PLAYERS_ONLY                     = 0x00000100, //  8 Player only?
-    SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_2          = 0x00000200, //  9 triggered from effect?
+    SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2     = 0x00000200, //  9 triggered from effect?
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
     SPELL_ATTR3_REQUIRE_DEAD_TARGET              = 0x00001000, // 12
     SPELL_ATTR3_UNK13                            = 0x00002000, // 13
     SPELL_ATTR3_UNK14                            = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
-    SPELL_ATTR3_UNK16                            = 0x00010000, // 16 no triggers effects that trigger on casting a spell?? (15290 - 2.2ptr change)
+    SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
     SPELL_ATTR3_NO_INITIAL_AGGRO                 = 0x00020000, // 17 Soothe Animal, 39758, Mind Soothe
     SPELL_ATTR3_IGNORE_HIT_RESULT                = 0x00040000, // 18 Spell should always hit its target
     SPELL_ATTR3_DISABLE_PROC                     = 0x00080000, // 19 during aura proc no spells can trigger (20178, 20375)
@@ -397,7 +397,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
     SPELL_ATTR3_UNK25                            = 0x02000000, // 25 no cause spell pushback ?
-    SPELL_ATTR3_CAN_PROC_TRIGGERED               = 0x04000000, // 26
+    SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
     SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?
