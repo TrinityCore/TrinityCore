@@ -57,9 +57,9 @@ UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=27990;
 UPDATE `creature_template` SET `gossip_menu_id`=10192 WHERE `entry`=26917;
 UPDATE `creature_template` SET `gossip_menu_id`=10199 WHERE `entry`=27990;
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=10199;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`action_script_id`,`box_coded`,`box_money`,`box_text`) VALUES
-(10199,0,0,'What do you know of ancient swords?',1,1,0,0,0,0,0,''),
-(10199,1,0,'What do you know of ancient swords?',1,1,0,0,0,0,0,'');
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
+(10199,0,0,'What do you know of ancient swords?',1,1,0,0,0,0,''),
+(10199,1,0,'What do you know of ancient swords?',1,1,0,0,0,0,'');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10199;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
