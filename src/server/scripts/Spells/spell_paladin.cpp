@@ -267,8 +267,9 @@ public:
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Player* caster = GetCaster()->ToPlayer())
-                caster->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
+            if (Unit* caster = GetCaster())
+                if (caster->ToPlayer())
+                    caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
         }
 
         void Register()
