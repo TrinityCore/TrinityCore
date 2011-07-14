@@ -95,6 +95,8 @@ public:
 
     JailMap const & HoleJailMap() const { return m_JailMap; }
     void AktualisiereJailMap(uint32 guid, JailEintragStruktur & JES) { m_JailMap[guid] = JES; };
+
+    void GildenhausWache(Player * chr);
 };
 
 #define sJail ACE_Singleton<Jail, ACE_Null_Mutex>::instance()

@@ -1563,6 +1563,9 @@ void Player::Update(uint32 p_time)
     if (m_Jailed)
         sJail->Kontrolle(this, true);
 
+    // Gildenhaus Kontrolle
+    sJail->GildenhausWache(this);
+
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -17098,7 +17101,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
-    // Jail von WarHEad
+    // Jail von WarHead
     JailDatenLaden();
 
     return true;

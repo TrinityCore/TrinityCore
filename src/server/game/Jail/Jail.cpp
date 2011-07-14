@@ -892,6 +892,70 @@ void Jail::BannAccount(uint32 acc_id, uint32 guid, Player * chr)
     }
 }
 
+void Jail::GildenhausWache(Player * chr)
+{
+    if (!chr || !chr->isValid() || !chr->IsInWorld() || chr->GetSession()->GetSecurity() > SEC_VETERAN)
+        return;
+
+    if (chr->GetMapId() != 1)
+        return;
+
+    if ((chr->GetPositionX() > 16185.0f && chr->GetPositionX() < 16348.0f) && (chr->GetPositionY() > 16171.0f && chr->GetPositionY() < 16403.0f))
+        if (chr->GetGuildId() != sWorld->getIntConfig(CONFIG_GILDEN_ID))
+        {
+            time_t localtime = time(NULL);
+            uint32 release = uint32(localtime + (12 * HOUR));
+
+            chr->m_Jailed = true;
+            chr->m_JailRelease = release;
+            chr->m_JailGrund = "Aufenthalt im Gildenhaus-Bereich, ohne der Gilde anzugehören, die dieses zur Zeit besitzt.";
+            chr->m_JailGMAcc = m_JailKonf.GMAcc;
+            chr->m_JailGMChar = m_JailKonf.GMChar;
+            chr->m_JailDauer = 12;
+
+            ++chr->m_JailAnzahl;
+
+            chr->JailDatenSpeichern();
+
+            ChatHandler(chr).PSendSysMessage(LANG_JAIL_YOURE_JAILED, m_JailKonf.GMChar.c_str(), 12);
+            ChatHandler(chr).PSendSysMessage(LANG_JAIL_REASON, m_JailKonf.GMChar.c_str(), chr->m_JailGrund.c_str());
+
+            std::string announce1;
+            std::string announce2;
+
+            announce1.append("Der Charakter ");
+            announce1.append(chr->GetName());
+            announce1.append(" wurde von ");
+            announce1.append(m_JailKonf.GMChar.c_str());
+            announce1.append(" eingebuchtet.");
+            announce2.append("Der Grund: ");
+            announce2.append(chr->m_JailGrund.c_str());
+
+            sWorld->SendServerMessage(SERVER_MSG_STRING, announce1.c_str());
+            sWorld->SendServerMessage(SERVER_MSG_STRING, announce2.c_str());
+
+            // Nur wenn m_MaxJails gesetzt ist, hier hinein gehen!
+            if (m_JailKonf.MaxJails && m_JailKonf.MaxJails == chr->m_JailAnzahl)
+            {
+                uint64 GUID = chr->GetGUID();
+                uint32 acc = chr->GetSession()->GetAccountId();
+
+                if (m_JailKonf.DelChar)
+                {
+                    chr->GetSession()->KickPlayer();
+                    chr = NULL; // chr wird durch KickPlayer() ungültig!
+                    Player::DeleteFromDB(GUID, acc);
+                }
+
+                if (m_JailKonf.BanAcc)
+                    if (chr)
+                        BannAccount(acc, GUID_LOPART(GUID), chr);
+                    else
+                        BannAccount(acc, GUID_LOPART(GUID));
+            }
+        }
+}
+
 char const * Jail::fmtstring(char const * format, ...)
 {
     va_list     argptr;
