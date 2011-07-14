@@ -820,3 +820,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id` = 58597;
 INSERT INTO `spell_script_names` VALUES
 (58597, 'spell_pal_sacred_shield');
+
+-- Typo fix sor scriptname
+DELETE FROM `spell_script_names` WHERE `spell_id`= 47496;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(47496, 'spell_dk_ghoul_explode');
+ 
