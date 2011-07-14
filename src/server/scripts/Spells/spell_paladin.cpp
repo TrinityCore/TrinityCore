@@ -263,14 +263,10 @@ public:
             return true;
         }
 
-        bool Load()
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetCaster()->ToPlayer()->AddSpellCooldown(58597, 0, time(NULL) + 6);
+            if (Unit* caster = GetCaster())
+                caster->ToPlayer()->AddSpellCooldown(58597, 0, time(NULL) + 6);
         }
 
         void Register()
