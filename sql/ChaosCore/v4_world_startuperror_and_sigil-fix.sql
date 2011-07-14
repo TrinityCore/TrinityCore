@@ -14,6 +14,7 @@ UPDATE `conditions` SET `SourceGroup` = 26967 WHERE SourceEntry = 45816; -- Mimi
 UPDATE `gameobject_loot_template` SET `lootmode` = 1 WHERE `item` IN (45788,45814) AND `entry` IN (27081,26962);
 -- Add Condition for hodirs sigil drop
 DELETE FROM `conditions` WHERE `SourceEntry` = 45786;
+DELETE FROM `conditions` WHERE `SourceEntry` = 45815;
 INSERT INTO `conditions` VALUES
 (4,27069,45786,0,9,13609,0,0,0,'',NULL),
 (4,26950,45815,0,9,13822,0,0,0,'',NULL);
