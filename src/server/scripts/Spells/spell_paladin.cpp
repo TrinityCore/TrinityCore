@@ -29,6 +29,8 @@ enum PaladinSpells
     PALADIN_SPELL_DIVINE_PLEA                    = 54428,
     PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF     = 67480,
 
+    PALADIN_SPELL_SACRED_SHIELD_EFFECT           = 58597,
+
     PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER   = 20912,
 
     PALADIN_SPELL_HOLY_SHOCK_R1                  = 20473,
@@ -258,15 +260,15 @@ public:
         PrepareAuraScript(spell_pal_sacred_shield_AuraScript)
         bool Validate(SpellEntry const* /*entry*/)
         {
-            if (!sSpellStore.LookupEntry(58597))
+            if (!sSpellStore.LookupEntry(PALADIN_SPELL_SACRED_SHIELD_EFFECT))
                 return false;
             return true;
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Unit* caster = GetCaster())
-                caster->ToPlayer()->AddSpellCooldown(58597, 0, time(NULL) + 6);
+            if (Player* caster = GetCaster()->ToPlayer())
+                caster->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
         }
 
         void Register()
