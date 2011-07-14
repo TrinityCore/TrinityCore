@@ -2167,7 +2167,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
         return;
 
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
-    if (m_spellInfo->ManaCostPercentage)
+    if (m_spellInfo->Id == 8129)
     {
         int32 maxDamage = int32(CalculatePctN(m_caster->GetMaxPower(powerType), damage * 2));
         damage = int32(CalculatePctN(unitTarget->GetMaxPower(powerType), damage));
@@ -3171,11 +3171,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         {
             if (aura->GetSpellProto()->Dispel == DISPEL_MAGIC)
             {
-                bool positive = aurApp->IsPositive() ? (!(aura->GetSpellProto()->AttributesEx & SPELL_ATTR1_NEGATIVE)) : false;
-
                 // do not remove positive auras if friendly target
                 //               negative auras if non-friendly target
-                if (positive == unitTarget->IsFriendlyTo(m_caster))
+                if (aurApp->IsPositive() == unitTarget->IsFriendlyTo(m_caster))
                     continue;
             }
 

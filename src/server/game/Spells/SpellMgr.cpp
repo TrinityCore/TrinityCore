@@ -988,10 +988,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
     if (!IsPositiveTarget(spellproto->EffectImplicitTargetA[effIndex], spellproto->EffectImplicitTargetB[effIndex]))
         return false;
 
-    // AttributesEx check
-    if (spellproto->AttributesEx & SPELL_ATTR1_NEGATIVE)
-        return false;
-
     if (!deep && spellproto->EffectTriggerSpell[effIndex]
         && !spellproto->EffectApplyAuraName[effIndex]
         && IsPositiveTarget(spellproto->EffectImplicitTargetA[effIndex], spellproto->EffectImplicitTargetB[effIndex])
@@ -3943,7 +3939,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 20337:
         case 63320: // Glyph of Life Tap
         // Entries were not updated after spell effect change, we have to do that manually :/
-            spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_TRIGGERED;
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
             ++count;
             break;
         case 16007: // Draco-Incarcinatrix 900
