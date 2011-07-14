@@ -128,12 +128,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 -- fix for YTDB after "guards don't evade..." commit
 UPDATE `creature_template` SET `Unit_flags` = 36864 WHERE `entry` = 3296;
 
--- Isle of Conquest bosses aggro through wall fix
-UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34924;
-UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34922;
-UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34918;
-UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34919;
-
 -- another fix for YTDB for unit_flags 
 UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 16844;
 UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 16857;
@@ -211,14 +205,6 @@ UPDATE `creature_template` SET `exp` = 0 WHERE `entry` = 32796;
 -- Fix Explosive shot from spd scaling
 DELETE FROM `spell_bonus_data` WHERE `entry`='53352';
 INSERT INTO `spell_bonus_data`(`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`ap_dot_bonus`,`comments`) VALUES ( '53352','0','0','0.14','0','Hunter - Explosive Shot (triggered)');
-
--- Fix Isle of Conquest
-DELETE FROM npc_spellclick_spells WHERE npc_entry IN (35413, 35419, 35431, 35433);
-INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) VALUES
-(35413, 60968, 0, 0, 0, 1, 0, 0, 0),
-(35419, 68503, 0, 0, 0, 1, 0, 0, 0),
-(35431, 46598, 0, 0, 0, 1, 0, 0, 0),
-(35433, 46598, 0, 0, 0, 1, 0, 0, 0); 
 
 -- Bloodworm AI
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 28017;
@@ -374,11 +360,6 @@ UPDATE `spell_proc_event` SET `SpellFamilyMask0` = `SpellFamilyMask0` &~ 192 WHE
 -- Blood reserve proc
 DELETE FROM `spell_proc_event` WHERE `entry` IN (64568);
 INSERT INTO `spell_proc_event` VALUES (64568, 0x00, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x001A22A8, 0x00000000, 0, 100, 3);
-
--- Hackfix bosses from Isle of Conquest
-UPDATE `creature_template` SET `unit_flags` = 0  WHERE `entry` in (34924,35403, 34922,35405);
-UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` in (34924,35403);
-UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` in (34922,35405);
 
 -- Fix bug with cannons movement in Strange of Ancients
 UPDATE `creature_template` SET `speed_run` = 0  WHERE `entry` in (27894, 32795);
