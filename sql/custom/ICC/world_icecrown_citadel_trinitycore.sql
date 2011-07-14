@@ -1,3 +1,11 @@
+-- Eat Slime Puddle
+REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
+('13', '70346', '18', '1', '37672', 'Mutated Abomination - Eat Slime Puddle'),
+('13', '72456', '18', '1', '38285', 'Mutated Abomination - Eat Slime Puddle'),
+('13', '72868', '18', '1', '37672', 'Mutated Abomination - Eat Slime Puddle'),
+('13', '72869', '18', '1', '38285', 'Mutated Abomination - Eat Slime Puddle');
+
+
 /* AREA TRIGGERS */
 REPLACE INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (5604, 'at_sindragosa_lair'),
