@@ -1,4 +1,4 @@
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (44572, 71757);
+
 
 DELETE FROM `spell_linked_spell` WHERE spell_trigger = 44572;
 INSERT INTO `spell_linked_spell` VALUES
