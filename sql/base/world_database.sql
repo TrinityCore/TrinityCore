@@ -16966,7 +16966,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (34861, 0.402, -1, -1, -1, 'Priest - Circle of Healing'),
 (19236, 0.8068, -1, -1, -1, 'Priest - Desperate Prayer'),
 (2944, -1, 0.1849, -1, -1, 'Priest - Devouring Plague'),
-(64844, 0.5483, -1, -1, -1, 'Priest - Divine Hymn'),
+(64844, 0.564, -1, -1, -1, 'Priest - Divine Hymn'),
 (63544, 0, -1, -1, -1, 'Priest - Empowered Renew'),
 (2061, 0.8068, -1, -1, -1, 'Priest - Flash Heal'),
 (2060, 1.6135, -1, -1, -1, 'Priest - Greater Heal'),
