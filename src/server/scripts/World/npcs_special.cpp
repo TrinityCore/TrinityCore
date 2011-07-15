@@ -89,6 +89,29 @@ bool CheckSema(const char* cnt)
     return false;
 }
 
+void SchreibeBericht(uint8 cnt)
+{
+    char buffer[10];
+    std::string tmpfile = "./firecaller_report";
+    std::string tmp = "Konnte diesmal ";
+    sprintf(buffer,"%u",cnt);
+    tmp.append(buffer);
+    tmp.append(" Geschenke los werden.");
+
+    FILE * reportfile = fopen(tmpfile.c_str(), "w");
+    if (reportfile)
+    {
+        sLog->outString("FEUERUFER: Konnte diesmal %s Geschenke los werden.", tmp.c_str());
+        fputs(tmp.c_str(), reportfile);
+        fclose(reportfile);
+    }
+    else
+    {
+        sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
+        sLog->outError("FEUERUFER: Konnte diesmal %s Geschenke los werden.", tmp.c_str());
+    }
+}
+
 void LearnAllSkillRecipes(Player * player, uint32 skill_id)
 {
     uint32 classmask = player->getClassMask();
@@ -224,6 +247,26 @@ uint32 FirecallerSounds[3][5] =
     {11962, 11965, 11967, 11975, 11976}
 };
 
+/*
+enum FirecallerEvents
+{
+    EVENT_START = 1,
+    EVENT_STOP,
+    EVENT_SOUND,
+    EVENT_WAIT,
+    EVENT_TARGET,
+    EVENT_CLUSTER,
+    EVENT_PRESENT
+};
+
+enum FirecallerPhasen
+{
+    PHASE_WARTEN = 0,
+    PHASE_START,
+    PHASE_GESCHENKE
+};
+*/
+
 class npc_uwom_firecaller : public CreatureScript
 {
 public:
@@ -233,6 +276,7 @@ public:
     {
         npc_uwom_firecallerAI(Creature * c) : ScriptedAI(c)
         {
+            //events.ScheduleEvent(EVENT_XXX, 999);
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -252,6 +296,8 @@ public:
             CanGive = false;
         }
 
+        //EventMap events;
+
         uint32 StartTimer,
             StopTimer,
             SoundTimer,
@@ -267,6 +313,7 @@ public:
 
         void Reset()
         {
+            //events.Reset();
             me->CastSpell(me, SPELL_RAKETENBUENDEL_ZUENDER, true);
         }
 
@@ -312,7 +359,7 @@ public:
                 if (!pPl)
                     return;
 
-                if (pPl->GetSession()->GetSecurity() == SEC_PLAYER && !Done && CanGive && urand(0,400) == 200 && PresentsDone() < 3)
+                if ((pPl->GetSession()->GetSecurity() < SEC_VETERAN) && !Done && CanGive && (urand(0,400) == 200) && (PresentsDone() < 3))
                 {
                     for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
                     {
@@ -340,7 +387,7 @@ public:
                 if (pPl->GetDisplayId() != me->GetDisplayId())
                     pPl->SetDisplayId(me->GetDisplayId());
 
-                if (urand(0,400) == 200)
+                if (urand(0,200) == 100)
                 {
                     uint8 i = urand(0,FirecallerJokesCnt-1);
 
@@ -398,23 +445,43 @@ public:
             me->SetVisible(false);
             Gestartet = false;
             Ende = true;
+
+            SchreibeBericht(PresentsDone());
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (StartTimer < diff && !Gestartet && !Ende)
+/*
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_XXX:
+                        break;
+                }
+            }
+*/
+            if (StartTimer <= diff && !Gestartet && !Ende)
                 StartEvent();
             else if (!Gestartet)
                 StartTimer -= diff;
 
-            if (!Done && !CanGive && PresentTimer < diff)
+            if (!Done && !CanGive && PresentTimer <= diff)
                 CanGive = true;
             else if (!CanGive)
                 PresentTimer -= diff;
 
             if (Gestartet && !Ende)
             {
-                if (SoundTimer < diff)
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                if (SoundTimer <= diff)
                 {
                     DoPlaySoundToSet(me, FirecallerSounds[2][urand(0,4)]);
                     SoundTimer = urand(60000,120000);
@@ -422,7 +489,7 @@ public:
                 else
                     SoundTimer -= diff;
 
-                if (WaitTimer < diff && !me->IsNonMeleeSpellCasted(false))
+                if (WaitTimer <= diff)
                 {
                     DoCast(me, FirecallerSpells[urand(0,FirecallerSpellsCnt-1)]);
                     WaitTimer = 2400;
@@ -430,7 +497,7 @@ public:
                 else
                     WaitTimer -= diff;
 
-                if (TargetTimer < diff)
+                if (TargetTimer <= diff)
                 {
                     Player * tmp = GetPlayerAtMinimumRange(20.0f);
                     if (tmp && tmp->GetSession()->GetSecurity() > SEC_VETERAN)
@@ -452,7 +519,7 @@ public:
                 else
                     TargetTimer -= diff;
 
-                if (ClusterTimer < diff)
+                if (ClusterTimer <= diff)
                 {
                     me->InterruptNonMeleeSpells(false);
                     me->CastSpell(me, FirecallerCluster[urand(0,FirecallerClusterCnt-1)], false);
@@ -461,7 +528,7 @@ public:
                 else
                     ClusterTimer -= diff;
 
-                if (StopTimer < diff && !Ende)
+                if (StopTimer <= diff && !Ende)
                     StopEvent();
                 else
                     StopTimer -= diff;
