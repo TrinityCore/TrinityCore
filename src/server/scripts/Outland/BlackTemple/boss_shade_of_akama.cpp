@@ -356,7 +356,7 @@ public:
                     CAST_AI(mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
                     Sorcerer->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     Sorcerer->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                    Sorcerer->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                    Sorcerer->SetTarget(me->GetGUID());
                     Sorcerers.push_back(Sorcerer->GetGUID());
                     --DeathCount;
                     ++SorcererCount;
@@ -661,7 +661,7 @@ public:
                 Shade->AddThreat(me, 1000000.0f);
                 me->CombatStart(Shade);
                 Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                Shade->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                Shade->SetTarget(me->GetGUID());
                 if (pl) Shade->AddThreat(pl, 1.0f);
                 DoZoneInCombat(Shade);
                 EventBegun = true;
@@ -680,7 +680,7 @@ public:
             case 1:
                 if (Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
                 {
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, ShadeGUID);
+                    me->SetTarget(ShadeGUID);
                     DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
                     EndingTalkCount = 0;
                     SoulRetrieveTimer = 16000;

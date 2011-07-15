@@ -754,7 +754,7 @@ public:
             Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
 
             //Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetUInt64Value(UNIT_FIELD_TARGET, Trigger->GetGUID());
+            me->SetTarget(Trigger->GetGUID());
             DoCast(Trigger, SPELL_EYE_BLAST);
         }
         void SummonFlamesOfAzzinoth()
@@ -1235,7 +1235,7 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 me->GetMotionMaster()->Clear(false);
                 me->AttackStop();
-                me->SetUInt64Value(UNIT_FIELD_TARGET, IllidanGUID);
+                me->SetTarget(IllidanGUID);
                 MaxTimer = 0;
                 break;
             case PHASE_TRANSFORM_SEQUENCE:

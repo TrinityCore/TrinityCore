@@ -315,7 +315,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
 
                             //Remove any target
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                            me->SetTarget(0);
 
                             me->GetMotionMaster()->Clear();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
