@@ -137,21 +137,11 @@ void Vehicle::Reset(bool evading /*= false*/)
 
 void Vehicle::ApplyAllImmunities()
 {
-    // This couldn't be done in DB, because Vehicle's immunities are overriden by Player's ones
+    // This couldn't be done in DB, because some spells have MECHANIC_NONE
 
-    // Vehicles should be immune on Knockback, Deathgrip ...
+    // Vehicles should be immune on Knockback ...
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
-    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-
-    // ... Fear, Snare, Root, Stun ...
-    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
-    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
-    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-    _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);
-    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-    _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
 
     // Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
     if (_me->ToCreature() && _me->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
