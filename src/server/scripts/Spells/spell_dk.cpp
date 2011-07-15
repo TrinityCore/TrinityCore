@@ -239,15 +239,15 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         }
 };
 
-// 47496 - Explode, Gnoul spell for Corpse Explosion
-class spell_dk_gnoul_explode : public SpellScriptLoader
+// 47496 - Explode, Ghoul spell for Corpse Explosion
+class spell_dk_ghoul_explode : public SpellScriptLoader
 {
     public:
-        spell_dk_gnoul_explode() : SpellScriptLoader("spell_dk_gnoul_explode") { }
+        spell_dk_ghoul_explode() : SpellScriptLoader("spell_dk_ghoul_explode") { }
 
-        class spell_dk_gnoul_explode_SpellScript : public SpellScript
+        class spell_dk_ghoul_explode_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dk_gnoul_explode_SpellScript);
+            PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
 
             void Suicide(SpellEffIndex /*effIndex*/)
             {
@@ -262,13 +262,13 @@ class spell_dk_gnoul_explode : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_dk_gnoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffect += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dk_gnoul_explode_SpellScript();
+            return new spell_dk_ghoul_explode_SpellScript();
         }
 };
 
@@ -559,7 +559,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
     new spell_dk_corpse_explosion();
-    new spell_dk_gnoul_explode();
+    new spell_dk_ghoul_explode();
     new spell_dk_death_gate();
     new spell_dk_death_pact();
     new spell_dk_scourge_strike();
