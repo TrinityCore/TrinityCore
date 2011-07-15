@@ -590,7 +590,7 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
             me->SetSpeed(MOVE_RUN, 0.4f);
             me->GetMotionMaster()->MoveChase(who);
-            me->SetUInt64Value(UNIT_FIELD_TARGET, TargetGUID);
+            me->SetTarget(TargetGUID);
             Intro = true;
         }
 
