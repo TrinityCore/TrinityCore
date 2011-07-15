@@ -535,7 +535,7 @@ public:
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();
-                me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                me->SetTarget(0);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);

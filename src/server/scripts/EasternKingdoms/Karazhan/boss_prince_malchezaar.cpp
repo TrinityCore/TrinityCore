@@ -397,7 +397,7 @@ public:
                 return;
 
             if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->getVictim()->GetGUID())
-                me->SetUInt64Value(UNIT_FIELD_TARGET, me->getVictim()->GetGUID());
+                me->SetTarget(me->getVictim()->GetGUID());
 
             if (phase == 1)
             {
