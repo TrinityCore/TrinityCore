@@ -35,6 +35,10 @@ enum DeathKnightSpells
     DK_SPELL_BLOOD_BOIL_TRIGGERED               = 65658,
     DK_SPELL_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     DK_SPELL_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
+    DK_SPELL_BLOOD_PRESENCE                     = 48266,
+    DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
+    DK_SPELL_UNHOLY_PRESENCE                    = 48265,
+    DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -553,6 +557,103 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         }
 };
 
+// 50365, 50371 Improved Blood Presence
+class spell_dk_improved_blood_presence : public SpellScriptLoader
+{
+public:
+    spell_dk_improved_blood_presence() : SpellScriptLoader("spell_dk_improved_blood_presence") { }
+
+    class spell_dk_improved_blood_presence_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_improved_blood_presence_AuraScript)
+        bool Validate(SpellEntry const* /*entry*/)
+        {
+            if (!sSpellStore.LookupEntry(DK_SPELL_BLOOD_PRESENCE))
+                return false;
+            if (!sSpellStore.LookupEntry(DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
+                return false;
+            return true;
+        }
+
+        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (!target->HasAura(DK_SPELL_BLOOD_PRESENCE) && !target->HasAura(DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
+            {
+                int32 basePoints1 = aurEff->GetAmount();
+                target->CastCustomSpell(target, 63611, NULL, &basePoints1, NULL, true, 0, aurEff);
+            }
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (!target->HasAura(DK_SPELL_BLOOD_PRESENCE))
+                target->RemoveAura(DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dk_improved_blood_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_blood_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_dk_improved_blood_presence_AuraScript();
+    }
+};
+
+// 50391,50392 Improved Unholy Presence
+class spell_dk_improved_unholy_presence : public SpellScriptLoader
+{
+public:
+    spell_dk_improved_unholy_presence() : SpellScriptLoader("spell_dk_improved_unholy_presence") { }
+
+    class spell_dk_improved_unholy_presence_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_improved_unholy_presence_AuraScript)
+        bool Validate(SpellEntry const* /*entry*/)
+        {
+            if (!sSpellStore.LookupEntry(DK_SPELL_UNHOLY_PRESENCE))
+                return false;
+            if (!sSpellStore.LookupEntry(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
+                return false;
+            return true;
+        }
+
+        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (target->HasAura(DK_SPELL_UNHOLY_PRESENCE) && !target->HasAura(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
+            {
+                // Not listed as any effect, only base points set in dbc
+                int32 basePoints0 = SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), 1);
+                target->CastCustomSpell(target, DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &basePoints0 , &basePoints0, &basePoints0, true, 0, aurEff);
+            }
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (target->HasAura(DK_SPELL_UNHOLY_PRESENCE))
+                target->RemoveAura(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dk_improved_unholy_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_unholy_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_dk_improved_unholy_presence_AuraScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -566,4 +667,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_spell_deflection();
     new spell_dk_blood_boil();
     new spell_dk_will_of_the_necropolis();
+    new spell_dk_improved_blood_presence();
+    new spell_dk_improved_unholy_presence();
 }
