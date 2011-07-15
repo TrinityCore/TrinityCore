@@ -1,7 +1,6 @@
 -- TODO: this list of vehicles isn't complete, need to find more vehicles with missing immunities
 UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` |
 0x00000002| -- MECHANIC_DISORIENTED (Blind)
-0x00000004| -- MECHANIC_DISARM (Disarm)
 0x00000008| -- MECHANIC_DISTRACT (Distract)
 0x00000010| -- MECHANIC_FEAR (Fear, Psychic Scream)
 0x00000020| -- MECHANIC_GRIP (Death Grip)
@@ -14,10 +13,10 @@ UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` |
 0x00002000| -- MECHANIC_KNOUCKOUT (Gouge, Blast Wave)
 -- 0x00004000| -- MECHANIC_BLEED (Rend, Deep Wounds) - requires confirmation
 0x00010000| -- MECHANIC_POLYMORPH (Polymorph)
-0x00040000| -- MECHANIC_SHIELD (Power word: Shield)
+0x00040000| -- MECHANIC_SHIELD (Power word: Shield) -- maybe unnecessary, spells shouldn't be even casted on vehicles
 -- 0x00200000| -- MECHANIC_INFECTED (Frost Fever, Blood Plague) - requires confirmation
 0x00800000| -- MECHANIC_HORROR (warlock's Death Coil)
-0x10000000| -- MECHANIC_IMMUNE_SHIELD (Hand of Protection)
+0x10000000| -- MECHANIC_IMMUNE_SHIELD (Hand of Protection) -- maybe unnecessary, spells shouldn't be even casted on vehicles
 0x02000000| -- MECHANIC_INTERRUPT (Kick, Counterspell)
 0x04000000 -- MECHANIC_DAZE (Dazed)
 where entry IN (
