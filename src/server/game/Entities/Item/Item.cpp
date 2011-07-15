@@ -1216,7 +1216,8 @@ void Item::SetSoulboundTradeable(AllowedLooterSet* allowedLooters, Player* curre
 bool Item::CheckSoulboundTradeExpire()
 {
     // called from owner's update - GetOwner() MUST be valid
-    if (GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + 2*HOUR < GetOwner()->GetTotalPlayedTime())
+    // Falsch! GetOwner() kann NULL sein! Deshalb gab es gerade einen Crash! Ergo: GetOwner() überprüfen!
+    if (GetOwner() && (GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + 2*HOUR < GetOwner()->GetTotalPlayedTime()))
     {
         SetSoulboundTradeable(NULL, GetOwner(), false);
         return true; // remove from tradeable list
