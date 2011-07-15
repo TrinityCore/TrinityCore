@@ -698,42 +698,6 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
         }
 };
 
-class spell_rotface_slime_spray : public SpellScriptLoader
-{
-    public:
-        spell_rotface_slime_spray() : SpellScriptLoader("spell_rotface_slime_spray") { }
-
-        class spell_rotface_slime_spray_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
-
-            bool Validate(SpellEntry const* /*spell*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_GREEN_BLIGHT_RESIDUE))
-                    return false;
-                return true;
-            }
-
-            void ExtraEffect()
-            {
-                if (GetHitUnit()->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
-                    return;
-
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GREEN_BLIGHT_RESIDUE, true);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_rotface_slime_spray_SpellScript::ExtraEffect);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rotface_slime_spray_SpellScript();
-        }
-};
-
 void AddSC_boss_rotface()
 {
     new boss_rotface();
@@ -747,5 +711,4 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion_init();
     new spell_rotface_unstable_ooze_explosion();
     new spell_rotface_unstable_ooze_explosion_suicide();
-    new spell_rotface_slime_spray();
 }
