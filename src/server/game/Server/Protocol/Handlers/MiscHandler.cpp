@@ -489,22 +489,6 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket & recv_data)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
-void WorldSession::HandleSetTargetOpcode(WorldPacket & recv_data)
-{
-    uint64 guid;
-    recv_data >> guid;
-
-    _player->SetUInt32Value(UNIT_FIELD_TARGET, uint32(guid));
-
-    // update reputation list if need
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
-    if (!unit)
-        return;
-
-    if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
-        _player->GetReputationMgr().SetVisible(factionTemplateEntry);
-}
-
 void WorldSession::HandleSetSelectionOpcode(WorldPacket & recv_data)
 {
     uint64 guid;

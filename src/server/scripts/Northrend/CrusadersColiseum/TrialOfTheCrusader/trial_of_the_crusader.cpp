@@ -474,7 +474,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             break;
                         case 1142:
                             if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_JARAXXUS)))
-                                pTemp->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pTemp->SetTarget(me->GetGUID());
                             if (Creature* pTrigger = Unit::GetCreature(*me, m_uiTriggerGUID))
                                 pTrigger->DespawnOrUnsummon();
                             if (Creature* pPortal = Unit::GetCreature(*me, m_uiPortalGUID))
