@@ -828,7 +828,7 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
                         m_uiTrampleTargetGUID = target->GetGUID();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, m_uiTrampleTargetGUID);
+                        me->SetTarget(m_uiTrampleTargetGUID);
                         DoScriptText(SAY_TRAMPLE_STARE, me, target);
                         m_bTrampleCasted = false;
                         SetCombatMovement(false);
@@ -859,7 +859,7 @@ public:
                 case 4:
                     DoScriptText(SAY_TRAMPLE_START, me);
                     me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetTarget(0);
                     m_uiStage = 5;
                     break;
                 case 5:

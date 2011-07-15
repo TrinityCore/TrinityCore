@@ -544,11 +544,11 @@ public:
                         DoScriptText(ANACHRONOS_SAY_1, me , Fandral);
                         break;
                     case 1:
-                        Fandral->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        Fandral->SetTarget(me->GetGUID());
                         DoScriptText(FANDRAL_SAY_1, Fandral, me);
                         break;
                     case 2:
-                        Fandral->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                        Fandral->SetTarget(0);
                         DoScriptText(MERITHRA_EMOTE_1, Merithra);
                         break;
                     case 3:
@@ -558,14 +558,14 @@ public:
                         DoScriptText(ARYGOS_EMOTE_1, Arygos);
                         break;
                     case 5:
-                        Caelestrasz->SetUInt64Value(UNIT_FIELD_TARGET, Fandral->GetGUID());
+                        Caelestrasz->SetTarget(Fandral->GetGUID());
                         DoScriptText(CAELESTRASZ_SAY_1, Caelestrasz);
                         break;
                     case 6:
                         DoScriptText(MERITHRA_SAY_2, Merithra);
                         break;
                     case 7:
-                        Caelestrasz->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                        Caelestrasz->SetTarget(0);
                         Merithra->GetMotionMaster()->MoveCharge(-8065, 1530, 2.61f, 10);
                         break;
                     case 8:
