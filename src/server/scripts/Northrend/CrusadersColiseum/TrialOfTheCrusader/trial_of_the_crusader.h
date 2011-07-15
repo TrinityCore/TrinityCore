@@ -271,4 +271,10 @@ enum eAchievementData
     EVENT_START_TWINS_FIGHT                 = 21853
 };
 
+enum eDestructibleBuildingsFaction
+{
+    GO_ALLIANCE_FACTION = 1732,
+    GO_HORDE_FACTION    = 1735,
+};
+
 #endif
