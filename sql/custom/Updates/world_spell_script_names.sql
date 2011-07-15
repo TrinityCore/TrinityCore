@@ -11,7 +11,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 ('69672', 'spell_sunreaver_disguise'),
 ('69673', 'spell_sunreaver_disguise');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` = 50334, 58597;
+DELETE FROM `spell_script_names` WHERE `spell_id` IN ('50334', '58597');
 INSERT INTO `spell_script_names` VALUES
 (50334, 'spell_dru_berserk'),
 (58597, 'spell_pal_sacred_shield');
