@@ -894,6 +894,9 @@ void Jail::BannAccount(uint32 acc_id, uint32 guid, Player * chr)
 
 void Jail::GildenhausWache(Player * chr)
 {
+    if (!m_JailKonf.Enabled)
+        return;
+
     if (!chr || !chr->isValid() || !chr->IsInWorld() || chr->GetSession()->GetSecurity() > SEC_VETERAN)
         return;
 
