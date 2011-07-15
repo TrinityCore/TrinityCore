@@ -915,6 +915,7 @@ void Jail::GildenhausWache(Player * chr)
             chr->m_JailGMAcc = m_JailKonf.GMAcc;
             chr->m_JailGMChar = m_JailKonf.GMChar;
             chr->m_JailDauer = 12;
+            chr->m_JailZeit = uint32(localtime);
 
             ++chr->m_JailAnzahl;
 
