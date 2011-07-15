@@ -712,8 +712,8 @@ class boss_stormcaller_brundir : public CreatureScript
                         case EVENT_MOVE_POSITION:
                             if (me->IsWithinMeleeRange(me->getVictim()))
                             {
-                                float x = irand(-25, 25);
-                                float y = irand(-25, 25);
+                                float x = float(irand(-25, 25));
+                                float y = float(irand(-25, 25));
                                 me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + x, me->GetPositionY() + y, FLOOR_Z);
                                 // Prevention to go outside the room or into the walls
                                 if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f, true))
