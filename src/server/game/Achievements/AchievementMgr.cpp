@@ -433,7 +433,8 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
 {
     sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", type, miscvalue1, miscvalue2);
 
-    if (m_player->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_ALLOW_ACHIEVEMENTS)))
+    // disable for gamemasters with GM-mode enabled
+    if (m_player->isGameMaster())
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
@@ -733,7 +734,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 {
     sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "AchievementMgr::UpdateAchievementCriteria(%u, %u, %u)", type, miscValue1, miscValue2);
 
-    if (m_player->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_ALLOW_ACHIEVEMENTS)))
+    // disable for gamemasters with GM-mode enabled
+    if (m_player->isGameMaster())
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
@@ -866,7 +868,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
             {
-                SetCriteriaProgress(achievementCriteria, GetPlayer()->getRewardedQuests().size());
+                SetCriteriaProgress(achievementCriteria, GetPlayer()->GetRewardedQuestCount());
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
@@ -905,12 +907,14 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (miscValue1 && miscValue1 != achievementCriteria->complete_quests_in_zone.zoneID)
                     continue;
 
-                uint32 counter =0;
-                for (RewardedQuestSet::const_iterator itr = GetPlayer()->getRewardedQuests().begin(); itr != GetPlayer()->getRewardedQuests().end(); ++itr)
+                uint32 counter = 0;
+
+                const RewardedQuestSet &rewQuests = GetPlayer()->getRewardedQuests();
+                for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
                 {
                     Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
                     if (quest && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->complete_quests_in_zone.zoneID)
-                        counter++;
+                        ++counter;
                 }
                 SetCriteriaProgress(achievementCriteria, counter);
                 break;
@@ -2000,11 +2004,12 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
     }
 }
 
-void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement, bool ignoreGMAllowAchievementConfig)
+void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 {
     sLog->outDetail("AchievementMgr::CompletedAchievement(%u)", achievement->ID);
 
-    if (m_player->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_ALLOW_ACHIEVEMENTS)) && !ignoreGMAllowAchievementConfig)
+    // disable for gamemasters with GM-mode enabled
+    if (m_player->isGameMaster())
         return;
 
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement))
@@ -2419,7 +2424,6 @@ void AchievementGlobalMgr::LoadRewards()
 
     do
     {
-
         Field *fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         const AchievementEntry* pAchievement = sAchievementStore.LookupEntry(entry);

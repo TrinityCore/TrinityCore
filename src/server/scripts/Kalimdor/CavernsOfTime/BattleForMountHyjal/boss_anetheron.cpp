@@ -57,14 +57,14 @@ class boss_anetheron : public CreatureScript
 public:
     boss_anetheron() : CreatureScript("boss_anetheron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_anetheronAI (pCreature);
+        return new boss_anetheronAI (creature);
     }
 
     struct boss_anetheronAI : public hyjal_trashAI
     {
-        boss_anetheronAI(Creature *c) : hyjal_trashAI(c)
+        boss_anetheronAI(Creature* c) : hyjal_trashAI(c)
         {
             pInstance = c->GetInstanceScript();
             pGo = false;
@@ -128,9 +128,9 @@ public:
             pos = i;
             if (i == 7 && pInstance)
             {
-                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
-                if (pTarget && pTarget->isAlive())
-                    me->AddThreat(pTarget, 0.0f);
+                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                if (target && target->isAlive())
+                    me->AddThreat(target, 0.0f);
             }
         }
 
@@ -174,8 +174,8 @@ public:
 
             if (SwarmTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_CARRION_SWARM);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CARRION_SWARM);
 
                 SwarmTimer = urand(45000, 60000);
                 switch (urand(0, 1))
@@ -195,8 +195,8 @@ public:
             {
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        pTarget->CastSpell(pTarget, SPELL_SLEEP, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        target->CastSpell(target, SPELL_SLEEP, true);
                 }
                 SleepTimer = 60000;
                 switch (urand(0, 1))
@@ -247,14 +247,14 @@ class mob_towering_infernal : public CreatureScript
 public:
     mob_towering_infernal() : CreatureScript("mob_towering_infernal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_towering_infernalAI (pCreature);
+        return new mob_towering_infernalAI (creature);
     }
 
     struct mob_towering_infernalAI : public ScriptedAI
     {
-        mob_towering_infernalAI(Creature *c) : ScriptedAI(c)
+        mob_towering_infernalAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             if (pInstance)
@@ -285,7 +285,7 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
                 AttackStart(who);

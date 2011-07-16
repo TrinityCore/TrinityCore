@@ -258,7 +258,6 @@ class ChatHandler
         bool HandleRecallCommand(const char* args);
         bool HandleAnnounceCommand(const char* args);
         bool HandleNotifyCommand(const char* args);
-        bool HandleGPSCommand(const char* args);
         bool HandleTaxiCheatCommand(const char* args);
         bool HandleWhispersCommand(const char* args);
 
@@ -293,7 +292,6 @@ class ChatHandler
         bool HandleHideAreaCommand(const char* args);
         bool HandleAddItemCommand(const char* args);
         bool HandleAddItemSetCommand(const char* args);
-        bool HandlePetTpCommand(const char* args);
         bool HandlePetUnlearnCommand(const char* args);
         bool HandlePetLearnCommand(const char* args);
         bool HandleCreatePetCommand(const char* args);

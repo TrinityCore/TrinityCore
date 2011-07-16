@@ -94,7 +94,6 @@ enum ScriptsType
     SCRIPTS_GAMEOBJECT,
     SCRIPTS_EVENT,
     SCRIPTS_WAYPOINT,
-    SCRIPTS_GOSSIP,
 
     SCRIPTS_LAST
 };
@@ -329,7 +328,6 @@ extern ScriptMapMap sQuestStartScripts;
 extern ScriptMapMap sSpellScripts;
 extern ScriptMapMap sGameObjectScripts;
 extern ScriptMapMap sEventScripts;
-extern ScriptMapMap sGossipScripts;
 extern ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type);
@@ -483,7 +481,6 @@ struct GossipMenuItems
     uint32          OptionNpcflag;
     uint32          ActionMenuId;
     uint32          ActionPoiId;
-    uint32          ActionScriptId;
     bool            BoxCoded;
     uint32          BoxMoney;
     std::string     BoxText;
@@ -794,14 +791,6 @@ class ObjectMgr
             return NULL;
         }
 
-        VehicleScalingInfo const* GetVehicleScalingInfo(uint32 vehicleEntry) const
-        {
-            VehicleScalingMap::const_iterator itr = m_VehicleScalingMap.find(vehicleEntry);
-            if (itr != m_VehicleScalingMap.end())
-                return &itr->second;
-            return NULL;
-        }
-
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
         {
             UNORDERED_MAP<uint32, DungeonEncounterList>::const_iterator itr = mDungeonEncounters.find(MAKE_PAIR32(mapId, difficulty));
@@ -862,7 +851,6 @@ class ObjectMgr
         void LoadQuestStartScripts();
         void LoadEventScripts();
         void LoadSpellScripts();
-        void LoadGossipScripts();
         void LoadWaypointScripts();
 
         void LoadSpellScriptNames();
@@ -900,7 +888,6 @@ class ObjectMgr
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
-        void LoadVehicleScaling();
 
         void LoadGossipText();
 
@@ -1284,7 +1271,6 @@ class ObjectMgr
 
         VehicleAccessoryMap m_VehicleTemplateAccessoryMap;
         VehicleAccessoryMap m_VehicleAccessoryMap;
-        VehicleScalingMap m_VehicleScalingMap;
 
         typedef             std::vector<LocaleConstant> LocalForIndex;
         LocalForIndex        m_LocalForIndex;

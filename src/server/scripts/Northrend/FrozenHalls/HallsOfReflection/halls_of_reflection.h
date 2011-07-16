@@ -79,7 +79,7 @@ enum Actions
 // handled the summonList and the notification events to/from the InstanceScript
 struct boss_horAI : ScriptedAI
 {
-    boss_horAI(Creature *pCreature) : ScriptedAI(pCreature), summons(pCreature)
+    boss_horAI(Creature* creature) : ScriptedAI(creature), summons(creature)
     {
         pInstance = me->GetInstanceScript();
     }
@@ -114,7 +114,7 @@ struct boss_horAI : ScriptedAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                if (Unit *pUnit = me->SelectNearestTarget())
+                if (Unit* pUnit = me->SelectNearestTarget())
                     AttackStart(pUnit);
 
                 DoZoneInCombat();
@@ -122,31 +122,31 @@ struct boss_horAI : ScriptedAI
         }
     }
 
-    void JustSummoned(Creature *pSummoned)
+    void JustSummoned(Creature* summoned)
     {
-        summons.Summon(pSummoned);
+        summons.Summon(summoned);
 
-        if (Unit *pUnit = pSummoned->SelectNearestTarget())
+        if (Unit* target = summoned->SelectNearestTarget())
         {
-            if (pSummoned->AI())
-                pSummoned->AI()->AttackStart(pUnit);
+            if (summoned->AI())
+                summoned->AI()->AttackStart(target);
             else
             {
-                pSummoned->GetMotionMaster()->MoveChase(pUnit);
-                pSummoned->Attack(pUnit, true);
+                summoned->GetMotionMaster()->MoveChase(target);
+                summoned->Attack(target, true);
             }
         }
 
-        if (pSummoned->AI())
-            pSummoned->AI()->DoZoneInCombat();
+        if (summoned->AI())
+            summoned->AI()->DoZoneInCombat();
     }
 
-    void SummonedCreatureDespawn(Creature *pSummoned)
+    void SummonedCreatureDespawn(Creature* summoned)
     {
-        summons.Despawn(pSummoned);
+        summons.Despawn(summoned);
         if (summons.empty())
         {
-            if (pSummoned->isAlive())
+            if (summoned->isAlive())
                 pInstance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
             else
                 pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);

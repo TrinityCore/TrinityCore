@@ -455,6 +455,7 @@ INSERT INTO `command` VALUES
 ('gobject target',2,'Syntax: .gobject target [#go_id|#go_name_part]\r\n\r\nLocate and show position nearest gameobject. If #go_id or #go_name_part provide then locate and show position of nearest gameobject with gameobject template id #go_id or name included #go_name_part as part.'),
 ('gobject turn',2,'Syntax: .gobject turn #goguid \r\n\r\nSet for gameobject #goguid orientation same as current character orientation.'),
 ('gps',1,'Syntax: .gps [$name|$shift-link]\r\n\r\nDisplay the position information for a selected character or creature (also if player name $name provided then for named player, or if creature/gameobject shift-link provided then pointed creature/gameobject if it loaded). Position information includes X, Y, Z, and orientation, map Id and zone Id'),
+('wpgps',3,'Syntax: .wpgps\n\nOutput current position to sql developer log as partial SQL query to be used in pathing'),
 ('groupsummon',1,'Syntax: .groupsummon [$charactername]\r\n\r\nTeleport the given character and his group to you. Teleported only online characters but original selected group member can be offline.'),
 ('guid',2,'Syntax: .guid\r\n\r\nDisplay the GUID for the selected character.'),
 ('guild',3,'Syntax: .guild $subcommand\nType .guild to see the list of possible subcommands or .help guild $subcommand to see info on subcommands'),
@@ -562,7 +563,6 @@ INSERT INTO `command` VALUES
 ('npc move',2,'Syntax: .npc move [#creature_guid]\r\n\r\nMove the targeted creature spawn point to your coordinates.'),
 ('npc playemote',3,'Syntax: .npc playemote #emoteid\r\n\r\nMake the selected creature emote with an emote of id #emoteid.'),
 ('npc say',1,'Syntax: .npc say $message\nMake selected creature say specified message.'),
-('npc set deathstate',2,'Syntax: .npc set deathstate on/off\r\n\r\nSet default death state (dead/alive) for npc at spawn.'),
 ('npc set link',2,'Syntax: .npc set link $creatureGUID\r\n\r\nLinks respawn of selected creature to the condition that $creatureGUID defined is alive.'),
 ('npc set model',2,'Syntax: .npc set model #displayid\r\n\r\nChange the model id of the selected creature to #displayid.'),
 ('npc set movetype',2,'Syntax: .npc set movetype [#creature_guid] stay/random/way [NODEL]\r\n\r\nSet for creature pointed by #creature_guid (or selected if #creature_guid not provided) movement type and move it to respawn position (if creature alive). Any existing waypoints for creature will be removed from the database if you do not use NODEL. If the creature is dead then movement type will applied at creature respawn.\r\nMake sure you use NODEL, if you want to keep the waypoints.'),
@@ -597,7 +597,7 @@ INSERT INTO `command` VALUES
 ('reload all achievement',3,'Syntax: .reload all achievement\r\n\r\nReload achievement_reward, achievement_criteria_data tables.'),
 ('reload all area',3,'Syntax: .reload all area\r\n\r\nReload areatrigger_teleport, areatrigger_tavern, game_graveyard_zone tables.'),
 ('reload all eventai',3,'Syntax: .reload all eventai\r\n\r\nReload creature_ai_scripts, creature_ai_summons, creature_ai_texts tables.'),
-('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, gossip_scripts, points_of_interest tables.'),
+('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, points_of_interest tables.'),
 ('reload all item',3,'Syntax: .reload all item\nReload page_text, item_enchantment_table tables.'),
 ('reload all locales',3,'Syntax: .reload all locales\r\n\r\nReload all `locales_*` tables with reload support added and that can be _safe_ reloaded.'),
 ('reload all loot',3,'Syntax: .reload all loot\r\n\r\nReload all `*_loot_template` tables. This can be slow operation with lags for server run.'),
@@ -632,7 +632,6 @@ INSERT INTO `command` VALUES
 ('reload game_tele',3,'Syntax: .reload game_tele\nReload game_tele table.'),
 ('reload gossip_menu',3,'Syntax: .reload gossip_menu\nReload gossip_menu table.'),
 ('reload gossip_menu_option',3,'Syntax: .reload gossip_menu_option\nReload gossip_menu_option table.'),
-('reload gossip_scripts',3,'Syntax: .reload gossip_scripts\nReload gossip_scripts table.'),
 ('reload gm_tickets',3,'Syntax: .reload gm_tickets\nReload gm_tickets table.'),
 ('reload item_enchantment_template',3,'Syntax: .reload item_enchantment_template\nReload item_enchantment_template table.'),
 ('reload item_loot_template',3,'Syntax: .reload item_loot_template\nReload item_loot_template table.'),
@@ -675,6 +674,7 @@ INSERT INTO `command` VALUES
 ('reload spell_linked_spell',3,'Usage: .reload spell_linked_spell\r\nReloads the spell_linked_spell DB table.'),
 ('reload spell_loot_template',3,'Syntax: .reload spell_loot_template\nReload spell_loot_template table.'),
 ('reload spell_pet_auras',3,'Syntax: .reload spell_pet_auras\nReload spell_pet_auras table.'),
+('reload spell_proc',3,'Syntax: .reload spell_proc\nReload spell_proc table.'),
 ('reload spell_proc_event',3,'Syntax: .reload spell_proc_event\nReload spell_proc_event table.'),
 ('reload spell_required',3,'Syntax: .reload spell_required\nReload spell_required table.'),
 ('reload spell_scripts',3,'Syntax: .reload spell_scripts\nReload spell_scripts table.'),
@@ -822,7 +822,6 @@ CREATE TABLE `creature` (
   `currentwaypoint` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `curhealth` int(10) unsigned NOT NULL DEFAULT '1',
   `curmana` int(10) unsigned NOT NULL DEFAULT '0',
-  `DeathState` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `MovementType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `npcflag` int(10) unsigned NOT NULL DEFAULT '0',
   `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2726,36 +2725,6 @@ LOCK TABLES `gameobject_template` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gossip_scripts`
---
-
-DROP TABLE IF EXISTS `gossip_scripts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gossip_scripts` (
-  `id` mediumint(8) unsigned NOT NULL default '0',
-  `delay` int(10) unsigned NOT NULL default '0',
-  `command` mediumint(8) unsigned NOT NULL default '0',
-  `datalong` mediumint(8) unsigned NOT NULL default '0',
-  `datalong2` int(10) unsigned NOT NULL default '0',
-  `dataint` int(11) NOT NULL default '0',
-  `x` float NOT NULL default '0',
-  `y` float NOT NULL default '0',
-  `z` float NOT NULL default '0',
-  `o` float NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gossip_scripts`
---
-
-LOCK TABLES `gossip_scripts` WRITE;
-/*!40000 ALTER TABLE `gossip_scripts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gossip_scripts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `gossip_menu`
 --
 
@@ -2794,7 +2763,6 @@ CREATE TABLE gossip_menu_option (
   npc_option_npcflag int(10) unsigned NOT NULL default '0',
   action_menu_id mediumint(8) unsigned NOT NULL default '0',
   action_poi_id mediumint(8) unsigned NOT NULL default '0',
-  action_script_id mediumint(8) unsigned NOT NULL default '0',
   box_coded tinyint(3) unsigned NOT NULL default '0',
   box_money int(11) unsigned NOT NULL default '0',
   box_text text,
@@ -16991,12 +16959,14 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (53600, 0, 0, 0, 0 ,'Paladin - Shield of Righteousness'),
 (20267, 0, 0, 0, 0, 'Paladin - Judgement of Light Proc'),
 (25997, 0, 0, 0, 0, 'Paladin - Eye for an Eye'),
+(64891, -1, 0, -1, -1, 'Paladin - T8 Holy 2P - Holy Mending'),
 (50256, -1, -1, 0.08, -1, 'Pet Skills - Bear (Swipe)'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
 (34861, 0.402, -1, -1, -1, 'Priest - Circle of Healing'),
 (19236, 0.8068, -1, -1, -1, 'Priest - Desperate Prayer'),
 (2944, -1, 0.1849, -1, -1, 'Priest - Devouring Plague'),
+(64844, 0.564, -1, -1, -1, 'Priest - Divine Hymn'),
 (63544, 0, -1, -1, -1, 'Priest - Empowered Renew'),
 (2061, 0.8068, -1, -1, -1, 'Priest - Flash Heal'),
 (2060, 1.6135, -1, -1, -1, 'Priest - Greater Heal'),
@@ -17327,7 +17297,8 @@ INSERT INTO `spell_dbc` (`Id`,`Dispel`,`Mechanic`,`Attributes`,`AttributesEx`,`A
 (65074,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Freya credit marker'),
 (60937,  0, 0, 562036736, 32, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Seaforium charges damaging wall achievement credit'),
 (62791,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'XT-002 Heart Overload Trigger Spell'),
-(65037,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nerf the Scrapbots Achievement Criteria Marker');
+(65037,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nerf the Scrapbots Achievement Criteria Marker'),
+(65074,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 30, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Freya Achievement spell - Criteria Marker);
 /*!40000 ALTER TABLE `spell_dbc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -18363,6 +18334,33 @@ INSERT INTO `spell_pet_auras` VALUES (19028,0,0,25228),
 UNLOCK TABLES;
 
 --
+-- Table structure for table `spell_proc`
+--
+
+DROP TABLE IF EXISTS `spell_proc`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spell_proc` (
+  `spellId` mediumint(8) NOT NULL DEFAULT '0',
+  `schoolMask` tinyint(4) NOT NULL DEFAULT '0',
+  `spellFamilyName` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `spellFamilyMask0` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellFamilyMask1` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellFamilyMask2` int(10) unsigned NOT NULL DEFAULT '0',
+  `typeMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellTypeMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `spellPhaseMask` int(10) NOT NULL DEFAULT '0',
+  `hitMask` int(10) NOT NULL DEFAULT '0',
+  `attributesMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `ratePerMinute` float NOT NULL DEFAULT '0',
+  `chance` float NOT NULL DEFAULT '0',
+  `cooldown` float unsigned NOT NULL DEFAULT '0',
+  `charges` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spellId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `spell_proc_event`
 --
 
@@ -19209,8 +19207,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 58647, 0x00,  15, 0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Frost Strike
 ( 58676, 0x00,  15, 0x00000000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Vampiric Blood
 ( 58677, 0x00,  15, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Death's Embrace
-( 58872, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000043,   0,   0,   0), -- Damage Shield (Rank 1)
-( 58874, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000043,   0,   0,   0), -- Damage Shield (Rank 2)
+( 58872, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00042043,   0,   0,   0), -- Damage Shield (Rank 1)
+( 58874, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00042043,   0,   0,   0), -- Damage Shield (Rank 2)
 ( 58901, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,  45), -- Tears of Anguish
 ( 59088, 0x00,   4, 0x00000000, 0x00000002, 0x00000000, 0x00000400, 0x00000000,   0,   0,   0), -- Improved Spell Reflection (Rank 1)
 ( 59089, 0x00,   4, 0x00000000, 0x00000002, 0x00000000, 0x00000400, 0x00000000,   0,   0,   0), -- Improved Spell Reflection (Rank 2)
@@ -19223,7 +19221,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 60063, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Now is the Time!
 ( 60132, 0x00,  15, 0x00000000, 0x08020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Oblit/Scourge Strike Runic Power Up
 ( 60170, 0x00,   5, 0x00000006, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Corruption Triggers Crit
-( 60172, 0x00,   5, 0x00040000, 0x00000000, 0x00000000, 0x00000000, 0x00010000,   0,   0,   0), -- Life Tap Bonus Spirit
+( 60172, 0x00,   5, 0x00040000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Life Tap Bonus Spirit
 ( 60176, 0x00,   4, 0x00000020, 0x00000010, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Bleed Cost Reduction
 ( 60221, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Essence of Gossamer
 ( 60301, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Meteorite Whetstone
@@ -19279,7 +19277,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 65002, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Bonus Mana Regen
 ( 65005, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Alacrity of the Elements
 ( 64999, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   5,   0,   0), -- Meteoric Inspiration
-( 65007, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   5,   0,   0), -- Eye of the Broodmother
+( 65007, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00014000, 0x00000000,   0,   0,   0), -- Eye of the Broodmother
 ( 65013, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,  45), -- Pyrite Infusion
 ( 65020, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Mjolnir Runestone
 ( 65025, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Dark Matter
@@ -19385,6 +19383,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 54832, 0x00,   7, 0x00000000, 0x00001000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Glyph of Innervate
 ( 67353, 0x00,   7, 0x00008000, 0x00100500, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- uncommented
 ( 57989, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000,   0,   0,   0), -- uncommented
+( 63086, 0x00,   9, 0x00000000, 0x00000000, 0x00010000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Raptor Strike
 ( 65661, 0x00,  15, 0x00400011, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 1)
 ( 66191, 0x00,  15, 0x00400011, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 2)
 ( 66192, 0x00,  15, 0x00400011, 0x20020004, 0x00000000, 0x00000010, 0x00000000,   0, 100,   0), -- Threat of Thassarian (Rank 3)
@@ -19431,6 +19430,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 70803, 0x00,   8, 0x003E0000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 4P Bonus
 ( 70805, 0x00,   8, 0x00000000, 0x00020000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 2P Bonus
 ( 70807, 0x00,  11, 0x00000000, 0x00000000, 0x00000010, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Restoration 2P Bonus
+( 70817, 0x00,  11, 0x00000000, 0x00001000, 0x00000000, 0x00010000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Elemental 4P Bonus
 ( 70830, 0x00,  11, 0x00000000, 0x00020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Enhancement 2P Bonus
 ( 70841, 0x00,   5, 0x00000004, 0x00000100, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Warlock T10 4P Bonus
 ( 70844, 0x00,   4, 0x00000100, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Warrior T10 Protection 4P Bonus
@@ -27286,7 +27286,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (465, 'Teleport location deleted.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (466, 'No taxinodes found!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (467, 'Target unit has %d auras:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(468, 'id: %d effmask: %d charges: %d stack: %d slot %d duration: %d maxduration: %d', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(468, 'id: %d %s effmask: %d charges: %d stack: %d slot %d duration: %d maxduration: %d %s %s caster: %s guid: %d', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (469, 'Target unit has %d auras of type %d:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (470, 'id: %d eff: %d amount: %d', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (471, 'Quest %u not found.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -27612,7 +27612,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (1131, 'The following characters match your query:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1132, 'Currently Banned Characters:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1133, '|   Character   |   BanDate    |   UnbanDate  |  Banned By    |   Ban Reason  |', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(1200, 'You try to view cinemitic %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1200, 'You try to view cinematic %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1201, 'You try to view movie %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1205, 'The battle will begin in two minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1206, 'The battle will begin in 1 minute.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -27883,30 +27883,6 @@ AVG_ROW_LENGTH=0;
 LOCK TABLES `vehicle_accessory` WRITE;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vehicle_scaling_info`
---
-
-DROP TABLE IF EXISTS `vehicle_scaling_info`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vehicle_scaling_info` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
-  `baseItemLevel` float NOT NULL default '0',
-  `scalingFactor` float NOT NULL default '0',
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vehicle_scaling_info`
---
-
-LOCK TABLES `vehicle_scaling_info` WRITE;
-/*!40000 ALTER TABLE `vehicle_scaling_info` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vehicle_scaling_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

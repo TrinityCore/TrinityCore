@@ -278,7 +278,7 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat();
                         break;
                     case POINT_AIR_PHASE:
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 3, 6), false);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
                         break;
                     case POINT_LAND:
@@ -1260,7 +1260,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
             void HandleTriggerMissile(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (Position* pos = GetTargetDest())
+                if (Position const* pos = GetTargetDest())
                     if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
             }

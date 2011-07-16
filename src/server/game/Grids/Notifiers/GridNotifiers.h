@@ -90,14 +90,14 @@ namespace Trinity
         void Visit(PlayerMapType   &);
     };
 
-     struct AIRelocationNotifier
-     {
+    struct AIRelocationNotifier
+    {
         Unit &i_unit;
         bool isCreature;
         explicit AIRelocationNotifier(Unit &unit) : i_unit(unit), isCreature(unit.GetTypeId() == TYPEID_UNIT)  {}
         template<class T> void Visit(GridRefManager<T> &) {}
         void Visit(CreatureMapType &);
-     };
+    };
 
     struct GridUpdater
     {
@@ -449,6 +449,22 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
+    template<class Check>
+    struct PlayerLastSearcher
+    {
+        uint32 i_phaseMask;
+        Player* &i_object;
+        Check& i_check;
+
+        PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check) : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check)
+        {
+        }
+
+        void Visit(PlayerMapType& m);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
+
     template<class Do>
     struct PlayerWorker
     {
@@ -498,7 +514,7 @@ namespace Trinity
             bool operator()(Creature* u)
             {
                 if (i_funit->GetTypeId() != TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
-                    u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
+                    u->getDeathState() != CORPSE || u->isInFlight() ||
                     (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
@@ -525,7 +541,7 @@ namespace Trinity
             }
             bool operator()(Creature* u)
             {
-                if (u->getDeathState() != CORPSE || u->isInFlight() || u->isDeadByDefault() ||
+                if (u->getDeathState() != CORPSE || u->isInFlight() ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()) ||
                     (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) != 0)
                     return false;
@@ -805,21 +821,22 @@ namespace Trinity
             float i_range;
     };
 
-    class AnyUnfriendlyVisibleUnitInObjectRangeCheck
+    class AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck
     {
         public:
-            AnyUnfriendlyVisibleUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range)
-                : i_obj(obj), i_funit(funit), i_range(range) {}
+            AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck(Unit const* funit, float range)
+                : i_funit(funit), i_range(range) {}
 
-            bool operator()(Unit* u)
+            bool operator()(const Unit* u)
             {
                 return u->isAlive()
-                    && i_obj->IsWithinDistInMap(u, i_range)
+                    && i_funit->IsWithinDistInMap(u, i_range)
                     && !i_funit->IsFriendlyTo(u)
+                    && i_funit->canAttack(u)
+                    && u->GetCreatureType() != CREATURE_TYPE_CRITTER
                     && i_funit->canSeeOrDetect(u);
             }
         private:
-            WorldObject const* i_obj;
             Unit const* i_funit;
             float i_range;
     };
@@ -1140,6 +1157,30 @@ namespace Trinity
     private:
         WorldObject const* i_obj;
         float i_range;
+    };
+
+    class NearestPlayerInObjectRangeCheck
+    {
+        public:
+            NearestPlayerInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range)
+            {
+            }
+
+            bool operator()(Player* u)
+            {
+                if (u->isAlive() && i_obj->IsWithinDistInMap(u, i_range))
+                {
+                    i_range = i_obj->GetDistance(u);
+                    return true;
+                }
+
+                return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            float i_range;
+
+            NearestPlayerInObjectRangeCheck(NearestPlayerInObjectRangeCheck const&);
     };
 
     class AllFriendlyCreaturesInGrid

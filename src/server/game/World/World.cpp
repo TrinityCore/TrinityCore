@@ -854,7 +854,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_GM_LEVEL_IN_GM_LIST]   = sConfig->GetIntDefault("GM.InGMList.Level", SEC_ADMINISTRATOR);
     m_int_configs[CONFIG_GM_LEVEL_IN_WHO_LIST]  = sConfig->GetIntDefault("GM.InWhoList.Level", SEC_ADMINISTRATOR);
-    m_int_configs[CONFIG_GM_LEVEL_ALLOW_ACHIEVEMENTS]  = sConfig->GetIntDefault("GM.AllowAchievementGain.Level", SEC_ADMINISTRATOR);
     m_bool_configs[CONFIG_GM_LOG_TRADE]         = sConfig->GetBoolDefault("GM.LogTrade", false);
     m_int_configs[CONFIG_START_GM_LEVEL]        = sConfig->GetIntDefault("GM.StartLevel", 1);
     if (m_int_configs[CONFIG_START_GM_LEVEL] < m_int_configs[CONFIG_START_PLAYER_LEVEL])
@@ -1307,6 +1306,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Spell Proc Event conditions...");
     sSpellMgr->LoadSpellProcEvents();
 
+    sLog->outString("Loading Spell Proc conditions and data...");
+    sSpellMgr->LoadSpellProcs();
+
     sLog->outString("Loading Spell Bonus Data...");
     sSpellMgr->LoadSpellBonusess();
 
@@ -1345,9 +1347,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
-
-    sLog->outString("Loading Vehicle scaling information...");
-    sObjectMgr->LoadVehicleScaling();
 
     sLog->outString("Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
@@ -1537,8 +1536,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
-
-    sObjectMgr->LoadGossipScripts();                             // must be before gossip menu options
 
     sLog->outString("Loading Gossip menu...");
     sObjectMgr->LoadGossipMenu();
@@ -2313,7 +2310,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
 /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
 BanReturn World::BanCharacter(std::string name, std::string duration, std::string reason, std::string author)
 {
-    Player *pBanned = sObjectMgr->GetPlayer(name.c_str());
+    Player* pBanned = sObjectMgr->GetPlayer(name.c_str());
     uint32 guid = 0;
 
     uint32 duration_secs = TimeStringToSecs(duration);
@@ -2354,7 +2351,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
 /// Remove a ban from a character
 bool World::RemoveBanCharacter(std::string name)
 {
-    Player *pBanned = sObjectMgr->GetPlayer(name.c_str());
+    Player* pBanned = sObjectMgr->GetPlayer(name.c_str());
     uint32 guid = 0;
 
     /// Pick a player to ban if not online

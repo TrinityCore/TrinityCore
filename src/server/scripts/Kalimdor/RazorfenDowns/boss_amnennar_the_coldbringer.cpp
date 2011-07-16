@@ -41,14 +41,14 @@ class boss_amnennar_the_coldbringer : public CreatureScript
 public:
     boss_amnennar_the_coldbringer() : CreatureScript("boss_amnennar_the_coldbringer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_amnennar_the_coldbringerAI (pCreature);
+        return new boss_amnennar_the_coldbringerAI (creature);
     }
 
     struct boss_amnennar_the_coldbringerAI : public ScriptedAI
     {
-        boss_amnennar_the_coldbringerAI(Creature *c) : ScriptedAI(c) {}
+        boss_amnennar_the_coldbringerAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 AmnenarsWrath_Timer;
         uint32 FrostBolt_Timer;

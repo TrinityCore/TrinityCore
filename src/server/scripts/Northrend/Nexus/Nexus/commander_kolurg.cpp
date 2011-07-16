@@ -42,14 +42,14 @@ class boss_commander_kolurg : public CreatureScript
 public:
     boss_commander_kolurg() : CreatureScript("boss_commander_kolurg") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_commander_kolurgAI (pCreature);
+        return new boss_commander_kolurgAI (creature);
     }
 
     struct boss_commander_kolurgAI : public ScriptedAI
     {
-        boss_commander_kolurgAI(Creature *c) : ScriptedAI(c) {}
+        boss_commander_kolurgAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}

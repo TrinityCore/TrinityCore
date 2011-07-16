@@ -75,7 +75,7 @@ void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
             GUID_LOPART(guid)
         );
 
-    m_nameQueryCallbacks.insert(lFutureResult);
+    _nameQueryCallbacks.insert(lFutureResult);
 
 // CharacterDatabase.AsyncPQuery(&WorldSession::SendNameQueryOpcodeFromDBCallBack, GetAccountId(),
 }
@@ -326,7 +326,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
     sLog->outDetail("WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
     recv_data >> guid;
-    GetPlayer()->SetUInt64Value(UNIT_FIELD_TARGET, guid);
+    GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 

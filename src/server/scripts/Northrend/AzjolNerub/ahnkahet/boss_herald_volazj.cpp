@@ -67,9 +67,9 @@ public:
 
     struct boss_volazjAI : public ScriptedAI
     {
-        boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+        boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript *pInstance;
@@ -101,12 +101,12 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
                 // Not good target or too many players
-                if (pTarget->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
+                if (target->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
                     return;
                 // First target - start channel visual and set self as unnattackable
                 if (!insanityHandled)
@@ -118,19 +118,19 @@ public:
                     me->SetControlled(true, UNIT_STAT_STUNNED);
                 }
                 // phase mask
-                pTarget->CastSpell(pTarget, SPELL_INSANITY_TARGET+insanityHandled, true);
+                target->CastSpell(target, SPELL_INSANITY_TARGET+insanityHandled, true);
                 // summon twisted party members for this target
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 {
-                    Player *plr = i->getSource();
-                    if (!plr || !plr->isAlive())
+                    Player* player = i->getSource();
+                    if (!player || !player->isAlive())
                         continue;
                     // Summon clone
-                    if (Unit *summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Unit* summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
-                        plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
+                        player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // set phase
                         summon->SetPhaseMask((1<<(4+insanityHandled)), true);
                     }
@@ -144,8 +144,8 @@ public:
             Map::PlayerList const &players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
-                Player* pPlayer = i->getSource();
-                pPlayer->RemoveAurasDueToSpell(GetSpellForPhaseMask(pPlayer->GetPhaseMask()));
+                Player* player = i->getSource();
+                player->RemoveAurasDueToSpell(GetSpellForPhaseMask(player->GetPhaseMask()));
             }
         }
 
@@ -184,7 +184,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             Summons.Summon(summon);
         }
@@ -213,7 +213,7 @@ public:
             return spell;
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             uint32 phase= summon->GetPhaseMask();
             uint32 nextPhase = 0;
@@ -222,7 +222,7 @@ public:
             // Check if all summons in this phase killed
             for (SummonList::const_iterator iter = Summons.begin(); iter != Summons.end(); ++iter)
             {
-                if (Creature *visage = Unit::GetCreature(*me, *iter))
+                if (Creature* visage = Unit::GetCreature(*me, *iter))
                 {
                     // Not all are dead
                     if (phase == visage->GetPhaseMask())
@@ -244,13 +244,13 @@ public:
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (Player* pPlayer = i->getSource())
+                    if (Player* player = i->getSource())
                     {
-                        if (pPlayer->HasAura(spell))
+                        if (player->HasAura(spell))
                         {
-                            pPlayer->RemoveAurasDueToSpell(spell);
+                            player->RemoveAurasDueToSpell(spell);
                             if (spell2) // if there is still some different mask cast spell for it
-                                pPlayer->CastSpell(pPlayer, spell2, true);
+                                player->CastSpell(player, spell2, true);
                         }
                     }
                 }
@@ -288,8 +288,8 @@ public:
 
             if (uiShiverTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_SHIVER);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_SHIVER);
                 uiShiverTimer = 15*IN_MILLISECONDS;
             } else uiShiverTimer -= diff;
 
@@ -313,7 +313,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_volazjAI(creature);
     }

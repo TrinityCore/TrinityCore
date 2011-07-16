@@ -140,7 +140,7 @@ void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
 template <class T>
 bool PoolGroup<T>::CheckPool() const
 {
-    if (!EqualChanced.size())
+    if (EqualChanced.empty())
     {
         float chance = 0;
         for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)
@@ -496,7 +496,7 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
         Spawn1Object(&tempObj);
         newQuests.erase(itr);
         --limit;
-    } while (limit && newQuests.size());
+    } while (limit && !newQuests.empty());
 
     // if we are here it means the pool is initialized at startup and did not have previous saved state
     if (!triggerFrom)
@@ -779,7 +779,7 @@ void PoolMgr::LoadFromDB()
             while (result->NextRow());
 
             // Now check for circular reference
-            for (uint32 i=0; i<mPoolPoolGroups.size(); ++i)
+            for (uint32 i=0; i < max_pool_id; ++i)
             {
                 std::set<uint32> checkedPools;
                 for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))

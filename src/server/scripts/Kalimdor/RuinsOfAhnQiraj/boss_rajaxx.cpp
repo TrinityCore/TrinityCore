@@ -75,13 +75,13 @@ class boss_rajaxx : public CreatureScript
                 events.ScheduleEvent(EVENT_THUNDERCRASH, 12000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 //SAY_DEATH
                 _JustDied();
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* /*victim*/)
             {
                 _EnterCombat();
             }

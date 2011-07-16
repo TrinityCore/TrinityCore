@@ -44,7 +44,7 @@ enum SpellInterruptFlags
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
     SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
     SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x04, // interrupt
-    SPELL_INTERRUPT_FLAG_AUTOATTACK   = 0x08, // no
+    SPELL_INTERRUPT_FLAG_AUTOATTACK   = 0x08, // enter combat
     SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10,               // _complete_ interrupt on direct damage
     //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
 };
@@ -337,6 +337,8 @@ class UnitAI;
 class Totem;
 class Transport;
 class Vehicle;
+
+typedef std::list<Unit*> UnitList;
 
 struct SpellImmune
 {
@@ -641,7 +643,7 @@ enum MovementFlags
     MOVEMENTFLAG_WALKING               = 0x00000100,               // Walking
     MOVEMENTFLAG_ONTRANSPORT           = 0x00000200,               // Used for flying on some creatures
     MOVEMENTFLAG_LEVITATING            = 0x00000400,
-    MOVEMENTFLAG_ROOT                  = 0x00000800,
+    MOVEMENTFLAG_ROOT                  = 0x00000800,               // Must not be set along with MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT -> client freeze
     MOVEMENTFLAG_JUMPING               = 0x00001000,
     MOVEMENTFLAG_FALLING               = 0x00002000,               // damage dealt on that type of falling
     MOVEMENTFLAG_PENDING_STOP          = 0x00004000,
@@ -799,6 +801,8 @@ struct CleanDamage
     MeleeHitOutcome hitOutCome;
 };
 
+struct CalcDamageInfo;
+
 class DamageInfo
 {
 private:
@@ -808,49 +812,82 @@ private:
     SpellEntry const* const m_spellInfo;
     SpellSchoolMask const m_schoolMask;
     DamageEffectType const m_damageType;
+    WeaponAttackType m_attackType;
     uint32 m_absorb;
     uint32 m_resist;
     uint32 m_block;
 public:
-    explicit DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellEntry const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType)
-        : m_attacker(_attacker), m_victim(_victim), m_damage(_damage), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask), m_damageType(_damageType)
-    {
-        m_absorb = 0;
-        m_resist = 0;
-        m_block = 0;
-    }
-    void ModifyDamage(int32 amount)
-    {
-        amount = std::min(amount, int32(GetDamage()));
-        m_damage += amount;
-    }
-    void AbsorbDamage(uint32 amount)
-    {
-        amount = std::min(amount, GetDamage());
-        m_absorb += amount;
-        m_damage -= amount;
-    }
-    void ResistDamage(uint32 amount)
-    {
-        amount = std::min(amount, GetDamage());
-        m_resist += amount;
-        m_damage -= amount;
-    }
-    void BlockDamage(uint32 amount)
-    {
-        amount = std::min(amount, GetDamage());
-        m_block += amount;
-        m_damage -= amount;
-    }
+    explicit DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellEntry const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType);
+    explicit DamageInfo(CalcDamageInfo& dmgInfo);
+
+    void ModifyDamage(int32 amount);
+    void AbsorbDamage(uint32 amount);
+    void ResistDamage(uint32 amount);
+    void BlockDamage(uint32 amount);
+
     Unit* GetAttacker() const { return m_attacker; };
     Unit* GetVictim() const { return m_victim; };
-    DamageEffectType GetDamageType() const { return m_damageType; };
     SpellEntry const* GetSpellInfo() const { return m_spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return m_schoolMask; };
+    DamageEffectType GetDamageType() const { return m_damageType; };
+    WeaponAttackType GetAttackType() const { return m_attackType; };
     uint32 GetDamage() const { return m_damage; };
     uint32 GetAbsorb() const { return m_absorb; };
     uint32 GetResist() const { return m_resist; };
     uint32 GetBlock() const { return m_block; };
+};
+
+class HealInfo
+{
+private:
+    Unit* const m_healer;
+    Unit* const m_target;
+    uint32 m_heal;
+    uint32 m_absorb;
+    SpellEntry const* const m_spellInfo;
+    SpellSchoolMask const m_schoolMask;
+public:
+    explicit HealInfo(Unit* _healer, Unit* _target, uint32 _heal, SpellEntry const* _spellInfo, SpellSchoolMask _schoolMask)
+        : m_healer(_healer), m_target(_target), m_heal(_heal), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask)
+    {
+        m_absorb = 0;
+    }
+    void AbsorbHeal(uint32 amount)
+    {
+        amount = std::min(amount, GetHeal());
+        m_absorb += amount;
+        m_heal -= amount;
+    }
+
+    uint32 GetHeal() const { return m_heal; };
+};
+
+class ProcEventInfo
+{
+private:
+    Unit* const _actor;
+    Unit* const _actionTarget;
+    Unit* const _procTarget;
+    uint32 _typeMask;
+    uint32 _spellTypeMask;
+    uint32 _spellPhaseMask;
+    uint32 _hitMask;
+    Spell* _spell;
+    DamageInfo* _damageInfo;
+    HealInfo* _healInfo;
+public:
+    explicit ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
+    Unit* GetActor() { return _actor; };
+    Unit* GetActionTarget() const { return _actionTarget; }
+    Unit* GetProcTarget() const { return _procTarget; }
+    uint32 GetTypeMask() const { return _typeMask; }
+    uint32 GetSpellTypeMask() const { return _spellTypeMask; }
+    uint32 GetSpellPhaseMask() const { return _spellPhaseMask; }
+    uint32 GetHitMask() const { return _hitMask; }
+    SpellEntry const* GetSpellInfo() const { return NULL; }
+    SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
+    DamageInfo* GetDamageInfo() const { return _damageInfo; }
+    HealInfo* GetHealInfo() const { return _healInfo; }
 };
 
 // Struct for use in Unit::CalculateMeleeDamage
@@ -1360,6 +1397,11 @@ class Unit : public WorldObject
         void ProcDamageAndSpell(Unit *pVictim, uint32 procAttacker, uint32 procVictim, uint32 procEx, uint32 amount, WeaponAttackType attType = BASE_ATTACK, SpellEntry const *procSpell = NULL, SpellEntry const* procAura = NULL);
         void ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell, uint32 damage , SpellEntry const* procAura = NULL);
 
+        void GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTriggeringProc, std::list<AuraApplication*>* procAuras, ProcEventInfo eventInfo);
+        void TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo);
+        void TriggerAurasProcOnEvent(std::list<AuraApplication*>* myProcAuras, std::list<AuraApplication*>* targetProcAuras, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
+        void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, std::list<AuraApplication*>& procAuras);
+
         void HandleEmoteCommand(uint32 anim_id);
         void AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
@@ -1483,6 +1525,8 @@ class Unit : public WorldObject
         Aura * AddAura(uint32 spellId, Unit* target);
         Aura * AddAura(SpellEntry const *spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
+        void SendPlaySpellVisual(uint32 id);
+        void SendPlaySpellImpact(uint64 guid, uint32 id);
 
         bool IsDamageToThreatSpell(SpellEntry const* spellInfo) const;
 
@@ -1494,6 +1538,7 @@ class Unit : public WorldObject
         void SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo);
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
+        void SendSpellDamageResist(Unit* target, uint32 spellId);
         void SendSpellDamageImmune(Unit* target, uint32 spellId);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
@@ -1793,7 +1838,7 @@ class Unit : public WorldObject
         {
             ShapeshiftForm form = GetShapeshiftForm();
             return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
-                form != FORM_SHADOW && form != FORM_STEALTH;
+                form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD;
         }
 
         float m_modMeleeHitChance;
@@ -2053,7 +2098,6 @@ class Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
-        bool CheckPlayerCondition(Player* pPlayer);
         bool HandleSpellClick(Unit* clicker, int8 seatId = -1);
         void EnterVehicle(Unit *base, int8 seatId = -1);
         void ExitVehicle(Position const* exitPosition = NULL);
@@ -2083,6 +2127,37 @@ class Unit : public WorldObject
         Totem* ToTotem(){ if (isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
         TempSummon* ToTempSummon() { if (isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
         const TempSummon* ToTempSummon() const { if (isSummon()) return reinterpret_cast<const TempSummon*>(this); else return NULL; }
+
+        void SetTarget(uint64 guid)
+        {
+            if (!_targetLocked)
+                SetUInt64Value(UNIT_FIELD_TARGET, guid);
+        }
+
+        void FocusTarget(Spell const* focusSpell, uint64 target)
+        {
+            // already focused
+            if (_focusSpell)
+                return;
+
+            _focusSpell = focusSpell;
+            _targetLocked = true;
+            SetUInt64Value(UNIT_FIELD_TARGET, target);
+        }
+
+        void ReleaseFocus(Spell const* focusSpell)
+        {
+            // focused to something else
+            if (focusSpell != _focusSpell)
+                return;
+
+            _focusSpell = NULL;
+            _targetLocked = false;
+            if (Unit* victim = getVictim())
+                SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
+            else
+                SetUInt64Value(UNIT_FIELD_TARGET, 0);
+        }
 
     protected:
         explicit Unit ();
@@ -2114,6 +2189,8 @@ class Unit : public WorldObject
         GameObjectList m_gameObj;
         bool m_isSorted;
         uint32 m_transform;
+
+        Spell* m_currentSpells[CURRENT_MAX_SPELL];
 
         AuraMap m_ownedAuras;
         AuraApplicationMap m_appliedAuras;
@@ -2185,8 +2262,6 @@ class Unit : public WorldObject
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs
 
-        Spell* m_currentSpells[CURRENT_MAX_SPELL];
-
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us
         HostileRefManager m_HostileRefManager;
@@ -2200,6 +2275,9 @@ class Unit : public WorldObject
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
+
+        Spell const* _focusSpell;
+        bool _targetLocked; // locks the target during spell cast for proper facing
 };
 
 namespace Trinity

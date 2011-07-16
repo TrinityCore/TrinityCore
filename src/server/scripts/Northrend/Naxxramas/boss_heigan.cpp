@@ -42,28 +42,48 @@ enum Phases
     PHASE_DANCE,
 };
 
+#define ACTION_SAFETY_DANCE_FAIL 1
+#define DATA_SAFETY_DANCE        19962139
+
 class boss_heigan : public CreatureScript
 {
 public:
     boss_heigan() : CreatureScript("boss_heigan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_heiganAI (pCreature);
+        return new boss_heiganAI (creature);
     }
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* c) : BossAI(c, BOSS_HEIGAN) {}
 
         uint32 eruptSection;
         bool eruptDirection;
+        bool safetyDance;
         Phases phase;
 
-        void KilledUnit(Unit* /*Victim*/)
+        void KilledUnit(Unit* who)
         {
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                safetyDance = false;
+        }
+
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == DATA_SAFETY_DANCE)
+                safetyDance = data ? true : false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_SAFETY_DANCE)
+                return safetyDance ? 1 : 0;
+
+            return 0;
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -77,6 +97,7 @@ public:
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);
             EnterPhase(PHASE_FIGHT);
+            safetyDance = true;
         }
 
         void EnterPhase(Phases newPhase)
@@ -147,7 +168,62 @@ public:
 
 };
 
+class spell_heigan_eruption : public SpellScriptLoader
+{
+    public:
+        spell_heigan_eruption() : SpellScriptLoader("spell_heigan_eruption") { }
+
+        class spell_heigan_eruption_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_heigan_eruption_SpellScript);
+
+            void HandleScript(SpellEffIndex /*eff*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster || !GetHitPlayer())
+                    return;
+
+                if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
+                    if (InstanceScript* instance = caster->GetInstanceScript())
+                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
+                            Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_heigan_eruption_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_heigan_eruption_SpellScript();
+        }
+};
+
+class achievement_safety_dance : public AchievementCriteriaScript
+{
+    public:
+        achievement_safety_dance() : AchievementCriteriaScript("achievement_safety_dance")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Heigan = target->ToCreature())
+                if (Heigan->AI()->GetData(DATA_SAFETY_DANCE))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_heigan()
 {
     new boss_heigan();
+    new spell_heigan_eruption();
+    new achievement_safety_dance();
 }

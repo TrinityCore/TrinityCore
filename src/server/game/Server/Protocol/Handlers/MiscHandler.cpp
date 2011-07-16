@@ -489,22 +489,6 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket & recv_data)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
-void WorldSession::HandleSetTargetOpcode(WorldPacket & recv_data)
-{
-    uint64 guid;
-    recv_data >> guid;
-
-    _player->SetUInt32Value(UNIT_FIELD_TARGET, uint32(guid));
-
-    // update reputation list if need
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
-    if (!unit)
-        return;
-
-    if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
-        _player->GetReputationMgr().SetVisible(factionTemplateEntry);
-}
-
 void WorldSession::HandleSetSelectionOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
@@ -553,13 +537,13 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
     if (!normalizePlayerName(friendName))
         return;
 
-    CharacterDatabase.escape_string(friendName);            // prevent SQL injection - normal name don't must changed by this call
+    CharacterDatabase.EscapeString(friendName);            // prevent SQL injection - normal name don't must changed by this call
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'",
         GetPlayer()->GetName(), friendName.c_str());
 
-    m_addFriendCallback.SetParam(friendNote);
-    m_addFriendCallback.SetFutureResult(
+    _addFriendCallback.SetParam(friendNote);
+    _addFriendCallback.SetFutureResult(
         CharacterDatabase.AsyncPQuery("SELECT guid, race, account FROM characters WHERE name = '%s'", friendName.c_str())
         );
 }
@@ -642,12 +626,12 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket & recv_data)
     if (!normalizePlayerName(IgnoreName))
         return;
 
-    CharacterDatabase.escape_string(IgnoreName);            // prevent SQL injection - normal name don't must changed by this call
+    CharacterDatabase.EscapeString(IgnoreName);            // prevent SQL injection - normal name don't must changed by this call
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
         GetPlayer()->GetName(), IgnoreName.c_str());
 
-    m_addIgnoreCallback = CharacterDatabase.AsyncPQuery("SELECT guid FROM characters WHERE name = '%s'", IgnoreName.c_str());
+    _addIgnoreCallback = CharacterDatabase.AsyncPQuery("SELECT guid FROM characters WHERE name = '%s'", IgnoreName.c_str());
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult result)
@@ -728,8 +712,8 @@ void WorldSession::HandleBugOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
 
-    CharacterDatabase.escape_string(type);
-    CharacterDatabase.escape_string(content);
+    CharacterDatabase.EscapeString(type);
+    CharacterDatabase.EscapeString(content);
     CharacterDatabase.PExecute ("INSERT INTO bugreport (type, content) VALUES('%s', '%s')", type.c_str(), content.c_str());
 }
 
@@ -1439,7 +1423,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket & recv_data)
             if (WorldObject *target = _player->GetViewpoint())
                 _player->SetSeer(target);
             else
-                sLog->outError("Player %s requests non-existing seer", _player->GetName());
+                sLog->outError("Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
             break;
         default:
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Unhandled mode in CMSG_FAR_SIGHT: %u", apply);

@@ -25,12 +25,14 @@ class Unit;
 struct SpellEntry;
 struct SpellModifier;
 struct ProcTriggerSpell;
+struct SpellProcEntry;
 
 // forward decl
 class AuraEffect;
 class Aura;
 class DynamicObject;
 class AuraScript;
+class ProcInfo;
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
@@ -142,6 +144,8 @@ class Aura
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
+        void RefreshSpellMods();
+
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
         bool IsPassive() const;
@@ -176,6 +180,17 @@ class Aura
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
+
+        // Proc system
+        bool IsProcOnCooldown() const;
+        void AddProcCooldown(uint32 msec);
+        bool IsUsingCharges() const { return m_isUsingCharges; }
+        void SetUsingCharges(bool val) { m_isUsingCharges = val; }
+        void PrepareProcToTrigger();
+        bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
+        float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
+        void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+
 
         // AuraScript
         void LoadScripts();
@@ -217,6 +232,7 @@ class Aura
 
         bool m_isRemoved:1;
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
+        bool m_isUsingCharges:1;
 
     private:
         Unit::AuraApplicationList m_removedApplications;

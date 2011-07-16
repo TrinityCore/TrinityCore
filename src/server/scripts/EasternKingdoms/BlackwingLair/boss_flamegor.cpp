@@ -36,14 +36,14 @@ class boss_flamegor : public CreatureScript
 public:
     boss_flamegor() : CreatureScript("boss_flamegor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flamegorAI (pCreature);
+        return new boss_flamegorAI (creature);
     }
 
     struct boss_flamegorAI : public ScriptedAI
     {
-        boss_flamegorAI(Creature *c) : ScriptedAI(c) {}
+        boss_flamegorAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 ShadowFlame_Timer;
         uint32 WingBuffet_Timer;

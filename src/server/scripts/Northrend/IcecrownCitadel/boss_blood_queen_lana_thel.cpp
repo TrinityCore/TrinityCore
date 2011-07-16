@@ -148,6 +148,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 _offtank = NULL;
                 _vampires.clear();
                 _creditBloodQuickening = false;
+                _killMinchar = false;
             }
 
             void EnterCombat(Unit* who)
@@ -186,8 +187,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 if (_creditBloodQuickening)
                 {
                     instance->SetData(DATA_BLOOD_QUICKENING_STATE, DONE);
-                    if (Player* plr = killer->ToPlayer())
-                        plr->RewardPlayerAndGroupAtEvent(NPC_INFILTRATOR_MINCHAR_BQ, plr);
+                    if (Player* player = killer->ToPlayer())
+                        player->RewardPlayerAndGroupAtEvent(NPC_INFILTRATOR_MINCHAR_BQ, player);
                     if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
                     {
                         minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
@@ -402,7 +403,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             DoStopAttack();
                             me->SetReactState(REACT_PASSIVE);
                             events.DelayEvents(7000, EVENT_GROUP_NORMAL);
-                            events.CancelEventsByGCD(EVENT_GROUP_CANCELLABLE);
+                            events.CancelEventGroup(EVENT_GROUP_CANCELLABLE);
                             me->GetMotionMaster()->MovePoint(POINT_CENTER, centerPos);
                             break;
                         case EVENT_AIR_START_FLYING:
@@ -586,6 +587,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_blood_queen_frenzied_bloodthirst_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_blood_queen_frenzied_bloodthirst_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
             }
         };

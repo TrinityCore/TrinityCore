@@ -1,9 +1,25 @@
+/*
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TRINITY_SPELLAURAEFFECTS_H
 #define TRINITY_SPELLAURAEFFECTS_H
 
 class Unit;
-class DynamicObject;
 class AuraEffect;
 class Aura;
 
@@ -25,6 +41,7 @@ class AuraEffect
         Aura * GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+        SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const { return m_spellProto->Id; }
@@ -66,6 +83,8 @@ class AuraEffect
 
         void SendTickImmune(Unit* target, Unit *caster) const;
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
+
+        void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
         void CleanupTriggeredSpells(Unit* target);
 
@@ -271,6 +290,13 @@ class AuraEffect
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
+
+        // aura effect proc handlers
+        void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 };
 
 namespace Trinity

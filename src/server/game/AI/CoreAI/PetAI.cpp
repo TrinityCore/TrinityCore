@@ -212,7 +212,7 @@ void PetAI::UpdateAI(const uint32 diff)
             targetSpellStore.erase(targetSpellStore.begin() + index);
 
             SpellCastTargets targets;
-            targets.setUnitTarget(target);
+            targets.SetUnitTarget(target);
 
             if (!me->HasInArc(M_PI, target))
             {

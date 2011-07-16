@@ -447,7 +447,7 @@ LogFileLevel = 0
 #                   1 - Anything related to units that doesn't fit in other
 #                          categories.
 #                   2 - Anything related to pets.
-#                   4 - Anything related to vehicles. 
+#                   4 - Anything related to vehicles.
 #                   8 - Anything related to C++ AI, instance scripts, etc.
 #                  16 - Anything related to DB AI, such as SAI, EAI, CreatureAI
 #                  32 - Anything related to DB map scripts
@@ -467,7 +467,7 @@ LogFileLevel = 0
 #              131072 - Anything related to player loading from DB
 #                      (Player::_LoadXXX functions)
 #              262144 - Anything related to items
-#              524288 - Anything related to player skills 
+#              524288 - Anything related to player skills
 #                      (do not confuse with spells)
 #             1048576 - Anything related to loot
 #             2097152 - Anything related to guilds
@@ -591,6 +591,14 @@ ArenaLogFile = ""
 #                     1 - (Enabled)
 
 ArenaLog.ExtendedInfo = 0
+
+#
+#    SQLDeveloperLogFile
+#        Description: Log file for core-generated SQL queries/dumps
+#        Example:     "SQLDev.log"    - (Enabled)
+#        Default:      ""             - (Disabled)
+
+SQLDeveloperLogFile = ""
 
 #
 #    SQLDriverLogFile
@@ -1892,16 +1900,6 @@ GM.AllowFriend = 0
 #                     1 - (Enabled)
 
 GM.LowerSecurity = 0
-
-#
-#    GM.AllowAchievementGain.Level
-#        Description: Max GM level that can obtain achievements.
-#        Default:     3 - (Anyone)
-#                     0 - (Only players)
-#                     1 - (Only moderators)
-#                     2 - (Only gamemasters)
-
-GM.AllowAchievementGain.Level = 3
 
 #
 #    GM.TicketSystem.ChanceOfGMSurvey

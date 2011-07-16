@@ -48,56 +48,56 @@ public:
 
     struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
     {
-        npc_mageguard_dalaranAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_mageguard_dalaranAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pCreature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-            pCreature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
+            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
         void Reset(){}
 
-        void EnterCombat(Unit* /*pWho*/){}
+        void EnterCombat(Unit* /*who*/){}
 
-        void AttackStart(Unit* /*pWho*/){}
+        void AttackStart(Unit* /*who*/){}
 
-        void MoveInLineOfSight(Unit *pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!pWho || !pWho->IsInWorld() || pWho->GetZoneId() != 4395)
+            if (!who || !who->IsInWorld() || who->GetZoneId() != 4395)
                 return;
 
-            if (!me->IsWithinDist(pWho, 65.0f, false))
+            if (!me->IsWithinDist(who, 65.0f, false))
                 return;
 
-            Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
+            Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
 
-            if (!pPlayer || pPlayer->isGameMaster() || pPlayer->IsBeingTeleported())
+            if (!player || player->isGameMaster() || player->IsBeingTeleported())
                 return;
 
             switch (me->GetEntry())
             {
                 case 29254:
-                    if (pPlayer->GetTeam() == HORDE)              // Horde unit found in Alliance area
+                    if (player->GetTeam() == HORDE)              // Horde unit found in Alliance area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
                         {
-                            if (me->isInBackInMap(pWho, 12.0f))   // In my line of sight, "outdoors", and behind me
-                                DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
+                            if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
+                                DoCast(who, SPELL_TRESPASSER_A); // Teleport the Horde unit out
                         }
                         else                                      // In my line of sight, and "indoors"
-                            DoCast(pWho, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
+                            DoCast(who, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
                     }
                     break;
                 case 29255:
-                    if (pPlayer->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
+                    if (player->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))
                         {
-                            if (me->isInBackInMap(pWho, 12.0f))   // In my line of sight, "outdoors", and behind me
-                                DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
+                            if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
+                                DoCast(who, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
                         }
                         else                                      // In my line of sight, and "indoors"
-                            DoCast(pWho, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
+                            DoCast(who, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
                     }
                     break;
             }
@@ -108,7 +108,7 @@ public:
         void UpdateAI(const uint32 /*diff*/){}
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_mageguard_dalaranAI(creature);
     }
@@ -130,29 +130,29 @@ class npc_hira_snowdawn : public CreatureScript
 public:
     npc_hira_snowdawn() : CreatureScript("npc_hira_snowdawn") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (!pCreature->isVendor() || !pCreature->isTrainer())
+        if (!creature->isVendor() || !creature->isTrainer())
             return false;
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-        if (pPlayer->getLevel() >= 80 && pPlayer->HasSpell(SPELL_COLD_WEATHER_FLYING))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        if (player->getLevel() >= 80 && player->HasSpell(SPELL_COLD_WEATHER_FLYING))
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRAIN)
-            pPlayer->GetSession()->SendTrainerList(pCreature->GetGUID());
+            player->GetSession()->SendTrainerList(creature->GetGUID());
 
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
+            player->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
     }

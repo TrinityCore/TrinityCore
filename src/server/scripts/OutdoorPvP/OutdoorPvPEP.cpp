@@ -127,23 +127,23 @@ void OPvPCapturePointEP_EWT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_EWT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player* player)
 {
-    if (OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
 }
 
-void OPvPCapturePointEP_EWT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_EWT::HandlePlayerLeave(Player* player)
 {
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OPvPCapturePoint::HandlePlayerLeave(plr);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
+    OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
 void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
@@ -276,23 +276,23 @@ void OPvPCapturePointEP_NPT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_NPT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player* player)
 {
-    if (OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
 }
 
-void OPvPCapturePointEP_NPT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_NPT::HandlePlayerLeave(Player* player)
 {
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OPvPCapturePoint::HandlePlayerLeave(plr);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
+    OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
 void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
@@ -408,23 +408,23 @@ void OPvPCapturePointEP_CGT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_CGT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player* player)
 {
-    if (OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
 }
 
-void OPvPCapturePointEP_CGT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_CGT::HandlePlayerLeave(Player* player)
 {
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OPvPCapturePoint::HandlePlayerLeave(plr);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
+    OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
 void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
@@ -547,23 +547,23 @@ void OPvPCapturePointEP_PWT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_PWT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player* player)
 {
-    if (OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
-        plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, phase);
+        player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
 }
 
-void OPvPCapturePointEP_PWT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_PWT::HandlePlayerLeave(Player* player)
 {
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OPvPCapturePoint::HandlePlayerLeave(plr);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
+    OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
 void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
@@ -658,58 +658,58 @@ bool OutdoorPvPEP::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPEP::HandlePlayerEnterZone(Player* plr, uint32 zone)
+void OutdoorPvPEP::HandlePlayerEnterZone(Player* player, uint32 zone)
 {
     // add buffs
-    if (plr->GetTeam() == ALLIANCE)
+    if (player->GetTeam() == ALLIANCE)
     {
         if (m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
-            plr->CastSpell(plr, EP_AllianceBuffs[m_AllianceTowersControlled-1], true);
+            player->CastSpell(player, EP_AllianceBuffs[m_AllianceTowersControlled-1], true);
     }
     else
     {
         if (m_HordeTowersControlled && m_HordeTowersControlled < 5)
-            plr->CastSpell(plr, EP_HordeBuffs[m_HordeTowersControlled-1], true);
+            player->CastSpell(player, EP_HordeBuffs[m_HordeTowersControlled-1], true);
     }
-    OutdoorPvP::HandlePlayerEnterZone(plr, zone);
+    OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPEP::HandlePlayerLeaveZone(Player* plr, uint32 zone)
+void OutdoorPvPEP::HandlePlayerLeaveZone(Player* player, uint32 zone)
 {
     // remove buffs
-    if (plr->GetTeam() == ALLIANCE)
+    if (player->GetTeam() == ALLIANCE)
     {
         for (int i = 0; i < 4; ++i)
-            plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
+            player->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
     }
     else
     {
         for (int i = 0; i < 4; ++i)
-            plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
+            player->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
     }
-    OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
+    OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
 void OutdoorPvPEP::BuffTeams()
 {
     for (PlayerSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
     {
-        Player* plr = *itr;
+        Player* player = *itr;
         {
             for (int i = 0; i < 4; ++i)
-                plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
+                player->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
             if (m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
-                plr->CastSpell(plr, EP_AllianceBuffs[m_AllianceTowersControlled-1], true);
+                player->CastSpell(player, EP_AllianceBuffs[m_AllianceTowersControlled-1], true);
         }
     }
     for (PlayerSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
     {
-        Player* plr = *itr;
+        Player* player = *itr;
         {
             for (int i = 0; i < 4; ++i)
-                plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
+                player->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
             if (m_HordeTowersControlled && m_HordeTowersControlled < 5)
-                plr->CastSpell(plr, EP_HordeBuffs[m_HordeTowersControlled-1], true);
+                player->CastSpell(player, EP_HordeBuffs[m_HordeTowersControlled-1], true);
         }
     }
 }
@@ -727,37 +727,37 @@ void OutdoorPvPEP::FillInitialWorldStates(WorldPacket & data)
     }
 }
 
-void OutdoorPvPEP::SendRemoveWorldStates(Player *plr)
+void OutdoorPvPEP::SendRemoveWorldStates(Player* player)
 {
-    plr->SendUpdateWorldState(EP_UI_TOWER_COUNT_A, 0);
-    plr->SendUpdateWorldState(EP_UI_TOWER_COUNT_H, 0);
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, 0);
-    plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, 0);
+    player->SendUpdateWorldState(EP_UI_TOWER_COUNT_A, 0);
+    player->SendUpdateWorldState(EP_UI_TOWER_COUNT_H, 0);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_POS, 0);
+    player->SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, 0);
 
-    plr->SendUpdateWorldState(EP_EWT_A, 0);
-    plr->SendUpdateWorldState(EP_EWT_H, 0);
-    plr->SendUpdateWorldState(EP_EWT_N, 0);
-    plr->SendUpdateWorldState(EP_EWT_N_A, 0);
-    plr->SendUpdateWorldState(EP_EWT_N_H, 0);
+    player->SendUpdateWorldState(EP_EWT_A, 0);
+    player->SendUpdateWorldState(EP_EWT_H, 0);
+    player->SendUpdateWorldState(EP_EWT_N, 0);
+    player->SendUpdateWorldState(EP_EWT_N_A, 0);
+    player->SendUpdateWorldState(EP_EWT_N_H, 0);
 
-    plr->SendUpdateWorldState(EP_PWT_A, 0);
-    plr->SendUpdateWorldState(EP_PWT_H, 0);
-    plr->SendUpdateWorldState(EP_PWT_N, 0);
-    plr->SendUpdateWorldState(EP_PWT_N_A, 0);
-    plr->SendUpdateWorldState(EP_PWT_N_H, 0);
+    player->SendUpdateWorldState(EP_PWT_A, 0);
+    player->SendUpdateWorldState(EP_PWT_H, 0);
+    player->SendUpdateWorldState(EP_PWT_N, 0);
+    player->SendUpdateWorldState(EP_PWT_N_A, 0);
+    player->SendUpdateWorldState(EP_PWT_N_H, 0);
 
-    plr->SendUpdateWorldState(EP_NPT_A, 0);
-    plr->SendUpdateWorldState(EP_NPT_H, 0);
-    plr->SendUpdateWorldState(EP_NPT_N, 0);
-    plr->SendUpdateWorldState(EP_NPT_N_A, 0);
-    plr->SendUpdateWorldState(EP_NPT_N_H, 0);
+    player->SendUpdateWorldState(EP_NPT_A, 0);
+    player->SendUpdateWorldState(EP_NPT_H, 0);
+    player->SendUpdateWorldState(EP_NPT_N, 0);
+    player->SendUpdateWorldState(EP_NPT_N_A, 0);
+    player->SendUpdateWorldState(EP_NPT_N_H, 0);
 
-    plr->SendUpdateWorldState(EP_CGT_A, 0);
-    plr->SendUpdateWorldState(EP_CGT_H, 0);
-    plr->SendUpdateWorldState(EP_CGT_N, 0);
-    plr->SendUpdateWorldState(EP_CGT_N_A, 0);
-    plr->SendUpdateWorldState(EP_CGT_N_H, 0);
+    player->SendUpdateWorldState(EP_CGT_A, 0);
+    player->SendUpdateWorldState(EP_CGT_H, 0);
+    player->SendUpdateWorldState(EP_CGT_N, 0);
+    player->SendUpdateWorldState(EP_CGT_N_A, 0);
+    player->SendUpdateWorldState(EP_CGT_N_H, 0);
 }
 
 class OutdoorPvP_eastern_plaguelands : public OutdoorPvPScript

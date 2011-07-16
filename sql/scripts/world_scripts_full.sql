@@ -9,7 +9,7 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649,5729,5616,5617,5618);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649,5729,5616,5617,5618,5718);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (822, 'at_map_chamber'),
@@ -47,9 +47,10 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5698, 'at_icc_saurfang_portal'),
 (5649, 'at_icc_shutdown_traps'),
 (5729, 'at_icc_start_blood_quickening'),
-(5616,'at_icc_start_frostwing_gauntlet'),
-(5617,'at_icc_start_frostwing_gauntlet'),
-(5618,'at_icc_start_frostwing_gauntlet');
+(5616, 'at_icc_start_frostwing_gauntlet'),
+(5617, 'at_icc_start_frostwing_gauntlet'),
+(5618, 'at_icc_start_frostwing_gauntlet'),
+(5718, 'at_frozen_throne_teleport');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -98,6 +99,8 @@ UPDATE `gameobject_template` SET `ScriptName`='go_dragonflayer_cage' WHERE entry
 UPDATE `gameobject_template` SET `ScriptName`='go_black_cage' WHERE `entry`=195310;
 UPDATE `gameobject_template` SET `ScriptName`='go_massive_seaforium_charge' WHERE `entry`=190752;
 UPDATE `gameobject_template` SET `ScriptName`='go_harpoon_launcher' WHERE `entry` IN (192175,192176,192177);
+UPDATE `gameobject_template` SET `ScriptName`='go_wind_stone' WHERE `entry` IN (180456,180461,180466,180518,180529,180534,180539,180544,180549,180554,180559,180564);
+
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `entry` IN (68,1976,3218,3296,3502,4624,9460,11190,15184);
@@ -1544,7 +1547,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_defense_turret
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_overload_device' WHERE `entry`=33143;
 UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_defense_cannon' WHERE `entry`=33139;
 UPDATE `creature_template` SET `ScriptName`='npc_colossus' WHERE `entry`=33237;
-UPDATE `creature_template` SET `ScriptName`='spell_pool_of_tar' WHERE `entry`=33090;
+UPDATE `creature_template` SET `ScriptName`='npc_pool_of_tar' WHERE `entry`=33090;
 UPDATE `creature_template` SET `ScriptName`='boss_ignis' WHERE `entry`=33118;
 UPDATE `creature_template` SET `ScriptName`='npc_iron_construct' WHERE `entry`=33121;
 UPDATE `creature_template` SET `ScriptName`='npc_scorch_ground' WHERE `entry`=33221;
@@ -1827,7 +1830,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045,6446,7625,7628,5541,5542,5543,7573,7574,7265,7549,12971,12978,12979,12980,7598,7587,7264,7548,10068,10069,10173,10306,10451,10462,10447,10448,10449,10459,10460,10461,7316,7317,7318,7583,4240,6803,7319,7577,7320,7590,7361) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (3804,11,0,0, 'achievement_resilient_victory'),
@@ -1844,6 +1847,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (1239,11,0,0, 'achievement_bg_control_all_nodes'),
 (5605,11,0,0, 'achievement_save_the_day'),
 (5606,11,0,0, 'achievement_save_the_day'),
+(6800,11,0,0, 'achievement_sickly_gazelle'),
 (12993,11,0,0, 'achievement_doesnt_go_to_eleven'),
 (12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
@@ -1893,15 +1897,44 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12978,11,0,0,'achievement_portal_jockey'),
 (12979,11,0,0,'achievement_portal_jockey'),
 (12971,11,0,0,'achievement_portal_jockey'),
-(12980,11,0,0,'achievement_portal_jockey');
+(12980,11,0,0,'achievement_portal_jockey'),
+(7598,11,0,0,'achievement_kings_bane'),
+(7587,11,0,0,'achievement_void_dance'),
+(7264,11,0,0,'achievement_safety_dance'),
+(7548,11,0,0,'achievement_safety_dance'),
+(10068,11,0,0,'achievement_ignis_shattered'),
+(10069,11,0,0,'achievement_ignis_shattered'),
+(10173,11,0,0,'achievement_shadowdodger'),
+(10306,11,0,0,'achievement_shadowdodger'),
+(10451,11,0,0,'achievement_smell_saronite'),
+(10462,11,0,0,'achievement_smell_saronite'),
+(10447,11,0,0,'achievement_knock_on_wood'),
+(10448,11,0,0,'achievement_knock_knock_on_wood'),
+(10449,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10459,11,0,0,'achievement_knock_on_wood'),
+(10460,11,0,0,'achievement_knock_knock_on_wood'),
+(10461,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10445,11,0,0,'achievement_getting_back_to_nature'),
+(10758,11,0,0,'achievement_getting_back_to_nature'),
+(7317,11,0,0,'achievement_respect_your_elders'),
+(7318,11,0,0,'achievement_king_dred'),
+(7316,11,0,0,'achievement_chaos_theory'),
+(7583,11,0,0,'achievement_share_the_love'),
+(4240,11,0,0,'achievement_watch_him_die'),
+(6803,11,0,0,'achievement_defenseless'),
+(7319,11,0,0,'achievement_less_rabi'),
+(7577,11,0,0,'achievement_split_personality'),
+(7320,11,0,0,'achievement_dehydration'),
+(7590,11,0,0,'achievement_brann_sparklin_news'),
+(7361,11,0,0,'achievement_oh_novos');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
+( 66218, 'spell_gen_launch'),
 ( 39228, 'spell_gen_absorb0_hitlimit1'),
 ( 60218, 'spell_gen_absorb0_hitlimit1'),
 (  6962, 'spell_gen_pet_summoned'),
-( 10848, 'spell_gen_shroud_of_death'),
 ( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
@@ -1954,6 +1987,17 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 25281, 'spell_gen_turkey_marker'),
 (-55428, 'spell_gen_lifeblood'),
 ( 65917, 'spell_gen_magic_rooster'),
+( 4073,  'spell_gen_allow_cast_from_item_only'),
+( 19804, 'spell_gen_allow_cast_from_item_only'),
+( 12749, 'spell_gen_allow_cast_from_item_only'),
+( 13258, 'spell_gen_allow_cast_from_item_only'),
+( 13166, 'spell_gen_allow_cast_from_item_only'),
+ (65266, 'spell_gen_vehicle_scaling'),
+ (65635, 'spell_gen_vehicle_scaling'),
+ (65636, 'spell_gen_vehicle_scaling'),
+ (66666, 'spell_gen_vehicle_scaling'),
+ (66667, 'spell_gen_vehicle_scaling'),
+ (66668, 'spell_gen_vehicle_scaling'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2015,10 +2059,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72440, 'spell_deathbringer_blood_nova'),
 ( 72378, 'spell_deathbringer_blood_nova_targeting'),
 ( 73058, 'spell_deathbringer_blood_nova_targeting'),
-( 72255, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72444, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72445, 'spell_deathbringer_mark_of_the_fallen_champion'),
-( 72446, 'spell_deathbringer_mark_of_the_fallen_champion'),
+( 72385, 'spell_deathbringer_boiling_blood'),
+( 72441, 'spell_deathbringer_boiling_blood'),
+( 72442, 'spell_deathbringer_boiling_blood'),
+( 72443, 'spell_deathbringer_boiling_blood'),
 ( 72155, 'spell_icc_harvest_blight_specimen'),
 ( 72162, 'spell_icc_harvest_blight_specimen'),
 ( 71123, 'spell_stinky_precious_decimate'),
@@ -2034,18 +2078,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71222, 'spell_festergut_blighted_spores'),
 ( 73033, 'spell_festergut_blighted_spores'),
 ( 73034, 'spell_festergut_blighted_spores'),
-( 69159, 'spell_festergut_gaseous_blight'),
-( 70135, 'spell_festergut_gaseous_blight'),
-( 70136, 'spell_festergut_gaseous_blight'),
-( 70137, 'spell_festergut_gaseous_blight'),
-( 69161, 'spell_festergut_gaseous_blight'),
-( 70138, 'spell_festergut_gaseous_blight'),
-( 70139, 'spell_festergut_gaseous_blight'),
-( 70140, 'spell_festergut_gaseous_blight'),
-( 69163, 'spell_festergut_gaseous_blight'),
-( 70468, 'spell_festergut_gaseous_blight'),
-( 70469, 'spell_festergut_gaseous_blight'),
-( 70470, 'spell_festergut_gaseous_blight'),
 ( 69782, 'spell_rotface_ooze_flood'),
 ( 69796, 'spell_rotface_ooze_flood'),
 ( 69798, 'spell_rotface_ooze_flood'),
@@ -2056,10 +2088,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69839, 'spell_rotface_unstable_ooze_explosion_init'),
 ( 69832, 'spell_rotface_unstable_ooze_explosion'),
 ( 71441, 'spell_rotface_unstable_ooze_explosion_suicide'),
-( 69507, 'spell_rotface_slime_spray'),
-( 71213, 'spell_rotface_slime_spray'),
-( 73189, 'spell_rotface_slime_spray'),
-( 73190, 'spell_rotface_slime_spray'),
 ( 70701, 'spell_putricide_expunged_gas'),
 ( 70343, 'spell_putricide_slime_puddle'),
 ( 70351, 'spell_putricide_unstable_experiment'),
@@ -2207,6 +2235,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62166, 'spell_ulduar_stone_grip_cast_target'),
 ( 63981, 'spell_ulduar_stone_grip_cast_target'),
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
+ (63720, 'spell_kologarn_stone_shout'),
+ (64004, 'spell_kologarn_stone_shout'),
 ( 63027, 'spell_ulduar_proximity_mines'),
 ( 63276, 'spell_mark_of_the_faceless'),
 ( 63489, 'spell_shield_of_runes'),
@@ -2222,12 +2252,16 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 37751, 'spell_xt002_submerged'),
 ( 37752, 'spell_xt002_stand'),
 ( 64381, 'spell_auriaya_strenght_of_the_pack'),
+( 64679, 'spell_auriaya_sentinel_blast'),
+( 64392, 'spell_auriaya_sentinel_blast'),
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
 -- Zalazane's Fall
 ( 75420, 'spell_mount_check'),
 ( 75102, 'spell_voljin_war_drums'),
+-- Durotar
+( 17009, 'spell_voodoo'),
 -- Dustwallow Marsh
 ( 42489, 'spell_ooze_zap'),
 ( 42485, 'spell_ooze_zap_channel_end'),
@@ -2346,6 +2380,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-33851, 'spell_dru_primal_tenacity'),
 ( 62606, 'spell_dru_savage_defense'),
 ( 70691, 'spell_dru_t10_restoration_4p_bonus'),
+(-50294, 'spell_dru_starfall_aoe'),
 -- example
 ( 66244, 'spell_ex_66244'), 
 ( 5581,  'spell_ex_5581'),

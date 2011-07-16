@@ -45,14 +45,14 @@ class boss_captain_skarloc : public CreatureScript
 public:
     boss_captain_skarloc() : CreatureScript("boss_captain_skarloc") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_captain_skarlocAI (pCreature);
+        return new boss_captain_skarlocAI (creature);
     }
 
     struct boss_captain_skarlocAI : public ScriptedAI
     {
-        boss_captain_skarlocAI(Creature *c) : ScriptedAI(c)
+        boss_captain_skarlocAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
