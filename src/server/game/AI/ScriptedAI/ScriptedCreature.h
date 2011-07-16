@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -60,13 +61,13 @@ struct ScriptedAI : public CreatureAI
     // Add items to a player
     void addItem(Player* player, uint32 itemid, uint8 amount = 1, bool received = true, bool created = false, bool broadcast = false);
 
-    // Entfernung Überprüfen und nach hause gehen, wenn zu weit...
+    // Entfernung Ã¼berprÃ¼fen und nach hause gehen, wenn zu weit...
     void CheckDistance(float dist, const uint32 uiDiff);
 
-    // Überprüft auf freundliche NPCs in der ThreatList, und geht bei leerer Liste nach Hause
+    // ÃœberprÃ¼ft auf freundliche NPCs in der ThreatList, und geht bei leerer Liste nach Hause
     void CheckThreatList(const uint32 uiDiff);
 
-    // Gibt einen random Player in range in einer Instanz zurück
+    // Gibt einen random Player in range in einer Instanz zurÃ¼ck
     Player* SelectRandomPlayer(float range = 0.0f);
 
     // Despawned ein Add
@@ -259,9 +260,9 @@ struct ScriptedAI : public CreatureAI
     float MaxDistance;
 
     private:
-        // Timer für CheckDistance();
+        // Timer fÃ¼r CheckDistance();
         uint32 CheckDistanceTimer;
-        // Timer für CheckThreatList();
+        // Timer fÃ¼r CheckThreatList();
         uint32 CheckThreatListTimer;
 
         Difficulty _difficulty;

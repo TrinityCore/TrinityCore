@@ -1,4 +1,5 @@
-/* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+/* Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
  * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -144,7 +145,7 @@ void ScriptedAI::addItem(Player* player, uint32 itemid, uint8 amount, bool recei
     player->SendNewItem(pItem, amount, received, created, broadcast);
 }
 
-// Entfernung (in yards / 3D) Überprüfen und nach hause gehen wenn zu weit vom Spawnpunkt.
+// Entfernung (in yards / 3D) Ã¼berprÃ¼fen und nach hause gehen wenn zu weit vom Spawnpunkt.
 void ScriptedAI::CheckDistance(float dist, const uint32 uiDiff)
 {
     if (!me->isInCombat())
@@ -167,7 +168,7 @@ void ScriptedAI::CheckDistance(float dist, const uint32 uiDiff)
         EnterEvadeMode();
 }
 
-// Überprüft auf freundliche NPCs in der ThreatList, und geht bei leerer Liste nach Hause
+// ÃœberprÃ¼ft auf freundliche NPCs in der ThreatList, und geht bei leerer Liste nach Hause
 void ScriptedAI::CheckThreatList(const uint32 uiDiff)
 {
     if (!me->isInCombat())
@@ -220,7 +221,7 @@ bool ScriptedAI::DespawnAdd(uint64 guid)
     return true;
 }
 
-// Gibt einen random Player in range in einer Instanz zurück
+// Gibt einen random Player in range in einer Instanz zurÃ¼ck
 Player* ScriptedAI::SelectRandomPlayer(float range)
 {
     Map* map = me->GetMap();
