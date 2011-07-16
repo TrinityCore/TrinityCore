@@ -5212,34 +5212,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             break;
         case SPELLFAMILY_DEATHKNIGHT:
         {
-            if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                break;
-            // Improved Unholy Presence
-            if (m_spellProto->SpellIconID == 2633)
-            {
-                if (apply)
-                {
-                    if (target->HasAura(48265) && !target->HasAura(63622))
-                    {
-                        // Not listed as any effect, only base points set
-                        int32 basePoints0 = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 1);
-                        target->CastCustomSpell(target, 63622, &basePoints0 , &basePoints0, &basePoints0, true, 0, this);
-                    }
-                }
-                else
-                    target->RemoveAurasDueToSpell(63622);
-            }
-            // Improved Blood Presence
-            else if (m_spellProto->SpellIconID == 2636)
-            {
-                if (apply)
-                {
-                    if (!target->HasAura(48266) && !target->HasAura(63611))
-                        target->CastSpell(target, 63611, true, NULL, this);
-                }
-                else
-                    target->RemoveAurasDueToSpell(63611);
-            }
+            //if (!(mode & AURA_EFFECT_HANDLE_REAL))
+            //    break;
             break;
         }
     }
