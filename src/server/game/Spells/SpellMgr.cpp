@@ -4339,17 +4339,33 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
 		// Dark/Light Vortex, hack to prevent channeling cancel
+		// Dark Vortex
 		case 66058:
 		case 67182:
 		case 67183:
 		case 67184:
+		//Light Vortex
 		case 66046:
 		case 67206:
 		case 67207:
 		case 67208:
-			spellInfo->ChannelInterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
-			spellInfo->AuraInterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
-			spellInfo->InterruptFlags = ~AURA_INTERRUPT_FLAG_MOVE;
+			spellInfo->ChannelInterruptFlags &= ~AURA_INTERRUPT_FLAG_MELEE_ATTACK;
+			spellInfo->ChannelInterruptFlags &= ~AURA_INTERRUPT_FLAG_MOVE;
+			spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_PUSH_BACK;
+			++count;
+			break;
+		// Twin Pact, hack to prevent casting cancel
+		// Dark Pact
+		case 65875:
+		case 67303:
+		case 67304:
+		case 67305:
+		// Light Pact
+		case 65876:
+		case 67306:
+		case 67307:
+		case 67308:
+			spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_PUSH_BACK;
 			++count;
 			break;
         // ULDUAR SPELLS

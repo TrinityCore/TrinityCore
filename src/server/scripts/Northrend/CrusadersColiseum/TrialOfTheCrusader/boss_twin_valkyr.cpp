@@ -25,7 +25,6 @@ EndScriptData */
 
 // Known bugs:
 //    - They should be floating but they aren't respecting the floor =(
-//    - Lacks the powering up effect that leads to Empowering
 //    - There's a workaround for the shared life effect
 
 #include "ScriptPCH.h"
@@ -54,7 +53,6 @@ enum Equipment
     EQUIP_MAIN_2         = 45990,
     EQUIP_OFFHAND_2      = 47470,
     EQUIP_RANGED_2       = 47267,
-    EQUIP_DONE           = EQUIP_NO_CHANGE,
 };
 
 enum Summons
@@ -84,9 +82,6 @@ enum BossSpells
 
     SPELL_TWIN_POWER            = 65916,
     SPELL_BERSERK               = 64238,
-    SPELL_NONE                  = 0,
-    SPELL_TWIN_EMPATHY_1         = 66132,
-    SPELL_TWIN_EMPATHY_2        = 66133,
 };
 
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
@@ -109,8 +104,8 @@ enum BossSpells
 
 enum Actions
 {
-    ACTION_VORTEX		= 1,
-    ACTION_PACT			= 2,
+    ACTION_VORTEX,
+    ACTION_PACT,
 };
 
 /*######
@@ -154,7 +149,20 @@ struct boss_twin_baseAI : public ScriptedAI
     Position HomeLocation;
     Position EssenceLocation[2];
 
-    void Reset() {
+	void InitializeAI()
+	{
+		const CreatureTemplate *cinfo = me->GetCreatureInfo();
+		float mindmg = cinfo->mindmg * cinfo->dmg_multiplier /2;
+		float maxdmg = cinfo->maxdmg * cinfo->dmg_multiplier /2;
+		me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, mindmg);
+		me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, maxdmg);
+		me->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindmg);
+		me->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdmg);
+		Reset();
+	}
+
+    void Reset()
+	{
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         /* Uncomment this once that they are flying above the ground
@@ -203,15 +211,54 @@ struct boss_twin_baseAI : public ScriptedAI
 			}
 		}
 	}
+	
+	void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+	{
+		if (!me || !me->isAlive())
+			return;
+		
+		if (pDoneBy->GetGUID() == me->GetGUID())
+			return;
+		
+		if (m_pInstance)
+            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
+    }
+
+	void DoMeleeAttacksIfReady()
+	{
+		if (me->IsWithinMeleeRange(me->getVictim()) && !me->IsNonMeleeSpellCasted(false))
+		{
+			if (me->isAttackReady() && me->getVictim())
+			{
+				me->AttackerStateUpdate(me->getVictim());
+				me->resetAttackTimer();
+				me->setAttackTimer(OFF_ATTACK, me->getAttackTimer(BASE_ATTACK)/2);
+			}
+			if (me->isAttackReady(OFF_ATTACK) && me->getVictim())
+			{
+				me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
+				me->resetAttackTimer(OFF_ATTACK);
+			}
+		}
+	}
 
     void JustReachedHome()
     {
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
+			m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         me->DespawnOrUnsummon();
     }
+
+    void SpellHit(Unit* caster, const SpellEntry* spell)
+    {
+        if (caster->ToCreature() == me)
+            if (spell->Effect[0] == 136) //Effect Heal
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->EffectBasePoints[0]));
+	}
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
@@ -267,15 +314,6 @@ struct boss_twin_baseAI : public ScriptedAI
         Summons.Despawn(summoned);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
-    {
-        if (!me || !me->isAlive())
-            return;
-
-        if (pDoneBy->GetGUID() == me->GetGUID())
-            return;
-    }
-
     void SummonColorballs(uint8 quantity)
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
@@ -296,6 +334,7 @@ struct boss_twin_baseAI : public ScriptedAI
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
         {
+			m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
             {
                 if (!pSister->isAlive())
@@ -321,6 +360,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+			m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         if (me->isAlive())
         {
@@ -349,6 +389,11 @@ struct boss_twin_baseAI : public ScriptedAI
     {
         if (!m_pInstance || !UpdateVictim())
             return;
+
+		if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
+            me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
+        else
+            me->SetHealth(1);
 
         switch (m_uiStage)
         {
@@ -395,7 +440,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 break;
         }
 
-        if (m_uiSpikeTimer <= uiDiff)
+        if (m_uiSpikeTimer <= uiDiff && !me->HasUnitState(UNIT_STAT_CASTING))
         {
             DoCastVictim(m_uiSpikeSpellId);
             m_uiSpikeTimer = 20*IN_MILLISECONDS;
@@ -403,7 +448,7 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             m_uiSpikeTimer -= uiDiff;
 
-        if (IsHeroic() && m_uiTouchTimer <= uiDiff)
+        if (IsHeroic() && m_uiTouchTimer <= uiDiff && !me->HasUnitState(UNIT_STAT_CASTING))
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
                 me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
@@ -412,7 +457,7 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             m_uiTouchTimer -= uiDiff;
 
-        if (m_uiColorballsTimer <= uiDiff)
+        if (m_uiColorballsTimer <= uiDiff && !me->HasUnitState(UNIT_STAT_CASTING))
         {
             if (m_uiWaveCount >= 2)
             {
@@ -429,7 +474,7 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             m_uiColorballsTimer -= uiDiff;
 
-        if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
+        if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff && !me->HasUnitState(UNIT_STAT_CASTING))
         {
             DoCast(me, SPELL_BERSERK);
             DoScriptText(SAY_BERSERK, me);
@@ -439,7 +484,28 @@ struct boss_twin_baseAI : public ScriptedAI
 		{
             m_uiBerserkTimer -= uiDiff;
 		}
-		DoMeleeAttackIfReady();
+
+		if (me->HasAuraType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE) && me->GetEntry() == NPC_DARKBANE)
+		{
+			SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_NO_CHANGE);
+			DoMeleeAttacksIfReady();
+		}
+		if (me->HasAuraType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE) && me->GetEntry() == NPC_LIGHTBANE)
+		{
+			SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_NO_CHANGE);
+			DoMeleeAttacksIfReady();
+		}
+		else
+		if (!me->HasAuraType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE) && me->GetEntry() == NPC_DARKBANE)
+		{
+			SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+			DoMeleeAttackIfReady();
+		}
+		if (!me->HasAuraType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE) && me->GetEntry() == NPC_LIGHTBANE)
+		{
+			SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+			DoMeleeAttackIfReady();
+		}
     }
 };
 
@@ -461,9 +527,10 @@ public:
     {
         boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
-        void Reset() {
+        void Reset() 
+		{
             boss_twin_baseAI::Reset();
-            SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
+            SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_NO_CHANGE, EQUIP_RANGED_1);
             m_uiStage = 0;
             m_uiVortexEmote = EMOTE_LIGHT_VORTEX;
             m_uiVortexSay = SAY_LIGHT_VORTEX;
@@ -496,8 +563,6 @@ public:
             if (m_pInstance)
             {
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-               if (Creature* pEydis = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_DARKBANE)))
-				   me->AddAura(SPELL_TWIN_EMPATHY_1, pEydis);
             }
         }
     };
@@ -525,7 +590,7 @@ public:
         void Reset() 
 		{
             boss_twin_baseAI::Reset();
-            SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
+            SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_NO_CHANGE, EQUIP_RANGED_2);
             m_uiStage = 1;
             m_uiVortexEmote = EMOTE_DARK_VORTEX;
             m_uiVortexSay = SAY_DARK_VORTEX;
@@ -545,13 +610,6 @@ public:
             HomeLocation = ToCCommonLoc[9];
             EssenceLocation[0] = TwinValkyrsLoc[0];
             EssenceLocation[1] = TwinValkyrsLoc[1];
-        }
-        void EnterCombat(Unit* pWho)
-        {
-            boss_twin_baseAI::EnterCombat(pWho);
-            if (m_pInstance)
-                if (Creature* pFjola = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_LIGHTBANE)))
-                    me->AddAura(SPELL_TWIN_EMPATHY_2, pFjola);
         }
     };
 

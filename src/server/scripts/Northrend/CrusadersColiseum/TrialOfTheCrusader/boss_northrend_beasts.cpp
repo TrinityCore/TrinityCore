@@ -77,9 +77,7 @@ enum BossSpells
     //Snobold
     SPELL_SNOBOLLED         = 66406,
     SPELL_BATTER            = 66408,
-    SPELL_FIRE_BOMB         = 66313,
-    SPELL_FIRE_BOMB_1       = 66317,
-    SPELL_FIRE_BOMB_DOT     = 66318,
+	SPELL_FIRE_BOMB			= 66318, // This is the true Firebomb spell that must be casted
     SPELL_HEAD_CRACK        = 66407,
 
     //Acidmaw & Dreadscale
@@ -333,7 +331,7 @@ public:
             if (m_uiFireBombTimer < uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_FIRE_BOMB);
+					DoCast(target, SPELL_FIRE_BOMB);
                 m_uiFireBombTimer = 20000;
             }
             else m_uiFireBombTimer -= uiDiff;

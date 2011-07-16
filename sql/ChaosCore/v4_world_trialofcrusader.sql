@@ -12,7 +12,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (67602, 'spell_powering_up'),
 (67603, 'spell_powering_up'),
 (67604, 'spell_powering_up');
--- Increase loot bosses ToCR
+-- Increase loot on ToCR Bosses
 UPDATE creature_loot_template SET `maxcount` = 4 WHERE `item` IN (1, 2) AND `entry` IN
 (35448, -- Icehowl 25N
  35449, -- Icehowl 25H
@@ -25,12 +25,20 @@ UPDATE creature_loot_template SET `maxcount` = 4 WHERE `item` IN (1, 2) AND `ent
  35615, -- Anub'arak 25N
  35616); -- Anub'arak 25H
 
--- Increase loot champions cache ToCR
+-- Increase the loot only on the 10M valks, since i was not able to remove the damage requirement to evercome
+-- the ugly workaround used for healthsharing
+UPDATE creature_loot_template SET `maxcount` = 2 WHERE `item` IN (1,2) AND `entry` IN
+(34497,  -- Fjola 10N
+ 34496,  -- Eydis 10N
+ 35347,  -- Eydis 10H
+ 35350); -- Fjola 10H
+
+-- Increase loot on champions cache ToCR
 UPDATE gameobject_loot_template SET `maxcount` = 4 WHERE `item` IN (1, 2) AND `entry` IN
 (27503, -- Champions Cache 25N
  27356);  -- Champions Cache 25H
  
--- Increase chance de drop de recipes bosses ToCR
+-- Increase recipe drop chance on ToCR bosses
 UPDATE creature_loot_template SET `ChanceOrQuestChance` = 5, `maxcount` = 2 WHERE `item` IN (3, 4) AND `entry` IN
 (35447, -- Icehowl 10H
  35448, -- Icehowl 25N
@@ -48,7 +56,7 @@ UPDATE creature_loot_template SET `ChanceOrQuestChance` = 5, `maxcount` = 2 WHER
  35615, -- Anub'arak 25N
  35616); -- Anub'arak 25H
  
--- Increase chance de drop de recipes champions cache ToCR
+-- Increase recipe drop chance on ToCR champions cache
 UPDATE gameobject_loot_template SET `ChanceOrQuestChance` = 5, `maxcount` = 2 WHERE `item` IN (3, 4) AND `entry` IN
 (27335,
  27503,
