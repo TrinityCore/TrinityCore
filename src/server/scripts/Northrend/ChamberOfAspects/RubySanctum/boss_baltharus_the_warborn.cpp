@@ -85,6 +85,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
             boss_baltharus_the_warborn_outdoorAI(Creature * creature) : WorldBossAI(creature)
             {
                 _introDone = false;
+                _idle = false;
             }
 
             void Reset()
@@ -206,6 +207,12 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if (!_idle && me->GetPositionX() == 4316.0f && me->GetPositionY() == 46.0f) // Wenn er den letzten Wegpunkt erreicht hat -> stehen bleiben! ;)
+                {
+                    me->GetMotionMaster()->MoveIdle();
+                    _idle = true;
+                }
+
                 if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                     return;
 
@@ -256,6 +263,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
             private:
                 uint8 _cloneCount;
                 bool _introDone;
+                bool _idle;
         };
 
         CreatureAI * GetAI(Creature * creature) const
