@@ -50,68 +50,6 @@ EndContentData */
 #include "ReputationMgr.h"
 #include "Config.h"
 
-// ------------------------------------------------------------------------------------------------------------
-// Feuerrufer 60000
-// ------------------------------------------------------------------------------------------------------------
-void CreateSema(const char* cnt, const char* character, const char* item)
-{
-    std::string tmpfile = "./firecaller_present_";
-    tmpfile.append(cnt);
-
-    std::string tmp = "Charakter: ";
-    tmp.append(character).append(" - Item: ").append(item);
-
-    FILE * semafile = fopen(tmpfile.c_str(), "w");
-    if (semafile)
-    {
-        sLog->outString("FEUERUFER: ADDITEM INFO: %s", tmp.c_str());
-        fputs(tmp.c_str(), semafile);
-        fclose(semafile);
-    }
-    else
-    {
-        sLog->outError("FEUERUFER: KANN '%s' NICHT ERSTELLEN!", tmpfile.c_str());
-        sLog->outError("FEUERUFER: ITEM INFO: %s", tmp.c_str());
-    }
-}
-
-bool CheckSema(const char* cnt)
-{
-    std::string tmpfile = "./firecaller_present_";
-    tmpfile.append(cnt);
-
-    FILE * semafile = fopen(tmpfile.c_str(), "r");
-    if (semafile)
-    {
-        fclose(semafile);
-        return true;
-    }
-    return false;
-}
-
-void SchreibeBericht(uint8 cnt)
-{
-    char buffer[10];
-    std::string tmpfile = "./firecaller_report";
-    std::string tmp = "Konnte diesmal ";
-    sprintf(buffer,"%u",cnt);
-    tmp.append(buffer);
-    tmp.append(" Geschenke los werden.");
-
-    FILE * reportfile = fopen(tmpfile.c_str(), "w");
-    if (reportfile)
-    {
-        sLog->outString("FEUERUFER: Konnte diesmal %s Geschenke los werden.", tmp.c_str());
-        fputs(tmp.c_str(), reportfile);
-        fclose(reportfile);
-    }
-    else
-    {
-        sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
-        sLog->outError("FEUERUFER: Konnte diesmal %s Geschenke los werden.", tmp.c_str());
-    }
-}
-
 void LearnAllSkillRecipes(Player * player, uint32 skill_id)
 {
     uint32 classmask = player->getClassMask();
@@ -145,11 +83,31 @@ void LearnAllSkillRecipes(Player * player, uint32 skill_id)
         player->learnSpell(skillLine->spellId, false);
     }
 }
+// ------------------------------------------------------------------------------------------------------------
+// Feuerrufer 60000
+// ------------------------------------------------------------------------------------------------------------
+void SchreibeBericht(std::string str)
+{
+    std::string tmpfile = sWorld->GetDataPath().c_str();
+    tmpfile.append("log/feuerrufer.log");
+
+    if (FILE * reportfile = fopen(tmpfile.c_str(), "w"))
+    {
+        sLog->outString("FEUERUFER: %s", str.c_str());
+        fputs(str.c_str(), reportfile);
+        fclose(reportfile);
+    }
+    else
+    {
+        sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
+        sLog->outError("FEUERUFER: %s", str.c_str());
+    }
+}
 
 #define SPELL_RAKETENBUENDEL_ZUENDER    26299   // Zünder für Raketenbündel herstellen - 2 Secs. cast - NUR EINMAL BEIM START CASTEN!!!
 
 #define FirecallerSpellsCnt 15
-uint32 FirecallerSpells[FirecallerSpellsCnt] =
+const uint32 FirecallerSpells[FirecallerSpellsCnt] =
 {
     6668,   // Rotes Feuerwerk - 2.5 Secs. cooldown
     11540,  // Blaues Feuerwerk - 2.5 Secs. cooldown
@@ -165,19 +123,47 @@ uint32 FirecallerSpells[FirecallerSpellsCnt] =
     45153,  // Liebesrakete
     46235,  // Schwarzes Loch 2 - Visual
     46829,  // Ribbon Pole Firework and Flame Patch
-    55420,  // Feuerwerk von Dalaran - 5 Secs. Duration
+    55420   // Feuerwerk von Dalaran - 5 Secs. Duration
 };
 
-uint32 FirecallerTargetSpells[4] =
+enum FirecallerSpellsIdx
+{
+    ROTES_FEUERWERK = 0,
+    BLAUES_FEUERWERK,
+    GRUENES_FEUERWERK,
+    ROTE_STREIFEN_FEUERWERK,
+    ROT_WEISS_BLAU_FEUERWERK,
+    GELBE_ROSEN_FEUERWERK,
+    FEUERNOVA,
+    LILA_FEUERWERK,
+    ASTRALFLIMMERN,
+    EXPLOSION,
+    GROSSES_FEUER,
+    LIEBESRAKETE,
+    SCHWARZES_LOCH,
+    RIBBON_POLE,
+    DALARAN_FEUERWERK
+};
+
+#define FirecallerTargetSpellsCnt 4
+const uint32 FirecallerTargetSpells[FirecallerTargetSpellsCnt] =
 {
     45729,  // Bodenblüte - Reichweite 20Y (needs target!)
     45971,  // Bodenraketen - Reichweite 150Y - self oder target
     49872,  // Raketenschuss - 10-70Y - needs target!
-    52254,  // Luft-Luft-Rakete - 80Y -NUR GEGEN GM ANWENDEN!!! (needs target!)
+    75419   // Versengen - 30Y - NUR GEGEN GM ANWENDEN!!! (needs target!)
 };
 
-#define FirecallerClusterCnt    15
-uint32 FirecallerCluster[FirecallerClusterCnt] =
+enum FirecallerTargetSpellsIdx
+{
+    BODENBLUETE = 0,
+    BODENRAKETE,
+    RAKETENSCHUSS,
+    SERSENGEN
+};
+
+#define FirecallerClusterCnt 15
+const uint32 FirecallerCluster[FirecallerClusterCnt] =
 {
     26304,  // Blaues Raketenbündel - 10 Secs. Duration
     26325,  // Grünes Raketenbündel - 10 Secs. Duration
@@ -193,11 +179,30 @@ uint32 FirecallerCluster[FirecallerClusterCnt] =
     26519,  // Großes gelbes Raketenbündel - 10 Secs. Duration
     42813,  // Blaue Rakete von Theramore - 5 Secs. Duration
     42815,  // Gelbe Rakete von Theramore - 5 Secs. Duration
-    42816,  // Lila Rakete von Theramore - 5 Secs. Duration
+    42816   // Lila Rakete von Theramore - 5 Secs. Duration
 };
 
-#define FirecallerJokesCnt  17
-uint32 FirecallerJokes[FirecallerJokesCnt] =
+enum FirecallerClusterIdx
+{
+    BLAU_CLUSTER = 0,
+    GRUEN_CLUSTER,
+    LILA_CLUSTER,
+    ROT_CLUSTER,
+    WEISS_CLUSTER,
+    GELB_CLUSTER,
+    BLAU_GROSS,
+    GRUEN_GROSS,
+    LILA_GROSS,
+    ROT_GROSS,
+    WEISS_GROSS,
+    GELB_GROSS,
+    RAKETE_BLAU,
+    RAKETE_GELB,
+    RAKETE_LILA
+};
+
+#define FirecallerJokesCnt 17
+const uint32 FirecallerJokes[FirecallerJokesCnt] =
 {
     24708,  // Piratenkostüm - 100Y - m
     24709,  // Piratenkostüm - 100Y - f
@@ -218,11 +223,32 @@ uint32 FirecallerJokes[FirecallerJokesCnt] =
     61781   // Truthahnfedern - 40Y
 };
 
+enum FirecallerJokesIdx
+{
+    PIRAT_MANN = 0,
+    PIRAT_FRAU,
+    NINJA_MANN,
+    NINJA_FRAU,
+    LEPRAGNOM_MANN,
+    LEPRAGNOM_FRAU,
+    SKELETT,
+    GEIST_MANN,
+    GEIST_FRAU,
+    IRRWISCH,
+    PX_238_1,
+    PX_238_2,
+    PX_238_3,
+    PX_238_4,
+    FROSCH_IM_HALS,
+    PFIFFI_WACKELSPROSS,
+    TRUTHAHN
+};
+
 // To find all pet items...
 // SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0;
 
-#define FirecallerPresentsCnt   148
-uint32 FirecallerPresents[FirecallerPresentsCnt][2] =
+#define FirecallerPresentsCnt 148
+const uint32 FirecallerPresents[FirecallerPresentsCnt][2] =
 {   // Item,Spell
     {4401,4055},{8485,10673},{8486,10674},{8487,10676},{8488,10678},{8489,10679},{8490,10677},{8491,10675},{8492,10683},{8494,10682},{8495,10684},{8496,10680},{8497,10711},{8498,10698},{8499,10697},
     {8500,10707},{8501,10706},{10360,10714},{10361,10716},{10392,10717},{10393,10688},{10394,10709},{10398,12243},{10822,10695},{11023,10685},{11026,10704},{11027,10703},{11110,13548},{11474,15067},
@@ -237,7 +263,8 @@ uint32 FirecallerPresents[FirecallerPresentsCnt][2] =
     {49693,69677},{49912,70613},{50446,71840},{54436,75134},{54847,75906},{56806,78381}
 };
 
-uint32 FirecallerSounds[3][5] =
+#define FirecallerSoundsCnt 3
+const uint32 FirecallerSounds[FirecallerSoundsCnt][5] =
 {
     // Welcome
     {11966, 0, 0, 0, 0},
@@ -247,25 +274,26 @@ uint32 FirecallerSounds[3][5] =
     {11962, 11965, 11967, 11975, 11976}
 };
 
-/*
+enum FirecallerSoundsIdx
+{
+    WILLKOMMEN = 0,
+    ABSCHIED,
+    ZUFAELLIG
+};
+
 enum FirecallerEvents
 {
     EVENT_START = 1,
     EVENT_STOP,
     EVENT_SOUND,
-    EVENT_WAIT,
+    EVENT_CAST,
     EVENT_TARGET,
     EVENT_CLUSTER,
-    EVENT_PRESENT
+    EVENT_PRESENT_1,
+    EVENT_PRESENT_2,
+    EVENT_PRESENT_3,
+    EVENT_JOKE
 };
-
-enum FirecallerPhasen
-{
-    PHASE_WARTEN = 0,
-    PHASE_START,
-    PHASE_GESCHENKE
-};
-*/
 
 class npc_uwom_firecaller : public CreatureScript
 {
@@ -274,269 +302,261 @@ public:
 
     struct npc_uwom_firecallerAI : public ScriptedAI
     {
-        npc_uwom_firecallerAI(Creature * c) : ScriptedAI(c)
+        npc_uwom_firecallerAI(Creature * creature) : ScriptedAI(creature)
         {
-            //events.ScheduleEvent(EVENT_XXX, 999);
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->setFaction(35);
+            DoCast(SPELL_RAKETENBUENDEL_ZUENDER);
 
-            StartTimer = 60000;                     // 1 Min. nach erscheinen loslegen
-            StopTimer = 1740000;                    // 29 Min. nach Start beenden
-            SoundTimer = urand(60000,120000);       // Timer für random Sounds
-            WaitTimer = 2400;                       // Pause zwischen den Spells
-            TargetTimer = urand(70000,90000);       // Timer für Targetspells
-            ClusterTimer = urand(30000,60000);      // Timer für ClusterSpells
-            PresentTimer = urand(600000,1800000);   // Ab hier gibbet Geschenke (min. 10 Min.)! ;)
+            events.Reset();
+            events.ScheduleEvent(EVENT_START, 60 * IN_MILLISECONDS);
 
-            Gestartet = false;
-            Ende = false;
-            Done = false;
-            CanGive = false;
+            bericht.append("Feuerrufer-Bericht über die verschenkten Items. ;)");
+            bericht.append("\n\n");
         }
-
-        //EventMap events;
-
-        uint32 StartTimer,
-            StopTimer,
-            SoundTimer,
-            WaitTimer,
-            TargetTimer,
-            ClusterTimer,
-            PresentTimer;
-
-        bool Gestartet,
-            Ende,
-            Done,
-            CanGive;
 
         void Reset()
         {
-            //events.Reset();
-            me->CastSpell(me, SPELL_RAKETENBUENDEL_ZUENDER, true);
         }
 
-        void EnterCombat(Unit* who)
+        Player * FindeSpieler(float range = 50.0f)
         {
-            return;
-        }
+            Map * map = me->GetMap();
+            Player * chr = NULL;
 
-        void AttackStart(Unit* who)
-        {
-            return;
-        }
-
-        uint8 PresentsDone()
-        {
-            if (Done)
-                return 3;
-
-            if (CheckSema("01") && CheckSema("02") && CheckSema("03"))
+            if (map)
             {
-                Done = true;
-                return 3;
-            }
+                Map::PlayerList const & PlayerList = map->GetPlayers();
 
-            if (CheckSema("01") && CheckSema("02"))
-                return 2;
-            if (CheckSema("01") && CheckSema("03"))
-                return 2;
-            if (CheckSema("02") && CheckSema("03"))
-                return 2;
+                if (PlayerList.isEmpty())
+                    return NULL;
 
-            if (CheckSema("01") || CheckSema("02") || CheckSema("03"))
-                return 1;
-
-            return 0;
-        }
-
-        void MoveInLineOfSight(Unit * who)
-        {
-            if (Gestartet && who && who->GetTypeId() == TYPEID_PLAYER && who->isAlive())
-            {
-                Player * pPl = who->ToPlayer();
-                if (!pPl)
-                    return;
-
-                if ((pPl->GetSession()->GetSecurity() < SEC_VETERAN) && !Done && CanGive && (urand(0,400) == 200) && (PresentsDone() < 3))
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
+                    if (me->IsWithinDistInMap(i->getSource(), range))
                     {
-                        if (!pPl->HasItemCount(FirecallerPresents[i][0], 1, true) && !pPl->HasSpell(FirecallerPresents[i][1]))
+                        chr = i->getSource();
+
+                        if (chr && chr->isValid())
+                            return chr;
+                    }
+                }
+            }
+            return NULL;
+        }
+
+        bool BeschenkeZiel(Player * chr, uint8 cnt)
+        {
+            if (!chr)
+                return false;
+
+            if (chr->GetSession()->GetSecurity() < SEC_VETERAN)
+            {
+                for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
+                {   // Wenn der Spieler das zu gebende Item schon hat / kennt, nicht doppelt geben!
+                    if (!chr->HasItemCount(FirecallerPresents[i][0], 1, true) && !chr->HasSpell(FirecallerPresents[i][1]))
+                    {
+                        char buffer[6];
+                        time_t localtime = time(NULL);
+                        std::string ZeitStr = TimeToTimestampStr(localtime, GERMAN);
+
+                        sprintf(buffer, "%u", FirecallerPresents[i][0]);
+                        addItem(chr, FirecallerPresents[i][0]);
+                        // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
+                        switch(cnt)
                         {
-                            char buffer[6];
-                            sprintf(buffer, "%u", FirecallerPresents[i][0]);
-                            addItem(pPl, FirecallerPresents[i][0]);
-
-                            switch(PresentsDone())
-                            {
-                                case 0: CreateSema("01", pPl->GetName(), buffer); break;
-                                case 1: CreateSema("02", pPl->GetName(), buffer); break;
-                                case 2: CreateSema("03", pPl->GetName(), buffer); break;
-                            }
-                            return;
+                            case 1:
+                                bericht.append("Das 1. Item ( http://de.wowhead/item=");
+                                break;
+                            case 2:
+                                bericht.append("Das 2. Item ( http://de.wowhead/item=");
+                                break;
+                            case 3:
+                                bericht.append("Das 3. Item ( http://de.wowhead/item=");
+                                break;
                         }
-                    }
-                }
+                        bericht.append(buffer);
+                        bericht.append(" ) ging an: ");
+                        bericht.append(chr->GetName());
+                        bericht.append(". Dies geschah am ");
+                        bericht.append(ZeitStr.c_str());
+                        bericht.append(" Uhr.");
+                        bericht.append("\n");
 
-                for (uint8 i=0; i<FirecallerJokesCnt; ++i)
-                    if (pPl->HasAura(FirecallerJokes[i]))
-                        return;
-
-                if (pPl->GetDisplayId() != me->GetDisplayId())
-                    pPl->SetDisplayId(me->GetDisplayId());
-
-                if (urand(0,200) == 100)
-                {
-                    uint8 i = urand(0,FirecallerJokesCnt-1);
-
-                    switch(i)
-                    {
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                            if (pPl->GetDisplayId() == me->GetDisplayId())
-                                pPl->DeMorph();
-                            if (me->GetDistance(who) <= 100.0f)
-                                me->CastSpell(who, FirecallerJokes[i], true);
-                            break;
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 15:
-                            if (pPl->GetDisplayId() == me->GetDisplayId())
-                                pPl->DeMorph();
-                            pPl->InterruptNonMeleeSpells(false);
-                            pPl->CastSpell(who, FirecallerJokes[i], false);
-                            break;
-                        case 14:
-                        case 16:
-                            if (pPl->GetDisplayId() == me->GetDisplayId())
-                                pPl->DeMorph();
-                            if (me->GetDistance(who) <= 40.0f)
-                                me->CastSpell(who, FirecallerJokes[i], true);
-                            break;
+                        return true;
                     }
                 }
             }
-            return;
+            return false;
+        }
+
+        void VerzauberZiel(Player * chr)
+        {
+            if (!chr)
+                return;
+
+            uint8 i = urand(0,FirecallerJokesCnt-1);
+
+            switch(i)
+            {
+                case PIRAT_MANN:
+                case PIRAT_FRAU:
+                case NINJA_MANN:
+                case NINJA_FRAU:
+                case LEPRAGNOM_MANN:
+                case LEPRAGNOM_FRAU:
+                case SKELETT:
+                case GEIST_MANN:
+                case GEIST_FRAU:
+                case IRRWISCH:
+                    for (uint8 j=0; j<FirecallerJokesCnt; ++j)
+                        if (chr->HasAura(FirecallerJokes[j]))
+                            chr->RemoveAurasDueToSpell(FirecallerJokes[j]);
+
+                    if (me->GetDistance(chr) <= 100.0f)
+                        DoCast(chr, FirecallerJokes[i], true);
+                    break;
+                case PX_238_1:
+                case PX_238_2:
+                case PX_238_3:
+                case PX_238_4:
+                case PFIFFI_WACKELSPROSS:
+                    for (uint8 j=0; j<FirecallerJokesCnt; ++j)
+                        if (chr->HasAura(FirecallerJokes[j]))
+                            chr->RemoveAurasDueToSpell(FirecallerJokes[j]);
+
+                    chr->CastSpell(chr, FirecallerJokes[i], true);
+                    break;
+                case FROSCH_IM_HALS:
+                case TRUTHAHN:
+                    for (uint8 j=0; j<FirecallerJokesCnt; ++j)
+                        if (chr->HasAura(FirecallerJokes[j]))
+                            chr->RemoveAurasDueToSpell(FirecallerJokes[j]);
+
+                    if (me->GetDistance(chr) <= 40.0f)
+                        DoCast(chr, FirecallerJokes[i], true);
+                    break;
+            }
         }
 
         void StartEvent()
         {
-            DoPlaySoundToSet(me, FirecallerSounds[0][0]);
-            DoCast(me, FirecallerSpells[6]);
-            Gestartet = true;
+            DoPlaySoundToSet(me, FirecallerSounds[WILLKOMMEN][0]);
+
+            DoCast(FirecallerSpells[FEUERNOVA]);
+
+            me->GetMotionMaster()->MoveRandom(10.0f);
+
+            events.ScheduleEvent(EVENT_STOP, 1740 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SOUND, urand(10, 60) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_TARGET, urand(10, 60) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLUSTER, urand(10, 60) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_PRESENT_1, urand(600, 900) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_JOKE, urand(10, 60) * IN_MILLISECONDS);
         }
 
         void StopEvent()
         {
-            DoPlaySoundToSet(me, FirecallerSounds[1][0]);
-            DoCast(me, FirecallerSpells[9]);
-            me->SetVisible(false);
-            Gestartet = false;
-            Ende = true;
+            DoPlaySoundToSet(me, FirecallerSounds[ABSCHIED][0]);
+            DoCast(FirecallerSpells[EXPLOSION]);
 
-            SchreibeBericht(PresentsDone());
+            if (bericht.size() < 60)
+                bericht.append("Leider war diesmal niemand zum Event erschienen! :-(");
+
+            SchreibeBericht(bericht);
+
+            me->ForcedDespawn(8 * IN_MILLISECONDS);
         }
+
+        uint32 ZufallsZauberHolen()
+        {
+            uint32 Zauber = urand(0,FirecallerSpellsCnt-1);
+
+            if (Zauber == FirecallerSpells[GROSSES_FEUER] || Zauber == FirecallerSpells[SCHWARZES_LOCH])
+                me->RemoveAllAuras();
+
+            return Zauber;
+        }
+
+        /*GameObject * HoleZuender()
+        {
+            if (me->FindNearestGameObject(180859, 40.0f))
+                return me->FindNearestGameObject(180859, 40.0f);
+            else
+                return NULL;
+        }*/
 
         void UpdateAI(const uint32 diff)
         {
-/*
-            events.Update(diff);
-
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
+
+            events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_XXX:
+                    case EVENT_START:
+                        StartEvent();
+                        break;
+                    case EVENT_PRESENT_1:
+                        if (!BeschenkeZiel(FindeSpieler(), 1))
+                            events.RescheduleEvent(EVENT_PRESENT_1, urand(10, 30) * IN_MILLISECONDS);
+                        else
+                            events.ScheduleEvent(EVENT_PRESENT_2, urand(300, 600) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_PRESENT_2:
+                        if (!BeschenkeZiel(FindeSpieler(), 2))
+                            events.RescheduleEvent(EVENT_PRESENT_2, urand(10, 30) * IN_MILLISECONDS);
+                        else
+                            events.ScheduleEvent(EVENT_PRESENT_3, urand(300, 600) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_PRESENT_3:
+                        if (!BeschenkeZiel(FindeSpieler(), 3))
+                            events.RescheduleEvent(EVENT_PRESENT_3, urand(10, 30) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_SOUND:
+                        DoPlaySoundToSet(me, FirecallerSounds[ZUFAELLIG][urand(0,4)]);
+                        events.RescheduleEvent(EVENT_SOUND, urand(60, 180) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CAST:
+                        DoCast(FirecallerSpells[ZufallsZauberHolen()]);
+                        events.RescheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_TARGET:
+                        if (Player * chr = FindeSpieler())
+                        {
+                            me->setFaction(14);
+                            if (chr->GetSession()->GetSecurity() > SEC_VETERAN)
+                                DoCast(chr, FirecallerTargetSpells[SERSENGEN]);
+                            else
+                                DoCast(chr, FirecallerTargetSpells[urand(BODENBLUETE, RAKETENSCHUSS)]);
+                            me->setFaction(35);
+                        }
+                        events.RescheduleEvent(EVENT_TARGET, urand(20, 40) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CLUSTER:
+                        //if (GameObject * Zuender = HoleZuender())
+                            //Zuender->Use(me);
+                        DoCast(FirecallerCluster[urand(0,FirecallerClusterCnt-1)]);
+                        events.RescheduleEvent(EVENT_CLUSTER, urand(20, 30) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_JOKE:
+                        VerzauberZiel(FindeSpieler());
+                        events.RescheduleEvent(EVENT_JOKE, urand(30, 60) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_STOP:
+                        StopEvent();
                         break;
                 }
             }
-*/
-            if (StartTimer <= diff && !Gestartet && !Ende)
-                StartEvent();
-            else if (!Gestartet)
-                StartTimer -= diff;
-
-            if (!Done && !CanGive && PresentTimer <= diff)
-                CanGive = true;
-            else if (!CanGive)
-                PresentTimer -= diff;
-
-            if (Gestartet && !Ende)
-            {
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                if (SoundTimer <= diff)
-                {
-                    DoPlaySoundToSet(me, FirecallerSounds[2][urand(0,4)]);
-                    SoundTimer = urand(60000,120000);
-                }
-                else
-                    SoundTimer -= diff;
-
-                if (WaitTimer <= diff)
-                {
-                    DoCast(me, FirecallerSpells[urand(0,FirecallerSpellsCnt-1)]);
-                    WaitTimer = 2400;
-                }
-                else
-                    WaitTimer -= diff;
-
-                if (TargetTimer <= diff)
-                {
-                    Player * tmp = GetPlayerAtMinimumRange(20.0f);
-                    if (tmp && tmp->GetSession()->GetSecurity() > SEC_VETERAN)
-                    {   // GM
-                        me->setFaction(14);
-                        me->InterruptNonMeleeSpells(false);
-                        me->CastSpell(tmp, FirecallerTargetSpells[3], false);
-                        me->setFaction(35);
-                    }
-                    else if (tmp)
-                    {   // User
-                        me->setFaction(14);
-                        me->InterruptNonMeleeSpells(false);
-                        me->CastSpell(tmp, FirecallerTargetSpells[urand(0,2)], false);
-                        me->setFaction(35);
-                    }
-                    TargetTimer = urand(30000,60000);
-                }
-                else
-                    TargetTimer -= diff;
-
-                if (ClusterTimer <= diff)
-                {
-                    me->InterruptNonMeleeSpells(false);
-                    me->CastSpell(me, FirecallerCluster[urand(0,FirecallerClusterCnt-1)], false);
-                    ClusterTimer = urand(15000,15000);
-                }
-                else
-                    ClusterTimer -= diff;
-
-                if (StopTimer <= diff && !Ende)
-                    StopEvent();
-                else
-                    StopTimer -= diff;
-            }
         }
+        private:
+            EventMap events;
+            std::string bericht;
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI * GetAI(Creature * creature) const
     {
         return new npc_uwom_firecallerAI(creature);
     }
