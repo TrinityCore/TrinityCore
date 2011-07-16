@@ -3078,6 +3078,7 @@ class spell_lich_king_harvest_soul : public SpellScriptLoader
                             pPlayer->m_Events.AddEvent(new TeleportToFrostmourneRoom(pPlayer, attemptsLeft), pPlayer->m_Events.CalculateTime(uint64(1000)));
                         else
                             pPlayer->CastSpell(pPlayer, SPELL_FROSTMOURNE_ROOM_TELEPORT_VISUAL, true);
+                            pPlayer->CastSpell(pPlayer, SPELL_IN_FROSTMOURNE_ROOM, true);
                         return true;
                     }
                 private:
@@ -3100,7 +3101,6 @@ class spell_lich_king_harvest_soul : public SpellScriptLoader
                 player->CastSpell(player, SPELL_HARVESTED_SOUL_FROSTMOURNE_PLAYER_BUFF, true);
                 if (isHeroic)
                     player->CastSpell(player, SPELL_HARVEST_SOUL_HEROIC_FROSTMOURNE_PLAYER_DEBUFF, true);
-                player->CastSpell(player, SPELL_IN_FROSTMOURNE_ROOM, true);
 
                 //Should use Feign death to emulate player's death
                 player->CastSpell(player, SPELL_FEIGN_DEATH, true);
