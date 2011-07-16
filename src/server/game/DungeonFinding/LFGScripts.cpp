@@ -85,7 +85,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
     if (Player *plr = sObjectMgr->GetPlayer(guid))
     {
         // Add deserter flag
-        if (sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON && method == GROUP_REMOVEMETHOD_LEAVE)
+        if (method == GROUP_REMOVEMETHOD_LEAVE && plr->GetMap()->IsDungeon() && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON)
             plr->CastSpell(plr, LFG_SPELL_DUNGEON_DESERTER, true);
         /*
         else if (group->isLfgKickActive())
