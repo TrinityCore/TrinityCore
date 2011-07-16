@@ -432,24 +432,12 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 return true;
             }
 
-            bool Load()
-            {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
-            }
-
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    uint32 inoculatedId = sSpellMgr->GetSpellIdForDifficulty(SPELL_INOCULATED, caster);
-                    uint32 currStack = 0;
-                    if (Aura const* inoculate = GetTarget()->GetAura(inoculatedId))
-                        currStack = inoculate->GetStackAmount();
-
-                    GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
-                    ++currStack;
-                    caster->ToCreature()->AI()->SetData(DATA_INOCULATED_STACK, currStack);
-                }
+                GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
+                if (InstanceScript* instance = GetTarget()->GetInstanceScript())
+                    if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_FESTERGUT)))
+                        festergut->AI()->SetData(DATA_INOCULATED_STACK, GetStackAmount());
             }
 
             void Register()
@@ -461,42 +449,6 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_festergut_blighted_spores_AuraScript();
-        }
-};
-
-class spell_festergut_gaseous_blight : public SpellScriptLoader
-{
-    public:
-        spell_festergut_gaseous_blight() : SpellScriptLoader("spell_festergut_gaseous_blight") { }
-
-        class spell_festergut_gaseous_blight_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_festergut_gaseous_blight_SpellScript);
-
-            bool Validate(SpellEntry const* /*spell*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_ORANGE_BLIGHT_RESIDUE))
-                    return false;
-                return true;
-            }
-
-            void ExtraEffect()
-            {
-                if (GetHitUnit()->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
-                    return;
-
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ORANGE_BLIGHT_RESIDUE, true);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_festergut_gaseous_blight_SpellScript::ExtraEffect);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_festergut_gaseous_blight_SpellScript();
         }
 };
 
@@ -521,6 +473,5 @@ void AddSC_boss_festergut()
     new spell_festergut_pungent_blight();
     new spell_festergut_gastric_bloat();
     new spell_festergut_blighted_spores();
-    new spell_festergut_gaseous_blight();
     new achievement_flu_shot_shortage();
 }
