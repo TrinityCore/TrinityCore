@@ -146,6 +146,7 @@ enum Spells
     SPELL_FROSTMOURNE_ROOM_TELEPORT_VISUAL = 73078,
     SPELL_QUAKE                      = 72262,
     SPELL_RAISE_DEAD                 = 71769,
+    SPELL_RAISE_DEAD_EFFECT          = 72376,
     SPELL_BROKEN_FROSTMOURNE         = 72398,
     SPELL_ICEBLOCK_TRIGGER           = 71614,
     SPELL_TIRION_LIGHT               = 71797,
@@ -419,6 +420,10 @@ class boss_the_lich_king : public CreatureScript
                 {
                     spellPlayMovie->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
                     spellPlayMovie->EffectRadiusIndex[0] = 22;
+                }
+                if(SpellEntry* spellRaiseDead = GET_SPELL(SPELL_RAISE_DEAD_EFFECT))
+                {
+                    spellRaiseDead->EffectRadiusIndex[0] = 22;
                 }
             }
 
@@ -750,13 +755,13 @@ class boss_the_lich_king : public CreatureScript
                                 case EVENT_SUMMON_SHAMBLING_HORROR:
                                 {
                                     DoCast(SPELL_SUMMON_SHAMBLING_HORROR);
-                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 70000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 35000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_SUMMON_DRUDGE_GHOULS:
                                 {
                                     DoCast(SPELL_SUMMON_DRUDGE_GHOULS);
-                                    events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 60000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 30000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_INFEST:
@@ -770,7 +775,7 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -EVENT_NECROTIC_PLAGUE))
                                         DoCast(target, SPELL_NECROTIC_PLAGUE);
-                                    events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 50000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 25000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_SHADOW_TRAP:
@@ -1013,7 +1018,7 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     if(Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
                                     {
-                                        tirion->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                        tirion->SetTarget(me->GetGUID());
                                         tirion->GetMotionMaster()->MoveJump(517.482910f, -2124.905762f, 1040.861328f, 10.0f, 15.0f);
                                         tirion->SetUInt32Value(UNIT_NPC_EMOTESTATE, 375);
                                     }
@@ -1280,8 +1285,8 @@ class npc_tirion_icc : public CreatureScript
                             {
                                 lich->SetFacingToObject(me);
                                 lich->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, lich->GetGUID());
-                                lich->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                me->SetTarget(lich->GetGUID());
+                                lich->SetTarget(me->GetGUID());
                                 DoScriptText(SAY_INTRO_1_KING, lich);
                             }
                             uiIntroTimer = 14000;
@@ -2328,9 +2333,6 @@ class spell_lich_king_winter : public SpellScriptLoader
 
                     caster->CastSpell(caster, SPELL_QUAKE, true);
                     DoScriptText(SAY_BROKEN_ARENA, caster);
-                    InstanceScript *_instance = caster->GetInstanceScript();
-                    if (!_instance)
-                        return;
                 }
             }
             void OnApply(AuraEffect const * aurEff, AuraEffectHandleModes mode)
