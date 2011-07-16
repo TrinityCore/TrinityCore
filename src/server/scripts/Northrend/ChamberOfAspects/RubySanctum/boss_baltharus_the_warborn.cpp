@@ -207,7 +207,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!_idle && me->GetPositionX() == 4316.0f && me->GetPositionY() == 46.0f) // Wenn er den letzten Wegpunkt erreicht hat -> stehen bleiben! ;)
+                if (!_idle && me->GetPositionX() >= 4316.0f && me->GetPositionY() >= 46.0f) // Wenn er den letzten Wegpunkt erreicht hat -> stehen bleiben! ;)
                 {
                     me->GetMotionMaster()->MoveIdle();
                     _idle = true;
