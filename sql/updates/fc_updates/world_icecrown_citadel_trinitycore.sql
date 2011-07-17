@@ -5,6 +5,11 @@ REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionT
 ('13', '72868', '18', '1', '37672', 'Mutated Abomination - Eat Slime Puddle'),
 ('13', '72869', '18', '1', '38285', 'Mutated Abomination - Eat Slime Puddle');
 
+UPDATE `creature_template` SET `AIName` = 'PassiveAI', `flags_extra` = 2 WHERE `entry` IN (38309, 38308);
+UPDATE `creature_template` SET `unit_flags` = 33554688 WHERE `entry` IN (36678, 38431, 38585, 38586);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (37127, 37134, 37132, 38125, 38126, 38131, 38132, 38133, 38130, 37122, 37123, 37124, 37125, 38298, 38299, 38303, 38304);
+
+
 /* AREA TRIGGERS */
 REPLACE INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (5604, 'at_sindragosa_lair'),

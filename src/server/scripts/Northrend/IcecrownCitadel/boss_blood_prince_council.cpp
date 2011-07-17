@@ -241,6 +241,11 @@ class boss_blood_council_controller : public CreatureScript
                 }
 
                 if (IsHeroic())
+                    me->AddAura(SPELL_SHADOW_PRISON_DUMMY, me);
+
+                /* Causes bug! This aura is applied automaticaly when enemy casts SPELL_SHADOW_PRISON => this code is useless
+                Dummy dissapears when enemy dies or will be removed in JustDied, but if enemy alive, spell will be on player even outside instance.
+                if (IsHeroic())
                 {
                     Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
                     if (PlList.isEmpty())
@@ -257,7 +262,7 @@ class boss_blood_council_controller : public CreatureScript
                                 player->AddAura(SPELL_SHADOW_PRISON_DUMMY, player);
                         }
                     }
-                }
+                }*/
             }
 
             void SetData(uint32 /*type*/, uint32 data)

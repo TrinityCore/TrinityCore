@@ -601,11 +601,12 @@ class npc_the_lich_king_controller : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5000);
-                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10000);
+                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 1000);
                 _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15000);
                 _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20000);
                 _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30000);
                 me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void JustReachedHome()
@@ -687,7 +688,10 @@ class npc_risen_archmage : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const
             {
-                return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
+                if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED || _instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == FAIL)
+                    return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
+                if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == IN_PROGRESS)
+                    return true;
             }
 
             void Reset()

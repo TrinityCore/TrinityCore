@@ -1172,7 +1172,9 @@ class npc_crok_scourgebane : public CreatureScript
             bool CanAIAttack(Unit const* target) const
             {
                 // do not see targets inside Frostwing Halls when we are not there
-                return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
+                if (target->GetPositionY() < 2650.0f)
+                    return true;
+                return false;
             }
 
         private:
@@ -1251,7 +1253,9 @@ struct npc_argent_captainAI : public ScriptedAI
         bool CanAIAttack(Unit const* target) const
         {
             // do not see targets inside Frostwing Halls when we are not there
-            return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
+            if (target->GetPositionY() < 2650.0f)
+                return true;
+            return false;
         }
 
         void EnterEvadeMode()
