@@ -325,16 +325,17 @@ public:
             if (map)
             {
                 Map::PlayerList const & PlayerList = map->GetPlayers();
-
                 if (PlayerList.isEmpty())
                     return NULL;
 
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
+                    for (uint32 j=urand(0, PlayerList.getSize()-1); j>0; --j)
+                        ++i;
+
                     if (me->IsWithinDistInMap(i->getSource(), range))
                     {
                         chr = i->getSource();
-
                         if (chr && chr->isValid())
                             return chr;
                     }
