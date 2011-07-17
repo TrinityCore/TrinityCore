@@ -7,7 +7,7 @@ REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionT
 
 UPDATE `creature_template` SET `AIName` = 'PassiveAI', `flags_extra` = 2 WHERE `entry` IN (38309, 38308);
 UPDATE `creature_template` SET `unit_flags` = 33554688 WHERE `entry` IN (36678, 38431, 38585, 38586);
-DELETE FROM `creature_template_addon` WHERE `entry` IN (37127, 37134, 37132, 38125, 38126, 38131, 38132, 38133, 38130, 37122, 37123, 37124, 37125, 38298, 38299, 38303, 38304);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (37133, 38133, 37127, 37134, 37132, 38125, 38126, 38131, 38132, 38133, 38130, 37122, 37123, 37124, 37125, 38298, 38299, 38303, 38304);
 
 
 /* AREA TRIGGERS */
