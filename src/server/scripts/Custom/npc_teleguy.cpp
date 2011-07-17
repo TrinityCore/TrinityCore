@@ -796,7 +796,7 @@ public:
                 if (pPlayer->HasAura(45523) )
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pCreature->MonsterSay("Извини, но сейчас я не могу этого сделать, попрбуй позже.", LANG_UNIVERSAL, NULL);
+                    pCreature->MonsterSay("Извини, но сейчас я не могу этого сделать, попробуй позже.", LANG_UNIVERSAL, NULL);
                 }
                 else
                 {
