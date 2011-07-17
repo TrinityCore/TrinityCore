@@ -741,6 +741,9 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
+            if (creature->GetPositionZ() < 530.0f)
+                return false;
+
             if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Я не рейд-лидер...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
