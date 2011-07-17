@@ -311,6 +311,10 @@ public:
 
             bericht.append("Feuerrufer-Bericht über die verschenkten Items. ;)");
             bericht.append("\n\n");
+
+            Item1Done = false;
+            Item2Done = false;
+            Item3Done = false;
         }
 
         void Reset()
@@ -330,7 +334,7 @@ public:
 
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    for (uint32 j=urand(0, PlayerList.getSize()-1); j>0; --j)
+                    for (uint32 j=urand(0, PlayerList.getSize()-1); j>0; --j) // Suche einen Random Spieler aus der Spielerliste der Karte
                         ++i;
 
                     if (me->IsWithinDistInMap(i->getSource(), range))
@@ -366,12 +370,15 @@ public:
                         {
                             case 1:
                                 bericht.append("Das 1. Item ( http://de.wowhead/item=");
+                                Item1Done = true;
                                 break;
                             case 2:
                                 bericht.append("Das 2. Item ( http://de.wowhead/item=");
+                                Item2Done = true;
                                 break;
                             case 3:
                                 bericht.append("Das 3. Item ( http://de.wowhead/item=");
+                                Item3Done = true;
                                 break;
                         }
                         bericht.append(buffer);
@@ -451,7 +458,7 @@ public:
             events.ScheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_TARGET, urand(10, 60) * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_CLUSTER, urand(10, 60) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_PRESENT_1, urand(600, 900) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_PRESENT_1, urand(600, 900) * IN_MILLISECONDS); // Das erste Item 10-15 Min. nach Start des Events vergeben.
             events.ScheduleEvent(EVENT_JOKE, urand(10, 60) * IN_MILLISECONDS);
         }
 
@@ -501,19 +508,19 @@ public:
                         StartEvent();
                         break;
                     case EVENT_PRESENT_1:
-                        if (!BeschenkeZiel(FindeSpieler(), 1))
+                        if (!Item1Done && !BeschenkeZiel(FindeSpieler(), 1))
                             events.RescheduleEvent(EVENT_PRESENT_1, urand(10, 30) * IN_MILLISECONDS);
                         else
                             events.ScheduleEvent(EVENT_PRESENT_2, urand(300, 600) * IN_MILLISECONDS);
                         break;
                     case EVENT_PRESENT_2:
-                        if (!BeschenkeZiel(FindeSpieler(), 2))
+                        if (!Item2Done && !BeschenkeZiel(FindeSpieler(), 2))
                             events.RescheduleEvent(EVENT_PRESENT_2, urand(10, 30) * IN_MILLISECONDS);
                         else
                             events.ScheduleEvent(EVENT_PRESENT_3, urand(300, 600) * IN_MILLISECONDS);
                         break;
                     case EVENT_PRESENT_3:
-                        if (!BeschenkeZiel(FindeSpieler(), 3))
+                        if (!Item3Done && !BeschenkeZiel(FindeSpieler(), 3))
                             events.RescheduleEvent(EVENT_PRESENT_3, urand(10, 30) * IN_MILLISECONDS);
                         break;
                     case EVENT_SOUND:
@@ -555,6 +562,9 @@ public:
         private:
             EventMap events;
             std::string bericht;
+            bool Item1Done;
+            bool Item2Done;
+            bool Item3Done;
     };
 
     CreatureAI * GetAI(Creature * creature) const
