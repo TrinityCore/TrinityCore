@@ -201,7 +201,6 @@ class boss_sindragosa : public CreatureScript
                 Cleanup();
                 BossAI::Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
