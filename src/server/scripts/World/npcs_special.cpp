@@ -369,15 +369,15 @@ public:
                         switch(cnt)
                         {
                             case 1:
-                                bericht.append("Das 1. Item ( http://de.wowhead/item=");
+                                bericht.append("Das 1. Item ( http://de.wowhead.com/item=");
                                 Item1Done = true;
                                 break;
                             case 2:
-                                bericht.append("Das 2. Item ( http://de.wowhead/item=");
+                                bericht.append("Das 2. Item ( http://de.wowhead.com/item=");
                                 Item2Done = true;
                                 break;
                             case 3:
-                                bericht.append("Das 3. Item ( http://de.wowhead/item=");
+                                bericht.append("Das 3. Item ( http://de.wowhead.com/item=");
                                 Item3Done = true;
                                 break;
                         }
