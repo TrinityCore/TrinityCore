@@ -24,7 +24,6 @@ EndScriptData */
 
 // Known bugs:
 // Gormok - Not implemented as a vehicle
-//        - Snobold Firebomb
 //        - Snobolled (creature at back)
 // Snakes - miss the 1-hitkill from emerging
 //        - visual changes between mobile and stationary models seems not to work sometimes
@@ -66,6 +65,7 @@ enum Summons
 {
     NPC_SNOBOLD_VASSAL   = 34800,
     NPC_SLIME_POOL       = 35176,
+	NPC_FIRE_BOMB		 = 34854,
 };
 
 enum BossSpells
@@ -77,7 +77,8 @@ enum BossSpells
     //Snobold
     SPELL_SNOBOLLED         = 66406,
     SPELL_BATTER            = 66408,
-	SPELL_FIRE_BOMB			= 66318, // This is the true Firebomb spell that must be casted
+	SPELL_FIRE_BOMB_MISSILE	= 66313, // Wich triggers the animation and the initial damage on landing, also summons the firebomb trigger
+	SPELL_FIRE_BOMB_AURA    = 66318, // casted by the firebomb trigger :)
     SPELL_HEAD_CRACK        = 66407,
 
     //Acidmaw & Dreadscale
@@ -225,6 +226,42 @@ public:
 
 };
 
+class mob_fire_bomb : public CreatureScript
+{
+public:
+	mob_fire_bomb() : CreatureScript("mob_fire_bomb") { }
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new mob_fire_bombAI(creature);
+	}
+
+	struct mob_fire_bombAI : public ScriptedAI
+	{
+		mob_fire_bombAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+		
+		bool casted;
+        void Reset()
+        {
+            casted = false;
+            me->SetReactState(REACT_PASSIVE);
+
+        }
+
+        void UpdateAI(const uint32 /*uiDiff*/)
+        {
+            if (!casted)
+            {
+                casted = true;
+                DoCast(me, SPELL_FIRE_BOMB_AURA);
+            }
+        }
+    };
+
+};
+
 class mob_snobold_vassal : public CreatureScript
 {
 public:
@@ -331,7 +368,9 @@ public:
             if (m_uiFireBombTimer < uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-					DoCast(target, SPELL_FIRE_BOMB);
+				{
+					DoCast(target, SPELL_FIRE_BOMB_MISSILE);
+				}
                 m_uiFireBombTimer = 20000;
             }
             else m_uiFireBombTimer -= uiDiff;
@@ -918,6 +957,7 @@ void AddSC_boss_northrend_beasts()
 {
     new boss_gormok();
     new mob_snobold_vassal();
+	new mob_fire_bomb();
     new boss_acidmaw();
     new boss_dreadscale();
     new mob_slime_pool();
