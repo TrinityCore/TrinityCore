@@ -381,19 +381,31 @@ public:
 #define LIP_BALM_SPELL 62574
 #define FROG_LOVE 62537
 #define SUMMON_ASHOOD_BRAND_SPELL 62554
-#define MAIDEN_SAY "Неужели это может быть? Свободна после всех этих многих лет?"
-
-struct A_BLADE_FIT_FOR_A_CHAMPION_QUEST
-{ 
-  uint32 quest_id; 
-};
-
-A_BLADE_FIT_FOR_A_CHAMPION_QUEST new_quest[] = {13603, 13666, 13673, 13741, 13746, 13752, 13757, 13762, 13768, 13773, 13778, 13783};
+#define MAIDEN_GOSSIP "Рад быд помочь, миледи. Мне говорили, ты была хранителем мечя Ясеневого озера. Ты знаешь, где я могу найти его?"
+#define MAIDEN_SAY "Неужели это может быть? Свободна после всех этих долгих лет?"
 
 class npc_lake_frog : public CreatureScript
 {
 public:
     npc_lake_frog() : CreatureScript("npc_lake_frog") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MAIDEN_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(14319, pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CastSpell(pPlayer, SUMMON_ASHOOD_BRAND_SPELL, true);
+            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            pPlayer->SEND_GOSSIP_MENU(14320, pCreature->GetGUID());
+        }
+        return true;
+    }
 
     struct npc_lake_frogAI : public ScriptedAI
     {
@@ -427,11 +439,14 @@ public:
                         {
                             me->CastSpell(me, TRANSFORM_MAIDEN, true);
                             me->MonsterSay(MAIDEN_SAY, LANG_UNIVERSAL, 0);
-                            me->UpdateEntry(NPC_MAIDEN); //For gossip
-                            me->ForcedDespawn(30000);
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         }
                         else
+                        {
                             me->CastSpell(me, FROG_LOVE, true);
+                            me->GetMotionMaster()->MoveFollow(pPlayer, 0, 0);
+                        }
+                        me->ForcedDespawn(30000);
                     }
 
                     break;
