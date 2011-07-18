@@ -1340,7 +1340,8 @@ class npc_og_mekkatorque : public CreatureScript
 
             void EnterCombat(Unit* pWho)
             {
-                SquadAssist(pWho->ToCreature());
+                if (pWho && pWho->ToCreature())
+                    SquadAssist(pWho->ToCreature());
             }
 
             void PartyCast(uint32 spell)
@@ -1526,7 +1527,7 @@ class npc_og_mekkatorque : public CreatureScript
                     {
                         if (pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_NONE || pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_REWARDED|| pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_FAILED)
                             for (int8 n = 0; n < 15; ++n)
-                                pPlayer->SendUpdateWorldState(Worldstates[n], 0);
+                                pPlayer->SendUpdateWorldState(WorldStates[n], 0);
                     }
                 }
             }

@@ -248,12 +248,12 @@ const Position BragBotSpawn[2] =
     {-4933.62f, 717.18f, 261.65f, 1.6f}
 };
 
-const uint32 Worldstates[15] = 
+const uint32 WorldStates[15] =
 {
     4981,
     5027,
     5040,
-    5018,                      
+    5018,
     5039,
     5044,
     5006,
