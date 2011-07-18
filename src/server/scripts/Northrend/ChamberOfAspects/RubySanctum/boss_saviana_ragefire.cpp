@@ -263,5 +263,4 @@ void AddSC_boss_saviana_ragefire()
     new boss_saviana_ragefire();
     new spell_saviana_conflagration_init();
     new spell_saviana_conflagration_throwback();
-    new spell_saviana_flame_beacon_triggerring();
 }
