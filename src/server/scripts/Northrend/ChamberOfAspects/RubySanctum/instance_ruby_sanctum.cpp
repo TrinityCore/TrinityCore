@@ -40,14 +40,15 @@ class instance_ruby_sanctum : public InstanceMapScript
                 GeneralZarithrianGUID   = 0;
                 SavianaRagefireGUID     = 0;
                 HalionGUID              = 0;
+                TwilightHalionGUID      = 0;
                 HalionControllerGUID    = 0;
-                CrystalChannelTargetGUID = 0;
+                CrystalChannelTargetGUID= 0;
                 XerestraszaGUID         = 0;
                 BaltharusSharedHealth   = 0;
                 FlameWallsGUID          = 0;
                 FlameRingGUID           = 0;
-                memset(ZarithianSpawnStalkerGUID, 0, 2*sizeof(uint64));
-                memset(BurningTreeGUID, 0, 4*sizeof(uint64));
+                memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
+                memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -66,6 +67,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case NPC_HALION:
                         HalionGUID = creature->GetGUID();
                         break;
+                    case NPC_TWILIGHT_HALION:
+                        TwilightHalionGUID = creature->GetGUID();
                     case NPC_HALION_CONTROLLER:
                         HalionControllerGUID = creature->GetGUID();
                     case NPC_BALTHARUS_TARGET:
@@ -159,6 +162,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return HalionGUID;
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
+                    case DATA_TWILIGHT_HALION:
+                        return TwilightHalionGUID;
                     case DATA_BURNING_TREE_1:
                         return BurningTreeGUID[0];
                     case DATA_BURNING_TREE_2:
@@ -289,6 +294,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 GeneralZarithrianGUID;
             uint64 SavianaRagefireGUID;
             uint64 HalionGUID;
+            uint64 TwilightHalionGUID;
             uint64 HalionControllerGUID;
             uint64 CrystalChannelTargetGUID;
             uint64 XerestraszaGUID;
