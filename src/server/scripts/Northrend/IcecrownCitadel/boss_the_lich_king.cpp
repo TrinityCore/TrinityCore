@@ -730,22 +730,23 @@ class boss_the_lich_king : public CreatureScript
                     }
                     case ACTION_PHASE_SWITCH_2:
                     {
-                        if (GetPhase(events) == PHASE_2_TRANSITION)
-                        {
-                            events.SetPhase(PHASE_3);
-                            events.ScheduleEvent(EVENT_SUMMON_VAL_KYR_SHADOWGUARD, 13000, 0, PHASE_3);
-                            events.ScheduleEvent(EVENT_SOUL_REAPER, 35000, 0, PHASE_3);
-                            events.ScheduleEvent(EVENT_DEFILE, 32000, 0, PHASE_3);
-                            events.ScheduleEvent(EVENT_INFEST, 8000, 0, PHASE_3);
-                        }
-                        else
-                        {
-                            events.SetPhase(PHASE_5);
-                            events.ScheduleEvent(EVENT_SUMMON_VILE_SPIRITS, 15000, 0, PHASE_5);
-                            events.ScheduleEvent(EVENT_SOUL_REAPER, 35000, 0, PHASE_5);
-                            events.ScheduleEvent(EVENT_DEFILE, 32000, 0, PHASE_5);
-                            events.ScheduleEvent(EVENT_HARVEST_SOUL, 7000, 0, PHASE_5);
-                        }
+                    if (GetPhase(events) == PHASE_2_TRANSITION)
+                    {
+                        events.SetPhase(PHASE_3);
+                        events.ScheduleEvent(EVENT_SUMMON_VAL_KYR_SHADOWGUARD, 13000, 0, PHASE_3);
+                        events.ScheduleEvent(EVENT_SOUL_REAPER, 35000, 0, PHASE_3);
+                        events.ScheduleEvent(EVENT_DEFILE, 32000, 0, PHASE_3);
+                        events.ScheduleEvent(EVENT_INFEST, 8000, 0, PHASE_3);
+                    }
+
+                    if (GetPhase(events) == PHASE_4_TRANSITION)
+                    {
+                        events.SetPhase(PHASE_5);
+                        events.ScheduleEvent(EVENT_SUMMON_VILE_SPIRITS, 15000, 0, PHASE_5);
+                        events.ScheduleEvent(EVENT_SOUL_REAPER, 35000, 0, PHASE_5);
+                        events.ScheduleEvent(EVENT_DEFILE, 32000, 0, PHASE_5);
+                        events.ScheduleEvent(EVENT_HARVEST_SOUL, 7000, 0, PHASE_5);
+                    }
 
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveAurasDueToSpell(RAID_MODE(SPELL_PAIN_AND_SUFFERING_10N, SPELL_PAIN_AND_SUFFERING_25N, SPELL_PAIN_AND_SUFFERING_10H, SPELL_PAIN_AND_SUFFERING_25H));
