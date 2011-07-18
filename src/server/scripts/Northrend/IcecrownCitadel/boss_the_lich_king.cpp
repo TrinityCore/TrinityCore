@@ -561,6 +561,17 @@ class boss_the_lich_king : public CreatureScript
                             target->CastSpell(summoned, SPELL_RAGING_VISUAL, true);
                             summoned->AI()->AttackStart(target);
                         }
+                        else if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                        {
+                            target->CastSpell(summoned, SPELL_RAGING_VISUAL, true);
+                            summoned->AI()->AttackStart(target);
+                        }
+                        else
+                        {
+                            //There is no target - unsummon raging spirit
+                            summoned->Kill(summoned);
+                            summoned->DespawnOrUnsummon();
+                        }
                         break;
                     case NPC_DEFILE:
                     {
