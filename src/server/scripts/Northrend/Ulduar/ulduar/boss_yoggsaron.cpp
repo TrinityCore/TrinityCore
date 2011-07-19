@@ -532,6 +532,11 @@ const EventSpeech EventNpcSpeaching[19] =
     {ENTRY_YOGG_SARON,SAY_YOGGSARON_5_VISION_3,5000,false},
 };
 
+bool IsPlayerInBrainRoom(const Player* pPlayer)
+{
+    return pPlayer->GetPositionZ() < 300;
+}
+
 class boss_sara : public CreatureScript
 {
 public:
@@ -653,7 +658,8 @@ public:
             // Spawn Yoggy if not spawned
             Creature* yogg = me->GetCreature(*me,guidYogg);
             if(yogg) yogg->DespawnOrUnsummon();
-            DoSummon(ENTRY_YOGG_SARON,SaraLocation,0,TEMPSUMMON_MANUAL_DESPAWN);
+            if(yogg = DoSummon(ENTRY_YOGG_SARON,SaraLocation,0,TEMPSUMMON_MANUAL_DESPAWN))
+                yogg->SetLootMode(LOOT_MODE_DEFAULT);
 
             Creature* yoggbrain = me->GetCreature(*me,guidYoggBrain);
             if(yoggbrain) yoggbrain->DespawnOrUnsummon();
@@ -886,13 +892,22 @@ public:
             if(m_Phase == newPhase)
                 return;
 
-            //Sayings
             switch(newPhase)
             {
             case PHASE_SARA:
+                DoScriptText(SAY_SARA_AGGRO_1,me);
                 DoSpawnKeeperForSupport();
                 SetSanityAura();
                 uiAmountKeeperActive = CountKeepersActive();
+                if(Creature* yogg = me->GetCreature(*me,guidYogg))
+                {
+                    yogg->SetLootMode(LOOT_MODE_DEFAULT);
+                    if(uiAmountKeeperActive <= 1)
+                        yogg->AddLootMode(LOOT_MODE_HARD_MODE_1);
+                    if(uiAmountKeeperActive == 0)
+                        yogg->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                }
+
                 break;
             case PHASE_BRAIN:
                 me->SetHealth(me->GetMaxHealth());
@@ -965,7 +980,7 @@ public:
             switch(m_Phase)
             {
             case PHASE_NONE: DoScriptText(RAND(SAY_SARA_PREFIGHT_1,SAY_SARA_PREFIGHT_2),me); break;
-            case PHASE_SARA: DoScriptText(RAND(SAY_SARA_AGGRO_1,SAY_SARA_AGGRO_2,SAY_SARA_AGGRO_3),me); break;
+            case PHASE_SARA: DoScriptText(RAND(SAY_SARA_AGGRO_2,SAY_SARA_AGGRO_3),me); break;
             case PHASE_BRAIN: DoScriptText(RAND(SAY_SARA_PHASE2_1,SAY_SARA_PHASE2_2,SAY_SARA_AGGRO_3),me); break;
             }
         }
@@ -1103,11 +1118,6 @@ public:
         Creature* GetRandomGuardianTarget(float range = 100.0f)
         {
             return GetRandomEntryTarget(ENTRY_IMMORTAL_GUARDIAN);
-        }
-
-        bool IsPlayerInBrainRoom(Player* pPlayer)
-        {
-            return pPlayer->GetPositionZ() < 300;
         }
 
         bool AllSpawnsDeadOrDespawned(std::list<uint64> GuidListe)
@@ -2056,17 +2066,11 @@ public:
             me->SetFlying(true);
         }
 
-        bool IsPlayerInBrainRoom(Player* pPlayer)
-        {
-            return pPlayer->GetPositionZ() < 300;
-        }
-
         void DamageTaken(Unit* dealer, uint32 &damage)
         {
             if(damage > me->GetHealth())
                 damage = me->GetHealth()-1;
         }
-
 
         void SpellHitTarget(Unit *target, const SpellEntry *spell)
         {
@@ -2213,6 +2217,12 @@ public:
                                         // Do Not Cast because its AoE and need better targeting scripting
                                         //DoCast(plr,SPELL_INSANE,true);
                                         //DoCast(plr,SPELL_INSANE_2,true);
+                                        if(IsPlayerInBrainRoom(plr))
+                                        {
+                                            plr->RemoveAurasDueToSpell(SPELL_ILLUSION_ROOM);
+                                            plr->NearTeleportTo(SaraLocation.GetPositionX(),SaraLocation.GetPositionY(),SaraLocation.GetPositionZ(),M_PI,false);
+                                        }
+
                                         me->AddAura(SPELL_INSANE,plr);
                                         me->AddAura(SPELL_INSANE_2,plr);
                                         DoScriptText(RAND(WHISP_INSANITY_1,WHISP_INSANITY_2),me,plr);
@@ -2929,7 +2939,7 @@ class spell_brain_link_periodic_dummy : public SpellScriptLoader
                                 
                                 trigger->CastSpell(player, SPELL_BRAIN_LINK_DUMMY, true);
                                 if(Unit* caster = GetCaster())
-                                if (!player->IsWithinDist(trigger, float(aurEff->GetMiscValue())))
+                                if (!player->IsWithinDist(trigger, float(aurEff->GetAmount())))
                                 {
                                     caster->CastSpell(trigger, SPELL_BRAIN_LINK_DAMAGE, true);
                                     if(InstanceScript* pInstance = caster->GetInstanceScript())
