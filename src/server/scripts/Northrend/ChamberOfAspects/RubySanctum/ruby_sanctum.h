@@ -88,6 +88,8 @@ enum CreaturesIds
     NPC_METEOR_STRIKE_WEST                  = 40043,
     NPC_METEOR_STRIKE_SOUTH                 = 40044,
     NPC_METEOR_STRIKE_FLAME                 = 40055,
+    NPC_COMBUSTION                          = 40001,
+    NPC_CONSOMPTION                         = 40135,
 
     // Xerestrasza
     NPC_XERESTRASZA                         = 40429,
