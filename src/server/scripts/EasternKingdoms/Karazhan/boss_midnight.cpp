@@ -183,7 +183,7 @@ public:
                             if (pAttumen->getVictim())
                             {
                                 pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
-                                pAttumen->SetUInt64Value(UNIT_FIELD_TARGET, pAttumen->getVictim()->GetGUID());
+                                pAttumen->SetTarget(pAttumen->getVictim()->GetGUID());
                             }
                             pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X, 1);
                         }

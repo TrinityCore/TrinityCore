@@ -41,6 +41,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
+  ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Management
   ${CMAKE_CURRENT_SOURCE_DIR}/Maps

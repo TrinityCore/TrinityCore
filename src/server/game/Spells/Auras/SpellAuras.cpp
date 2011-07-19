@@ -193,8 +193,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
         flags |= AFLAG_DURATION;
     data << uint8(flags);
     data << uint8(aura->GetCasterLevel());
+    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetStackAmount() > 1 ? aura->GetStackAmount() : (aura->IsUsingCharges()) ? aura->GetCharges() : 0);
+    data << uint8(aura->GetSpellProto()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
 
     if (!(flags & AFLAG_CASTER))
         data.appendPackGUID(aura->GetCasterGUID());
@@ -1681,7 +1682,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
 
-                uint32 presence=GetId();
+                uint32 presence = GetId();
                 if (apply)
                 {
                     // Blood Presence bonus
@@ -1689,7 +1690,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target, 63611, true);
                     else if (bloodPresenceAura)
                     {
-                        int32 basePoints1=bloodPresenceAura->GetAmount();
+                        int32 basePoints1 = bloodPresenceAura->GetAmount();
                         target->CastCustomSpell(target, 63611, NULL, &basePoints1, NULL, true, 0, bloodPresenceAura);
                     }
                     // Frost Presence bonus
@@ -1697,7 +1698,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target, 61261, true);
                     else if (frostPresenceAura)
                     {
-                        int32 basePoints0=frostPresenceAura->GetAmount();
+                        int32 basePoints0 = frostPresenceAura->GetAmount();
                         target->CastCustomSpell(target, 61261, &basePoints0, NULL, NULL, true, 0, frostPresenceAura);
                     }
                     // Unholy Presence bonus
@@ -1708,13 +1709,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             // Not listed as any effect, only base points set
                             int32 basePoints0 = SpellMgr::CalculateSpellEffectAmount(unholyPresenceAura->GetSpellProto(), 1);
                             target->CastCustomSpell(target, 63622, &basePoints0 , &basePoints0, &basePoints0, true, 0, unholyPresenceAura);
-                            target->CastCustomSpell(target, 65095, &basePoints0 , NULL, NULL, true, 0, unholyPresenceAura);
                         }
                         target->CastSpell(target, 49772, true);
                     }
                     else if (unholyPresenceAura)
                     {
-                        int32 basePoints0=unholyPresenceAura->GetAmount();
+                        int32 basePoints0 = unholyPresenceAura->GetAmount();
                         target->CastCustomSpell(target, 49772, &basePoints0, NULL, NULL, true, 0, unholyPresenceAura);
                     }
                 }
@@ -1728,10 +1728,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (presence == 48265 || unholyPresenceAura)
                     {
                         if (presence == 48265 && unholyPresenceAura)
-                        {
                             target->RemoveAurasDueToSpell(63622);
-                            target->RemoveAurasDueToSpell(65095);
-                        }
                         target->RemoveAurasDueToSpell(49772);
                     }
                 }
@@ -1831,7 +1828,7 @@ bool Aura::IsProcOnCooldown() const
     return false;
 }
 
-void Aura::AddProcCooldown(uint32 msec)
+void Aura::AddProcCooldown(uint32 /*msec*/)
 {
     //m_procCooldown = time(NULL) + msec;
 }

@@ -80,7 +80,7 @@ public:
                         player->GetClosePoint(x, y, z, me->GetObjectSize());
                         z += 2.5; x -= 2; y -= 1.5;
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, player->GetGUID());
+                        me->SetTarget(player->GetGUID());
                         me->SetVisible(true);
                         FlyBackTimer = 4500;
                         break;

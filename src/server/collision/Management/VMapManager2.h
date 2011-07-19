@@ -22,7 +22,6 @@
 #include "IVMapManager.h"
 #include "Dynamic/UnorderedMap.h"
 #include "Define.h"
-#include <G3D/Vector3.h>
 
 //===========================================================
 
@@ -40,6 +39,11 @@ Additionally a table to match map ids and map names is used.
 
 //===========================================================
 
+namespace G3D
+{
+    class Vector3;
+}
+
 namespace VMAP
 {
     class StaticMapTree;
@@ -48,17 +52,17 @@ namespace VMAP
     class ManagedModel
     {
         public:
-            ManagedModel(): iModel(0), iRefCount(0) {}
-            void setModel(WorldModel *model) { iModel = model; }
-            WorldModel *getModel() { return iModel; }
+            ManagedModel() : iModel(0), iRefCount(0) {}
+            void setModel(WorldModel* model) { iModel = model; }
+            WorldModel* getModel() { return iModel; }
             void incRefCount() { ++iRefCount; }
             int decRefCount() { return --iRefCount; }
         protected:
-            WorldModel *iModel;
+            WorldModel* iModel;
             int iRefCount;
     };
 
-    typedef UNORDERED_MAP<uint32 , StaticMapTree *> InstanceTreeMap;
+    typedef UNORDERED_MAP<uint32, StaticMapTree*> InstanceTreeMap;
     typedef UNORDERED_MAP<std::string, ManagedModel> ModelFileMap;
 
     class VMapManager2 : public IVMapManager
@@ -68,44 +72,45 @@ namespace VMAP
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
 
-            bool _loadMap(uint32 pMapId, const std::string &basePath, uint32 tileX, uint32 tileY);
+            bool _loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
             /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */
 
         public:
             // public for debug
             G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
             G3D::Vector3 convertPositionToMangosRep(float x, float y, float z) const;
-            static std::string getMapFileName(unsigned int pMapId);
+            static std::string getMapFileName(unsigned int mapId);
 
             VMapManager2();
             ~VMapManager2(void);
 
-            int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y);
+            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y);
 
-            void unloadMap(unsigned int pMapId, int x, int y);
-            void unloadMap(unsigned int pMapId);
+            void unloadMap(unsigned int mapId, int x, int y);
+            void unloadMap(unsigned int mapId);
 
-            bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) ;
+            bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2) ;
             /**
             fill the hit pos and return true, if an object was hit
             */
-            bool getObjectHitPos(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float pModifyDist);
-            float getHeight(unsigned int pMapId, float x, float y, float z, float maxSearchDist);
+            bool getObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist);
+            float getHeight(unsigned int mapId, float x, float y, float z, float maxSearchDist);
 
-            bool processCommand(char * /*pCommand*/) { return false; }      // for debug and extensions
+            bool processCommand(char* /*command*/) { return false; } // for debug and extensions
 
-            bool getAreaInfo(unsigned int pMapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
-            bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const;
+            bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
+            bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const;
 
-            WorldModel* acquireModelInstance(const std::string &basepath, const std::string &filename);
-            void releaseModelInstance(const std::string &filename);
+            WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename);
+            void releaseModelInstance(const std::string& filename);
 
             // what's the use of this? o.O
-            virtual std::string getDirFileName(unsigned int pMapId, int /*x*/, int /*y*/) const
+            virtual std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const
             {
-                return getMapFileName(pMapId);
+                return getMapFileName(mapId);
             }
-            virtual bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y);
+            virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y);
     };
 }
+
 #endif

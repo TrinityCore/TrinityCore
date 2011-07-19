@@ -290,7 +290,7 @@ public:
                             DoCast(target, SPELL_GREEN_BEAM);
 
                             //Correctly update our target
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, target->GetGUID());
+                            me->SetTarget(target->GetGUID());
                         }
 
                         //Beam every 3 seconds
@@ -325,7 +325,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
 
                         //Remove any target
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                        me->SetTarget(0);
 
                         //Select random target for dark beam to start on
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -402,7 +402,7 @@ public:
                 //Transition phase
                 case PHASE_CTHUN_TRANSITION:
                     //Remove any target
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetTarget(0);
                     me->SetHealth(0);
                     me->SetVisible(false);
                     break;
@@ -442,7 +442,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                     //Remove Target field
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetTarget(0);
 
                     //Death animation/respawning;
                     pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
@@ -628,7 +628,7 @@ public:
                 return;
             }
 
-            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+            me->SetTarget(0);
 
             //No instance
             if (!pInst)
@@ -706,7 +706,7 @@ public:
                 //Body Phase
                 case PHASE_CTHUN_STOMACH:
                     //Remove Target field
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetTarget(0);
 
                     //Weaken
                     if (FleshTentaclesKilled > 1)

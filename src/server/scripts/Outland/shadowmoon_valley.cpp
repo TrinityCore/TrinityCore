@@ -782,8 +782,8 @@ public:
                  Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); return 350; break;
             case 6:
                 Illi->CastSpell(Illi, SPELL_ONE, true);
-                Illi->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                me->SetUInt64Value(UNIT_FIELD_TARGET, IllidanGUID);
+                Illi->SetTarget(me->GetGUID());
+                me->SetTarget(IllidanGUID);
                 return 2000; break;
             case 7: DoScriptText(OVERLORD_YELL_2, me); return 4500; break;
             case 8: me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8); return 2500; break;
@@ -792,7 +792,7 @@ public:
             case 11: DoScriptText(OVERLORD_SAY_4, me, player); return 6000; break;
             case 12: DoScriptText(LORD_ILLIDAN_SAY_2, Illi); return 5500; break;
             case 13: DoScriptText(LORD_ILLIDAN_SAY_3, Illi); return 4000; break;
-            case 14: Illi->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 1500; break;
+            case 14: Illi->SetTarget(PlayerGUID); return 1500; break;
             case 15: DoScriptText(LORD_ILLIDAN_SAY_4, Illi); return 1500; break;
             case 16:
                 if (player)
@@ -818,7 +818,7 @@ public:
                 Illi->setDeathState(JUST_DIED);
                 return 1000; break;
             case 23: me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0); return 2000; break;
-            case 24: me->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 5000; break;
+            case 24: me->SetTarget(PlayerGUID); return 5000; break;
             case 25: DoScriptText(OVERLORD_SAY_6, me); return 2000; break;
             case 26:
                 if (player)
@@ -828,7 +828,7 @@ public:
                 {
                 Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
                 if (Yarzill)
-                    Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+                    Yarzill->SetTarget(PlayerGUID);
                 return 500; }
      break;
             case 28:
@@ -848,7 +848,7 @@ public:
                 {
                 Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
                 if (Yarzill)
-                    Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    Yarzill->SetTarget(0);
                 return 5000; }
      break;
             case 31:
@@ -1193,7 +1193,7 @@ public:
 
             me->AddUnitState(UNIT_STAT_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+            me->SetTarget(0);
         }
 
         void EnterCombat(Unit* /*who*/){}
@@ -1226,7 +1226,7 @@ public:
             case 5:
                 if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
                 {
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, AggroTarget->GetGUID());
+                    me->SetTarget(AggroTarget->GetGUID());
                     me->AddThreat(AggroTarget, 1);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                 }
