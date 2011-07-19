@@ -172,7 +172,6 @@ class boss_gothik : public CreatureScript
                 LiveTriggerGUID.clear();
                 DeadTriggerGUID.clear();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 me->SetReactState(REACT_PASSIVE);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
@@ -199,7 +198,6 @@ class boss_gothik : public CreatureScript
                 }
 
                 _EnterCombat();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 waveCount = 0;
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 DoTeleportTo(PosPlatform);
@@ -362,6 +360,12 @@ class boss_gothik : public CreatureScript
                 }
             }
 
+            void DamageTaken(Unit* /*who*/ , uint32& damage)
+            {
+                if (!phaseTwo)
+                    damage = 0;
+            }
+
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (!me->isInCombat())
@@ -443,7 +447,6 @@ class boss_gothik : public CreatureScript
                                 DoScriptText(SAY_TELEPORT, me);
                                 DoTeleportTo(PosGroundLiveSide);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 summons.DoAction(0, 0);
                                 summons.DoZoneInCombat();
                                 events.ScheduleEvent(EVENT_BOLT, 1000);
@@ -481,7 +484,8 @@ class boss_gothik : public CreatureScript
                     }
                 }
 
-                DoMeleeAttackIfReady();
+                if (!phaseTwo)
+                    DoMeleeAttackIfReady();
             }
         };
 
