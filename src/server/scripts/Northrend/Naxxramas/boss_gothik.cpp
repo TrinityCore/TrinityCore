@@ -373,6 +373,12 @@ public:
             return false;
         }
 
+            void DamageTaken(Unit* /*who*/ , uint32& damage)
+            {
+                if (!phaseTwo)
+                    damage = 0;
+            }
+
         void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
         {
             if (!phaseTwo)
@@ -519,7 +525,8 @@ public:
                 }
             }
 
-            DoMeleeAttackIfReady();
+            if (!phaseTwo)
+                    DoMeleeAttackIfReady();
         }
     };
 
