@@ -85,11 +85,16 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
             boss_baltharus_the_warborn_outdoorAI(Creature * creature) : WorldBossAI(creature)
             {
                 _introDone = false;
-                _idle = false;
+                _random = false;
             }
 
             void Reset()
             {
+                me->SetHomePosition(4458.606f,-168.933f,86.58399f,0.0f);
+
+                if (!_introDone)
+                    DoAction(ACTION_INTRO_BALTHARUS);
+
                 _Reset();
                 _cloneCount = 3;
             }
@@ -140,9 +145,6 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                     if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN)
                         return;
 
-                if (!(events.GetPhaseMask() & PHASE_COMBAT))
-                    return;
-
                 if (me->canStartAttack(pTarget, true))
                     AttackStart(pTarget);
             }
@@ -170,7 +172,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
 
             void KilledUnit(Unit * victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TYPEID_PLAYER && urand(0,2) == 1)
                     Talk(SAY_KILL);
             }
 
@@ -180,7 +182,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                 summon->CastSpell(summon, SPELL_SPAWN_EFFECT, true);
                 summon->SetHealth(me->GetHealth());
 
-                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
                     summon->AI()->AttackStart(target);
             }
 
@@ -188,29 +190,23 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
             {
                 switch(_cloneCount)
                 {
-                    case 3:
-                        if (me->HealthBelowPctDamaged(75, damage))
-                            DoAction(ACTION_CLONE);
-                        break;
-                    case 2:
-                        if (me->HealthBelowPctDamaged(50, damage))
-                            DoAction(ACTION_CLONE);
-                        break;
-                    case 1:
-                        if (me->HealthBelowPctDamaged(25, damage))
-                            DoAction(ACTION_CLONE);
-                        break;
-                    default:
-                        break;
+                    case 3: if (me->HealthBelowPctDamaged(75, damage)) DoAction(ACTION_CLONE); break;
+                    case 2: if (me->HealthBelowPctDamaged(50, damage)) DoAction(ACTION_CLONE); break;
+                    case 1: if (me->HealthBelowPctDamaged(25, damage)) DoAction(ACTION_CLONE); break;
+                    default: break;
                 }
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (!_idle && me->GetPositionX() >= 4316.0f && me->GetPositionY() >= 46.0f) // Wenn er den letzten Wegpunkt erreicht hat -> stehen bleiben! ;)
+                if (!_random && me->GetPositionX() >= 4458.0f && me->GetPositionY() <= -168.0f && me->GetPositionZ() >= 86.0f)
                 {
-                    me->GetMotionMaster()->MoveIdle();
-                    _idle = true;
+                    me->StopMoving();
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->Initialize();
+                    me->GetMotionMaster()->MoveRandom(80.0f);
+
+                    _random = true;
                 }
 
                 if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
@@ -250,7 +246,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                                 DoCast(target, SPELL_FEURIGE_EINAESCHERUNG);
                             events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS), 0, PHASE_COMBAT);
                         case EVENT_GROSSBRAND:
-                            for (uint8 i=0; i<4; ++i)
+                            for (uint8 i=0; i<5; ++i)
                                 if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                     DoCast(target, SPELL_GROSSBRAND);
                             events.RescheduleEvent(EVENT_GROSSBRAND, urand(30*IN_MILLISECONDS,45*IN_MILLISECONDS), 0, PHASE_COMBAT);
@@ -263,7 +259,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
             private:
                 uint8 _cloneCount;
                 bool _introDone;
-                bool _idle;
+                bool _random;
         };
 
         CreatureAI * GetAI(Creature * creature) const
