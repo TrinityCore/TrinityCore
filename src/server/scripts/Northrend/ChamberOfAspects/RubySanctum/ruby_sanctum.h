@@ -34,7 +34,7 @@ enum DataTypes
     DATA_GENERAL_ZARITHRIAN                 = 1,
     DATA_SAVIANA_RAGEFIRE                   = 2,
     DATA_HALION                             = 3,
-    DATA_TWILIGHT_HALION                    = 4,
+    DATA_TWILIGHT_HALION                    = 4, // May be unneeded, anyways
 
     // Etc
     DATA_XERESTRASZA                        = 5,
@@ -43,11 +43,12 @@ enum DataTypes
     DATA_ZARITHIAN_SPAWN_STALKER_1          = 8,
     DATA_ZARITHIAN_SPAWN_STALKER_2          = 9,
     DATA_HALION_CONTROLLER                  = 10,
-    DATA_BURNING_TREE_1                     = 11,
-    DATA_BURNING_TREE_2                     = 12,
-    DATA_BURNING_TREE_3                     = 13,
-    DATA_BURNING_TREE_4                     = 14,
-    DATA_FLAME_RING                         = 15,
+    DATA_HALION_SHARED_HEALTH               = 11,
+    DATA_BURNING_TREE_1                     = 12,
+    DATA_BURNING_TREE_2                     = 13,
+    DATA_BURNING_TREE_3                     = 14,
+    DATA_BURNING_TREE_4                     = 15,
+    DATA_FLAME_RING                         = 16,
 };
 
 enum SharedActions
@@ -74,7 +75,7 @@ enum CreaturesIds
 
     // Halion
     NPC_HALION                              = 39863,
-    NPC_HALION_TWILIGHT                     = 40142,
+    NPC_TWILIGHT_HALION                     = 40142,
     NPC_HALION_CONTROLLER                   = 40146,
     NPC_LIVING_INFERNO                      = 40681,
     NPC_LIVING_EMBER                        = 40683,
@@ -94,7 +95,7 @@ enum CreaturesIds
 
 enum GameObjectsIds
 {
-    GO_HALION_PORTAL_1                      = 202794,   // Unknown spell 75074, should be somehow be linked to 74807
+    GO_HALION_PORTAL_1                      = 202794,   // Unknown spell 75074, should be somehow be linked to 74807 - Summoned by a spell
     GO_HALION_PORTAL_2                      = 202795,   // Also spell 75074
     GO_HALION_PORTAL_EXIT                   = 202796,   // Leave Twilight Realm (74812)
     GO_FIRE_FIELD                           = 203005,

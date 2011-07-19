@@ -45,6 +45,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 CrystalChannelTargetGUID= 0;
                 XerestraszaGUID         = 0;
                 BaltharusSharedHealth   = 0;
+                HalionSharedHealth      = 0;
                 FlameWallsGUID          = 0;
                 FlameRingGUID           = 0;
                 memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
@@ -229,6 +230,11 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_BALTHARUS_SHARED_HEALTH:
                         BaltharusSharedHealth = data;
                         break;
+                    case DATA_HALION_SHARED_HEALTH:
+                        HalionSharedHealth = data;
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -238,6 +244,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                 {
                     case DATA_BALTHARUS_SHARED_HEALTH:
                         return BaltharusSharedHealth;
+                    case DATA_HALION_SHARED_HEALTH:
+                        return HalionSharedHealth;
                     default:
                         break;
                 }
@@ -303,6 +311,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 BurningTreeGUID[4];
             uint64 FlameRingGUID;
             uint32 BaltharusSharedHealth;
+            uint32 HalionSharedHealth;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

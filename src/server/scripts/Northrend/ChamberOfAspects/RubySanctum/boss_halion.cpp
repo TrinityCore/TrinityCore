@@ -75,22 +75,28 @@ enum Spells
     SPELL_COMBUSTION                    = 74562,    // Will each tick, apart from the damage, also add a stack to 74567
     SPELL_COMBUSTION_STACK              = 74567,    // If 74562 or 74567 is removed; this will trigger an explosion (74607) based on stackamount.
     SPELL_COMBUSTION_SCALE_AURA         = 70507,    // Aura created in spell_dbc since missing in client dbc. Value based on 74567 stackamount.
-
     SPELL_FIERY_COMBUSTION_EXPLOSION    = 74607,
-    SPELL_FIERY_COMBUSTION_SUMMON       = 74610,
+    SPELL_FIERY_COMBUSTION_SUMMON       = 74610,    // Does summon the visual AoE NPC.
     SPELL_COMBUSTION_DAMAGE_AURA        = 74629,
 
     SPELL_CONSUMTION                    = 74792,
     SPELL_CONSUMTION_STACK              = 74795,
+    SPELL_SOUL_CONSUMPTION              = 74792,
     SPELL_SOUL_CONSUMPTION_EXPLOSION    = 74799,
-    SPELL_SOUL_CONSUMPTION_SUMMON       = 74800,
+    SPELL_SOUL_CONSUMPTION_SUMMON       = 74800,    // Does summon the visual AoE NPC.
     SPELL_CONSUMPTION_DAMAGE_AURA       = 74803,
+
+    // Misc
+    SPELL_TWILIGHT_DIVISION             = 75063,    // Unknown dummy effect
+    SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell to go on phase 2
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
+
     // Halion Controller
     SPELL_COSMETIC_FIRE_PILLAR          = 76006,
     SPELL_FIERY_EXPLOSION               = 76010,
+
     // Meteor Strike
     SPELL_METEOR_STRIKE_COUNTDOWN       = 74641,
     SPELL_METEOR_STRIKE_AOE_DAMAGE      = 74648,
@@ -107,13 +113,20 @@ enum Events
     EVENT_FLAME_BREATH          = 3,
     EVENT_METEOR_STRIKE         = 4,
     EVENT_FIERY_COMBUSTION      = 5,
+
     // Halion Controller
     EVENT_START_INTRO           = 6,
     EVENT_INTRO_PROGRESS_1      = 7,
     EVENT_INTRO_PROGRESS_2      = 8,
     EVENT_INTRO_PROGRESS_3      = 9,
+
     // Meteor Strike
     EVENT_SPAWN_METEOR_FLAME    = 10,
+
+    // Twilight Halion
+    EVENT_CLEAVE                = 11,
+    EVENT_DARK_BREATH           = 12,
+    EVENT_SOUL_CONSUMPTION      = 13,
 };
 
 enum Actions
@@ -183,7 +196,7 @@ class boss_halion : public CreatureScript
             {
                 return &_meteorStrikePos;
             }
-
+            
             void UpdateAI(uint32 const diff)
             {
                 if ((events.GetPhaseMask() & PHASE_ONE_MASK) && !UpdateVictim())
@@ -514,124 +527,6 @@ class spell_halion_meteor_strike_marker : public SpellScriptLoader
         }
 };
 
-class spell_halion_combustion : public SpellScriptLoader
-{
-    public:
-        spell_halion_combustion() : SpellScriptLoader("spell_halion_combustion") { }
-
-        class spell_halion_combustion_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_halion_combustion_AuraScript);
-
-            bool Validate(SpellEntry const* /*spell*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_COMBUSTION_STACK))
-                    return false;
-                return true;
-            }
-
-            void HandleExtraEffect(AuraEffect const* /*aurEff*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), SPELL_COMBUSTION_STACK, true);
-            }
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), SPELL_COMBUSTION_STACK, true);
-            }
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                sLog->outError("spell_halion_combustion: OnRemove");
-                if (GetTarget()->HasAura(SPELL_COMBUSTION_STACK))
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_COMBUSTION_STACK, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_halion_combustion_AuraScript::HandleExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                AfterEffectApply += AuraEffectApplyFn(spell_halion_combustion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_combustion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_halion_combustion_AuraScript();
-        }
-};
-
-class spell_halion_combustion_stack : public SpellScriptLoader
-{
-    public:
-        spell_halion_combustion_stack() : SpellScriptLoader("spell_halion_combustion_stack") { }
-
-        class spell_halion_combustion_stack_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_halion_combustion_stack_AuraScript);
-
-            bool Validate(SpellEntry const* /*spell*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_FIERY_COMBUSTION_SUMMON))
-                    return false;
-                if (!sSpellStore.LookupEntry(SPELL_FIERY_COMBUSTION_EXPLOSION))
-                    return false;
-                return true;
-            }
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                sLog->outError("spell_halion_combustion_stack: OnRemove");
-                GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, aurEff->GetBase()->GetStackAmount(), GetTarget(), true);
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_combustion_stack_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_halion_combustion_stack_AuraScript();
-        }
-};
-
-class spell_combustion_consumption_summon : public SpellScriptLoader
-{
-    public:
-        spell_combustion_consumption_summon() : SpellScriptLoader("spell_combustion_consumption_summon") { }
-
-        class spell_combustion_consumption_summon_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_combustion_consumption_summon_SpellScript);
-
-            void HandleSummon(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                Unit* caster = GetCaster();
-                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
-                uint32 duration = uint32(GetSpellDuration(GetSpellInfo()));
-
-                Position pos;
-                caster->GetPosition(&pos);
-                if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
-                    summon->AI()->SetData(TYPE_COMBUSTION_SUMMON, uint32(GetSpellInfo()->EffectBasePoints[effIndex]));
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_combustion_consumption_summon_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_combustion_consumption_summon_SpellScript();
-        }
-};
-
 void AddSC_boss_halion()
 {
     new boss_halion();
@@ -640,8 +535,5 @@ void AddSC_boss_halion()
     new npc_meteor_strike();
     new npc_combustion();
     new spell_halion_meteor_strike_marker();
-    new spell_halion_combustion();
-    new spell_halion_combustion_stack();
-    new spell_combustion_consumption_summon();
 }
 
