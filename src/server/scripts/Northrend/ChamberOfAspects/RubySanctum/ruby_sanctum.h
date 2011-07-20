@@ -97,7 +97,7 @@ enum CreaturesIds
 
 enum GameObjectsIds
 {
-    GO_HALION_PORTAL_1                      = 202794,   // Unknown spell 75074, should be somehow be linked to 74807 - Summoned by a spell
+    GO_HALION_PORTAL_1                      = 202794,   // Unknown spell 75074, should be somehow be linked to 74807
     GO_HALION_PORTAL_2                      = 202795,   // Also spell 75074
     GO_HALION_PORTAL_EXIT                   = 202796,   // Leave Twilight Realm (74812)
     GO_FIRE_FIELD                           = 203005,

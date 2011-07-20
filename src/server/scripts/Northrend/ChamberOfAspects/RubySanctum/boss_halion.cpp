@@ -59,7 +59,8 @@ DELETE FROM `creature_text` WHERE `entry`=39863;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
 (39863,0,0, 'Meddlesome insects! You are too late. The Ruby Sanctum is lost!',14,0,100,1,0,17499, 'Halion'),
 (39863,1,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
-(39863,2,0, 'The heavens burn!',14,0,100,0,0,17505, 'Halion');
+(39863,2,0, 'The heavens burn!',14,0,100,0,0,17505, 'Halion'),
+(39863,3,0, 'You will find only suffering within the realm of twilight! Enter if you dare!',14,0,100,0,0,17507, 'Halion');
 */
 
 enum Texts
@@ -67,7 +68,7 @@ enum Texts
     SAY_INTRO                        = 0, // Meddlesome insects! You are too late. The Ruby Sanctum is lost!
     SAY_AGGRO                        = 1, // Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!
     SAY_METEOR_STRIKE                = 2, // The heavens burn!
-    SAY_PHASE_TWO                    = 3, // You will find only suffering within the realm of twilight! Enter if you dare! (17507)
+    SAY_PHASE_TWO                    = 3, // You will find only suffering within the realm of twilight! Enter if you dare!
     SAY_DEATH                        = 4, // Relish this victory, mortals, for it will be your last! This world will burn with the master's return! (17503)
     // Beware the shadow! (17506)
     // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
@@ -98,8 +99,9 @@ enum Spells
     SPELL_CONSUMPTION_DAMAGE_AURA       = 74803,
 
     // Misc
-    SPELL_TWILIGHT_DIVISION             = 75063,    // Unknown dummy effect
+    SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 1 to phase 2
     SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell to go on phase 3 - So why 2 NPCs ?
+    SPELL_TWILIGHT_REALM                = 74807,
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -142,8 +144,11 @@ enum Events
 
 enum Actions
 {
-    ACTION_METEOR_STRIKE_BURN   = 1,
-    ACTION_METEOR_STRIKE_AOE    = 2,
+    ACTION_METEOR_STRIKE_BURN   = 1, // Meteor Strike
+    ACTION_METEOR_STRIKE_AOE    = 2, // Meteor Strike
+
+    ACTION_PHASE_TWO            = 3, // Halion Controller
+    ACTION_PHASE_THREE          = 4,
 };
 
 enum Phases
@@ -172,9 +177,7 @@ class boss_halion : public CreatureScript
 
         struct boss_halionAI : public BossAI
         {
-            boss_halionAI(Creature* creature) : BossAI(creature, DATA_HALION)
-            {
-            }
+            boss_halionAI(Creature* creature) : BossAI(creature, DATA_HALION) { }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -207,11 +210,27 @@ class boss_halion : public CreatureScript
             {
                 return &_meteorStrikePos;
             }
-            
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                if (me->GetHealth() - damage > 0)
+                    instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
+
+                if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
+                {
+                    DoCast(me, SPELL_TWILIGHT_SHIFT); // Halion goes invisible and the Halion Controller summons the other one.
+                    Talk(SAY_PHASE_TWO);
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                        controller->AI()->DoAction(ACTION_PHASE_TWO);
+                }
+            }
+
             void UpdateAI(uint32 const diff)
             {
-                if ((events.GetPhaseMask() & PHASE_ONE_MASK) && !UpdateVictim())
+                if ((events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
+
+                me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 events.Update(diff);
 
@@ -226,6 +245,7 @@ class boss_halion : public CreatureScript
                             // Firewall is activated 10 seconds after starting encounter, DOOR_TYPE_ROOM is only instant.
                             if (GameObject* firewall = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_FLAME_RING)))
                                 instance->HandleGameObject(instance->GetData64(DATA_FLAME_RING), false, firewall);
+                            // Todo :find the twilight firewall or modify its spawnmask.
                             break;
                         case EVENT_FLAME_BREATH:
                             DoCast(me, SPELL_FLAME_BREATH);
@@ -276,6 +296,93 @@ class boss_halion : public CreatureScript
 
 typedef boss_halion::boss_halionAI HalionAI;
 
+class boss_twilight_halion : public CreatureScript
+{
+    public:
+        boss_twilight_halion() : CreatureScript("boss_twilight_halion") { }
+
+        struct boss_twilight_halionAI : public ScriptedAI
+        {
+            boss_twilight_halionAI(Creature* creature) : ScriptedAI(creature)
+            {
+                me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
+                _instance = creature->GetInstanceScript();
+                events.SetPhase(PHASE_TWO);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                events.Reset();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                Talk(SAY_DEATH);
+                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
+                _instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
+            }
+
+            void JustReachedHome()
+            {
+                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                {
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
+                }
+                events.Reset();
+
+                // Let Halion Controller kill Twilight Halion
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                    controller->Kill(me);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                if (me->GetHealth() - damage > 0)
+                    _instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
+
+                if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
+                {
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                        controller->AI()->DoAction(ACTION_PHASE_THREE);
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if ((events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            InstanceScript* _instance;
+            EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetRubySanctumAI<boss_twilight_halionAI>(creature);
+        }
+};
+
+typedef boss_twilight_halion::boss_twilight_halionAI twilightHalionAI;
+
 class npc_halion_controller : public CreatureScript
 {
     public:
@@ -296,14 +403,18 @@ class npc_halion_controller : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_INTRO_HALION)
+                switch (action)
                 {
-                    me->setActive(true);
-                    _events.Reset();
-                    _events.ScheduleEvent(EVENT_START_INTRO, 2000);
-                    _events.ScheduleEvent(EVENT_INTRO_PROGRESS_1, 6000);
-                    _events.ScheduleEvent(EVENT_INTRO_PROGRESS_2, 10000);
-                    _events.ScheduleEvent(EVENT_INTRO_PROGRESS_3, 14000);
+                    case ACTION_INTRO_HALION:
+                    {
+                        me->setActive(true);
+                        _events.Reset();
+                        _events.ScheduleEvent(EVENT_START_INTRO, 2000);
+                        _events.ScheduleEvent(EVENT_INTRO_PROGRESS_1, 6000);
+                        _events.ScheduleEvent(EVENT_INTRO_PROGRESS_2, 10000);
+                        _events.ScheduleEvent(EVENT_INTRO_PROGRESS_3, 14000);
+                        break;
+                    }
                 }
             }
 
@@ -784,14 +895,14 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
         }
 };
 
-class spell_combustion_consumption_summon : public SpellScriptLoader
+class spell_halion_combustion_consumption_summon : public SpellScriptLoader
 {
     public:
-        spell_combustion_consumption_summon() : SpellScriptLoader("spell_combustion_consumption_summon") { }
+        spell_halion_combustion_consumption_summon() : SpellScriptLoader("spell_halion_combustion_consumption_summon") { }
 
-        class spell_combustion_consumption_summon_SpellScript : public SpellScript
+        class spell_halion_combustion_consumption_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_combustion_consumption_summon_SpellScript);
+            PrepareSpellScript(spell_halion_combustion_consumption_summon_SpellScript);
 
             void HandleSummon(SpellEffIndex effIndex)
             {
@@ -809,13 +920,13 @@ class spell_combustion_consumption_summon : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_combustion_consumption_summon_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffect += SpellEffectFn(spell_halion_combustion_consumption_summon_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_combustion_consumption_summon_SpellScript();
+            return new spell_halion_combustion_consumption_summon_SpellScript();
         }
 };
 
@@ -827,8 +938,8 @@ class CombustionConsumptionPeriodicDamageSelector
         bool operator()(Unit* unit)
         {
             if (uint32 scale = _owner->AI()->GetData(MARK_STACKAMOUNT))
-                if (unit->IsWithinDistInMap(_owner, float(12 * (1 + scale / 100))))
-                    if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->GetTypeId() == TYPEID_PLAYER)
+                    if (unit->IsWithinDistInMap(_owner, float(12 * (1 + scale / 10))))
                         return false;
             return true;
         }
@@ -868,6 +979,7 @@ class spell_halion_combustion_consumption_damage_periodic_aura : public SpellScr
 void AddSC_boss_halion()
 {
     new boss_halion();
+    new boss_twilight_halion();
 
     new npc_halion_controller();
     new npc_meteor_strike_initial();
@@ -876,7 +988,7 @@ void AddSC_boss_halion()
     new npc_consumption();
 
     new spell_halion_meteor_strike_marker();
-    new spell_combustion_consumption_summon();
+    new spell_halion_combustion_consumption_summon();
     new spell_halion_mark_of_combustion();
     new spell_halion_mark_of_consumption();
     new spell_halion_fiery_combustion();
