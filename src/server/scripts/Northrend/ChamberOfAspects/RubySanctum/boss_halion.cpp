@@ -27,25 +27,32 @@ INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`Casti
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 
 UPDATE `creature_template` SET `scale`=1,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432 WHERE `entry`=40135; -- Consumption
-UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`ScriptName`= 'npc_combustion' WHERE `entry`=40001;
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863;
 -- UPDATE `creature_template` SET `ScriptName`= 'npc_twilight_halion' WHERE `entry`=40142;
 UPDATE `creature_template` SET `ScriptName`= 'npc_halion_controller' WHERE `entry`=40146;
-UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029;
-UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044);
-UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055;
+UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
+UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
+UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_fiery_combustion';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_soul_consumption';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_combustion';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consumption';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_damage_periodic_aura';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
+(74792, 'spell_halion_soul_consumption'),
 (74567, 'spell_halion_mark_of_combustion'),
+(74795, 'spell_halion_mark_of_consumption'),
 (74610, 'spell_halion_combustion_consumption_summon'),
-(74800, 'spell_halion_combustion_consumption_summon');
+(74800, 'spell_halion_combustion_consumption_summon'),
+(74630, 'spell_halion_combustion_consumption_damage_periodic_aura'),
+(74802, 'spell_halion_combustion_consumption_damage_periodic_aura');
 
 DELETE FROM `creature` WHERE `id`=40146;
 DELETE FROM `creature_text` WHERE `entry`=39863; 
@@ -153,8 +160,7 @@ enum Phases
 
 enum Misc
 {
-    TYPE_COMBUSTION_SUMMON  = 1,
-    TYPE_CONSUMPTION_SUMMON = 2,
+    MARK_STACKAMOUNT        = 1,
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
@@ -352,9 +358,7 @@ class npc_meteor_strike_initial : public CreatureScript
 
         struct npc_meteor_strike_initialAI : public Scripted_NoMovementAI
         {
-            npc_meteor_strike_initialAI(Creature* creature) : Scripted_NoMovementAI(creature)
-            {
-            }
+            npc_meteor_strike_initialAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
             void DoAction(int32 const action)
             {
@@ -476,24 +480,37 @@ class npc_combustion : public CreatureScript
 
         struct npc_combustionAI : public Scripted_NoMovementAI
         {
-            npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature)
-            {
-            }
+            npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
             void SetData(uint32 type, uint32 data)
             {
-                if (type == TYPE_COMBUSTION_SUMMON)
+                if (type == MARK_STACKAMOUNT)
                 {
-                    //if (Unit* owner = me->GetSummoner())
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
                     // Scaling aura
                     me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
-                    DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA); // This one's radius should scale.
+                    DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
+                    // Save scale for range selection
+                    _scale = data;
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case MARK_STACKAMOUNT:
+                        return _scale;
+                    default:
+                        return 0;
+                }
+            }
+
+            void UpdateAI(uint32 const /*diff*/) { }
+
+        private:
+            uint32 _scale;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -509,13 +526,11 @@ class npc_consumption : public CreatureScript
 
         struct npc_consumptionAI : public Scripted_NoMovementAI
         {
-            npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature)
-            {
-            }
+            npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
             void SetData(uint32 type, uint32 data)
             {
-                if (type == TYPE_CONSUMPTION_SUMMON)
+                if (type == MARK_STACKAMOUNT)
                 {
                     //if (Unit* owner = me->GetSummoner())
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
@@ -523,10 +538,26 @@ class npc_consumption : public CreatureScript
                     // Scaling aura
                     me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA); // This one's radius should scale.
+
+                    _scale = data;
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case MARK_STACKAMOUNT:
+                        return _scale;
+                    default:
+                        return 0;
+                }
+            }
+
+            void UpdateAI(uint32 const /*diff*/) { }
+
+        private:
+            uint32 _scale;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -773,7 +804,7 @@ class spell_combustion_consumption_summon : public SpellScriptLoader
                 Position pos;
                 caster->GetPosition(&pos);
                 if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
-                    summon->AI()->SetData((entry == NPC_COMBUSTION ? TYPE_COMBUSTION_SUMMON : TYPE_CONSUMPTION_SUMMON), uint32(GetSpellInfo()->EffectBasePoints[effIndex]));
+                    summon->AI()->SetData(MARK_STACKAMOUNT, uint32(GetSpellInfo()->EffectBasePoints[effIndex]));
             }
 
             void Register()
@@ -788,9 +819,56 @@ class spell_combustion_consumption_summon : public SpellScriptLoader
         }
 };
 
+class CombustionConsumptionPeriodicDamageSelector
+{
+    public:
+        explicit CombustionConsumptionPeriodicDamageSelector(Creature* owner) : _owner(owner) { }
+
+        bool operator()(Unit* unit)
+        {
+            if (uint32 scale = _owner->AI()->GetData(MARK_STACKAMOUNT))
+                if (unit->IsWithinDistInMap(_owner, float(12 * (1 + scale / 100))))
+                    if (unit->GetTypeId() == TYPEID_PLAYER)
+                        return false;
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
+
+class spell_halion_combustion_consumption_damage_periodic_aura : public SpellScriptLoader
+{
+    public:
+        spell_halion_combustion_consumption_damage_periodic_aura() : SpellScriptLoader("spell_halion_combustion_consumption_damage_periodic_aura") { }
+
+        class spell_halion_combustion_consumption_damage_periodic_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_combustion_consumption_damage_periodic_aura_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Creature* creCaster = caster->ToCreature())
+                        unitList.remove_if(CombustionConsumptionPeriodicDamageSelector(creCaster));
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_combustion_consumption_damage_periodic_aura_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_combustion_consumption_damage_periodic_aura_SpellScript();
+        }
+};
+
 void AddSC_boss_halion()
 {
     new boss_halion();
+
     new npc_halion_controller();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();
@@ -803,5 +881,6 @@ void AddSC_boss_halion()
     new spell_halion_mark_of_consumption();
     new spell_halion_fiery_combustion();
     new spell_halion_soul_consumption();
+    new spell_halion_combustion_consumption_damage_periodic_aura();
 }
 
