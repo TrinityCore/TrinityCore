@@ -1688,6 +1688,20 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
             return false;
     }
 
+    // Traps can only be seen from some range
+    if (const GameObject *thisGO = obj->ToGameObject())
+    {
+        if (thisGO->GetGoType() == GAMEOBJECT_TYPE_TRAP && ToPlayer())
+        {
+            if (thisGO->GetOwner() == ToPlayer() ||
+                obj->IsWithinDist(this, ToPlayer()->HasAura(2836) ? 12.0f : 4.0f, false)) // Detect Traps increases chance to detect traps
+                return true;
+
+            return false;
+        }
+    }
+
+
     if (!obj->isVisibleForInState(this))
         return false;
 
