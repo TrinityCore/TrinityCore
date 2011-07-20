@@ -195,8 +195,8 @@ enum ThorimChests
 {
     CACHE_OF_STORMS_10                          = 194312,
     CACHE_OF_STORMS_HARDMODE_10                 = 194313,
-    CACHE_OF_STORMS_25                          = 194315,
-    CACHE_OF_STORMS_HARDMODE_25                 = 194314
+    CACHE_OF_STORMS_25                          = 194314,
+    CACHE_OF_STORMS_HARDMODE_25                 = 194315
 };
 
 const Position Pos[7] =
