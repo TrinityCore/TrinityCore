@@ -20,48 +20,53 @@
 
 enum InstanceData
 {
-    BOSS_MALYGOS,
+    DATA_MALYGOS_EVENT,
     MAX_ENCOUNTER,
+
+    DATA_VORTEX_HANDLING,
+    DATA_POWER_SPARKS_HANDLING
 };
 
-enum Data64
+enum InstanceData64
 {
+    DATA_TRIGGER,
     DATA_MALYGOS,
     DATA_PLATFORM
 };
 
-enum Creatures
+enum InstanceNpcs
 {
-    NPC_MALYGOS                 = 28859,
-    NPC_VORTEX                  = 30090,
-    NPC_POWER_SPARK             = 30084,
-    NPC_ARCANE_OVERLOAD         = 30282,
-    NPC_SURGE_OF_POWER          = 30334,
-    NPC_NEXUS_LORD              = 30245,
-    NPC_SCION_OF_ETERNITY       = 30249,
-    NPC_STATIC_FIELD            = 30592,
-    NPC_WYRMREST_SKYTALON       = 30161,
-    NPC_ALEXSTRASZA             = 32295,
-    NPC_ALEXSTRASZAS_GIFT       = 32448,
-    NPC_HOVER_DISK_CASTER       = 30234,
-    NPC_HOVER_DISK_MELEE        = 30248
+    NPC_MALYGOS             = 28859,
+    NPC_VORTEX_TRIGGER      = 30090,
+    NPC_PORTAL_TRIGGER      = 30118,
+    NPC_POWER_SPARK         = 30084,
+    NPC_HOVER_DISK_MELEE    = 30234,
+    NPC_HOVER_DISK_CASTER   = 30248,
+    NPC_ARCANE_OVERLOAD     = 30282,
+    NPC_WYRMREST_SKYTALON   = 30161,
+    NPC_ALEXSTRASZA         = 32295
 };
 
-enum GameObjects
+enum InstanceGameObjects
 {
-    GO_PLATFORM                 = 193070,
+    GO_NEXUS_RAID_PLATFORM      = 193070,
     GO_EXIT_PORTAL              = 193908,
-    GO_FOCUSING_IRIS_10         = 193958,
-    GO_FOCUSING_IRIS_25         = 193960,
-    GO_ALEXSTRASZAS_GIFT_10     = 193905,
-    GO_ALEXSTRASZAS_GIFT_25     = 193967,
-    GO_HEART_OF_MAGIC_10        = 194158,
-    GO_HEART_OF_MAGIC_25        = 194159
+    GO_FOCUSING_IRIS            = 193958,
+    GO_ALEXSTRASZA_S_GIFT       = 193905,
+    GO_ALEXSTRASZA_S_GIFT_2     = 193967
 };
 
-enum AchievementData
+enum InstanceEvents
 {
-    ACHIEV_TIMED_START_EVENT    = 20387
+    EVENT_FOCUSING_IRIS = 20711
+};
+
+enum InstanceSpells
+{
+    SPELL_VORTEX_4          = 55853, // damage | used to enter to the vehicle
+    SPELL_VORTEX_5          = 56263, // damage | used to enter to the vehicle
+    SPELL_PORTAL_OPENED     = 61236,
+    SPELL_RIDE_RED_DRAGON   = 56071,
 };
 
 #endif
