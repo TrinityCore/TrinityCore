@@ -5528,7 +5528,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex effIndex)
+void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
 {
     if (!gameObjTarget)
         return;
