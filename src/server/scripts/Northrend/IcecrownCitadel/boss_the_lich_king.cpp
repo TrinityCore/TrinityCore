@@ -770,7 +770,7 @@ class boss_the_lich_king : public CreatureScript
                                 case EVENT_SUMMON_SHAMBLING_HORROR:
                                 {
                                     DoCast(SPELL_SUMMON_SHAMBLING_HORROR);
-                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 35000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 45000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_SUMMON_DRUDGE_GHOULS:
