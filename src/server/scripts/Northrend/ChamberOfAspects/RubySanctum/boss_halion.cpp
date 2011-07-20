@@ -78,21 +78,21 @@ enum Spells
     SPELL_COMBUSTION                    = 74562,    // Will each tick, apart from the damage, also add a stack to 74567
     SPELL_MARK_OF_COMBUSTION            = 74567,    // If 74562 or 74567 is removed; this will trigger an explosion (74607) based on stackamount.
     SPELL_FIERY_COMBUSTION_EXPLOSION    = 74607,
-    SPELL_FIERY_COMBUSTION_SUMMON       = 74610,    // Does summon the visual AoE NPC.
+    SPELL_FIERY_COMBUSTION_SUMMON       = 74610,
     SPELL_COMBUSTION_DAMAGE_AURA        = 74629,
 
     SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA = 70507,    // Aura created in spell_dbc since missing in client dbc. Value based on 74567 stackamount.
 
-    SPELL_CONSUMTION                    = 74792,
-    SPELL_CONSUMTION_STACK              = 74795,
+    SPELL_CONSUMPTION                   = 74792,
+    SPELL_MARK_OF_CONSUMPTION           = 74795,
     SPELL_SOUL_CONSUMPTION              = 74792,
     SPELL_SOUL_CONSUMPTION_EXPLOSION    = 74799,
-    SPELL_SOUL_CONSUMPTION_SUMMON       = 74800,    // Does summon the visual AoE NPC.
+    SPELL_SOUL_CONSUMPTION_SUMMON       = 74800,
     SPELL_CONSUMPTION_DAMAGE_AURA       = 74803,
 
     // Misc
     SPELL_TWILIGHT_DIVISION             = 75063,    // Unknown dummy effect
-    SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell to go on phase 2
+    SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell to go on phase 3 - So why 2 NPCs ?
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -621,6 +621,62 @@ class spell_halion_fiery_combustion : public SpellScriptLoader
         }
 };
 
+class spell_halion_soul_consumption : public SpellScriptLoader
+{
+    public:
+        spell_halion_soul_consumption() : SpellScriptLoader("spell_halion_soul_consumption") { }
+
+        class spell_halion_soul_consumption_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_halion_soul_consumption_AuraScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_CONSUMPTION))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetTarget())
+                    return;
+
+                if (GetTarget()->HasAura(SPELL_MARK_OF_CONSUMPTION))
+                    GetTarget()->RemoveAurasDueToSpell(SPELL_MARK_OF_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Todo: Move this to spell_linked_spell ?
+                if (!GetTarget())
+                    return;
+
+                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_CONSUMPTION, true);
+            }
+
+            void AddMarkStack(AuraEffect const* /*aurEff*/)
+            {
+                if (!GetTarget())
+                    return;
+
+                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_CONSUMPTION, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_halion_soul_consumption_AuraScript::AddMarkStack, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                AfterEffectApply += AuraEffectApplyFn(spell_halion_soul_consumption_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_soul_consumption_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_halion_soul_consumption_AuraScript();
+        }
+};
+
 class spell_halion_mark_of_combustion : public SpellScriptLoader
 {
     public:
@@ -656,6 +712,44 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_halion_mark_of_combustion_AuraScript();
+        }
+};
+
+class spell_halion_mark_of_consumption : public SpellScriptLoader
+{
+    public:
+        spell_halion_mark_of_consumption() : SpellScriptLoader("spell_halion_mark_of_consumption") { }
+
+        class spell_halion_mark_of_consumption_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_halion_mark_of_consumption_AuraScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_SOUL_CONSUMPTION_SUMMON))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_SOUL_CONSUMPTION_EXPLOSION))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetTarget())
+                    return;
+
+                GetTarget()->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, SPELLVALUE_BASE_POINT0, aurEff->GetBase()->GetStackAmount(), GetTarget(), true);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_mark_of_consumption_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_halion_mark_of_consumption_AuraScript();
         }
 };
 
@@ -700,13 +794,14 @@ void AddSC_boss_halion()
     new npc_halion_controller();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();
-
     new npc_combustion();
     new npc_consumption();
-    new spell_combustion_consumption_summon();
 
     new spell_halion_meteor_strike_marker();
+    new spell_combustion_consumption_summon();
     new spell_halion_mark_of_combustion();
+    new spell_halion_mark_of_consumption();
     new spell_halion_fiery_combustion();
+    new spell_halion_soul_consumption();
 }
 
