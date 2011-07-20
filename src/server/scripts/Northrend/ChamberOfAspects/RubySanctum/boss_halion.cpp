@@ -170,6 +170,46 @@ enum Misc
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
 
+class TwilightRealmTargetSelector
+{
+    public:
+        TwilightRealmTargetSelector(bool isTwilightCaster) : _isTwilightCaster(isTwilightCaster) { }
+
+        bool operator()(Unit* unit)
+        {
+            if (unit->GetPhaseMask() & 0x20) // In Twilight Realm
+                return (_isTwilightCaster ? false : true);
+
+            if (!(unit->GetPhaseMask() & 0x20)) // In the Physical Realm
+                return (_isTwilightCaster ? true : false);
+
+            // If in none of these realms, remove
+            return true;
+        }
+    private:
+        bool _isTwilightCaster;
+};
+
+class PhysicalRealmTargetSelector
+{
+    public:
+        PhysicalRealmTargetSelector(bool isPhysicalCaster) : _isPhysicalCaster(isPhysicalCaster) { }
+
+        bool operator()(Unit* unit)
+        {
+            if (unit->GetPhaseMask() & 0x20) // In Twilight Realm
+                return (_isPhysicalCaster ? true : false);
+
+            if (!(unit->GetPhaseMask() & 0x20)) // In the Physical Realm
+                return (_isPhysicalCaster ? false : true);
+
+            // If in none of these realms, remove
+            return true;
+        }
+    private:
+        bool _isPhysicalCaster;
+};
+
 class boss_halion : public CreatureScript
 {
     public:
@@ -962,6 +1002,8 @@ class spell_halion_combustion_consumption_damage_periodic_aura : public SpellScr
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
                         unitList.remove_if(CombustionConsumptionPeriodicDamageSelector(creCaster));
+
+                unitList.remove_if(TwilightRealmTargetSelector(true));
             }
 
             void Register()
