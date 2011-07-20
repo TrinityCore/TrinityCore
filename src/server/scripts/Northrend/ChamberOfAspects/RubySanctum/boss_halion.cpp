@@ -1002,8 +1002,6 @@ class spell_halion_combustion_consumption_damage_periodic_aura : public SpellScr
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
                         unitList.remove_if(CombustionConsumptionPeriodicDamageSelector(creCaster));
-
-                unitList.remove_if(TwilightRealmTargetSelector(true));
             }
 
             void Register()
