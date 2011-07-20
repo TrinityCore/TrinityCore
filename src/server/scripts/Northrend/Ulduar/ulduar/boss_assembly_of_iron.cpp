@@ -27,6 +27,7 @@ enum Spells
     SPELL_SUPERCHARGE                   = 61920,
     SPELL_BERSERK                       = 47008, // Hard enrage, don't know the correct ID.
     SPELL_CREDIT_MARKER                 = 65195, // spell_dbc
+    SPELL_IRON_BOOT_FLASK               = 58501,
 
     // Steelbreaker
     SPELL_HIGH_VOLTAGE                  = 61890,
@@ -123,6 +124,11 @@ enum MovePoints
     POINT_FLY = 1,
     POINT_LAND,
     POINT_CHASE
+};
+
+enum Data
+{
+    DATA_I_CHOOSE_YOU = 1
 };
 
 bool IsEncounterComplete(InstanceScript* instance, Creature* me)
@@ -230,6 +236,15 @@ class boss_steelbreaker : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
                 DoAction(EVENT_UPDATEPHASE);
+            }
+
+
+            uint32 GetData(uint32 type)
+            {
+                if (type == DATA_I_CHOOSE_YOU)
+                    return (_phase >= 3) ? 1 : 0;
+
+                return 0;
             }
 
             void DoAction(int32 const action)
@@ -505,6 +520,14 @@ class boss_runemaster_molgeim : public CreatureScript
                 events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 27000);
                 events.ScheduleEvent(EVENT_RUNE_OF_POWER, 60000);
                 DoAction(EVENT_UPDATEPHASE);
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                if (type == DATA_I_CHOOSE_YOU)
+                    return (_phase >= 3) ? 1 : 0;
+
+                return 0;
             }
 
             void DoAction(int32 const action)
@@ -800,6 +823,14 @@ class boss_stormcaller_brundir : public CreatureScript
                 DoAction(EVENT_UPDATEPHASE);
             }
 
+            uint32 GetData(uint32 type)
+            {
+                if (type == DATA_I_CHOOSE_YOU)
+                    return (_phase >= 3) ? 1 : 0;
+
+                return 0;
+            }
+
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -1021,6 +1052,46 @@ class spell_shield_of_runes : public SpellScriptLoader
         }
 };
 
+class achievement_i_choose_you : public AchievementCriteriaScript
+{
+    public:
+        achievement_i_choose_you() : AchievementCriteriaScript("achievement_i_choose_you")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* boss = target->ToCreature())
+                if (boss->AI()->GetData(DATA_I_CHOOSE_YOU))
+                    return true;
+
+            return false;
+        }
+};
+
+class achievement_but_i_am_on_your_side : public AchievementCriteriaScript
+{
+    public:
+        achievement_but_i_am_on_your_side() : AchievementCriteriaScript("achievement_but_i_am_on_your_side")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* target)
+        {
+            if (!target || !player)
+                return false;
+
+            if (Creature* boss = target->ToCreature())
+                if (boss->AI()->GetData(DATA_I_CHOOSE_YOU) && player->HasAura(SPELL_IRON_BOOT_FLASK))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_assembly_of_iron()
 {
     new boss_steelbreaker();
@@ -1032,4 +1103,6 @@ void AddSC_boss_assembly_of_iron()
     new mob_rune_of_summoning();
     new mob_rune_of_power();
     new spell_shield_of_runes();
+    new achievement_i_choose_you();
+    new achievement_but_i_am_on_your_side();
 }
