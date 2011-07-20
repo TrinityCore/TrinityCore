@@ -170,44 +170,21 @@ enum Misc
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
 
-class TwilightRealmTargetSelector
+// <summary>
+// Filter targets by removing those which are not in the same realm as the caster.
+// For phase 3, this'll be based on the spell.
+// </summary>
+class RealmTargetSelector
 {
     public:
-        TwilightRealmTargetSelector(bool isTwilightCaster) : _isTwilightCaster(isTwilightCaster) { }
+        RealmTargetSelector(bool isTwilightCaster) : _isTwilightCaster(isTwilightCaster) { }
 
         bool operator()(Unit* unit)
         {
-            if (unit->GetPhaseMask() & 0x20) // In Twilight Realm
-                return (_isTwilightCaster ? false : true);
-
-            if (!(unit->GetPhaseMask() & 0x20)) // In the Physical Realm
-                return (_isTwilightCaster ? true : false);
-
-            // If in none of these realms, remove
-            return true;
+            return (_isTwilightCaster ? !unit->HasAura(SPELL_TWILIGHT_REALM) : unit->HasAura(SPELL_TWILIGHT_REALM));
         }
     private:
         bool _isTwilightCaster;
-};
-
-class PhysicalRealmTargetSelector
-{
-    public:
-        PhysicalRealmTargetSelector(bool isPhysicalCaster) : _isPhysicalCaster(isPhysicalCaster) { }
-
-        bool operator()(Unit* unit)
-        {
-            if (unit->GetPhaseMask() & 0x20) // In Twilight Realm
-                return (_isPhysicalCaster ? true : false);
-
-            if (!(unit->GetPhaseMask() & 0x20)) // In the Physical Realm
-                return (_isPhysicalCaster ? false : true);
-
-            // If in none of these realms, remove
-            return true;
-        }
-    private:
-        bool _isPhysicalCaster;
 };
 
 class boss_halion : public CreatureScript
