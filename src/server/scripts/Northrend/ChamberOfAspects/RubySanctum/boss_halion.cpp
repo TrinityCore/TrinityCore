@@ -25,12 +25,13 @@ INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`Casti
 (70507,0x00000100,0x00000400,0x0,1,101,21,1,100,6,2,1,61,1, 'Halion - Combustion & Consumption Scale Aura'),
 
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
+UPDATE `gameobject` SET `phaseMask`=`phaseMask`|0x20 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
 
 UPDATE `creature_template` SET `scale`=1,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432 WHERE `entry`=40135; -- Consumption
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863;
--- UPDATE `creature_template` SET `ScriptName`= 'npc_twilight_halion' WHERE `entry`=40142;
+UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142;
 UPDATE `creature_template` SET `ScriptName`= 'npc_halion_controller' WHERE `entry`=40146;
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
@@ -89,8 +90,10 @@ enum Spells
     SPELL_FIERY_COMBUSTION_SUMMON       = 74610,
     SPELL_COMBUSTION_DAMAGE_AURA        = 74629,
 
-    SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA = 70507,    // Aura created in spell_dbc since missing in client dbc. Value based on 74567 stackamount.
+    SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA = 70507, // Aura created in spell_dbc since missing in client dbc. Value based on 74567 & 74795 stackamount.
 
+    // Twilight Halion
+    
     SPELL_CONSUMPTION                   = 74792,
     SPELL_MARK_OF_CONSUMPTION           = 74795,
     SPELL_SOUL_CONSUMPTION              = 74792,
@@ -102,6 +105,11 @@ enum Spells
     SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 1 to phase 2
     SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell to go on phase 3 - So why 2 NPCs ?
     SPELL_TWILIGHT_REALM                = 74807,
+    SPELL_TWILIGHT_PHASING              = 74808, // Same visual ad 75063, plus immunity and morphing
+    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809, // Summons go 202794
+    
+    // Unknwon purpose for now
+    SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -170,23 +178,6 @@ enum Misc
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
 
-// <summary>
-// Filter targets by removing those which are not in the same realm as the caster.
-// For phase 3, this'll be based on the spell.
-// </summary>
-class RealmTargetSelector
-{
-    public:
-        RealmTargetSelector(bool isTwilightCaster) : _isTwilightCaster(isTwilightCaster) { }
-
-        bool operator()(Unit* unit)
-        {
-            return (_isTwilightCaster ? !unit->HasAura(SPELL_TWILIGHT_REALM) : unit->HasAura(SPELL_TWILIGHT_REALM));
-        }
-    private:
-        bool _isTwilightCaster;
-};
-
 class boss_halion : public CreatureScript
 {
     public:
@@ -221,6 +212,7 @@ class boss_halion : public CreatureScript
             {
                 _JustReachedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                instance->SetBossState(DATA_HALION, FAIL);
             }
 
             Position const* GetMeteorStrikePosition() const
@@ -235,7 +227,7 @@ class boss_halion : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
-                    DoCast(me, SPELL_TWILIGHT_SHIFT); // Halion goes invisible and the Halion Controller summons the other one.
+                    DoCast(me, SPELL_TWILIGHT_SHIFT);
                     Talk(SAY_PHASE_TWO);
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
@@ -332,20 +324,28 @@ class boss_twilight_halion : public CreatureScript
                 events.Reset();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* killer)
             {
                 Talk(SAY_DEATH);
+                
                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                {
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
+                    // Ensure looting
+                    if (me->IsDamageEnoughForLootingAndReward())
+                        halion->LowerPlayerDamageReq(halion->GetMaxHealth());
+                        
+                    killer->Kill(halion);
+                }
+                
                 _instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
             }
 
             void JustReachedHome()
             {
                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                {
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
-                }
+
                 events.Reset();
 
                 // Let Halion Controller kill Twilight Halion
@@ -360,6 +360,8 @@ class boss_twilight_halion : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
+                    events.SetPhase(PHASE_THREE);
+                    DoCast(me, SPELL_TWILIGHT_DIVISION);
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
                 }

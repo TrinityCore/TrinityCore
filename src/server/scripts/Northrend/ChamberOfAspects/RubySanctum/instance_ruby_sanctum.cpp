@@ -70,8 +70,10 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case NPC_TWILIGHT_HALION:
                         TwilightHalionGUID = creature->GetGUID();
+                        break;
                     case NPC_HALION_CONTROLLER:
                         HalionControllerGUID = creature->GetGUID();
+                        break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
                         break;
@@ -216,6 +218,20 @@ class instance_ruby_sanctum : public InstanceMapScript
                             if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                                 halionController->AI()->DoAction(ACTION_INTRO_HALION);
                         break;
+                    case DATA_HALION:
+                    {
+                        switch (state)
+                        {
+                            case DONE:
+                            case FAIL:
+                                HandleGameObject(FlameRingGUID, true);
+                                break;
+                            case IN_PROGRESS:
+                                HandleGameObject(FlameRingGUID, false);
+                                break;
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -232,6 +248,18 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case DATA_HALION_SHARED_HEALTH:
                         HalionSharedHealth = data;
+                        break;
+                    case DATA_CORPOREALITY_TOGGLE:
+                        CorporealityToggleState = data;
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
+                        break;
+                    case DATA_CORPOREALITY_MATERIAL:
+                        CorporealityMaterialState = data;
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, data);
+                        break;
+                    case DATA_CORPOREALITY_TWILIGHT:
+                        CorporealityTwilightState = data;
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, data);
                         break;
                     default:
                         break;
@@ -258,10 +286,17 @@ class instance_ruby_sanctum : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "R S " << GetBossSaveData();
+                saveStream << "R S " << GetBossSaveData() << ;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
+            }
+            
+            void FillInitialWorldStates(WorldPacket& data)
+            {
+                data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(0);
+                data << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT) << uint32(0);
+                data << uint32(WORLDSTATE_CORPOREALITY_TOGGLE)   << uint32(0);
             }
 
             void Load(char const* str)
