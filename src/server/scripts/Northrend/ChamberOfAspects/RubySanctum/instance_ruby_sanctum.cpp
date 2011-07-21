@@ -36,20 +36,22 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                BaltharusTheWarbornGUID = 0;
-                GeneralZarithrianGUID   = 0;
-                SavianaRagefireGUID     = 0;
-                HalionGUID              = 0;
-                TwilightHalionGUID      = 0;
-                HalionControllerGUID    = 0;
-                CrystalChannelTargetGUID= 0;
-                XerestraszaGUID         = 0;
-                BaltharusSharedHealth   = 0;
-                HalionSharedHealth      = 0;
-                FlameWallsGUID          = 0;
-                FlameRingGUID           = 0;
+                BaltharusTheWarbornGUID   = 0;
+                GeneralZarithrianGUID     = 0;
+                SavianaRagefireGUID       = 0;
+                HalionGUID                = 0;
+                TwilightHalionGUID        = 0;
+                HalionControllerGUID      = 0;
+                CrystalChannelTargetGUID  = 0;
+                XerestraszaGUID           = 0;
+                BaltharusSharedHealth     = 0;
+                HalionSharedHealth        = 0;
+                FlameWallsGUID            = 0;
+                FlameRingGUID             = 0;
                 memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
+                CorporealityTwilightState = 0;
+                CorporealityMaterialState = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -249,21 +251,43 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_HALION_SHARED_HEALTH:
                         HalionSharedHealth = data;
                         break;
-                    case DATA_CORPOREALITY_TOGGLE:
-                        CorporealityToggleState = data;
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
-                        break;
                     case DATA_CORPOREALITY_MATERIAL:
                         CorporealityMaterialState = data;
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, data);
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
+                        PartiallyUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL);
                         break;
                     case DATA_CORPOREALITY_TWILIGHT:
                         CorporealityTwilightState = data;
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, data);
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
+                        PartiallyUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT);
                         break;
                     default:
                         break;
                 }
+            }
+            
+            void PartiallyUpdateWorldState(uint32 uiStateId)
+            {
+                Map::PlayerList const& lPlayers = GetPlayers();
+
+                if (!lPlayers.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+                        if (Player *player = itr->getSource())
+                            switch (uiStateId)
+                            {
+                                case WORLDSTATE_CORPOREALITY_TWILIGHT:
+                                    if (player->HasAura(SPELL_TWILIGHT_AURA))
+                                        player->SendUpdateWorldState(uiStateId, CorporealityTwilightState);
+                                    break;
+                                case WORLDSTATE_CORPOREALITY_MATERIAL:
+                                    if (!player->HasAura(SPELL_TWILIGHT_AURA))
+                                        player->SendUpdateWorldState(uiStateId, CorporealityMaterialState);
+                                    break;
+                            }
+                }
+                else
+                    sLog->outDebug(LOG_FILTER_TSCR, "Ruby Sanctum::PartiallyUpdateWorldState() tried to update Corpereality Worldstate, but no player is in map.");
             }
 
             uint32 GetData(uint32 type)
@@ -286,7 +310,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "R S " << GetBossSaveData() << ;
+                saveStream << "R S " << GetBossSaveData() << CorporealityTwilightState << CorporealityMaterialState;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -324,6 +348,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                             tmpState = NOT_STARTED;
 
                         SetBossState(i, EncounterState(tmpState));
+
+                        loadStream >> CorporealityTwilightState >> CorporealityMaterialState;
                     }
                 }
                 else
@@ -347,6 +373,8 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 FlameRingGUID;
             uint32 BaltharusSharedHealth;
             uint32 HalionSharedHealth;
+            uint32 CorporealityTwilightState;
+            uint32 CorporealityMaterialState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

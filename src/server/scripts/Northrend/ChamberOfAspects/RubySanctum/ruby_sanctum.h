@@ -119,6 +119,11 @@ enum WorldStatesRS
     WORLDSTATE_CORPOREALITY_TOGGLE   = 5051,
 };
 
+enum Spells
+{
+    TWILIGHT_AURA                     = 74807, // Players with this are in Twilight Realm
+};
+
 template<class AI>
 CreatureAI* GetRubySanctumAI(Creature* creature)
 {
