@@ -337,6 +337,9 @@ public:
                     for (uint32 j=urand(0, PlayerList.getSize()-1); j>0; --j) // Suche einen Random Spieler aus der Spielerliste der Karte
                         ++i;
 
+                    if (!i->getSource())
+                        continue;
+
                     if (me->IsWithinDistInMap(i->getSource(), range))
                     {
                         chr = i->getSource();
