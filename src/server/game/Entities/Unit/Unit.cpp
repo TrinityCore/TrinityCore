@@ -1032,12 +1032,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     if (damage < 0)
         return;
 
-    if (spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE)
-    {
-        damageInfo->damage = damage;
-        return;
-    }
-
     Unit* victim = damageInfo->target;
     if (!victim || !victim->isAlive())
         return;
@@ -8695,6 +8689,33 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
+        // Deep Wounds
+        case 12834:
+        case 12849:
+        case 12867:
+        {
+            if (GetTypeId() != TYPEID_PLAYER)
+                return false;
+
+            // now compute approximate weapon damage by formula from wowwiki.com
+            Item* item = NULL;
+            if (procFlags & PROC_FLAG_DONE_OFFHAND_ATTACK)
+                item = ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            else
+                item = ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+
+            // dunno if it's really needed but will prevent any possible crashes
+            if (!item)
+                return false;
+
+            ItemTemplate const* weapon = item->GetTemplate();
+
+            float weaponDPS = weapon->getDPS();
+            float attackPower = GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f;
+            float weaponSpeed = float(weapon->Delay) / 1000.0f;
+            basepoints0 = int32((weaponDPS + attackPower) * weaponSpeed);
+            break;
+        }
         // Persistent Shield (Scarab Brooch trinket)
         // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
         case 26467:
@@ -10391,6 +10412,11 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellEntry const* spellProto, uint32
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
 
+    // small exception for Deep Wounds, can't find any general rule
+    // should ignore ALL damage mods, they already calculated in trigger spell
+    if (spellProto->Id == 12721) // Deep Wounds
+        return pdamage;
+
     // For totems get damage bonus from owner
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->isTotem())
         if (Unit* owner = GetOwner())
@@ -10692,9 +10718,9 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellEntry const* spellProto, uint32
                     AddPctN(DoneTotalMod, aurEff->GetAmount());
 
             // Sigil of the Vengeful Heart
-           if (spellProto->SpellFamilyFlags[0] & 0x2000)
-               if (AuraEffect* aurEff = GetAuraEffect(64962, EFFECT_1))
-                   AddPctN(DoneTotal, aurEff->GetAmount());
+            if (spellProto->SpellFamilyFlags[0] & 0x2000)
+                if (AuraEffect* aurEff = GetAuraEffect(64962, EFFECT_1))
+                    AddPctN(DoneTotal, aurEff->GetAmount());
 
             // Glacier Rot
             if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
@@ -10903,6 +10929,12 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellEntry const* spellProto, uint32
         DoneTotal = 0;
         DoneTotalMod = 1.0f;
     }
+
+    // Some spells don't benefit from pct done mods
+    // maybe should be implemented like SPELL_ATTR3_NO_DONE_BONUS,
+    // but then it may break spell power coeffs work on spell 31117
+    if (spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS)
+        DoneTotalMod = 1.0f;
 
     float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
