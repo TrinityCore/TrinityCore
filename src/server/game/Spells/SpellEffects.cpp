@@ -845,6 +845,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     return;
                 }
+                case 17770:                                 // Wolfshead Helm Energy
+                {
+                    m_caster->CastSpell(m_caster, 29940, true, NULL);
+                    return;
+                }
                 case 20577:                                 // Cannibalize
                     if (unitTarget)
                         m_caster->CastSpell(m_caster, 20578, false, NULL);
