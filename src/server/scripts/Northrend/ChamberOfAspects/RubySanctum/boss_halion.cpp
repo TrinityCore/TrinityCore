@@ -96,6 +96,8 @@ enum Spells
     SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA = 70507, // Aura created in spell_dbc since missing in client dbc. Value based on 74567 & 74795 stackamount.
 
     // Twilight Halion
+    SPELL_DARK_BREATH                   = 74806,
+
     SPELL_CONSUMPTION                   = 74792,
     SPELL_MARK_OF_CONSUMPTION           = 74795,
     SPELL_SOUL_CONSUMPTION              = 74792,
@@ -132,7 +134,7 @@ enum Events
 {
     // Halion
     EVENT_ACTIVATE_FIREWALL     = 1,
-    EVENT_CLEAVE                = 2,
+    EVENT_CLEAVE                = 2, // Used by Twilight Halion too
     EVENT_FLAME_BREATH          = 3,
     EVENT_METEOR_STRIKE         = 4,
     EVENT_FIERY_COMBUSTION      = 5,
@@ -147,9 +149,9 @@ enum Events
     EVENT_SPAWN_METEOR_FLAME    = 10,
 
     // Twilight Halion
-    EVENT_CLEAVE                = 11,
-    EVENT_DARK_BREATH           = 12,
-    EVENT_SOUL_CONSUMPTION      = 13,
+    EVENT_DARK_BREATH           = 11,
+    EVENT_SOUL_CONSUMPTION      = 12,
+    EVENT_SHADOW_PULSARS_SHOOT  = 13,
 };
 
 enum Actions
@@ -159,6 +161,7 @@ enum Actions
 
     ACTION_PHASE_TWO            = 3, // Halion Controller
     ACTION_PHASE_THREE          = 4,
+    ACTION_SHADOW_PULSARS_SHOOT = 5,
 };
 
 enum Phases
@@ -179,6 +182,14 @@ enum Misc
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
+
+Position const ShadowOrbsSpawnPos[4] =
+{
+    {3196.67f, 533.8108f, 73.24f, 3.160787f}, // North - On Heroic
+    {3116.67f, 533.8108f, 72.91f, 6.264683f}, // South - On Heroic
+    {3156.67f, 493.8108f, 72.58f, 1.593135f}, // East
+    {3156.67f, 573.8108f, 72.89f, 4.659930f} //  West
+};
 
 class boss_halion : public CreatureScript
 {
@@ -389,6 +400,31 @@ class boss_twilight_halion : public CreatureScript
                 {
                     switch (eventId)
                     {
+                        case EVENT_DARK_BREATH:
+                            DoCast(me, SPELL_DARK_BREATH);
+                            events.ScheduleEvent(EVENT_DARK_BREATH, urand(10000, 15000));
+                            break;
+                        case EVENT_SOUL_CONSUMPTION:
+                        {
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
+                            if (!target)
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            if (target)
+                                DoCast(target, SPELL_SOUL_CONSUMPTION);
+                            events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
+                            break;
+                        }
+                        case EVENT_SHADOW_PULSARS_SHOOT:
+                        {
+                            if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                                controller->AI()->DoAction(ACTION_SHADOW_PULSARS_SHOOT);
+                            events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                            break;
+                        }
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_CLEAVE);
+                            events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
+                            break;
                         default:
                             break;
                     }
@@ -441,6 +477,28 @@ class npc_halion_controller : public CreatureScript
                         _events.ScheduleEvent(EVENT_INTRO_PROGRESS_2, 10000);
                         _events.ScheduleEvent(EVENT_INTRO_PROGRESS_3, 14000);
                         break;
+                    }
+                    case ACTION_PHASE_TWO:
+                    {
+                        _events.Reset();
+                        me->GetMap()->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
+                        uint8 begin = 0;
+                        if (me->GetMap()->IsHeroic())
+                            begin = 2;
+                        for (uint8 i = begin; i < 4; i++)
+                        {
+                            uint32 npcId;
+                            switch (i)
+                            {
+                                default:
+                                case 1: npcId = NPC_SHADOW_ORB_N; break;
+                                case 2: npcId = NPC_SHADOW_ORB_S; break;
+                                case 3: npcId = NPC_SHADOW_ORB_E; break;
+                                case 4: npcId = NPC_SHADOW_ORB_W; break;
+                            }
+                            me->GetMap()->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
+                        }
+                        me->GetMap()->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
                     }
                 }
             }
@@ -673,7 +731,7 @@ class npc_consumption : public CreatureScript
             {
                 me->SetPhaseMask(0x20, true);
                 if (me->GetMap()->IsHeroic())
-                    me->SetPhaseMask(creature->GetPhaseMask() | 0x20, true);
+                    me->SetPhaseMask(creature->GetPhaseMask() | 0x1, true);
             }
 
             void SetData(uint32 type, uint32 data)
@@ -711,6 +769,49 @@ class npc_consumption : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return GetRubySanctumAI<npc_consumptionAI>(creature);
+        }
+};
+
+class npc_shadow_orb : public CreatureScript
+{
+    public:
+        npc_shadow_orb() : CreatureScript("npc_shadow_orb") { }
+
+        struct npc_shadow_orbAI : public ScriptedAI
+        {
+            npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = me->GetInstanceScript();
+                angle = 0;
+                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                MovementInform(POINT_MOTION_TYPE, 0);
+            }
+
+            void UpdateAI(uint32 const /*diff*/) { }
+
+            void MovementInform(uint32 type, uint32 /*id*/)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                float centerX = HalionSpawnPos.GetPositionX();
+                float centerY = HalionSpawnPos.GetPositionY();
+                float destinationX = centerX + 40 * cos(angle);
+                float destinationY = centerY + 40 * sin(angle);
+                me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 73.24f); // Find the correct Z coordinate
+                angle += M_PI / 32;
+                if (angle >= 2*M_PI) { angle = 0; }
+            }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
+            float angle;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetRubySanctumAI<npc_shadow_orbAI>(creature);
         }
 };
 

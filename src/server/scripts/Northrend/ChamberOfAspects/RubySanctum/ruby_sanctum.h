@@ -86,6 +86,8 @@ enum CreaturesIds
     NPC_ORB_ROTATION_FOCUS                  = 40091,
     NPC_SHADOW_ORB_N                        = 40083,
     NPC_SHADOW_ORB_S                        = 40100,
+    NPC_SHADOW_ORB_E                        = 40468,
+    NPC_SHADOW_ORB_W                        = 40469,
     NPC_METEOR_STRIKE_NORTH                 = 40041,
     NPC_METEOR_STRIKE_EAST                  = 40042,
     NPC_METEOR_STRIKE_WEST                  = 40043,
