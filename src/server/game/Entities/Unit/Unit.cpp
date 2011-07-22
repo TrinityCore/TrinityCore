@@ -5830,17 +5830,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     switch (dummySpell->Id)
                     {
-                        case 11119: basepoints0 = int32(0.04f*damage); break;
-                        case 11120: basepoints0 = int32(0.08f*damage); break;
-                        case 12846: basepoints0 = int32(0.12f*damage); break;
-                        case 12847: basepoints0 = int32(0.16f*damage); break;
-                        case 12848: basepoints0 = int32(0.20f*damage); break;
+                        case 11119: basepoints0 = int32(0.08f * damage); break;
+                        case 11120: basepoints0 = int32(0.16f * damage); break;
+                        case 12846: basepoints0 = int32(0.24f * damage); break;
+                        case 12847: basepoints0 = int32(0.32f * damage); break;
+                        case 12848: basepoints0 = int32(0.40f * damage); break;
                         default:
                             sLog->outError("Unit::HandleDummyAuraProc: non handled spell id: %u (IG)", dummySpell->Id);
                             return false;
                     }
 
+                    // 4 damage tick
+                    basepoints0 /= 4;
                     triggered_spell_id = 12654;
+                    // Add remaining ticks to damage done
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
                 }
