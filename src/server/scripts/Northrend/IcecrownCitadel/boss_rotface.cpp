@@ -375,6 +375,9 @@ class npc_precious_icc : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _summons.DespawnAll();
+                if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
+                    if (rotface->isAlive())
+                        rotface->AI()->Talk(SAY_PRECIOUS_DIES);
             }
 
             void UpdateAI(const uint32 diff)
@@ -411,13 +414,6 @@ class npc_precious_icc : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
-            }
-
-            void JustDied(Unit* /*who*/)
-            {
-                if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
-                    if (rotface->isAlive())
-                        rotface->AI()->Talk(SAY_PRECIOUS_DIES);
             }
 
         private:
