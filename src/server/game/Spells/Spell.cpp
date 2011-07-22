@@ -4595,7 +4595,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
-            else
+            else if (m_spellInfo->Id != 15473)
                 return SPELL_FAILED_NOT_READY;
         }
     }
@@ -4604,7 +4604,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         return SPELL_FAILED_SPELL_UNAVAILABLE;
 
     // Check global cooldown
-    if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
+    if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown() && m_spellInfo->Id != 15473)
         return SPELL_FAILED_NOT_READY;
 
     // only triggered spells can be processed an ended battleground
