@@ -151,9 +151,9 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectStuck,                                    // 84 SPELL_EFFECT_STUCK
     &Spell::EffectSummonPlayer,                             // 85 SPELL_EFFECT_SUMMON_PLAYER
     &Spell::EffectActivateObject,                           // 86 SPELL_EFFECT_ACTIVATE_OBJECT
-    &Spell::EffectWMODamage,                                // 87 SPELL_EFFECT_WMO_DAMAGE
-    &Spell::EffectWMORepair,                                // 88 SPELL_EFFECT_WMO_REPAIR
-    &Spell::EffectWMOChange,                                // 89 SPELL_EFFECT_WMO_CHANGE // 0 intact // 1 damaged // 2 destroyed // 3 rebuilding
+    &Spell::EffectGameObjectDamage,                         // 87 SPELL_EFFECT_GAMEOBJECT_DAMAGE
+    &Spell::EffectGameObjectRepair,                         // 88 SPELL_EFFECT_GAMEOBJECT_REPAIR
+    &Spell::EffectGameObjectSetDestructionState,            // 89 SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
@@ -2133,23 +2133,18 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
     */
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell ScriptStart %u for spellid %u in EffectSendEvent ", m_spellInfo->EffectMiscValue[effIndex], m_spellInfo->Id);
 
-    Object *pTarget;
+    Object* target = NULL;
     if (focusObject)
-        pTarget = focusObject;
+        target = focusObject;
     else if (unitTarget)
-        pTarget = unitTarget;
+        target = unitTarget;
     else if (gameObjTarget)
-        pTarget = gameObjTarget;
-    else
-        pTarget = NULL;
+        target = gameObjTarget;
 
-    if (unitTarget)
-    {
-        if (ZoneScript* zoneScript = unitTarget->GetZoneScript())
-            zoneScript->ProcessEvent(unitTarget, m_spellInfo->EffectMiscValue[effIndex]);
-    }
+    if (ZoneScript* zoneScript = m_caster->GetZoneScript())
+        zoneScript->ProcessEvent(unitTarget, m_spellInfo->EffectMiscValue[effIndex]);
 
-    m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[effIndex], m_caster, pTarget);
+    m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[effIndex], m_caster, target);
 }
 
 void Spell::EffectPowerBurn(SpellEffIndex effIndex)
@@ -6760,73 +6755,37 @@ void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
 }
 
-void Spell::EffectWMODamage(SpellEffIndex /*effIndex*/)
+void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
 {
-    if (gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-    {
-        Unit* caster = m_originalCaster;
-        if (!caster)
-            return;
+    if (!gameObjTarget)
+        return;
 
-        // Do not allow damage if hp is 0
-        if (gameObjTarget->GetGOValue()->building.health == 0)
-            return;
+    Unit* caster = m_originalCaster;
+    if (!caster)
+        return;
 
-        FactionTemplateEntry const *casterft, *goft;
-        casterft = caster->getFactionTemplateEntry();
-        goft = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
-        // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
-        if ((casterft && goft && !casterft->IsFriendlyTo(*goft)) || !goft)
-        {
-            gameObjTarget->TakenDamage(uint32(damage), caster);
-            WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8+8+8+4+4);
-            data.append(gameObjTarget->GetPackGUID());
-            data.append(caster->GetPackGUID());
-            if (Unit* who = caster->GetCharmerOrOwner())
-                data.append(who->GetPackGUID());
-            else
-                data << uint8(0);
-            data << uint32(damage);
-            data << uint32(m_spellInfo->Id);
-            gameObjTarget->SendMessageToSet(&data, false);
-        }
-    }
+    FactionTemplateEntry const* casterFaction = caster->getFactionTemplateEntry();
+    FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
+    // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
+    if ((casterFaction && targetFaction && !casterFaction->IsFriendlyTo(*targetFaction)) || !targetFaction)
+        gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
 }
 
-void Spell::EffectWMORepair(SpellEffIndex /*effIndex*/)
+void Spell::EffectGameObjectRepair(SpellEffIndex /*effIndex*/)
 {
-    if (gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-        gameObjTarget->Rebuild();
+    if (!gameObjTarget)
+        return;
+
+    gameObjTarget->ModifyHealth(damage, m_caster);
 }
 
-void Spell::EffectWMOChange(SpellEffIndex effIndex)
+void Spell::EffectGameObjectSetDestructionState(SpellEffIndex effIndex)
 {
-    if (gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-    {
-        Unit* caster = m_originalCaster;
-        if (!caster)
-            return;
+    if (!gameObjTarget || !m_originalCaster)
+        return;
 
-        int ChangeType = m_spellInfo->EffectMiscValue[effIndex];
-        switch (ChangeType)
-        {
-            case 0: // intact
-                if (gameObjTarget->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED))
-                    gameObjTarget->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                if (gameObjTarget->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED))
-                    gameObjTarget->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                break;
-            case 1: // damaged
-                gameObjTarget->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                break;
-            case 2: // destroyed
-                gameObjTarget->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                break;
-            case 3: // rebuild
-                gameObjTarget->Rebuild();
-                break;
-        }
-    }
+    Player* player = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
+    gameObjTarget->SetDestructibleState(GameObjectDestructibleState(m_spellInfo->EffectMiscValue[effIndex]), player, true);
 }
 
 void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *properties)

@@ -983,7 +983,7 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_gen_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_WMO_DAMAGE);
+                OnEffect += SpellEffectFn(spell_gen_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
             }
         };
 

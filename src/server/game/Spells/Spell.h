@@ -369,9 +369,9 @@ class Spell
         void EffectQuestFail(SpellEffIndex effIndex);
         void EffectQuestStart(SpellEffIndex effIndex);
         void EffectRedirectThreat(SpellEffIndex effIndex);
-        void EffectWMODamage(SpellEffIndex effIndex);
-        void EffectWMORepair(SpellEffIndex effIndex);
-        void EffectWMOChange(SpellEffIndex effIndex);
+        void EffectGameObjectDamage(SpellEffIndex effIndex);
+        void EffectGameObjectRepair(SpellEffIndex effIndex);
+        void EffectGameObjectSetDestructionState(SpellEffIndex effIndex);
         void EffectActivateRune(SpellEffIndex effIndex);
         void EffectCreateTamedPet(SpellEffIndex effIndex);
         void EffectDiscoverTaxi(SpellEffIndex effIndex);
