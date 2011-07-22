@@ -17111,6 +17111,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (30294, 0, 0, 0, 0, 'Warlock - Soul Leech'),
 (30108, -1, 0.2, -1, -1, 'Warlock - Unstable Affliction'),
 (31117, 1.8, -1, -1, -1, 'Warlock - Unstable Affliction Dispell'),
+(12162, 0, 0, 0, 0, 'Warrior - Deep Wounds'),
 (57755, -1, -1, 0.5, -1, 'Warrior - Heroic Throw'),
 (20253, -1, -1, 0.12, -1, 'Warrior - Intercept'),
 (61491, -1, -1, 0.12, -1, 'Warrior - Intercept'),
