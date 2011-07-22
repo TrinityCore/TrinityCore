@@ -33,6 +33,7 @@ UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gende
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863;
 UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142;
 UPDATE `creature_template` SET `ScriptName`= 'npc_halion_controller' WHERE `entry`=40146;
+UPDATE `creature_template` SET `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN(40083,40100,40468,40469);
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
@@ -499,6 +500,7 @@ class npc_halion_controller : public CreatureScript
                             me->GetMap()->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
                         }
                         me->GetMap()->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
+                        break;
                     }
                 }
             }
@@ -1124,6 +1126,7 @@ void AddSC_boss_halion()
     new npc_meteor_strike();
     new npc_combustion();
     new npc_consumption();
+    new npc_shadow_orb();
 
     new spell_halion_meteor_strike_marker();
     new spell_halion_combustion_consumption_summon();
