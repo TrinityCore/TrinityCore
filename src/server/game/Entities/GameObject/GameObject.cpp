@@ -66,6 +66,7 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue), m_AI(N
 
     m_groupLootTimer = 0;
     lootingGroupLowGUID = 0;
+    IsTemporary = false;
 
     ResetLootMode(); // restore default loot mode
 }
@@ -552,6 +553,13 @@ void GameObject::Update(uint32 diff)
                     SetRespawnTime(0);
                     Delete();
                 }
+                return;
+            }
+
+            if (IsTemporary)
+            {
+                SetRespawnTime(0);
+                Delete();
                 return;
             }
 

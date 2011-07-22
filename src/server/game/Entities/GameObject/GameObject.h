@@ -777,6 +777,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectAI* AI() const { return m_AI; }
 
         std::string GetAIName() const;
+        bool IsTemporary;
     protected:
         bool AIM_Initialize();
         uint32      m_spellId;
