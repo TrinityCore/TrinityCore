@@ -121,7 +121,7 @@ enum WorldStatesRS
 
 enum Spells
 {
-    TWILIGHT_AURA                     = 74807, // Players with this are in Twilight Realm
+    TWILIGHT_REALM_AURA                 = 74807, // Players with this are in Twilight Realm
 };
 
 template<class AI>

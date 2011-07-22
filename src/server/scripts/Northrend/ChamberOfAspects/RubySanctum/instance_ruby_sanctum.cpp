@@ -277,11 +277,11 @@ class instance_ruby_sanctum : public InstanceMapScript
                             switch (uiStateId)
                             {
                                 case WORLDSTATE_CORPOREALITY_TWILIGHT:
-                                    if (player->HasAura(SPELL_TWILIGHT_AURA))
+                                    if (player->HasAura(TWILIGHT_REALM_AURA))
                                         player->SendUpdateWorldState(uiStateId, CorporealityTwilightState);
                                     break;
                                 case WORLDSTATE_CORPOREALITY_MATERIAL:
-                                    if (!player->HasAura(SPELL_TWILIGHT_AURA))
+                                    if (!player->HasAura(TWILIGHT_REALM_AURA))
                                         player->SendUpdateWorldState(uiStateId, CorporealityMaterialState);
                                     break;
                             }
