@@ -3017,9 +3017,6 @@ void Spell::cancel()
     if (m_selfContainer && *m_selfContainer == this)
         *m_selfContainer = NULL;
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->RemoveGlobalCooldown(m_spellInfo);
-
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id, true);
 
@@ -4598,8 +4595,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!m_IsTriggeredSpell && m_caster->ToPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
-        if (m_caster->ToPlayer()->HasSpellCooldown(m_spellInfo->Id) ||
-            (strict && !m_IsTriggeredSpell && m_caster->ToPlayer()->HasGlobalCooldown(m_spellInfo)))
+        if (m_caster->ToPlayer()->HasSpellCooldown(m_spellInfo->Id))
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;

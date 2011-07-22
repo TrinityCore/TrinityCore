@@ -784,7 +784,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!unitTarget)
                         return;
 
-                    // apply damage percent mods
+                    // apply percent damage mods
                     damage = m_caster->SpellDamageBonus(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
 
                     switch (m_spellInfo->Id)
