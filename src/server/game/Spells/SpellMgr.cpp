@@ -4325,6 +4325,17 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         // ENDOF ULDUAR SPELLS
         //
+        // TRIAL OF THE CRUSADER SPELLS
+        //
+        case 66258: // Infernal Eruption (10N)
+        case 67901: // Infernal Eruption (25N)
+            // increase duration from 15 to 18 seconds because caster is already
+            // unsummoned when spell missile hits the ground so nothing happen in result
+            spellInfo->DurationIndex = 85;
+            ++count;
+            break;
+        // ENDOF TRIAL OF THE CRUSADER SPELLS
+        //
         // ICECROWN CITADEL SPELLS
         //
         // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
