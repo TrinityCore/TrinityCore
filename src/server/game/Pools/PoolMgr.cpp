@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -687,7 +688,7 @@ void PoolMgr::LoadFromDB()
                 if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
                     goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
                     goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE &&
-                    goinfo->type != GAMEOBJECT_TYPE_TRAP) // Auch Fallen müssen in einem Pool gespawnt werden können! Siehe ICC-Fallen!
+                    goinfo->type != GAMEOBJECT_TYPE_TRAP) // Auch Fallen mÃ¼ssen in einem Pool gespawnt werden kÃ¶nnen! Siehe ICC-Fallen!
                 {
                     sLog->outErrorDb("`pool_gameobject` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
                     continue;
