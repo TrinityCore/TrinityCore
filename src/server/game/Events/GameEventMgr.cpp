@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -1158,17 +1159,18 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin(); itr != mGameEventCreatureGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        if (CreatureData const* data = sObjectMgr->GetCreatureData(*itr))
+        if (CreatureData const * data = sObjectMgr->GetCreatureData(*itr))
         {
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
-            // Spawn if necessary (loaded grids only)
-            Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
+            // Spawn if necessary - Grid laden wenn nötig, damit Eventobjekte auf jeden Fall sofort beim Start des Events gespawnt / initialisiert werden!
+            Map * map = const_cast<Map *>(sMapMgr->CreateBaseMap(data->mapid));
+            if (map && !map->Instanceable() && !map->IsLoaded(data->posX, data->posY))
+                map->LoadGrid(data->posX, data->posY);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
-                Creature* pCreature = new Creature;
-                //sLog->outDebug("Spawning creature %u", *itr);
+                Creature * pCreature = new Creature;
                 if (!pCreature->LoadFromDB(*itr, map))
                     delete pCreature;
                 else
@@ -1187,17 +1189,17 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin(); itr != mGameEventGameobjectGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        if (GameObjectData const* data = sObjectMgr->GetGOData(*itr))
+        if (GameObjectData const * data = sObjectMgr->GetGOData(*itr))
         {
             sObjectMgr->AddGameobjectToGrid(*itr, data);
-            // Spawn if necessary (loaded grids only)
-            // this base map checked as non-instanced and then only existed
-            Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
-            // We use current coords to unspawn, not spawn coords since creature can have changed grid
+            // Spawn if necessary - Grid laden wenn nötig, damit Eventobjekte auf jeden Fall sofort beim Start des Events gespawnt / initialisiert werden!
+            Map * map = const_cast<Map *>(sMapMgr->CreateBaseMap(data->mapid));
+            if (map && !map->Instanceable() && !map->IsLoaded(data->posX, data->posY))
+                map->LoadGrid(data->posX, data->posY);
+            // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
-                GameObject* pGameobject = new GameObject;
-                //sLog->outDebug("Spawning gameobject %u", *itr);
+                GameObject * pGameobject = new GameObject;
                 if (!pGameobject->LoadFromDB(*itr, map))
                     delete pGameobject;
                 else
