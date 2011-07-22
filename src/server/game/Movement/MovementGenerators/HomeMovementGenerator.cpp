@@ -23,29 +23,23 @@
 #include "DestinationHolderImp.h"
 #include "WorldPacket.h"
 
-void
-HomeMovementGenerator<Creature>::Initialize(Creature & owner)
+void HomeMovementGenerator<Creature>::Initialize(Creature & owner)
 {
-    float x, y, z;
-    owner.GetHomePosition(x, y, z, ori);
     owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
     owner.AddUnitState(UNIT_STAT_EVADE);
     _setTargetLocation(owner);
 }
 
-void
-HomeMovementGenerator<Creature>::Finalize(Creature & owner)
+void HomeMovementGenerator<Creature>::Finalize(Creature & owner)
 {
     owner.ClearUnitState(UNIT_STAT_EVADE);
 }
 
-void
-HomeMovementGenerator<Creature>::Reset(Creature &)
+void HomeMovementGenerator<Creature>::Reset(Creature &)
 {
 }
 
-void
-HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
+void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
 {
     if (!&owner)
         return;
@@ -63,8 +57,7 @@ HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
     owner.ClearUnitState(uint32(UNIT_STAT_ALL_STATE & ~UNIT_STAT_EVADE));
 }
 
-bool
-HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff)
+bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff)
 {
     CreatureTraveller traveller(owner);
     i_destinationHolder.UpdateTraveller(traveller, time_diff);
@@ -93,4 +86,3 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
 
     return true;
 }
-
