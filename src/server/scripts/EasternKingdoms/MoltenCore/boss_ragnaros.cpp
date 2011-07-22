@@ -78,7 +78,13 @@ enum Events
 
     EVENT_ENRAGE,
     EVENT_FEURIGE_EINAESCHERUNG,
-    EVENT_GROSSBRAND
+    EVENT_GROSSBRAND,
+    EVENT_TIMER
+};
+
+enum Diverse
+{
+    RAGNAROS_EVENT_TIME = 60 * IN_MILLISECONDS * MINUTE // 60 Minuten
 };
 
 class boss_ragnaros_outdoor : public CreatureScript
@@ -90,6 +96,9 @@ class boss_ragnaros_outdoor : public CreatureScript
         {
             boss_ragnaros_outdoorAI(Creature *pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
             {
+                eventTimer = RAGNAROS_EVENT_TIME;
+                eventsOOC.ScheduleEvent(EVENT_TIMER, 600 * IN_MILLISECONDS); // Alle 10 Minuten die restliche Eventzeit ansagen
+
                 _introState = 0;
             }
 
@@ -146,8 +155,45 @@ class boss_ragnaros_outdoor : public CreatureScript
                         DoScriptText(SAY_KILL, me);
             }
 
+            void SendeRestlicheEventZeit()
+            {
+                if (eventTimer > 600 * IN_MILLISECONDS) // 10 Minuten
+                    eventTimer = eventTimer - (600 * IN_MILLISECONDS);
+                else
+                    return;
+
+                eventsOOC.RescheduleEvent(EVENT_TIMER, 600 * IN_MILLISECONDS);
+
+                std::string str = "ACHTUNG: ";
+                str.append(me->GetName());
+                str.append(" wird in ");
+
+                switch(eventTimer)
+                {
+                    case 3000000: str.append("50"); break;
+                    case 2400000: str.append("40"); break;
+                    case 1800000: str.append("30"); break;
+                    case 1200000: str.append("20"); break;
+                    case 600000:  str.append("10"); break;
+                }
+                str.append(" Minuten verschwinden!");
+                sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
+            }
+
             void UpdateAI(const uint32 diff)
             {
+                eventsOOC.Update(diff);
+
+                while (uint32 eventId = eventsOOC.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TIMER:
+                            SendeRestlicheEventZeit();
+                            break;
+                    }
+                }
+
                 if (!_introState)
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -289,6 +335,8 @@ class boss_ragnaros_outdoor : public CreatureScript
             bool _hasYelledMagmaBurst;
             bool _hasSubmergedOnce;
             bool _isBanished;
+            EventMap eventsOOC;
+            uint32 eventTimer;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
