@@ -136,6 +136,9 @@ class boss_ragnaros_outdoor : public CreatureScript
             void EnterCombat(Unit * victim)
             {
                 BossAI::EnterCombat(victim);
+
+                DoZoneInCombat(me, true);
+
                 events.ScheduleEvent(EVENT_ERUPTION, 15000);
                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30000);
                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25000);
