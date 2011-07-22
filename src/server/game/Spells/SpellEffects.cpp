@@ -1062,12 +1062,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             m_caster->CastSpell(m_caster, 49378, true);
                     }
                     return;
-                case 51336:                                 // Magic Pull
-                {
-                    if (unitTarget)
-                        m_caster->CastSpell(unitTarget, 50770, true);
-                    return;
-                }
                 case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
