@@ -335,7 +335,8 @@ public:
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
                     for (uint32 j=urand(0, PlayerList.getSize()-1); j>0; --j) // Suche einen Random Spieler aus der Spielerliste der Karte
-                        ++i;
+                        if (++i == PlayerList.end())
+                            break;
 
                     if (!i->getSource())
                         continue;
