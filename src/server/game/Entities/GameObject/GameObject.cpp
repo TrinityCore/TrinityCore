@@ -205,6 +205,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetEntry(goinfo->entry);
 
+    // set name for logs usage, doesn't affect anything ingame
+    SetName(goinfo->name);
+
     SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
@@ -214,10 +217,11 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     SetGoArtKit(0);                                         // unknown what this is
     SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
 
-    switch(goinfo->type)
+    switch (goinfo->type)
     {
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
-            m_goValue->building.health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
+            m_goValue->Building.Health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
+            m_goValue->Building.MaxHealth = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
             SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRANSPORT:
@@ -1676,88 +1680,6 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
         && dz < info->maxZ + radius && dz > info->minZ - radius;
 }
 
-void GameObject::TakenDamage(uint32 damage, Unit *who)
-{
-    if (!m_goValue->building.health)
-        return;
-
-    Player* pwho = NULL;
-    if (who)
-    {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            pwho = who->ToPlayer();
-        else if (who->IsVehicle() && who->GetCharmerOrOwner())
-            pwho = who->GetCharmerOrOwner()->ToPlayer();
-    }
-
-    if (m_goValue->building.health > damage)
-        m_goValue->building.health -= damage;
-    else
-        m_goValue->building.health = 0;
-
-    if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED)) // from damaged to destroyed
-    {
-        if (!m_goValue->building.health)
-        {
-            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-
-            uint32 modelId = m_goInfo->building.destroyedDisplayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->DestroyedDisplayId)
-                    modelId = modelData->DestroyedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
-
-            EventInform(m_goInfo->building.destroyedEvent);
-            if (pwho)
-                if (Battleground* bg = pwho->GetBattleground())
-                {
-                    bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.destroyedEvent);
-                    bg->DestroyGate(pwho, this, m_goInfo->building.destroyedEvent);
-                }
-            sScriptMgr->OnGameObjectDestroyed(this, pwho, m_goInfo->building.destroyedEvent);
-        }
-    }
-    else // from intact to damaged
-    {
-        if (m_goValue->building.health + damage >= m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits)
-            if (pwho)
-                if (Battleground* bg = pwho->GetBattleground())
-                    bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.damageEvent);
-
-        if (m_goValue->building.health <= m_goInfo->building.damagedNumHits)
-        {
-            if (!m_goInfo->building.destroyedDisplayId)
-                m_goValue->building.health = m_goInfo->building.damagedNumHits;
-            else if (!m_goValue->building.health)
-                m_goValue->building.health = 1;
-
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-
-            uint32 modelId = m_goInfo->building.damagedDisplayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->DamagedDisplayId)
-                    modelId = modelData->DamagedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
-
-            EventInform(m_goInfo->building.damagedEvent);
-            sScriptMgr->OnGameObjectDamaged(this, pwho, m_goInfo->building.damagedEvent);
-            if (pwho)
-                if (Battleground* bg = pwho->GetBattleground())
-                    bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.damagedEvent);
-        }
-    }
-    SetGoAnimProgress(m_goValue->building.health*255/(m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits));
-}
-
-void GameObject::Rebuild()
-{
-    RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
-    SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
-    m_goValue->building.health = m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits;
-    EventInform(m_goInfo->building.rebuildingEvent);
-}
-
 void GameObject::EventInform(uint32 eventId)
 {
     if (eventId && m_zoneScript)
@@ -1806,4 +1728,126 @@ void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3
 
     SetFloatValue(GAMEOBJECT_PARENTROTATION+2, rotation2);
     SetFloatValue(GAMEOBJECT_PARENTROTATION+3, rotation3);
+}
+
+void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, uint32 spellId /*= 0*/)
+{
+    if (!GetGOValue()->Building.MaxHealth || !change)
+        return;
+
+    if (int32(GetGOValue()->Building.Health) + change <= 0)
+        GetGOValue()->Building.Health = 0;
+    else if (int32(GetGOValue()->Building.Health) + change >= int32(GetGOValue()->Building.MaxHealth))
+        GetGOValue()->Building.Health = GetGOValue()->Building.MaxHealth;
+    else
+        GetGOValue()->Building.Health += change;
+
+    SetGoAnimProgress(GetGOValue()->Building.Health * 255 / GetGOValue()->Building.MaxHealth);
+
+    Player* player = attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself();
+
+    // dealing damage, send packet
+    // TODO: is there any packet for healing?
+    if (change < 0 && player)
+    {
+        WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8 + 8 + 8 + 4 + 4);
+        data.appendPackGUID(GetGUID());
+        data.appendPackGUID(attackerOrHealer->GetGUID());
+        data.appendPackGUID(player->GetGUID());
+        data << uint32(-change);
+        data << uint32(spellId);
+        player->GetSession()->SendPacket(&data);
+    }
+
+    if (!GetGOValue()->Building.Health)
+        SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED, player, false);
+    else if (GetGOValue()->Building.Health <= GetGOInfo()->building.damagedNumHits)
+        SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED, player, false);
+}
+
+void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player* eventInvoker /*= NULL*/, bool setHealth /*= false*/)
+{
+    // the user calling this must know he is already operating on destructible gameobject
+    ASSERT(GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING);
+
+    switch (state)
+    {
+        case GO_DESTRUCTIBLE_INTACT:
+            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
+            if (setHealth)
+            {
+                m_goValue->Building.Health = m_goValue->Building.MaxHealth;
+                SetGoAnimProgress(255);
+            }
+            break;
+        case GO_DESTRUCTIBLE_DAMAGED:
+        {
+            EventInform(m_goInfo->building.damagedEvent);
+            sScriptMgr->OnGameObjectDamaged(this, eventInvoker);
+            if (eventInvoker)
+                if (Battleground* bg = eventInvoker->GetBattleground())
+                    bg->EventPlayerDamagedGO(eventInvoker, this, m_goInfo->building.damagedEvent);
+
+            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+
+            uint32 modelId = m_goInfo->building.damagedDisplayId;
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+                if (modelData->DamagedDisplayId)
+                    modelId = modelData->DamagedDisplayId;
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+
+            if (setHealth)
+            {
+                m_goValue->Building.Health = m_goInfo->building.damagedNumHits;
+                uint32 maxHealth = m_goValue->Building.MaxHealth;
+                // in this case current health is 0 anyway so just prevent crashing here
+                if (!maxHealth)
+                    maxHealth = 1;
+                SetGoAnimProgress(m_goValue->Building.Health * 255 / maxHealth);
+            }
+            break;
+        }
+        case GO_DESTRUCTIBLE_DESTROYED:
+        {
+            sScriptMgr->OnGameObjectDestroyed(this, eventInvoker);
+            EventInform(m_goInfo->building.destroyedEvent);
+            if (eventInvoker)
+            {
+                if (Battleground* bg = eventInvoker->GetBattleground())
+                {
+                    bg->EventPlayerDamagedGO(eventInvoker, this, m_goInfo->building.destroyedEvent);
+                    bg->DestroyGate(eventInvoker, this);
+                }
+            }
+
+            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+
+            uint32 modelId = m_goInfo->building.destroyedDisplayId;
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+                if (modelData->DestroyedDisplayId)
+                    modelId = modelData->DestroyedDisplayId;
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+
+            if (setHealth)
+            {
+                m_goValue->Building.Health = 0;
+                SetGoAnimProgress(0);
+            }
+            break;
+        }
+        case GO_DESTRUCTIBLE_REBUILDING:
+            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
+            EventInform(m_goInfo->building.rebuildingEvent);
+            // restores to full health
+            if (setHealth)
+            {
+                m_goValue->Building.Health = m_goValue->Building.MaxHealth;
+                SetGoAnimProgress(255);
+            }
+            break;
+    }
 }
