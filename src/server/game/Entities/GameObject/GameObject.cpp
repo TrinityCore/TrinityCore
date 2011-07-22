@@ -1763,6 +1763,8 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
         SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED, player, false);
     else if (GetGOValue()->Building.Health <= GetGOInfo()->building.damagedNumHits)
         SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED, player, false);
+    else if (GetGOValue()->Building.Health == GetGOValue()->Building.MaxHealth)
+        SetDestructibleState(GO_DESTRUCTIBLE_INTACT, player, false);
 }
 
 void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player* eventInvoker /*= NULL*/, bool setHealth /*= false*/)
