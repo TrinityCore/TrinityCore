@@ -1877,6 +1877,23 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
             }
         }
+
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            if (!UpdateVictim())
+                return;
+
+            bool isTargetUnderCC = false;
+            if (me->GetCharmerOrOwnerGUID() && Unit* victim = me->getVictim())
+                isTargetUnderCC = victim->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
+
+            if (isTargetUnderCC)
+            {
+                if (me->HasUnitState(UNIT_STAT_CASTING)) { me->CastStop(); }
+                EnterEvadeMode();
+                return;
+            }
+        }
     };
 
     CreatureAI *GetAI(Creature* creature) const
