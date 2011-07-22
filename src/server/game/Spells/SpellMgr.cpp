@@ -4377,6 +4377,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
             ++count;
             break;
+        case 71159: // Awaken Plagued Zombies
+            spellInfo->DurationIndex = 21;
+            ++count;
+            break;
         // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
         case 71604: // Mutated Strength (Professor Putricide)
         case 72673: // Mutated Strength (Professor Putricide)
