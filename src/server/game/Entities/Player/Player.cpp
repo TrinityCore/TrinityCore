@@ -19266,7 +19266,9 @@ void Player::TextEmote(const std::string& text)
 
 void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
 {
-    if (language != LANG_ADDON)                             // if not addon data
+    bool isAddonMessage = language == LANG_ADDON;
+
+    if (!isAddonMessage)                                    // if not addon data
         language = LANG_UNIVERSAL;                          // whispers should always be readable
 
     Player *rPlayer = sObjectMgr->GetPlayer(receiver);
@@ -19282,16 +19284,20 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
         rPlayer->GetSession()->SendPacket(&data);
 
         // not send confirmation for addon messages
-        if (language != LANG_ADDON)
+        if (!isAddonMessage)
         {
             data.Initialize(SMSG_MESSAGECHAT, 200);
             rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
             GetSession()->SendPacket(&data);
         }
     }
-    else
+    else if (!isAddonMessage)
         // announce to player that player he is whispering to is dnd and cannot receive his message
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
+
+    // rest stuff shouldn't happen in case of addon message
+    if (isAddonMessage)
+        return;
 
     if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
     {
