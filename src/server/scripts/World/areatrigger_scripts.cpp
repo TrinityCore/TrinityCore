@@ -34,7 +34,7 @@ at_torp_farm
 at_warsong_farms                q11686
 at_stormwright_shelf            q12741
 at_last_rites                   q12019
-at_sholozar_waygate             q12548
+at_sholazar_waygate             q12548
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -328,7 +328,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
 };
 
 /*######
-## at_sholozar_waygate
+## at_sholazar_waygate
 ######*/
 
 enum eWaygate
