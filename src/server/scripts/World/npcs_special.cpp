@@ -330,7 +330,11 @@ public:
                 for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 {
                     for (uint32 i=0; i<urand(0, (PlayerList.getSize()-1)); ++i)
-                        ++itr;
+                        try { ++itr; }
+                        catch(...)
+                        {  // Handle all exceptions
+                            break;
+                        }
 
                     if (itr->isValid() && itr->getSource() && itr->getSource()->isValid() && me->IsWithinDistInMap(itr->getSource(), range))
                         return itr->getSource();
