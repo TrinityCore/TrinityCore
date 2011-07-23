@@ -339,8 +339,8 @@ enum eWaygate
     AT_SHOLAZAR                                 = 5046,
     AT_UNGORO                                   = 5047,
 
-    QUEST_THE_MAKERS_OVERLOOK                  = 12613,
-    QUEST_THE_MAKERS_PERCH                     = 12559,
+    QUEST_THE_MAKERS_OVERLOOK                   = 12613,
+    QUEST_THE_MAKERS_PERCH                      = 12559,
 };
 
 class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
