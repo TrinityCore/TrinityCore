@@ -33,6 +33,8 @@ at_warsong_grainery
 at_torp_farm
 at_warsong_farms                q11686
 at_stormwright_shelf            q12741
+at_last_rites                   q12019
+at_sholozar_waygate             q12548
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -325,6 +327,47 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
         }
 };
 
+/*######
+## at_sholozar_waygate
+######*/
+
+enum eWaygate
+{
+    SPELL_SHOLAZAR_TO_UNGORO_TELEPORT           = 52056,
+    SPELL_UNGORO_TO_SHOLAZAR_TELEPORT           = 52057,
+
+    AT_SHOLAZAR                                 = 5046,
+    AT_UNGORO                                   = 5047,
+
+    QUEST_THE_MAKERS_OVERLOOK                  = 12613,
+    QUEST_THE_MAKERS_PERCH                     = 12559,
+};
+
+class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_sholazar_waygate()
+            : AreaTriggerScript("at_sholazar_waygate")
+        {
+        }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && !player->isDead() &&
+                player->GetQuestStatus(QUEST_THE_MAKERS_PERCH)    == QUEST_STATUS_REWARDED)
+            {
+                switch(trigger->id)
+                {
+                    case AT_SHOLAZAR: player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false); break;
+                    case AT_UNGORO:   player->CastSpell(player, SPELL_UNGORO_TO_SHOLAZAR_TELEPORT, false); break;
+                }
+            }
+
+            return false;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_aldurthar_gate();
@@ -335,4 +378,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_stormwright_shelf();
     new AreaTrigger_at_scent_larkorwi();
     new AreaTrigger_at_last_rites();
+    new AreaTrigger_at_sholazar_waygate();
 }
