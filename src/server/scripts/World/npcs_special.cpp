@@ -86,24 +86,6 @@ void LearnAllSkillRecipes(Player * player, uint32 skill_id)
 // ------------------------------------------------------------------------------------------------------------
 // Feuerrufer 60000
 // ------------------------------------------------------------------------------------------------------------
-void SchreibeBericht(std::string str)
-{
-    std::string tmpfile = sWorld->GetDataPath().c_str();
-    tmpfile.append("log/feuerrufer.log");
-
-    if (FILE * reportfile = fopen(tmpfile.c_str(), "w"))
-    {
-        sLog->outString("FEUERUFER: %s", str.c_str());
-        fputs(str.c_str(), reportfile);
-        fclose(reportfile);
-    }
-    else
-    {
-        sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
-        sLog->outError("FEUERUFER: %s", str.c_str());
-    }
-}
-
 #define SPELL_RAKETENBUENDEL_ZUENDER    26299   // Zünder für Raketenbündel herstellen - 2 Secs. cast - NUR EINMAL BEIM START CASTEN!!!
 
 #define FirecallerSpellsCnt 15
@@ -295,6 +277,24 @@ enum FirecallerEvents
     EVENT_JOKE
 };
 
+void SchreibeBericht(std::string str)
+{
+    std::string tmpfile = sWorld->GetDataPath().c_str();
+    tmpfile.append("log/feuerrufer.log");
+
+    if (FILE * reportfile = fopen(tmpfile.c_str(), "w"))
+    {
+        sLog->outString("FEUERUFER: %s", str.c_str());
+        fputs(str.c_str(), reportfile);
+        fclose(reportfile);
+    }
+    else
+    {
+        sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
+        sLog->outError("FEUERUFER: %s", str.c_str());
+    }
+}
+
 class npc_uwom_firecaller : public CreatureScript
 {
 public:
@@ -304,8 +304,6 @@ public:
     {
         npc_uwom_firecallerAI(Creature * creature) : ScriptedAI(creature)
         {
-            DoCast(SPELL_RAKETENBUENDEL_ZUENDER);
-
             events.Reset();
             events.ScheduleEvent(EVENT_START, 60 * IN_MILLISECONDS);
 
@@ -323,30 +321,19 @@ public:
 
         Player * FindeSpieler(float range = 50.0f)
         {
-            Map * map = me->GetMap();
-            Player * chr = NULL;
-
-            if (map)
+            if (Map * map = me->GetMap())
             {
                 Map::PlayerList const & PlayerList = map->GetPlayers();
                 if (PlayerList.isEmpty())
                     return NULL;
 
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 {
-                    for (uint32 j=urand(0, PlayerList.getSize()-1); j>0; --j) // Suche einen Random Spieler aus der Spielerliste der Karte
-                        if (++i == PlayerList.end())
-                            break;
+                    for (uint32 i=0; i<urand(0, (PlayerList.getSize()-1)); ++i)
+                        ++itr;
 
-                    if (!i->getSource())
-                        continue;
-
-                    if (me->IsWithinDistInMap(i->getSource(), range))
-                    {
-                        chr = i->getSource();
-                        if (chr && chr->isValid())
-                            return chr;
-                    }
+                    if (itr->isValid() && itr->getSource() && itr->getSource()->isValid() && me->IsWithinDistInMap(itr->getSource(), range))
+                        return itr->getSource();
                 }
             }
             return NULL;
@@ -373,20 +360,20 @@ public:
                         switch(cnt)
                         {
                             case 1:
-                                bericht.append("Das 1. Item ( http://de.wowhead.com/item=");
+                                bericht.append("Das 1. Item http://de.wowhead.com/item=");
                                 Item1Done = true;
                                 break;
                             case 2:
-                                bericht.append("Das 2. Item ( http://de.wowhead.com/item=");
+                                bericht.append("Das 2. Item http://de.wowhead.com/item=");
                                 Item2Done = true;
                                 break;
                             case 3:
-                                bericht.append("Das 3. Item ( http://de.wowhead.com/item=");
+                                bericht.append("Das 3. Item http://de.wowhead.com/item=");
                                 Item3Done = true;
                                 break;
                         }
                         bericht.append(buffer);
-                        bericht.append(" ) ging an: ");
+                        bericht.append(" ging an: ");
                         bericht.append(chr->GetName());
                         bericht.append(". Dies geschah am ");
                         bericht.append(ZeitStr.c_str());
@@ -453,17 +440,18 @@ public:
         {
             DoPlaySoundToSet(me, FirecallerSounds[WILLKOMMEN][0]);
 
+            DoCast(me, SPELL_RAKETENBUENDEL_ZUENDER, true);
             DoCast(FirecallerSpells[FEUERNOVA]);
 
             me->GetMotionMaster()->MoveRandom(10.0f);
 
             events.ScheduleEvent(EVENT_STOP, 1740 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SOUND, urand(10, 60) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SOUND, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_TARGET, urand(10, 60) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLUSTER, urand(10, 60) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_PRESENT_1, urand(600, 900) * IN_MILLISECONDS); // Das erste Item 10-15 Min. nach Start des Events vergeben.
-            events.ScheduleEvent(EVENT_JOKE, urand(10, 60) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_TARGET, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_CLUSTER, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_PRESENT_1, urand(600 * IN_MILLISECONDS, 900 * IN_MILLISECONDS)); // Das erste Item 10-15 Min. nach Start des Events vergeben.
+            events.ScheduleEvent(EVENT_JOKE, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
         }
 
         void StopEvent()
@@ -489,14 +477,6 @@ public:
             return Zauber;
         }
 
-        /*GameObject * HoleZuender()
-        {
-            if (me->FindNearestGameObject(180859, 40.0f))
-                return me->FindNearestGameObject(180859, 40.0f);
-            else
-                return NULL;
-        }*/
-
         void UpdateAI(const uint32 diff)
         {
             if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -513,23 +493,23 @@ public:
                         break;
                     case EVENT_PRESENT_1:
                         if (!Item1Done && !BeschenkeZiel(FindeSpieler(), 1))
-                            events.RescheduleEvent(EVENT_PRESENT_1, urand(10, 30) * IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_PRESENT_1, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
                         else
-                            events.ScheduleEvent(EVENT_PRESENT_2, urand(300, 600) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_PRESENT_2, urand(300 * IN_MILLISECONDS, 600 * IN_MILLISECONDS));
                         break;
                     case EVENT_PRESENT_2:
                         if (!Item2Done && !BeschenkeZiel(FindeSpieler(), 2))
-                            events.RescheduleEvent(EVENT_PRESENT_2, urand(10, 30) * IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_PRESENT_2, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
                         else
-                            events.ScheduleEvent(EVENT_PRESENT_3, urand(300, 600) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_PRESENT_3, urand(300 * IN_MILLISECONDS, 600 * IN_MILLISECONDS));
                         break;
                     case EVENT_PRESENT_3:
                         if (!Item3Done && !BeschenkeZiel(FindeSpieler(), 3))
-                            events.RescheduleEvent(EVENT_PRESENT_3, urand(10, 30) * IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_PRESENT_3, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
                         break;
                     case EVENT_SOUND:
                         DoPlaySoundToSet(me, FirecallerSounds[ZUFAELLIG][urand(0,4)]);
-                        events.RescheduleEvent(EVENT_SOUND, urand(60, 180) * IN_MILLISECONDS);
+                        events.RescheduleEvent(EVENT_SOUND, urand(60 * IN_MILLISECONDS, 180 * IN_MILLISECONDS));
                         break;
                     case EVENT_CAST:
                         DoCast(FirecallerSpells[ZufallsZauberHolen()]);
@@ -545,17 +525,15 @@ public:
                                 DoCast(chr, FirecallerTargetSpells[urand(BODENBLUETE, RAKETENSCHUSS)]);
                             me->setFaction(35);
                         }
-                        events.RescheduleEvent(EVENT_TARGET, urand(20, 40) * IN_MILLISECONDS);
+                        events.RescheduleEvent(EVENT_TARGET, urand(30 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
                         break;
                     case EVENT_CLUSTER:
-                        //if (GameObject * Zuender = HoleZuender())
-                            //Zuender->Use(me);
                         DoCast(FirecallerCluster[urand(0,FirecallerClusterCnt-1)]);
-                        events.RescheduleEvent(EVENT_CLUSTER, urand(20, 30) * IN_MILLISECONDS);
+                        events.RescheduleEvent(EVENT_CLUSTER, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
                         break;
                     case EVENT_JOKE:
                         VerzauberZiel(FindeSpieler());
-                        events.RescheduleEvent(EVENT_JOKE, urand(30, 60) * IN_MILLISECONDS);
+                        events.RescheduleEvent(EVENT_JOKE, urand(30 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
                         break;
                     case EVENT_STOP:
                         StopEvent();
