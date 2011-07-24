@@ -319,6 +319,16 @@ public:
         {
         }
 
+        void MoveInLineOfSight(Unit * who)
+        {
+            if (!who || !who->isValid() || who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player * chr = who->ToPlayer();
+            if (!chr || chr->isValid())
+                return;
+        }
+
         Player * FindeSpieler(float range = 50.0f)
         {
             if (Map * map = me->GetMap())
@@ -450,12 +460,12 @@ public:
             me->GetMotionMaster()->MoveRandom(10.0f);
 
             events.ScheduleEvent(EVENT_STOP, 1740 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SOUND, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_SOUND, urand(SEKUNDEN_10, SEKUNDEN_60));
             events.ScheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_TARGET, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_CLUSTER, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_PRESENT_1, urand(600 * IN_MILLISECONDS, 900 * IN_MILLISECONDS)); // Das erste Item 10-15 Min. nach Start des Events vergeben.
-            events.ScheduleEvent(EVENT_JOKE, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_TARGET, urand(SEKUNDEN_10, SEKUNDEN_60));
+            events.ScheduleEvent(EVENT_CLUSTER, urand(SEKUNDEN_10, SEKUNDEN_60));
+            events.ScheduleEvent(EVENT_PRESENT_1, urand(MINUTEN_10, MINUTEN_15));
+            events.ScheduleEvent(EVENT_JOKE, urand(SEKUNDEN_10, SEKUNDEN_60));
         }
 
         void StopEvent()
@@ -497,23 +507,23 @@ public:
                         break;
                     case EVENT_PRESENT_1:
                         if (!Item1Done && !BeschenkeZiel(FindeSpieler(), 1))
-                            events.RescheduleEvent(EVENT_PRESENT_1, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                            events.RescheduleEvent(EVENT_PRESENT_1, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
-                            events.ScheduleEvent(EVENT_PRESENT_2, urand(300 * IN_MILLISECONDS, 600 * IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_PRESENT_2, urand(MINUTEN_05, MINUTEN_10));
                         break;
                     case EVENT_PRESENT_2:
                         if (!Item2Done && !BeschenkeZiel(FindeSpieler(), 2))
-                            events.RescheduleEvent(EVENT_PRESENT_2, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                            events.RescheduleEvent(EVENT_PRESENT_2, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
-                            events.ScheduleEvent(EVENT_PRESENT_3, urand(300 * IN_MILLISECONDS, 600 * IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_PRESENT_3, urand(MINUTEN_05, MINUTEN_10));
                         break;
                     case EVENT_PRESENT_3:
                         if (!Item3Done && !BeschenkeZiel(FindeSpieler(), 3))
-                            events.RescheduleEvent(EVENT_PRESENT_3, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                            events.RescheduleEvent(EVENT_PRESENT_3, urand(SEKUNDEN_10, SEKUNDEN_30));
                         break;
                     case EVENT_SOUND:
                         DoPlaySoundToSet(me, FirecallerSounds[ZUFAELLIG][urand(0,4)]);
-                        events.RescheduleEvent(EVENT_SOUND, urand(60 * IN_MILLISECONDS, 180 * IN_MILLISECONDS));
+                        events.RescheduleEvent(EVENT_SOUND, urand(SEKUNDEN_60, 3 * SEKUNDEN_60));
                         break;
                     case EVENT_CAST:
                         DoCast(FirecallerSpells[ZufallsZauberHolen()]);
@@ -529,15 +539,15 @@ public:
                                 DoCast(chr, FirecallerTargetSpells[urand(BODENBLUETE, RAKETENSCHUSS)]);
                             me->setFaction(35);
                         }
-                        events.RescheduleEvent(EVENT_TARGET, urand(30 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+                        events.RescheduleEvent(EVENT_TARGET, urand(SEKUNDEN_30, SEKUNDEN_60));
                         break;
                     case EVENT_CLUSTER:
                         DoCast(FirecallerCluster[urand(0,FirecallerClusterCnt-1)]);
-                        events.RescheduleEvent(EVENT_CLUSTER, urand(10 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+                        events.RescheduleEvent(EVENT_CLUSTER, urand(SEKUNDEN_10, SEKUNDEN_30));
                         break;
                     case EVENT_JOKE:
                         VerzauberZiel(FindeSpieler());
-                        events.RescheduleEvent(EVENT_JOKE, urand(30 * IN_MILLISECONDS, 60 * IN_MILLISECONDS));
+                        events.RescheduleEvent(EVENT_JOKE, urand(SEKUNDEN_30, SEKUNDEN_60));
                         break;
                     case EVENT_STOP:
                         StopEvent();
