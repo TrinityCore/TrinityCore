@@ -25,6 +25,10 @@ EndScriptData */
 
 // Known bugs:
 // Some visuals aren't appearing right sometimes
+//
+// TODO:
+// Redone summon's scripts in SAI
+// Add immunities to the boss and summons
 
 #include "ScriptPCH.h"
 #include "trial_of_the_crusader.h"
@@ -55,30 +59,34 @@ enum Summons
 {
     NPC_LEGION_FLAME     = 34784,
     NPC_INFERNAL_VOLCANO = 34813,
-    NPC_FEL_INFERNAL     = 34815,
+    NPC_FEL_INFERNAL     = 34815, // immune to all CC on Heroic (stuns, banish, interrupt, etc)
     NPC_NETHER_PORTAL    = 34825,
     NPC_MISTRESS_OF_PAIN = 34826,
 };
 
 enum BossSpells
 {
-    SPELL_NETHER_POWER          = 67108,
-    SPELL_INFERNAL              = 66258,
-    SPELL_INFERNAL_ERUPTION     = 66255,
-    SPELL_FEL_FIREBALL          = 66532,
-    SPELL_FEL_LIGHTING          = 66528,
-    SPELL_INCINERATE_FLESH      = 66237,
-    SPELL_TOUCH_OF_JARAXXUS     = 66209,
-    SPELL_BURNING_INFERNO       = 66242,
-    SPELL_NETHER_PORTAL         = 66263,
-    SPELL_LEGION_FLAME          = 66197,
-    SPELL_LEGION_FLAME_EFFECT   = 66201,
-    SPELL_SHIVAN_SLASH          = 67098,
-    SPELL_SPINNING_STRIKE       = 66283,
-    SPELL_MISTRESS_KISS         = 67077,
-    SPELL_FEL_INFERNO           = 67047,
-    SPELL_FEL_STREAK            = 66494,
-    SPELL_BERSERK               = 64238,
+    SPELL_LEGION_FLAME                = 66197, // player should run away from raid because he triggers Legion Flame
+    SPELL_LEGION_FLAME_EFFECT         = 66201, // used by trigger npc
+    SPELL_TOUCH_OF_JARAXXUS           = 66209, // used only in 25H
+    SPELL_NETHER_POWER                = 66228, // +20% of spell damage per stack, stackable up to 5/10 times, must be dispelled/stealed
+    SPELL_FEL_LIGHTING                = 66528, // jumps to nearby targets
+    SPELL_FEL_FIREBALL                = 66532, // does heavy damage to the tank, interruptable
+    SPELL_INCINERATE_FLESH            = 66237, // target must be healed or will trigger Burning Inferno
+    SPELL_BURNING_INFERNO             = 66242, // triggered by Incinerate Flesh
+    SPELL_INFERNAL_ERUPTION           = 66258, // summons Infernal Volcano
+    SPELL_INFERNAL_ERUPTION_EFFECT    = 66252, // summons Felflame Infernal (3 at Normal and inifinity at Heroic)
+    SPELL_NETHER_PORTAL               = 66269, // summons Nether Portal
+    SPELL_NETHER_PORTAL_EFFECT        = 66263, // summons Mistress of Pain (1 at Normal and infinity at Heroic)
+
+    SPELL_BERSERK                     = 64238, // unused
+
+    // Mistress of Pain spells
+    SPELL_SHIVAN_SLASH                = 67098,
+    SPELL_SPINNING_STRIKE             = 66283,
+    SPELL_MISTRESS_KISS               = 67077,
+    SPELL_FEL_INFERNO                 = 67047,
+    SPELL_FEL_STREAK                  = 66494,
 };
 
 /*######
@@ -180,8 +188,7 @@ public:
             {
                 DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
                 DoScriptText(SAY_INFERNAL_ERUPTION, me);
-                uint8 i = urand(2, 3);
-                me->SummonCreature(NPC_INFERNAL_VOLCANO, JaraxxusLoc[i].GetPositionX(), JaraxxusLoc[i].GetPositionY(), JaraxxusLoc[i].GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN);
+                DoCast(SPELL_INFERNAL_ERUPTION);
                 m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonInfernalEruptionTimer -= uiDiff;
 
@@ -189,8 +196,7 @@ public:
             {
                 DoScriptText(EMOTE_NETHER_PORTAL, me);
                 DoScriptText(SAY_NETHER_PORTAL, me);
-                uint8 i = urand(2, 3);
-                me->SummonCreature(NPC_NETHER_PORTAL, JaraxxusLoc[i].GetPositionX(), JaraxxusLoc[i].GetPositionY(), JaraxxusLoc[i].GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN);
+                DoCast(SPELL_NETHER_PORTAL);
                 m_uiSummonNetherPortalTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonNetherPortalTimer -= uiDiff;
 
@@ -220,7 +226,7 @@ public:
 
             if (m_uiNetherPowerTimer <= uiDiff)
             {
-                DoCast(me, SPELL_NETHER_POWER);
+                me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5,10,5,10), me, true);
                 m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             } else m_uiNetherPowerTimer -= uiDiff;
 
@@ -301,55 +307,34 @@ public:
 
         SummonList Summons;
 
-        uint8 m_Count;
-        uint8 m_CountMax;
-        uint32 m_Timer;
-
         void Reset()
         {
             me->SetReactState(REACT_PASSIVE);
-            m_Count = 0;
+
             if (!IsHeroic())
-            {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 3;
-                m_Timer = 15*IN_MILLISECONDS;
-            }
             else
-            {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 0;
-                m_Timer = 0;
-            }
+
             Summons.DespawnAll();
+        }
+
+        void IsSummonedBy(Unit* /*summoner*/)
+        {
+            DoCast(SPELL_INFERNAL_ERUPTION_EFFECT);
         }
 
         void JustSummoned(Creature* summoned)
         {
             Summons.Summon(summoned);
+            // makes immediate corpse despawn of summoned Felflame Infernals
             summoned->SetCorpseDelay(0);
         }
 
         void JustDied(Unit* /*killer*/)
         {
+            // used to despawn corpse immediately
             me->DespawnOrUnsummon();
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (m_Timer <= uiDiff)
-            {
-                if (m_CountMax && m_CountMax == m_Count)
-                    me->DespawnOrUnsummon();
-                else
-                {
-                    DoCast(SPELL_INFERNAL_ERUPTION);
-                    ++m_Count;
-                }
-                m_Timer = 5*IN_MILLISECONDS;
-            } else m_Timer -= uiDiff;
-
-            UpdateVictim();
         }
     };
 
@@ -431,49 +416,34 @@ public:
 
         SummonList Summons;
 
-        uint32 m_Timer;
-        uint8  m_Count;
-        uint8  m_CountMax;
-
         void Reset()
         {
             me->SetReactState(REACT_PASSIVE);
-            m_Timer = 10*IN_MILLISECONDS;
-            m_Count = 0;
+
             if (!IsHeroic())
-            {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 1;
-            }
             else
-            {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 0;
-            }
+
             Summons.DespawnAll();
+        }
+
+        void IsSummonedBy(Unit* /*summoner*/)
+        {
+            DoCast(SPELL_NETHER_PORTAL_EFFECT);
         }
 
         void JustSummoned(Creature* summoned)
         {
             Summons.Summon(summoned);
+            // makes immediate corpse despawn of summoned Mistress of Pain
             summoned->SetCorpseDelay(0);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void JustDied(Unit* /*killer*/)
         {
-            if (m_Timer <= uiDiff)
-            {
-                if (m_CountMax && m_CountMax == m_Count)
-                    me->DespawnOrUnsummon();
-                else
-                {
-                    DoCast(SPELL_NETHER_PORTAL);
-                    ++m_Count;
-                }
-                m_Timer = 15*IN_MILLISECONDS;
-            } else m_Timer -= uiDiff;
-
-            UpdateVictim();
+            // used to despawn corpse immediately
+            me->DespawnOrUnsummon();
         }
     };
 

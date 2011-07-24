@@ -877,8 +877,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
 
-    m_globalCooldowns.clear();
-
     m_ConditionErrorMsgId = 0;
 
     isDebugAreaTriggers = false;
@@ -1543,17 +1541,6 @@ void Player::Update(uint32 p_time)
 
         // It will be recalculate at mailbox open (for unReadMails important non-0 until mailbox open, it also will be recalculated)
         m_nextMailDelivereTime = 0;
-    }
-
-    for (std::map<uint32, uint32>::iterator itr = m_globalCooldowns.begin(); itr != m_globalCooldowns.end(); ++itr)
-    {
-        if (itr->second)
-        {
-            if (itr->second > p_time)
-                itr->second -= p_time;
-            else
-                itr->second = 0;
-        }
     }
 
     // If this is set during update SetSpellModTakingSpell call is missing somewhere in the code
@@ -12311,7 +12298,7 @@ Item* Player::EquipItem(uint16 pos, Item *pItem, bool update)
                 {
                     m_weaponChangeTimer = spellProto->StartRecoveryTime;
 
-                    AddGlobalCooldown(spellProto, NULL);    // NULL spell is safe (needed for serverside GCD
+                    GetGlobalCooldownMgr().AddGlobalCooldown(spellProto, m_weaponChangeTimer);
 
                     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4);
                     data << uint64(GetGUID());
@@ -19695,7 +19682,9 @@ void Player::TextEmote(const std::string& text)
 
 void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
 {
-    if (language != LANG_ADDON)                             // if not addon data
+    bool isAddonMessage = language == LANG_ADDON;
+
+    if (!isAddonMessage)                                    // if not addon data
         language = LANG_UNIVERSAL;                          // whispers should always be readable
 
     Player *rPlayer = sObjectMgr->GetPlayer(receiver);
@@ -19713,16 +19702,20 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
         HandleChatSpyMessage(text, CHAT_MSG_REPLY, language, rPlayer);
 
         // not send confirmation for addon messages
-        if (language != LANG_ADDON)
+        if (!isAddonMessage)
         {
             data.Initialize(SMSG_MESSAGECHAT, 200);
             rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
             GetSession()->SendPacket(&data);
         }
     }
-    else
+    else if (!isAddonMessage)
         // announce to player that player he is whispering to is dnd and cannot receive his message
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
+
+    // rest stuff shouldn't happen in case of addon message
+    if (isAddonMessage)
+        return;
 
     if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
     {
@@ -23507,43 +23500,6 @@ void Player::UpdateCharmedAI()
         GetMotionMaster()->MoveChase(target);
         Attack(target, true);
     }
-}
-
-void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell* spell)
-{
-    if (!spellInfo || !spellInfo->StartRecoveryTime)
-        return;
-
-    float cdTime = float(spellInfo->StartRecoveryTime);
-
-    if (!(spellInfo->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_PASSIVE)))
-        cdTime *= GetFloatValue(UNIT_MOD_CAST_SPEED);
-    else if (IsRangedWeaponSpell(spellInfo) && spell && !spell->IsAutoRepeat())
-        cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
-
-    if (cdTime > 1500.0f)
-        cdTime = 1500.0f;
-
-    ApplySpellMod(spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, cdTime, spell);
-    if (cdTime > 0)
-        m_globalCooldowns[spellInfo->StartRecoveryCategory] = uint32(cdTime);
-}
-
-bool Player::HasGlobalCooldown(SpellEntry const *spellInfo) const
-{
-    if (!spellInfo)
-        return false;
-
-    std::map<uint32, uint32>::const_iterator itr = m_globalCooldowns.find(spellInfo->StartRecoveryCategory);
-    return itr != m_globalCooldowns.end() && (itr->second > sWorld->GetUpdateTime());
-}
-
-void Player::RemoveGlobalCooldown(SpellEntry const *spellInfo)
-{
-    if (!spellInfo || !spellInfo->StartRecoveryTime)
-        return;
-
-    m_globalCooldowns[spellInfo->StartRecoveryCategory] = 0;
 }
 
 uint32 Player::GetRuneBaseCooldown(uint8 index)

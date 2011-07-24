@@ -598,15 +598,15 @@ void BattlegroundSA::DemolisherStartState(bool start)
     }
 }
 
-void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent)
+void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
 {
-    uint32 i = GetGateIDFromDestroyEventID(destroyedEvent);
+    uint32 i = GetGateIDFromDestroyEventID(go->GetGOInfo()->building.destroyedEvent);
     if (!GateStatus[i])
         return;
 
     if (GameObject* g = GetBGObject(i))
     {
-        if (g->GetGOValue()->building.health == 0)
+        if (g->GetGOValue()->Building.Health == 0)
         {
             GateStatus[i] = BG_SA_GATE_DESTROYED;
             uint32 uws = GetWorldStateFromGateID(i);
@@ -635,9 +635,9 @@ void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroye
 
             if (i < 5)
                 DelObject(i+9);
-            UpdatePlayerScore(pl, SCORE_DESTROYED_WALL, 1);
+            UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
             if (rewardHonor)
-                UpdatePlayerScore(pl, SCORE_BONUS_HONOR, (GetBonusHonorFromKill(1)));
+                UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
         }
     }
 }

@@ -347,7 +347,7 @@ class npc_precious_icc : public CreatureScript
 
         struct npc_precious_iccAI : public ScriptedAI
         {
-            npc_precious_iccAI(Creature* creature) : ScriptedAI(creature)
+            npc_precious_iccAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
                 _instance = creature->GetInstanceScript();
             }
@@ -358,6 +358,27 @@ class npc_precious_icc : public CreatureScript
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
                 _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
+                _summons.DespawnAll();
+            }
+
+            void JustSummoned(Creature* summon)
+            {
+                _summons.Summon(summon);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    summon->AI()->AttackStart(target);
+            }
+
+            void SummonedCreatureDespawn(Creature* summon)
+            {
+                _summons.Despawn(summon);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _summons.DespawnAll();
+                if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
+                    if (rotface->isAlive())
+                        rotface->AI()->Talk(SAY_PRECIOUS_DIES);
             }
 
             void UpdateAI(const uint32 diff)
@@ -396,15 +417,9 @@ class npc_precious_icc : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*who*/)
-            {
-                if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
-                    if (rotface->isAlive())
-                        rotface->AI()->Talk(SAY_PRECIOUS_DIES);
-            }
-
         private:
             EventMap _events;
+            SummonList _summons;
             InstanceScript* _instance;
         };
 
