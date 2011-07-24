@@ -145,13 +145,32 @@ inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
 
 enum TimeConstants
 {
-    MINUTE = 60,
-    HOUR   = MINUTE*60,
-    DAY    = HOUR*24,
-    WEEK   = DAY*7,
-    MONTH  = DAY*30,
-    YEAR   = MONTH*12,
+    MINUTE          = 60,
+    HOUR            = MINUTE*60,
+    DAY             = HOUR*24,
+    WEEK            = DAY*7,
+    MONTH           = DAY*30,
+    YEAR            = MONTH*12,
     IN_MILLISECONDS = 1000
+};
+
+enum StandardZeiten
+{
+    MINUTEN_05  = 300 * IN_MILLISECONDS,
+    MINUTEN_10  = 600 * IN_MILLISECONDS,
+    MINUTEN_15  = 900 * IN_MILLISECONDS,
+    MINUTEN_20  = 1200 * IN_MILLISECONDS,
+    MINUTEN_30  = 1800 * IN_MILLISECONDS,
+    MINUTEN_40  = 2400 * IN_MILLISECONDS,
+    MINUTEN_50  = 3000 * IN_MILLISECONDS,
+    MINUTEN_60  = 6000 * IN_MILLISECONDS,
+    STUNDE      = MINUTEN_60,
+    SEKUNDEN_10 = 10 * IN_MILLISECONDS,
+    SEKUNDEN_20 = 20 * IN_MILLISECONDS,
+    SEKUNDEN_30 = 30 * IN_MILLISECONDS,
+    SEKUNDEN_40 = 40 * IN_MILLISECONDS,
+    SEKUNDEN_50 = 50 * IN_MILLISECONDS,
+    SEKUNDEN_60 = 60 * IN_MILLISECONDS
 };
 
 enum AccountTypes
