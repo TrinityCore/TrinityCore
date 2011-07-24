@@ -107,14 +107,14 @@ enum Spells
     SPELL_CONSUMPTION_DAMAGE_AURA       = 74803,
 
     // Misc
-    SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 1 to phase 2
-    SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell to go on phase 3 - So why 2 NPCs ?
+    SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 2 to phase 3
+    SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell from phase 1 to phase 2
     SPELL_TWILIGHT_REALM                = 74807,
-    SPELL_TWILIGHT_PHASING              = 74808,    // Same visual as 75063, plus immunity and morphing - Correct spell ?
+    SPELL_TWILIGHT_PHASING              = 74808,    // Same visual as 57620, plus immunity and morphing - Correct spell ?
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
     
-    // Unknwon purpose for now
-    SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,    // Used by Orbs ?
+    // Shadow Orb
+    SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -180,6 +180,8 @@ enum Phases
 enum Misc
 {
     MARK_STACKAMOUNT        = 1,
+    TWILIGHT_DAMAGE_TAKEN   = 2,
+    MATERIAL_DAMAGE_TAKEN   = 3,
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
@@ -241,18 +243,25 @@ class boss_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
                     DoCast(me, SPELL_TWILIGHT_SHIFT);
+                    events.SetPhase(PHASE_TWO);
+                    events.Reset();
                     Talk(SAY_PHASE_TWO);
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
                 }
+
+                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                        CAST_AI(controllerAI, controller->AI())->SetData(MATERIAL_DAMAGE_TAKEN, damage);
             }
 
             void UpdateAI(uint32 const diff)
             {
+                if (!(events.GetPhaseMask() & PHASE_ONE_MASK))
+                    me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
+
                 if ((events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
-
-                me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 events.Update(diff);
 
@@ -265,7 +274,6 @@ class boss_halion : public CreatureScript
                     {
                         case EVENT_ACTIVATE_FIREWALL:
                             // Firewall is activated 10 seconds after starting encounter, DOOR_TYPE_ROOM is only instant.
-                            // Currently has its phasemask to 0x21, but I think there's another flame ring.
                             if (GameObject* firewall = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_FLAME_RING)))
                                 instance->HandleGameObject(instance->GetData64(DATA_FLAME_RING), false, firewall);
                             break;
@@ -305,6 +313,8 @@ class boss_halion : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            void setEventsPhase(uint32 p) { events.SetPhase(p); }
 
         private:
             Position _meteorStrikePos;
@@ -383,14 +393,20 @@ class boss_twilight_halion : public CreatureScript
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                        halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_DIVISION);
+                        halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
                 }
+
+                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                        CAST_AI(controllerAI, controller->AI())->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if ((events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
+                if ((events.GetPhaseMask() & PHASE_THREE_MASK)
+                    me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 events.Update(diff);
 
@@ -415,13 +431,6 @@ class boss_twilight_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                             break;
                         }
-                        case EVENT_SHADOW_PULSARS_SHOOT:
-                        {
-                            if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                                controller->AI()->DoAction(ACTION_SHADOW_PULSARS_SHOOT);
-                            events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
-                            break;
-                        }
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
@@ -433,6 +442,8 @@ class boss_twilight_halion : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            void setEventsPhase(uint32p ) { events.SetPhase(p); }
 
         private:
             InstanceScript* _instance;
@@ -481,6 +492,7 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_PHASE_TWO:
                     {
+                        me->setActive(true);
                         _events.Reset();
                         me->GetMap()->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         uint8 begin = 0;
@@ -500,6 +512,15 @@ class npc_halion_controller : public CreatureScript
                             me->GetMap()->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
                         }
                         me->GetMap()->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
+                        break;
+                    }
+                    case ACTION_PHASE_THREE:
+                    {
+                        me->setActive(true);
+                        _events.Reset();
+                        _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                        TwilightDamageTaken = 0;
+                        MaterialDamageTaken = 0;
                         break;
                     }
                 }
@@ -532,15 +553,45 @@ class npc_halion_controller : public CreatureScript
                                 halion->AI()->Talk(SAY_INTRO);
                             me->setActive(false);
                             break;
+                        case EVENT_SHADOW_PULSARS_SHOOT:
+                            // Todo
+                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                            break;
                         default:
                             break;
                     }
                 }
             }
 
+            void SetData(uint32 id, uint32 value)
+            {
+                switch (id)
+                {
+                    case MATERIAL_DAMAGE_TAKEN:
+                        MaterialDamageTaken += value;
+                        break;
+                    case TWILIGHT_DAMAGE_TAKEN:
+                        TwilightDamageTaken += value;
+                        break;
+                }
+
+                if (MaterialDamageTaken * 1.02f > TwilightDamageTaken)
+                {
+                    TwilightDamageTaken = 0;
+                    MaterialDamageTaken = 0;
+                }
+                else if (TwilightDamageTaken * 1.02f > MaterialDamageTaken)
+                {
+                    TwilightDamageTaken = 0;
+                    MaterialDamageTaken = 0;
+                }
+            }
+
         private:
             EventMap _events;
             InstanceScript* _instance;
+            uint32 TwilightDamageTaken;
+            uint32 MaterialDamageTaken;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -548,6 +599,9 @@ class npc_halion_controller : public CreatureScript
             return GetRubySanctumAI<npc_halion_controllerAI>(creature);
         }
 };
+
+
+typedef npc_halion_controller::npc_halion_controllerAI controllerAI;
 
 class npc_meteor_strike_initial : public CreatureScript
 {
@@ -1136,4 +1190,3 @@ void AddSC_boss_halion()
     new spell_halion_soul_consumption();
     new spell_halion_combustion_consumption_damage_periodic_aura();
 }
-
