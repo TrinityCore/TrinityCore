@@ -252,7 +252,7 @@ class boss_halion : public CreatureScript
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                        CAST_AI(controllerAI, controller->AI())->SetData(MATERIAL_DAMAGE_TAKEN, damage);
+                        controller->AI()->SetData(MATERIAL_DAMAGE_TAKEN, damage);
             }
 
             void UpdateAI(uint32 const diff)
@@ -395,13 +395,14 @@ class boss_twilight_halion : public CreatureScript
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                     {
                         halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        CAST_AI(HalionAI, halion->AI())->setEventsPhase(PHASE_THREE);
+                        if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
+                           halionAI->setEventsPhase(PHASE_THREE);
                     }
                 }
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                        CAST_AI(controllerAI, controller->AI())->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
+                        controller->AI()->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1131,7 +1132,7 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
 class CombustionConsumptionPeriodicDamageSelector
 {
     public:
-        explicit CombustionConsumptionPeriodicDamageSelector(Creature* owner) : _owner(owner) { }
+        explicit CombustionConsumptionDamageSelector(Creature* owner) : _owner(owner) { }
 
         bool operator()(Unit* unit)
         {
@@ -1159,7 +1160,7 @@ class spell_halion_combustion_consumption_damage_periodic_aura : public SpellScr
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
-                        unitList.remove_if(CombustionConsumptionPeriodicDamageSelector(creCaster));
+                        unitList.remove_if(CombustionConsumptionDamageSelector(creCaster));
             }
 
             void Register()
