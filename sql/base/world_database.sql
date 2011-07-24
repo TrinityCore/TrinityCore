@@ -17111,6 +17111,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (30294, 0, 0, 0, 0, 'Warlock - Soul Leech'),
 (30108, -1, 0.2, -1, -1, 'Warlock - Unstable Affliction'),
 (31117, 1.8, -1, -1, -1, 'Warlock - Unstable Affliction Dispell'),
+(12162, 0, 0, 0, 0, 'Warrior - Deep Wounds'),
 (57755, -1, -1, 0.5, -1, 'Warrior - Heroic Throw'),
 (20253, -1, -1, 0.12, -1, 'Warrior - Intercept'),
 (61491, -1, -1, 0.12, -1, 'Warrior - Intercept'),
@@ -19132,16 +19133,16 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 53569, 0x00,  10, 0x40200000, 0x00010000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Infusion of Light (Rank 1)
 ( 53576, 0x00,  10, 0x40200000, 0x00010000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Infusion of Light (Rank 2)
 ( 53646, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Demonic Pact (Rank 1)
-( 53671, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Pure (Rank 1)
-( 53673, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Pure (Rank 2)
+( 53671, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 1)
+( 53673, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 2)
 ( 53695, 0x00,  10, 0x00800000, 0x00000000, 0x00000008, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Just (Rank 1)
 ( 53696, 0x00,  10, 0x00800000, 0x00000000, 0x00000008, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Just (Rank 2)
 ( 53709, 0x02,  10, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Shield of the templar
 ( 53710, 0x02,  10, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Shield of the templar
 ( 53711, 0x02,  10, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Shield of the templar
-( 54151, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Pure (Rank 3)
-( 54154, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Pure (Rank 4)
-( 54155, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Pure (Rank 5)
+( 54151, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 3)
+( 54154, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 4)
+( 54155, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 5)
 ( 54278, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Empowered Imp
 ( 54486, 0x00,   0, 0x20000021, 0x00009000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Missile Barrage (Rank 2)
 ( 54488, 0x00,   0, 0x20000021, 0x00009000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Missile Barrage (Rank 3)
@@ -19202,7 +19203,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 58442, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  15), -- Airy Pale Ale
 ( 58444, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   5), -- Worg Tooth Oatmeal Stout
 ( 58626, 0x00,  15, 0x02000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Death Grip
-( 58642, 0x00,  15, 0x00000000, 0x08000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Scourge Strike
+( 58642, 0x00,  15, 0x00000000, 0x08000000, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Glyph of Scourge Strike
 ( 58644, 0x00,  15, 0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Frost Strike
 ( 58647, 0x00,  15, 0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Frost Strike
 ( 58676, 0x00,  15, 0x00000000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Vampiric Blood

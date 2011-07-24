@@ -45,7 +45,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
             }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go->GetGOInfo()->GetGossipMenuId()), go->GetGUID());
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
             return true;
         }
 
@@ -78,7 +78,10 @@ class at_frozen_throne_teleport : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && instance->GetBossState(DATA_SINDRAGOSA) == DONE)
+                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
+                    instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
+                    instance->GetBossState(DATA_SINDRAGOSA) == DONE &&
+                    instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS)
                     player->CastSpell(player, FROZEN_THRONE_TELEPORT, true);
 
             return true;
