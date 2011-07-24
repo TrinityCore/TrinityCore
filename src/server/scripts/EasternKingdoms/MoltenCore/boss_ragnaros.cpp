@@ -78,13 +78,7 @@ enum Events
 
     EVENT_ENRAGE,
     EVENT_FEURIGE_EINAESCHERUNG,
-    EVENT_GROSSBRAND,
-    EVENT_TIMER
-};
-
-enum Diverse
-{
-    RAGNAROS_EVENT_TIME = 60 * IN_MILLISECONDS * MINUTE // 60 Minuten
+    EVENT_GROSSBRAND
 };
 
 class boss_ragnaros_outdoor : public CreatureScript
@@ -96,9 +90,6 @@ class boss_ragnaros_outdoor : public CreatureScript
         {
             boss_ragnaros_outdoorAI(Creature * pCreature) : BossAI(pCreature, BOSS_RAGNAROS)
             {
-                eventTimer = RAGNAROS_EVENT_TIME;
-                eventsOOC.ScheduleEvent(EVENT_TIMER, 600 * IN_MILLISECONDS); // Alle 10 Minuten die restliche Eventzeit ansagen
-
                 _introState = 0;
             }
 
@@ -140,15 +131,15 @@ class boss_ragnaros_outdoor : public CreatureScript
                 DoZoneInCombat(me, true);
 
                 events.ScheduleEvent(EVENT_ERUPTION, 15 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, SEKUNDEN_30);
                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_LAVA_BURST, 10 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_LAVA_BURST, SEKUNDEN_10);
                 events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_MAGMA_BLAST, 2 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUBMERGE, 45 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_ENRAGE, 10 * IN_MILLISECONDS * MINUTE);
-                events.ScheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_GROSSBRAND, 30 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_ENRAGE, MINUTEN_10);
+                events.ScheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, SEKUNDEN_10);
+                events.ScheduleEvent(EVENT_GROSSBRAND, SEKUNDEN_30);
             }
 
             void KilledUnit(Unit * victim)
@@ -158,45 +149,8 @@ class boss_ragnaros_outdoor : public CreatureScript
                         DoScriptText(SAY_KILL, me);
             }
 
-            void SendeRestlicheEventZeit()
-            {
-                if (eventTimer > 600 * IN_MILLISECONDS) // 10 Minuten
-                    eventTimer = eventTimer - (600 * IN_MILLISECONDS);
-                else
-                    return;
-
-                eventsOOC.RescheduleEvent(EVENT_TIMER, 600 * IN_MILLISECONDS);
-
-                std::string str = "ACHTUNG: ";
-                str.append(me->GetName());
-                str.append(" wird in ");
-
-                switch(eventTimer)
-                {
-                    case 3000000: str.append("50"); break;
-                    case 2400000: str.append("40"); break;
-                    case 1800000: str.append("30"); break;
-                    case 1200000: str.append("20"); break;
-                    case 600000:  str.append("10"); break;
-                }
-                str.append(" Minuten verschwinden!");
-                sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
-            }
-
             void UpdateAI(const uint32 diff)
             {
-                eventsOOC.Update(diff);
-
-                while (uint32 eventId = eventsOOC.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TIMER:
-                            SendeRestlicheEventZeit();
-                            break;
-                    }
-                }
-
                 if (!_introState)
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -240,7 +194,7 @@ class boss_ragnaros_outdoor : public CreatureScript
                         {
                             case EVENT_ERUPTION:
                                 DoCastVictim(SPELL_ERRUPTION);
-                                events.ScheduleEvent(EVENT_ERUPTION, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                                events.ScheduleEvent(EVENT_ERUPTION, urand(SEKUNDEN_20, SEKUNDEN_30));
                                 break;
                             case EVENT_WRATH_OF_RAGNAROS:
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
@@ -252,15 +206,15 @@ class boss_ragnaros_outdoor : public CreatureScript
                                 DoCast(me, SPELL_HAND_OF_RAGNAROS);
                                 if (urand(0, 1))
                                     DoScriptText(SAY_HAND, me);
-                                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20 * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, SEKUNDEN_20);
                                 break;
                             case EVENT_LAVA_BURST:
                                 DoCastVictim(SPELL_LAVA_BURST);
-                                events.ScheduleEvent(EVENT_LAVA_BURST, 10 * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_LAVA_BURST, SEKUNDEN_10);
                                 break;
                             case EVENT_ELEMENTAL_FIRE:
                                 DoCastVictim(SPELL_ELEMENTAL_FIRE);
-                                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, urand(10 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
+                                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, urand(SEKUNDEN_10, 14 * IN_MILLISECONDS));
                                 break;
                             case EVENT_MAGMA_BLAST:
                                 if (me->IsWithinMeleeRange(me->getVictim()))
@@ -317,13 +271,13 @@ class boss_ragnaros_outdoor : public CreatureScript
                             case EVENT_FEURIGE_EINAESCHERUNG:
                                 if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                     DoCast(target, SPELL_FEURIGE_EINAESCHERUNG);
-                                events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                                events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(SEKUNDEN_20, SEKUNDEN_30));
                                 break;
                             case EVENT_GROSSBRAND:
                                 for (uint8 i=0; i<4; ++i)
                                     if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                         DoCast(target, SPELL_GROSSBRAND);
-                                events.RescheduleEvent(EVENT_GROSSBRAND, urand(30 * IN_MILLISECONDS, 45 * IN_MILLISECONDS));
+                                events.RescheduleEvent(EVENT_GROSSBRAND, urand(SEKUNDEN_30, 45 * IN_MILLISECONDS));
                                 break;
                         }
                     }
@@ -336,8 +290,6 @@ class boss_ragnaros_outdoor : public CreatureScript
             bool _hasYelledMagmaBurst;
             bool _hasSubmergedOnce;
             bool _isBanished;
-            EventMap eventsOOC;
-            uint32 eventTimer;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
