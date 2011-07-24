@@ -77,7 +77,7 @@ enum Phases
 enum Diverse
 {
     BALTHARUS_CLONE_OUTDOOR = 60006,
-    BALTHARUS_EVENT_TIME = 60 * IN_MILLISECONDS * MINUTE, // 60 Minuten
+    BALTHARUS_EVENT_TIME = STUNDE
 };
 
 class boss_baltharus_the_warborn_outdoor : public CreatureScript
@@ -90,7 +90,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
             boss_baltharus_the_warborn_outdoorAI(Creature * creature) : WorldBossAI(creature)
             {
                 eventTimer = BALTHARUS_EVENT_TIME;
-                eventsOOC.ScheduleEvent(EVENT_TIMER, 600 * IN_MILLISECONDS); // Alle 10 Minuten die restliche Eventzeit ansagen
+                eventsOOC.ScheduleEvent(EVENT_TIMER, MINUTEN_10);
 
                 _introDone = false;
                 _random = false;
@@ -106,12 +106,12 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
 
             void SendeRestlicheEventZeit()
             {
-                if (eventTimer > 600 * IN_MILLISECONDS) // 10 Minuten
-                    eventTimer = eventTimer - (600 * IN_MILLISECONDS);
+                if (eventTimer > MINUTEN_10)
+                    eventTimer = eventTimer - MINUTEN_10;
                 else
                     return;
 
-                eventsOOC.RescheduleEvent(EVENT_TIMER, 600 * IN_MILLISECONDS);
+                eventsOOC.RescheduleEvent(EVENT_TIMER, MINUTEN_10);
 
                 std::string str = "ACHTUNG: ";
                 str.append(me->GetName());
@@ -195,9 +195,9 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                 events.ScheduleEvent(EVENT_CLEAVE, 11 * IN_MILLISECONDS, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_ENERVATING_BRAND, 13 * IN_MILLISECONDS, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BLADE_TEMPEST, 15 * IN_MILLISECONDS, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_ENRAGE, 10 * IN_MILLISECONDS * MINUTE);
-                events.ScheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_GROSSBRAND, 30 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_ENRAGE, MINUTEN_10);
+                events.ScheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, SEKUNDEN_10);
+                events.ScheduleEvent(EVENT_GROSSBRAND, SEKUNDEN_30);
             }
 
             void JustDied(Unit * /*killer*/)
@@ -272,11 +272,11 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.RescheduleEvent(EVENT_CLEAVE, 20 * IN_MILLISECONDS, 0, PHASE_COMBAT);
+                            events.RescheduleEvent(EVENT_CLEAVE, SEKUNDEN_20, 0, PHASE_COMBAT);
                             break;
                         case EVENT_BLADE_TEMPEST:
                             DoCast(me, SPELL_BLADE_TEMPEST);
-                            events.RescheduleEvent(EVENT_BLADE_TEMPEST, 20 * IN_MILLISECONDS, 0, PHASE_COMBAT);
+                            events.RescheduleEvent(EVENT_BLADE_TEMPEST, SEKUNDEN_20, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ENERVATING_BRAND:
                             for (uint8 i=0; i<20; ++i)
@@ -290,12 +290,12 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                         case EVENT_FEURIGE_EINAESCHERUNG:
                             if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                 DoCast(target, SPELL_FEURIGE_EINAESCHERUNG);
-                            events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS), 0, PHASE_COMBAT);
+                            events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(SEKUNDEN_20, SEKUNDEN_30), 0, PHASE_COMBAT);
                         case EVENT_GROSSBRAND:
                             for (uint8 i=0; i<4; ++i)
                                 if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                     DoCast(target, SPELL_GROSSBRAND);
-                            events.RescheduleEvent(EVENT_GROSSBRAND, urand(30 * IN_MILLISECONDS, 45 * IN_MILLISECONDS), 0, PHASE_COMBAT);
+                            events.RescheduleEvent(EVENT_GROSSBRAND, urand(SEKUNDEN_30, 45 * IN_MILLISECONDS), 0, PHASE_COMBAT);
                         default:
                             break;
                     }
@@ -356,11 +356,11 @@ class npc_baltharus_the_warborn_clone_outdoor : public CreatureScript
                     {
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.RescheduleEvent(EVENT_CLEAVE, 20 * IN_MILLISECONDS);
+                            _events.RescheduleEvent(EVENT_CLEAVE, SEKUNDEN_20);
                             break;
                         case EVENT_BLADE_TEMPEST:
                             DoCast(me, SPELL_BLADE_TEMPEST);
-                            _events.RescheduleEvent(EVENT_BLADE_TEMPEST, 20 * IN_MILLISECONDS);
+                            _events.RescheduleEvent(EVENT_BLADE_TEMPEST, SEKUNDEN_20);
                             break;
                         default:
                             break;
