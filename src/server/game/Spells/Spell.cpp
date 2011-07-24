@@ -1012,20 +1012,34 @@ void Spell::AddUnitTarget(uint64 unitGUID, uint32 effIndex)
         AddUnitTarget(unit, effIndex);
 }
 
-void Spell::AddGOTarget(GameObject* pVictim, uint32 effIndex)
+void Spell::AddGOTarget(GameObject* go, uint32 effIndex)
 {
     if (m_spellInfo->Effect[effIndex] == 0)
         return;
 
-    uint64 targetGUID = pVictim->GetGUID();
+    switch (m_spellInfo->Effect[effIndex])
+    {
+        case SPELL_EFFECT_GAMEOBJECT_DAMAGE:
+        case SPELL_EFFECT_GAMEOBJECT_REPAIR:
+        case SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE:
+            if (go->GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+                return;
+            break;
+        default:
+            break;
+    }
+
+    uint64 targetGUID = go->GetGUID();
 
     // Lookup target in already in list
     for (std::list<GOTargetInfo>::iterator ihit = m_UniqueGOTargetInfo.begin(); ihit != m_UniqueGOTargetInfo.end(); ++ihit)
+    {
         if (targetGUID == ihit->targetGUID)                 // Found in list
         {
             ihit->effectMask |= 1 << effIndex;              // Add only effect mask
             return;
         }
+    }
 
     // This is new target calculate data for him
 
@@ -1038,10 +1052,11 @@ void Spell::AddGOTarget(GameObject* pVictim, uint32 effIndex)
     if (m_spellInfo->speed > 0.0f)
     {
         // calculate spell incoming interval
-        float dist = m_caster->GetDistance(pVictim->GetPositionX(), pVictim->GetPositionY(), pVictim->GetPositionZ());
-        if (dist < 5.0f) dist = 5.0f;
-        target.timeDelay = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
-        if (m_delayMoment == 0 || m_delayMoment>target.timeDelay)
+        float dist = m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
+        if (dist < 5.0f)
+            dist = 5.0f;
+        target.timeDelay = uint64(floor(dist / m_spellInfo->speed * 1000.0f));
+        if (m_delayMoment == 0 || m_delayMoment > target.timeDelay)
             m_delayMoment = target.timeDelay;
     }
     else
@@ -1053,8 +1068,7 @@ void Spell::AddGOTarget(GameObject* pVictim, uint32 effIndex)
 
 void Spell::AddGOTarget(uint64 goGUID, uint32 effIndex)
 {
-    GameObject* go = m_caster->GetMap()->GetGameObject(goGUID);
-    if (go)
+    if (GameObject* go = m_caster->GetMap()->GetGameObject(goGUID))
         AddGOTarget(go, effIndex);
 }
 
@@ -3003,9 +3017,6 @@ void Spell::cancel()
     if (m_selfContainer && *m_selfContainer == this)
         *m_selfContainer = NULL;
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->RemoveGlobalCooldown(m_spellInfo);
-
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id, true);
 
@@ -4584,8 +4595,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!m_IsTriggeredSpell && m_caster->ToPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
-        if (m_caster->ToPlayer()->HasSpellCooldown(m_spellInfo->Id) ||
-            (strict && !m_IsTriggeredSpell && m_caster->ToPlayer()->HasGlobalCooldown(m_spellInfo)))
+        if (m_caster->ToPlayer()->HasSpellCooldown(m_spellInfo->Id))
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;

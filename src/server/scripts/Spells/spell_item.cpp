@@ -775,7 +775,7 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
                 GetCaster()->CastSpell(GetCaster(), SPELL_AIR_RIFLE_HOLD_VISUAL, true);
                 // needed because this spell shares GCD with its triggered spells (which must not be cast with triggered flag)
                 if (Player* player = GetCaster()->ToPlayer())
-                    player->RemoveGlobalCooldown(GetSpellInfo());
+                    player->GetGlobalCooldownMgr().CancelGlobalCooldown(GetSpellInfo());
                 if (urand(0, 4))
                     GetCaster()->CastSpell(GetHitUnit(), SPELL_AIR_RIFLE_SHOOT, false);
                 else
