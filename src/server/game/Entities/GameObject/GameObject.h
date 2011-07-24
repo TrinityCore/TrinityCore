@@ -772,6 +772,14 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void ModifyHealth(int32 change, Unit* attackerOrHealer = NULL, uint32 spellId = 0);
         // sets GameObject type 33 destruction flags and optionally default health for that state
         void SetDestructibleState(GameObjectDestructibleState state, Player* eventInvoker = NULL, bool setHealth = false);
+        GameObjectDestructibleState GetDestructibleState() const
+        {
+            if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED))
+                return GO_DESTRUCTIBLE_DESTROYED;
+            if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED))
+                return GO_DESTRUCTIBLE_DAMAGED;
+            return GO_DESTRUCTIBLE_INTACT;
+        }
 
         void EventInform(uint32 eventId);
 
