@@ -5835,8 +5835,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             return false;
                     }
 
-                    // 4 damage tick
-                    basepoints0 /= 4;
+                    // 2 damage tick
+                    basepoints0 /= 2;
                     triggered_spell_id = 12654;
                     // Add remaining ticks to damage done
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
