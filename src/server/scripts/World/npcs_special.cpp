@@ -141,7 +141,7 @@ enum FirecallerTargetSpellsIdx
     BODENBLUETE = 0,
     BODENRAKETE,
     RAKETENSCHUSS,
-    SERSENGEN
+    VERSENGEN
 };
 
 #define FirecallerClusterCnt 15
@@ -313,6 +313,8 @@ public:
             Item1Done = false;
             Item2Done = false;
             Item3Done = false;
+
+            SpielerGUIDSet.clear();
         }
 
         void Reset()
@@ -325,30 +327,36 @@ public:
                 return;
 
             Player * chr = who->ToPlayer();
-            if (!chr || chr->isValid())
+            if (!chr || !chr->isValid())
                 return;
+
+            if (SpielerGUIDSet.find(chr->GetGUID()) == SpielerGUIDSet.end())
+                SpielerGUIDSet.insert(chr->GetGUID());
         }
 
         Player * FindeSpieler(float range = 50.0f)
         {
-            if (Map * map = me->GetMap())
+            if (SpielerGUIDSet.empty())
+                return NULL;
+
+            for (std::set<uint64>::iterator itr = SpielerGUIDSet.begin(); itr != SpielerGUIDSet.end(); ++itr)
             {
-                Map::PlayerList const & PlayerList = map->GetPlayers();
-                if (PlayerList.isEmpty())
-                    return NULL;
-
-                for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+                for (uint32 i=0; i<=urand(0, SpielerGUIDSet.size()-1); ++i)
                 {
-                    for (uint32 i=0; i<urand(0, (PlayerList.getSize()-1)); ++i)
-                        try { ++itr; }
-                        catch(...)
-                        {  // Handle all exceptions
-                            break;
-                        }
-
-                    if (itr->isValid() && itr->getSource() && itr->getSource()->isValid() && me->IsWithinDistInMap(itr->getSource(), range))
-                        return itr->getSource();
+                    if (++itr == SpielerGUIDSet.end())
+                    {
+                        --itr;
+                        break;
+                    }
                 }
+                Player * chr = sObjectMgr->GetPlayer(*itr);
+                if (!chr)
+                {
+                    SpielerGUIDSet.erase(itr);
+                    continue;
+                }
+                if (chr->isValid() && chr->isAlive() && !chr->IsMounted() && me->IsWithinDistInMap(chr, range))
+                    return chr;
             }
             return NULL;
         }
@@ -358,7 +366,7 @@ public:
             if (!chr)
                 return false;
 
-            if (chr->GetSession()->GetSecurity() < SEC_VETERAN)
+            if (chr->GetSession()->GetSecurity() < SEC_ANWAERTER)
             {
                 for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
                 {   // Wenn der Spieler das zu gebende Item schon hat / kennt, nicht doppelt geben!
@@ -366,10 +374,9 @@ public:
                     {
                         char buffer[6];
                         time_t localtime = time(NULL);
-                        std::string ZeitStr = TimeToTimestampStr(localtime, GERMAN);
 
                         sprintf(buffer, "%u", FirecallerPresents[i][0]);
-                        addItem(chr, FirecallerPresents[i][0]);
+                        addItem(chr, FirecallerPresents[i][0],1,true,false,true);
                         // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
                         switch(cnt)
                         {
@@ -390,7 +397,7 @@ public:
                         bericht.append(" ging an: ");
                         bericht.append(chr->GetName());
                         bericht.append(". Dies geschah am ");
-                        bericht.append(ZeitStr.c_str());
+                        bericht.append(TimeToTimestampStr(localtime, GERMAN).c_str());
                         bericht.append(" Uhr.");
                         bericht.append("\n");
 
@@ -534,7 +541,7 @@ public:
                         {
                             me->setFaction(14);
                             if (chr->GetSession()->GetSecurity() > SEC_VETERAN)
-                                DoCast(chr, FirecallerTargetSpells[SERSENGEN]);
+                                DoCast(chr, FirecallerTargetSpells[VERSENGEN]);
                             else
                                 DoCast(chr, FirecallerTargetSpells[urand(BODENBLUETE, RAKETENSCHUSS)]);
                             me->setFaction(35);
@@ -561,6 +568,7 @@ public:
             bool Item1Done;
             bool Item2Done;
             bool Item3Done;
+            std::set<uint64> SpielerGUIDSet;
     };
 
     CreatureAI * GetAI(Creature * creature) const
