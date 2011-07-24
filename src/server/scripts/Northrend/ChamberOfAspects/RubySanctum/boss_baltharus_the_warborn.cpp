@@ -291,12 +291,12 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                             if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                 DoCast(target, SPELL_FEURIGE_EINAESCHERUNG);
                             events.RescheduleEvent(EVENT_FEURIGE_EINAESCHERUNG, urand(SEKUNDEN_20, SEKUNDEN_30), 0, PHASE_COMBAT);
+                            break;
                         case EVENT_GROSSBRAND:
                             for (uint8 i=0; i<4; ++i)
                                 if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                                     DoCast(target, SPELL_GROSSBRAND);
                             events.RescheduleEvent(EVENT_GROSSBRAND, urand(SEKUNDEN_30, 45 * IN_MILLISECONDS), 0, PHASE_COMBAT);
-                        default:
                             break;
                     }
                 }
@@ -361,8 +361,6 @@ class npc_baltharus_the_warborn_clone_outdoor : public CreatureScript
                         case EVENT_BLADE_TEMPEST:
                             DoCast(me, SPELL_BLADE_TEMPEST);
                             _events.RescheduleEvent(EVENT_BLADE_TEMPEST, SEKUNDEN_20);
-                            break;
-                        default:
                             break;
                     }
                 }
