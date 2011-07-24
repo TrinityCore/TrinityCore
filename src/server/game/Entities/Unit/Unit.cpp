@@ -10655,6 +10655,14 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellEntry const* spellProto, uint32
                     if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, 0, GetGUID()))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
             }
+            // Shadow Word: Death
+            else if (spellProto->SpellFamilyFlags[1] & 0x2)
+            {
+                // Glyph of Shadow Word: Death
+                if (AuraEffect* aurEff = GetAuraEffect(55682, 1))
+                    if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                        AddPctN(DoneTotalMod, aurEff->GetAmount());
+            }
         break;
         case SPELLFAMILY_PALADIN:
             // Judgement of Vengeance/Judgement of Corruption
