@@ -3842,6 +3842,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
                     mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
+                    spellInfo->speed = 300; // add some delay 0.3 sec at retail
                     ++count;
                     break;
             }
