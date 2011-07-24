@@ -393,7 +393,10 @@ class boss_twilight_halion : public CreatureScript
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    {
                         halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                        CAST_AI(HalionAI, halion->AI())->setEventsPhase(PHASE_THREE);
+                    }
                 }
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
@@ -405,8 +408,9 @@ class boss_twilight_halion : public CreatureScript
             {
                 if ((events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
-                if ((events.GetPhaseMask() & PHASE_THREE_MASK)
-                    me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH));
+
+                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                    me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 events.Update(diff);
 
