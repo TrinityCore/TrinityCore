@@ -5711,6 +5711,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     instance->DoCastSpellOnPlayers(65037);  // Achievement criteria marker
                     break;
                 }
+                // Item - Icecrown 25 Normal (Heroic) Slow Melee Weapon Proc
+                case 71875:
+                case 71877:
+                {
+                    triggered_spell_id = 71879;
+                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+                    break;
+                }
             }
             break;
         }
