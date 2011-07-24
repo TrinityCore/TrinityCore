@@ -4,6 +4,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "MapManager.h"
+#include "GameObject.h"
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Tausendwinter
@@ -1455,8 +1456,8 @@ void Tausendwinter::ResetZerstoerbareGOs()
         {
             AktualisiereGO(iter->second->m_GameObject);
 
-            iter->second->m_GameObject->Rebuild();
-            iter->second->m_Health = iter->second->m_GameObject->GetGOValue()->building.health;
+            iter->second->m_GameObject->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+            iter->second->m_Health = iter->second->m_GameObject->GetGOValue()->Building.Health;
         }
         else
             iter->second->m_Health = 0;
@@ -1481,7 +1482,7 @@ void Tausendwinter::AktualisiereZerstoerbareGOs()
         if (iter->second->m_GameObject)
         {
             AktualisiereGO(iter->second->m_GameObject);
-            iter->second->m_Health = iter->second->m_GameObject->GetGOValue()->building.health;
+            iter->second->m_Health = iter->second->m_GameObject->GetGOValue()->Building.Health;
         }
         else
             iter->second->m_Health = 0;
@@ -2684,10 +2685,10 @@ void Tausendwinter::OnGameObjectCreate(GameObject * go)
             }
 
             if (iter->second->m_SchadensStatus == INTAKT && !iter->second->m_Health)
-                iter->second->m_Health = go->GetGOValue()->building.health;
+                iter->second->m_Health = go->GetGOValue()->Building.Health;
             else
             {
-                go->GetGOValue()->building.health = iter->second->m_Health;
+                go->GetGOValue()->Building.Health = iter->second->m_Health;
 
                 if (iter->second->m_SchadensStatus == BESCHAEDIGT)
                     go->SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
@@ -2717,10 +2718,10 @@ void Tausendwinter::OnGameObjectRemove(GameObject * go)
             iter->second->m_GameObject = NULL;
 
             if (iter->second->m_SchadensStatus == INTAKT && !iter->second->m_Health)
-                iter->second->m_Health = go->GetGOValue()->building.health;
+                iter->second->m_Health = go->GetGOValue()->Building.Health;
             else
             {
-                go->GetGOValue()->building.health = iter->second->m_Health;
+                go->GetGOValue()->Building.Health = iter->second->m_Health;
 
                 if (iter->second->m_SchadensStatus == BESCHAEDIGT)
                     go->SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);

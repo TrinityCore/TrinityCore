@@ -143,6 +143,8 @@ public:
             DoCast(me, SPELL_ESSENCEOFTHERED);
             DoZoneInCombat();
             me->SetHealth(me->CountPctFromMaxHealth(30));
+            // now drop damage requirement to be able to take loot
+            me->ResetPlayerDamageReq();
         }
 
         void UpdateAI(const uint32 diff)

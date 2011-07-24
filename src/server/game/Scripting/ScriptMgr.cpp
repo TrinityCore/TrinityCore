@@ -823,20 +823,20 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     return tmpscript->GetDialogStatus(player, go);
 }
 
-void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player, uint32 eventId)
+void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
 {
     ASSERT(go);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDestroyed(go, player, eventId);
+    tmpscript->OnDestroyed(go, player);
 }
 
-void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player, uint32 eventId)
+void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
 {
     ASSERT(go);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDamaged(go, player, eventId);
+    tmpscript->OnDamaged(go, player);
 }
 
 void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)

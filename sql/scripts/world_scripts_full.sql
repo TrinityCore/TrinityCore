@@ -40,6 +40,8 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (1738, 'at_scent_larkorwi'),
 (1739, 'at_scent_larkorwi'),
 (1740, 'at_scent_larkorwi'),
+(5046, 'at_sholazar_waygate'),
+(5047, 'at_sholazar_waygate'),
 (5369, 'at_RX_214_repair_o_matic_station'),
 (5423, 'at_RX_214_repair_o_matic_station'),
 (5633, 'at_tyrannus_event_starter'),
