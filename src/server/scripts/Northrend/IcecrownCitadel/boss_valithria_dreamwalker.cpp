@@ -692,6 +692,7 @@ class npc_risen_archmage : public CreatureScript
                     return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
                 if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == IN_PROGRESS)
                     return true;
+                return false;
             }
 
             void Reset()
