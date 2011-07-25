@@ -2713,7 +2713,7 @@ enum NordendZonen
     NORDEND_GRUBE_VON_SARON             = 4813,
     NORDEND_HALLEN_DER_REFLEKTION       = 4820,
 
-    // Schlachtzüge
+    // SchlachtzÃ¼ge
     NORDEND_ARCHAVONS_KAMMER            = 4603,
     NORDEND_DAS_AUGE_DER_EWIGKEIT       = 4500,
     NORDEND_EISKRONENZITADELLE          = 4812,
