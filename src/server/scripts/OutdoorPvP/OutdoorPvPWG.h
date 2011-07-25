@@ -75,8 +75,7 @@ enum OutdoorPvP_WG_Sounds
     OutdoorPvP_WG_SOUND_NEAR_VICTORY            = 8456,
     OutdoorPvP_WG_SOUND_HORDE_WINS              = 8454,
     OutdoorPvP_WG_SOUND_ALLIANCE_WINS           = 8455,
-    OutdoorPvP_WG_SOUND_WORKSHOP_Horde          = 6205, // время убивать орда
-    OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298, // к оружию альянс
+    OutdoorPvP_WG_SOUND_WORKSHOP_Horde          = 6205, // г±ҐнЅ н±Љн№ўбіј п±¤нћён»Љ    OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298, // иЎ®сґ§Ё б¬јоЇЌ
     OutdoorPvP_WG_HORDE_CAPTAIN                 = 8333,
     OutdoorPvP_WG_ALLIANCE_CAPTAIN              = 8232,
 //    OutdoorPvP_WG_SOUND_START_BATTLE            = 11803,   //L70ETC Concert
@@ -264,7 +263,7 @@ class OutdoorPvPWG : public OutdoorPvP
         void OnCreatureRemove(Creature* creature);
         void OnGameObjectRemove(GameObject* go);
 
-        void ProcessEvent(GameObject *obj, uint32 eventId);
+        void ProcessEvent(WorldObject* object, uint32 eventId);
 
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
