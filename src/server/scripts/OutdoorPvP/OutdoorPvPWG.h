@@ -75,7 +75,8 @@ enum OutdoorPvP_WG_Sounds
     OutdoorPvP_WG_SOUND_NEAR_VICTORY            = 8456,
     OutdoorPvP_WG_SOUND_HORDE_WINS              = 8454,
     OutdoorPvP_WG_SOUND_ALLIANCE_WINS           = 8455,
-    OutdoorPvP_WG_SOUND_WORKSHOP_Horde          = 6205, // „±•ÌΩ†Ì±äÌπ¢·≥º Ô±§Ìû∏Ìªä    OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298, // Ë°ÆÒ¥ß® ·¨ºÓØç
+    OutdoorPvP_WG_SOUND_WORKSHOP_HORDE          = 6205,
+    OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298,
     OutdoorPvP_WG_HORDE_CAPTAIN                 = 8333,
     OutdoorPvP_WG_ALLIANCE_CAPTAIN              = 8232,
 //    OutdoorPvP_WG_SOUND_START_BATTLE            = 11803,   //L70ETC Concert
