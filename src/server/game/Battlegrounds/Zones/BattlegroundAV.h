@@ -1566,6 +1566,10 @@ class BattlegroundAV : public Battleground
 
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
+        /* achievement req. */
+        bool IsBothMinesControlledByTeam(uint32 team) const;
+        bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
+
     private:
         /* Nodes occupying */
         void EventPlayerAssaultsPoint(Player* player, uint32 object);
