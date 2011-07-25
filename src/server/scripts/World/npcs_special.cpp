@@ -310,10 +310,6 @@ public:
             bericht.append("Feuerrufer-Bericht über die verschenkten Items. ;)");
             bericht.append("\n\n");
 
-            Item1Done = false;
-            Item2Done = false;
-            Item3Done = false;
-
             SpielerGUIDSet.clear();
         }
 
@@ -342,13 +338,8 @@ public:
             for (std::set<uint64>::iterator itr = SpielerGUIDSet.begin(); itr != SpielerGUIDSet.end(); ++itr)
             {
                 for (uint32 i=0; i<=urand(0, SpielerGUIDSet.size()-1); ++i)
-                {
-                    if (++itr == SpielerGUIDSet.end())
-                    {
-                        --itr;
-                        break;
-                    }
-                }
+                    if (++itr == SpielerGUIDSet.end()) { --itr; break; }
+
                 Player * chr = sObjectMgr->GetPlayer(*itr);
                 if (!chr)
                 {
@@ -380,18 +371,9 @@ public:
                         // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
                         switch(cnt)
                         {
-                            case 1:
-                                bericht.append("Das 1. Item http://de.wowhead.com/item=");
-                                Item1Done = true;
-                                break;
-                            case 2:
-                                bericht.append("Das 2. Item http://de.wowhead.com/item=");
-                                Item2Done = true;
-                                break;
-                            case 3:
-                                bericht.append("Das 3. Item http://de.wowhead.com/item=");
-                                Item3Done = true;
-                                break;
+                            case 1: bericht.append("Das 1. Item http://de.wowhead.com/item="); break;
+                            case 2: bericht.append("Das 2. Item http://de.wowhead.com/item="); break;
+                            case 3: bericht.append("Das 3. Item http://de.wowhead.com/item="); break;
                         }
                         bericht.append(buffer);
                         bericht.append(" ging an: ");
@@ -513,20 +495,28 @@ public:
                         StartEvent();
                         break;
                     case EVENT_PRESENT_1:
-                        if (!Item1Done && !BeschenkeZiel(FindeSpieler(), 1))
+                        if (!BeschenkeZiel(FindeSpieler(), 1))
                             events.RescheduleEvent(EVENT_PRESENT_1, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
+                        {
+                            events.CancelEvent(EVENT_PRESENT_1);
                             events.ScheduleEvent(EVENT_PRESENT_2, urand(MINUTEN_05, MINUTEN_10));
+                        }
                         break;
                     case EVENT_PRESENT_2:
-                        if (!Item2Done && !BeschenkeZiel(FindeSpieler(), 2))
+                        if (!BeschenkeZiel(FindeSpieler(), 2))
                             events.RescheduleEvent(EVENT_PRESENT_2, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
+                        {
+                            events.CancelEvent(EVENT_PRESENT_2);
                             events.ScheduleEvent(EVENT_PRESENT_3, urand(MINUTEN_05, MINUTEN_10));
+                        }
                         break;
                     case EVENT_PRESENT_3:
-                        if (!Item3Done && !BeschenkeZiel(FindeSpieler(), 3))
+                        if (!BeschenkeZiel(FindeSpieler(), 3))
                             events.RescheduleEvent(EVENT_PRESENT_3, urand(SEKUNDEN_10, SEKUNDEN_30));
+                        else
+                            events.CancelEvent(EVENT_PRESENT_3);
                         break;
                     case EVENT_SOUND:
                         DoPlaySoundToSet(me, FirecallerSounds[ZUFAELLIG][urand(0,4)]);
@@ -565,9 +555,6 @@ public:
         private:
             EventMap events;
             std::string bericht;
-            bool Item1Done;
-            bool Item2Done;
-            bool Item3Done;
             std::set<uint64> SpielerGUIDSet;
     };
 
