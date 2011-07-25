@@ -1160,6 +1160,9 @@ class FrostBombTargetSelector
             if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                return true;
+
             for (std::list<Creature*>::const_iterator itr = _collisionList.begin(); itr != _collisionList.end(); ++itr)
                 if ((*itr)->IsInBetween(_caster, unit))
                     return true;
