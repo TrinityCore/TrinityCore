@@ -246,11 +246,11 @@ public:
                             {
                                 std::string wName = qJackpotWinnerName->Fetch()->GetString();
                                 sWorld->SendWorldText(LANG_LOTTERY_ANNOUNCE_JACKPOT, betMaxID, luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4],
-                                                        ((jackpot = 0 ? uint64(betMaxID * sSQLConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f) : rJackpot) * 0.0001f), wName.c_str());
+                                                        ((jackpot == 0 ? uint64(betMaxID * sSQLConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f) : rJackpot) * 0.0001f), wName.c_str());
                             }
                             else
                                 sWorld->SendWorldText(LANG_LOTTERY_ANNOUNCE_JACKPOT_M_PLAYERS, betMaxID, luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4],
-                                                        ((jackpot = 0 ? uint64(betMaxID * sSQLConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f) : rJackpot) * 0.0001f), jackpotWinners);
+                                                        ((jackpot == 0 ? uint64(betMaxID * sSQLConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f) : rJackpot) * 0.0001f), jackpotWinners);
 
                             WorldDatabase.PExecute("INSERT INTO lottery (number_1, number_2, number_3, number_4, number_5, jackpot) VALUES ('%u', '%u', '%u', '%u', '%u', '%u')",
                                                         luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4], defJackpot);
