@@ -353,7 +353,7 @@ class boss_twilight_halion : public CreatureScript
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
 
-                victim->RemoveAurasDueToSpell(TWILIGHT_REALM_AURA);
+                victim->RemoveAurasDueToSpell(TWILIGHT_REALM_AURA); // Victims should not be in the Twilight Realm
             }
 
             void JustDied(Unit* killer)
@@ -376,6 +376,8 @@ class boss_twilight_halion : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
 
                 events.Reset();
+                me->StopCast();
+                me->CombatStop();
 
                 // Let Halion Controller kill Twilight Halion
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
@@ -384,7 +386,7 @@ class boss_twilight_halion : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if (me->GetHealth() - damage > 0)
+                if ((me->GetHealth() - damage) > 0)
                     _instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
 
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
@@ -392,8 +394,10 @@ class boss_twilight_halion : public CreatureScript
                     events.SetPhase(PHASE_THREE);
                     events.Reset();
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
+
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
+
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                     {
                         halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
