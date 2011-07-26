@@ -447,7 +447,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                 me->SetHealth(_spawnHealth);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_INVOCATION_OF_BLOOD_KELESETH)
                     DoAction(ACTION_CAST_INVOCATION);
@@ -668,7 +668,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                 me->SetHealth(_spawnHealth);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_INVOCATION_OF_BLOOD_TALDARAM)
                     DoAction(ACTION_CAST_INVOCATION);
@@ -916,7 +916,7 @@ class boss_prince_valanar_icc : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_INVOCATION_OF_BLOOD_VALANAR)
                     DoAction(ACTION_CAST_INVOCATION);
@@ -1470,7 +1470,7 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
                     return;
 
                 // SPELL_FLAME_SPHERE_SPAWN_EFFECT
-                if (GetSpellProto()->Id == SPELL_FLAME_SPHERE_SPAWN_EFFECT)
+                if (GetSpellInfo()->Id == SPELL_FLAME_SPHERE_SPAWN_EFFECT)
                 {
                     target->CastSpell(target, SPELL_BALL_OF_FLAMES, true);
                     target->AI()->DoAction(ACTION_FLAME_BALL_CHASE);

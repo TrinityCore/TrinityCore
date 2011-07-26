@@ -758,9 +758,9 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark_AuraScript);
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_SUMMON_LIFE_SPARK))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_LIFE_SPARK))
                     return false;
                 return true;
             }
@@ -794,9 +794,9 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_gravity_bomb_aura_AuraScript);
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_SUMMON_VOID_ZONE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VOID_ZONE))
                     return false;
                 return true;
             }
@@ -878,18 +878,18 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_xt002_heart_overload_periodic_SpellScript);
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_ENERGY_ORB))
+                if (!sSpellMgr->GetSpellInfo(SPELL_ENERGY_ORB))
                     return false;
 
-                if (!sSpellStore.LookupEntry(SPELL_RECHARGE_BOOMBOT))
+                if (!sSpellMgr->GetSpellInfo(SPELL_RECHARGE_BOOMBOT))
                     return false;
 
-                if (!sSpellStore.LookupEntry(SPELL_RECHARGE_PUMMELER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_RECHARGE_PUMMELER))
                     return false;
 
-                if (!sSpellStore.LookupEntry(SPELL_RECHARGE_SCRAPBOT))
+                if (!sSpellMgr->GetSpellInfo(SPELL_RECHARGE_SCRAPBOT))
                     return false;
 
                 return true;

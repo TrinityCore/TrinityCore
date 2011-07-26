@@ -78,7 +78,7 @@ void DisableMgr::LoadDisables()
         {
             case DISABLE_TYPE_SPELL:
             {
-                if (!(sSpellStore.LookupEntry(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
+                if (!(sSpellMgr->GetSpellInfo(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
                 {
                     sLog->outErrorDb("Spell entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;

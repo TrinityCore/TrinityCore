@@ -454,7 +454,7 @@ class mob_janalai_firebomb : public CreatureScript
 
             void Reset() {}
 
-            void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+            void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
@@ -685,7 +685,7 @@ public:
 
         void UpdateAI(uint32 const /*diff*/) {}
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_HATCH_EGG)
             {

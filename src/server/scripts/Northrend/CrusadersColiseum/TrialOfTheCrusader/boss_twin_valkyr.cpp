@@ -254,12 +254,12 @@ struct boss_twin_baseAI : public ScriptedAI
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
     }
 
-    void SpellHit(Unit* caster, const SpellEntry* spell)
+    void SpellHit(Unit* caster, const SpellInfo* spell)
     {
         if (caster->ToCreature() == me)
-            if (spell->Effect[0] == 136) //Effect Heal
+            if (spell->Effects[0].Effect == 136) //Effect Heal
                 if (m_pInstance)
-                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->EffectBasePoints[0]));
+                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->Effects[EFFECT_0].CalcValue()));
     }
 
     void SummonColorballs(uint8 quantity)

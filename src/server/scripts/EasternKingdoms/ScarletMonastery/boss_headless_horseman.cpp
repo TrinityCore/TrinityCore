@@ -143,13 +143,6 @@ public:
         mob_wisp_invisAI(Creature* c) : ScriptedAI(c)
         {
             Creaturetype = delay = spell = spell2 = 0;
-            //that's hack but there are no info about range of this spells in dbc
-            SpellEntry *wisp = GET_SPELL(SPELL_WISP_BLUE);
-            if (wisp)
-                wisp->rangeIndex = 6; //100 yards
-            SpellEntry *port = GET_SPELL(SPELL_WISP_FLIGHT_PORT);
-            if (port)
-                port->rangeIndex = 6;
         }
 
         uint32 Creaturetype;
@@ -183,7 +176,7 @@ public:
                 DoCast(me, spell);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_WISP_FLIGHT_PORT && Creaturetype == 4)
                 me->SetDisplayId(2027);
@@ -290,7 +283,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (!withbody)
                 return;
@@ -534,7 +527,7 @@ public:
             return NULL;
         }
 
-        void SpellHitTarget(Unit* unit, const SpellEntry* spell)
+        void SpellHitTarget(Unit* unit, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_CONFLAGRATION && unit->HasAura(SPELL_CONFLAGRATION))
                 SaySound(SAY_CONFLAGRATION, unit);
@@ -553,7 +546,7 @@ public:
                 pInstance->SetData(DATA_HORSEMAN_EVENT, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (withhead)
                 return;
@@ -781,7 +774,7 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_SPROUTING)
             {

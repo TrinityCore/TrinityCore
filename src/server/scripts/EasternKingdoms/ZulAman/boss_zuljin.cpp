@@ -610,7 +610,7 @@ class mob_zuljin_vortex : public CreatureScript
 
             void EnterCombat(Unit* /*pTarget*/) {}
 
-            void SpellHit(Unit* caster, const SpellEntry* spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
                     DoCast(caster, SPELL_ZAP_DAMAGE, true);

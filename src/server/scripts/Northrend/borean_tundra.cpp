@@ -73,7 +73,7 @@ public:
             casterGuid = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             if (Phase)
                 return;
@@ -866,7 +866,7 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -1622,7 +1622,7 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
             if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
             {
@@ -1706,7 +1706,7 @@ public:
         {
         }
 
-        void SpellHit(Unit* pUnit, const SpellEntry* pSpell)
+        void SpellHit(Unit* pUnit, const SpellInfo* pSpell)
         {
             if (pSpell->Id == SPELL_NEURAL_NEEDLE && pUnit->GetTypeId() == TYPEID_PLAYER)
             {

@@ -143,7 +143,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_DISPERSE)
             {

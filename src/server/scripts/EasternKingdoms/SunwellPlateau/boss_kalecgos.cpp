@@ -122,9 +122,6 @@ public:
             DoorGUID = 0;
             bJustReset = false;
             me->setActive(true);
-            SpellEntry *TempSpell = GET_SPELL(SPELL_SPECTRAL_BLAST);
-            if (TempSpell)
-                TempSpell->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
         }
 
         InstanceScript *pInstance;

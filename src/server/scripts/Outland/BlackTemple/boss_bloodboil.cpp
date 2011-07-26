@@ -163,7 +163,7 @@ public:
             targets.resize(5);
 
             //Aura each player in the targets list with Bloodboil. Aura code copied+pasted from Aura command in Level3.cpp
-            /*SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
+            /*SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODBOIL);
             if (spellInfo)
             {
                 for (std::list<Unit* >::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)

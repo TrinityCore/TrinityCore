@@ -105,7 +105,7 @@ class boss_faerlina : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
             }
 
-            void SpellHit(Unit* caster, SpellEntry const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
                 {

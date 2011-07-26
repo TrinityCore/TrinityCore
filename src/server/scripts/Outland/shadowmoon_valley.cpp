@@ -96,7 +96,7 @@ public:
             CastTimer = 5000;
         }
 
-        void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
         {
             if (bCanEat || bIsEating)
                 return;
@@ -228,7 +228,7 @@ public:
             me->SetVisible(true);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (!caster)
                 return;
@@ -353,7 +353,7 @@ public:
             PoisonTimer = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (!caster)
                 return;

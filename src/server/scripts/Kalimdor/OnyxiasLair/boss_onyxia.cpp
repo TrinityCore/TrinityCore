@@ -225,7 +225,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
+        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
         {
             if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -285,7 +285,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* pSpell)
+        void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
             if (((pSpell->Id >= 17086 && pSpell->Id <= 17095) ||
