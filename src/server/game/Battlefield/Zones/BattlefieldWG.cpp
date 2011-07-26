@@ -985,13 +985,18 @@ void BattlefieldWG::AddBrokenTower(TeamId team)
     }
 }
 
-void BattlefieldWG::ProcessEvent(GameObject *obj, uint32 eventId)
+void BattlefieldWG::ProcessEvent(WorldObject *obj, uint32 eventId)
 {
     if (!obj || !IsWarTime())
         return;
 
+    // We handle only gameobjects here
+    GameObject* go = obj->ToGameObject();
+    if (!go)
+        return;
+
     // On click on titan relic
-    if (obj->GetEntry() == BATTLEFIELD_WG_GAMEOBJECT_TITAN_RELIC)
+    if (go->GetEntry() == BATTLEFIELD_WG_GAMEOBJECT_TITAN_RELIC)
     {
         // Check that the door is break
         if (m_CanClickOnOrb)
@@ -1003,7 +1008,7 @@ void BattlefieldWG::ProcessEvent(GameObject *obj, uint32 eventId)
     // if destroy or damage event, search the wall/tower and update worldstate/send warning message
     for (GameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
     {
-        if (obj->GetEntry() == (*itr)->m_Build->GetEntry())
+        if (go->GetEntry() == (*itr)->m_Build->GetEntry())
         {
             if ((*itr)->m_Build->GetGOInfo()->building.damagedEvent == eventId)
                 (*itr)->Damaged();

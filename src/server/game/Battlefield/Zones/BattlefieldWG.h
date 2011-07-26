@@ -412,7 +412,7 @@ class BattlefieldWG : public Battlefield
         void PromotePlayer(Player *killer);
 
         void UpdateTenacity();
-        void ProcessEvent(GameObject *obj, uint32 eventId);
+        void ProcessEvent(WorldObject *obj, uint32 eventId);
 
     protected:
         bool m_CanClickOnOrb;
@@ -1366,7 +1366,7 @@ struct BfWGGameObjectBuilding
         }
 
         // Rebuild gameobject
-        m_Build->Rebuild();
+        m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
 
         // Update worldstate
         m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
@@ -1469,18 +1469,15 @@ struct BfWGGameObjectBuilding
             {
                 case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
                 case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
-                     m_Build->Rebuild();
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
                     break;
                 case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
                 case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY:
-                    m_Build->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                    m_Build->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                    m_Build->SetUInt32Value(GAMEOBJECT_DISPLAYID, m_Build->GetGOInfo()->building.destroyedDisplayId);
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                     break;
                 case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE:
                 case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DAMAGE:
-                    m_Build->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                    m_Build->SetUInt32Value(GAMEOBJECT_DISPLAYID, m_Build->GetGOInfo()->building.damagedDisplayId);
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                     break;
             }
         }
