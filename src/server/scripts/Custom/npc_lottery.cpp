@@ -33,7 +33,7 @@ public:
             if (pPlayer->getLevel() >= uint32(sSQLConfig->GetIntDefault("Lottery.MinUserLVL", 60)) && pPlayer->GetMoney() >= uint32(sSQLConfig->GetIntDefault("Lottery.BetCost", 500000)))
             {
                 std::string wh = ("Здравствуй, незнакомец. Хочешь испытать удачу? О да, по глазам вижу чо хочешь. Всё очень просто: назови мне 5 чисел в диапазоне от 1 до " + 
-                                    std::string(sSQLConfig->GetStringDefault("Lottery.MaxNubmer", "30")) + " (разделяя пробелами), заплати стоимость ставки и дождись розыгрыша.");
+                                    std::string(sSQLConfig->GetStringDefault("Lottery.MaxNumber", "30")) + " (разделяя пробелами), заплати стоимость ставки и дождись розыгрыша.");
                 pCreature->MonsterWhisper(wh.c_str(), pPlayer->GetGUID());
                 pPlayer->PrepareGossipMenu(pCreature);
                 pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_BUY_TICKET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF, "", 0, true);
@@ -70,7 +70,7 @@ public:
                         if (tmp != NULL)
                         {
                             number[n] = atoi(tmp);
-                            if (number[n] < 1 || number[n] > sSQLConfig->GetIntDefault("Lottery.MaxNubmer", 30))
+                            if (number[n] < 1 || number[n] > sSQLConfig->GetIntDefault("Lottery.MaxNumber", 30))
                             {
                                 pCreature->MonsterWhisper(error.c_str(), pPlayer->GetGUID());
                                 pPlayer->CLOSE_GOSSIP_MENU();
