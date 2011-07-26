@@ -34,24 +34,22 @@ enum DataTypes
     DATA_GENERAL_ZARITHRIAN                 = 1,
     DATA_SAVIANA_RAGEFIRE                   = 2,
     DATA_HALION                             = 3,
-    DATA_TWILIGHT_HALION                    = 4, // May be unneeded, anyways
 
     // Etc
-    DATA_XERESTRASZA                        = 5,
-    DATA_CRYSTAL_CHANNEL_TARGET             = 6,
-    DATA_BALTHARUS_SHARED_HEALTH            = 7,
-    DATA_ZARITHIAN_SPAWN_STALKER_1          = 8,
-    DATA_ZARITHIAN_SPAWN_STALKER_2          = 9,
-    DATA_HALION_CONTROLLER                  = 10,
-    DATA_HALION_SHARED_HEALTH               = 11,
-    DATA_BURNING_TREE_1                     = 12,
-    DATA_BURNING_TREE_2                     = 13,
-    DATA_BURNING_TREE_3                     = 14,
-    DATA_BURNING_TREE_4                     = 15,
-    DATA_FLAME_RING                         = 16,
-    DATA_CORPOREALITY_TOGGLE                = 17,
-    DATA_CORPOREALITY_MATERIAL              = 18,
-    DATA_CORPOREALITY_TWILIGHT              = 19,
+    DATA_XERESTRASZA                        = 4,
+    DATA_CRYSTAL_CHANNEL_TARGET             = 5,
+    DATA_BALTHARUS_SHARED_HEALTH            = 6,
+    DATA_ZARITHIAN_SPAWN_STALKER_1          = 7,
+    DATA_ZARITHIAN_SPAWN_STALKER_2          = 8,
+    DATA_HALION_CONTROLLER                  = 9,
+    DATA_HALION_SHARED_HEALTH               = 10,
+    DATA_BURNING_TREE_1                     = 11,
+    DATA_BURNING_TREE_2                     = 12,
+    DATA_BURNING_TREE_3                     = 13,
+    DATA_BURNING_TREE_4                     = 14,
+    DATA_FLAME_RING                         = 15,
+    DATA_CORPOREALITY_MATERIAL              = 16,
+    DATA_CORPOREALITY_TWILIGHT              = 17,
 };
 
 enum SharedActions

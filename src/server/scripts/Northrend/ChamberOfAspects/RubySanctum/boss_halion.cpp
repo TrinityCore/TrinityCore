@@ -145,14 +145,15 @@ enum Events
     EVENT_INTRO_PROGRESS_1      = 7,
     EVENT_INTRO_PROGRESS_2      = 8,
     EVENT_INTRO_PROGRESS_3      = 9,
+    EVENT_CHECK_CORPOREALITY    = 10,
+    EVENT_SHADOW_PULSARS_SHOOT  = 11,
 
     // Meteor Strike
-    EVENT_SPAWN_METEOR_FLAME    = 10,
+    EVENT_SPAWN_METEOR_FLAME    = 12,
 
     // Twilight Halion
-    EVENT_DARK_BREATH           = 11,
-    EVENT_SOUL_CONSUMPTION      = 12,
-    EVENT_SHADOW_PULSARS_SHOOT  = 13,
+    EVENT_DARK_BREATH           = 13,
+    EVENT_SOUL_CONSUMPTION      = 14,
 };
 
 enum Actions
