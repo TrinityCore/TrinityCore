@@ -93,6 +93,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "account",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleBanAccountCommand>,          "", NULL },
         { "character",      SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleBanCharacterCommand>,        "", NULL },
         { "playeraccount",  SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleBanAccountByCharCommand>,    "", NULL },
+        { "id",             SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleBanAccountByIdCommand>,      "", NULL },
         { "ip",             SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleBanIPCommand>,               "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };

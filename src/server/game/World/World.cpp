@@ -2292,6 +2292,31 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     PreparedQueryResult resultAccounts = PreparedQueryResult(NULL); //used for kicking
     PreparedStatement* stmt = NULL;
 
+    if (mode == BAN_ACCOUNT_ID)
+    {
+        uint32 account = atoi(nameOrIP.c_str());
+        SQLTransaction trans = LoginDatabase.BeginTransaction();
+        // make sure there is only one active ban
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCOUNT_NOT_BANNED);
+        stmt->setUInt32(0, account);
+        trans->Append(stmt);
+        // No SQL injection with prepared statements
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCOUNT_BANNED);
+        stmt->setUInt32(0, account);
+        stmt->setUInt32(1, sConfig->GetIntDefault("RealmID", 0));
+        stmt->setUInt32(2, duration_secs);
+        stmt->setString(3, author);
+        stmt->setString(4, reason);
+        trans->Append(stmt);
+
+        if (WorldSession* sess = FindSession(account))
+            if (std::string(sess->GetPlayerName()) != author)
+                sess->KickPlayer();
+
+        LoginDatabase.CommitTransaction(trans);
+        return BAN_SUCCESS;
+    }
+
     ///- Update the database with ban information
     switch(mode)
     {

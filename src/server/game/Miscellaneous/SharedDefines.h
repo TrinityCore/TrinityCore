@@ -2968,6 +2968,7 @@ enum BanMode
 {
     BAN_ACCOUNT,
     BAN_ACCOUNT_ANTICHEAT,
+    BAN_ACCOUNT_ID,
     BAN_CHARACTER,
     BAN_IP
 };
