@@ -58,8 +58,8 @@ public:
 
         bool Load()
         {
-            healPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_1);
-            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0);
+            healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+            absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
             return GetUnitOwner()->ToPlayer();
         }
 
@@ -123,15 +123,15 @@ public:
     class spell_pal_blessing_of_faith_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_blessing_of_faith_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_PALADIN))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_PALADIN))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_PRIEST))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_PRIEST))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_SHAMAN))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_SHAMAN))
                 return false;
             return true;
         }
@@ -177,9 +177,9 @@ public:
     class spell_pal_blessing_of_sanctuary_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_pal_blessing_of_sanctuary_AuraScript)
-        bool Validate(SpellEntry const* /*entry*/)
+        bool Validate(SpellInfo const* /*entry*/)
         {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF))
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF))
                 return false;
             return true;
         }
@@ -219,9 +219,9 @@ public:
     class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_DIVINE_PLEA))
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PLEA))
                 return false;
             return true;
         }
@@ -253,9 +253,9 @@ public:
     class spell_pal_holy_shock_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_holy_shock_SpellScript)
-        bool Validate(SpellEntry const *spellEntry)
+        bool Validate(SpellInfo const *spellEntry)
         {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1))
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_HOLY_SHOCK_R1))
                 return false;
 
             // can't use other spell than holy shock due to spell_ranks dependency
@@ -310,7 +310,7 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
-                if (SpellEntry const* spell_proto = sSpellStore.LookupEntry(GetEffectValue()))
+                if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
                     GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
         }
 

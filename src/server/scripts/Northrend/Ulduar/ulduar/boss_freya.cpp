@@ -1506,7 +1506,7 @@ class npc_unstable_sun_beam : public CreatureScript
                     despawnTimer -= diff;
             }
 
-            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (target && spell->Id == SPELL_UNSTABLE_ENERGY)
                 {
@@ -1540,7 +1540,7 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                SpellEntry const* spellInfo = GetSpellInfo();
+                SpellInfo const* spellInfo = GetSpellInfo();
                 switch (spellInfo->Id)
                 {
                     case SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION:
@@ -1589,7 +1589,7 @@ class spell_freya_iron_roots : public SpellScriptLoader
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
+                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
 
                 Position pos;
                 GetCaster()->GetPosition(&pos);

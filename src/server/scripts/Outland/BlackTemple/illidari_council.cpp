@@ -891,9 +891,9 @@ public:
     {
         PrepareAuraScript(spell_boss_lady_malande_shield_AuraScript);
 
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_T);
+            return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T);
         }
 
         void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)

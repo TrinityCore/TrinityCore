@@ -430,11 +430,11 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_POT_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_IMBUED))
                     return false;
                 return true;
             }
