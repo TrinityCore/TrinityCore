@@ -257,7 +257,7 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!(events.GetPhaseMask() & PHASE_ONE_MASK))
+                if (!(events.GetPhaseMask() & PHASE_ONE_MASK) && instance)
                     me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if ((events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
@@ -389,6 +389,7 @@ class boss_twilight_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
                     events.SetPhase(PHASE_THREE);
+                    events.Reset();
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
@@ -407,11 +408,11 @@ class boss_twilight_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if ((events.GetPhaseMask() & PHASE_THREE_MASK) && _instance)
+                    me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH));
+
                 if ((events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
-
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
-                    me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 events.Update(diff);
 
@@ -524,8 +525,11 @@ class npc_halion_controller : public CreatureScript
                         me->setActive(true);
                         _events.Reset();
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
+                        TwilightCorporealityValue = 50;
+                        MaterialCorporealityValue = 50;
                         break;
                     }
                 }
@@ -562,6 +566,27 @@ class npc_halion_controller : public CreatureScript
                             // Todo
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             break;
+                        case EVENT_CHECK_CORPOREALITY:
+                            if (MaterialDamageTaken * 1.02f > TwilightDamageTaken)
+                            {
+                                TwilightDamageTaken = 0;
+                                MaterialDamageTaken = 0;
+                                TwilightCorporealityValue += 10;
+                                MaterialCorporealityValue -= 10;
+                            }
+                            else if (TwilightDamageTaken * 1.02f > MaterialDamageTaken)
+                            {
+                                TwilightDamageTaken = 0;
+                                MaterialDamageTaken = 0;
+                                TwilightCorporealityValue -= 10;
+                                MaterialCorporealityValue += 10;
+                            }
+                            if (TwilightCorporealityValue > 100) TwilightCorporealityValue = 100;
+                            if (TwilightCorporealityValue < 0)   TwilightCorporealityValue = 0;
+                            if (MaterialCorporealityValue > 100) MaterialCorporealityValue = 100;
+                            if (MaterialCorporealityValue < 0)   MaterialCorporealityValue = 0;
+                            // Todo: List buffs accordingly, then cast them on both Halion
+                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                         default:
                             break;
                     }
@@ -579,17 +604,6 @@ class npc_halion_controller : public CreatureScript
                         TwilightDamageTaken += value;
                         break;
                 }
-
-                if (MaterialDamageTaken * 1.02f > TwilightDamageTaken)
-                {
-                    TwilightDamageTaken = 0;
-                    MaterialDamageTaken = 0;
-                }
-                else if (TwilightDamageTaken * 1.02f > MaterialDamageTaken)
-                {
-                    TwilightDamageTaken = 0;
-                    MaterialDamageTaken = 0;
-                }
             }
 
         private:
@@ -597,6 +611,8 @@ class npc_halion_controller : public CreatureScript
             InstanceScript* _instance;
             uint32 TwilightDamageTaken;
             uint32 MaterialDamageTaken;
+            uint32 TwilightCorporealityValue;
+            uint32 MaterialCorporealityValue;
         };
 
         CreatureAI* GetAI(Creature* creature) const
