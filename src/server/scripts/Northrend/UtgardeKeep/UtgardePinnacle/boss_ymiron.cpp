@@ -191,7 +191,7 @@ public:
                 pInstance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
         }
 
-        void SpellHitTarget(Unit* who, SpellEntry const* spell)
+        void SpellHitTarget(Unit* who, SpellInfo const* spell)
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
                 kingsBane = false;

@@ -118,17 +118,6 @@ public:
         boss_felmystAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
-
-            // wait for core patch be accepted
-            /*SpellEntry *TempSpell = GET_SPELL(SPELL_ENCAPSULATE_EFFECT);
-            if (TempSpell->SpellIconID == 2294)
-                TempSpell->SpellIconID = 2295;
-            TempSpell = GET_SPELL(SPELL_VAPOR_TRIGGER);
-            if ((TempSpell->Attributes & SPELL_ATTR0_PASSIVE) == 0)
-                TempSpell->Attributes |= SPELL_ATTR0_PASSIVE;
-            TempSpell = GET_SPELL(SPELL_FOG_CHARM2);
-            if ((TempSpell->Attributes & SPELL_ATTR0_PASSIVE) == 0)
-                TempSpell->Attributes |= SPELL_ATTR0_PASSIVE;*/
         }
 
         InstanceScript *pInstance;
@@ -203,7 +192,7 @@ public:
                 pInstance->SetData(DATA_FELMYST_EVENT, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)

@@ -23,7 +23,7 @@
 
 class Unit;
 class Aura;
-struct SpellEntry;
+class SpellInfo;
 
 enum DynamicObjectType
 {

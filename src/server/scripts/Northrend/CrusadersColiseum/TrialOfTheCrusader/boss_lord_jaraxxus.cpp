@@ -367,7 +367,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        /*void SpellHitTarget(Unit* target, const SpellEntry *pSpell)
+        /*void SpellHitTarget(Unit* target, const SpellInfo *pSpell)
         {
             if (pSpell->Id == SPELL_FEL_STREAK)
                 DoCastAOE(SPELL_FEL_INFERNO); //66517

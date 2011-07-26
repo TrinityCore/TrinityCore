@@ -515,7 +515,7 @@ public:
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
-                    //SpellEntry *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
+                    //SpellInfo *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
                     for (std::vector<Unit* >::const_iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                     {
                         if ((*itr) && (*itr)->isAlive())

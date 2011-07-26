@@ -463,7 +463,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
             if (canCast)
             {
-                const SpellEntry* tSpell = GetSpellStore()->LookupEntry(action.cast.spellId);
+                const SpellInfo* tSpell = sSpellMgr->GetSpellInfo(action.cast.spellId);
 
                 //Verify that spell exists
                 if (tSpell)
@@ -1047,7 +1047,7 @@ void CreatureEventAI::MoveInLineOfSight(Unit *who)
     CreatureAI::MoveInLineOfSight(who);
 }
 
-void CreatureEventAI::SpellHit(Unit* pUnit, const SpellEntry* pSpell)
+void CreatureEventAI::SpellHit(Unit* pUnit, const SpellInfo* pSpell)
 {
 
     if (m_bEmptyList)
@@ -1304,7 +1304,7 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* pSource, Unit* 
     }
 }
 
-bool CreatureEventAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
+bool CreatureEventAI::CanCast(Unit* Target, SpellInfo const *Spell, bool Triggered)
 {
     //No target so we can't cast
     if (!Target || !Spell)
@@ -1315,17 +1315,11 @@ bool CreatureEventAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Trigge
         return false;
 
     //Check for power
-    if (!Triggered && me->GetPower((Powers)Spell->powerType) < CalculatePowerCost(Spell, me, GetSpellSchoolMask(Spell)))
-        return false;
-
-    SpellRangeEntry const* tempRange = sSpellRangeStore.LookupEntry(Spell->rangeIndex);
-
-    //Spell has invalid range store so we can't use it
-    if (!tempRange)
+    if (!Triggered && me->GetPower((Powers)Spell->PowerType) < Spell->CalcPowerCost(me, Spell->GetSchoolMask()))
         return false;
 
     //Unit is out of range of this spell
-    if (!me->IsInRange(Target, tempRange->minRangeHostile, tempRange->maxRangeHostile))
+    if (!me->IsInRange(Target, Spell->GetMinRange(false), Spell->GetMinRange(true)))
         return false;
 
     return true;

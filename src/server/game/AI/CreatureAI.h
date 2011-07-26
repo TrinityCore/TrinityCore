@@ -27,7 +27,7 @@ class WorldObject;
 class Unit;
 class Creature;
 class Player;
-struct SpellEntry;
+class SpellInfo;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -111,10 +111,10 @@ class CreatureAI : public UnitAI
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
 
         // Called when hit by a spell
-        virtual void SpellHit(Unit* /*caster*/, SpellEntry const* /*spell*/) {}
+        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* /*target*/, SpellEntry const* /*spell*/) {}
+        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);

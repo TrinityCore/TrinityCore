@@ -65,7 +65,7 @@ public:
                     disabled = true;
                     break;
            case 34475:
-                if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_ARCANE_CHARGES))
+                if (const SpellInfo* pSpellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
                     Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                     break;
         }
@@ -313,7 +313,7 @@ public:
         {
             player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
 
-            if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_PETROV_BOMB))
+            if (const SpellInfo* pSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
                 Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_HERE);
 
             return true;
