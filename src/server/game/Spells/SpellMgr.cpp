@@ -3836,13 +3836,17 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->EffectApplyAuraName[j])
             {
                 case SPELL_AURA_MOD_POSSESS:
-                case SPELL_AURA_MOD_CONFUSE:
                 case SPELL_AURA_MOD_CHARM:
                 case SPELL_AURA_AOE_CHARM:
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
+                    ++count;
+                    break;
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
+                case SPELL_AURA_MOD_CONFUSE:
+                    if (spellInfo->speed == 0)
+                        spellInfo->speed = 200; // add some delay
                     mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
-                    spellInfo->speed = 300; // add some delay 0.3 sec at retail
                     ++count;
                     break;
             }

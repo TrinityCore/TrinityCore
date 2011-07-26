@@ -1410,9 +1410,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
-            // TODO: this cause soul transfer bugged
-            if (m_spellInfo->speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !IsPositiveSpell(m_spellInfo->Id))
-                return SPELL_MISS_EVADE;
+            // TODO: this cause soul transfer bugged. We realy need it?
+            //if (m_spellInfo->speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !IsPositiveSpell(m_spellInfo->Id))
+            //    return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
             if (unit->HasUnitState(UNIT_STAT_ATTACK_PLAYER))
