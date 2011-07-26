@@ -37,28 +37,28 @@ class npc_gregan_brewspewer : public CreatureScript
 public:
     npc_gregan_brewspewer() : CreatureScript("npc_gregan_brewspewer") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            pPlayer->SEND_GOSSIP_MENU(2434, pCreature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            player->SEND_GOSSIP_MENU(2434, creature->GetGUID());
         }
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
+            player->GetSession()->SendListInventory(creature->GetGUID());
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pCreature->isVendor() && pPlayer->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (creature->isVendor() && player->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(2433, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(2433, creature->GetGUID());
         return true;
     }
 
@@ -94,35 +94,35 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
         {
-            DoScriptText(SAY_OOX_START, pCreature);
+            DoScriptText(SAY_OOX_START, creature);
             //change that the npc is not lying dead on the ground
-            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (pPlayer->GetTeam() == ALLIANCE)
-                pCreature->setFaction(FACTION_ESCORTEE_A);
+            if (player->GetTeam() == ALLIANCE)
+                creature->setFaction(FACTION_ESCORTEE_A);
 
-            if (pPlayer->GetTeam() == HORDE)
-                pCreature->setFaction(FACTION_ESCORTEE_H);
+            if (player->GetTeam() == HORDE)
+                creature->setFaction(FACTION_ESCORTEE_H);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22fe::npc_oox22feAI, pCreature->AI()))
-                pEscortAI->Start(true, false, pPlayer->GetGUID());
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22fe::npc_oox22feAI, creature->AI()))
+                pEscortAI->Start(true, false, player->GetGUID());
 
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_oox22feAI(pCreature);
+        return new npc_oox22feAI(creature);
     }
 
     struct npc_oox22feAI : public npc_escortAI
     {
-        npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+        npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 i)
         {
@@ -153,9 +153,9 @@ public:
                 case 37:
                     DoScriptText(SAY_OOX_END, me);
                     // Award quest credit
-                    if (Player* pPlayer = GetPlayerForEscort())
+                    if (Player* player = GetPlayerForEscort())
                     {
-                            pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
+                            player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
                     }
                     break;
             }
@@ -191,11 +191,11 @@ class npc_screecher_spirit : public CreatureScript
 public:
     npc_screecher_spirit() : CreatureScript("npc_screecher_spirit") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        pPlayer->SEND_GOSSIP_MENU(2039, pCreature->GetGUID());
-        pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        player->SEND_GOSSIP_MENU(2039, creature->GetGUID());
+        player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         return true;
     }

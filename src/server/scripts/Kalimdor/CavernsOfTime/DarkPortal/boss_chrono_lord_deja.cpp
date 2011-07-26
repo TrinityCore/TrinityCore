@@ -48,14 +48,14 @@ class boss_chrono_lord_deja : public CreatureScript
 public:
     boss_chrono_lord_deja() : CreatureScript("boss_chrono_lord_deja") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_chrono_lord_dejaAI (pCreature);
+        return new boss_chrono_lord_dejaAI (creature);
     }
 
     struct boss_chrono_lord_dejaAI : public ScriptedAI
     {
-        boss_chrono_lord_dejaAI(Creature *c) : ScriptedAI(c)
+        boss_chrono_lord_dejaAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -80,7 +80,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
@@ -124,8 +124,8 @@ public:
             //Arcane Discharge
             if (ArcaneDischarge_Timer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                DoCast(pTarget, SPELL_ARCANE_DISCHARGE);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                DoCast(target, SPELL_ARCANE_DISCHARGE);
                 ArcaneDischarge_Timer = 20000+rand()%10000;
             } else ArcaneDischarge_Timer -= diff;
 

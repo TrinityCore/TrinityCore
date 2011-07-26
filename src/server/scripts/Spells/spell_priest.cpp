@@ -158,7 +158,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
             void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 // Refresh Shadow Word: Pain on target
-                if (Unit *unitTarget = GetHitUnit())
+                if (Unit* unitTarget = GetHitUnit())
                     if (AuraEffect* aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, GetCaster()->GetGUID()))
                         aur->GetBase()->RefreshDuration();
             }
@@ -203,11 +203,11 @@ class spell_pri_penance : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit *unitTarget = GetHitUnit();
+                Unit* unitTarget = GetHitUnit();
                 if (!unitTarget || !unitTarget->isAlive())
                     return;
 
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
 
                 uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 

@@ -313,75 +313,85 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
 
 class EventMap : private std::map<uint32, uint32>
 {
-    private:
-        uint32 m_time, m_phase;
     public:
-        explicit EventMap(): m_time(0), m_phase(0) {}
+        EventMap() : _time(0), _phase(0) {}
 
-        uint32 GetTimer() const { return m_time; }
+        // Returns current timer value, does not represent real dates/times
+        uint32 GetTimer() const { return _time; }
 
-        void Reset() { clear(); m_time = 0; m_phase = 0; }
+        // Removes all events and clears phase
+        void Reset() { clear(); _time = 0; _phase = 0; }
 
-        void Update(uint32 time) { m_time += time; }
+        void Update(uint32 time) { _time += time; }
 
-        uint32 GetPhaseMask() const { return (m_phase >> 24) & 0xFF; }
+        uint32 GetPhaseMask() const { return (_phase >> 24) & 0xFF; }
 
+        // Sets event phase, must be in range 1 - 8
         void SetPhase(uint32 phase)
         {
             if (phase && phase < 9)
-                m_phase = (1 << (phase + 24));
+                _phase = (1 << (phase + 24));
         }
 
-        void ScheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
+        // Creates new event entry in map with given id, time, group if given (1 - 8) and phase if given (1 - 8)
+        // 0 for group/phase means it belongs to no group or runs in all phases
+        void ScheduleEvent(uint32 eventId, uint32 time, uint32 groupId = 0, uint32 phase = 0)
         {
-            time += m_time;
-            if (gcd && gcd < 9)
-                eventId |= (1 << (gcd + 16));
+            time += _time;
+            if (groupId && groupId < 9)
+                eventId |= (1 << (groupId + 16));
             if (phase && phase < 9)
                 eventId |= (1 << (phase + 24));
-            iterator itr = find(time);
+            const_iterator itr = find(time);
             while (itr != end())
             {
                 ++time;
                 itr = find(time);
             }
+
             insert(std::make_pair(time, eventId));
         }
 
-        void RescheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
+        // Removes event with specified id and creates new entry for it
+        void RescheduleEvent(uint32 eventId, uint32 time, uint32 groupId = 0, uint32 phase = 0)
         {
             CancelEvent(eventId);
-            ScheduleEvent(eventId, time, gcd, phase);
+            ScheduleEvent(eventId, time, groupId, phase);
         }
 
+        // Reschedules closest event
         void RepeatEvent(uint32 time)
         {
             if (empty())
                 return;
+
             uint32 eventId = begin()->second;
             erase(begin());
-            time += m_time;
-            iterator itr = find(time);
+            time += _time;
+            const_iterator itr = find(time);
             while (itr != end())
             {
                 ++time;
                 itr = find(time);
             }
+
             insert(std::make_pair(time, eventId));
         }
 
+        // Removes first event
         void PopEvent()
         {
             erase(begin());
         }
 
+        // Gets next event id to execute and removes it from map
         uint32 ExecuteEvent()
         {
             while (!empty())
             {
-                if (begin()->first > m_time)
+                if (begin()->first > _time)
                     return 0;
-                else if (m_phase && (begin()->second & 0xFF000000) && !(begin()->second & m_phase))
+                else if (_phase && (begin()->second & 0xFF000000) && !(begin()->second & _phase))
                     erase(begin());
                 else
                 {
@@ -393,39 +403,41 @@ class EventMap : private std::map<uint32, uint32>
             return 0;
         }
 
+        // Gets next event id to execute
         uint32 GetEvent()
         {
             while (!empty())
             {
-                if (begin()->first > m_time)
+                if (begin()->first > _time)
                     return 0;
-                else if (m_phase && (begin()->second & 0xFF000000) && !(begin()->second & m_phase))
+                else if (_phase && (begin()->second & 0xFF000000) && !(begin()->second & _phase))
                     erase(begin());
                 else
                     return (begin()->second & 0x0000FFFF);
             }
+
             return 0;
         }
 
         // Delay all events
         void DelayEvents(uint32 delay)
         {
-            if (delay < m_time)
-                m_time -= delay;
+            if (delay < _time)
+                _time -= delay;
             else
-                m_time = 0;
+                _time = 0;
         }
 
-        // Delay all events having the specified Global Cooldown.
-        void DelayEvents(uint32 delay, uint32 gcd)
+        // Delay all events having the specified Group
+        void DelayEvents(uint32 delay, uint32 groupId)
         {
-            uint32 nextTime = m_time + delay;
-            gcd = (1 << (gcd + 16));
+            uint32 nextTime = _time + delay;
+            uint32 groupMask = (1 << (groupId + 16));
             for (iterator itr = begin(); itr != end() && itr->first < nextTime;)
             {
-                if (itr->second & gcd)
+                if (itr->second & groupMask)
                 {
-                    ScheduleEvent(itr->second, itr->first-m_time+delay);
+                    ScheduleEvent(itr->second, itr->first - _time + delay);
                     erase(itr);
                     itr = begin();
                 }
@@ -434,6 +446,7 @@ class EventMap : private std::map<uint32, uint32>
             }
         }
 
+        // Cancel events with specified id
         void CancelEvent(uint32 eventId)
         {
             for (iterator itr = begin(); itr != end();)
@@ -448,13 +461,14 @@ class EventMap : private std::map<uint32, uint32>
             }
         }
 
-        void CancelEventsByGCD(uint32 gcd)
+        // Cancel events belonging to specified group
+        void CancelEventGroup(uint32 groupId)
         {
-            gcd = (1 << (gcd + 16));
+            uint32 groupMask = (1 << (groupId + 16));
 
             for (iterator itr = begin(); itr != end();)
             {
-                if (itr->second & gcd)
+                if (itr->second & groupMask)
                 {
                     erase(itr);
                     itr = begin();
@@ -463,6 +477,21 @@ class EventMap : private std::map<uint32, uint32>
                     ++itr;
             }
         }
+
+        // Returns time of next event to execute
+        // To get how much time remains substract _time
+        uint32 GetNextEventTime(uint32 eventId) const
+        {
+            for (const_iterator itr = begin(); itr != end(); ++itr)
+                if (eventId == (itr->second & 0x0000FFFF))
+                    return itr->first;
+
+            return 0;
+        }
+
+    private:
+        uint32 _time;
+        uint32 _phase;
 };
 
 enum AITarget

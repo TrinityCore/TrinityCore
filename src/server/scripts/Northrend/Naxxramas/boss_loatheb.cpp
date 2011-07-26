@@ -41,14 +41,14 @@ class boss_loatheb : public CreatureScript
 public:
     boss_loatheb() : CreatureScript("boss_loatheb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_loathebAI (pCreature);
+        return new boss_loathebAI (creature);
     }
 
     struct boss_loathebAI : public BossAI
     {
-        boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
+        boss_loathebAI(Creature* c) : BossAI(c, BOSS_LOATHEB) {}
 
         void EnterCombat(Unit* /*who*/)
         {

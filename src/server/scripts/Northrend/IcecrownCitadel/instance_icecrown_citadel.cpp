@@ -96,14 +96,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                 PlagueSigilGUID = 0;
                 BloodwingSigilGUID = 0;
                 FrostwingSigilGUID = 0;
-                memset(PutricidePipeGUIDs, 0, 2*sizeof(uint64));
-                memset(PutricideGateGUIDs, 0, 2*sizeof(uint64));
+                memset(PutricidePipeGUIDs, 0, 2 * sizeof(uint64));
+                memset(PutricideGateGUIDs, 0, 2 * sizeof(uint64));
                 PutricideCollisionGUID = 0;
                 FestergutGUID = 0;
                 RotfaceGUID = 0;
                 ProfessorPutricideGUID = 0;
                 PutricideTableGUID = 0;
-                memset(BloodCouncilGUIDs, 0, 3*sizeof(uint64));
+                memset(BloodCouncilGUIDs, 0, 3 * sizeof(uint64));
                 BloodCouncilControllerGUID = 0;
                 BloodQueenLanaThelGUID = 0;
                 CrokScourgebaneGUID = 0;
@@ -198,6 +198,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE, creature->GetCreatureData());
+                        // no break;
                     case NPC_SE_MURADIN_BRONZEBEARD:
                         DeathbringerSaurfangEventGUID = creature->GetGUID();
                         creature->LastUsedScriptID = creature->GetScriptId();

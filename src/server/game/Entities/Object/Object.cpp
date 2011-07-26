@@ -444,7 +444,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     if (flags & UPDATEFLAG_HIGHGUID)
     {
         // not high guid
-        *data << uint32(0x00000000);                // unk
+        *data << uint32(GetUInt32Value(OBJECT_FIELD_GUID));                // unk
     }
 
     // 0x4
@@ -766,21 +766,6 @@ void Object::BuildFieldsUpdate(Player *pl, UpdateDataMapType &data_map) const
     }
 
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
-}
-
-bool Object::LoadValues(const char* data)
-{
-    if (!m_uint32Values) _InitValues();
-
-    Tokens tokens(data, ' ');
-
-    if (tokens.size() != m_valuesCount)
-        return false;
-
-    for (uint16 index = 0; index < m_valuesCount; ++index)
-        m_uint32Values[index] = atol(tokens[index]);
-
-    return true;
 }
 
 void Object::_LoadIntoDataField(const char* data, uint32 startOffset, uint32 count)
@@ -2035,7 +2020,7 @@ void Unit::BuildHeartBeatMsg(WorldPacket *data) const
     BuildMovementPacket(data);
 }
 
-void WorldObject::SendMessageToSetInRange(WorldPacket *data, float dist, bool /*bToSelf*/)
+void WorldObject::SendMessageToSetInRange(WorldPacket *data, float dist, bool /*self*/)
 {
     Trinity::MessageDistDeliverer notifier(this, data, dist);
     VisitNearbyWorldObject(dist, notifier);

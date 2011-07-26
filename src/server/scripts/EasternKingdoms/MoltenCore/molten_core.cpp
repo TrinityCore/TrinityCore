@@ -46,9 +46,9 @@ class mob_ancient_core_hound : public CreatureScript
 public:
     mob_ancient_core_hound() : CreatureScript("mob_ancient_core_hound") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI *ai = new SimpleAI(pCreature);
+        SimpleAI *ai = new SimpleAI(creature);
 
         ai->Spell[0].Enabled          = true;
         ai->Spell[0].Spell_Id         = SPELL_CONE_OF_FIRE;

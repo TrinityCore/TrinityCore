@@ -239,7 +239,7 @@ public:
                 return;
 
             Creature* pArchmage = instance->GetCreature(uiArchmageArugalGUID);
-            Creature* pSummon = NULL;
+            Creature* summon = NULL;
 
             if (!pArchmage || !pArchmage->isAlive())
                 return;
@@ -251,11 +251,11 @@ public:
                     switch(uiPhase)
                     {
                         case 1:
-                            pSummon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
-                            pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                            pSummon->SetReactState(REACT_DEFENSIVE);
-                            pSummon->CastSpell(pSummon, SPELL_ASHCROMBE_TELEPORT, true);
-                            DoScriptText(SAY_ARCHMAGE, pSummon);
+                            summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
+                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            summon->SetReactState(REACT_DEFENSIVE);
+                            summon->CastSpell(summon, SPELL_ASHCROMBE_TELEPORT, true);
+                            DoScriptText(SAY_ARCHMAGE, summon);
                             uiTimer = 2000;
                             uiPhase = 2;
                             break;

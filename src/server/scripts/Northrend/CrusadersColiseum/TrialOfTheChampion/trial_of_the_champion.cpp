@@ -48,9 +48,9 @@ public:
 
     struct npc_announcer_toc5AI : public ScriptedAI
     {
-        npc_announcer_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_announcer_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
 
             uiSummonTimes = 0;
             uiPosition = 0;
@@ -146,8 +146,8 @@ public:
                         }
 
                         for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
-                            if (Creature* pSummon = Unit::GetCreature(*me, *itr))
-                                AggroAllPlayers(pSummon);
+                            if (Creature* summon = Unit::GetCreature(*me, *itr))
+                                AggroAllPlayers(summon);
                     }else if (uiLesserChampions == 9)
                         StartGrandChampionsAttack();
 
@@ -382,19 +382,19 @@ public:
 
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
-                if (Player* pPlayer = i->getSource())
+                if (Player* player = i->getSource())
                 {
-                    if (pPlayer->isGameMaster())
+                    if (player->isGameMaster())
                         continue;
 
-                    if (pPlayer->isAlive())
+                    if (player->isAlive())
                     {
                         pTemp->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                         pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pTemp->SetReactState(REACT_AGGRESSIVE);
-                        pTemp->SetInCombatWith(pPlayer);
-                        pPlayer->SetInCombatWith(pTemp);
-                        pTemp->AddThreat(pPlayer, 0.0f);
+                        pTemp->SetInCombatWith(player);
+                        player->SetInCombatWith(pTemp);
+                        pTemp->AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -420,8 +420,8 @@ public:
                         if (!Champion1List.empty())
                         {
                             for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
-                                if (Creature* pSummon = Unit::GetCreature(*me, *itr))
-                                    AggroAllPlayers(pSummon);
+                                if (Creature* summon = Unit::GetCreature(*me, *itr))
+                                    AggroAllPlayers(summon);
                             NextStep(0, false);
                         }
                         break;
@@ -432,18 +432,18 @@ public:
                 return;
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* summon)
         {
             if (pInstance && pInstance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
-                pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pSummon->SetReactState(REACT_PASSIVE);
+                summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                summon->SetReactState(REACT_PASSIVE);
             }
         }
 
-        void SummonedCreatureDespawn(Creature* pSummon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
-            switch(pSummon->GetEntry())
+            switch(summon->GetEntry())
             {
                 case VEHICLE_DARNASSIA_NIGHTSABER:
                 case VEHICLE_EXODAR_ELEKK:
@@ -461,14 +461,14 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_announcer_toc5AI(pCreature);
+        return new npc_announcer_toc5AI(creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
+        InstanceScript* pInstance = creature->GetInstanceScript();
 
         if (pInstance &&
             ((pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
@@ -482,22 +482,22 @@ public:
             pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
             pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
             pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         else if (pInstance)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, pCreature->AI())->StartEncounter();
+            player->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
         }
 
         return true;

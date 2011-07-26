@@ -39,10 +39,10 @@ class at_malfurion_stormrage : public AreaTriggerScript
 public:
     at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
     {
-        if (pPlayer->GetInstanceScript() && !pPlayer->FindNearestCreature(15362, 15))
-            pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+        if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 15))
+            player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
         return false;
     }
 
@@ -56,9 +56,9 @@ class go_atalai_statue : public GameObjectScript
 public:
     go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* pGo)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* pInstance = player->GetInstanceScript())
             pInstance->SetData(EVENT_STATE, pGo->GetEntry());
         return false;
     }

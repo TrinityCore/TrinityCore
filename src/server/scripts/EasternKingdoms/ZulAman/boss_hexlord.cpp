@@ -211,7 +211,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         struct boss_hex_lord_malacrassAI : public ScriptedAI
         {
-            boss_hex_lord_malacrassAI(Creature *c) : ScriptedAI(c)
+            boss_hex_lord_malacrassAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance = c->GetInstanceScript();
                 SelectAddEntry();
@@ -325,18 +325,18 @@ class boss_hexlord_malacrass : public CreatureScript
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Creature *pCreature = (Unit::GetCreature((*me), AddGUID[i]));
-                    if (!pCreature || !pCreature->isAlive())
+                    Creature* creature = (Unit::GetCreature((*me), AddGUID[i]));
+                    if (!creature || !creature->isAlive())
                     {
-                        if (pCreature) pCreature->setDeathState(DEAD);
-                        pCreature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        if (pCreature) AddGUID[i] = pCreature->GetGUID();
+                        if (creature) creature->setDeathState(DEAD);
+                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        if (creature) AddGUID[i] = creature->GetGUID();
                     }
                     else
                     {
-                        pCreature->AI()->EnterEvadeMode();
-                        pCreature->GetMap()->CreatureRelocation(me, Pos_X[i], POS_Y, POS_Z, ORIENT);
-                        pCreature->StopMoving();
+                        creature->AI()->EnterEvadeMode();
+                        creature->GetMap()->CreatureRelocation(me, Pos_X[i], POS_Y, POS_Z, ORIENT);
+                        creature->StopMoving();
                     }
                 }
             }
@@ -359,7 +359,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (CheckAddState_Timer <= diff)
                 {
                     for (uint8 i = 0; i < 4; ++i)
-                        if (Creature *pTemp = Unit::GetCreature(*me, AddGUID[i]))
+                        if (Creature* pTemp = Unit::GetCreature(*me, AddGUID[i]))
                             if (pTemp->isAlive() && !pTemp->getVictim())
                                 pTemp->AI()->AttackStart(me->getVictim());
 
@@ -391,9 +391,9 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (SiphonSoul_Timer <= diff)
                 {
-                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
-                    Unit *trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                    if (!pTarget || !trigger)
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
+                    Unit* trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
+                    if (!target || !trigger)
                     {
                         EnterEvadeMode();
                         return;
@@ -402,20 +402,20 @@ class boss_hexlord_malacrass : public CreatureScript
                     {
                         trigger->SetDisplayId(11686);
                         trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        trigger->CastSpell(pTarget, SPELL_SIPHON_SOUL, true);
+                        trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
                         trigger->GetMotionMaster()->MoveChase(me);
 
-                        //DoCast(pTarget, SPELL_SIPHON_SOUL, true);
-                        //me->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pTarget->GetGUID());
+                        //DoCast(target, SPELL_SIPHON_SOUL, true);
+                        //me->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, target->GetGUID());
                         //me->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SIPHON_SOUL);
 
-                        PlayerGUID = pTarget->GetGUID();
+                        PlayerGUID = target->GetGUID();
                         PlayerAbility_Timer = urand(8000, 10000);
-                        PlayerClass = pTarget->getClass() - 1;
+                        PlayerClass = target->getClass() - 1;
 
                         if (PlayerClass == CLASS_DRUID-1)
                             PlayerClass = CLASS_DRUID;
-                        else if (PlayerClass == CLASS_PRIEST-1 && pTarget->HasSpell(15473))
+                        else if (PlayerClass == CLASS_PRIEST-1 && target->HasSpell(15473))
                             PlayerClass = CLASS_PRIEST; // shadow priest
 
                         SiphonSoul_Timer = 99999;   // buff lasts 30 sec
@@ -424,8 +424,8 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (PlayerAbility_Timer <= diff)
                 {
-                    //Unit *pTarget = Unit::GetUnit(*me, PlayerGUID);
-                    //if (pTarget && pTarget->isAlive())
+                    //Unit* target = Unit::GetUnit(*me, PlayerGUID);
+                    //if (target && target->isAlive())
                     //{
                         UseAbility();
                         PlayerAbility_Timer = urand(8000, 10000);
@@ -438,32 +438,32 @@ class boss_hexlord_malacrass : public CreatureScript
             void UseAbility()
             {
                 uint8 random = urand(0, 2);
-                Unit *pTarget = NULL;
+                Unit* target = NULL;
                 switch(PlayerAbility[PlayerClass][random].target)
                 {
                     case ABILITY_TARGET_SELF:
-                        pTarget = me;
+                        target = me;
                         break;
                     case ABILITY_TARGET_VICTIM:
-                        pTarget = me->getVictim();
+                        target = me->getVictim();
                         break;
                     case ABILITY_TARGET_ENEMY:
                     default:
-                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         break;
                     case ABILITY_TARGET_HEAL:
-                        pTarget = DoSelectLowestHpFriendly(50, 0);
+                        target = DoSelectLowestHpFriendly(50, 0);
                         break;
                     case ABILITY_TARGET_BUFF:
                         {
                             std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, PlayerAbility[PlayerClass][random].spell);
                             if (!templist.empty())
-                                pTarget = *(templist.begin());
+                                target = *(templist.begin());
                         }
                         break;
                 }
-                if (pTarget)
-                    DoCast(pTarget, PlayerAbility[PlayerClass][random].spell, false);
+                if (target)
+                    DoCast(target, PlayerAbility[PlayerClass][random].spell, false);
             }
         };
 
@@ -488,7 +488,7 @@ class boss_thurg : public CreatureScript
         struct boss_thurgAI : public boss_hexlord_addAI
         {
 
-            boss_thurgAI(Creature *c) : boss_hexlord_addAI(c) {}
+            boss_thurgAI(Creature* c) : boss_hexlord_addAI(c) {}
 
             uint32 bloodlust_timer;
             uint32 cleave_timer;
@@ -511,8 +511,8 @@ class boss_thurg : public CreatureScript
                     std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, SPELL_BLOODLUST);
                     if (!templist.empty())
                     {
-                        if (Unit *pTarget = *(templist.begin()))
-                            DoCast(pTarget, SPELL_BLOODLUST, false);
+                        if (Unit* target = *(templist.begin()))
+                            DoCast(target, SPELL_BLOODLUST, false);
                     }
                     bloodlust_timer = 12000;
                 } else bloodlust_timer -= diff;
@@ -548,7 +548,7 @@ class boss_alyson_antille : public CreatureScript
         struct boss_alyson_antilleAI : public boss_hexlord_addAI
         {
             //Holy Priest
-            boss_alyson_antilleAI(Creature *c) : boss_hexlord_addAI(c) {}
+            boss_alyson_antilleAI(Creature* c) : boss_hexlord_addAI(c) {}
 
             uint32 flashheal_timer;
             uint32 dispelmagic_timer;
@@ -585,26 +585,26 @@ class boss_alyson_antille : public CreatureScript
 
                 if (flashheal_timer <= diff)
                 {
-                    Unit *pTarget = DoSelectLowestHpFriendly(99, 30000);
-                    if (pTarget)
+                    Unit* target = DoSelectLowestHpFriendly(99, 30000);
+                    if (target)
                     {
-                        if (pTarget->IsWithinDistInMap(me, 50))
-                            DoCast(pTarget, SPELL_FLASH_HEAL, false);
+                        if (target->IsWithinDistInMap(me, 50))
+                            DoCast(target, SPELL_FLASH_HEAL, false);
                         else
                         {
                             // bugged
                             //me->GetMotionMaster()->Clear();
-                            //me->GetMotionMaster()->MoveChase(pTarget, 20);
+                            //me->GetMotionMaster()->MoveChase(target, 20);
                         }
                     }
                     else
                     {
                         if (urand(0, 1))
-                            pTarget = DoSelectLowestHpFriendly(50, 0);
+                            target = DoSelectLowestHpFriendly(50, 0);
                         else
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (pTarget)
-                            DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target)
+                            DoCast(target, SPELL_DISPEL_MAGIC, false);
                     }
                     flashheal_timer = 2500;
                 } else flashheal_timer -= diff;
@@ -613,9 +613,9 @@ class boss_alyson_antille : public CreatureScript
                 {
                 if (urand(0, 1))
                 {
-                    Unit *pTarget = SelectTarget();
+                    Unit* target = SelectTarget();
 
-                    DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
+                    DoCast(target, SPELL_DISPEL_MAGIC, false);
                 }
                 else
                     me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
@@ -637,7 +637,7 @@ class boss_alyson_antille : public CreatureScript
 
 struct boss_gazakrothAI : public boss_hexlord_addAI
 {
-    boss_gazakrothAI(Creature *c) : boss_hexlord_addAI(c)  {}
+    boss_gazakrothAI(Creature* c) : boss_hexlord_addAI(c)  {}
 
     uint32 firebolt_timer;
 
@@ -691,7 +691,7 @@ class boss_lord_raadan : public CreatureScript
 
         struct boss_lord_raadanAI : public boss_hexlord_addAI
         {
-            boss_lord_raadanAI(Creature *c) : boss_hexlord_addAI(c)  {}
+            boss_lord_raadanAI(Creature* c) : boss_hexlord_addAI(c)  {}
 
             uint32 flamebreath_timer;
             uint32 thunderclap_timer;
@@ -744,7 +744,7 @@ class boss_darkheart : public CreatureScript
 
         struct boss_darkheartAI : public boss_hexlord_addAI
         {
-            boss_darkheartAI(Creature *c) : boss_hexlord_addAI(c)  {}
+            boss_darkheartAI(Creature* c) : boss_hexlord_addAI(c)  {}
 
             uint32 psychicwail_timer;
 
@@ -787,7 +787,7 @@ class boss_slither : public CreatureScript
 
         struct boss_slitherAI : public boss_hexlord_addAI
         {
-            boss_slitherAI(Creature *c) : boss_hexlord_addAI(c) {}
+            boss_slitherAI(Creature* c) : boss_hexlord_addAI(c) {}
 
             uint32 venomspit_timer;
 
@@ -847,7 +847,7 @@ class boss_fenstalker : public CreatureScript
 
         struct boss_fenstalkerAI : public boss_hexlord_addAI
         {
-            boss_fenstalkerAI(Creature *c) : boss_hexlord_addAI(c) {}
+            boss_fenstalkerAI(Creature* c) : boss_hexlord_addAI(c) {}
 
             uint32 volatileinf_timer;
 
@@ -894,7 +894,7 @@ class boss_koragg : public CreatureScript
 
         struct boss_koraggAI : public boss_hexlord_addAI
         {
-            boss_koraggAI(Creature *c) : boss_hexlord_addAI(c) {}
+            boss_koraggAI(Creature* c) : boss_hexlord_addAI(c) {}
 
             uint32 coldstare_timer;
             uint32 mightyblow_timer;

@@ -52,7 +52,7 @@ class go_bridge_console : public GameObjectScript
     public:
         go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
-        bool OnGossipHello(Player* /*pPlayer*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             InstanceScript* pInstance = go->GetInstanceScript();
 
@@ -134,33 +134,33 @@ class instance_serpent_shrine : public InstanceMapScript
                         return;
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if (Player* pPlayer = i->getSource())
+                        if (Player* player = i->getSource())
                         {
-                            if (pPlayer->isAlive() && /*i->getSource()->GetPositionZ() <= -21.434931f*/pPlayer->IsInWater())
+                            if (player->isAlive() && /*i->getSource()->GetPositionZ() <= -21.434931f*/player->IsInWater())
                             {
                                 if (Water == WATERSTATE_SCALDING)
                                 {
 
-                                    if (!pPlayer->HasAura(SPELL_SCALDINGWATER))
+                                    if (!player->HasAura(SPELL_SCALDINGWATER))
                                     {
-                                        pPlayer->CastSpell(pPlayer, SPELL_SCALDINGWATER, true);
+                                        player->CastSpell(player, SPELL_SCALDINGWATER, true);
                                     }
                                 } else if (Water == WATERSTATE_FRENZY)
                                 {
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
                                     {
-                                        if (Creature* frenzy = pPlayer->SummonCreature(MOB_COILFANG_FRENZY, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
+                                        if (Creature* frenzy = player->SummonCreature(MOB_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
                                         {
-                                            frenzy->Attack(pPlayer, false);
+                                            frenzy->Attack(player, false);
                                             frenzy->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
                                         }
                                         DoSpawnFrenzy = false;
                                     }
                                 }
                             }
-                            if (!pPlayer->IsInWater())
-                                pPlayer->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
+                            if (!player->IsInWater())
+                                player->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
                         }
 
                     }

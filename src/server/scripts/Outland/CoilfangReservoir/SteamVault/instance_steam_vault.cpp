@@ -43,7 +43,7 @@ class go_main_chambers_access_panel : public GameObjectScript
 public:
     go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         InstanceScript* pInstance = go->GetInstanceScript();
 

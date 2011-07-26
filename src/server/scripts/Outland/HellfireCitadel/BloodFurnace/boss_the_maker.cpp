@@ -52,9 +52,9 @@ class boss_the_maker : public CreatureScript
 
         struct boss_the_makerAI : public ScriptedAI
         {
-            boss_the_makerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_the_makerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;
@@ -122,8 +122,8 @@ class boss_the_maker : public CreatureScript
 
                 if (ExplodingBreaker_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_EXPLODING_BREAKER);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_EXPLODING_BREAKER);
                     ExplodingBreaker_Timer = 4000+rand()%8000;
                 }
                 else
@@ -132,10 +132,10 @@ class boss_the_maker : public CreatureScript
                 /* // Disabled until Core Support for mind control
                 if (domination_timer_timer <= diff)
                 {
-                Unit *pTarget;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit* target;
+                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                DoCast(pTarget, SPELL_DOMINATION);
+                DoCast(target, SPELL_DOMINATION);
 
                 domination_timer = 120000;
                 } else domination_timer -=diff;

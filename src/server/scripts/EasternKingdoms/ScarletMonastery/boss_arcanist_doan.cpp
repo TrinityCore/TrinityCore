@@ -42,14 +42,14 @@ class boss_arcanist_doan : public CreatureScript
 public:
     boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_arcanist_doanAI (pCreature);
+        return new boss_arcanist_doanAI (creature);
     }
 
     struct boss_arcanist_doanAI : public ScriptedAI
     {
-        boss_arcanist_doanAI(Creature *c) : ScriptedAI(c) {}
+        boss_arcanist_doanAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Polymorph_Timer;
         uint32 AoESilence_Timer;
@@ -101,8 +101,8 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(pTarget, SPELL_POLYMORPH);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    DoCast(target, SPELL_POLYMORPH);
 
                 Polymorph_Timer = 20000;
             } else Polymorph_Timer -= diff;

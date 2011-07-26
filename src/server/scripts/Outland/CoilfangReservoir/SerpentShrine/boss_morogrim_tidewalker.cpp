@@ -82,14 +82,14 @@ class boss_morogrim_tidewalker : public CreatureScript
 public:
     boss_morogrim_tidewalker() : CreatureScript("boss_morogrim_tidewalker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_morogrim_tidewalkerAI (pCreature);
+        return new boss_morogrim_tidewalkerAI (creature);
     }
 
     struct boss_morogrim_tidewalkerAI : public ScriptedAI
     {
-        boss_morogrim_tidewalkerAI(Creature *c) : ScriptedAI(c)
+        boss_morogrim_tidewalkerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -155,14 +155,14 @@ public:
             StartEvent();
         }
 
-        void ApplyWateryGrave(Unit* pPlayer, uint8 i)
+        void ApplyWateryGrave(Unit* player, uint8 i)
         {
             switch(i)
             {
-            case 0: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_1, true); break;
-            case 1: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_2, true); break;
-            case 2: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_3, true); break;
-            case 3: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_4, true); break;
+            case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
+            case 1: player->CastSpell(player, SPELL_WATERY_GRAVE_2, true); break;
+            case 2: player->CastSpell(player, SPELL_WATERY_GRAVE_3, true); break;
+            case 3: player->CastSpell(player, SPELL_WATERY_GRAVE_4, true); break;
             }
         }
 
@@ -187,10 +187,10 @@ public:
 
                     for (uint8 i = 0; i < 10; ++i)
                     {
-                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                        if (pTarget && Murloc)
-                            Murloc->AI()->AttackStart(pTarget);
+                        if (target && Murloc)
+                            Murloc->AI()->AttackStart(target);
                     }
                     DoScriptText(EMOTE_EARTHQUAKE, me);
                     Earthquake = false;
@@ -211,7 +211,7 @@ public:
                 if (WateryGrave_Timer <= diff)
                 {
                     //Teleport 4 players under the waterfalls
-                    Unit *pTarget;
+                    Unit* target;
                     std::set<uint64> list;
                     std::set<uint64>::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
@@ -219,18 +219,18 @@ public:
                         counter = 0;
                         do
                         {
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
                             if (counter < Playercount)
                                 break;
-                            if (pTarget)
-                                itr = list.find(pTarget->GetGUID());
+                            if (target)
+                                itr = list.find(target->GetGUID());
                             ++counter;
                         } while (itr != list.end());
 
-                        if (pTarget)
+                        if (target)
                         {
-                            list.insert(pTarget->GetGUID());
-                            ApplyWateryGrave(pTarget, i);
+                            list.insert(target->GetGUID());
+                            ApplyWateryGrave(target, i);
                         }
                     }
 
@@ -289,14 +289,14 @@ class mob_water_globule : public CreatureScript
 public:
     mob_water_globule() : CreatureScript("mob_water_globule") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_water_globuleAI (pCreature);
+        return new mob_water_globuleAI (creature);
     }
 
     struct mob_water_globuleAI : public ScriptedAI
     {
-        mob_water_globuleAI(Creature *c) : ScriptedAI(c) {}
+        mob_water_globuleAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Check_Timer;
 
@@ -311,7 +311,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!who || me->getVictim())
                 return;

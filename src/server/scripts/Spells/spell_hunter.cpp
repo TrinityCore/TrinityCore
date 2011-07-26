@@ -189,7 +189,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit *caster = GetCaster();
+            Unit* caster = GetCaster();
             int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
             caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
         }
@@ -265,7 +265,7 @@ public:
         PrepareSpellScript(spell_hun_readiness_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit *caster = GetCaster();
+            Unit* caster = GetCaster();
             if (caster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
@@ -369,23 +369,23 @@ public:
                 return;
 
             uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
-            Unit* pTarget = GetTarget();
-            if (!pTarget->HasAura(spellId))
+            Unit* target = GetTarget();
+            if (!target->HasAura(spellId))
             {
                 SpellEntry const* triggeredSpellInfo = sSpellStore.LookupEntry(spellId);
-                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, pTarget);
-                triggerCaster->CastSpell(pTarget, triggeredSpellInfo, true, 0, aurEff);
+                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, target);
+                triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
             }
         }
 
         void HandleUpdatePeriodic(AuraEffect * aurEff)
         {
-            Unit* pTarget = GetUnitOwner();
-            if (Player* pPlayerTarget = pTarget->ToPlayer())
+            Unit* target = GetUnitOwner();
+            if (Player* playerTarget = target->ToPlayer())
             {
                 int32 baseAmount = aurEff->GetBaseAmount();
-                int32 amount = pPlayerTarget->isMoving() ?
-                pTarget->CalculateSpellDamage(pTarget, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
+                int32 amount = playerTarget->isMoving() ?
+                target->CalculateSpellDamage(target, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
                 aurEff->GetAmount() - 1;
                 aurEff->SetAmount(amount);
             }
@@ -423,8 +423,8 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            Unit *caster = GetCaster();
-            Unit *owner = caster->GetOwner();
+            Unit* caster = GetCaster();
+            Unit* owner = caster->GetOwner();
             if (!owner || caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                 return;
             owner->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
@@ -470,7 +470,7 @@ public:
         {
             if (!GetHitUnit())
                 return;
-            Unit *caster = GetCaster();
+            Unit* caster = GetCaster();
             caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
         }
 

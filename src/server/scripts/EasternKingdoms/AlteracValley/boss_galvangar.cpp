@@ -39,7 +39,7 @@ public:
 
     struct boss_galvangarAI : public ScriptedAI
     {
-        boss_galvangarAI(Creature *c) : ScriptedAI(c) {}
+        boss_galvangarAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiCleaveTimer;
         uint32 uiFrighteningShoutTimer;
@@ -118,7 +118,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_galvangarAI(creature);
     }

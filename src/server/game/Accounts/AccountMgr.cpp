@@ -108,7 +108,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, 
     normalizeString(new_passwd);
 
     std::string safe_new_uname = new_uname;
-    LoginDatabase.escape_string(safe_new_uname);
+    LoginDatabase.EscapeString(safe_new_uname);
 
     LoginDatabase.PExecute("UPDATE account SET v='0', s='0', username='%s', sha_pass_hash='%s' WHERE id='%d'", safe_new_uname.c_str(),
                 CalculateShaPassHash(new_uname, new_passwd).c_str(), accid);
@@ -138,7 +138,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accid, std::string new_passwd)
 
 uint32 AccountMgr::GetId(std::string username)
 {
-    LoginDatabase.escape_string(username);
+    LoginDatabase.EscapeString(username);
     QueryResult result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
     if (!result)
         return 0;

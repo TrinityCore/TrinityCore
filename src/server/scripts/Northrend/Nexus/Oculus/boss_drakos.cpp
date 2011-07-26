@@ -156,9 +156,9 @@ class npc_unstable_sphere : public CreatureScript
 public:
     npc_unstable_sphere() : CreatureScript("npc_unstable_sphere") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_unstable_sphereAI (pCreature);
+        return new npc_unstable_sphereAI (creature);
     }
 
     struct npc_unstable_sphereAI : public ScriptedAI

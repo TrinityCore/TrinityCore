@@ -78,35 +78,35 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch(uiType)
                 {
-                    case TYPE_ARLOKK:
+                    case DATA_ARLOKK:
                         m_auiEncounter[0] = uiData;
                         break;
 
-                    case TYPE_JEKLIK:
+                    case DATA_JEKLIK:
                         m_auiEncounter[1] = uiData;
                         break;
 
-                    case TYPE_VENOXIS:
+                    case DATA_VENOXIS:
                         m_auiEncounter[2] = uiData;
                         break;
 
-                    case TYPE_MARLI:
+                    case DATA_MARLI:
                         m_auiEncounter[3] = uiData;
                         break;
 
-                    case TYPE_THEKAL:
+                    case DATA_THEKAL:
                         m_auiEncounter[4] = uiData;
                         break;
 
-                    case TYPE_LORKHAN:
+                    case DATA_LORKHAN:
                         m_auiEncounter[5] = uiData;
                         break;
 
-                    case TYPE_ZATH:
+                    case DATA_ZATH:
                         m_auiEncounter[6] = uiData;
                         break;
 
-                    case TYPE_OHGAN:
+                    case DATA_OHGAN:
                         m_auiEncounter[7] = uiData;
                         break;
                 }
@@ -116,21 +116,21 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch(uiType)
                 {
-                    case TYPE_ARLOKK:
+                    case DATA_ARLOKK:
                         return m_auiEncounter[0];
-                    case TYPE_JEKLIK:
+                    case DATA_JEKLIK:
                         return m_auiEncounter[1];
-                    case TYPE_VENOXIS:
+                    case DATA_VENOXIS:
                         return m_auiEncounter[2];
-                    case TYPE_MARLI:
+                    case DATA_MARLI:
                         return m_auiEncounter[3];
-                    case TYPE_THEKAL:
+                    case DATA_THEKAL:
                         return m_auiEncounter[4];
-                    case TYPE_LORKHAN:
+                    case DATA_LORKHAN:
                         return m_auiEncounter[5];
-                    case TYPE_ZATH:
+                    case DATA_ZATH:
                         return m_auiEncounter[6];
-                    case TYPE_OHGAN:
+                    case DATA_OHGAN:
                         return m_auiEncounter[7];
                 }
                 return 0;

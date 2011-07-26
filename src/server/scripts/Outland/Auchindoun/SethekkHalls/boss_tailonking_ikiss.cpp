@@ -57,14 +57,14 @@ class boss_talon_king_ikiss : public CreatureScript
 public:
     boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_talon_king_ikissAI (pCreature);
+        return new boss_talon_king_ikissAI (creature);
     }
 
     struct boss_talon_king_ikissAI : public ScriptedAI
     {
-        boss_talon_king_ikissAI(Creature *c) : ScriptedAI(c)
+        boss_talon_king_ikissAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -91,7 +91,7 @@ public:
             ManaShield = false;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
             {
@@ -151,16 +151,16 @@ public:
 
             if (Sheep_Timer <= diff)
             {
-                Unit *pTarget;
+                Unit* target;
 
                 //second top aggro target in normal, random target in heroic correct?
                 if (IsHeroic())
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 else
-                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                    target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
-                if (pTarget)
-                    DoCast(pTarget, SPELL_POLYMORPH);
+                if (target)
+                    DoCast(target, SPELL_POLYMORPH);
                 Sheep_Timer = 15000+rand()%2500;
             } else Sheep_Timer -= diff;
 
@@ -184,21 +184,21 @@ public:
             {
                 DoScriptText(EMOTE_ARCANE_EXP, me);
 
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(false);
 
                     //Spell doesn't work, but we use for visual effect at least
-                    DoCast(pTarget, SPELL_BLINK);
+                    DoCast(target, SPELL_BLINK);
 
-                    float X = pTarget->GetPositionX();
-                    float Y = pTarget->GetPositionY();
-                    float Z = pTarget->GetPositionZ();
+                    float X = target->GetPositionX();
+                    float Y = target->GetPositionY();
+                    float Z = target->GetPositionZ();
 
                     DoTeleportTo(X, Y, Z);
 
-                    DoCast(pTarget, SPELL_BLINK_TELEPORT);
+                    DoCast(target, SPELL_BLINK_TELEPORT);
                     Blink = true;
                 }
                 Blink_Timer = 35000+rand()%5000;

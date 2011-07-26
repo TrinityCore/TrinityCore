@@ -68,14 +68,14 @@ class boss_noth : public CreatureScript
 public:
     boss_noth() : CreatureScript("boss_noth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nothAI (pCreature);
+        return new boss_nothAI (creature);
     }
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
+        boss_nothAI(Creature* c) : BossAI(c, BOSS_NOTH) {}
 
         uint32 waveCount, balconyCount;
 
@@ -117,7 +117,7 @@ public:
                 DoScriptText(SAY_SLAY, me);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
             summon->setActive(true);

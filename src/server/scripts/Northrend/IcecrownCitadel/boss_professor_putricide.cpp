@@ -1393,8 +1393,8 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
                 if (putricide->AI()->GetData(DATA_ABOMINATION))
                 {
-                    if (Player* plrCaster = caster->ToPlayer())
-                        Spell::SendCastResult(plrCaster, GetSpellInfo(), 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
+                    if (Player* player = caster->ToPlayer())
+                        Spell::SendCastResult(player, GetSpellInfo(), 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
                     return;
                 }
 

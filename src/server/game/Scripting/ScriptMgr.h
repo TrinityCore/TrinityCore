@@ -466,9 +466,9 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return 100; }
 
         // Called when the gameobject is destroyed (destructible buildings only).
-        virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/, uint32 /*eventId*/) { }
+        virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }
         // Called when the gameobject is damaged (destructible buildings only).
-        virtual void OnDamaged(GameObject* /*go*/, Player* /*player*/,  uint32 /*eventId*/) { }
+        virtual void OnDamaged(GameObject* /*go*/, Player* /*player*/) { }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual GameObjectAI* GetAI(GameObject* /*gameobject*/) const { return NULL; }
@@ -869,8 +869,8 @@ class ScriptMgr
         bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest);
         bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt);
         uint32 GetDialogStatus(Player* player, GameObject* go);
-        void OnGameObjectDestroyed(GameObject* go, Player* player, uint32 eventId);
-        void OnGameObjectDamaged(GameObject* go, Player* player, uint32 eventId);
+        void OnGameObjectDestroyed(GameObject* go, Player* player);
+        void OnGameObjectDamaged(GameObject* go, Player* player);
         GameObjectAI* GetGameObjectAI(GameObject* gameobject);
         void OnGameObjectUpdate(GameObject* go, uint32 diff);
 

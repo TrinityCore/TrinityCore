@@ -113,7 +113,7 @@ class boss_janalai : public CreatureScript
 
         struct boss_janalaiAI : public ScriptedAI
         {
-            boss_janalaiAI(Creature *c) : ScriptedAI(c)
+            boss_janalaiAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance = c->GetInstanceScript();
             }
@@ -181,11 +181,11 @@ class boss_janalai : public CreatureScript
         //        DoZoneInCombat();
             }
 
-            void DamageDealt(Unit *pTarget, uint32 &damage, DamageEffectType /*damagetype*/)
+            void DamageDealt(Unit* target, uint32 &damage, DamageEffectType /*damagetype*/)
             {
                 if (isFlameBreathing)
                 {
-                    if (!me->HasInArc(M_PI/6, pTarget))
+                    if (!me->HasInArc(M_PI/6, target))
                         damage = 0;
                 }
             }
@@ -247,7 +247,7 @@ class boss_janalai : public CreatureScript
                 }
 
                 //sLog->outError("Eggs %d at middle", templist.size());
-                if (!templist.size())
+                if (templist.empty())
                     return false;
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
@@ -290,7 +290,7 @@ class boss_janalai : public CreatureScript
             {
                 if (BombCount < 40)
                 {
-                    if (Unit *FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
+                    if (Unit* FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
                     {
                         FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
@@ -420,11 +420,11 @@ class boss_janalai : public CreatureScript
 
                 if (FireBreathTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         me->AttackStop();
                         me->GetMotionMaster()->Clear();
-                        DoCast(pTarget, SPELL_FLAME_BREATH, false);
+                        DoCast(target, SPELL_FLAME_BREATH, false);
                         me->StopMoving();
                         isFlameBreathing = true;
                     }
@@ -450,7 +450,7 @@ class mob_janalai_firebomb : public CreatureScript
 
         struct mob_janalai_firebombAI : public ScriptedAI
         {
-            mob_janalai_firebombAI(Creature *c) : ScriptedAI(c){}
+            mob_janalai_firebombAI(Creature* c) : ScriptedAI(c){}
 
             void Reset() {}
 
@@ -486,7 +486,7 @@ class mob_janalai_hatcher : public CreatureScript
 
         struct mob_janalai_hatcherAI : public ScriptedAI
         {
-            mob_janalai_hatcherAI(Creature *c) : ScriptedAI(c)
+            mob_janalai_hatcherAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance =c->GetInstanceScript();
             }
@@ -619,7 +619,7 @@ class mob_janalai_hatchling : public CreatureScript
 
         struct mob_janalai_hatchlingAI : public ScriptedAI
         {
-            mob_janalai_hatchlingAI(Creature *c) : ScriptedAI(c)
+            mob_janalai_hatchlingAI(Creature* c) : ScriptedAI(c)
             {
                 pInstance =c->GetInstanceScript();
             }

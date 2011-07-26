@@ -86,7 +86,7 @@ class BIH
         template< class T, class BoundsFunc >
         void build(const std::vector<T> &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
         {
-            if(primitives.size() == 0)
+            if(primitives.empty())
                 return;
             buildData dat;
             dat.maxPrims = leafSize;

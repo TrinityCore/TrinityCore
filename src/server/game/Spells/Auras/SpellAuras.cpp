@@ -193,7 +193,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
         flags |= AFLAG_DURATION;
     data << uint8(flags);
     data << uint8(aura->GetCasterLevel());
-    data << uint8(aura->GetStackAmount() > 1 ? aura->GetStackAmount() : (aura->GetCharges()) ? aura->GetCharges() : 1);
+    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
+    // stack amount has priority over charges (checked on retail with spell 50262)
+    data << uint8(aura->GetSpellProto()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
 
     if (!(flags & AFLAG_CASTER))
         data.appendPackGUID(aura->GetCasterGUID());
@@ -332,7 +334,7 @@ m_spellProto(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID
 m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel), m_procCharges(0), m_stackAmount(1),
-m_isRemoved(false), m_isSingleTarget(false)
+m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
 {
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -340,6 +342,8 @@ m_isRemoved(false), m_isSingleTarget(false)
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(caster);
+    m_isUsingCharges = m_procCharges != 0;
+    // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
 }
 
 void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount)
@@ -741,12 +745,15 @@ void Aura::SetCharges(uint8 charges)
     if (m_procCharges == charges)
         return;
     m_procCharges = charges;
+    m_isUsingCharges = m_procCharges != 0;
     SetNeedClientUpdateForTargets();
 }
 
 uint8 Aura::CalcMaxCharges(Unit* caster) const
 {
     uint8 maxProcCharges = m_spellProto->procCharges;
+    if (SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId()))
+        maxProcCharges = procEntry->charges;
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
@@ -756,7 +763,7 @@ uint8 Aura::CalcMaxCharges(Unit* caster) const
 
 bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
 {
-    if (m_procCharges)
+    if (IsUsingCharges())
     {
         int32 charges = m_procCharges + num;
         int32 maxCharges = CalcMaxCharges();
@@ -831,6 +838,12 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
         // reset charges
         SetCharges(CalcMaxCharges());
+        // FIXME: not a best way to synchronize charges, but works
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (AuraEffect* aurEff = GetEffect(i))
+                if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
+                    if (SpellModifier* mod = aurEff->GetSpellModifier())
+                        mod->charges = GetCharges();
     }
     SetNeedClientUpdateForTargets();
     return false;
@@ -875,6 +888,10 @@ bool Aura::CanBeSaved() const
     if (GetId() == 44413)
         return false;
 
+    // don't save auras removed by proc system
+    if (IsUsingCharges() && !GetCharges())
+        return false;
+
     return true;
 }
 
@@ -900,6 +917,7 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
     m_maxDuration = maxduration;
     m_duration = duration;
     m_procCharges = charges;
+    m_isUsingCharges = m_procCharges != 0;
     m_stackAmount = stackamount;
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1627,7 +1645,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
 
-                uint32 presence=GetId();
+                uint32 presence = GetId();
                 if (apply)
                 {
                     // Blood Presence bonus
@@ -1635,7 +1653,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target, 63611, true);
                     else if (bloodPresenceAura)
                     {
-                        int32 basePoints1=bloodPresenceAura->GetAmount();
+                        int32 basePoints1 = bloodPresenceAura->GetAmount();
                         target->CastCustomSpell(target, 63611, NULL, &basePoints1, NULL, true, 0, bloodPresenceAura);
                     }
                     // Frost Presence bonus
@@ -1643,7 +1661,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target, 61261, true);
                     else if (frostPresenceAura)
                     {
-                        int32 basePoints0=frostPresenceAura->GetAmount();
+                        int32 basePoints0 = frostPresenceAura->GetAmount();
                         target->CastCustomSpell(target, 61261, &basePoints0, NULL, NULL, true, 0, frostPresenceAura);
                     }
                     // Unholy Presence bonus
@@ -1654,13 +1672,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             // Not listed as any effect, only base points set
                             int32 basePoints0 = SpellMgr::CalculateSpellEffectAmount(unholyPresenceAura->GetSpellProto(), 1);
                             target->CastCustomSpell(target, 63622, &basePoints0 , &basePoints0, &basePoints0, true, 0, unholyPresenceAura);
-                            target->CastCustomSpell(target, 65095, &basePoints0 , NULL, NULL, true, 0, unholyPresenceAura);
                         }
                         target->CastSpell(target, 49772, true);
                     }
                     else if (unholyPresenceAura)
                     {
-                        int32 basePoints0=unholyPresenceAura->GetAmount();
+                        int32 basePoints0 = unholyPresenceAura->GetAmount();
                         target->CastCustomSpell(target, 49772, &basePoints0, NULL, NULL, true, 0, unholyPresenceAura);
                     }
                 }
@@ -1674,10 +1691,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (presence == 48265 || unholyPresenceAura)
                     {
                         if (presence == 48265 && unholyPresenceAura)
-                        {
                             target->RemoveAurasDueToSpell(63622);
-                            target->RemoveAurasDueToSpell(65095);
-                        }
                         target->RemoveAurasDueToSpell(49772);
                     }
                 }
@@ -1726,6 +1740,132 @@ bool Aura::CanBeAppliedOn(Unit* target)
 bool Aura::CheckAreaTarget(Unit* target)
 {
     return CallScriptCheckAreaTargetHandlers(target);
+}
+
+bool Aura::IsProcOnCooldown() const
+{
+    /*if (m_procCooldown)
+    {
+        if (m_procCooldown > time(NULL))
+            return true;
+    }*/
+    return false;
+}
+
+void Aura::AddProcCooldown(uint32 /*msec*/)
+{
+    //m_procCooldown = time(NULL) + msec;
+}
+
+void Aura::PrepareProcToTrigger()
+{
+    // TODO: allow scripts to prevent charge drop/cooldown
+    // take one charge, aura expiration will be handled in Aura::TriggerProcOnEvent (if needed)
+    if (IsUsingCharges())
+    {
+        --m_procCharges;
+        SetNeedClientUpdateForTargets();
+    }
+
+    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
+
+    ASSERT(procEntry);
+
+    // cooldowns should be added to the whole aura (see 51698 area aura)
+    AddProcCooldown(procEntry->cooldown);
+}
+
+bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const
+{
+    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
+    // only auras with spell proc entry can trigger proc
+    if (!procEntry)
+        return false;
+
+    // check if we have charges to proc with
+    if (IsUsingCharges() && !GetCharges())
+        return false;
+
+    // check proc cooldown
+    if (IsProcOnCooldown())
+        return false;
+
+    // TODO:
+    // something about triggered spells triggering, and add extra attack effect
+
+    // do checks against db data
+    if (!sSpellMgr->CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
+        return false;
+
+    // Check if current equipment meets aura requirements
+    // do that only for passive spells
+    // TODO: this needs to be unified for all kinds of auras
+    Unit* target = aurApp->GetTarget();
+    if (IsPassive() && target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (GetSpellProto()->EquippedItemClass == ITEM_CLASS_WEAPON)
+        {
+            if (target->ToPlayer()->IsInFeralForm())
+                return false;
+
+            if (eventInfo.GetDamageInfo())
+            {
+                WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
+                Item *item = NULL;
+                if (attType == BASE_ATTACK)
+                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                else if (attType == OFF_ATTACK)
+                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                else
+                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+
+                if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & GetSpellProto()->EquippedItemSubClassMask))
+                    return false;
+            }
+        }
+        else if (GetSpellProto()->EquippedItemClass == ITEM_CLASS_ARMOR)
+        {
+            // Check if player is wearing shield
+            Item *item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetTemplate()->SubClass) & GetSpellProto()->EquippedItemSubClassMask))
+                return false;
+        }
+    }
+
+    return roll_chance_f(CalcProcChance(*procEntry, eventInfo));
+}
+
+float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const
+{
+    float chance = procEntry.chance;
+    // calculate chances depending on unit with caster's data
+    // so talents modifying chances and judgements will have properly calculated proc chance
+    if (Unit * caster = GetCaster())
+    {
+        // calculate ppm chance if present and we're using weapon
+        if (eventInfo.GetDamageInfo() && procEntry.ratePerMinute != 0)
+        {
+            uint32 WeaponSpeed = caster->GetAttackTime(eventInfo.GetDamageInfo()->GetAttackType());
+            chance = caster->GetPPMProcChance(WeaponSpeed, procEntry.ratePerMinute, GetSpellProto());
+        }
+        // apply chance modifer aura, applies also to ppm chance (see improved judgement of light spell)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
+    }
+    return chance;
+}
+
+void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
+{
+    // TODO: script hooks here (allowing prevention of selected effects)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (aurApp->HasEffect(i))
+            GetEffect(i)->HandleProc(aurApp, eventInfo);
+    // TODO: script hooks here
+
+    // Remove aura if we've used last charge to proc
+    if (IsUsingCharges() && !GetCharges())
+        Remove();
 }
 
 void Aura::_DeleteRemovedApplications()

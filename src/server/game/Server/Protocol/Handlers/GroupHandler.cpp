@@ -599,7 +599,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     }
     else
     {
-        CharacterDatabase.escape_string(name);
+        CharacterDatabase.EscapeString(name);
         guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
     }
 

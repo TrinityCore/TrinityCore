@@ -45,14 +45,14 @@ class boss_herod : public CreatureScript
 public:
     boss_herod() : CreatureScript("boss_herod") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_herodAI(pCreature);
+        return new boss_herodAI(creature);
     }
 
     struct boss_herodAI : public ScriptedAI
     {
-        boss_herodAI(Creature *c) : ScriptedAI(c) {}
+        boss_herodAI(Creature* c) : ScriptedAI(c) {}
 
         bool Enrage;
 
@@ -123,14 +123,14 @@ class mob_scarlet_trainee : public CreatureScript
 public:
     mob_scarlet_trainee() : CreatureScript("mob_scarlet_trainee") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scarlet_traineeAI(pCreature);
+        return new mob_scarlet_traineeAI(creature);
     }
 
     struct mob_scarlet_traineeAI : public npc_escortAI
     {
-        mob_scarlet_traineeAI(Creature *c) : npc_escortAI(c)
+        mob_scarlet_traineeAI(Creature* c) : npc_escortAI(c)
         {
             Start_Timer = urand(1000, 6000);
         }

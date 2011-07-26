@@ -59,7 +59,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
         struct boss_high_botanist_freywinnAI : public ScriptedAI
         {
-            boss_high_botanist_freywinnAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+            boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) {}
 
             std::list<uint64> Adds_List;
 
@@ -85,7 +85,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
             }
 
-            void JustSummoned(Creature *summoned)
+            void JustSummoned(Creature* summoned)
             {
                 if (summoned->GetEntry() == ENTRY_FRAYER)
                     Adds_List.push_back(summoned->GetGUID());
@@ -146,7 +146,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                         {
                             for (std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
                             {
-                                if (Unit *temp = Unit::GetUnit(*me, *itr))
+                                if (Unit* temp = Unit::GetUnit(*me, *itr))
                                 {
                                     if (!temp->isAlive())
                                     {

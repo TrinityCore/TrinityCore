@@ -730,23 +730,20 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         m_CreatureEventAI_Event_Map[creature_id].push_back(temp);
         ++count;
 
-        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(temp.creature_id))
+    }
+    while (result->NextRow());
+
+    for (CreatureEventAI_Event_Map::const_iterator itr = m_CreatureEventAI_Event_Map.begin(); itr != m_CreatureEventAI_Event_Map.end(); ++itr)
+    {
+        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(itr->first))
         {
-            if (!cInfo->AIName.empty())
+            if (cInfo->AIName != "EventAI")
             {
+                sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI', changing to EventAI", itr->first);
                 const_cast<CreatureTemplate*>(cInfo)->AIName = "EventAI";
-            }
-            if (cInfo->AIName.compare("EventAI"))
-            {
-                //sLog->outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it has AIName %s. EventAI script will be overriden.", cInfo->Entry, cInfo->AIName);
-            }
-            if (cInfo->ScriptID)
-            {
-                //sLog->outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it also has C++ script. EventAI script will be overriden.", cInfo->Entry);
             }
         }
     }
-    while (result->NextRow());
 
     sLog->outString(">> Loaded %u CreatureEventAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();

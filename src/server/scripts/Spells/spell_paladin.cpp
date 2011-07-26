@@ -71,31 +71,31 @@ public:
 
         void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            Unit* pVictim = GetTarget();
-            int32 remainingHealth = pVictim->GetHealth() - dmgInfo.GetDamage();
-            uint32 allowedHealth = pVictim->CountPctFromMaxHealth(35);
+            Unit* victim = GetTarget();
+            int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
+            uint32 allowedHealth = victim->CountPctFromMaxHealth(35);
             // If damage kills us
-            if (remainingHealth <= 0 && !pVictim->ToPlayer()->HasSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
+            if (remainingHealth <= 0 && !victim->ToPlayer()->HasSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
             {
                 // Cast healing spell, completely avoid damage
                 absorbAmount = dmgInfo.GetDamage();
 
-                uint32 defenseSkillValue = pVictim->GetDefenseSkillValue();
+                uint32 defenseSkillValue = victim->GetDefenseSkillValue();
                 // Max heal when defense skill denies critical hits from raid bosses
                 // Formula: max defense at level + 140 (raiting from gear)
-                uint32 reqDefForMaxHeal  = pVictim->getLevel() * 5 + 140;
+                uint32 reqDefForMaxHeal  = victim->getLevel() * 5 + 140;
                 float pctFromDefense = (defenseSkillValue >= reqDefForMaxHeal)
                     ? 1.0f
                     : float(defenseSkillValue) / float(reqDefForMaxHeal);
 
-                int32 healAmount = int32(pVictim->CountPctFromMaxHealth(uint32(healPct * pctFromDefense)));
-                pVictim->CastCustomSpell(pVictim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
-                pVictim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, time(NULL) + 120);
+                int32 healAmount = int32(victim->CountPctFromMaxHealth(uint32(healPct * pctFromDefense)));
+                victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
+                victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, time(NULL) + 120);
             }
             else if (remainingHealth < int32(allowedHealth))
             {
                 // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-                uint32 damageToReduce = (pVictim->GetHealth() < allowedHealth)
+                uint32 damageToReduce = (victim->GetHealth() < allowedHealth)
                     ? dmgInfo.GetDamage()
                     : allowedHealth - remainingHealth;
                 absorbAmount = CalculatePctN(damageToReduce, absorbPct);
@@ -138,7 +138,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit *unitTarget = GetHitUnit())
+            if (Unit* unitTarget = GetHitUnit())
             {
                 uint32 spell_id = 0;
                 switch(unitTarget->getClass())
@@ -186,15 +186,15 @@ public:
 
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = GetTarget();
+            Unit* target = GetTarget();
             if (Unit* pCaster = GetCaster())
-                pCaster->CastSpell(pTarget, PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, true);
+                pCaster->CastSpell(target, PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, true);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = GetTarget();
-            pTarget->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
+            Unit* target = GetTarget();
+            target->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
         }
 
         void Register()
@@ -273,9 +273,9 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit *unitTarget = GetHitUnit())
+            if (Unit* unitTarget = GetHitUnit())
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
 
                 uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
@@ -309,7 +309,7 @@ public:
         PrepareSpellScript(spell_pal_judgement_of_command_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit *unitTarget = GetHitUnit())
+            if (Unit* unitTarget = GetHitUnit())
                 if (SpellEntry const* spell_proto = sSpellStore.LookupEntry(GetEffectValue()))
                     GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
         }

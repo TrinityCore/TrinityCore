@@ -64,14 +64,14 @@ class boss_chromaggus : public CreatureScript
 public:
     boss_chromaggus() : CreatureScript("boss_chromaggus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_chromaggusAI (pCreature);
+        return new boss_chromaggusAI (creature);
     }
 
     struct boss_chromaggusAI : public ScriptedAI
     {
-        boss_chromaggusAI(Creature *c) : ScriptedAI(c)
+        boss_chromaggusAI(Creature* c) : ScriptedAI(c)
         {
             //Select the 2 breaths that we are going to use until despawned
             //5 possiblities for the first breath, 4 for the second, 20 total possiblites
@@ -262,7 +262,7 @@ public:
                                 && pUnit->HasAura(SPELL_BROODAF_GREEN))
                             {
                                 //pTarget->RemoveAllAuras();
-                                //DoCast(pTarget, SPELL_CHROMATIC_MUT_1);
+                                //DoCast(target, SPELL_CHROMATIC_MUT_1);
 
                                 //Chromatic mutation is causing issues
                                 //Assuming it is caused by a lack of core support for Charm

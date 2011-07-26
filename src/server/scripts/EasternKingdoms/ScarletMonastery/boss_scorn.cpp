@@ -35,14 +35,14 @@ class boss_scorn : public CreatureScript
 public:
     boss_scorn() : CreatureScript("boss_scorn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_scornAI (pCreature);
+        return new boss_scornAI (creature);
     }
 
     struct boss_scornAI : public ScriptedAI
     {
-        boss_scornAI(Creature *c) : ScriptedAI(c) {}
+        boss_scornAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 LichSlap_Timer;
         uint32 FrostboltVolley_Timer;

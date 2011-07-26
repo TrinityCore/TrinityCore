@@ -83,7 +83,7 @@ class boss_garfrost : public CreatureScript
 
         struct boss_garfrostAI : public BossAI
         {
-            boss_garfrostAI(Creature *creature) : BossAI(creature, DATA_GARFROST)
+            boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST)
             {
             }
 

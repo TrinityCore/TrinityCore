@@ -36,7 +36,7 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         if (InstanceScript* pInstance = pGO->GetInstanceScript())
         {
@@ -104,14 +104,14 @@ class boss_lieutenant_drake : public CreatureScript
 public:
     boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_lieutenant_drakeAI (pCreature);
+        return new boss_lieutenant_drakeAI (creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
     {
-        boss_lieutenant_drakeAI(Creature *c) : ScriptedAI(c) {}
+        boss_lieutenant_drakeAI(Creature* c) : ScriptedAI(c) {}
 
         bool CanPatrol;
         uint32 wpId;

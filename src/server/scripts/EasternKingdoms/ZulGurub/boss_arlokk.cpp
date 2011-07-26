@@ -59,9 +59,9 @@ class boss_arlokk : public CreatureScript
 
         struct boss_arlokkAI : public ScriptedAI
         {
-            boss_arlokkAI(Creature* pCreature) : ScriptedAI(pCreature)
+            boss_arlokkAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_pInstance = pCreature->GetInstanceScript();
+                m_pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_pInstance;
@@ -103,7 +103,7 @@ class boss_arlokk : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*pWho*/)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
             }
@@ -111,13 +111,13 @@ class boss_arlokk : public CreatureScript
             void JustReachedHome()
             {
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_ARLOKK, NOT_STARTED);
+                    m_pInstance->SetData(DATA_ARLOKK, NOT_STARTED);
 
                 //we should be summoned, so despawn
                 me->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* /*pKiller*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
@@ -125,22 +125,22 @@ class boss_arlokk : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 if (m_pInstance)
-                    m_pInstance->SetData(TYPE_ARLOKK, DONE);
+                    m_pInstance->SetData(DATA_ARLOKK, DONE);
             }
 
             void DoSummonPhanters()
             {
-                if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
                     DoScriptText(SAY_FEAST_PANTHER, me, pMarkedTarget);
 
                 me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998f, -1649.6734f, 41.4800f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970f, -1606.4840f, 41.2979f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
             }
 
-            void JustSummoned(Creature* pSummoned)
+            void JustSummoned(Creature* summoned)
             {
-                if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
-                    pSummoned->AI()->AttackStart(pMarkedTarget);
+                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+                    summoned->AI()->AttackStart(pMarkedTarget);
 
                 ++m_uiSummonCount;
             }
@@ -162,7 +162,7 @@ class boss_arlokk : public CreatureScript
 
                     if (m_uiMark_Timer <= uiDiff)
                     {
-                        Unit *pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                         if (pMarkedTarget)
                         {
@@ -242,8 +242,8 @@ class boss_arlokk : public CreatureScript
                         me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                         me->UpdateDamagePhysical(BASE_ATTACK);
 
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            AttackStart(pTarget);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            AttackStart(target);
 
                         m_bIsPhaseTwo = true;
                         m_bIsVanished = false;
@@ -269,14 +269,14 @@ class go_gong_of_bethekk : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+        bool OnGossipHello(Player* /*player*/, GameObject* pGo)
         {
             if (InstanceScript* m_pInstance = pGo->GetInstanceScript())
             {
-                if (m_pInstance->GetData(TYPE_ARLOKK) == DONE || m_pInstance->GetData(TYPE_ARLOKK) == IN_PROGRESS)
+                if (m_pInstance->GetData(DATA_ARLOKK) == DONE || m_pInstance->GetData(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
 
-                m_pInstance->SetData(TYPE_ARLOKK, IN_PROGRESS);
+                m_pInstance->SetData(DATA_ARLOKK, IN_PROGRESS);
                 return true;
             }
 

@@ -221,7 +221,7 @@ class boss_lord_marrowgar : public CreatureScript
                 if (me->HasAura(SPELL_BONE_STORM))
                     return;
 
-                // After 10 seconds since encounter start Bone Slice replaces melee attacks
+                // 10 seconds since encounter start Bone Slice replaces melee attacks
                 if (_boneSlice && !me->GetCurrentSpell(CURRENT_MELEE_SPELL))
                     DoCastVictim(SPELL_BONE_SLICE);
 
@@ -290,7 +290,7 @@ class npc_coldflame : public CreatureScript
                     }
 
                     me->SetOrientation(me->GetAngle(target));
-                    owner->GetNearPosition(pos, owner->GetObjectSize()/2.0f, 0.0f);
+                    owner->GetNearPosition(pos, owner->GetObjectSize() / 2.0f, 0.0f);
                 }
                 else
                 {
@@ -305,7 +305,7 @@ class npc_coldflame : public CreatureScript
                 }
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 200);
+                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 450);
             }
 
             void UpdateAI(uint32 const diff)
@@ -318,7 +318,7 @@ class npc_coldflame : public CreatureScript
                     me->GetNearPosition(newPos, 5.5f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
-                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 200);
+                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 450);
                 }
             }
 
@@ -460,33 +460,38 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
         {
             PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                return GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_TOPAGGRO, 1, 0.0f, true, -SPELL_IMPALED) ? SPELL_CAST_OK : SPELL_FAILED_NO_VALID_TARGETS;
+            }
+
             void HandleSpikes(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Creature* marrowgar = GetCaster()->ToCreature())
                 {
+                    bool didHit = false;
                     CreatureAI* marrowgarAI = marrowgar->AI();
                     uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 3 : 1);
                     for (uint8 i = 0; i < boneSpikeCount; ++i)
                     {
                         // select any unit but not the tank
                         Unit* target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 1, 150.0f, true, -SPELL_IMPALED);
-                        // try the tank only in first iteration
-                        if (!target && !i)
-                            target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, -SPELL_IMPALED);
-
                         if (!target)
-                            return;
+                            break;
 
+                        didHit = true;
                         target->CastCustomSpell(boneSpikeSummonId[i], SPELLVALUE_BASE_POINT0, 0, target, true);
                     }
 
-                    marrowgarAI->Talk(SAY_BONESPIKE);
+                    if (didHit)
+                        marrowgarAI->Talk(SAY_BONESPIKE);
                 }
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_marrowgar_bone_spike_graveyard_SpellScript::CheckCast);
                 OnEffect += SpellEffectFn(spell_marrowgar_bone_spike_graveyard_SpellScript::HandleSpikes, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };

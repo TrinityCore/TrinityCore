@@ -34,14 +34,14 @@ class boss_azshir_the_sleepless : public CreatureScript
 public:
     boss_azshir_the_sleepless() : CreatureScript("boss_azshir_the_sleepless") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_azshir_the_sleeplessAI (pCreature);
+        return new boss_azshir_the_sleeplessAI (creature);
     }
 
     struct boss_azshir_the_sleeplessAI : public ScriptedAI
     {
-        boss_azshir_the_sleeplessAI(Creature *c) : ScriptedAI(c) {}
+        boss_azshir_the_sleeplessAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 SoulSiphon_Timer;
         uint32 CallOftheGrave_Timer;

@@ -48,14 +48,14 @@ class boss_aeonus : public CreatureScript
 public:
     boss_aeonus() : CreatureScript("boss_aeonus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_aeonusAI (pCreature);
+        return new boss_aeonusAI (creature);
     }
 
     struct boss_aeonusAI : public ScriptedAI
     {
-        boss_aeonusAI(Creature *c) : ScriptedAI(c)
+        boss_aeonusAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -78,7 +78,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)

@@ -28,7 +28,7 @@ class npc_four_car_garage : public CreatureScript
 
         struct npc_four_car_garageAI : public NullCreatureAI
         {
-            npc_four_car_garageAI(Creature* pCreature) : NullCreatureAI(pCreature) { }
+            npc_four_car_garageAI(Creature* creature) : NullCreatureAI(creature) { }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
             {

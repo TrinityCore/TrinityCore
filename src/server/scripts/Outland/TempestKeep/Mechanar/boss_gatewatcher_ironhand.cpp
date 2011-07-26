@@ -58,7 +58,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             // Gatewatcher Iron-Hand AI
             struct boss_gatewatcher_iron_handAI : public ScriptedAI
             {
-                boss_gatewatcher_iron_handAI(Creature* pCreature) : ScriptedAI(pCreature)
+                boss_gatewatcher_iron_handAI(Creature* creature) : ScriptedAI(creature)
                 {
                 }
 

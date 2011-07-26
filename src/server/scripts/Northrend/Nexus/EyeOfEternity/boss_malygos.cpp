@@ -724,9 +724,9 @@ class npc_portal_eoe: public CreatureScript
 public:
     npc_portal_eoe() : CreatureScript("npc_portal_eoe") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_portal_eoeAI(pCreature);
+        return new npc_portal_eoeAI(creature);
     }
 
     struct npc_portal_eoeAI : public ScriptedAI
