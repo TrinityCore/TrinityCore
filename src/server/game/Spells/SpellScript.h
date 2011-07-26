@@ -24,7 +24,7 @@
 #include <stack>
 
 class Unit;
-struct SpellEntry;
+class SpellInfo;
 class SpellScript;
 class Spell;
 class Aura;
@@ -56,7 +56,7 @@ class _SpellScript
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
     protected:
-        virtual bool _Validate(SpellEntry const* entry);
+        virtual bool _Validate(SpellInfo const* entry);
 
     public:
         _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE) {}
@@ -70,9 +70,9 @@ class _SpellScript
         {
             public:
                 EffectHook(uint8 _effIndex);
-                uint8 GetAffectedEffectsMask(SpellEntry const* spellEntry);
-                bool IsEffectAffected(SpellEntry const* spellEntry, uint8 effIndex);
-                virtual bool CheckEffect(SpellEntry const* spellEntry, uint8 effIndex) = 0;
+                uint8 GetAffectedEffectsMask(SpellInfo const* spellEntry);
+                bool IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndex);
+                virtual bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex) = 0;
                 std::string EffIndexToString();
             protected:
                 uint8 effIndex;
@@ -82,7 +82,7 @@ class _SpellScript
         {
             public:
                 EffectNameCheck(uint16 _effName) {effName = _effName;};
-                bool Check(SpellEntry const* spellEntry, uint8 effIndex);
+                bool Check(SpellInfo const* spellEntry, uint8 effIndex);
                 std::string ToString();
             private:
                 uint16 effName;
@@ -92,7 +92,7 @@ class _SpellScript
         {
             public:
                 EffectAuraNameCheck(uint16 _effAurName) { effAurName = _effAurName; }
-                bool Check(SpellEntry const* spellEntry, uint8 effIndex);
+                bool Check(SpellInfo const* spellEntry, uint8 effIndex);
                 std::string ToString();
             private:
                 uint16 effAurName;
@@ -110,7 +110,7 @@ class _SpellScript
         virtual void Register() = 0;
         // Function called on server startup, if returns false script won't be used in core
         // use for: dbc/template data presence/correctness checks
-        virtual bool Validate(SpellEntry const* /*spellEntry*/) { return true; }
+        virtual bool Validate(SpellInfo const* /*spellEntry*/) { return true; }
         // Function called when script is created, if returns false script will be unloaded afterwards
         // use for: initializing local script variables (DO NOT USE CONSTRUCTOR FOR THIS PURPOSE!)
         virtual bool Load() { return true; }
@@ -163,7 +163,7 @@ class SpellScript : public _SpellScript
             public:
                 EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellEntry const* spellEntry, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex);
                 void Call(SpellScript* spellScript, SpellEffIndex effIndex);
             private:
                 SpellEffectFnType pEffectHandlerScript;
@@ -183,7 +183,7 @@ class SpellScript : public _SpellScript
             public:
                 UnitTargetHandler(SpellUnitTargetFnType _pUnitTargetHandlerScript, uint8 _effIndex, uint16 _targetType);
                 std::string ToString();
-                bool CheckEffect(SpellEntry const* spellEntry, uint8 targetType);
+                bool CheckEffect(SpellInfo const* spellEntry, uint8 targetType);
                 void Call(SpellScript* spellScript, std::list<Unit*>& unitTargets);
             private:
                 SpellUnitTargetFnType pUnitTargetHandlerScript;
@@ -198,7 +198,7 @@ class SpellScript : public _SpellScript
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
-        bool _Validate(SpellEntry const* entry);
+        bool _Validate(SpellInfo const* entry);
         bool _Load(Spell* spell);
         void _InitHit();
         bool _IsEffectPrevented(SpellEffIndex effIndex) { return m_hitPreventEffectMask & (1<<effIndex); }
@@ -255,7 +255,7 @@ class SpellScript : public _SpellScript
         // methods useable during all spell handling phases
         Unit* GetCaster();
         Unit* GetOriginalCaster();
-        SpellEntry const* GetSpellInfo();
+        SpellInfo const* GetSpellInfo();
 
         // methods useable after spell targets are set
         // accessors to the "focus" targets of the spell
@@ -381,7 +381,7 @@ class AuraScript : public _SpellScript
             public:
                 EffectBase(uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellEntry const* spellEntry, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex);
         };
         class EffectPeriodicHandler : public EffectBase
         {
@@ -465,7 +465,7 @@ class AuraScript : public _SpellScript
     public:
         AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
         {}
-        bool _Validate(SpellEntry const* entry);
+        bool _Validate(SpellInfo const* entry);
         bool _Load(Aura * aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = NULL);
         void _FinishScriptCall();
@@ -580,7 +580,7 @@ class AuraScript : public _SpellScript
         // AuraScript interface - functions which are redirecting to Aura class
 
         // returns proto of the spell
-        SpellEntry const* GetSpellProto() const;
+        SpellInfo const* GetSpellInfo() const;
         // returns spellid of the spell
         uint32 GetId() const;
 

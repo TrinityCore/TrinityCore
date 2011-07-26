@@ -436,7 +436,7 @@ public:
             m_bIsDuelInProgress = false;
         }
 
-        void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -625,7 +625,7 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) {}
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             if (spell->Id == DELIVER_STOLEN_HORSE)
             {

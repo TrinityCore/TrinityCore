@@ -543,7 +543,7 @@ public:
                 sayTimer -= uiDiff;
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* proto)
+        void SpellHit(Unit* caster, const SpellInfo* proto)
         {
             if (!proto || proto->Id != SPELL_OFFER)
                 return;

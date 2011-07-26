@@ -28,6 +28,7 @@
 #include "World.h"
 #include "Util.h"
 #include "Group.h"
+#include "SpellInfo.h"
 
 int PetAI::Permissible(const Creature *creature)
 {
@@ -133,7 +134,7 @@ void PetAI::UpdateAI(const uint32 diff)
             if (!spellID)
                 continue;
 
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
+            SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(spellID);
             if (!spellInfo)
                 continue;
 
@@ -144,21 +145,21 @@ void PetAI::UpdateAI(const uint32 diff)
             if (!me->getVictim())
             {
                 // ignore attacking spells, and allow only self/around spells
-                if (!IsPositiveSpell(spellInfo->Id))
+                if (!spellInfo->IsPositive())
                     continue;
 
                 // non combat spells allowed
                 // only pet spells have IsNonCombatSpell and not fit this reqs:
                 // Consume Shadows, Lesser Invisibility, so ignore checks for its
-                if (!IsNonCombatSpell(spellInfo))
+                if (spellInfo->CanBeUsedInCombat())
                 {
                     // allow only spell without spell cost or with spell cost but not duration limit
-                    int32 duration = GetSpellDuration(spellInfo);
-                    if ((spellInfo->manaCost || spellInfo->ManaCostPercentage || spellInfo->manaPerSecond) && duration > 0)
+                    int32 duration = spellInfo->GetDuration();
+                    if ((spellInfo->ManaCost || spellInfo->ManaCostPercentage || spellInfo->ManaPerSecond) && duration > 0)
                         continue;
 
                     // allow only spell without cooldown > duration
-                    int32 cooldown = GetSpellRecoveryTime(spellInfo);
+                    int32 cooldown = spellInfo->GetRecoveryTime();
                     if (cooldown >= 0 && duration >= 0 && cooldown > duration)
                         continue;
                 }
@@ -166,7 +167,7 @@ void PetAI::UpdateAI(const uint32 diff)
             else
             {
                 // just ignore non-combat spells
-                if (IsNonCombatSpell(spellInfo))
+                if (!spellInfo->CanBeUsedInCombat())
                     continue;
             }
 

@@ -461,10 +461,10 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
                 switch (target->GetMap()->GetDifficulty())
                 {
                     case RAID_DIFFICULTY_10MAN_NORMAL:
-                        target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_0));
+                        target->RemoveAura(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
                         break;
                     case RAID_DIFFICULTY_25MAN_NORMAL:
-                        target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1));
+                        target->RemoveAura(GetSpellInfo()->Effects[EFFECT_1].CalcValue());
                         break;
                     default:
                         break;
