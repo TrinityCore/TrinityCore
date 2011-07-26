@@ -541,12 +541,13 @@ union GameObjectValue
     struct
     {
         OPvPCapturePoint *OPvPObj;
-    }capturePoint;
+    } CapturePoint;
     //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
     struct
     {
-        uint32 health;
-    }building;
+        uint32 Health;
+        uint32 MaxHealth;
+    } Building;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
@@ -767,8 +768,18 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void CastSpell(Unit* target, uint32 spell);
         void SendCustomAnim(uint32 anim);
         bool IsInRange(float x, float y, float z, float radius) const;
-        void TakenDamage(uint32 damage, Unit* who = NULL);
-        void Rebuild();
+
+        void ModifyHealth(int32 change, Unit* attackerOrHealer = NULL, uint32 spellId = 0);
+        // sets GameObject type 33 destruction flags and optionally default health for that state
+        void SetDestructibleState(GameObjectDestructibleState state, Player* eventInvoker = NULL, bool setHealth = false);
+        GameObjectDestructibleState GetDestructibleState() const
+        {
+            if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED))
+                return GO_DESTRUCTIBLE_DESTROYED;
+            if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED))
+                return GO_DESTRUCTIBLE_DAMAGED;
+            return GO_DESTRUCTIBLE_INTACT;
+        }
 
         void EventInform(uint32 eventId);
 

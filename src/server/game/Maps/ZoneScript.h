@@ -21,8 +21,6 @@
 #include "Common.h"
 #include "Creature.h"
 
-//struct CreatureData;
-class Creature;
 class GameObject;
 
 class ZoneScript
@@ -49,8 +47,7 @@ class ZoneScript
         virtual uint32 GetData(uint32 /*DataId*/) { return 0; }
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) {}
 
-        virtual void ProcessEvent(GameObject* /*obj*/, uint32 /*eventId*/) {}
-        virtual void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/) {}
+        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/) {}
 };
 
 #endif

@@ -516,7 +516,7 @@ class BattlegroundSA : public Battleground
          * -Update worldstate
          * -Delete gameobject in front of door (lighting object, with different colours for each door)
          */
-        void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
+        void DestroyGate(Player* player, GameObject* go);
         /// Update timer worldstate
         void SendTime();
         /**
