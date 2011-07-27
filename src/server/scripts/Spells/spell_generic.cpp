@@ -1168,7 +1168,7 @@ class spell_gen_launch : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_launch_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* player = GetHitPlayer())
                     player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE,player); // prevents falling damage

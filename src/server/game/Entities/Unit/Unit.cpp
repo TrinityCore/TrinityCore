@@ -3421,8 +3421,6 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
 {
     SpellInfo const* spellProto = aura->GetSpellInfo();
 
-    uint32 spellId = spellProto->Id;
-
     // passive spell special case (only non stackable with ranks)
     if (spellProto->IsPassiveStackableWithRanks())
         return;
@@ -15231,7 +15229,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura)
 {
     // aura can be deleted at casts
     SpellInfo const* spellProto = triggeredByAura->GetSpellInfo();
-    uint32 effIdx = triggeredByAura->GetEffIndex();
     int32 heal = triggeredByAura->GetAmount();
     uint64 caster_guid = triggeredByAura->GetCasterGUID();
 
@@ -15293,7 +15290,6 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     }
 
     uint64 caster_guid = triggeredByAura->GetCasterGUID();
-    uint32 effIdx = triggeredByAura->GetEffIndex();
 
     // jumps
     int32 jumps = triggeredByAura->GetBase()->GetCharges()-1;
