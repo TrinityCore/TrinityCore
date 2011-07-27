@@ -135,7 +135,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellEntry const* pSpell)
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell)
         {
             if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
             {

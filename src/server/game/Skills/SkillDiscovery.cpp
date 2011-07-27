@@ -23,6 +23,7 @@
 #include "SkillDiscovery.h"
 #include "SpellMgr.h"
 #include "Player.h"
+#include "SpellInfo.h"
 #include <map>
 
 struct SkillDiscoveryEntry
@@ -83,8 +84,8 @@ void LoadSkillDiscoveryTable()
         if (reqSkillOrSpell > 0)                            // spell case
         {
             uint32 absReqSkillOrSpell = uint32(reqSkillOrSpell);
-            SpellEntry const* reqSpellEntry = sSpellStore.LookupEntry(absReqSkillOrSpell);
-            if (!reqSpellEntry)
+            SpellInfo const* reqSpellInfo = sSpellMgr->GetSpellInfo(absReqSkillOrSpell);
+            if (!reqSpellInfo)
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
@@ -95,9 +96,9 @@ void LoadSkillDiscoveryTable()
             }
 
             // mechanic discovery
-            if (reqSpellEntry->Mechanic != MECHANIC_DISCOVERY &&
+            if (reqSpellInfo->Mechanic != MECHANIC_DISCOVERY &&
                 // explicit discovery ability
-                !IsExplicitDiscoverySpell(reqSpellEntry))
+                !reqSpellInfo->IsExplicitDiscovery())
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
@@ -137,14 +138,14 @@ void LoadSkillDiscoveryTable()
         sLog->outErrorDb("Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n%s", ssNonDiscoverableEntries.str().c_str());
 
     // report about empty data for explicit discovery spells
-    for (uint32 spell_id = 1; spell_id < sSpellStore.GetNumRows(); ++spell_id)
+    for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
     {
-        SpellEntry const* spellEntry = sSpellStore.LookupEntry(spell_id);
+        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell_id);
         if (!spellEntry)
             continue;
 
         // skip not explicit discovery spells
-        if (!IsExplicitDiscoverySpell(spellEntry))
+        if (!spellEntry->IsExplicitDiscovery())
             continue;
 
         if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())

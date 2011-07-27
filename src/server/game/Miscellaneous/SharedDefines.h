@@ -1164,7 +1164,7 @@ enum GhostVisibilityType
 };
 
 // Spell aura states
-enum AuraState
+enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
     AURA_STATE_NONE                         = 0,            // C   |
@@ -2853,7 +2853,7 @@ enum DiminishingGroup
     DIMINISHING_SILENCE             = 16,
     DIMINISHING_SLEEP               = 17,
     DIMINISHING_TAUNT               = 18,
-    DIMINISHING_LIMITONLY           = 19  // No diminishing return, but duration limited to 10 seconds
+    DIMINISHING_LIMITONLY           = 19
 };
 
 enum SummonCategory

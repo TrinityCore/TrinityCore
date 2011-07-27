@@ -606,12 +606,12 @@ void SmartAI::AttackStart(Unit* who)
     }
 }
 
-void SmartAI::SpellHit(Unit* pUnit, const SpellEntry* pSpell)
+void SmartAI::SpellHit(Unit* pUnit, const SpellInfo* pSpell)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, pUnit, 0, 0, false, pSpell);
 }
 
-void SmartAI::SpellHitTarget(Unit* target, const SpellEntry* pSpell)
+void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* pSpell)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, pSpell);
 }

@@ -173,7 +173,6 @@ void LoadDBCStores(const std::string& dataPath);
 
 // script support functions
  DBCStorage <SoundEntriesEntry>          const* GetSoundEntriesStore();
- DBCStorage <SpellEntry>                 const* GetSpellStore();
  DBCStorage <SpellRangeEntry>            const* GetSpellRangeStore();
  DBCStorage <FactionEntry>               const* GetFactionStore();
  DBCStorage <ItemEntry>                  const* GetItemDisplayStore();

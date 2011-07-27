@@ -190,7 +190,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, const SpellEntry *spell)
+            void SpellHit(Unit*, const SpellInfo *spell)
             {
                 if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
                 {

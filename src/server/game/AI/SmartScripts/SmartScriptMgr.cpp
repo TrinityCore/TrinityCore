@@ -334,7 +334,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             case SMART_EVENT_SPELLHIT_TARGET:
                 if (e.event.spellHit.spell)
                 {
-                    SpellEntry const* pSpell = sSpellStore.LookupEntry(e.event.spellHit.spell);
+                    SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(e.event.spellHit.spell);
                     if (!pSpell)
                     {
                         sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Spell entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);

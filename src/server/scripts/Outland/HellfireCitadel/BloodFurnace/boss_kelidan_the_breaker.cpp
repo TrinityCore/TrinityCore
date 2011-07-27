@@ -247,7 +247,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                     DoScriptText(SAY_NOVA, me);
 
-                    if (SpellEntry *nova = GET_SPELL(SPELL_BURNING_NOVA))
+                    if (SpellInfo const* nova = sSpellMgr->GetSpellInfo(SPELL_BURNING_NOVA))
                     {
                         if (Aura * aura = Aura::TryRefreshStackOrCreate(nova, MAX_EFFECT_MASK, me, me))
                             aura->ApplyForTargets();

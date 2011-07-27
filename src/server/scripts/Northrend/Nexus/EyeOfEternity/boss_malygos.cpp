@@ -379,7 +379,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_POWER_SPARK_MALYGOS)
             {

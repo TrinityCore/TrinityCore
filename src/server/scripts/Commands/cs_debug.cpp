@@ -976,11 +976,11 @@ public:
         {
             // reset all states
             for (int i = 1; i <= 32; ++i)
-                unit->ModifyAuraState(AuraState(i), false);
+                unit->ModifyAuraState(AuraStateType(i), false);
             return true;
         }
 
-        unit->ModifyAuraState(AuraState(abs(state)), state > 0);
+        unit->ModifyAuraState(AuraStateType(abs(state)), state > 0);
         return true;
     }
 

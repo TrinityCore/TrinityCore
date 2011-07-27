@@ -116,7 +116,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
         {
             if (!me->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
             {

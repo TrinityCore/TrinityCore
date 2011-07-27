@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
+#include "SpellInfo.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner)
 {
@@ -71,8 +72,8 @@ void Totem::InitStats(uint32 duration)
     Minion::InitStats(duration);
 
     // Get spell cast by totem
-    if (SpellEntry const* totemSpell = sSpellStore.LookupEntry(GetSpell()))
-        if (GetSpellCastTime(totemSpell))   // If spell has cast time -> its an active totem
+    if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(GetSpell()))
+        if (totemSpell->CalcCastTime())   // If spell has cast time -> its an active totem
             m_type = TOTEM_ACTIVE;
 
     if (GetEntry() == SENTRY_TOTEM_ENTRY)
@@ -115,7 +116,7 @@ void Totem::UnSummon()
     {
         owner->SendAutoRepeatCancel(this);
 
-        if (SpellEntry const* spell = sSpellStore.LookupEntry(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
+        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
             owner->SendCooldownEvent(spell, 0, NULL, false);
 
         if (Group* group = owner->GetGroup())
@@ -132,13 +133,13 @@ void Totem::UnSummon()
     AddObjectToRemoveList();
 }
 
-bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
+bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
     // TODO: possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
 
-    switch (spellInfo->EffectApplyAuraName[index])
+    switch (spellInfo->Effects[index].ApplyAuraName)
     {
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
