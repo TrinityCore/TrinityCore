@@ -322,6 +322,10 @@ void OPvPCapturePointHP::HandlePlayerLeave(Player* player)
 
 void OutdoorPvPHP::HandleKillImpl(Player* player, Unit* killed)
 {
+    // Don't reward player if killed has resurrection sickness
+    if (killed->HasAura(15007))
+        return;
+
     if (killed->GetTypeId() != TYPEID_PLAYER)
         return;
 
