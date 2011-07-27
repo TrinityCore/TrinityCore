@@ -2065,7 +2065,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
 // Members handling
 bool Guild::AddMember(const uint64& guid, uint8 rankId)
 {
-    Player* player = sObjectMgr->GetPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
     // Player cannot be in guild
     if (player)
     {
@@ -2135,7 +2135,7 @@ bool Guild::AddMember(const uint64& guid, uint8 rankId)
 void Guild::DeleteMember(const uint64& guid, bool isDisbanding, bool isKicked)
 {
     uint32 lowguid = GUID_LOPART(guid);
-    Player* player = sObjectMgr->GetPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
 
     // Guild master can be deleted when loading guild and guid doesn't exist in characters table
     // or when he is removed from guild by gm command

@@ -3080,7 +3080,7 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     if (!*args)
         return false;
 
-    Player* target = sObjectMgr->GetPlayer(args);
+    Player* target = sObjectAccessor->FindPlayerByName(args);
     uint32 target_guid = 0;
     std::string name(args);
 
@@ -4464,7 +4464,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
     {
         name = TargetName;
         normalizePlayerName(name);
-        player = sObjectMgr->GetPlayer(name.c_str()); //get player by name
+        player = sObjectAccessor->FindPlayerByName(name.c_str());
     }
 
     if (!player)
@@ -4529,7 +4529,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
     {
         name = TargetName;
         normalizePlayerName(name);
-        player = sObjectMgr->GetPlayer(name.c_str()); //get player by name
+        player = sObjectAccessor->FindPlayerByName(name.c_str());
     }
 
     //effect
