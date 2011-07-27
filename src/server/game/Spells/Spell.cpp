@@ -1679,6 +1679,7 @@ bool Spell::UpdateChanneledTargetList()
             if (IsValidDeadOrAliveTarget(unit))
             {
                 if (channelAuraMask & ihit->effectMask)
+                {
                     if (AuraApplication * aurApp = unit->GetAuraApplication(m_spellInfo->Id, m_originalCasterGUID))
                     {
                         if (m_caster != unit && !m_caster->IsWithinDistInMap(unit, range))
@@ -1690,6 +1691,7 @@ bool Spell::UpdateChanneledTargetList()
                     }
                     else // aura is dispelled
                         continue;
+                }
 
                 channelTargetEffectMask &= ~ihit->effectMask;   // remove from need alive mask effect that have alive target
             }
@@ -2020,6 +2022,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         if (Unit *unit = m_caster->GetVehicleKit()->GetPassenger(cur - TARGET_UNIT_PASSENGER_0))
                             AddUnitTarget(unit, i);
                     break;
+                default:
+                    break;
             }
             break;
         }
@@ -2068,6 +2072,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 case TARGET_UNIT_TARGET_CLASS_RAID:
                     pushType = PUSH_CASTER_CENTER; // not real
                     break;
+                default:
+                    break;
             }
             break;
         }
@@ -2096,6 +2102,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive());
                     if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
                     target = SearchNearbyTarget(range, SPELL_TARGETS_ENTRY, SpellEffIndex(i));
+                    break;
+                default:
                     break;
             }
 
@@ -2302,6 +2310,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         m_targets.SetDst(*target);
                     break;
                 }
+                default:
+                    break;
             }
             break;
         }
@@ -2333,6 +2343,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     break;
                 case TARGET_DEST_CHANNEL_CASTER:
                     m_targets.SetDst(*m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetCaster());
+                    break;
+                default:
                     break;
             }
             break;
@@ -2400,6 +2412,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     range = m_spellInfo->GetMaxRange(true);
                     if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
                     SearchChainTarget(unitList, range, maxTargets, SPELL_TARGETS_CHAINHEAL);
+                    break;
+                default:
                     break;
             }
 
@@ -2623,6 +2637,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                             AddUnitTarget(m_targets.GetUnitTarget(), i);
                         break;
                     }
+                    default:
+                        break;
                 }
                 break;
             }
@@ -4420,20 +4436,15 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
 
 void Spell::TakeRunePower(bool didHit)
 {
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    Player* player = m_caster->ToPlayer();
-
-    if (player->getClass() != CLASS_DEATH_KNIGHT)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
     SpellRuneCostEntry const *runeCostData = sSpellRuneCostStore.LookupEntry(m_spellInfo->RuneCostID);
-
     if (!runeCostData || (runeCostData->NoRuneCost() && runeCostData->NoRunicPowerGain()))
         return;
 
-    m_runesState = player->GetRunesState();                    // store previous state
+    Player *player = m_caster->ToPlayer();
+    m_runesState = player->GetRunesState();                 // store previous state
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
 
@@ -4451,7 +4462,7 @@ void Spell::TakeRunePower(bool didHit)
         RuneType rune = player->GetCurrentRune(i);
         if (!player->GetRuneCooldown(i) && runeCost[rune] > 0)
         {
-            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : RUNE_MISS_COOLDOWN);
+            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
             player->SetLastUsedRune(rune);
             runeCost[rune]--;
         }
@@ -4466,7 +4477,7 @@ void Spell::TakeRunePower(bool didHit)
             RuneType rune = player->GetCurrentRune(i);
             if (!player->GetRuneCooldown(i) && rune == RUNE_DEATH)
             {
-                player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : RUNE_MISS_COOLDOWN);
+                player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
                 player->SetLastUsedRune(rune);
                 runeCost[rune]--;
 

@@ -209,7 +209,6 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     uint32 spellCount = 0;
 
     SpellInfo const* tempSpell = NULL;
-    SpellRangeEntry const* tempRange = NULL;
 
     //Check if each spell is viable(set it to null if not)
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; i++)
