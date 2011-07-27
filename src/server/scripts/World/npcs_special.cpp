@@ -277,24 +277,6 @@ enum FirecallerEvents
     EVENT_JOKE
 };
 
-void SchreibeBericht(std::string str)
-{
-    std::string tmpfile = sWorld->GetDataPath().c_str();
-    tmpfile.append("log/feuerrufer.log");
-
-    if (FILE * reportfile = fopen(tmpfile.c_str(), "w"))
-    {
-        sLog->outString("FEUERUFER: %s", str.c_str());
-        fputs(str.c_str(), reportfile);
-        fclose(reportfile);
-    }
-    else
-    {
-        sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
-        sLog->outError("FEUERUFER: %s", str.c_str());
-    }
-}
-
 class npc_uwom_firecaller : public CreatureScript
 {
 public:
@@ -311,10 +293,35 @@ public:
             bericht.append("\n\n");
 
             SpielerGUIDSet.clear();
+            PetListe.clear();
         }
 
         void Reset()
         {
+        }
+
+        void LadePetListe()
+        {
+            QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0");
+            if (!result)
+            {
+                sLog->outErrorDb("FEUERRUFER: Kann die Pets nicht laden!");
+                return;
+            }
+
+            uint32 cnt = 0;
+
+            do
+            {
+                Field * fields = result->Fetch();
+                if (fields[0].GetUInt32() && fields[1].GetUInt32())
+                {
+                    PetListe[fields[0].GetUInt32()] = fields[1].GetUInt32();
+                    ++cnt;
+                }
+            } while (result->NextRow());
+
+            sLog->outString("FEUERRUFER: Habe %u gültige Pets gefunden und geladen.", cnt);
         }
 
         void MoveInLineOfSight(Unit * who)
@@ -328,6 +335,24 @@ public:
 
             if (SpielerGUIDSet.find(chr->GetGUID()) == SpielerGUIDSet.end())
                 SpielerGUIDSet.insert(chr->GetGUID());
+        }
+
+        void SchreibeBericht(std::string str)
+        {
+            std::string tmpfile = sWorld->GetDataPath().c_str();
+            tmpfile.append("log/feuerrufer.log");
+
+            if (FILE * reportfile = fopen(tmpfile.c_str(), "w"))
+            {
+                sLog->outString("FEUERUFER: %s", str.c_str());
+                fputs(str.c_str(), reportfile);
+                fclose(reportfile);
+            }
+            else
+            {
+                sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
+                sLog->outError("FEUERUFER: %s", str.c_str());
+            }
         }
 
         Player * FindeSpieler(float range = 50.0f)
@@ -556,6 +581,7 @@ public:
             EventMap events;
             std::string bericht;
             std::set<uint64> SpielerGUIDSet;
+            std::list<uint32, uint32> PetListe;
     };
 
     CreatureAI * GetAI(Creature * creature) const
