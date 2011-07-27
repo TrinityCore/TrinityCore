@@ -17,7 +17,7 @@
 
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "DbcStores.h"
+#include "DBCStores.h"
 
 SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
 {
