@@ -1608,7 +1608,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     bool self = false;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (spellInfo->Effects[i].TargetA == TARGET_UNIT_CASTER)
+        if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
         {
             self = true;
             break;

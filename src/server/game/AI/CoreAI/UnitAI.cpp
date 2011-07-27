@@ -203,7 +203,7 @@ void UnitAI::FillAISpellInfo()
         {
             for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
-                uint32 targetType = spellInfo->Effects[j].TargetA;
+                uint32 targetType = spellInfo->Effects[j].TargetA.GetTarget();
 
                 if (targetType == TARGET_UNIT_TARGET_ENEMY
                     || targetType == TARGET_DST_TARGET_ENEMY)
