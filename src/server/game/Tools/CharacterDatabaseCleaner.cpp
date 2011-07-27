@@ -128,7 +128,7 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    return sSpellStore.LookupEntry(spell_id) && !GetTalentSpellPos(spell_id);
+    return sSpellMgr->GetSpellInfo(spell_id) && !GetTalentSpellPos(spell_id);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()

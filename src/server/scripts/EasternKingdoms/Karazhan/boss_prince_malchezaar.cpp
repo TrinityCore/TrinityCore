@@ -149,7 +149,7 @@ public:
                 CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*who*/, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_INFERNAL_RELAY)
             {
@@ -305,7 +305,7 @@ public:
 
         void EnfeebleHealthEffect()
         {
-            const SpellEntry *info = GetSpellStore()->LookupEntry(SPELL_ENFEEBLE_EFFECT);
+            const SpellInfo *info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
             if (!info)
                 return;
 

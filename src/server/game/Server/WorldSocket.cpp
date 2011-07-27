@@ -889,7 +889,13 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     K.SetHexStr (fields[1].GetCString());
 
-    time_t mutetime = time_t (fields[7].GetUInt64());
+    int64 mutetime = fields[7].GetInt64();
+    //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
+    if (mutetime < 0)
+    {
+        mutetime = time(NULL) + abs(mutetime);
+        LoginDatabase.PExecute("UPDATE account SET mutetime = " SI64FMTD " WHERE id = '%u'", mutetime, id);
+    }
 
     locale = LocaleConstant (fields[8].GetUInt8());
     if (locale >= TOTAL_LOCALES)

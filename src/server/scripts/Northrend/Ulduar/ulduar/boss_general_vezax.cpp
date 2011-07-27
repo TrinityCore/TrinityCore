@@ -200,7 +200,7 @@ class boss_general_vezax : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* who, SpellEntry const* spell)
+            void SpellHitTarget(Unit* who, SpellInfo const* spell)
             {
                 if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
                     shadowDodger = false;

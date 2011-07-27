@@ -126,7 +126,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket & recv_data)
 
     recv_data >> guid;
 
-    Player *pChar = sObjectMgr->GetPlayer(guid);
+    Player *pChar = ObjectAccessor::FindPlayer(guid);
 
     if (pChar)
         SendNameQueryOpcode(pChar);

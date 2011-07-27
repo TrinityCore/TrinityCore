@@ -49,7 +49,7 @@ ArenaTeam::~ArenaTeam()
 bool ArenaTeam::Create(uint32 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
     // Check if captain is present
-    if (!sObjectMgr->GetPlayer(captainGuid))
+    if (!ObjectAccessor::FindPlayer(captainGuid))
         return false;
 
     // Check if arena team name is already taken
@@ -103,7 +103,7 @@ bool ArenaTeam::AddMember(const uint64& playerGuid)
         return false;
 
     // Get player name and class either from db or ObjectMgr
-    Player* player = sObjectMgr->GetPlayer(playerGuid);
+    Player* player = ObjectAccessor::FindPlayer(playerGuid);
     if (player)
     {
         playerClass = player->getClass();
@@ -279,7 +279,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
 void ArenaTeam::SetCaptain(const uint64& guid)
 {
     // Disable remove/promote buttons
-    Player* oldCaptain = sObjectMgr->GetPlayer(GetCaptain());
+    Player* oldCaptain = ObjectAccessor::FindPlayer(GetCaptain());
     if (oldCaptain)
         oldCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 1);
 
@@ -293,7 +293,7 @@ void ArenaTeam::SetCaptain(const uint64& guid)
     CharacterDatabase.Execute(stmt);
 
     // Enable remove/promote buttons
-    Player *newCaptain = sObjectMgr->GetPlayer(guid);
+    Player *newCaptain = ObjectAccessor::FindPlayer(guid);
     if (newCaptain)
     {
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
@@ -313,7 +313,7 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
         }
 
     // Inform player and remove arena team info from player data
-    if (Player* player = sObjectMgr->GetPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         player->GetSession()->SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, GetName(), "", 0);
         // delete all info regarding this team
@@ -378,7 +378,7 @@ void ArenaTeam::Roster(WorldSession* session)
 
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
-        pl = sObjectMgr->GetPlayer(itr->Guid);
+        pl = ObjectAccessor::FindPlayer(itr->Guid);
 
         data << uint64(itr->Guid);                          // guid
         data << uint8((pl ? 1 : 0));                        // online flag
@@ -436,7 +436,7 @@ void ArenaTeam::NotifyStatsChanged()
     // Updates arena team stats for every member of the team (not only the ones who participated!)
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
-        Player* plr = sObjectMgr->GetPlayer(itr->Guid);
+        Player* plr = ObjectAccessor::FindPlayer(itr->Guid);
         if (plr)
             SendStats(plr->GetSession());
     }
@@ -486,7 +486,7 @@ void ArenaTeam::BroadcastPacket(WorldPacket* packet)
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
-        Player* player = sObjectMgr->GetPlayer(itr->Guid);
+        Player* player = ObjectAccessor::FindPlayer(itr->Guid);
         if (player)
             player->GetSession()->SendPacket(packet);
     }
@@ -866,7 +866,7 @@ void ArenaTeam::FinishWeek()
 bool ArenaTeam::IsFighting() const
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = sObjectMgr->GetPlayer(itr->Guid))
+        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
             if (player->GetMap()->IsBattleArena())
                 return true;
 

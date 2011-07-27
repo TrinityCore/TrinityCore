@@ -35,6 +35,7 @@
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
+#include "SpellInfo.h"
 
 enum StableResultCode
 {
@@ -177,7 +178,8 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
                 valid = false;
                 break;
             }
-            if (sSpellMgr->IsPrimaryProfessionFirstRankSpell(tSpell->learnedSpell[i]))
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(tSpell->learnedSpell[i]);
+            if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                 primary_prof_first_rank = true;
         }
         if (!valid)
@@ -201,13 +203,10 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         {
             if (!tSpell->learnedSpell[i])
                 continue;
-            if (SpellChainNode const* chain_node = sSpellMgr->GetSpellChainNode(tSpell->learnedSpell[i]))
+            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
             {
-                if (chain_node->prev)
-                {
-                    data << uint32(chain_node->prev);
-                    ++maxReq;
-                }
+                data << uint32(prevSpellId);
+                ++maxReq;
             }
             if (maxReq == 3)
                 break;

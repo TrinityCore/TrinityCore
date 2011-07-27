@@ -28,8 +28,6 @@
 #define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
-#define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
-
 class InstanceScript;
 
 class SummonList : public std::list<uint64>
@@ -78,10 +76,10 @@ struct ScriptedAI : public CreatureAI
     void SummonedCreatureDespawn(Creature* /*summon*/) {}
 
     // Called when hit by a spell
-    void SpellHit(Unit* /*caster*/, SpellEntry const* /*spell*/) {}
+    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* /*target*/, SpellEntry const* /*spell*/) {}
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
@@ -123,7 +121,7 @@ struct ScriptedAI : public CreatureAI
     void DoStopAttack();
 
     //Cast spell by spell info
-    void DoCastSpell(Unit* target, SpellEntry const* spellInfo, bool triggered = false);
+    void DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered = false);
 
     //Plays a sound to all nearby players
     void DoPlaySoundToSet(WorldObject* source, uint32 soundId);
@@ -160,10 +158,10 @@ struct ScriptedAI : public CreatureAI
     bool HealthAbovePct(uint32 pct) const { return me->HealthAbovePct(pct); }
 
     //Returns spells that meet the specified criteria from the creatures spell list
-    SpellEntry const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
+    SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
     //Checks if you can cast the specified spell
-    bool CanCast(Unit* target, SpellEntry const* spell, bool triggered = false);
+    bool CanCast(Unit* target, SpellInfo const* spell, bool triggered = false);
 
     void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 

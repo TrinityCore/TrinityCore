@@ -24,6 +24,8 @@
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "ConditionMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 
 // -------------------
 void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
@@ -248,7 +250,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             case EVENT_T_SPELLHIT:
                 if (temp.spell_hit.spellId)
                 {
-                    SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.spell_hit.spellId);
+                    SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(temp.spell_hit.spellId);
                     if (!pSpell)
                     {
                         sLog->outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
@@ -302,7 +304,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 break;
             case EVENT_T_FRIENDLY_MISSING_BUFF:
             {
-                SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.spell_hit.spellId);
+                SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(temp.spell_hit.spellId);
                 if (!pSpell)
                 {
                     sLog->outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
@@ -379,7 +381,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             case EVENT_T_BUFFED:
             case EVENT_T_TARGET_BUFFED:
             {
-                SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.buffed.spellId);
+                SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(temp.buffed.spellId);
                 if (!pSpell)
                 {
                     sLog->outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
@@ -499,7 +501,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
                 case ACTION_T_CAST:
                 {
-                    const SpellEntry *spell = sSpellStore.LookupEntry(action.cast.spellId);
+                    const SpellInfo *spell = sSpellMgr->GetSpellInfo(action.cast.spellId);
                     if (!spell)
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast.spellId);
                     /* FIXME: temp.raw.param3 not have event tipes with recovery time in it....
@@ -555,7 +557,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_CAST_EVENT:
                     if (!sObjectMgr->GetCreatureTemplate(action.cast_event.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.cast_event.creatureId);
-                    if (!sSpellStore.LookupEntry(action.cast_event.spellId))
+                    if (!sSpellMgr->GetSpellInfo(action.cast_event.spellId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast_event.spellId);
                     if (action.cast_event.target >= TARGET_T_END)
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
@@ -593,11 +595,11 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_CAST_EVENT_ALL:
                     if (!sObjectMgr->GetCreatureTemplate(action.cast_event_all.creatureId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.cast_event_all.creatureId);
-                    if (!sSpellStore.LookupEntry(action.cast_event_all.spellId))
+                    if (!sSpellMgr->GetSpellInfo(action.cast_event_all.spellId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast_event_all.spellId);
                     break;
                 case ACTION_T_REMOVEAURASFROMSPELL:
-                    if (!sSpellStore.LookupEntry(action.remove_aura.spellId))
+                    if (!sSpellMgr->GetSpellInfo(action.remove_aura.spellId))
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.remove_aura.spellId);
                     if (action.remove_aura.target >= TARGET_T_END)
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);

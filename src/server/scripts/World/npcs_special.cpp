@@ -737,7 +737,7 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
             {
@@ -924,7 +924,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit* pCaster, const SpellEntry *Spell)
+        void SpellHit(Unit* pCaster, const SpellInfo *Spell)
         {
             if (Spell->Id == SPELL_LESSER_HEAL_R2 || Spell->Id == SPELL_FORTITUDE_R1)
             {
@@ -1925,7 +1925,7 @@ public:
         }
 
         // Fly away when dismissed
-        void SpellHit(Unit* source, const SpellEntry *spell)
+        void SpellHit(Unit* source, const SpellInfo *spell)
         {
             if (spell->Id != 50515 || !me->isAlive())
                 return;

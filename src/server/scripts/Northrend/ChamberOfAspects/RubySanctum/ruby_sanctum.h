@@ -117,7 +117,7 @@ CreatureAI* GetRubySanctumAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
         if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == GetScriptId(RSScriptName))
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
                 return new AI(creature);
     return NULL;
 }
