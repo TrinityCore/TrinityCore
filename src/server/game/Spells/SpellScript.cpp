@@ -205,7 +205,7 @@ bool SpellScript::UnitTargetHandler::CheckEffect(SpellInfo const* spellEntry, ui
 {
     if (!targetType)
         return false;
-    return (effIndex == EFFECT_ALL) || (spellEntry->Effects[effIndex].TargetA == targetType || spellEntry->Effects[effIndex].TargetB == targetType);
+    return (effIndex == EFFECT_ALL) || (spellEntry->Effects[effIndex].TargetA.GetTarget() == targetType || spellEntry->Effects[effIndex].TargetB.GetTarget() == targetType);
 }
 
 void SpellScript::UnitTargetHandler::Call(SpellScript* spellScript, std::list<Unit*>& unitTargets)

@@ -1865,7 +1865,7 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     {
         m_targets.GetDst()->GetPosition(x, y, z);
 
-        if (m_spellInfo->Effects[effIndex].TargetA == TARGET_DEST_TARGET_BACK)
+        if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_TARGET_BACK)
         {
             // explicit cast data from client or server-side cast
             // some spell at client send caster
@@ -6872,7 +6872,7 @@ void Spell::GetSummonPosition(uint32 i, Position &pos, float radius, uint32 coun
         else
         {
             //This is a workaround. Do not have time to write much about it
-            switch (m_spellInfo->Effects[i].TargetA)
+            switch (m_spellInfo->Effects[i].TargetA.GetTarget())
             {
                 case TARGET_MINION:
                 case TARGET_DEST_CASTER_RANDOM:
@@ -7044,7 +7044,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     uint32 area_id;
     WorldLocation loc;
-    if (m_spellInfo->Effects[effIndex].TargetA == TARGET_DST_DB || m_spellInfo->Effects[effIndex].TargetB == TARGET_DST_DB)
+    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DST_DB || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DST_DB)
     {
         SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id);
         if (!st)

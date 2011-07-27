@@ -34,6 +34,12 @@ SpellSelectTargetTypes SpellImplicitTargetInfo::GetType() const
     return Type[_target];
 }
 
+
+Targets SpellImplicitTargetInfo::GetTarget() const
+{
+    return _target;
+}
+
 bool SpellImplicitTargetInfo::IsPosition(uint32 targetType)
 {
     switch (SpellImplicitTargetInfo::Type[targetType])
@@ -46,11 +52,6 @@ bool SpellImplicitTargetInfo::IsPosition(uint32 targetType)
             break;
     }
     return false;
-}
-
-SpellImplicitTargetInfo::operator Targets() const
-{
-    return _target;
 }
 
 bool SpellImplicitTargetInfo::InitStaticData()
@@ -395,9 +396,13 @@ bool SpellEffectInfo::HasRadius() const
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
+    if (!HasRadius())
+        return 0.0f;
+
     float radius = RadiusEntry->radiusMax;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+
     return radius;
 }
 
@@ -1619,7 +1624,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
     bool needRankSelection = false;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (IsPositiveEffect(i) && 
+        if (IsPositiveEffect(i) &&
             (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID))
@@ -1801,7 +1806,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                                     continue;
                                 // if non-positive trigger cast targeted to positive target this main cast is non-positive
                                 // this will place this spell auras as debuffs
-                                if (_IsPositiveTarget(spellTriggeredProto->Effects[i].TargetA, spellTriggeredProto->Effects[effIndex].TargetB) && !spellTriggeredProto->_IsPositiveEffect(i, true))
+                                if (_IsPositiveTarget(spellTriggeredProto->Effects[i].TargetA.GetTarget(), spellTriggeredProto->Effects[effIndex].TargetB.GetTarget()) && !spellTriggeredProto->_IsPositiveEffect(i, true))
                                     return false;
                             }
                         }
@@ -1827,12 +1832,12 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                     return false;
                 case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
                     // part of negative spell if casted at self (prevent cancel)
-                    if (Effects[effIndex].TargetA == TARGET_UNIT_CASTER)
+                    if (Effects[effIndex].TargetA.GetTarget() == TARGET_UNIT_CASTER)
                         return false;
                     break;
                 case SPELL_AURA_MOD_DECREASE_SPEED:         // used in positive spells also
                     // part of positive spell if casted at self
-                    if (Effects[effIndex].TargetA != TARGET_UNIT_CASTER)
+                    if (Effects[effIndex].TargetA.GetTarget() != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (didn't find better check)
                     if (Attributes & SPELL_ATTR0_NEGATIVE_1 && effIndex == 0)
@@ -1894,7 +1899,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
     }
 
     // non-positive targets
-    if (!_IsPositiveTarget(Effects[effIndex].TargetA, Effects[effIndex].TargetB))
+    if (!_IsPositiveTarget(Effects[effIndex].TargetA.GetTarget(), Effects[effIndex].TargetB.GetTarget()))
         return false;
 
     // negative spell if triggered spell is negative
