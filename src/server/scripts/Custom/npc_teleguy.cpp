@@ -906,7 +906,7 @@ public:
                 if (pPlayer->GetTeam() == ALLIANCE)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pPlayer->TeleportTo(530, -2244.01f, 8698.61f, -2.73f, 5.16f);
+                    pPlayer->TeleportTo(530, -2750.668f, 7313.711f, 43.485f, 2.69f);
                 }
                 else
                 {
