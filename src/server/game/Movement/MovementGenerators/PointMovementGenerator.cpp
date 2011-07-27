@@ -29,8 +29,9 @@ void PointMovementGenerator<T>::Initialize(T &unit)
 {
     unit.StopMoving();
     Traveller<T> traveller(unit);
-    // knockback effect has UNIT_STAT_JUMPING set, so if here we disable sentmonstermove there will be creature position sync problem between client and server
-    i_destinationHolder.SetDestination(traveller, i_x, i_y, i_z, true /* !unit.HasUnitState(UNIT_STAT_JUMPING)*/);
+    // OLD: knockback effect has UNIT_STAT_JUMPING set, so if here we disable sentmonstermove there will be creature position sync problem between client and server
+    // NEW: reactivated this check - UNIT_STAT_JUMPING is only used in MoveJump, which sends its own packet
+    i_destinationHolder.SetDestination(traveller, i_x, i_y, i_z, /*true*/ !unit.HasUnitState(UNIT_STAT_JUMPING));
 }
 
 template<class T>
