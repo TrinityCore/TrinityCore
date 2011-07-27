@@ -419,7 +419,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck)
         data << uint64(guid);                              // Guid
         data << uint8(roles > 0);                          // Ready
         data << uint32(roles);                             // Roles
-        Player* plr = sObjectMgr->GetPlayer(guid);
+        Player* plr = ObjectAccessor::FindPlayer(guid);
         data << uint8(plr ? plr->getLevel() : 0);          // Level
 
         for (LfgRolesMap::const_iterator it = pRoleCheck->roles.begin(); it != pRoleCheck->roles.end(); ++it)
@@ -432,7 +432,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck)
             data << uint64(guid);                          // Guid
             data << uint8(roles > 0);                      // Ready
             data << uint32(roles);                         // Roles
-            plr = sObjectMgr->GetPlayer(guid);
+            plr = ObjectAccessor::FindPlayer(guid);
             data << uint8(plr ? plr->getLevel() : 0);      // Level
         }
     }

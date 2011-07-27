@@ -447,7 +447,7 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     uint64 character_guid;
     uint32 account_id;
 
-    Player* player = sObjectMgr->GetPlayer(character_name.c_str());
+    Player* player = sObjectAccessor->FindPlayerByName(character_name.c_str());
     if (player)
     {
         character_guid = player->GetGUID();

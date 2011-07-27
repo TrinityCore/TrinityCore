@@ -1040,7 +1040,7 @@ public:
         uint64 receiver_guid= atol(receiver_str);
 
         // check online security
-        if (handler->HasLowerSecurity(sObjectMgr->GetPlayer(receiver_guid), 0))
+        if (handler->HasLowerSecurity(ObjectAccessor::FindPlayer(receiver_guid), 0))
             return false;
 
         creature->MonsterWhisper(text, receiver_guid);
