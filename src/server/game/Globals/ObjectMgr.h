@@ -616,8 +616,6 @@ class ObjectMgr
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
-        Player* GetPlayer(const char* name) const { return sObjectAccessor->FindPlayerByName(name);}
-        Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
         Player* GetPlayerByLowGUID(uint32 lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);

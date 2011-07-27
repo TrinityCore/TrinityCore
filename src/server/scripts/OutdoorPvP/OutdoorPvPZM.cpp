@@ -311,7 +311,7 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
             if (m_FlagCarrierGUID)
             {
                 // remove flag from carrier, reset flag carrier guid
-                Player* p = sObjectMgr->GetPlayer(m_FlagCarrierGUID);
+                Player* p = ObjectAccessor::FindPlayer(m_FlagCarrierGUID);
                 if (p)
                 {
                    p->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_A);

@@ -90,7 +90,7 @@ void BattlegroundIC::DoAction(uint32 action, uint64 const& var)
     if (action != ACTION_TELEPORT_PLAYER_TO_TRANSPORT)
         return;
 
-    Player* plr = sObjectMgr->GetPlayer(var);
+    Player* plr = ObjectAccessor::FindPlayer(var);
 
     if (!plr || !gunshipAlliance || !gunshipHorde)
         return;
@@ -408,7 +408,7 @@ bool BattlegroundIC::SetupBattleground()
     //Send transport init packet to all player in map
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
     {
-        if (Player* player = sObjectMgr->GetPlayer(itr->first))
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             SendTransportInit(player);
     }
 
@@ -480,7 +480,7 @@ void BattlegroundIC::RealocatePlayers(ICNodePointType nodeType)
         WorldSafeLocsEntry const *ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            Player* plr = sObjectMgr->GetPlayer(*itr);
+            Player* plr = ObjectAccessor::FindPlayer(*itr);
             if (!plr)
                 continue;
 
