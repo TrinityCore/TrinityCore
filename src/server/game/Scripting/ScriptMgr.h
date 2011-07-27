@@ -66,7 +66,7 @@ struct Condition;
 struct ItemTemplate;
 struct OutdoorPvPData;
 
-#define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
+#define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
 // Generic scripting text function.
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
@@ -99,7 +99,7 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
             MyScriptType(const char* name, uint32 someId)
                 : ScriptObject(name), _someId(someId)
             {
-                ScriptMgr::ScriptRegistry<MyScriptType>::AddScript(this);
+                ScriptRegistry<MyScriptType>::AddScript(this);
             }
 
         public:
@@ -118,7 +118,7 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
     Next, you need to add a specialization for ScriptRegistry. Put this in the bottom of
     ScriptMgr.cpp:
 
-    template class ScriptMgr::ScriptRegistry<MyScriptType>;
+    template class ScriptRegistry<MyScriptType>;
 
     Now, add a cleanup routine in ScriptMgr::~ScriptMgr:
 
@@ -762,13 +762,9 @@ class ScriptMgr
     friend class ACE_Singleton<ScriptMgr, ACE_Null_Mutex>;
     friend class ScriptObject;
 
-    ScriptMgr();
-    virtual ~ScriptMgr();
-
-    uint32 _scriptCount;
-
-    //atomic op counter for active scripts amount
-    ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
+    private:
+        ScriptMgr();
+        virtual ~ScriptMgr();
 
     public: /* Initialization */
 
@@ -981,102 +977,11 @@ class ScriptMgr
         uint32 DecreaseScheduledScriptCount(size_t count) { return uint32(_scheduledScripts -= count); }
         bool IsScriptScheduled() const { return _scheduledScripts > 0; }
 
-    public: /* ScriptRegistry */
+    private:
+        uint32 _scriptCount;
 
-        // This is the global static registry of scripts.
-        template<class TScript>
-        class ScriptRegistry
-        {
-            // Counter used for code-only scripts.
-            static uint32 _scriptIdCounter;
-
-            public:
-
-                typedef std::map<uint32, TScript*> ScriptMap;
-                typedef typename ScriptMap::iterator ScriptMapIterator;
-
-                // The actual list of scripts. This will be accessed concurrently, so it must not be modified
-                // after server startup.
-                static ScriptMap ScriptPointerList;
-
-                static void AddScript(TScript* const script)
-                {
-                    ASSERT(script);
-
-                    // See if the script is using the same memory as another script. If this happens, it means that
-                    // someone forgot to allocate new memory for a script.
-                    for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
-                    {
-                        if (it->second == script)
-                        {
-                            sLog->outError("Script '%s' has same memory pointer as '%s'.",
-                                script->GetName().c_str(), it->second->GetName().c_str());
-
-                            return;
-                        }
-                    }
-
-                    if (script->IsDatabaseBound())
-                    {
-                        // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
-                        // through a script name (or similar).
-                        uint32 id = GetScriptId(script->GetName().c_str());
-                        if (id)
-                        {
-                            // Try to find an existing script.
-                            bool existing = false;
-                            for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
-                            {
-                                // If the script names match...
-                                if (it->second->GetName() == script->GetName())
-                                {
-                                    // ... It exists.
-                                    existing = true;
-                                    break;
-                                }
-                            }
-
-                            // If the script isn't assigned -> assign it!
-                            if (!existing)
-                            {
-                                ScriptPointerList[id] = script;
-                                sScriptMgr->IncrementScriptCount();
-                            }
-                            else
-                            {
-                                // If the script is already assigned -> delete it!
-                                sLog->outError("Script '%s' already assigned with the same script name, so the script can't work.",
-                                    script->GetName().c_str());
-
-                                ASSERT(false); // Error that should be fixed ASAP.
-                            }
-                        }
-                        else
-                        {
-                            // The script uses a script name from database, but isn't assigned to anything.
-                            if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
-                                sLog->outErrorDb("Script named '%s' does not have a script name assigned in database.",
-                                    script->GetName().c_str());
-                        }
-                    }
-                    else
-                    {
-                        // We're dealing with a code-only script; just add it.
-                        ScriptPointerList[_scriptIdCounter++] = script;
-                        sScriptMgr->IncrementScriptCount();
-                    }
-                }
-
-                // Gets a script by its ID (assigned by ObjectMgr).
-                static TScript* GetScriptById(uint32 id)
-                {
-                    ScriptMapIterator it = ScriptPointerList.find(id);
-                    if (it != ScriptPointerList.end())
-                        return it->second;
-
-                    return NULL;
-                }
-        };
+        //atomic op counter for active scripts amount
+        ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
 };
 
 #endif
