@@ -9,7 +9,7 @@
 class TausendwinterCapturePoint;
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Enum / Defines für Diverses
+// Enum / Defines fÃ¼r Diverses
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #define TausendwinterScriptName "outdoorpvp_tw"
@@ -23,8 +23,8 @@ enum TW_ENUM_DIVERSES
     TW_GO_ANZAHL_WERKSTAETTEN                   = 6,
     TW_GO_ANZAHL_RELIKTKAMMER                   = 3,        // Ohne Relikt
     TW_GO_ANZAHL_TUERME                         = 7,
-    TW_GO_ANZAHL_FESTUNG                        = 24,       // Ohne Türme
-    TW_GO_ANZAHL_TELEPORTER                     = 5,        // 2x für Fahrzeuge
+    TW_GO_ANZAHL_FESTUNG                        = 24,       // Ohne TÃ¼rme
+    TW_GO_ANZAHL_TELEPORTER                     = 5,        // 2x fÃ¼r Fahrzeuge
     // Flugpunkte
     TW_FP_ALLIANZ                               = 303,
     TW_FP_HORDE                                 = 332,
@@ -64,11 +64,11 @@ enum TW_SPELLS
     SPELL_TURMKONTROLLE                 = 62064,
     SPELL_GEISTIGE_IMMUNITAET           = 58729,
     SPELL_TURM_ZERSTOERT_EFFEKT         = 57575, // Erde bebt und Rauchwolke
-    SPELL_EINSTUERZENDER_TURM           = 55065, // Wirft den Genger zurück - 5m
+    SPELL_EINSTUERZENDER_TURM           = 55065, // Wirft den Genger zurÃ¼ck - 5m
     SPELL_REGELN_VON_TAUSENDWINTER      = 52108, // 5% mehr Schaden
     // Belohnungen
     SPELL_SIEG_AURA                     = 60044, // Muss manuell wieder entfernt werden!
-    SPELL_SIEG_SPRUNG                   = 52852, // Spieler hüpft
+    SPELL_SIEG_SPRUNG                   = 52852, // Spieler hÃ¼pft
     SPELL_SIEG_IN_TAUSENDWINTER         = 56902, // 3 Ehrenabzeichen von Tausendwinter und 3000 Ehre
     SPELL_NIEDERLAGE_IN_TAUSENDWINTER   = 58494, // 1 Ehrenabzeichen von Tausendwinter und 1250 Ehre
     SPELL_TOWER_DAMAGED                 = 59135, // 750 Ehre
@@ -84,7 +84,7 @@ enum TW_SPELLS
     SPELL_NACH_DALARAN_TELEPORTIEREN    = 53360,
     SPELL_WASSER_AUS_TAUSENDWINTER      = 36444, // Wirkung des Wassers auf Fahrzeuge
     SPELL_VERSTEINERT                   = 63080, // Archavons Kammer
-    SPELL_LANGSAMER_FALL                = 50085  // Da die Abfrage für das Beitreten zur Schlacht (im Kampf) fehlt und Spieler nicht hinaus teleportiert werden,
+    SPELL_LANGSAMER_FALL                = 50085  // Da die Abfrage fÃ¼r das Beitreten zur Schlacht (im Kampf) fehlt und Spieler nicht hinaus teleportiert werden,
                                                  // werden sie einfach abgemountet und bekommen diesen Spell.
 };
 
@@ -114,25 +114,25 @@ enum TW_SOUNDS
 
 enum TW_ERFOLGE
 {
-    TW_ERFOLG_GERAETEGEMETZEL           = 1723, // Tötet in Tausendwinter 100 Spieler mit einem Fahrzeug oder einer Kanone.
-    TW_ERFOLG_MEISTER_VON_TW_H          = 1752, // Schließt die unten aufgelisteten Tausendwinter-Erfolge ab.
-    TW_ERFOLG_MEISTER_VON_TW_A          = 2776, // Schließt die unten aufgelisteten Erfolge in Tausendwinter ab.
+    TW_ERFOLG_GERAETEGEMETZEL           = 1723, // TÃ¶tet in Tausendwinter 100 Spieler mit einem Fahrzeug oder einer Kanone.
+    TW_ERFOLG_MEISTER_VON_TW_H          = 1752, // SchlieÃŸt die unten aufgelisteten Tausendwinter-Erfolge ab.
+    TW_ERFOLG_MEISTER_VON_TW_A          = 2776, // SchlieÃŸt die unten aufgelisteten Erfolge in Tausendwinter ab.
     TW_ERFOLG_SIEG_IN_TW                = 1717, // Gewinnt die Schlacht um Tausendwinter.
-    TW_ERFOLG_SIEGE_UEBER_ARCHAVON_10   = 1753, // Siege über Archavon den Steinwächter (Tausendwinter, 10 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_ARCHAVON_25   = 1754, // Siege über Archavon den Steinwächter (Tausendwinter, 25 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_EMALON_10     = 2870, // Siege über Emalon den Sturmwächter (Tausendwinter, 10 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_EMALON_25     = 3236, // Siege über Emalon den Sturmwächter (Tausendwinter, 25 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_KORALON_10    = 4074, // Siege über Koralon den Flammenwächter (Tausendwinter, 10 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_KORALON_25    = 4075, // Siege über Koralon den Flammenwächter (Tausendwinter, 25 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_TORAVON_10    = 4657, // Siege über Toravon den Eiswächter (Tausendwinter, 10 Spieler)
-    TW_ERFOLG_SIEGE_UEBER_TORAVON_25    = 4658, // Siege über Toravon den Eiswächter (Tausendwinter, 25 Spieler)
-    TW_ERFOLG_TW_ZUM_TROTZ              = 1755, // Greift Tausendwinter an und seid in höchstens 10 Minuten erfolgreich.
+    TW_ERFOLG_SIEGE_UEBER_ARCHAVON_10   = 1753, // Siege Ã¼ber Archavon den SteinwÃ¤chter (Tausendwinter, 10 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_ARCHAVON_25   = 1754, // Siege Ã¼ber Archavon den SteinwÃ¤chter (Tausendwinter, 25 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_EMALON_10     = 2870, // Siege Ã¼ber Emalon den SturmwÃ¤chter (Tausendwinter, 10 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_EMALON_25     = 3236, // Siege Ã¼ber Emalon den SturmwÃ¤chter (Tausendwinter, 25 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_KORALON_10    = 4074, // Siege Ã¼ber Koralon den FlammenwÃ¤chter (Tausendwinter, 10 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_KORALON_25    = 4075, // Siege Ã¼ber Koralon den FlammenwÃ¤chter (Tausendwinter, 25 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_TORAVON_10    = 4657, // Siege Ã¼ber Toravon den EiswÃ¤chter (Tausendwinter, 10 Spieler)
+    TW_ERFOLG_SIEGE_UEBER_TORAVON_25    = 4658, // Siege Ã¼ber Toravon den EiswÃ¤chter (Tausendwinter, 25 Spieler)
+    TW_ERFOLG_TW_ZUM_TROTZ              = 1755, // Greift Tausendwinter an und seid in hÃ¶chstens 10 Minuten erfolgreich.
     TW_ERFOLG_VETERAN_VON_TW            = 1718, // Gewinnt 100 Schlachten um Tausendwinter.
-    TW_ERFOLG_WALDLAEUFER_VON_TW        = 2199, // Tötet in jedem der unten aufgelisteten Tausendwinter-Gebiete 10 Spieler.
-    TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW   = 1727, // Zerstört einen Turm in Tausendwinter.
-    TW_ERFOLG_AUS_DEM_SATTEL_PUSTEN     = 1751, // Tötet 20 berittene Spieler mit einer Turmkanone.
-    TW_ERFOLG_DESTRUCTION_DERBY_A       = 1737, // Zerstört jedes der unten aufgelisteten Fahrzeuge.
-    TW_ERFOLG_DESTRUCTION_DERBY_H       = 2476  // Zerstört jedes der unten aufgelisteten Fahrzeuge.
+    TW_ERFOLG_WALDLAEUFER_VON_TW        = 2199, // TÃ¶tet in jedem der unten aufgelisteten Tausendwinter-Gebiete 10 Spieler.
+    TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW   = 1727, // ZerstÃ¶rt einen Turm in Tausendwinter.
+    TW_ERFOLG_AUS_DEM_SATTEL_PUSTEN     = 1751, // TÃ¶tet 20 berittene Spieler mit einer Turmkanone.
+    TW_ERFOLG_DESTRUCTION_DERBY_A       = 1737, // ZerstÃ¶rt jedes der unten aufgelisteten Fahrzeuge.
+    TW_ERFOLG_DESTRUCTION_DERBY_H       = 2476  // ZerstÃ¶rt jedes der unten aufgelisteten Fahrzeuge.
 };
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ enum TW_GO_IDS
     TW_GO_RELIKT_DER_TITANEN            = 192829,
     TW_GO_KOLLISIONSWAND01              = 194162, // Unsichtbar!
     TW_GO_KOLLISIONSWAND                = 194323, // Unsichtbar!
-    TW_GO_FESTUNGSTUER                  = 191810, // Die sichtbare Tür
+    TW_GO_FESTUNGSTUER                  = 191810, // Die sichtbare TÃ¼r
     TW_GO_GOBLINWERKSTATT_FESTUNG_W     = 192028,
     TW_GO_GOBLINWERKSTATT_FESTUNG_O     = 192029,
     TW_GO_GOBLINWERKSTATT_TEMPEL        = 192030,
@@ -415,7 +415,7 @@ enum TW_NPC_IDS
     TW_NPC_VEHICLE_PROTECTED        = 31284
 };
 
-enum TW_NPC_TYP // Ist auch gleichzeitig der Idx für NPCPaare!
+enum TW_NPC_TYP // Ist auch gleichzeitig der Idx fÃ¼r NPCPaare!
 {
     TW_NPC_TYP_WACHE,
     TW_NPC_TYP_CHAMPION,
@@ -581,10 +581,10 @@ static const TW_NPC_PositionsPaare AngreiferPos =
     { { 5088.61f, 2167.66f, 365.689f, 0.680678f },  { 5032.44f, 3668.66f, 363.11f,  2.87402f             } },
     { { 5078.28f, 2183.7f,  365.029f, 1.46608f  },  { 5022.43f, 3659.91f, 361.61f,  1.35426f             } },
     { { 5081.7f,  2173.73f, 365.878f, 0.855211f },  { 5043.480469f, 3675.430908f, 363.063293f, 3.014616f } },
-    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }, // Rüstmeister stehen nur für die Verteidiger in TW!
-    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }, // Rüstmeister stehen nur für die Verteidiger in TW!
-    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }, // Dieser Händler/Questgeber steht nur für die Verteidiger in TW!
-    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }  // Dieser Händler/Questgeber steht nur für die Verteidiger in TW!
+    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }, // RÃ¼stmeister stehen nur fÃ¼r die Verteidiger in TW!
+    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }, // RÃ¼stmeister stehen nur fÃ¼r die Verteidiger in TW!
+    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }, // Dieser HÃ¤ndler/Questgeber steht nur fÃ¼r die Verteidiger in TW!
+    { { 0.0f,     0.0f,     0.0f,     0.0f      },  { 0.0f,     0.0f,     0.0f,     0.0f                 } }  // Dieser HÃ¤ndler/Questgeber steht nur fÃ¼r die Verteidiger in TW!
 };
 
 static const TW_NPC_PositionsPaare VerteigerPos =
@@ -633,7 +633,7 @@ public:
     Tausendwinter();
     ~Tausendwinter();
 
-    // Alle Daten sammeln / vorbereiten und übergeben, am Schluss Zone registrieren
+    // Alle Daten sammeln / vorbereiten und Ã¼bergeben, am Schluss Zone registrieren
     bool SetupOutdoorPvP();
 
     // Team Stuff
@@ -654,16 +654,16 @@ public:
     // Essenz von Tausendwinter Spells aktualisieren
     void AktualisiereEssenzVonTausendwinter(Player * pPl, uint32 ZoneId);
 
-    // Archavons Kammer - Zugang zur Instanz prüfen und NPCs versteinern
+    // Archavons Kammer - Zugang zur Instanz prÃ¼fen und NPCs versteinern
     bool DarfArchavonsKammerBetreten(Player * pPl);
     void DarfAngegriffenWerden(Creature * pCr);
 
-    // Für die Konsolen / InGame Kommandos
+    // FÃ¼r die Konsolen / InGame Kommandos
     void ErzwingeTeamwechsel()  { m_CmdWechsel  = true; };
     void ErzwingeKampfBeenden() { m_CmdStop     = true; };
     void ErzwingeKampfStarten() { m_CmdStart    = true; };
 
-    // Aktuelle Anzahl der Fahrzeuge einer Werkstatt erhöhen / senken / holen
+    // Aktuelle Anzahl der Fahrzeuge einer Werkstatt erhÃ¶hen / senken / holen
     void ErhoeheFahrzeuganzahlDerWerkstatt(uint32 lowguid); // GUID des Ingis der Werkstatt oder der Werkstatt selbst
     void SenkeFahrzeuganzahlEinerWerkstatt();
     uint8 HoleAnzahlFahrzeugeDerWerkstatt(uint32 lowguid); // GUID des Ingis der Werkstatt oder der Werkstatt selbst
@@ -687,12 +687,12 @@ protected:
         Creature * m_Creature;              // Zeiger auf den NPC
         uint32 m_GUID;                      // Datenbank GUID
 
-        TW_NPC_TYP m_Typ;                   // Typ des NPCs (Questgeber / Geisterführer etc.)
-        TeamId m_TeamId;                    // Die TeamId, zu dem dieser NPC gehört
+        TW_NPC_TYP m_Typ;                   // Typ des NPCs (Questgeber / GeisterfÃ¼hrer etc.)
+        TeamId m_TeamId;                    // Die TeamId, zu dem dieser NPC gehÃ¶rt
 
-        SpielerSet m_SpielerListe;          // Bei einem Geisterführer sind hier die Spieler gespeichert, die später in die m_Wiederbelebungsliste kommen
-        SpielerSet m_WiederbelebungsListe;  // Bei einem Geisterführer sind hier die Spieler gespeichert, die wiederbelebt werden müssen
-        uint32 m_LetzteWiederbelebung;      // Bei einem Geisterführer ist hier die Zeit der letzten Wiederbelebung gespeichert
+        SpielerSet m_SpielerListe;          // Bei einem Geisterfhrer sind hier die Spieler gespeichert, die spÃ¤ter in die m_Wiederbelebungsliste kommen
+        SpielerSet m_WiederbelebungsListe;  // Bei einem GeisterfÃ¼hrer sind hier die Spieler gespeichert, die wiederbelebt werden mÃ¼ssen
+        uint32 m_LetzteWiederbelebung;      // Bei einem GeisterfÃ¼hrer ist hier die Zeit der letzten Wiederbelebung gespeichert
 
         void InitialisiereNPC()
         {
@@ -836,7 +836,7 @@ private:
     typedef std::set<Creature*> FahrzeugSet;
     typedef std::set<uint32> GOGUIDSet;
 
-    // Überschreibungen von (virtuellen) OutdoorPvP Funktionen
+    // Ãœberschreibungen von (virtuellen) OutdoorPvP Funktionen
     void HandlePlayerResurrects(Player * pPl, uint32 zone);
     void FillInitialWorldStates(WorldPacket & data);
 
@@ -854,7 +854,7 @@ private:
 
     // Weltstatusdaten senden
     void SendeWeltstatus(Player * pPl = NULL) const;
-    // Änderungen bei einem GO senden
+    // Ã„nderungen bei einem GO senden
     void SendeStatusAenderung(GOStatus * status) const;
 
     // Alle relevanten Daten speichern
@@ -867,10 +867,10 @@ private:
     void Reset(bool NurWechsel = false);
     // NPC ID Reset
     void ResetNPCEntry(Creature * pCr, uint32 entry);
-    // Alle zerstörbaren Gebäude wiederherstellen
+    // Alle zerstÃ¶rbaren GebÃ¤ude wiederherstellen
     void ResetZerstoerbareGOs();
 
-    // Friedhöfe zuordnen / erstellen
+    // FriedhÃ¶fe zuordnen / erstellen
     void OrdneFriedhoefeZu();
 
     // Listen erstellen
@@ -889,9 +889,9 @@ private:
 
     // Immer nur das Portal spawnen, welches auf der Seite des Verteidigerteams steht
     void UeberpruefeDalaranPortal();
-    // Überprüfen, ob der NPC innheralb der Festung ist
+    // ÃœberprÃ¼fen, ob der NPC innheralb der Festung ist
     bool IstInDerFestung(Creature * pCr) const;
-    // Überprüfen, ob das GO innerhalb der Festung ist
+    // ÃœberprÃ¼fen, ob das GO innerhalb der Festung ist
     bool IstInDerFestung(GameObject * pGO) const;
 
     // GOs spawnen
@@ -904,10 +904,10 @@ private:
     // NPC entfernen
     static void EntferneNPC(uint32 GUID, CreatureData const * NPCData);
 
-    // Das Herzstück :-)
+    // Das HerzstÃ¼ck :-)
     bool Update(uint32 diff);
 
-    // Wiederbelebungsliste der Geisterführer abarbeiten
+    // Wiederbelebungsliste der GeisterfÃ¼hrer abarbeiten
     void BearbeiteWiederbelebungen(const uint32 diff);
 
     // Start und Ende des Kampfes
@@ -918,7 +918,7 @@ private:
     void AktualisiereHartnaeckigkeitsStapel();
     // GO Daten aktualisieren
     void AktualisiereGO(GameObject * pGO);
-    // Alle zerstörbaren Gebäude bei Übernahme der Festung aktualisieren
+    // Alle zerstÃ¶rbaren GebÃ¤ude bei Ãœbernahme der Festung aktualisieren
     void AktualisiereZerstoerbareGOs();
     // NPC Daten aktualisieren
     void AktualisiereNPC(Creature * pCr);
@@ -933,11 +933,11 @@ private:
 
     // NPC Typen holen
     static TW_NPC_TYP HoleNPCTyp(const uint32 entry);
-    // TeamId für Fraktion ermitteln
+    // TeamId fÃ¼r Fraktion ermitteln
     static TeamId HoleNPCTeamId(const uint32 fraktion);
 
-    // Da es aus irgendwelchen Gründen (irgendwie) möglich ist, dass Spieler PvP ausschalten können, müssen wir dies überprüfen!
-    // TODO: In den Katakomben des Core nach dem Grund für diese PvPFlag Fehler suchen!
+    // Da es aus irgendwelchen GrÃ¼nden (irgendwie) mÃ¶glich ist, dass Spieler PvP ausschalten kÃ¶nnen, mÃ¼ssen wir dies Ã¼berprÃ¼fen!
+    // TODO: In den Katakomben des Core nach dem Grund fÃ¼r diese PvPFlag Fehler suchen!
     void PvPCheck();
 
     void VerschiebeToteSpieler(Creature * pCr);
@@ -947,7 +947,7 @@ private:
     void SpieleSoundFuerTeam(TeamId teamId, uint32 soundId);
     void SpieleSoundFuerZone(uint32 soundId);
 
-    // Spieler die in TW sind (während der Kampf startet) automatisch zu einem Raid hinzufügen
+    // Spieler die in TW sind (wÃ¤hrend der Kampf startet) automatisch zu einem Raid hinzufÃ¼gen
     void FuegeSpielerZumRaidHinzu(Player * pPlr, TeamId teamId);
 
     // Listen

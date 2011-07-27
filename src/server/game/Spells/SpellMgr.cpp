@@ -31,9 +31,6 @@
 #include "MapManager.h"
 #include "BattlegroundIC.h"
 
-#include "OutdoorPvPMgr.h"
-#include "OutdoorPvPTW.h"
-
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(skill);
@@ -2564,17 +2561,6 @@ void SpellMgr::LoadSpellAreas()
 
 void SpellMgr::LoadSpellInfoStore()
 {
-
-                // In Tausendwinter ist das Fliegen (w�hrend ein Kampf l�uft) verboten!
-                if (player && player->GetZoneId() == NORDEND_TAUSENDWINTER)
-                    if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
-                    {
-                        if (pTW->IstKampf())
-                            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-                    }
-    /* Werde ich f�r meinen Tausendwinter Source umschreiben.
-    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);*/
-
     uint32 oldMSTime = getMSTime();
 
     UnloadSpellInfoStore();

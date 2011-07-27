@@ -365,7 +365,7 @@ public:
                 for (uint32 i=0; i<=urand(0, SpielerGUIDSet.size()-1); ++i)
                     if (++itr == SpielerGUIDSet.end()) { --itr; break; }
 
-                Player * chr = sObjectMgr->GetPlayer(*itr);
+                Player * chr = sObjectAccessor->FindPlayer(*itr);
                 if (!chr)
                 {
                     SpielerGUIDSet.erase(itr);
@@ -581,7 +581,7 @@ public:
             EventMap events;
             std::string bericht;
             std::set<uint64> SpielerGUIDSet;
-            std::list<uint32, uint32> PetListe;
+            std::map<uint32, uint32> PetListe;
     };
 
     CreatureAI * GetAI(Creature * creature) const

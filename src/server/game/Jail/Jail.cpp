@@ -1,6 +1,6 @@
 // Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 
-#include "Jail.h"
+#include <Jail.h>
 
 Jail::Jail()
 {
@@ -234,8 +234,9 @@ bool Jail::PInfoKommando(ChatHandler * handler, const char * args)
     }
     else
     {
-        uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name.c_str());
+        uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name);
         uint32 guid = GUID_LOPART(GUID);
+
         if (!guid)
         {
             handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
@@ -319,15 +320,17 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
     else
         jailreason = reason;
 
-    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
-    if (!GUID)
+    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname);
+    uint32 guid = GUID_LOPART(GUID);
+
+    if (!guid)
     {
         handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
         handler->SetSentErrorMessage(true);
         return false;
     }
 
-    JailMap::iterator itr = m_JailMap.find(GUID_LOPART(GUID));
+    JailMap::iterator itr = m_JailMap.find(guid);
     if (itr != m_JailMap.end())
     {
         // Es gibt bereits einen aktiven Jail! Nicht noch einmal einbuchten lassen!
@@ -339,7 +342,7 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         }
     }
 
-    if (GUID == handler->GetSession()->GetPlayer()->GetGUID())
+    if (guid == GUID_LOPART(handler->GetSession()->GetPlayer()->GetGUID()))
     {
         handler->SendSysMessage(LANG_JAIL_NO_JAIL);
         handler->SetSentErrorMessage(true);
@@ -349,14 +352,14 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
     uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
     std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
 
-    if (Player * chr = sObjectMgr->GetPlayer(GUID_LOPART(GUID)))
+    if (Player * chr = sObjectMgr->GetPlayerByLowGUID(guid))
     {   // Ohne Klammern springt er zum Ende, wenn chr == NULL ist!!!
         if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, announce))
             return true;
     }
     else
     {
-        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, announce))
+        if (Inhaftierung(handler, guid, cname, jailtime, jailreason, acc_id, announce))
             return true;
     }
     return false;
@@ -633,7 +636,7 @@ void Jail::Update()
 
         time_t localtime = time(NULL);
 
-        if (Player * pPlayer = sObjectMgr->GetPlayer(itr->first))
+        if (Player * pPlayer = sObjectMgr->GetPlayerByLowGUID(itr->first))
         {
             // Online Char gefunden!
             ++cnt;

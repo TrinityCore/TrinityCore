@@ -18,6 +18,8 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "DBCStores.h"
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPTW.h"
 
 SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
 {
@@ -1171,10 +1173,17 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             {
                 if (player && !player->IsKnowHowFlyIn(map_id, zone_id))
                     return SPELL_FAILED_INCORRECT_AREA;
+
+                // In Tausendwinter ist das Fliegen (während ein Kampf läuft) verboten!
+                if (player && player->GetZoneId() == NORDEND_TAUSENDWINTER)
+                    if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
+                    {
+                        if (pTW->IstKampf())
+                            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    }
             }
         }
     }
-
     return SPELL_CAST_OK;
 }
 

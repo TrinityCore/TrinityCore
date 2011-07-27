@@ -1364,7 +1364,7 @@ void Tausendwinter::BearbeiteWiederbelebungen(const uint32 diff)
         {
             for (SpielerSet::iterator Spieleriter = (*NPCiter).second->m_SpielerListe.begin(); Spieleriter != (*NPCiter).second->m_SpielerListe.end(); ++Spieleriter)
             {
-                Player * pPlr = sObjectMgr->GetPlayer(*Spieleriter);
+                Player * pPlr = sObjectAccessor->FindPlayer(*Spieleriter);
                 if (!pPlr)
                     continue;
 
@@ -1393,7 +1393,7 @@ void Tausendwinter::BearbeiteWiederbelebungen(const uint32 diff)
         {
             for (SpielerSet::iterator Spieleriter = (*NPCiter).second->m_WiederbelebungsListe.begin(); Spieleriter != (*NPCiter).second->m_WiederbelebungsListe.end(); ++Spieleriter)
             {
-                Player * pPlr = sObjectMgr->GetPlayer(*Spieleriter);
+                Player * pPlr = sObjectAccessor->FindPlayer(*Spieleriter);
                 if (!pPlr)
                     continue;
 
@@ -3053,7 +3053,7 @@ void Tausendwinter::SendAreaSpiritHealerQueryOpcode(Player * pPlr, uint64 & NPCG
 
 void Tausendwinter::AddPlayerToResurrectQueue(uint32 NPCLowGuid, uint64 PlayerGUID)
 {
-    Player * pPlr = sObjectMgr->GetPlayer(PlayerGUID);
+    Player * pPlr = sObjectAccessor->FindPlayer(PlayerGUID);
     if (!pPlr)
         return;
 
@@ -3084,7 +3084,7 @@ void Tausendwinter::RemovePlayerFromResurrectQueue(uint64 PlayerGUID)
             SpielerSet::iterator Spieleriter = (*NPCiter).second->m_SpielerListe.find(PlayerGUID);
             if (Spieleriter != (*NPCiter).second->m_SpielerListe.end())
             {
-                if (Player * pPlr = sObjectMgr->GetPlayer(*Spieleriter))
+                if (Player * pPlr = sObjectAccessor->FindPlayer(*Spieleriter))
                     pPlr->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
 
                 (*NPCiter).second->m_SpielerListe.erase(Spieleriter);
@@ -3098,7 +3098,7 @@ void Tausendwinter::RemovePlayerFromResurrectQueue(uint64 PlayerGUID)
             SpielerSet::iterator Spieleriter = (*NPCiter).second->m_WiederbelebungsListe.find(PlayerGUID);
             if (Spieleriter != (*NPCiter).second->m_WiederbelebungsListe.end())
             {
-                if (Player * pPlr = sObjectMgr->GetPlayer(*Spieleriter))
+                if (Player * pPlr = sObjectAccessor->FindPlayer(*Spieleriter))
                     pPlr->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
 
                 (*NPCiter).second->m_WiederbelebungsListe.erase(Spieleriter);
@@ -3122,7 +3122,7 @@ void Tausendwinter::VerschiebeToteSpieler(Creature * pCr)
             SpielerSet WiederbelebungsListe = (*iter).second->m_WiederbelebungsListe;
             for (SpielerSet::const_iterator iter = WiederbelebungsListe.begin(); iter != WiederbelebungsListe.end(); ++iter)
             {
-                Player * pPlr = sObjectMgr->GetPlayer(*iter);
+                Player * pPlr = sObjectAccessor->FindPlayer(*iter);
                 if (!pPlr)
                     continue;
 

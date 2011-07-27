@@ -3,7 +3,7 @@
 #ifndef _JAIL_H
 #define _JAIL_H
 
-#include "Chat.h"
+#include <Chat.h>
 
 struct JailKonfStruktur
 {
