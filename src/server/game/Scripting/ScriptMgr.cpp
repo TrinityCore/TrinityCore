@@ -17,6 +17,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -25,6 +26,100 @@
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Transport.h"
+
+// This is the global static registry of scripts.
+template<class TScript>
+class ScriptRegistry
+{
+    // Counter used for code-only scripts.
+    static uint32 _scriptIdCounter;
+
+public:
+    typedef std::map<uint32, TScript*> ScriptMap;
+    typedef typename ScriptMap::iterator ScriptMapIterator;
+
+    // The actual list of scripts. This will be accessed concurrently, so it must not be modified
+    // after server startup.
+    static ScriptMap ScriptPointerList;
+
+    static void AddScript(TScript* const script)
+    {
+        ASSERT(script);
+
+        // See if the script is using the same memory as another script. If this happens, it means that
+        // someone forgot to allocate new memory for a script.
+        for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+        {
+            if (it->second == script)
+            {
+                sLog->outError("Script '%s' has same memory pointer as '%s'.",
+                    script->GetName().c_str(), it->second->GetName().c_str());
+
+                return;
+            }
+        }
+
+        if (script->IsDatabaseBound())
+        {
+            // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
+            // through a script name (or similar).
+            uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
+            if (id)
+            {
+                // Try to find an existing script.
+                bool existing = false;
+                for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+                {
+                    // If the script names match...
+                    if (it->second->GetName() == script->GetName())
+                    {
+                        // ... It exists.
+                        existing = true;
+                        break;
+                    }
+                }
+
+                // If the script isn't assigned -> assign it!
+                if (!existing)
+                {
+                    ScriptPointerList[id] = script;
+                    sScriptMgr->IncrementScriptCount();
+                }
+                else
+                {
+                    // If the script is already assigned -> delete it!
+                    sLog->outError("Script '%s' already assigned with the same script name, so the script can't work.",
+                        script->GetName().c_str());
+
+                    ASSERT(false); // Error that should be fixed ASAP.
+                }
+            }
+            else
+            {
+                // The script uses a script name from database, but isn't assigned to anything.
+                if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
+                    sLog->outErrorDb("Script named '%s' does not have a script name assigned in database.",
+                        script->GetName().c_str());
+            }
+        }
+        else
+        {
+            // We're dealing with a code-only script; just add it.
+            ScriptPointerList[_scriptIdCounter++] = script;
+            sScriptMgr->IncrementScriptCount();
+        }
+    }
+
+    // Gets a script by its ID (assigned by ObjectMgr).
+    static TScript* GetScriptById(uint32 id)
+    {
+        ScriptMapIterator it = ScriptPointerList.find(id);
+        if (it != ScriptPointerList.end())
+            return it->second;
+
+        return NULL;
+    }
+};
 
 // Utility macros to refer to the script registry.
 #define SCR_REG_MAP(T) ScriptRegistry<T>::ScriptMap
@@ -1290,25 +1385,25 @@ void ScriptMgr::OnGroupDisband(Group* group)
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<SpellScriptLoader>::AddScript(this);
+    ScriptRegistry<SpellScriptLoader>::AddScript(this);
 }
 
 ServerScript::ServerScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<ServerScript>::AddScript(this);
+    ScriptRegistry<ServerScript>::AddScript(this);
 }
 
 WorldScript::WorldScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<WorldScript>::AddScript(this);
+    ScriptRegistry<WorldScript>::AddScript(this);
 }
 
 FormulaScript::FormulaScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<FormulaScript>::AddScript(this);
+    ScriptRegistry<FormulaScript>::AddScript(this);
 }
 
 WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
@@ -1317,7 +1412,7 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     if (GetEntry() && !GetEntry()->IsContinent())
         sLog->outError("WorldMapScript for map %u is invalid.", mapId);
 
-    ScriptMgr::ScriptRegistry<WorldMapScript>::AddScript(this);
+    ScriptRegistry<WorldMapScript>::AddScript(this);
 }
 
 InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
@@ -1326,7 +1421,7 @@ InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
     if (GetEntry() && !GetEntry()->IsDungeon())
         sLog->outError("InstanceMapScript for map %u is invalid.", mapId);
 
-    ScriptMgr::ScriptRegistry<InstanceMapScript>::AddScript(this);
+    ScriptRegistry<InstanceMapScript>::AddScript(this);
 }
 
 BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
@@ -1335,140 +1430,140 @@ BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
     if (GetEntry() && !GetEntry()->IsBattleground())
         sLog->outError("BattlegroundMapScript for map %u is invalid.", mapId);
 
-    ScriptMgr::ScriptRegistry<BattlegroundMapScript>::AddScript(this);
+    ScriptRegistry<BattlegroundMapScript>::AddScript(this);
 }
 
 ItemScript::ItemScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<ItemScript>::AddScript(this);
+    ScriptRegistry<ItemScript>::AddScript(this);
 }
 
 CreatureScript::CreatureScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<CreatureScript>::AddScript(this);
+    ScriptRegistry<CreatureScript>::AddScript(this);
 }
 
 GameObjectScript::GameObjectScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<GameObjectScript>::AddScript(this);
+    ScriptRegistry<GameObjectScript>::AddScript(this);
 }
 
 AreaTriggerScript::AreaTriggerScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<AreaTriggerScript>::AddScript(this);
+    ScriptRegistry<AreaTriggerScript>::AddScript(this);
 }
 
 BattlegroundScript::BattlegroundScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<BattlegroundScript>::AddScript(this);
+    ScriptRegistry<BattlegroundScript>::AddScript(this);
 }
 
 OutdoorPvPScript::OutdoorPvPScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<OutdoorPvPScript>::AddScript(this);
+    ScriptRegistry<OutdoorPvPScript>::AddScript(this);
 }
 
 CommandScript::CommandScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<CommandScript>::AddScript(this);
+    ScriptRegistry<CommandScript>::AddScript(this);
 }
 
 WeatherScript::WeatherScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<WeatherScript>::AddScript(this);
+    ScriptRegistry<WeatherScript>::AddScript(this);
 }
 
 AuctionHouseScript::AuctionHouseScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<AuctionHouseScript>::AddScript(this);
+    ScriptRegistry<AuctionHouseScript>::AddScript(this);
 }
 
 ConditionScript::ConditionScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<ConditionScript>::AddScript(this);
+    ScriptRegistry<ConditionScript>::AddScript(this);
 }
 
 VehicleScript::VehicleScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<VehicleScript>::AddScript(this);
+    ScriptRegistry<VehicleScript>::AddScript(this);
 }
 
 DynamicObjectScript::DynamicObjectScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<DynamicObjectScript>::AddScript(this);
+    ScriptRegistry<DynamicObjectScript>::AddScript(this);
 }
 
 TransportScript::TransportScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<TransportScript>::AddScript(this);
+    ScriptRegistry<TransportScript>::AddScript(this);
 }
 
 AchievementCriteriaScript::AchievementCriteriaScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<AchievementCriteriaScript>::AddScript(this);
+    ScriptRegistry<AchievementCriteriaScript>::AddScript(this);
 }
 
 PlayerScript::PlayerScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<PlayerScript>::AddScript(this);
+    ScriptRegistry<PlayerScript>::AddScript(this);
 }
 
 GuildScript::GuildScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<GuildScript>::AddScript(this);
+    ScriptRegistry<GuildScript>::AddScript(this);
 }
 
 GroupScript::GroupScript(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<GroupScript>::AddScript(this);
+    ScriptRegistry<GroupScript>::AddScript(this);
 }
 
-// Instantiate static members of ScriptMgr::ScriptRegistry.
-template<class TScript> std::map<uint32, TScript*> ScriptMgr::ScriptRegistry<TScript>::ScriptPointerList;
-template<class TScript> uint32 ScriptMgr::ScriptRegistry<TScript>::_scriptIdCounter = 0;
+// Instantiate static members of ScriptRegistry.
+template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
+template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
 
 // Specialize for each script type class like so:
-template class ScriptMgr::ScriptRegistry<SpellScriptLoader>;
-template class ScriptMgr::ScriptRegistry<ServerScript>;
-template class ScriptMgr::ScriptRegistry<WorldScript>;
-template class ScriptMgr::ScriptRegistry<FormulaScript>;
-template class ScriptMgr::ScriptRegistry<WorldMapScript>;
-template class ScriptMgr::ScriptRegistry<InstanceMapScript>;
-template class ScriptMgr::ScriptRegistry<BattlegroundMapScript>;
-template class ScriptMgr::ScriptRegistry<ItemScript>;
-template class ScriptMgr::ScriptRegistry<CreatureScript>;
-template class ScriptMgr::ScriptRegistry<GameObjectScript>;
-template class ScriptMgr::ScriptRegistry<AreaTriggerScript>;
-template class ScriptMgr::ScriptRegistry<BattlegroundScript>;
-template class ScriptMgr::ScriptRegistry<OutdoorPvPScript>;
-template class ScriptMgr::ScriptRegistry<CommandScript>;
-template class ScriptMgr::ScriptRegistry<WeatherScript>;
-template class ScriptMgr::ScriptRegistry<AuctionHouseScript>;
-template class ScriptMgr::ScriptRegistry<ConditionScript>;
-template class ScriptMgr::ScriptRegistry<VehicleScript>;
-template class ScriptMgr::ScriptRegistry<DynamicObjectScript>;
-template class ScriptMgr::ScriptRegistry<TransportScript>;
-template class ScriptMgr::ScriptRegistry<AchievementCriteriaScript>;
-template class ScriptMgr::ScriptRegistry<PlayerScript>;
-template class ScriptMgr::ScriptRegistry<GuildScript>;
-template class ScriptMgr::ScriptRegistry<GroupScript>;
+template class ScriptRegistry<SpellScriptLoader>;
+template class ScriptRegistry<ServerScript>;
+template class ScriptRegistry<WorldScript>;
+template class ScriptRegistry<FormulaScript>;
+template class ScriptRegistry<WorldMapScript>;
+template class ScriptRegistry<InstanceMapScript>;
+template class ScriptRegistry<BattlegroundMapScript>;
+template class ScriptRegistry<ItemScript>;
+template class ScriptRegistry<CreatureScript>;
+template class ScriptRegistry<GameObjectScript>;
+template class ScriptRegistry<AreaTriggerScript>;
+template class ScriptRegistry<BattlegroundScript>;
+template class ScriptRegistry<OutdoorPvPScript>;
+template class ScriptRegistry<CommandScript>;
+template class ScriptRegistry<WeatherScript>;
+template class ScriptRegistry<AuctionHouseScript>;
+template class ScriptRegistry<ConditionScript>;
+template class ScriptRegistry<VehicleScript>;
+template class ScriptRegistry<DynamicObjectScript>;
+template class ScriptRegistry<TransportScript>;
+template class ScriptRegistry<AchievementCriteriaScript>;
+template class ScriptRegistry<PlayerScript>;
+template class ScriptRegistry<GuildScript>;
+template class ScriptRegistry<GroupScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET
