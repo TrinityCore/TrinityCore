@@ -269,26 +269,6 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Demonic Sacrifice
-    if (m_spellInfo->Id == 18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
-    {
-        uint32 entry = unitTarget->GetEntry();
-        uint32 spellID;
-        switch (entry)
-        {
-            case   416: spellID = 18789; break;               //imp
-            case   417: spellID = 18792; break;               //fellhunter
-            case  1860: spellID = 18790; break;               //void
-            case  1863: spellID = 18791; break;               //succubus
-            case 17252: spellID = 35701; break;               //fellguard
-            default:
-                sLog->outError("EffectInstaKill: Unhandled creature entry (%u) case.", entry);
-                return;
-        }
-
-        m_caster->CastSpell(m_caster, spellID, true);
-    }
-
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
