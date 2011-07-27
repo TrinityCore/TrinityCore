@@ -456,34 +456,52 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 T
     AddUnitState(UNIT_STAT_MOVE);
 }
 
-void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player* player)
+void Unit::SendMonsterMove(MonsterMoveData const& moveData, Player* player)
 {
-    WorldPacket data(SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
+    WorldPacket data(SMSG_MONSTER_MOVE, GetPackGUID().size() + 1 + 12 + 4 + 1 + 4 + 8 + 4 + 4 + 12);
     data.append(GetPackGUID());
 
-    data << uint8(0);                                       // new in 3.1
+    data << uint8(0);                                           // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
 
     data << uint8(0);
-    data << MoveFlags;
+    data << moveData.SplineFlag;
 
-    if (MoveFlags & SPLINEFLAG_TRAJECTORY)
+    if (moveData.SplineFlag & SPLINEFLAG_ANIMATIONTIER)
     {
-        data << time;
-        data << speedZ;
-        data << (uint32)0; // walk time after jump
+        data << uint8(moveData.AnimationState);
+        data << uint32(0);
     }
-    else
-        data << time;
 
-    data << uint32(1);                                      // 1 single waypoint
-    data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
+    data << moveData.Time;
+
+    if (moveData.SplineFlag & SPLINEFLAG_TRAJECTORY)
+    {
+        data << moveData.SpeedZ;
+        data << uint32(0);                                      // walk time after jump
+    }
+
+    data << uint32(1);                                          // waypoint count
+    data << moveData.DestLocation.GetPositionX();
+    data << moveData.DestLocation.GetPositionY();
+    data << moveData.DestLocation.GetPositionZ();
 
     if (player)
         player->GetSession()->SendPacket(&data);
     else
         SendMessageToSet(&data, true);
+}
+
+void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player* player)
+{
+    MonsterMoveData data;
+    data.DestLocation.Relocate(NewPosX, NewPosY, NewPosZ);
+    data.SplineFlag = MoveFlags;
+    data.Time = time;
+    data.SpeedZ = speedZ;
+
+    SendMonsterMove(data, player);
 }
 
 void Unit::SendMonsterMoveExitVehicle(Position const* newPos)
