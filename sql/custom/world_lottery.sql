@@ -49,3 +49,4 @@ INSERT INTO `config` VALUES ('Lottery.Enable', '1', '1', '1', '1', '');
 INSERT INTO `config` VALUES ('Lottery.BetCost', '500000', '500000', null, '500000', '');
 INSERT INTO `config` VALUES ('Lottery.MaxNumber', '30', '30', null, '30', '');
 INSERT INTO `config` VALUES ('Lottery.MinUserLVL', '60', '60', null, '60', '');
+INSERT INTO `config` VALUES ('Lottery.BpU', '1', '1', '1', '1', 'Bet per User. One player can make only one bet.');

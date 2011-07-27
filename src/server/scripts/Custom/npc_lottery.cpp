@@ -32,7 +32,7 @@ public:
         {
             if (pPlayer->getLevel() >= uint32(sSQLConfig->GetIntDefault("Lottery.MinUserLVL", 60)) && pPlayer->GetMoney() >= uint32(sSQLConfig->GetIntDefault("Lottery.BetCost", 500000)))
             {
-                std::string wh = ("Здравствуй, незнакомец. Хочешь испытать удачу? О да, по глазам вижу чо хочешь. Всё очень просто: назови мне 5 чисел в диапазоне от 1 до " + 
+                std::string wh = ("Здравствуй, незнакомец. Хочешь испытать удачу? О да, по глазам вижу что хочешь. Всё очень просто: назови мне 5 чисел в диапазоне от 1 до " + 
                                     std::string(sSQLConfig->GetStringDefault("Lottery.MaxNumber", "30")) + " (разделяя пробелами), заплати стоимость ставки и дождись розыгрыша.");
                 pCreature->MonsterWhisper(wh.c_str(), pPlayer->GetGUID());
                 pPlayer->PrepareGossipMenu(pCreature);
@@ -63,6 +63,7 @@ public:
                     char* tmp;
                     int32 number[5];
                     std::string error = ("Вы ввели неверное число. Ваша ставка должна находится в пределах от 1 до " + std::string(sSQLConfig->GetStringDefault("Lottery.MaxNumber", "30")));
+                    std::string numbers = ("Вы сделали ставку на номера: " + std::string(strCode));
 
                     tmp = strtok (charCode," ");
                     for (int8 n = 0; n < 5; ++n)
@@ -86,15 +87,25 @@ public:
                         }
                     }
 
-                    uint32 betMaxID;
+                    if (sSQLConfig->GetBoolDefault("Lottery.BpU", "0"))
+                    {
+                        QueryResult qCheckBpU = WorldDatabase.PQuery("SELECT bet FROM lottery_bets WHERE guid = '%u'", pPlayer->GetGUIDLow());
+                        if (qCheckBpU)
+                        {
+                            error = ("Вы не можете сделать ещё одну ставку так как уже поставили на: " + std::string(qCheckBpU->Fetch()->GetString()));
+                            pCreature->MonsterWhisper(error.c_str(), pPlayer->GetGUID());
+                            pPlayer->CLOSE_GOSSIP_MENU();
+                            return false;
+                        }
+                    }
+                    uint32 betMaxID = 0;
                     QueryResult qbetMaxID = WorldDatabase.Query("SELECT MAX(id) FROM lottery_bets");
 
                     if (qbetMaxID)
                         betMaxID = qbetMaxID->Fetch()->GetUInt32();
-                    else
-                        betMaxID = 0;
 
                     WorldDatabase.PExecute("INSERT INTO lottery_bets (id, name, guid, bet) VALUES ('%u', '%s', '%u', '%s')", betMaxID+1, pPlayer->GetName(), pPlayer->GetGUIDLow(), strCode.c_str());
+                    pCreature->MonsterWhisper(numbers.c_str(), pPlayer->GetGUID());
                     pPlayer->ModifyMoney(-sSQLConfig->GetIntDefault("Lottery.BetCost", 500000));
 
                     pPlayer->CLOSE_GOSSIP_MENU();
@@ -127,13 +138,11 @@ public:
 
                     uint32 betMaxID = qMaxID->Fetch()->GetUInt32();
                     uint32 luckyNumber[5];
-                    uint32 lotteryID;
+                    uint32 lotteryID = 0;
                     uint32 jackpotWinners = 0;
 
                     QueryResult qlotteryID = WorldDatabase.Query("SELECT MAX(id) FROM lottery");
-                    if (!qlotteryID)
-                        lotteryID = 0;
-                    else
+                    if (qlotteryID)
                         lotteryID = qlotteryID->Fetch()->GetUInt32();
 
                     QueryResult qBets = WorldDatabase.Query("SELECT guid, bet, name FROM lottery_bets");
@@ -154,13 +163,13 @@ public:
                             int32 number[5];
                             char* tmp;
 
-                            tmp = strtok ((char*)bet.c_str()," ");
+                            tmp = strtok((char*)bet.c_str()," ");
 
                             for (int8 n = 0; n < 5; ++n)
                                 if (tmp != NULL)
                                 {
                                     number[n] = atoi(tmp);
-                                    tmp = strtok (NULL, " ");
+                                    tmp = strtok(NULL, " ");
                                 }
 
                             for (int8 n = 0; n < 5; ++n)
@@ -205,15 +214,13 @@ public:
                                                     lotteryID+1, name.c_str(), guid, rBet.c_str(), points, cash);
                         } while (qBets->NextRow());
 
-                        uint64 jackpot;
+                        uint64 jackpot = 0;
                         uint64 rJackpot;
                         uint64 defJackpot = uint64(betMaxID * sSQLConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f);
                         QueryResult qJackpot = WorldDatabase.PQuery("SELECT jackpot FROM lottery WHERE id = '%u'", lotteryID);
 
                         if (qJackpot)
                             jackpot = qJackpot->Fetch()->GetUInt32();
-                        else
-                            jackpot = 0;
 
                         rJackpot = jackpot;
 
