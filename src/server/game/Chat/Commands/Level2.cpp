@@ -76,19 +76,24 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (HasLowerSecurity (target, target_guid, true))
         return false;
 
-    time_t mutetime = time(NULL) + notspeaktime*60;
-
     if (target)
+    {
+        //! Target is online, mute will be in effect right away.
+        int64 mutetime = time(NULL) + notspeaktime * MINUTE;
         target->GetSession()->m_muteTime = mutetime;
-
-    LoginDatabase.PExecute("UPDATE account SET mutetime = " UI64FMTD " WHERE id = '%u'", uint64(mutetime), account_id);
-
-    if (target)
+        LoginDatabase.PExecute("UPDATE account SET mutetime = " SI64FMTD " WHERE id = '%u'", mutetime, account_id);
         ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime, mutereasonstr.c_str());
+    }
+    else
+    {
+        //! Target is offline, mute will be in effect starting from the next login.
+        int32 muteTime = -(notspeaktime * MINUTE);
+        LoginDatabase.PExecute("UPDATE account SET mutetime = %d WHERE id = %u", muteTime, account_id);
+    }
 
     std::string nameLink = playerLink(target_name);
 
-    PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
+    PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
 
     return true;
 }
