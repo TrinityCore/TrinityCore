@@ -133,15 +133,9 @@ class SpellCastTargets
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
 
-        uint64 GetObjectTargetGUID() const { return m_objectTargetGUID; }
-        WorldObject * GetObjectTarget() const { return m_objectTarget; }
-        Unit* GetUnitTarget() const { return m_objectTarget ? m_objectTarget->ToUnit() : NULL; }
+        uint64 GetUnitTargetGUID() const { return m_unitTargetGUID; }
+        Unit* GetUnitTarget() const { return m_unitTarget; }
         void SetUnitTarget(Unit* target);
-
-        GameObject* GetGOTarget() const { return m_objectTarget ? m_objectTarget->ToUnit() : NULL;; }
-        void SetGOTarget(GameObject* target);
-
-        void SetCorpseTarget(Corpse* corpse);
 
         Position const* GetSrc() const;
         void SetSrc(float x, float y, float z);
@@ -155,6 +149,13 @@ class SpellCastTargets
         void SetDst(WorldObject const& wObj);
         void SetDst(SpellCastTargets const& spellTargets);
         void ModDst(Position const& pos);
+
+        uint64 GetGOTargetGUID() const { return m_GOTargetGUID; }
+        GameObject* GetGOTarget() const { return m_GOTarget; }
+        void SetGOTarget(GameObject* target);
+
+        uint64 GetCorpseTargetGUID() const { return m_CorpseTargetGUID; }
+        void SetCorpseTarget(Corpse* corpse);
 
         uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
@@ -183,10 +184,15 @@ class SpellCastTargets
     private:
         uint32 m_targetMask;
 
-        WorldObject* m_objectTarget;  // can be used at spell creating and after Update
+        // objects (can be used at spell creating and after Update at casting
+        Unit* m_unitTarget;
+        GameObject* m_GOTarget;
+        Item* m_itemTarget;
 
         // object GUID/etc, can be used always
-        uint64 m_objectTargetGUID;
+        uint64 m_unitTargetGUID;
+        uint64 m_GOTargetGUID;
+        uint64 m_CorpseTargetGUID;
         uint64 m_itemTargetGUID;
         uint32 m_itemTargetEntry;
 
