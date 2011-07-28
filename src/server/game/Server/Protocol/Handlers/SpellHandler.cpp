@@ -141,7 +141,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         {
             if (SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[i].SpellId))
             {
-                if (spellInfo->CanBeUsedInCombat())
+                if (!spellInfo->CanBeUsedInCombat())
                 {
                     pUser->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, pItem, NULL);
                     return;

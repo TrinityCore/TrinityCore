@@ -13877,7 +13877,7 @@ void CharmInfo::InitPossessCreateSpells()
         {
             uint32 spellId = m_unit->ToCreature()->m_spells[i];
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-            if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD)
+            if (spellInfo && !spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD)
             {
                 if (spellInfo->IsPassive())
                     m_unit->CastSpell(m_unit, spellInfo, true);
