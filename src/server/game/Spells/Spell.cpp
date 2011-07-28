@@ -117,20 +117,14 @@ void SpellCastTargets::Read(ByteBuffer& data, Unit* caster)
 {
     data >> m_targetMask;
 
-    if (m_targetMask == TARGET_FLAG_SELF)
+    if (m_targetMask == TARGET_FLAG_NONE)
         return;
 
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET))
-        data.readPackGUID(m_unitTargetGUID);
-
-    if (m_targetMask & (TARGET_FLAG_GAMEOBJECT))
-        data.readPackGUID(m_GOTargetGUID);
+    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
+        data.readPackGUID(m_objectTargetGUID);
 
     if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
         data.readPackGUID(m_itemTargetGUID);
-
-    if (m_targetMask & (TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
-        data.readPackGUID(m_CorpseTargetGUID);
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
@@ -177,26 +171,7 @@ void SpellCastTargets::Write(ByteBuffer& data)
     data << uint32(m_targetMask);
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
-    {
-        if (m_targetMask & TARGET_FLAG_UNIT)
-        {
-            if (m_unitTarget)
-                data.append(m_unitTarget->GetPackGUID());
-            else
-                data << uint8(0);
-        }
-        else if (m_targetMask & TARGET_FLAG_GAMEOBJECT)
-        {
-            if (m_GOTarget)
-                data.append(m_GOTarget->GetPackGUID());
-            else
-                data << uint8(0);
-        }
-        else if (m_targetMask & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY))
-            data.appendPackGUID(m_CorpseTargetGUID);
-        else
-            data << uint8(0);
-    }
+        data.append(m_objectTargetGUID);
 
     if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
@@ -236,6 +211,18 @@ void SpellCastTargets::SetUnitTarget(Unit* target)
     m_unitTarget = target;
     m_unitTargetGUID = target->GetGUID();
     m_targetMask |= TARGET_FLAG_UNIT;
+}
+
+void SpellCastTargets::SetGOTarget(GameObject* target)
+{
+    m_GOTarget = target;
+    m_GOTargetGUID = target->GetGUID();
+    m_targetMask |= TARGET_FLAG_GAMEOBJECT;
+}
+
+void SpellCastTargets::SetCorpseTarget(Corpse* corpse)
+{
+    m_CorpseTargetGUID = corpse->GetGUID();
 }
 
 Position const* SpellCastTargets::GetSrc() const
@@ -330,13 +317,6 @@ void SpellCastTargets::ModDst(Position const& pos)
     m_dstPos.Relocate(pos);
 }
 
-void SpellCastTargets::SetGOTarget(GameObject* target)
-{
-    m_GOTarget = target;
-    m_GOTargetGUID = target->GetGUID();
-    m_targetMask |= TARGET_FLAG_GAMEOBJECT;
-}
-
 void SpellCastTargets::SetItemTarget(Item* item)
 {
     if (!item)
@@ -364,11 +344,6 @@ void SpellCastTargets::UpdateTradeSlotItem()
         m_itemTargetGUID = m_itemTarget->GetGUID();
         m_itemTargetEntry = m_itemTarget->GetEntry();
     }
-}
-
-void SpellCastTargets::SetCorpseTarget(Corpse* corpse)
-{
-    m_CorpseTargetGUID = corpse->GetGUID();
 }
 
 void SpellCastTargets::Update(Unit* caster)
@@ -632,22 +607,7 @@ void Spell::SelectSpellTargets()
             continue;
         }
 
-        if (!targetA && !targetB)
-        {
-            if (!m_spellInfo->GetMaxRange(true))
-            {
-                AddUnitTarget(m_caster, i);
-                continue;
-            }
-
-            // add here custom effects that need default target.
-            // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
-            switch(m_spellInfo->Effects[i].Effect)
-            {
-                case SPELL_EFFECT_DUMMY:
-                {
-                    switch(m_spellInfo->Id)
-                    {
+                        /*// TODO: fix this motherfucker, nothing should be added to spell targets
                         case 20577:                         // Cannibalize
                         case 54044:                         // Carrion Feeder
                         {
@@ -683,7 +643,80 @@ void Spell::SelectSpellTargets()
                                 finish(false);
                             }
                             break;
-                        }
+                        }*/
+
+        if (!targetA && !targetB)
+        {
+            if (!m_spellInfo->GetMaxRange(true))
+            {
+                AddUnitTarget(m_caster, i);
+                continue;
+            }
+
+            // IF SPELL HAS EFFECT WHICH DOES NOT FIT PURPOSE OF THE EFFECT IT SHOULD BE SELECTED ANYWAYS
+            // add here custom effects that need default target.
+            switch(m_spellInfo->Effects[i].Effect)
+            {
+                SPELL_EFFECT_INSTAKILL //unit
+                SPELL_EFFECT_SCHOOL_DAMAGE // unit; on missing: add explicit
+                SPELL_EFFECT_DUMMY // any, no; on missing: execute
+                SPELL_EFFECT_TELEPORT_UNITS // unit+dest
+                SPELL_EFFECT_APPLY_AURA // unit, on missing: explicit, caster
+                SPELL_EFFECT_ENVIRONMENTAL_DAMAGE //unit
+                SPELL_EFFECT_POWER_DRAIN //unit, on missing: add explicit
+                SPELL_EFFECT_HEALTH_LEECH //unit, on missing: add explicit
+                SPELL_EFFECT_HEAL //unit
+                SPELL_EFFECT_BIND //unit, on missing: add explicit
+                SPELL_EFFECT_QUEST_COMPLETE //unit
+
+
+
+
+
+
+
+                // always caster
+                case SPELL_EFFECT_KILL_CREDIT2:
+                case SPELL_EFFECT_ENERGIZE:
+                case SPELL_EFFECT_DISPEL_MECHANIC:
+                //unk
+                
+                case SPELL_EFFECT_LEARN_PET_SPELL:
+                case SPELL_EFFECT_FEED_PET:
+                // effects using dest, can have no target
+                case SPELL_EFFECT_CREATE_HOUSE:
+                case SPELL_EFFECT_SUMMON_PET:
+                case SPELL_EFFECT_149:
+                case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+                case SPELL_EFFECT_ADD_FARSIGHT:
+                case SPELL_EFFECT_SUMMON:
+                case SPELL_EFFECT_TRIGGER_MISSILE:
+                case SPELL_EFFECT_SUMMON_OBJECT_WILD:
+                case SPELL_EFFECT_TRANS_DOOR:
+
+                // effects using spell explicit target
+                case SPELL_EFFECT_HEAL_MAX_HEALTH:
+                case SPELL_EFFECT_ADD_HONOR:
+                case SPELL_EFFECT_POWER_DRAIN:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_REPUTATION:
+                case SPELL_EFFECT_SKILL_STEP:
+                case SPELL_EFFECT_LEARN_SPELL:
+                case SPELL_EFFECT_BIND:
+                case SPELL_EFFECT_CREATE_ITEM:
+                case SPELL_EFFECT_SKIN_PLAYER_CORPSE:
+                case SPELL_EFFECT_UNLEARN_SPECIALIZATION:
+                case SPELL_EFFECT_RESURRECT_NEW:
+                case SPELL_EFFECT_RESURRECT:
+                case SPELL_EFFECT_APPLY_GLYPH:
+                case SPELL_EFFECT_DISPEL:
+                case SPELL_EFFECT_APPLY_AURA: // can have no targets - caster in that case
+                case SPELL_EFFECT_SUMMON_CHANGE_ITEM: // can have no targets - caster in that case
+                case SPELL_EFFECT_SEND_TAXI:
+                {
+                    switch(m_spellInfo->Id)
+                    {
                         default:
                             if (m_targets.GetUnitTarget())
                                 AddUnitTarget(m_targets.GetUnitTarget(), i);
@@ -693,6 +726,56 @@ void Spell::SelectSpellTargets()
                     }
                     break;
                 }
+                // effects using item target
+                case SPELL_EFFECT_ENCHANT_ITEM:
+                case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
+                case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
+                case SPELL_EFFECT_DISENCHANT:
+                case SPELL_EFFECT_PROSPECTING:
+                case SPELL_EFFECT_MILLING:
+                    // can be unit target or corpse target
+                    // possibly failure at corpse remove?
+                    if (WorldObject* worldObject = m_targets.GetObjectTarget())
+                        AddTarget(worldObject, i);
+                    break;
+
+
+                    // effects which affect caster when no target
+                    // no target added to the spell target list for those
+                case SPELL_EFFECT_SEND_EVENT: 
+                case SPELL_EFFECT_SPAWN:
+                case SPELL_EFFECT_DUMMY:
+                case SPELL_EFFECT_TRIGGER_SPELL: // null target types - cast by caster on self
+                case SPELL_EFFECT_SKILL:
+                    // effects which always affect caster
+                    // no target added to the spell target list for those
+                case SPELL_EFFECT_PROFICIENCY:
+                case SPELL_EFFECT_PARRY:
+                case SPELL_EFFECT_DODGE:
+                case SPELL_EFFECT_EVADE:
+                case SPELL_EFFECT_BLOCK:
+                case SPELL_EFFECT_STUCK:
+                case SPELL_EFFECT_WEAPON:
+                case SPELL_EFFECT_DEFENSE:
+                case SPELL_EFFECT_SPELL_DEFENSE:
+                case SPELL_EFFECT_LANGUAGE:
+                case SPELL_EFFECT_TRADE_SKILL:
+                case SPELL_EFFECT_STEALTH:
+                case SPELL_EFFECT_DETECT:
+                case SPELL_EFFECT_ATTACK:
+                case SPELL_EFFECT_SELF_RESURRECT:
+                case SPELL_EFFECT_SUMMON_PLAYER:
+                case SPELL_EFFECT_152:
+                case SPELL_EFFECT_TITAN_GRIP:
+                case SPELL_EFFECT_TRIGGER_SPELL_2:
+                case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
+                case SPELL_EFFECT_CAST_BUTTON:
+                case SPELL_EFFECT_131:
+                case SPELL_EFFECT_FORCE_DESELECT:
+                  // do nothing
+
+
+                
                 case SPELL_EFFECT_BIND:
                 case SPELL_EFFECT_RESURRECT:
                 case SPELL_EFFECT_CREATE_ITEM:
@@ -702,35 +785,9 @@ void Spell::SelectSpellTargets()
                 case SPELL_EFFECT_SUMMON_OBJECT_WILD:
                 case SPELL_EFFECT_SELF_RESURRECT:
                 case SPELL_EFFECT_REPUTATION:
-                case SPELL_EFFECT_LEARN_SPELL:
                 case SPELL_EFFECT_SEND_TAXI:
                     if (m_targets.GetUnitTarget())
                         AddUnitTarget(m_targets.GetUnitTarget(), i);
-                    // Triggered spells have additional spell targets - cast them even if no explicit unit target is given (required for spell 50516 for example)
-                    else if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_TRIGGER_SPELL)
-                        AddUnitTarget(m_caster, i);
-                    break;
-                case SPELL_EFFECT_SUMMON_PLAYER:
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelection())
-                    {
-                        Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
-                        if (target)
-                            AddUnitTarget(target, i);
-                    }
-                    break;
-                case SPELL_EFFECT_RESURRECT_NEW:
-                    if (m_targets.GetUnitTarget())
-                        AddUnitTarget(m_targets.GetUnitTarget(), i);
-                    if (m_targets.GetCorpseTargetGUID())
-                    {
-                        Corpse *corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
-                        if (corpse)
-                        {
-                            Player* owner = ObjectAccessor::FindPlayer(corpse->GetOwnerGUID());
-                            if (owner)
-                                AddUnitTarget(owner, i);
-                        }
-                    }
                     break;
                 case SPELL_EFFECT_SUMMON_CHANGE_ITEM:
                 case SPELL_EFFECT_ADD_FARSIGHT:
@@ -748,28 +805,12 @@ void Spell::SelectSpellTargets()
                 case SPELL_EFFECT_APPLY_AURA:
                     switch(m_spellInfo->Effects[i].ApplyAuraName)
                     {
-                        case SPELL_AURA_ADD_FLAT_MODIFIER:  // some spell mods auras have 0 target modes instead expected TARGET_UNIT_CASTER(1) (and present for other ranks for same spell for example)
-                        case SPELL_AURA_ADD_PCT_MODIFIER:
-                            AddUnitTarget(m_caster, i);
-                            break;
                         default:                            // apply to target in other case
                             if (m_targets.GetUnitTarget())
                                 AddUnitTarget(m_targets.GetUnitTarget(), i);
+                            else
+                                AddUnitTarget(m_caster, i);
                             break;
-                    }
-                    break;
-                case SPELL_EFFECT_SKIN_PLAYER_CORPSE:
-                    if (m_targets.GetUnitTarget())
-                        AddUnitTarget(m_targets.GetUnitTarget(), i);
-                    else if (m_targets.GetCorpseTargetGUID())
-                    {
-                        Corpse *corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
-                        if (corpse)
-                        {
-                            Player* owner = ObjectAccessor::FindPlayer(corpse->GetOwnerGUID());
-                            if (owner)
-                                AddUnitTarget(owner, i);
-                        }
                     }
                     break;
                 default:
@@ -1197,7 +1238,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     }
 
     // Do not take combo points on dodge and miss
-    if (m_needComboPoints && m_targets.GetUnitTargetGUID() == target->targetGUID)
+    if (m_needComboPoints && m_targets.GetObjectTargetGUID() == target->targetGUID)
         if (missInfo != SPELL_MISS_NONE)
         {
             m_needComboPoints = false;
@@ -2359,7 +2400,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         AddGOTarget(m_targets.GetGOTarget(), i);
                     break;
                 case TARGET_GAMEOBJECT_ITEM:
-                    if (m_targets.GetGOTargetGUID())
+                    if (m_targets.GetGOTarget())
                         AddGOTarget(m_targets.GetGOTarget(), i);
                     else if (m_targets.GetItemTarget())
                         AddItemTarget(m_targets.GetItemTarget(), i);
@@ -2809,7 +2850,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     m_targets = *targets;
 
-    if (!m_targets.GetUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
+    if (!m_targets.GetObjectTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
     {
         Unit* target = NULL;
         if (m_caster->GetTypeId() == TYPEID_UNIT)
@@ -3068,7 +3109,7 @@ void Spell::cast(bool skipCheck)
     else
     {
         // cancel at lost main target unit
-        if (m_targets.GetUnitTargetGUID() && m_targets.GetUnitTargetGUID() != m_caster->GetGUID())
+        if (m_targets.GetObjectTargetGUID() && m_targets.GetObjectTargetGUID() != m_caster->GetGUID())
         {
             cancel();
             return;
@@ -3494,7 +3535,7 @@ void Spell::update(uint32 difftime)
     // update pointers based at it's GUIDs
     UpdatePointers();
 
-    if (m_targets.GetUnitTargetGUID() && !m_targets.GetUnitTarget())
+    if (m_targets.GetObjectTargetGUID() && !m_targets.GetObjectTarget())
     {
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell %u is cancelled due to removal of target.", m_spellInfo->Id);
         cancel();
@@ -4306,7 +4347,7 @@ void Spell::TakePower()
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if (m_spellInfo->PowerType == POWER_RAGE || m_spellInfo->PowerType == POWER_ENERGY || m_spellInfo->PowerType == POWER_RUNE)
-            if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
+            if (uint64 targetGUID = m_targets.GetObjectTargetGUID())
                 for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                     if (ihit->targetGUID == targetGUID)
                     {
