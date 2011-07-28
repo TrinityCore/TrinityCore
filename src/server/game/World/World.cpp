@@ -1288,9 +1288,6 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    // unload data which is copied to SpellMgr::mSpellInfoMap
-    sSpellStore.Clear();
-
     sLog->outString("Loading Script Names...");
     sObjectMgr->LoadScriptNames();
 
