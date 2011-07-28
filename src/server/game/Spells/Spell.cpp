@@ -5718,7 +5718,7 @@ SpellCastResult Spell::CheckRange(bool strict)
     Unit* target = m_targets.GetUnitTarget();
     float max_range = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
     float min_range = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo);
-    uint32 range_type = m_spellInfo->RangeEntry->type;
+    uint32 range_type = m_spellInfo->RangeEntry ? m_spellInfo->RangeEntry->type : 0;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, max_range, this);
