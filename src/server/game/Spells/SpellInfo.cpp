@@ -99,6 +99,264 @@ void SpellImplicitTargetInfo::InitTypeData()
         switch (i)
         {
             case TARGET_UNIT_CASTER:
+            case TARGET_UNIT_NEARBY_ENTRY:
+            case TARGET_UNIT_NEARBY_ENEMY:
+            case TARGET_UNIT_NEARBY_ALLY:
+            case TARGET_UNIT_NEARBY_PARTY:
+            case TARGET_UNIT_NEARBY_RAID:
+            case TARGET_DEST_NEARBY_ENTRY:
+            case TARGET_UNIT_PET:
+            case TARGET_UNIT_MASTER:
+            case TARGET_UNIT_SUMMONER:
+            case TARGET_UNIT_VEHICLE:
+            case TARGET_UNIT_PASSENGER_0:
+            case TARGET_UNIT_PASSENGER_1:
+            case TARGET_UNIT_PASSENGER_2:
+            case TARGET_UNIT_PASSENGER_3:
+            case TARGET_UNIT_PASSENGER_4:
+            case TARGET_UNIT_PASSENGER_5:
+            case TARGET_UNIT_PASSENGER_6:
+            case TARGET_UNIT_PASSENGER_7:
+            case TARGET_DEST_CHANNEL_TARGET:
+            case TARGET_UNIT_CHANNEL_TARGET:
+            case TARGET_DEST_CHANNEL_CASTER:
+            case TARGET_UNIT_AREA_PARTY:
+            case TARGET_UNIT_AREA_RAID:
+            case TARGET_UNIT_CONE_ENEMY_24:
+            case TARGET_UNIT_CONE_ENEMY_54:
+            case TARGET_UNIT_CONE_ENEMY_104:
+            case TARGET_UNIT_CONE_ALLY:
+            case TARGET_UNIT_CONE_ENTRY:
+            case TARGET_GAMEOBJECT_CONE:
+            case TARGET_GAMEOBJECT_NEARBY_ENTRY:
+            case TARGET_SRC_CASTER:
+            case TARGET_DEST_HOME:
+            case TARGET_DEST_DB:
+            case TARGET_DEST_CASTER:
+            case TARGET_DEST_CASTER_SUMMON:
+            case TARGET_DEST_CASTER_FISHING:
+            case TARGET_DEST_CASTER_FRONT_LEAP:
+            case TARGET_DEST_CASTER_UNKNOWN_36:
+            case TARGET_DEST_CASTER_FRONT:
+            case TARGET_DEST_CASTER_BACK:
+            case TARGET_DEST_CASTER_RIGHT:
+            case TARGET_DEST_CASTER_LEFT:
+            case TARGET_DEST_CASTER_FRONT_RIGHT:
+            case TARGET_DEST_CASTER_BACK_RIGHT:
+            case TARGET_DEST_CASTER_BACK_LEFT:
+            case TARGET_DEST_CASTER_FRONT_LEFT:
+            case TARGET_DEST_CASTER_RANDOM:
+            case TARGET_DEST_CASTER_RADIUS:
+                ReferenceType[i] = TARGET_REFERENCE_TYPE_CASTER;
+                break;
+            case TARGET_UNIT_TARGET_ENEMY:
+            case TARGET_UNIT_TARGET_ALLY:
+            case TARGET_UNIT_TARGET_ANY:
+            case TARGET_UNIT_TARGET_PARTY:
+            case TARGET_UNIT_TARGET_RAID:
+            case TARGET_UNIT_TARGET_RAID_OR_PARTY:
+            case TARGET_UNIT_TARGET_MINIPET:
+            case TARGET_UNIT_TARGET_PASSENGER:
+            case TARGET_UNIT_TARGET_AREA_PARTY:
+            case TARGET_UNIT_TARGET_RAID_AREA_CLASS:
+            case TARGET_UNIT_TARGET_CASTER_SRC:
+            case TARGET_GAMEOBJECT_TARGET:
+            case TARGET_GAMEOBJECT_ITEM_TARGET:
+            case TARGET_DEST_TARGET_ANY:
+            case TARGET_DEST_TARGET_ENEMY:
+            case TARGET_DEST_TARGET_FRONT:
+            case TARGET_DEST_TARGET_BACK:
+            case TARGET_DEST_TARGET_RIGHT:
+            case TARGET_DEST_TARGET_LEFT:
+            case TARGET_DEST_TARGET_FRONT_RIGHT:
+            case TARGET_DEST_TARGET_BACK_RIGHT:
+            case TARGET_DEST_TARGET_BACK_LEFT:
+            case TARGET_DEST_TARGET_FRONT_LEFT:
+            case TARGET_DEST_TARGET_RANDOM:
+            case TARGET_DEST_TARGET_RADIUS:
+                ReferenceType[i] = TARGET_REFERENCE_TYPE_TARGET;
+                break;
+            case TARGET_UNIT_AREA_ENTRY_SRC:
+            case TARGET_UNIT_AREA_ENEMY_SRC:
+            case TARGET_UNIT_AREA_ALLY_SRC:
+            case TARGET_UNIT_AREA_PARTY_SRC:
+            case TARGET_GAMEOBJECT_AREA_SRC:
+                ReferenceType[i] = TARGET_REFERENCE_TYPE_SRC;
+                break;
+            case TARGET_UNIT_AREA_ENTRY_DST:
+            case TARGET_UNIT_AREA_ENEMY_DST:
+            case TARGET_UNIT_AREA_ALLY_DST:
+            case TARGET_UNIT_AREA_PARTY_DST:
+            case TARGET_GAMEOBJECT_AREA_DST:
+            case TARGET_DEST_DEST_FRONT:
+            case TARGET_DEST_DEST_BACK:
+            case TARGET_DEST_DEST_RIGHT:
+            case TARGET_DEST_DEST_LEFT:
+            case TARGET_DEST_DEST_FRONT_RIGHT:
+            case TARGET_DEST_DEST_BACK_RIGHT:
+            case TARGET_DEST_DEST_BACK_LEFT:
+            case TARGET_DEST_DEST_FRONT_LEFT:
+            case TARGET_DEST_DEST_RANDOM:
+            case TARGET_DEST_DEST_RANDOM_DIR_DIST:
+            case TARGET_DEST_DEST:
+            case TARGET_DEST_DYNOBJ_ENEMY:
+            case TARGET_DEST_DYNOBJ_ALLY:
+            case TARGET_DEST_DYNOBJ_NONE:
+            case TARGET_DEST_TRAJ:
+                ReferenceType[i] = TARGET_REFERENCE_TYPE_DST;
+                break;
+        }
+    }
+    for (uint8 i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    {
+        switch (i)
+        {
+            case TARGET_UNIT_CASTER:
+            case TARGET_UNIT_NEARBY_ENTRY:
+            case TARGET_UNIT_NEARBY_ENEMY:
+            case TARGET_UNIT_NEARBY_ALLY:
+            case TARGET_UNIT_NEARBY_PARTY:
+            case TARGET_UNIT_NEARBY_RAID:
+            case TARGET_UNIT_PET:
+            case TARGET_UNIT_MASTER:
+            case TARGET_UNIT_SUMMONER:
+            case TARGET_UNIT_VEHICLE:
+            case TARGET_UNIT_PASSENGER_0:
+            case TARGET_UNIT_PASSENGER_1:
+            case TARGET_UNIT_PASSENGER_2:
+            case TARGET_UNIT_PASSENGER_3:
+            case TARGET_UNIT_PASSENGER_4:
+            case TARGET_UNIT_PASSENGER_5:
+            case TARGET_UNIT_PASSENGER_6:
+            case TARGET_UNIT_PASSENGER_7:
+            case TARGET_UNIT_CHANNEL_TARGET:
+            case TARGET_UNIT_AREA_PARTY:
+            case TARGET_UNIT_AREA_RAID:
+            case TARGET_UNIT_CONE_ENEMY_24:
+            case TARGET_UNIT_CONE_ENEMY_54:
+            case TARGET_UNIT_CONE_ENEMY_104:
+            case TARGET_UNIT_CONE_ALLY:
+            case TARGET_UNIT_CONE_ENTRY:
+            case TARGET_UNIT_TARGET_ENEMY:
+            case TARGET_UNIT_TARGET_ALLY:
+            case TARGET_UNIT_TARGET_ANY:
+            case TARGET_UNIT_TARGET_PARTY:
+            case TARGET_UNIT_TARGET_RAID:
+            case TARGET_UNIT_TARGET_RAID_OR_PARTY:
+            case TARGET_UNIT_TARGET_MINIPET:
+            case TARGET_UNIT_TARGET_PASSENGER:
+            case TARGET_UNIT_TARGET_AREA_PARTY:
+            case TARGET_UNIT_TARGET_RAID_AREA_CLASS:
+            case TARGET_UNIT_TARGET_CASTER_SRC:
+            case TARGET_UNIT_AREA_ENTRY_SRC:
+            case TARGET_UNIT_AREA_ENEMY_SRC:
+            case TARGET_UNIT_AREA_ALLY_SRC:
+            case TARGET_UNIT_AREA_PARTY_SRC:
+
+            case TARGET_DEST_NEARBY_ENTRY:
+            case TARGET_DEST_CHANNEL_TARGET:
+            case TARGET_DEST_CHANNEL_CASTER:
+            case TARGET_DEST_HOME:
+            case TARGET_DEST_DB:
+            case TARGET_DEST_CASTER:
+            case TARGET_DEST_CASTER_SUMMON:
+            case TARGET_DEST_CASTER_FISHING:
+            case TARGET_DEST_CASTER_FRONT_LEAP:
+            case TARGET_DEST_CASTER_UNKNOWN_36:
+            case TARGET_DEST_CASTER_FRONT:
+            case TARGET_DEST_CASTER_BACK:
+            case TARGET_DEST_CASTER_RIGHT:
+            case TARGET_DEST_CASTER_LEFT:
+            case TARGET_DEST_CASTER_FRONT_RIGHT:
+            case TARGET_DEST_CASTER_BACK_RIGHT:
+            case TARGET_DEST_CASTER_BACK_LEFT:
+            case TARGET_DEST_CASTER_FRONT_LEFT:
+            case TARGET_DEST_CASTER_RANDOM:
+            case TARGET_DEST_CASTER_RADIUS:
+            case TARGET_DEST_TARGET_ANY:
+            case TARGET_DEST_TARGET_ENEMY:
+            case TARGET_DEST_TARGET_FRONT:
+            case TARGET_DEST_TARGET_BACK:
+            case TARGET_DEST_TARGET_RIGHT:
+            case TARGET_DEST_TARGET_LEFT:
+            case TARGET_DEST_TARGET_FRONT_RIGHT:
+            case TARGET_DEST_TARGET_BACK_RIGHT:
+            case TARGET_DEST_TARGET_BACK_LEFT:
+            case TARGET_DEST_TARGET_FRONT_LEFT:
+            case TARGET_DEST_TARGET_RANDOM:
+            case TARGET_DEST_TARGET_RADIUS:
+            case TARGET_DEST_DEST_FRONT:
+            case TARGET_DEST_DEST_BACK:
+            case TARGET_DEST_DEST_RIGHT:
+            case TARGET_DEST_DEST_LEFT:
+            case TARGET_DEST_DEST_FRONT_RIGHT:
+            case TARGET_DEST_DEST_BACK_RIGHT:
+            case TARGET_DEST_DEST_BACK_LEFT:
+            case TARGET_DEST_DEST_FRONT_LEFT:
+            case TARGET_DEST_DEST_RANDOM:
+            case TARGET_DEST_DEST_RANDOM_DIR_DIST:
+            case TARGET_DEST_DEST:
+            case TARGET_DEST_DYNOBJ_ENEMY:
+            case TARGET_DEST_DYNOBJ_ALLY:
+            case TARGET_DEST_DYNOBJ_NONE:
+            case TARGET_DEST_TRAJ:
+
+            case TARGET_GAMEOBJECT_CONE:
+            case TARGET_GAMEOBJECT_NEARBY_ENTRY:
+            case TARGET_GAMEOBJECT_TARGET:
+            case TARGET_GAMEOBJECT_ITEM_TARGET:
+            case TARGET_GAMEOBJECT_AREA_SRC:
+            case TARGET_GAMEOBJECT_AREA_DST:
+
+            case TARGET_SRC_CASTER:
+        }
+    }
+
+    for (uint8 i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    {
+        switch (i)
+        {
+            case TARGET_DEST_CHANNEL_TARGET:
+            case TARGET_UNIT_CHANNEL_TARGET:
+            case TARGET_DEST_CHANNEL_CASTER:
+                TARGET_SELECT_TYPE_CHANNEL
+
+            case TARGET_UNIT_CONE_ENEMY_24:
+            case TARGET_UNIT_CONE_ENEMY_54:
+            case TARGET_UNIT_CONE_ENEMY_104:
+            case TARGET_UNIT_CONE_ALLY:
+            case TARGET_UNIT_CONE_ENTRY:
+            case TARGET_GAMEOBJECT_CONE:
+
+            case TARGET_UNIT_NEARBY_ENTRY:
+            case TARGET_UNIT_NEARBY_ENEMY:
+            case TARGET_UNIT_NEARBY_ALLY:
+            case TARGET_UNIT_NEARBY_PARTY:
+            case TARGET_UNIT_NEARBY_RAID:
+            case TARGET_DEST_NEARBY_ENTRY:
+            case TARGET_GAMEOBJECT_NEARBY_ENTRY:
+
+            case TARGET_UNIT_AREA_PARTY:
+            case TARGET_UNIT_AREA_RAID:
+            case TARGET_UNIT_TARGET_AREA_PARTY:
+            case TARGET_UNIT_TARGET_RAID_AREA_CLASS:
+            case TARGET_UNIT_AREA_ENTRY_SRC:
+            case TARGET_UNIT_AREA_ENEMY_SRC:
+            case TARGET_UNIT_AREA_ALLY_SRC:
+            case TARGET_UNIT_AREA_PARTY_SRC:
+            case TARGET_GAMEOBJECT_AREA_SRC:
+            case TARGET_UNIT_AREA_ENTRY_DST:
+            case TARGET_UNIT_AREA_ENEMY_DST:
+            case TARGET_UNIT_AREA_ALLY_DST:
+            case TARGET_UNIT_AREA_PARTY_DST:
+            case TARGET_GAMEOBJECT_AREA_DST:
+        }
+    }
+    for (uint8 i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    {
+        switch (i)
+        {
+            case TARGET_UNIT_CASTER:
             case TARGET_UNIT_CASTER_FISHING:
             case TARGET_UNIT_MASTER:
             case TARGET_UNIT_PET:
