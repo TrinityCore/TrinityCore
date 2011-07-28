@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 0534500..e74b58d 100755
+index c293aef..ed72874 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -286,7 +286,7 @@ index 0534500..e74b58d 100755
  
      if (m_nextSave > 0)
      {
-@@ -4892,6 +4968,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
+@@ -4893,6 +4969,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
              trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
@@ -294,7 +294,7 @@ index 0534500..e74b58d 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17007,6 +17084,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17010,6 +17087,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -304,7 +304,7 @@ index 0534500..e74b58d 100755
      return true;
  }
  
-@@ -18345,7 +18425,13 @@ void Player::SaveToDB()
+@@ -18348,7 +18428,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
@@ -319,7 +319,7 @@ index 0534500..e74b58d 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 4f7167c..a0b01e9 100755
+index e1d1dd7..21bc27c 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -328,7 +328,7 @@ index 4f7167c..a0b01e9 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1123,6 +1124,23 @@ class Player : public Unit, public GridObject<Player>
+@@ -1126,6 +1127,23 @@ class Player : public Unit, public GridObject<Player>
  
          void InitStatsForLevel(bool reapplyMods = false);
  
@@ -354,13 +354,13 @@ index 4f7167c..a0b01e9 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..a67dfaa
+index 0000000..beca176
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,921 @@
+@@ -0,0 +1,924 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
-+#include "Jail.h"
++#include <Jail.h>
 +
 +Jail::Jail()
 +{
@@ -594,8 +594,9 @@ index 0000000..a67dfaa
 +    }
 +    else
 +    {
-+        uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name.c_str());
++        uint64 GUID = sObjectMgr->GetPlayerGUIDByName(target_name);
 +        uint32 guid = GUID_LOPART(GUID);
++
 +        if (!guid)
 +        {
 +            handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
@@ -679,15 +680,17 @@ index 0000000..a67dfaa
 +    else
 +        jailreason = reason;
 +
-+    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
-+    if (!GUID)
++    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname);
++    uint32 guid = GUID_LOPART(GUID);
++
++    if (!guid)
 +    {
 +        handler->SendSysMessage(LANG_JAIL_WRONG_NAME);
 +        handler->SetSentErrorMessage(true);
 +        return false;
 +    }
 +
-+    JailMap::iterator itr = m_JailMap.find(GUID_LOPART(GUID));
++    JailMap::iterator itr = m_JailMap.find(guid);
 +    if (itr != m_JailMap.end())
 +    {
 +        // Es gibt bereits einen aktiven Jail! Nicht noch einmal einbuchten lassen!
@@ -699,7 +702,7 @@ index 0000000..a67dfaa
 +        }
 +    }
 +
-+    if (GUID == handler->GetSession()->GetPlayer()->GetGUID())
++    if (guid == GUID_LOPART(handler->GetSession()->GetPlayer()->GetGUID()))
 +    {
 +        handler->SendSysMessage(LANG_JAIL_NO_JAIL);
 +        handler->SetSentErrorMessage(true);
@@ -709,14 +712,14 @@ index 0000000..a67dfaa
 +    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
 +    std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
 +
-+    if (Player * chr = sObjectMgr->GetPlayer(GUID_LOPART(GUID)))
++    if (Player * chr = sObjectMgr->GetPlayerByLowGUID(guid))
 +    {   // Ohne Klammern springt er zum Ende, wenn chr == NULL ist!!!
 +        if (Inhaftierung(handler, chr, cname, jailtime, jailreason, acc_id, announce))
 +            return true;
 +    }
 +    else
 +    {
-+        if (Inhaftierung(handler, GUID_LOPART(GUID), cname, jailtime, jailreason, acc_id, announce))
++        if (Inhaftierung(handler, guid, cname, jailtime, jailreason, acc_id, announce))
 +            return true;
 +    }
 +    return false;
@@ -992,7 +995,7 @@ index 0000000..a67dfaa
 +
 +        time_t localtime = time(NULL);
 +
-+        if (Player * pPlayer = sObjectMgr->GetPlayer(itr->first))
++        if (Player * pPlayer = sObjectMgr->GetPlayerByLowGUID(itr->first))
 +        {
 +            // Online Char gefunden!
 +            ++cnt;
@@ -1281,7 +1284,7 @@ index 0000000..a67dfaa
 +}
 diff --git a/src/server/game/Jail/Jail.h b/src/server/game/Jail/Jail.h
 new file mode 100644
-index 0000000..48008c0
+index 0000000..3071e09
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.h
 @@ -0,0 +1,105 @@
@@ -1290,7 +1293,7 @@ index 0000000..48008c0
 +#ifndef _JAIL_H
 +#define _JAIL_H
 +
-+#include "Chat.h"
++#include <Chat.h>
 +
 +#define MAX_FMT_STRING  32000
 +
@@ -1391,7 +1394,7 @@ index 0000000..48008c0
 +
 +#endif
 diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
-index bd2c34a..ee798b4 100755
+index d160d42..389994a 100755
 --- a/src/server/game/Miscellaneous/Language.h
 +++ b/src/server/game/Miscellaneous/Language.h
 @@ -1,4 +1,5 @@
@@ -1512,7 +1515,7 @@ index 5149308..20bc136 100755
      AddSC_modify_commandscript();
      AddSC_npc_commandscript();
 diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
-index 91f6e25..f2ceff3 100755
+index 6eed957..86f46ce 100755
 --- a/src/server/game/World/World.cpp
 +++ b/src/server/game/World/World.cpp
 @@ -1,4 +1,5 @@
@@ -1529,7 +1532,7 @@ index 91f6e25..f2ceff3 100755
  #include "DBCStores.h"
  #include "LootMgr.h"
  #include "ItemEnchantmentMgr.h"
-@@ -1642,6 +1644,9 @@ void World::SetInitialWorldSettings()
+@@ -1648,6 +1650,9 @@ void World::SetInitialWorldSettings()
  
      m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
      m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
@@ -1539,7 +1542,7 @@ index 91f6e25..f2ceff3 100755
      m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
                                                              //Update "uptime" table based on configuration entry in minutes.
      m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
-@@ -1715,6 +1720,20 @@ void World::SetInitialWorldSettings()
+@@ -1721,6 +1726,20 @@ void World::SetInitialWorldSettings()
      sLog->outString("Calculate random battleground reset time..." );
      InitRandomBGResetTime();
  
@@ -1560,7 +1563,7 @@ index 91f6e25..f2ceff3 100755
      // possibly enable db logging; avoid massive startup spam by doing it here.
      if (sLog->GetLogDBLater())
      {
-@@ -1895,6 +1914,13 @@ void World::Update(uint32 diff)
+@@ -1901,6 +1920,13 @@ void World::Update(uint32 diff)
          sAuctionMgr->Update();
      }
  
