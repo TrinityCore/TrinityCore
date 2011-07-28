@@ -840,7 +840,7 @@ private:
     void HandlePlayerResurrects(Player * pPl, uint32 zone);
     void FillInitialWorldStates(WorldPacket & data);
 
-    void ProcessEvent(GameObject * obj, uint32 eventId);
+    void ProcessEvent(WorldObject * obj, uint32 eventId);
     void HandleKill(Player * killer, Unit * killed);
 
     void HandlePlayerEnterZone(Player * pPl, uint32 zone);

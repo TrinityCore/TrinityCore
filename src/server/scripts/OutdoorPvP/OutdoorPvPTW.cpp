@@ -300,13 +300,14 @@ bool Tausendwinter::Update(uint32 diff)
     return false;
 }
 
-void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
+void Tausendwinter::ProcessEvent(WorldObject * obj, uint32 eventId)
 {
-    if (!obj)
+    GameObject * go = obj->ToGameObject();
+    if (!go)
         return;
 
     std::string ZonenNachricht;
-    std::string strGODmgTeam = obj->GetGOInfo()->faction == Fraktionen[TEAM_ALLIANCE] ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AB_HORDE) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AB_ALLY);
+    std::string strGODmgTeam = go->GetGOInfo()->faction == Fraktionen[TEAM_ALLIANCE] ? sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AB_HORDE) : sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_AB_ALLY);
 
     switch(eventId)
     {   // Das Relikt
@@ -341,7 +342,7 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
                     SpieleSoundFuerTeam(TEAM_HORDE, TW_SOUND_NAHE_SIEG_WARNUNG_HORDE);
 
                 m_Festungstuer->m_SchadensStatus = BESCHAEDIGT;
-                m_Festungstuer->m_GameObject = obj;
+                m_Festungstuer->m_GameObject = go;
             }
             ZonenNachricht = sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_FESTUNGSTUER_BESCHAEDIGT);
             break;
@@ -350,7 +351,7 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
             if (m_Festungstuer)
             {
                 m_Festungstuer->m_SchadensStatus = ZERSTOERT;
-                m_Festungstuer->m_GameObject = obj;
+                m_Festungstuer->m_GameObject = go;
             }
             ZonenNachricht = sObjectMgr->GetTrinityStringForDBCLocale(LANG_TAUSENDWINTER_FESTUNGSTUER_ZERSTOERT);
             break;
@@ -510,9 +511,9 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
     if (ZonenNachricht.size())
         sWorld->SendZoneText(NORDEND_TAUSENDWINTER, ZonenNachricht.c_str());
 
-    if (obj->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+    if (go->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
     {
-        GOStatusMap::const_iterator iter = m_GOStatus.find(obj->GetDBTableGUIDLow());
+        GOStatusMap::const_iterator iter = m_GOStatus.find(go->GetDBTableGUIDLow());
         if (iter == m_GOStatus.end())
             return;
 
@@ -520,7 +521,7 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
         if (!status || !status->m_GameObject)
             return;
 
-        if (eventId == obj->GetGOInfo()->building.damagedEvent)
+        if (eventId == go->GetGOInfo()->building.damagedEvent)
         {
             status->m_SchadensStatus = BESCHAEDIGT;
 
@@ -534,24 +535,24 @@ void Tausendwinter::ProcessEvent(GameObject * obj, uint32 eventId)
                     ++m_BeschaedigteTuerme[status->HoleTeamId()];
                     // TODO: Workaround für den Bug, dass nach dem damagedEvent die GOs (PoIs) keinen Schaden mehr bekommen! :-(
                     // TODO: Unbedingt den Grund für diesen Fehler finden!!!
-                    obj->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                    obj->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                    obj->SetUInt32Value(GAMEOBJECT_DISPLAYID, obj->GetGOInfo()->building.destroyedDisplayId);
-                    obj->EventInform(obj->GetGOInfo()->building.destroyedEvent);
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                    go->SetUInt32Value(GAMEOBJECT_DISPLAYID, go->GetGOInfo()->building.destroyedDisplayId);
+                    go->EventInform(go->GetGOInfo()->building.destroyedEvent);
                     break;
                 case TOR:
                     break;
                 case TUER:
                     // TODO: Workaround für den Bug, dass nach dem damagedEvent die GOs (PoIs) keinen Schaden mehr bekommen! :-(
                     // TODO: Unbedingt den Grund für diesen Fehler finden!!!
-                    obj->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                    obj->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                    obj->SetUInt32Value(GAMEOBJECT_DISPLAYID, obj->GetGOInfo()->building.destroyedDisplayId);
-                    obj->EventInform(obj->GetGOInfo()->building.destroyedEvent);
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                    go->SetUInt32Value(GAMEOBJECT_DISPLAYID, go->GetGOInfo()->building.destroyedDisplayId);
+                    go->EventInform(go->GetGOInfo()->building.destroyedEvent);
                     break;
             }
         }
-        else if (eventId == obj->GetGOInfo()->building.destroyedEvent)
+        else if (eventId == go->GetGOInfo()->building.destroyedEvent)
         {
             status->m_SchadensStatus = ZERSTOERT;
 
