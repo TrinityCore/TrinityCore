@@ -11,7 +11,7 @@ public:
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        pCreature->MonsterWhisper("Добро пожаловать в систему 'улучшенный телепортер v1.02'", pPlayer->GetGUID(), false);
+        pCreature->MonsterWhisper("Добро пожаловать в систему 'улучшенный телепортер v2.00'", pPlayer->GetGUID(), false);
 
         if (pPlayer->GetTeam() == ALLIANCE ) {
             pPlayer->ADD_GOSSIP_ITEM(9, "Исцели меня!"                     , GOSSIP_SENDER_MAIN, 1202);
@@ -31,8 +31,10 @@ public:
             }
             pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы] ->"                    , GOSSIP_SENDER_MAIN, 5550);
             pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы WotLK] ->"              , GOSSIP_SENDER_MAIN, 5554);
+            if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                pPlayer->ADD_GOSSIP_ITEM(9, "[Баффы] ->"                   , GOSSIP_SENDER_MAIN, 1401);
 
-        }  else {
+        } else {
 
             pPlayer->ADD_GOSSIP_ITEM(9, "Исцели меня!"                     , GOSSIP_SENDER_MAIN, 1202);
             pPlayer->ADD_GOSSIP_ITEM(5, "Пиратская Бухта."                 , GOSSIP_SENDER_MAIN, 4035);
@@ -51,6 +53,8 @@ public:
             }
             pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы] ->"                    , GOSSIP_SENDER_MAIN, 5550);
             pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы WotLK] ->"              , GOSSIP_SENDER_MAIN, 5554);
+            if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                pPlayer->ADD_GOSSIP_ITEM(9, "[Баффы] ->"                   , GOSSIP_SENDER_MAIN, 1401);
         }
 
         pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
@@ -77,7 +81,6 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM(7, "<- [Главное меню]"             , GOSSIP_SENDER_MAIN, 5552);
 
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
-
                 break;
 
             case 5551: //More Instances
@@ -96,7 +99,6 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM(7, "<- [Главное меню]"          , GOSSIP_SENDER_MAIN, 5552);
 
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
-
                 break;
 
             case 5553: //Instances 60-70
@@ -116,7 +118,6 @@ public:
 
 
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
-
                 break;
 
             case 5554: //Instances 75-80 NORTHREND
@@ -133,9 +134,7 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM(7, "<- [Назад]"                              , GOSSIP_SENDER_MAIN, 5550);
                 pPlayer->ADD_GOSSIP_ITEM(7, "<- [Главное меню]"                       , GOSSIP_SENDER_MAIN, 5552);
 
-
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
-
                 break;
 
             case 5555: //Instances 75-80 NORTHREND more
@@ -149,9 +148,27 @@ public:
                 pPlayer->ADD_GOSSIP_ITEM(7, "<- [Назад]"                             , GOSSIP_SENDER_MAIN, 5554);
                 pPlayer->ADD_GOSSIP_ITEM(7, "<- [Главное меню]"                      , GOSSIP_SENDER_MAIN, 5552);
 
+                pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
+                break;
+                
+            case 1401: //Buffer
+                pCreature->MonsterWhisper("Дополнительный модуль 'Buffer by Крах' загружен", pPlayer->GetGUID(), false);
+
+                pPlayer->ADD_GOSSIP_ITEM(5, "Слово тьмы: Стойкость."                     , GOSSIP_SENDER_MAIN, 2202);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Божественный дух."                          , GOSSIP_SENDER_MAIN, 2203);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Молитва защиты от темной магии."            , GOSSIP_SENDER_MAIN, 2204);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Дар дикой природы."                         , GOSSIP_SENDER_MAIN, 2205);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Чародейская гениальность."                  , GOSSIP_SENDER_MAIN, 2206);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Шипы."                                      , GOSSIP_SENDER_MAIN, 2210);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Командирский крик."                         , GOSSIP_SENDER_MAIN, 2211);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Зимний горн"                                , GOSSIP_SENDER_MAIN, 2212);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Великое благословение мудрости."            , GOSSIP_SENDER_MAIN, 2207);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Великое благословение королей."             , GOSSIP_SENDER_MAIN, 2208);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Великое благословение могущества"           , GOSSIP_SENDER_MAIN, 2213);
+                pPlayer->ADD_GOSSIP_ITEM(5, "Великое благословение неприкосновенности."  , GOSSIP_SENDER_MAIN, 2209);
+                pPlayer->ADD_GOSSIP_ITEM(7, "<- [Главное меню]"                          , GOSSIP_SENDER_MAIN, 5552);
 
                 pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
-
                 break;
 
             case 5552: //Back To Main Menu
@@ -173,8 +190,10 @@ public:
                     }
                     pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы] ->"                          , GOSSIP_SENDER_MAIN, 5550);
                     pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы WotLK] ->"                    , GOSSIP_SENDER_MAIN, 5554);
+                    if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                        pPlayer->ADD_GOSSIP_ITEM(9, "[Баффы] ->"                         , GOSSIP_SENDER_MAIN, 1401);
 
-                }  else {
+                } else {
 
                     pPlayer->ADD_GOSSIP_ITEM(9, "Исцели меня!"                           , GOSSIP_SENDER_MAIN, 1202);
                     pPlayer->ADD_GOSSIP_ITEM(5, "Пиратская Бухта."                       , GOSSIP_SENDER_MAIN, 4035);
@@ -193,10 +212,11 @@ public:
                     }
                     pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы] ->"                          , GOSSIP_SENDER_MAIN, 5550);
                     pPlayer->ADD_GOSSIP_ITEM(7, "[Инстансы WotLK] ->"                    , GOSSIP_SENDER_MAIN, 5554);
+                    if (sConfig->GetIntDefault("RealmID", 0) == 5)
+                        pPlayer->ADD_GOSSIP_ITEM(9, "[Баффы] ->"                         , GOSSIP_SENDER_MAIN, 1401);
                 }
 
-                    pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
-
+                pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
                 break;
 
             case 1203: // Teleport to Darnassus
@@ -315,7 +335,7 @@ public:
                 break;
 
             case 1253: // Teleport to the Stockade
-                if (pPlayer->getLevel() >= 20)  
+                if (pPlayer->getLevel() >= 20)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(0, -8769.76f,813.08f,97.63f,2.26f);
@@ -328,7 +348,7 @@ public:
                 break;
 
             case 1254: // Teleport to Razorfen Kraul
-                if (pPlayer->getLevel() >= 24)    
+                if (pPlayer->getLevel() >= 24)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(1, -4484.04f,-1739.40f,86.47f,1.23f);
@@ -367,7 +387,7 @@ public:
                 break;
 
             case 1257: // Teleport to the Scarlet Monastery
-                if (pPlayer->getLevel() >= 25)   
+                if (pPlayer->getLevel() >= 25)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(0, 2843.89f,-693.74f,139.32f,5.11f);
@@ -432,7 +452,7 @@ public:
                 break;
 
             case 1262: // Teleport to Blackrock Depths
-                if (pPlayer->getLevel() >= 45)     
+                if (pPlayer->getLevel() >= 45)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(0, -7301.03f,-913.19f,165.37f,0.08f);
@@ -445,7 +465,7 @@ public:
                     break;
 
             case 1263: // Teleport to Dire Maul
-                if (pPlayer->getLevel() >= 50)       
+                if (pPlayer->getLevel() >= 50)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(1, -3982.47f,1127.79f,161.02f,0.05f);
@@ -458,7 +478,7 @@ public:
                 break;
 
             case 1264: // Teleport to Blackrock Spire
-                if (pPlayer->getLevel() >= 50)    
+                if (pPlayer->getLevel() >= 50)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                 pPlayer->TeleportTo(0, -7535.43f,-1212.04f,285.45f,5.29f);
@@ -471,7 +491,7 @@ public:
                 break;
 
             case 1265: // Teleport to Stratholme
-                if (pPlayer->getLevel() >= 50)     
+                if (pPlayer->getLevel() >= 50)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(0, 3263.54f,-3379.46f,143.59f,0.00f);
@@ -523,7 +543,7 @@ public:
                 break;
 
             case 4007: // Karazhan
-                if (pPlayer->getLevel() >= 70)   
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(0, -11118.8f, -2010.84f, 47.0807f, 0.0f);
@@ -536,7 +556,7 @@ public:
                 break;
 
             case 4008: // Gruul's Lair
-                if (pPlayer->getLevel() >= 65)    
+                if (pPlayer->getLevel() >= 65)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(530, 3539.007568f, 5082.357910f, 1.691071f, 0.0f);
@@ -559,7 +579,7 @@ public:
                 break;
 
             case 4011: // Tempest Keep
-                if (pPlayer->getLevel() >= 70)   
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(530, 3089.579346f, 1399.046509f, 187.653458f, 4.794070f);
@@ -585,7 +605,7 @@ public:
                 break;
 
             case 4016: // Zul'Aman
-                if (pPlayer->getLevel() >= 70)  
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(530, 6846.95f, -7954.5f, 170.028f, 4.61501f);
@@ -598,7 +618,7 @@ public:
                 break;
 
             case 4013: // Black Temple
-                if (pPlayer->getLevel() >= 70)   
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(530, -3610.719482f, 324.987579f, 37.400028f, 3.282981f);
@@ -610,8 +630,8 @@ public:
                 }
                 break;
 
-            case 4017: // magistrate
-                if (pPlayer->getLevel() >= 70)   
+            case 4017: // Magistrate
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(530, 12884.6f, -7317.69f, 65.5023f, 4.799f);
@@ -637,7 +657,7 @@ public:
                 break;
 
             case 4019:// Utgarde Keep
-                if (pPlayer->getLevel() >= 70)    
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 1219.720f, -4865.28f, 41.25f, 0.31f);
@@ -650,7 +670,7 @@ public:
                 break;
 
             case 4020: // The Nexus
-                if (pPlayer->getLevel() >= 70)  
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 3776.950f, 6953.80f, 105.05f, 0.345f);
@@ -689,7 +709,7 @@ public:
                 break;
 
             case 4023: // Drak'Tharon Keep
-                if (pPlayer->getLevel() >= 70)   
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 4450.860f, -2045.25f, 162.83f, 0.00f);
@@ -702,7 +722,7 @@ public:
                 break;
 
             case 4024: // The Violet Hold
-                if (pPlayer->getLevel() >= 70)    
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 5679.820f, 486.80f, 652.40f, 4.08f);
@@ -715,7 +735,7 @@ public:
                 break;
 
             case 4025: // Gun' Drak
-                if (pPlayer->getLevel() >= 70)    
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 6937.540f, -4455.98f, 450.68f, 1.00f);
@@ -728,7 +748,7 @@ public:
                 break;
 
             case 4026: // Utgarde Pinnacle
-                if (pPlayer->getLevel() >= 70) 
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 1245.690f, -4856.59f, 216.86f, 3.45f);
@@ -741,7 +761,7 @@ public:
                 break;
 
             case 4027: // Ulduar
-                if (pPlayer->getLevel() >= 70) 
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 8976.240f, -1281.33f, 1059.01f, 0.58f);
@@ -754,7 +774,7 @@ public:
                 break;
 
             case 4028: // The Obsidian Sanctum
-                if (pPlayer->getLevel() >= 70)   
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 3625.780f, 280.40f, -120.14f, 3.25f);
@@ -767,7 +787,7 @@ public:
                 break;
 
             case 4029: // Naxxramas
-                if (pPlayer->getLevel() >= 70)       
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 3668.719f, -1262.460f, 243.63f, 5.03f);
@@ -833,7 +853,7 @@ public:
                 break;
 
             case 4033: // Icecrown Daily
-                if (pPlayer->getLevel() >= 70)     
+                if (pPlayer->getLevel() >= 70)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 5631.911f, 2011.72f, 798.26f, 4.59f);
@@ -846,7 +866,7 @@ public:
                 break;
 
             case 4034: // Zul'Gurub
-                if (pPlayer->getLevel() >= 50)     
+                if (pPlayer->getLevel() >= 50)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(0, -11916.153f, -1211.612f, 92.28f, 4.68f);
@@ -906,7 +926,7 @@ public:
                 if (pPlayer->GetTeam() == ALLIANCE)
                 {
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    pPlayer->TeleportTo(530, -2750.668f, 7313.711f, 43.485f, 2.69f);
+                    pPlayer->TeleportTo(530, -2244.01f, 8698.61f, -2.73f, 5.16f);
                 }
                 else
                 {
@@ -927,12 +947,71 @@ public:
                     pPlayer->TeleportTo(530, -1971.01f, 6541.43f, 12.75f, 2.48f);
                 }
                 break;
-        }
 
+            // Buff
+            case 2202: // Priest Stamina
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 1243, true);
+                    break;
+
+            case 2203: // Priest Spirit
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 48073, true);
+                    break;
+
+            case 2204: // Priest Shadow Resist
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 48170, true);
+                    break;
+
+            case 2205: // Druid 'Lapa'
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 48470, true);
+                    break;
+
+            case 2206: // Mage Intellect
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 43002, true);
+                    break;
+
+            case 2207: // Paladin manareg
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 48938, true);
+                    break;
+
+            case 2208: // Paladin 10%
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 25898, true);
+                    break;
+
+            case 2209: // Paladin protobuff
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 25899, true);
+                    break;
+
+            case 2210: // Druid spikes
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 53307, true);
+                    break;
+
+            case 2211: // Commanding Shout
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 47440, true);
+                    break;
+
+            case 2212: // Glacial horn
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 57623, true);
+                    break;
+
+            case 2213: // Paladin AP
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    pPlayer->CastSpell(pPlayer, 48934, true);
+                    break;
+        }
         return true;
     }
 };
-
 void AddSC_npc_teleguy()
 {
     new npc_teleguy;
