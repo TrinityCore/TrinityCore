@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -2242,7 +2243,7 @@ bool InstanceMap::CanEnter(Player* player)
         return false;
     }
 
-    // Archavons Kammer auf Tausendwinterbesitzer pr�fen
+    // Archavons Kammer auf Tausendwinterbesitzer prüfen
     if (GetId() == 624)
         if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
             if (!pTW->DarfArchavonsKammerBetreten(player))

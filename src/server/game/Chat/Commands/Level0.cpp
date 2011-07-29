@@ -59,14 +59,6 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
     if (!chr)
         return false;
 
-    // Jail von WarHead
-    if (chr->m_Jailed)
-    {
-        SendSysMessage(LANG_JAIL_DENIED);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     if (chr->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -554,9 +555,9 @@ class Creature : public Unit, public GridObject<Creature>
 
         // Ist dieser NPC ein Caster? Default = false.
         bool m_isCaster;
-        // Default minimum Castrange für Caster. Default = 0.
+        // Default minimum Castrange fÃ¼r Caster. Default = 0.
         float m_CasterDefaultMinCombatRange;
-        // Default maximum Castrange für Caster. Default = 29.
+        // Default maximum Castrange fÃ¼r Caster. Default = 29.
         float m_CasterDefaultMaxCombatRange;
 
         Loot loot;

@@ -70,9 +70,9 @@ enum Spells
     SPELL_SUMMON_SUPPRESSER             = 70936,
     SPELL_RECENTLY_SPAWNED              = 72954,
 
-    /* 1. Falsch! Wenn, dann muss die SpellId von SPELL_SPAWN_CHEST abhängig vom RaidMode sein! Guckst du hier http://de.wowhead.com/spell=71207 !
+    /* 1. Falsch! Wenn, dann muss die SpellId von SPELL_SPAWN_CHEST abhÃ¤ngig vom RaidMode sein! Guckst du hier http://de.wowhead.com/spell=71207 !
        2. Wenn die Kiste durch den Spell gespawnt wird, ist sie unendlich lootbar!!!
-       3. Aus den obigen Gründen (1.+2.) nutzen wir es nicht, und spawnen die Truhen bereits in der DB!
+       3. Aus den obigen GrÃ¼nden (1.+2.) nutzen wir es nicht, und spawnen die Truhen bereits in der DB!
     SPELL_SPAWN_CHEST                   = 71207,*/
 
     // Risen Archmage
@@ -402,9 +402,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->DespawnOrUnsummon(4000);
-                    /* 1. Falsch! Wenn, dann muss die SpellId von SPELL_SPAWN_CHEST abhängig vom RaidMode sein! Guckst du hier http://de.wowhead.com/spell=71207 !
+                    /* 1. Falsch! Wenn, dann muss die SpellId von SPELL_SPAWN_CHEST abhÃ¤ngig vom RaidMode sein! Guckst du hier http://de.wowhead.com/spell=71207 !
                        2. Wenn die Kiste durch den Spell gespawnt wird, ist sie unendlich lootbar!!!
-                       3. Aus den obigen Gründen (1.+2.) nutzen wir es nicht, und spawnen die Truhen bereits in der DB!
+                       3. Aus den obigen GrÃ¼nden (1.+2.) nutzen wir es nicht, und spawnen die Truhen bereits in der DB!
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->CastSpell(lichKing, SPELL_SPAWN_CHEST, false);*/
 

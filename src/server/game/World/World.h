@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -291,7 +292,7 @@ enum WorldIntConfigs
     CONFIG_PVP_TOKEN_ID,
     CONFIG_PVP_TOKEN_COUNT,
 
-	// Tausendwinter
+    // Tausendwinter
     CONFIG_TW_STARTZEIT,
     CONFIG_TW_KAMPFDAUER,
     CONFIG_TW_INTERVALL,
@@ -473,12 +474,12 @@ enum WorldStates
     WS_TW_ZEIT                          = 90003,    // uint64:  TW Zeit
     WS_TW_ZEIT_ALLY                     = 90004,    // uint64:  Allyzeit
     WS_TW_ZEIT_HORDE                    = 90005,    // uint64:  Hordezeit
-    // Tausendwinter Werkst‰ttenbesitzer
+    // Tausendwinter Werkst√§ttenbesitzer
     WS_TW_WERKSTATT_BESITZER_192030     = 90006,    // TeamId: Aktueller Besitzer von Werkstatt 192030
     WS_TW_WERKSTATT_BESITZER_192031     = 90007,    // TeamId: Aktueller Besitzer von Werkstatt 192031
     WS_TW_WERKSTATT_BESITZER_192032     = 90008,    // TeamId: Aktueller Besitzer von Werkstatt 192032
     WS_TW_WERKSTATT_BESITZER_192033     = 90009,    // TeamId: Aktueller Besitzer von Werkstatt 192033
-    // Tausendwinter Werkst‰ttenzustand
+    // Tausendwinter Werkst√§ttenzustand
     WS_TW_WERKSTATT_ZUSTAND_192028      = 90010,    // uint32: Aktuelle Gesundheit von Werkstatt 192028
     WS_TW_WERKSTATT_ZUSTAND_192029      = 90011,    // uint32: Aktuelle Gesundheit von Werkstatt 192029
     WS_TW_WERKSTATT_ZUSTAND_192030      = 90012,    // uint32: Aktuelle Gesundheit von Werkstatt 192030
@@ -489,11 +490,11 @@ enum WorldStates
     WS_TW_SCHATTENBLICKTURM_BESITZER    = 90016,    // TeamId: Aktueller Besitzer vom Schattenblickturm 190356
     WS_TW_WINTERSTURZTURM_BESITZER      = 90017,    // TeamId: Aktueller Besitzer vom Wintersturzturm 190357
     WS_TW_FLAMMENAUGENTURM_BESITZER     = 90018,    // TeamId: Aktueller Besitzer vom Flammenaugenturm 190358
-    // Tausendwinter Turmzust‰nde
+    // Tausendwinter Turmzust√§nde
     WS_TW_SCHATTENBLICKTURM_ZUSTAND     = 90019,    // uint32: Aktuelle Gesundheit vom Schattenblickturm 190356
     WS_TW_WINTERSTURZTURM_ZUSTAND       = 90020,    // uint32: Aktuelle Gesundheit vom Wintersturzturm 190357
     WS_TW_FLAMMENAUGENTURM_ZUSTAND      = 90021,    // uint32: Aktuelle Gesundheit vom Flammenaugenturm 190358
-    // Festungst¸rme
+    // Festungst√ºrme
     WS_TW_FESTUNGSTURM_WEST_ZUSTAND     = 90022,    // uint32: Aktuelle Gesundheit vom Turm 190221
     WS_TW_FESTUNGSTURM_SUEDWEST_ZUSTAND = 90023,    // uint32: Aktuelle Gesundheit vom Turm 190373
     WS_TW_FESTUNGSTURM_SUEDOST_ZUSTAND  = 90024,    // uint32: Aktuelle Gesundheit vom Turm 190377
@@ -503,7 +504,7 @@ enum WorldStates
 enum TausendwinterSpells
 {
     SPELL_ESSENZ_VON_TAUSENDWINTER_TW       = 58045,    // Nur innerhalb von TW
-    SPELL_ESSENZ_VON_TAUSENDWINTER_NORDEND  = 57940     // Im Rest von Nordend (auﬂer in Raidinstanzen)
+    SPELL_ESSENZ_VON_TAUSENDWINTER_NORDEND  = 57940     // Im Rest von Nordend (au√üer in Raidinstanzen)
 };
 
 // DB scripting commands
@@ -791,18 +792,6 @@ class World
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-
-        /* Werde ich f¸r meinen Tausendwinter Source umschreiben.
-        uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
-        uint32 GetWintergrapsState() { return m_WintergrapsState; }
-        uint32 m_WintergrapsTimer;
-        uint32 m_WintergrapsState;
-        void SendWintergraspState();
-        void SetWintergrapsTimer(uint32 timer, uint32 state)
-        {
-            m_WintergrapsTimer = timer;
-            m_WintergrapsState = state;
-        }*/
 
     protected:
         void _UpdateGameTime();

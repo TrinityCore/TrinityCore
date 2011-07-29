@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -139,8 +140,8 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
 Creature::Creature(): Unit(),
 m_isCaster(false),                  // Ist dieser NPC ein Caster?
-m_CasterDefaultMinCombatRange(0),   // Default minimum Castrange für Caster
-m_CasterDefaultMaxCombatRange(29),  // Default maximum Castrange für Caster
+m_CasterDefaultMinCombatRange(0),   // Default minimum Castrange fÃ¼r Caster
+m_CasterDefaultMaxCombatRange(29),  // Default maximum Castrange fÃ¼r Caster
 
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
 m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemoveTime(0), m_respawnTime(0),

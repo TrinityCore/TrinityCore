@@ -334,7 +334,7 @@ public:
                     pTW->ErhoeheFahrzeuganzahlDerWerkstatt(Ingi->GetDBTableGUIDLow());
             }
             else
-                sLog->outError("TAUSENDWINTER: Aktualisieren der Fahrzeuganzahl pro Werkstatt nicht möglich, da kein Zeiger auf TW zur Verfügung steht!");
+                sLog->outError("TAUSENDWINTER: Aktualisieren der Fahrzeuganzahl pro Werkstatt nicht mÃ¶glich, da kein Zeiger auf TW zur VerfÃ¼gung steht!");
         }
 
         EventMap events;
@@ -351,7 +351,7 @@ public:
         {
             if (!pTW)
             {
-                sLog->outError("TAUSENDWINTER: Aktualisieren der Fahrzeuganzahl pro Werkstatt nicht möglich, da kein Zeiger auf TW zur Verfügung steht!");
+                sLog->outError("TAUSENDWINTER: Aktualisieren der Fahrzeuganzahl pro Werkstatt nicht mÃ¶glich, da kein Zeiger auf TW zur VerfÃ¼gung steht!");
                 return;
             }
 
@@ -447,7 +447,7 @@ public:
                     {
                         AchievementEntry const * pAE = GetAchievementStore()->LookupEntry(TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW);
                         if (!pAE)
-                            sLog->outError("TAUSENDWINTER: Kann den Eintrag für den Erfolg %u nicht erstellen!", TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW);
+                            sLog->outError("TAUSENDWINTER: Kann den Eintrag fÃ¼r den Erfolg %u nicht erstellen!", TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW);
                         else
                             pPl->CompletedAchievement(pAE);
                     }
@@ -463,7 +463,7 @@ public:
                     {
                         AchievementEntry const * pAE = GetAchievementStore()->LookupEntry(TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW);
                         if (!pAE)
-                            sLog->outError("TAUSENDWINTER: Kann den Eintrag für den Erfolg %u nicht erstellen!", TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW);
+                            sLog->outError("TAUSENDWINTER: Kann den Eintrag fÃ¼r den Erfolg %u nicht erstellen!", TW_ERFOLG_DER_SCHIEFE_TURM_VON_TW);
                         else
                             pPl->CompletedAchievement(pAE);
                     }

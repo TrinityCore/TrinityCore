@@ -17,10 +17,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \file
-    \ingroup world
-*/
-
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
@@ -112,12 +108,6 @@ World::World()
 
     m_updateTimeSum = 0;
     m_updateTimeCount = 0;
-
-/*
-    // Tausendwinter
-    m_TWTimer = uint32((getWorldState(WS_TW_ZEIT) + time(NULL)));
-    m_TWStatus = 0;
-*/
 
     m_isClosed = false;
 
@@ -2898,31 +2888,3 @@ void World::ProcessQueryCallbacks()
         }
     }
 }
-
-/* Werde ich für meinen Tausendwinter Source umschreiben.
-void World::SendWintergraspState()
-{
-    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
-    if (!pvpWG)
-        return;
-
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-    {
-        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
-            continue;
-
-            if (pvpWG->isWarTime())
-            {
-                // "Battle in progress"
-                itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
-            } else
-                // Time to next battle
-            {
-                pvpWG->SendInitWorldStatesTo(itr->second->GetPlayer());
-                itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
-                // Hide unneeded info which in center of screen
-                itr->second->GetPlayer()->SendInitWorldStates(itr->second->GetPlayer()->GetZoneId(), itr->second->GetPlayer()->GetAreaId());
-            }
-    }
-}
-*/
