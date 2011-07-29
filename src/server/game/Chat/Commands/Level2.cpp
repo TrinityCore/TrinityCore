@@ -87,7 +87,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     else
     {
         //! Target is offline, mute will be in effect starting from the next login.
-        int32 muteTime = -(notspeaktime * MINUTE);
+        int32 muteTime = -int32(notspeaktime * MINUTE);
         LoginDatabase.PExecute("UPDATE account SET mutetime = %d WHERE id = %u", muteTime, account_id);
     }
 
