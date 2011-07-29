@@ -848,7 +848,7 @@ class npc_og_mekkatorque : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                DoRefreshWorldStates();
+                //DoRefreshWorldStates();
 
                 npc_escortAI::UpdateAI(diff);
 
@@ -1514,7 +1514,7 @@ class npc_og_mekkatorque : public CreatureScript
                 }
             }
 
-            void DoRefreshWorldStates()
+            /*void DoRefreshWorldStates()
             {
                 Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
@@ -1530,7 +1530,7 @@ class npc_og_mekkatorque : public CreatureScript
                                 pPlayer->SendUpdateWorldState(WorldStates[n], 0);
                     }
                 }
-            }
+            }*/
 
             bool ValidateEscortState()
             {
@@ -1585,7 +1585,7 @@ class npc_og_mekkatorque : public CreatureScript
                     pCogspin->DisappearAndDie();
                 if (Creature* pFastblast = me->FindNearestCreature(NPC_FASTBLAST, 100.0f))
                     pFastblast->DisappearAndDie();
-                DoRefreshWorldStates();
+                //DoRefreshWorldStates();
             }
         };
 
