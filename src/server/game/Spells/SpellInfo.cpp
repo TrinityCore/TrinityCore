@@ -761,11 +761,6 @@ bool SpellInfo::IsStackableWithRanks() const
                     Effects[i].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
                     return false;
                 break;
-            case SPELLFAMILY_ROGUE:
-                // Rogue Stealth
-                if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA &&
-                    Effects[i].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
-                    return false;
         }
     }
     return true;
@@ -939,25 +934,6 @@ bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
 
 bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
 {
-    SpellSpecificType spellSpec = GetSpellSpecific();
-    switch (spellSpec)
-    {
-        case SPELL_SPECIFIC_SEAL:
-        case SPELL_SPECIFIC_HAND:
-        case SPELL_SPECIFIC_AURA:
-        case SPELL_SPECIFIC_STING:
-        case SPELL_SPECIFIC_CURSE:
-        case SPELL_SPECIFIC_ASPECT:
-        case SPELL_SPECIFIC_JUDGEMENT:
-        case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
-            return spellSpec == spellInfo->GetSpellSpecific();
-        default:
-            return false;
-    }
-}
-
-bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const
-{
     SpellSpecificType spellSpec1 = GetSpellSpecific();
     SpellSpecificType spellSpec2 = spellInfo->GetSpellSpecific();
     switch (spellSpec1)
@@ -985,6 +961,25 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
             return spellSpec2 == SPELL_SPECIFIC_FOOD
                 || spellSpec2 == SPELL_SPECIFIC_DRINK
                 || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
+        default:
+            return false;
+    }
+}
+
+bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const
+{
+    SpellSpecificType spellSpec = GetSpellSpecific();
+    switch (spellSpec)
+    {
+        case SPELL_SPECIFIC_SEAL:
+        case SPELL_SPECIFIC_HAND:
+        case SPELL_SPECIFIC_AURA:
+        case SPELL_SPECIFIC_STING:
+        case SPELL_SPECIFIC_CURSE:
+        case SPELL_SPECIFIC_ASPECT:
+        case SPELL_SPECIFIC_JUDGEMENT:
+        case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
+            return spellSpec == spellInfo->GetSpellSpecific();
         default:
             return false;
     }
