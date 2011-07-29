@@ -1048,7 +1048,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
 
                 // unit32 used to prevent interpreting uint8 as char at output
                 // find rank of learned spell for learning spell, or talent rank
-                uint32 rank = talentCost ? talentCost : learn ? learnSpellInfo->GetRank() : spellInfo->GetRank();
+                uint32 rank = talentCost ? talentCost : learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
 
                 // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                 std::ostringstream ss;
