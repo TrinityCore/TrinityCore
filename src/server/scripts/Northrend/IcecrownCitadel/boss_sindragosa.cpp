@@ -457,7 +457,7 @@ class boss_sindragosa : public CreatureScript
                             destZ = 205.0f; // random number close to ground, get exact in next call
                             me->UpdateGroundPositionZ(destX, destY, destZ);
                             Position pos;
-                            pos.Relocate(destX, destY, destZ);
+                            pos.Relocate(destX, destY, destZ, 0.0f);
                             if (TempSummon* summ = me->SummonCreature(NPC_FROST_BOMB, pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
                             {
                                 summ->CastSpell(summ, SPELL_FROST_BOMB_VISUAL, true);
