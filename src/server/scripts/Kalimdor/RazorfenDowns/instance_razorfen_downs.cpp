@@ -60,7 +60,7 @@ public:
             std::ostringstream saveStream;
 
             saveStream << "T C " << m_auiEncounter[0]
-                << " " << uiGongWaves;
+                << ' ' << uiGongWaves;
 
             str_data = saveStream.str();
 

@@ -367,8 +367,8 @@ class instance_stratholme : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << EncounterState[0] << " " << EncounterState[1] << " " << EncounterState[2] << " "
-                    << EncounterState[3] << " " << EncounterState[4] << " " << EncounterState[5];
+                saveStream << EncounterState[0] << ' ' << EncounterState[1] << ' ' << EncounterState[2] << ' '
+                    << EncounterState[3] << ' ' << EncounterState[4] << ' ' << EncounterState[5];
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();

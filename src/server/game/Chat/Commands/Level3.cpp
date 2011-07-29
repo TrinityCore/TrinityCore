@@ -1062,9 +1062,9 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
                     ss << GetTrinityString(LANG_SPELL_RANK) << rank;
 
                 if (m_session)
-                    ss << " " << localeNames[loc] << "]|h|r";
+                    ss << ' ' << localeNames[loc] << "]|h|r";
                 else
-                    ss << " " << localeNames[loc];
+                    ss << ' ' << localeNames[loc];
 
                 if (talent)
                     ss << GetTrinityString(LANG_TALENT);
@@ -1426,16 +1426,16 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
                 // or              "id - [faction] [no reputation]" format
                 std::ostringstream ss;
                 if (m_session)
-                    ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << " " << localeNames[loc] << "]|h|r";
+                    ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << ' ' << localeNames[loc] << "]|h|r";
                 else
-                    ss << id << " - " << name << " " << localeNames[loc];
+                    ss << id << " - " << name << ' ' << localeNames[loc];
 
                 if (repState)                               // and then target != NULL also
                 {
                     uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
                     std::string rankName = GetTrinityString(index);
 
-                    ss << " " << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
+                    ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
                     if (repState->Flags & FACTION_FLAG_VISIBLE)
                         ss << GetTrinityString(LANG_FACTION_VISIBLE);
@@ -1589,9 +1589,9 @@ bool ChatHandler::HandleLookupMapCommand(const char *args)
                 std::ostringstream ss;
 
                 if (m_session)
-                    ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << "]";
+                    ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << ']';
                 else // console
-                    ss << id << " - [" << name << "]";
+                    ss << id << " - [" << name << ']';
 
                 if (MapInfo->IsContinent())
                     ss << GetTrinityString(LANG_CONTINENT);
@@ -4029,7 +4029,7 @@ std::string GetTimeString(uint64 time)
     std::ostringstream ss;
     if (days) ss << days << "d ";
     if (hours) ss << hours << "h ";
-    ss << minute << "m";
+    ss << minute << 'm';
     return ss.str();
 }
 
