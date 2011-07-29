@@ -506,29 +506,30 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
     FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
     for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
     {
-        FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
+        const FactionState& faction = itr->second;
+        FactionEntry const *factionEntry = sFactionStore.LookupEntry(faction.ID);
         char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
         ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
         std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
         std::ostringstream ss;
         if (m_session)
-            ss << itr->second.ID << " - |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << " " << localeNames[loc] << "]|h|r";
+            ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
         else
-            ss << itr->second.ID << " - " << factionName << " " << localeNames[loc];
+            ss << faction.ID << " - " << factionName << ' ' << localeNames[loc];
 
-        ss << " " << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
+        ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
-        if (itr->second.Flags & FACTION_FLAG_VISIBLE)
+        if (faction.Flags & FACTION_FLAG_VISIBLE)
             ss << GetTrinityString(LANG_FACTION_VISIBLE);
-        if (itr->second.Flags & FACTION_FLAG_AT_WAR)
+        if (faction.Flags & FACTION_FLAG_AT_WAR)
             ss << GetTrinityString(LANG_FACTION_ATWAR);
-        if (itr->second.Flags & FACTION_FLAG_PEACE_FORCED)
+        if (faction.Flags & FACTION_FLAG_PEACE_FORCED)
             ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
-        if (itr->second.Flags & FACTION_FLAG_HIDDEN)
+        if (faction.Flags & FACTION_FLAG_HIDDEN)
             ss << GetTrinityString(LANG_FACTION_HIDDEN);
-        if (itr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
+        if (faction.Flags & FACTION_FLAG_INVISIBLE_FORCED)
             ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-        if (itr->second.Flags & FACTION_FLAG_INACTIVE)
+        if (faction.Flags & FACTION_FLAG_INACTIVE)
             ss << GetTrinityString(LANG_FACTION_INACTIVE);
 
         SendSysMessage(ss.str().c_str());

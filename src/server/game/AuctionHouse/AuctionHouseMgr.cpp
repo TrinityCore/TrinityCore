@@ -140,7 +140,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction, SQLTransaction& 
         std::ostringstream msgAuctionWonBody;
         msgAuctionWonBody.width(16);
         msgAuctionWonBody << std::right << std::hex << auction->owner;
-        msgAuctionWonBody << std::dec << ":" << auction->bid << ":" << auction->buyout;
+        msgAuctionWonBody << std::dec << ':' << auction->bid << ':' << auction->buyout;
         sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "AuctionWon body string : %s", msgAuctionWonBody.str().c_str());
 
         // set owner to bidder (to prevent delete item with sender char deleting)
@@ -181,8 +181,8 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry * auction, SQLTran
 
         msgAuctionSalePendingBody.width(16);
         msgAuctionSalePendingBody << std::right << std::hex << auction->bidder;
-        msgAuctionSalePendingBody << std::dec << ":" << auction->bid << ":" << auction->buyout;
-        msgAuctionSalePendingBody << ":" << auction->deposit << ":" << auctionCut << ":0:";
+        msgAuctionSalePendingBody << std::dec << ':' << auction->bid << ':' << auction->buyout;
+        msgAuctionSalePendingBody << ':' << auction->deposit << ':' << auctionCut << ":0:";
         msgAuctionSalePendingBody << secsToTimeBitFields(distrTime);
 
         sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "AuctionSalePending body string : %s", msgAuctionSalePendingBody.str().c_str());
@@ -209,8 +209,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTrans
 
         auctionSuccessfulBody.width(16);
         auctionSuccessfulBody << std::right << std::hex << auction->bidder;
-        auctionSuccessfulBody << std::dec << ":" << auction->bid << ":" << auction->buyout;
-        auctionSuccessfulBody << ":" << auction->deposit << ":" << auctionCut;
+        auctionSuccessfulBody << std::dec << ':' << auction->bid << ':' << auction->buyout;
+        auctionSuccessfulBody << ':' << auction->deposit << ':' << auctionCut;
 
         sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "AuctionSuccessful body string : %s", auctionSuccessfulBody.str().c_str());
 
@@ -624,18 +624,10 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                     // dbc local name
                     if (temp)
                     {
-                        if (locdbc_idx >= 0)
-                        {
-                            // Append the suffix (ie: of the Monkey) to the name using localization
-                            name += " ";
-                            name += temp[locdbc_idx];
-                        }
-                        else
-                        {
-                            // Invalid localization? Append the suffix using default enUS
-                            name += " ";
-                            name += temp[LOCALE_enUS];
-                        }
+                        // Append the suffix (ie: of the Monkey) to the name using localization
+                        // or default enUS if localization is invalid
+                        name += ' ';
+                        name += temp[locdbc_idx >= 0 ? locdbc_idx : LOCALE_enUS];
                     }
                 }
             }
