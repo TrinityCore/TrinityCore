@@ -63,12 +63,6 @@ struct ScriptAction
 // ******************************************
 // Map file format defines
 // ******************************************
-#define MAP_MAGIC             'SPAM'
-#define MAP_VERSION_MAGIC     '1.1v'
-#define MAP_AREA_MAGIC        'AERA'
-#define MAP_HEIGHT_MAGIC      'TGHM'
-#define MAP_LIQUID_MAGIC      'QILM'
-
 struct map_fileheader
 {
     uint32 mapMagic;
@@ -201,7 +195,7 @@ public:
 
 struct CreatureMover
 {
-    CreatureMover() : x(0), y(0), z(0), ang(0) {}
+    CreatureMover() : x(0.0f), y(0.0f), z(0.0f), ang(0.0f) {}
     CreatureMover(float _x, float _y, float _z, float _ang) : x(_x), y(_y), z(_z), ang(_ang) {}
 
     float x, y, z, ang;
@@ -624,16 +618,6 @@ class BattlegroundMap : public Map
     private:
         Battleground* m_bg;
 };
-
-/*inline
-uint64
-Map::CalculateGridMask(const uint32 &y) const
-{
-    uint64 mask = 1;
-    mask <<= y;
-    return mask;
-}
-*/
 
 template<class T, class CONTAINER>
 inline void

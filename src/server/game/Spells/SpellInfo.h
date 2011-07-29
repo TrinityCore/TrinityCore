@@ -120,7 +120,7 @@ public:
     bool IsArea() const;
     SpellSelectTargetTypes GetType() const;
 
-    operator Targets() const;
+    Targets GetTarget() const;
 
     // temporarily avalible to public
     static bool IsPosition(uint32 targetType);

@@ -1771,8 +1771,8 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();
     bool sameCaster = GetCasterGUID() == existingAura->GetCasterGUID();
 
-    // passive auras don't stack when cast by different casters, or with another rank of the spell
-    if (IsPassive() && (!sameCaster || !m_spellInfo->IsDifferentRankOf(existingSpellInfo)))
+    // passive auras don't stack with another rank of the spell cast by same caster
+    if (IsPassive() && sameCaster && m_spellInfo->IsDifferentRankOf(existingSpellInfo))
         return false;
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -2384,8 +2384,8 @@ void DynObjAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* /*caster
         if (!HasEffect(effIndex))
             continue;
         UnitList targetList;
-        if (GetSpellInfo()->Effects[effIndex].TargetB == TARGET_DEST_DYNOBJ_ALLY
-            || GetSpellInfo()->Effects[effIndex].TargetB == TARGET_UNIT_AREA_ALLY_DST)
+        if (GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DYNOBJ_ALLY
+            || GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_UNIT_AREA_ALLY_DST)
         {
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
             Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);

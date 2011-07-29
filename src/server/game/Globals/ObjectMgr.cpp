@@ -2015,7 +2015,7 @@ uint64 ObjectMgr::GetPlayerGUIDByName(std::string name) const
 bool ObjectMgr::GetPlayerNameByGUID(const uint64 &guid, std::string &name) const
 {
     // prevent DB access for online player
-    if (Player* player = GetPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         name = player->GetName();
         return true;
@@ -2035,7 +2035,7 @@ bool ObjectMgr::GetPlayerNameByGUID(const uint64 &guid, std::string &name) const
 uint32 ObjectMgr::GetPlayerTeamByGUID(const uint64 &guid) const
 {
     // prevent DB access for online player
-    if (Player* player = GetPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         return Player::TeamForRace(player->getRace());
     }
@@ -2054,7 +2054,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(const uint64 &guid) const
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(const uint64 &guid) const
 {
     // prevent DB access for online player
-    if (Player* player = GetPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         return player->GetSession()->GetAccountId();
     }
@@ -5427,7 +5427,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player *pl = NULL;
         if (serverUp)
-            pl = GetPlayer((uint64)m->receiver);
+            pl = ObjectAccessor::FindPlayer((uint64)m->receiver);
 
         if (pl && pl->m_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
@@ -8259,8 +8259,8 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
         if (trainerSpell.learnedSpell[0] == spell)
             trainerSpell.learnedSpell[0] = 0;
         // player must be able to cast spell on himself
-        if (spellinfo->Effects[i].TargetA != 0 && spellinfo->Effects[i].TargetA != TARGET_UNIT_TARGET_ALLY
-            && spellinfo->Effects[i].TargetA != TARGET_UNIT_TARGET_ANY && spellinfo->Effects[i].TargetA != TARGET_UNIT_CASTER)
+        if (spellinfo->Effects[i].TargetA.GetTarget() != 0 && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ALLY
+            && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ANY && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
         {
             sLog->outErrorDb("Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
             continue;
@@ -8744,11 +8744,6 @@ bool LoadTrinityStrings(char const* table, int32 start_value, int32 end_value)
     }
 
     return sObjectMgr->LoadTrinityStrings(table, start_value, end_value);
-}
-
-uint32 GetScriptId(const char *name)
-{
-    return sObjectMgr->GetScriptId(name);
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)

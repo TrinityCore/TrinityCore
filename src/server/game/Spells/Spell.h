@@ -22,6 +22,7 @@
 #include "GridDefines.h"
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
+#include "SpellInfo.h"
 
 class Unit;
 class Player;
@@ -31,8 +32,6 @@ class WorldObject;
 class Aura;
 class SpellScript;
 class ByteBuffer;
-class SpellInfo;
-class SpellImplicitTargetInfo;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 

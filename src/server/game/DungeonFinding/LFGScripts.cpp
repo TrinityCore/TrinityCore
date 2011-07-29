@@ -51,7 +51,7 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
         sLFGMgr->Leave(NULL, group);
 
     if (sLFGMgr->GetState(guid) == LFG_STATE_QUEUED)
-        if (Player *plr = sObjectMgr->GetPlayer(guid))
+        if (Player *plr = ObjectAccessor::FindPlayer(guid))
             sLFGMgr->Leave(plr);
 }
 
@@ -82,7 +82,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
     }
 
     sLFGMgr->ClearState(guid);
-    if (Player *plr = sObjectMgr->GetPlayer(guid))
+    if (Player *plr = ObjectAccessor::FindPlayer(guid))
     {
         /*
         if (method == GROUP_REMOVEMETHOD_LEAVE)
@@ -116,13 +116,13 @@ void LFGScripts::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLe
         return;
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
-    Player *plr = sObjectMgr->GetPlayer(newLeaderGuid);
+    Player *plr = ObjectAccessor::FindPlayer(newLeaderGuid);
 
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
     if (plr)
         plr->GetSession()->SendLfgUpdateParty(updateData);
 
-    plr = sObjectMgr->GetPlayer(oldLeaderGuid);
+    plr = ObjectAccessor::FindPlayer(oldLeaderGuid);
     if (plr)
     {
         updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND;

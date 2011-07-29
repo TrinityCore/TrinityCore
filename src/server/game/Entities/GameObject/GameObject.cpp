@@ -1120,7 +1120,7 @@ void GameObject::Use(Unit* user)
 
                 if (itr->second)
                 {
-                    if (Player* ChairUser = sObjectMgr->GetPlayer(itr->second))
+                    if (Player* ChairUser = ObjectAccessor::FindPlayer(itr->second))
                         if (ChairUser->IsSitState() && ChairUser->getStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->getStandState() != UNIT_STAND_STATE_SIT check is required.
                         else
@@ -1608,7 +1608,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     bool self = false;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (spellInfo->Effects[i].TargetA == TARGET_UNIT_CASTER)
+        if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
         {
             self = true;
             break;

@@ -153,7 +153,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
         CharacterDatabase.PExecute("UPDATE characters SET arenaPoints = arenaPoints + '%u' WHERE guid = '%u'", playerItr->second, playerItr->first);
 
         // Add points to player if online
-        Player* pl = sObjectMgr->GetPlayer(playerItr->first);
+        Player* pl = ObjectAccessor::FindPlayer(playerItr->first);
         if (pl)
             pl->ModifyArenaPoints(playerItr->second);
     }

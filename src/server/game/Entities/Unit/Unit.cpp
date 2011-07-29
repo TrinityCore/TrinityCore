@@ -456,34 +456,52 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 T
     AddUnitState(UNIT_STAT_MOVE);
 }
 
-void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player* player)
+void Unit::SendMonsterMove(MonsterMoveData const& moveData, Player* player)
 {
-    WorldPacket data(SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
+    WorldPacket data(SMSG_MONSTER_MOVE, GetPackGUID().size() + 1 + 12 + 4 + 1 + 4 + 8 + 4 + 4 + 12);
     data.append(GetPackGUID());
 
-    data << uint8(0);                                       // new in 3.1
+    data << uint8(0);                                           // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
 
     data << uint8(0);
-    data << MoveFlags;
+    data << moveData.SplineFlag;
 
-    if (MoveFlags & SPLINEFLAG_TRAJECTORY)
+    if (moveData.SplineFlag & SPLINEFLAG_ANIMATIONTIER)
     {
-        data << time;
-        data << speedZ;
-        data << (uint32)0; // walk time after jump
+        data << uint8(moveData.AnimationState);
+        data << uint32(0);
     }
-    else
-        data << time;
 
-    data << uint32(1);                                      // 1 single waypoint
-    data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
+    data << moveData.Time;
+
+    if (moveData.SplineFlag & SPLINEFLAG_TRAJECTORY)
+    {
+        data << moveData.SpeedZ;
+        data << uint32(0);                                      // walk time after jump
+    }
+
+    data << uint32(1);                                          // waypoint count
+    data << moveData.DestLocation.GetPositionX();
+    data << moveData.DestLocation.GetPositionY();
+    data << moveData.DestLocation.GetPositionZ();
 
     if (player)
         player->GetSession()->SendPacket(&data);
     else
         SendMessageToSet(&data, true);
+}
+
+void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player* player)
+{
+    MonsterMoveData data;
+    data.DestLocation.Relocate(NewPosX, NewPosY, NewPosZ);
+    data.SplineFlag = MoveFlags;
+    data.Time = time;
+    data.SpeedZ = speedZ;
+
+    SendMonsterMove(data, player);
 }
 
 void Unit::SendMonsterMoveExitVehicle(Position const* newPos)
@@ -3420,8 +3438,6 @@ void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
 void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
 {
     SpellInfo const* spellProto = aura->GetSpellInfo();
-
-    uint32 spellId = spellProto->Id;
 
     // passive spell special case (only non stackable with ranks)
     if (spellProto->IsPassiveStackableWithRanks())
@@ -11562,10 +11578,10 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
         {
-            SpellInfo const* inmmuneSpellInfo = sSpellMgr->GetSpellInfo(itr->spellId);
+            SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->spellId);
             if ((itr->type & spellInfo->GetSchoolMask())
-                && !(inmmuneSpellInfo->IsPositive() && spellInfo->IsPositive())
-                && !spellInfo->CanPierceImmuneAura(inmmuneSpellInfo))
+                && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive())
+                && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
                 return true;
         }
     }
@@ -13861,7 +13877,7 @@ void CharmInfo::InitPossessCreateSpells()
         {
             uint32 spellId = m_unit->ToCreature()->m_spells[i];
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-            if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD)
+            if (spellInfo && !spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD)
             {
                 if (spellInfo->IsPassive())
                     m_unit->CastSpell(m_unit, spellInfo, true);
@@ -14755,7 +14771,7 @@ void Unit::ClearComboPointHolders()
     {
         uint32 lowguid = *m_ComboPointHolders.begin();
 
-        Player* plr = sObjectMgr->GetPlayer(MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
+        Player* plr = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
         if (plr && plr->GetComboTarget() == GetGUID())         // recheck for safe
             plr->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
         else
@@ -15231,7 +15247,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura)
 {
     // aura can be deleted at casts
     SpellInfo const* spellProto = triggeredByAura->GetSpellInfo();
-    uint32 effIdx = triggeredByAura->GetEffIndex();
     int32 heal = triggeredByAura->GetAmount();
     uint64 caster_guid = triggeredByAura->GetCasterGUID();
 
@@ -15293,7 +15308,6 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     }
 
     uint64 caster_guid = triggeredByAura->GetCasterGUID();
-    uint32 effIdx = triggeredByAura->GetEffIndex();
 
     // jumps
     int32 jumps = triggeredByAura->GetBase()->GetCharges()-1;
@@ -15369,7 +15383,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 group->UpdateLooterGuid(creature, true);
                 if (group->GetLooterGuid())
                 {
-                    looter = sObjectMgr->GetPlayer(group->GetLooterGuid());
+                    looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
                     if (looter)
                     {
                         creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.

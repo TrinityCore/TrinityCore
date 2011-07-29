@@ -1064,7 +1064,7 @@ Player* ChatHandler::getSelectedPlayer()
     if (guid == 0)
         return m_session->GetPlayer();
 
-    return sObjectMgr->GetPlayer(guid);
+    return ObjectAccessor::FindPlayer(guid);
 }
 
 Unit* ChatHandler::getSelectedUnit()
@@ -1374,7 +1374,7 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
             if (!normalizePlayerName(name))
                 return 0;
 
-            if (Player* player = sObjectMgr->GetPlayer(name.c_str()))
+            if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
                 return player->GetGUID();
 
             if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
@@ -1432,7 +1432,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
             return false;
         }
 
-        Player* pl = sObjectMgr->GetPlayer(name.c_str());
+        Player* pl = sObjectAccessor->FindPlayerByName(name.c_str());
 
         // if allowed player pointer
         if (player)
@@ -1567,7 +1567,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, G
                 return false;
             }
 
-            plr = sObjectMgr->GetPlayer(name.c_str());
+            plr = sObjectAccessor->FindPlayerByName(name.c_str());
             if (offline)
                 guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
         }

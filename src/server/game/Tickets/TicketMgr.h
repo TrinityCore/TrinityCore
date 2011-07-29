@@ -90,10 +90,10 @@ public:
     bool IsAssignedNotTo(const uint64& guid) const { return IsAssigned() && !IsAssignedTo(guid); }
 
     uint32 GetId() const { return _id; }
-    Player* GetPlayer() const { return sObjectMgr->GetPlayer(_playerGuid); }
+    Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
     std::string GetPlayerName() const { return _playerName; }
     std::string GetMessage() const { return _message; }
-    Player* GetAssignedPlayer() const { return sObjectMgr->GetPlayer(_assignedTo); }
+    Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
     const uint64& GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
     {
