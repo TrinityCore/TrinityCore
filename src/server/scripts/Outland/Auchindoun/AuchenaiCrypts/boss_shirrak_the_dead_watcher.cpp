@@ -144,12 +144,10 @@ public:
 
                     // TODO: Find better way to handle emote
                     // Emote
-                    std::string *emote = new std::string(EMOTE_FOCUSES_ON);
-                    emote->append(target->GetName());
-                    emote->append("!");
-                    const char* text = emote->c_str();
-                    me->MonsterTextEmote(text, 0, true);
-                    delete emote;
+                    std::string emote(EMOTE_FOCUSES_ON);
+                    emote.append(target->GetName());
+                    emote.push_back('!');
+                    me->MonsterTextEmote(emote.c_str(), 0, true);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
             } else FocusFire_Timer -= diff;

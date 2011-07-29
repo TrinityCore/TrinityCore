@@ -173,7 +173,7 @@ inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *local
     else
         ss << locale->Name[index];
     if (suffixStrings)
-        ss << " " << suffixStrings[index];
+        ss << ' ' << suffixStrings[index];
     return ss.str();
 }
 

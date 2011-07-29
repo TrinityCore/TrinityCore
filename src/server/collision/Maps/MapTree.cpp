@@ -95,9 +95,9 @@ namespace VMAP
     {
         std::stringstream tilefilename;
         tilefilename.fill('0');
-        tilefilename << std::setw(3) << mapID << "_";
-        //tilefilename << std::setw(2) << tileX << "_" << std::setw(2) << tileY << ".vmtile";
-        tilefilename << std::setw(2) << tileY << "_" << std::setw(2) << tileX << ".vmtile";
+        tilefilename << std::setw(3) << mapID << '_';
+        //tilefilename << std::setw(2) << tileX << '_' << std::setw(2) << tileY << ".vmtile";
+        tilefilename << std::setw(2) << tileY << '_' << std::setw(2) << tileX << ".vmtile";
         return tilefilename.str();
     }
 
@@ -129,7 +129,7 @@ namespace VMAP
     {
         if (iBasePath.length() > 0 && (iBasePath[iBasePath.length()-1] != '/' || iBasePath[iBasePath.length()-1] != '\\'))
         {
-            iBasePath.append("/");
+            iBasePath.push_back('/');
         }
     }
 
@@ -242,7 +242,7 @@ namespace VMAP
     {
         std::string basePath = vmapPath;
         if (basePath.length() > 0 && (basePath[basePath.length()-1] != '/' || basePath[basePath.length()-1] != '\\'))
-            basePath.append("/");
+            basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
         bool success = true;
         FILE *rf = fopen(fullname.c_str(), "rb");

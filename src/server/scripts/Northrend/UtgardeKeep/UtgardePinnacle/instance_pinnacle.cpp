@@ -211,8 +211,8 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U P " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                << m_auiEncounter[2] << " " << m_auiEncounter[3];
+            saveStream << "U P " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
+                << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
 
             str_data = saveStream.str();
 
