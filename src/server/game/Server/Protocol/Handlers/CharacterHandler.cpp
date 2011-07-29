@@ -1738,12 +1738,12 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                 if (playerClass != CLASS_DEATH_KNIGHT)
                 {
                     for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sAllianceTaxiNodesMask[i]) << " ";
+                        taximaskstream << uint32(sAllianceTaxiNodesMask[i]) << ' ';
                 }
                 else
                 {
                     for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sAllianceTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << " ";
+                        taximaskstream << uint32(sAllianceTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << ' ';
                 }
             }
             else
@@ -1751,19 +1751,19 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                 if (playerClass != CLASS_DEATH_KNIGHT)
                 {
                     for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sHordeTaxiNodesMask[i]) << " ";
+                        taximaskstream << uint32(sHordeTaxiNodesMask[i]) << ' ';
                 }
                 else
                 {
                     for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sHordeTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << " ";
+                        taximaskstream << uint32(sHordeTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << ' ';
                 }
             }
 
             uint32 numEmptyTaximasks = 11 - numFullTaximasks;
             for (uint8 i = 0; i < numEmptyTaximasks; ++i)
                 taximaskstream << "0 ";
-            taximaskstream << "0";
+            taximaskstream << '0';
             std::string taximask = taximaskstream.str();
             trans->PAppend("UPDATE `characters` SET `taximask`= '%s' WHERE `guid` = '%u'", taximask.c_str(), lowGuid);
         }
@@ -1784,7 +1784,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                     if (requiredRaces & RACEMASK_ALLIANCE)
                     {
                         quests << uint32(qinfo->GetQuestId());
-                        quests << ",";
+                        quests << ',';
                     }
                 }
                 else // if (team == BG_TEAM_HORDE)
@@ -1792,7 +1792,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                     if (requiredRaces & RACEMASK_HORDE)
                     {
                         quests << uint32(qinfo->GetQuestId());
-                        quests << ",";
+                        quests << ',';
                     }
                 }
             }

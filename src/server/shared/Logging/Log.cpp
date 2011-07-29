@@ -120,7 +120,7 @@ void Log::Initialize()
     m_logsDir = sConfig->GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())
         if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
-            m_logsDir.append("/");
+            m_logsDir.push_back('/');
 
     m_logsTimestamp = "_" + GetTimestampStr();
 
@@ -183,7 +183,7 @@ void Log::Initialize()
         m_dumpsDir = sConfig->GetStringDefault("CharLogDump.SeparateDir", "");
         if (!m_dumpsDir.empty())
             if ((m_dumpsDir.at(m_dumpsDir.length() - 1) != '/') && (m_dumpsDir.at(m_dumpsDir.length() - 1) != '\\'))
-                m_dumpsDir.append("/");
+                m_dumpsDir.push_back('/');
     }
 }
 

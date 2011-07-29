@@ -1883,7 +1883,7 @@ std::string LFGMgr::ConcatenateGuids(LfgGuidList check)
     LfgGuidList::const_iterator it = check.begin();
     o << (*it);
     for (++it; it != check.end(); ++it)
-        o << "|" << (*it);
+        o << '|' << (*it);
     return o.str();
 }
 

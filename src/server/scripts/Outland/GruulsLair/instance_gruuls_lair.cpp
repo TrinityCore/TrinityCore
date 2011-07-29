@@ -100,9 +100,12 @@ public:
             {
                 case 184468:
                     MaulgarDoor = go->GetGUID();
-                    if (m_auiEncounter[0] == DONE) HandleGameObject(0, true, go);
+                    if (m_auiEncounter[0] == DONE)
+                        HandleGameObject(0, true, go);
                     break;
-                case 184662: GruulDoor = go->GetGUID(); break;
+                case 184662:
+                    GruulDoor = go->GetGUID();
+                    break;
             }
         }
 
@@ -159,7 +162,7 @@ public:
         {
             OUT_SAVE_INST_DATA;
             std::ostringstream stream;
-            stream << m_auiEncounter[0] << " " << m_auiEncounter[1];
+            stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1];
             char* out = new char[stream.str().length() + 1];
             strcpy(out, stream.str().c_str());
             if (out)
