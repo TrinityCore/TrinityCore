@@ -425,6 +425,7 @@ class boss_hodir : public CreatureScript
                         case EVENT_RARE_CACHE:
                             DoScriptText(SAY_HARD_MODE_FAILED, me);
                             iCouldSayThatThisCacheWasRare = false;
+                            instance->SetData(DATA_HODIR_RARE_CACHE, 0);
                             events.CancelEvent(EVENT_RARE_CACHE);
                             break;
                         case EVENT_BERSERK:
