@@ -45,7 +45,7 @@ void WorldLog::Initialize()
     if (!logsDir.empty())
     {
         if ((logsDir.at(logsDir.length()-1) != '/') && (logsDir.at(logsDir.length()-1) != '\\'))
-            logsDir.append("/");
+            logsDir.push_back('/');
     }
 
     std::string logname = sConfig->GetStringDefault("WorldLogFile", "");

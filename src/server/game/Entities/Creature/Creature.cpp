@@ -437,11 +437,11 @@ void Creature::Update(uint32 diff)
     switch(m_deathState)
     {
         case JUST_ALIVED:
-            // Don't must be called, see Creature::setDeathState JUST_ALIVED -> ALIVE promoting.
+            // Must not be called, see Creature::setDeathState JUST_ALIVED -> ALIVE promoting.
             sLog->outError("Creature (GUID: %u Entry: %u) in wrong state: JUST_ALIVED (4)", GetGUIDLow(), GetEntry());
             break;
         case JUST_DIED:
-            // Don't must be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
+            // Must not be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
             sLog->outError("Creature (GUID: %u Entry: %u) in wrong state: JUST_DEAD (1)", GetGUIDLow(), GetEntry());
             break;
         case DEAD:
@@ -1052,7 +1052,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
             dynamicflags = 0;
     }
 
-    // data->guid = guid don't must be update at save
+    // data->guid = guid must not be updated at save
     data.id = GetEntry();
     data.mapid = mapid;
     data.phaseMask = phaseMask;
@@ -1076,33 +1076,33 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.unit_flags = unit_flags;
     data.dynamicflags = dynamicflags;
 
-    // updated in DB
+    // update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
     trans->PAppend("DELETE FROM creature WHERE guid = '%u'", m_DBTableGuid);
 
     std::ostringstream ss;
     ss << "INSERT INTO creature VALUES ("
-        << m_DBTableGuid << ", "
-        << GetEntry() << ", "
-        << mapid <<", "
-        << uint32(spawnMask) << ", "                         // cast to prevent save as symbol
-        << uint16(GetPhaseMask()) << ", "                    // prevent out of range error
-        << displayId <<", "
-        << GetEquipmentId() <<", "
-        << GetPositionX() << ", "
-        << GetPositionY() << ", "
-        << GetPositionZ() << ", "
-        << GetOrientation() << ", "
-        << m_respawnDelay << ", "                            //respawn time
-        << (float) m_respawnradius << ", "                   //spawn distance (float)
-        << (uint32) (0) << ", "                              //currentwaypoint
-        << GetHealth() << ", "                               //curhealth
-        << GetPower(POWER_MANA) << ", "                      //curmana
-        << GetDefaultMovementType() << ", "                  //default movement generator type
-        << npcflag << ", "
-        << unit_flags << ", "
-        << dynamicflags << ")";
+        << m_DBTableGuid << ','
+        << GetEntry() << ','
+        << mapid << ','
+        << uint32(spawnMask) << ','                         // cast to prevent save as symbol
+        << uint16(GetPhaseMask()) << ','                    // prevent out of range error
+        << displayId << ','
+        << GetEquipmentId() << ','
+        << GetPositionX() << ','
+        << GetPositionY() << ','
+        << GetPositionZ() << ','
+        << GetOrientation() << ','
+        << m_respawnDelay << ','                            //respawn time
+        << (float) m_respawnradius << ','                   //spawn distance (float)
+        << (uint32) (0) << ','                              //currentwaypoint
+        << GetHealth() << ','                               //curhealth
+        << GetPower(POWER_MANA) << ','                      //curmana
+        << GetDefaultMovementType() << ','                  //default movement generator type
+        << npcflag << ','
+        << unit_flags << ','
+        << dynamicflags << ')';
 
     trans->Append(ss.str().c_str());
 

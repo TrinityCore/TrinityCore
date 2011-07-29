@@ -225,12 +225,12 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
         do
         {
             Field *fields = result->Fetch();
-            ssInvalidPetitionGUIDs << "'" << fields[0].GetUInt32() << "' , ";
+            ssInvalidPetitionGUIDs << '\'' << fields[0].GetUInt32() << "' , ";
         } while (result->NextRow());
     }
 
     // delete petitions with the same guid as this one
-    ssInvalidPetitionGUIDs << "'" << charter->GetGUIDLow() << "'";
+    ssInvalidPetitionGUIDs << '\'' << charter->GetGUIDLow() << '\'';
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);

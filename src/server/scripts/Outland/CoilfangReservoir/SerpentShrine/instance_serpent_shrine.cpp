@@ -383,8 +383,8 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 OUT_SAVE_INST_DATA;
                 std::ostringstream stream;
-                stream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
-                    << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << TrashCount;
+                stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
+                    << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' ' << m_auiEncounter[5] << ' ' << TrashCount;
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return stream.str();
             }

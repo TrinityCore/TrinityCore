@@ -182,7 +182,7 @@ uint32 TimeStringToSecs(const std::string& timestring)
     uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
+    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); ++itr)
     {
         if(isdigit(*itr))
         {
@@ -318,11 +318,11 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
 {
     try
     {
-        size_t len = utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
-        wstr.resize(len);
-
-        if (len)
+        if (size_t len = utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size()))
+        {
+            wstr.resize(len);
             utf8::utf8to16(utf8str.c_str(), utf8str.c_str()+utf8str.size(), &wstr[0]);
+        }
     }
     catch(std::exception)
     {
