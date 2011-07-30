@@ -510,8 +510,6 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
     }
 
     m_spellState = SPELL_STATE_NULL;
-
-    m_castedClientside = castedClientside;
     m_IsTriggeredSpell = bool(triggered || (info->AttributesEx4 & SPELL_ATTR4_TRIGGERED));
     m_CastItem = NULL;
 
@@ -3770,6 +3768,10 @@ void Spell::SendSpellStart()
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_2;
+
+    if ((m_IsTriggeredSpell && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
+        castFlags |= CAST_FLAG_PENDING;
+
     if (m_spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
@@ -4183,10 +4185,13 @@ void Spell::SendChannelStart(uint32 duration)
     {
         for (std::list<TargetInfo>::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); ++itr)
         {
-            if ((itr->effectMask & (1 << 0)) && itr->reflectResult == SPELL_MISS_NONE && itr->targetGUID != m_caster->GetGUID())
+            for (uint8 effIndex = EFFECT_0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
             {
-                target = ObjectAccessor::GetUnit(*m_caster, itr->targetGUID);
-                break;
+                if ((itr->effectMask & (1 << effIndex)) && itr->reflectResult == SPELL_MISS_NONE && itr->targetGUID != m_caster->GetGUID())
+                {
+                    target = ObjectAccessor::GetUnit(*m_caster, itr->targetGUID);
+                    break;
+                }
             }
         }
     }
@@ -4194,10 +4199,13 @@ void Spell::SendChannelStart(uint32 duration)
     {
         for (std::list<GOTargetInfo>::const_iterator itr = m_UniqueGOTargetInfo.begin(); itr != m_UniqueGOTargetInfo.end(); ++itr)
         {
-            if (itr->effectMask & (1 << 0))
+            for (uint8 effIndex = EFFECT_0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
             {
-                target = m_caster->GetMap()->GetGameObject(itr->targetGUID);
-                break;
+                if (itr->effectMask & (1 << effIndex))
+                {
+                    target = m_caster->GetMap()->GetGameObject(itr->targetGUID);
+                    break;
+                }
             }
         }
     }
