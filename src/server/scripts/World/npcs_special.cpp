@@ -226,25 +226,6 @@ enum FirecallerJokesIdx
     TRUTHAHN
 };
 
-// To find all pet items...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0;
-
-#define FirecallerPresentsCnt 148
-const uint32 FirecallerPresents[FirecallerPresentsCnt][2] =
-{   // Item,Spell
-    {4401,4055},{8485,10673},{8486,10674},{8487,10676},{8488,10678},{8489,10679},{8490,10677},{8491,10675},{8492,10683},{8494,10682},{8495,10684},{8496,10680},{8497,10711},{8498,10698},{8499,10697},
-    {8500,10707},{8501,10706},{10360,10714},{10361,10716},{10392,10717},{10393,10688},{10394,10709},{10398,12243},{10822,10695},{11023,10685},{11026,10704},{11027,10703},{11110,13548},{11474,15067},
-    {11825,15048},{11826,15049},{13582,17709},{13583,17707},{13584,17708},{15996,19772},{18964,23429},{19054,23530},{19055,23531},{19450,23811},{20371,24696},{20769,25162},{21168,25849},{21277,26010},
-    {22114,27241},{22235,27570},{22781,28505},{23002,28738},{23007,28739},{23015,28740},{23083,28871},{23712,30152},{23713,30156},{25535,32298},{27445,33050},{29363,35156},{29364,35239},{29901,35907},
-    {29902,35909},{29903,35910},{29904,35911},{29953,36027},{29956,36028},{29957,36029},{29958,36031},{29960,36034},{32233,39709},{32498,40405},{32588,40549},{33154,42609},{33816,43697},{33818,43698},
-    {33993,43918},{34425,54187},{34478,45082},{34492,45125},{34493,45127},{34518,45174},{34519,45175},{34535,10696},{35349,46425},{35350,46426},{35504,46599},{37297,48406},{37298,48408},{38050,49964},
-    {38628,51716},{38658,51851},{39286,52615},{39656,53082},{39896,61348},{39898,61351},{39899,61349},{39973,53316},{40653,40990},{41133,55068},{43517,61357},{43698,59250},{44721,61350},{44723,61357},
-    {44738,61472},{44819,61855},{44822,10713},{44841,61991},{44965,62491},{44970,62508},{44971,62510},{44973,62513},{44974,62516},{44980,62542},{44982,62564},{44983,62561},{44984,62562},{44998,62609},
-    {45002,62674},{45022,62746},{45180,63318},{45606,63712},{45942,64351},{46398,65358},{46544,65382},{46545,65381},{46707,44369},{46767,65682},{46802,66030},{46820,66096},{46821,66096},{48112,67413},
-    {48114,67414},{48116,67415},{48118,67416},{48120,67417},{48122,67418},{48124,67419},{48126,67420},{49287,68767},{49343,68810},{49362,69002},{49646,69452},{49662,69535},{49663,69536},{49665,69541},
-    {49693,69677},{49912,70613},{50446,71840},{54436,75134},{54847,75906},{56806,78381}
-};
-
 #define FirecallerSoundsCnt 3
 const uint32 FirecallerSounds[FirecallerSoundsCnt][5] =
 {
@@ -288,12 +269,6 @@ public:
         {
             events.Reset();
             events.ScheduleEvent(EVENT_START, 60 * IN_MILLISECONDS);
-
-            bericht.append("Feuerrufer-Bericht über die verschenkten Items. ;)");
-            bericht.append("\n\n");
-
-            SpielerGUIDSet.clear();
-            PetListe.clear();
         }
 
         void Reset()
@@ -337,6 +312,7 @@ public:
                 SpielerGUIDSet.insert(chr->GetGUID());
         }
 
+        // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
         void SchreibeBericht(std::string str)
         {
             std::string tmpfile = sWorld->GetDataPath().c_str();
@@ -363,7 +339,8 @@ public:
             for (std::set<uint64>::iterator itr = SpielerGUIDSet.begin(); itr != SpielerGUIDSet.end(); ++itr)
             {
                 for (uint32 i=0; i<=urand(0, SpielerGUIDSet.size()-1); ++i)
-                    if (++itr == SpielerGUIDSet.end()) { --itr; break; }
+                    if (++itr == SpielerGUIDSet.end())
+                        itr = SpielerGUIDSet.begin();
 
                 Player * chr = sObjectAccessor->FindPlayer(*itr);
                 if (!chr)
@@ -377,35 +354,28 @@ public:
             return NULL;
         }
 
-        bool BeschenkeZiel(Player * chr, uint8 cnt)
+        bool BeschenkeZiel(Player * chr)
         {
-            if (!chr)
+            if (!chr || chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
                 return false;
 
-            if (chr->GetSession()->GetSecurity() < SEC_ANWAERTER)
+            for (std::map<uint32, uint32>::const_iterator itr = PetListe.begin(); itr != PetListe.end(); ++itr)
             {
-                for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
-                {   // Wenn der Spieler das zu gebende Item schon hat / kennt, nicht doppelt geben!
-                    if (!chr->HasItemCount(FirecallerPresents[i][0], 1, true) && !chr->HasSpell(FirecallerPresents[i][1]))
-                    {
-                        char buffer[6];
-                        time_t localtime = time(NULL);
+                if (!chr->HasItemCount(itr->first, 1, true) && !chr->HasSpell(itr->second)) // Wenn der Spieler das zu gebende Item schon hat/kennt, nicht doppelt geben!
+                {
+                    char buffer[6];
+                    time_t localtime = time(NULL);
+                    sprintf(buffer, "%u", itr->first);
 
-                        sprintf(buffer, "%u", FirecallerPresents[i][0]);
-                        addItem(chr, FirecallerPresents[i][0],1,true,false,true);
-                        // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
-                        switch(cnt)
-                        {
-                            case 1: bericht.append("Das 1. Item http://de.wowhead.com/item="); break;
-                            case 2: bericht.append("Das 2. Item http://de.wowhead.com/item="); break;
-                            case 3: bericht.append("Das 3. Item http://de.wowhead.com/item="); break;
-                        }
-                        bericht.append(buffer);
-                        bericht.append(" ging an: ");
+                    if (addItem(chr, itr->first))
+                    {
+                        // Bericht erstellen, damit wir wissen, wer welches Geschenk bekommen hat. ;)
                         bericht.append(chr->GetName());
-                        bericht.append(". Dies geschah am ");
+                        bericht.append(" hat das Item http://de.wowhead.com/item=");
+                        bericht.append(buffer);
+                        bericht.append(" am ");
                         bericht.append(TimeToTimestampStr(localtime, GERMAN).c_str());
-                        bericht.append(" Uhr.");
+                        bericht.append(" Uhr erhalten.");
                         bericht.append("\n");
 
                         return true;
@@ -466,6 +436,11 @@ public:
 
         void StartEvent()
         {
+            bericht.append("Feuerrufer-Bericht über die verschenkten Items. ;)");
+            bericht.append("\n\n");
+
+            LadePetListe();
+
             DoPlaySoundToSet(me, FirecallerSounds[WILLKOMMEN][0]);
 
             DoCast(me, SPELL_RAKETENBUENDEL_ZUENDER, true);
@@ -520,7 +495,7 @@ public:
                         StartEvent();
                         break;
                     case EVENT_PRESENT_1:
-                        if (!BeschenkeZiel(FindeSpieler(), 1))
+                        if (!BeschenkeZiel(FindeSpieler()))
                             events.RescheduleEvent(EVENT_PRESENT_1, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
                         {
@@ -529,7 +504,7 @@ public:
                         }
                         break;
                     case EVENT_PRESENT_2:
-                        if (!BeschenkeZiel(FindeSpieler(), 2))
+                        if (!BeschenkeZiel(FindeSpieler()))
                             events.RescheduleEvent(EVENT_PRESENT_2, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
                         {
@@ -538,7 +513,7 @@ public:
                         }
                         break;
                     case EVENT_PRESENT_3:
-                        if (!BeschenkeZiel(FindeSpieler(), 3))
+                        if (!BeschenkeZiel(FindeSpieler()))
                             events.RescheduleEvent(EVENT_PRESENT_3, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
                             events.CancelEvent(EVENT_PRESENT_3);
@@ -855,9 +830,9 @@ public:
             done = true;
         }
 
-        void MoveInLineOfSight(Unit *who) { return; }
+        void MoveInLineOfSight(Unit * /*who*/) { return; }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who)
         {
             if (!done)
                 SpawnHelper();
@@ -1111,7 +1086,7 @@ enum PIMPER_ITEM_ENUM
 class npc_uwom_gm_pimper : public CreatureScript
 {
 public:
-    npc_uwom_gm_pimper() : CreatureScript("npc_uwom_gm_pimper") {}
+    npc_uwom_gm_pimper() : CreatureScript("npc_uwom_gm_pimper") { LadePetListe(); }
 
     bool OnGossipHello(Player *pPlayer, Creature *pCreature)
     {
@@ -1223,6 +1198,30 @@ public:
         }
     }
 
+    void LadePetListe()
+    {
+        QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0");
+        if (!result)
+        {
+            sLog->outErrorDb("GM-PIMPER: Kann die Pets nicht laden!");
+            return;
+        }
+
+        uint32 cnt = 0;
+
+        do
+        {
+            Field * fields = result->Fetch();
+            if (fields[0].GetUInt32() && fields[1].GetUInt32())
+            {
+                PetListe[fields[0].GetUInt32()] = fields[1].GetUInt32();
+                ++cnt;
+            }
+        } while (result->NextRow());
+
+        sLog->outString("GM-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
+    }
+
     void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
     {
         switch(uiAction)
@@ -1247,9 +1246,11 @@ public:
 
             // Mini-Pets
             case GOSSIP_ACTION_INFO_DEF + 6:
-                for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
-                    if (!pPlayer->HasSpell(FirecallerPresents[i][1]))
-                        pPlayer->learnSpell(FirecallerPresents[i][1], false);
+                for (std::map<uint32, uint32>::const_iterator itr = PetListe.begin(); itr != PetListe.end(); ++itr)
+                {
+                    if (!pPlayer->HasSpell(itr->second))
+                        pPlayer->learnSpell(itr->second, false);
+                }
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
 
@@ -1640,6 +1641,9 @@ public:
         }
         return true;
     }
+
+private:
+    std::map<uint32, uint32> PetListe;
 };
 
 // ------------------------------------------------------------------------------------------------------------
@@ -1725,12 +1729,38 @@ public:
                 ps.Costs_MaxSkill = ps.Costs_MaxSkill*GOLD;
             }
             InitStrings();
+            LadePetListe();
         }
 
         UserPimper_PriceSetup ps;
-        ItemTemplate const* item;
+        ItemTemplate const * item;
+        std::map<uint32, uint32> PetListe;
 
         void Reset() {}
+
+        void LadePetListe()
+        {
+            QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0");
+            if (!result)
+            {
+                sLog->outErrorDb("USER-PIMPER: Kann die Pets nicht laden!");
+                return;
+            }
+
+            uint32 cnt = 0;
+
+            do
+            {
+                Field * fields = result->Fetch();
+                if (fields[0].GetUInt32() && fields[1].GetUInt32())
+                {
+                    PetListe[fields[0].GetUInt32()] = fields[1].GetUInt32();
+                    ++cnt;
+                }
+            } while (result->NextRow());
+
+            sLog->outString("USER-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
+        }
 
         void InitStrings()
         {
@@ -1835,8 +1865,10 @@ public:
                     break;
                 case 3:
                     if (pl->GetItemCount(ps.Costs_Item) < static_cast<uint32>(amount))
+                    {
                         if (item)
-                            pl->GetSession()->SendNotification(PIMPER_NOT_ENOUGH, item->Name1);
+                            pl->GetSession()->SendNotification(PIMPER_NOT_ENOUGH, item->Name1.c_str());
+                    }
                     else
                         return true;
                     break;
@@ -2073,9 +2105,11 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 4:
                 if (ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllMiniPets))
                 {
-                    for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
-                        if (!pPlayer->HasSpell(FirecallerPresents[i][1]))
-                            pPlayer->learnSpell(FirecallerPresents[i][1], false);
+                    for (std::map<uint32, uint32>::const_iterator itr = ai->PetListe.begin(); itr != ai->PetListe.end(); ++itr)
+                    {
+                        if (!pPlayer->HasSpell(itr->second))
+                            pPlayer->learnSpell(itr->second, false);
+                    }
                 }
                 break;
 
