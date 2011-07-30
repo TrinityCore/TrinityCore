@@ -491,7 +491,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
     SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS     = 0x00000400, // 10 NYI!
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
-    SPELL_ATTR6_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE        = 0x00001000, // 12 castable while caster is on vehicle
     SPELL_ATTR6_UNK13                            = 0x00002000, // 13
     SPELL_ATTR6_UNK14                            = 0x00004000, // 14
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
