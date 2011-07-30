@@ -61,7 +61,7 @@ public:
         bool summon_done,
             can_start;
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (can_start && !summon_done)
             {
@@ -116,13 +116,13 @@ public:
                 pInstance->SetData(DATA_TORAVON_EVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit * /*Killer*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_TORAVON_EVENT, DONE);
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit * /*who*/)
         {
             DoZoneInCombat();
 
@@ -236,7 +236,7 @@ public:
             eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit * /*who*/)
         {
             DoZoneInCombat();
 
@@ -305,12 +305,12 @@ public:
 
         void Reset() {}
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit * /*who*/)
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!done)
             {

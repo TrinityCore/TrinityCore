@@ -82,7 +82,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
@@ -182,6 +182,7 @@ public:
                 case TW_NPC_CHAMPION_H:
                     if (EVENT_SCHLAFCHECK == eventsOOC.ExecuteEvent())
                         if (pTW)
+                        {
                             if (pTW->IstKampf())
                             {
                                 if (me->HasAura(SPELL_SLEEPING_SLEEP))
@@ -192,6 +193,7 @@ public:
                                 if (!me->HasAura(SPELL_SLEEPING_SLEEP))
                                     DoCast(me, SPELL_SLEEPING_SLEEP);
                             }
+                        }
                     eventsOOC.RescheduleEvent(EVENT_SCHLAFCHECK, urand(5000,30000));
                     break;
             }
@@ -326,7 +328,8 @@ public:
     {
         npc_tausendwinter_vehicleAI(Creature* pCr) : ScriptedAI(pCr)
         {
-            if (pTW = (Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER))
+            pTW = (Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER);
+            if (pTW)
             {
                 if (Creature * Ingi = GetClosestCreatureWithEntry(me, TW_NPC_VERWUESTERINGENIEUR_A, 20))
                     pTW->ErhoeheFahrzeuganzahlDerWerkstatt(Ingi->GetDBTableGUIDLow());

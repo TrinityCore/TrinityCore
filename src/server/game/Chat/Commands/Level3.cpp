@@ -190,7 +190,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
             PSendSysMessage("1 GreyTradeGoods 2 WhiteTradeGoods 3 GreenTradeGoods 4 BlueTradeGoods 5 PurpleTradeGoods");
             PSendSysMessage("6 OrangeTradeGoods 7 YellowTradeGoods 8 GreyItems 9 WhiteItems 10 GreenItems 11 BlueItems");
             PSendSysMessage("12 PurpleItems 13 OrangeItems 14 YellowItems");
-            PSendSysMessage("The total must add up to 100%");
+            PSendSysMessage("The total must add up to 100 percent");
             return false;
         }
         uint32 greytg = (uint32) strtoul(param1, NULL, 0);
@@ -214,7 +214,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
             PSendSysMessage("1 GreyTradeGoods 2 WhiteTradeGoods 3 GreenTradeGoods 4 BlueTradeGoods 5 PurpleTradeGoods");
             PSendSysMessage("6 OrangeTradeGoods 7 YellowTradeGoods 8 GreyItems 9 WhiteItems 10 GreenItems 11 BlueItems");
             PSendSysMessage("12 PurpleItems 13 OrangeItems 14 YellowItems");
-            PSendSysMessage("The total must add up to 100%");
+            PSendSysMessage("The total must add up to 100 percent");
             return false;
         }
         char param[100];
@@ -441,12 +441,9 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
             PSendSysMessage("Syntax is: ahbotoptions maxstack $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $value");
             return false;
         }
-        uint32 maxStack = (uint32) strtoul(param2, NULL, 0);
-        if (maxStack < 0)
-        {
-            PSendSysMessage("maxstack can't be a negative number.");
-            return false;
-        }
+
+        //uint32 maxStack = uint32(abs(strtoul(param2, NULL, 0)));
+
         if (strncmp(param1,"grey",l) == 0)
         {
             auctionbot.Commands(10, ahMapID, AHB_GREY, param2);

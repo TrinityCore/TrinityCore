@@ -1013,9 +1013,7 @@ void Tausendwinter::BefoerderSpieler(Player * killer) const
     if (!killer)
         return;
 
-    Aura * aur = NULL;
-
-    if (aur = killer->GetAura(SPELL_REKRUT))
+    if (Aura * aur = killer->GetAura(SPELL_REKRUT))
     {
         if (aur->GetStackAmount() >= TW_MAX_RANG_STAPEL)
         {
@@ -1026,7 +1024,7 @@ void Tausendwinter::BefoerderSpieler(Player * killer) const
         else
             killer->CastSpell(killer, SPELL_REKRUT, true);
     }
-    else if (aur = killer->GetAura(SPELL_FAEHNRICH))
+    else if (Aura * aur = killer->GetAura(SPELL_FAEHNRICH))
     {
         if (aur->GetStackAmount() >= TW_MAX_RANG_STAPEL)
         {
@@ -1227,10 +1225,12 @@ void Tausendwinter::BeendeKampf()
             for (OutdoorPvP::OPvPCapturePointMap::const_iterator iter = OutdoorPvP::m_capturePoints.begin(); iter != OutdoorPvP::m_capturePoints.end(); ++iter)
                 if (TausendwinterCapturePoint * pWerkstatt = dynamic_cast<TausendwinterCapturePoint*>(iter->second))
                     if (pWerkstatt->m_GOStatus->HoleTeamId() == teamId)
+                    {
                         if (pWerkstatt->m_GOStatus->m_SchadensStatus == BESCHAEDIGT || pWerkstatt->m_GOStatus->m_SchadensStatus == ZERSTOERT)
                             ++AnzahlDefekt;
                         else if (pWerkstatt->m_GOStatus->m_SchadensStatus == INTAKT)
                             ++AnzahlIntakt;
+                    }
 
             uint32 Belohnungsspell = teamId == m_VerteidigerTeamId ? SPELL_SIEG_IN_TAUSENDWINTER : SPELL_NIEDERLAGE_IN_TAUSENDWINTER;
             OutdoorPvP::TeamCastSpell(TeamId(teamId), Belohnungsspell);
@@ -2113,7 +2113,7 @@ void Tausendwinter::HandlePlayerResurrects(Player * pPl, uint32 zone)
         if (pPl->getLevel() >= TW_MINIMUM_LEVEL)
         {
             // Hartnäckigkeit
-            if (pPl->GetTeamId() == TEAM_ALLIANCE && m_HartnaeckigkeitsStapel > 0 || pPl->GetTeamId() == TEAM_HORDE && m_HartnaeckigkeitsStapel < 0)
+            if ((pPl->GetTeamId() == TEAM_ALLIANCE && m_HartnaeckigkeitsStapel > 0) || (pPl->GetTeamId() == TEAM_HORDE && m_HartnaeckigkeitsStapel < 0))
             {
                 if (pPl->HasAura(SPELL_HARTNAECKIGKEIT))
                     pPl->RemoveAurasDueToSpell(SPELL_HARTNAECKIGKEIT);
@@ -3138,8 +3138,8 @@ void Tausendwinter::VerschiebeToteSpieler(Creature * pCr)
 // TausendwinterCapturePoint
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-TausendwinterCapturePoint::TausendwinterCapturePoint(Tausendwinter * pvp, Tausendwinter::GOStatus * status) : OPvPCapturePoint(pvp), m_GOStatus(status), m_TW(pvp),
-m_WerkstattGUID(0), m_IngiID(NULL), m_IngiGUID(0), m_Ingi(NULL), m_GeistID(NULL), m_GeistGUID(0), m_Geist(NULL), m_KontrolleID(NULL), m_KontrolleGUID(0), m_Kontrolle(NULL) {}
+TausendwinterCapturePoint::TausendwinterCapturePoint(Tausendwinter * pvp, Tausendwinter::GOStatus * status) : OPvPCapturePoint(pvp), m_TW(pvp), m_GOStatus(status), m_Ingi(NULL), m_Geist(NULL),
+m_Kontrolle(NULL), m_IngiID(NULL), m_GeistID(NULL), m_KontrolleID(NULL), m_IngiGUID(0), m_GeistGUID(0), m_KontrolleGUID(0), m_WerkstattGUID(0) {}
 
 void TausendwinterCapturePoint::SetzeTeamIdEntsprechendDemGOStatus()
 {

@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1688,7 +1689,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CASTER_MOVEMENT:
             // Wenn Caster gesetzt wird, dann nach Distanzen schauen...
-            if (me->m_isCaster = e.action.raw.param1 ? true : false)
+            if (me->m_isCaster == (e.action.raw.param1 ? true : false))
             {
                 // Wenn Minimum Distanz gesetzt ist, dann übernehmen...
                 if (e.action.raw.param2)

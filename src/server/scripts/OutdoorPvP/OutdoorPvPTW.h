@@ -641,7 +641,7 @@ public:
     TeamId HoleAngreiferTeamId() const { return OTHER_TEAM(m_VerteidigerTeamId); };
 
     // Zeit Stuff
-    void SetzeZeit(uint32 Zeit) { if (Zeit >= 0) m_Zeit = Zeit; };
+    void SetzeZeit(uint32 Zeit) { if (Zeit > 0) m_Zeit = Zeit; };
     uint32 HoleZeitInMinuten() const { return uint32(m_Zeit/IN_MILLISECONDS/MINUTE); };
     uint32 HoleZeitInSekunden() const { return uint32(m_Zeit/IN_MILLISECONDS); };
 
@@ -680,8 +680,8 @@ protected:
 
     struct NPCStruktur
     {
-        NPCStruktur(uint32 lowguid, uint32 entry, uint32 fraktion, TeamId verteidiger) : m_Creature(NULL), m_GUID(lowguid), m_ID(entry), m_Typ(Tausendwinter::HoleNPCTyp(entry)),
-            m_TeamId(Tausendwinter::HoleNPCTeamId(fraktion)), m_Verteidiger(verteidiger), m_Idx(TW_MAX_NPC_POS_IDX), m_LetzteWiederbelebung(RESURRECTION_INTERVAL) {}
+        NPCStruktur(uint32 lowguid, uint32 entry, uint32 fraktion, TeamId verteidiger) : m_Creature(NULL), m_GUID(lowguid), m_Typ(Tausendwinter::HoleNPCTyp(entry)),
+            m_TeamId(Tausendwinter::HoleNPCTeamId(fraktion)), m_LetzteWiederbelebung(RESURRECTION_INTERVAL), m_ID(entry), m_Verteidiger(verteidiger), m_Idx(TW_MAX_NPC_POS_IDX) {}
 
     public:
         Creature * m_Creature;              // Zeiger auf den NPC
@@ -779,7 +779,7 @@ protected:
     struct GOStatus
     {
         explicit GOStatus(uint32 _WeltSatus, TeamId _TeamId, bool DefaultTeamId) : m_GameObject(NULL), m_Typ(WALL), m_WeltStatus(_WeltSatus), m_Health(0),
-            m_DefaultTeamId(DefaultTeamId ? _TeamId : OTHER_TEAM(_TeamId)), m_FriedhofsTeam(NULL), m_TeamId(_TeamId), m_SchadensStatus(INTAKT) {}
+            m_FriedhofsTeam(NULL), m_DefaultTeamId(DefaultTeamId ? _TeamId : OTHER_TEAM(_TeamId)), m_SchadensStatus(INTAKT), m_TeamId(_TeamId) {}
 
         GameObject * m_GameObject;
         TWGOTyp m_Typ;
@@ -978,7 +978,7 @@ private:
     uint32 m_Countdown; // Kampfbegin Weltcountdown
     uint32 m_SiegAuraZeit; // Entfernen der Siegaura
 
-    uint8 m_HartnaeckigkeitsStapel;
+    int8 m_HartnaeckigkeitsStapel;
     uint8 m_BeschaedigteTuerme[TEAM_NEUTRAL];
     uint8 m_ZerstoerteTuerme[TEAM_NEUTRAL];
     uint8 m_AnzahlWerkstaetten[TEAM_NEUTRAL];

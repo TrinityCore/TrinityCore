@@ -111,11 +111,11 @@ bool SummonList::HasEntry(uint32 entry)
 
 ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     me(pCreature),
+    IsFleeing(false),
     FirstTime(true),
     MaxDistance(100.0f),
     CheckDistanceTimer(5000),
     CheckThreatListTimer(2000),
-    IsFleeing(false),
     _evadeCheckCooldown(2500),
     _isCombatMovementAllowed(true)
 {

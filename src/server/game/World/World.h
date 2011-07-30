@@ -786,9 +786,9 @@ class World
         bool isEventKillStart;
 
         // Tausendwinter
-        void AktualisiereNaechsteTWSchlachtZeit(uint32 timer, uint32 status) { m_TWTimer = timer; m_TWStatus = status; };
-        const uint32 GetTWTimer() { return m_TWTimer; };
-        const uint32 GetTWStatus() { return m_TWStatus; };
+        void AktualisiereNaechsteTWSchlachtZeit(uint32 timer, uint32 status) { m_TWTimer = timer; m_TWStatus = status; }
+        uint32 GetTWTimer() const { return m_TWTimer; }
+        uint32 GetTWStatus() const { return m_TWStatus; }
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
