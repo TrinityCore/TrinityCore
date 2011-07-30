@@ -84,11 +84,11 @@ public:
     bool EnableKommando(ChatHandler * handler);
     bool DisableKommando(ChatHandler * handler);
 
-    Position HoleAllyKnastPos();
-    Position HoleHordeKnastPos();
+    Position HoleAllyKnastPos() const { return m_JailKonf.AllyPos; }
+    Position HoleHordeKnastPos() const { return m_JailKonf.HordePos; }
 
-    const uint32 HoleAllyKnastKarte() { return m_JailKonf.MapAlly; };
-    const uint32 HoleHordeKnastKarte() { return m_JailKonf.MapHorde; };
+    uint32 HoleAllyKnastKarte() const { return m_JailKonf.MapAlly; }
+    uint32 HoleHordeKnastKarte() const { return m_JailKonf.MapHorde; }
 
     void Kontrolle(Player * pPlayer, bool update = false);
     void SendeWarnung(Player * pPlayer);

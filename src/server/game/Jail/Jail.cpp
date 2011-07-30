@@ -157,7 +157,7 @@ bool Jail::GotoKommando(ChatHandler * handler, const char * args)
         normalizePlayerName(tmp);
     }
 
-    if (tmp.c_str() == "horde")
+    if (tmp == "horde")
         chr->TeleportTo(m_JailKonf.MapHorde, m_JailKonf.HordePos.m_positionX, m_JailKonf.HordePos.m_positionY, m_JailKonf.HordePos.m_positionZ, m_JailKonf.HordePos.m_orientation);
     else
         chr->TeleportTo(m_JailKonf.MapAlly, m_JailKonf.AllyPos.m_positionX, m_JailKonf.AllyPos.m_positionY, m_JailKonf.AllyPos.m_positionZ, m_JailKonf.AllyPos.m_orientation);
@@ -547,26 +547,6 @@ bool Jail::ReloadKommando(ChatHandler * handler)
     return false;
 }
 
-Position Jail::HoleAllyKnastPos()
-{
-    Position pos;
-    pos.m_positionX = m_JailKonf.AllyPos.m_positionX;
-    pos.m_positionY = m_JailKonf.AllyPos.m_positionY;
-    pos.m_positionZ = m_JailKonf.AllyPos.m_positionZ;
-    pos.m_orientation = m_JailKonf.AllyPos.m_orientation;
-    return pos;
-}
-
-Position Jail::HoleHordeKnastPos()
-{
-    Position pos;
-    pos.m_positionX = m_JailKonf.HordePos.m_positionX;
-    pos.m_positionY = m_JailKonf.HordePos.m_positionY;
-    pos.m_positionZ = m_JailKonf.HordePos.m_positionZ;
-    pos.m_orientation = m_JailKonf.HordePos.m_orientation;
-    return pos;
-}
-
 void Jail::Kontrolle(Player * pPlayer, bool update)
 {
     if (!pPlayer || !m_JailKonf.Enabled)
@@ -795,10 +775,12 @@ bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, 
         }
 
         if (m_JailKonf.BanAcc)
+        {
             if (chr)
                 BannAccount(acc_id, GUID_LOPART(GUID), chr);
             else
                 BannAccount(acc_id, GUID_LOPART(GUID));
+        }
     }
     return true;
 }
