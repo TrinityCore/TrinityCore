@@ -351,7 +351,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void DamageTaken(Unit * pDoneBy, uint32 & uiDamage)
+        void DamageTaken(Unit * /*pDoneBy*/, uint32 & uiDamage)
         {
             switch(me->GetEntry())
             {

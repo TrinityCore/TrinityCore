@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,17 +59,17 @@ public:
             me->SetOrientation(me->GetHomePosition().GetOrientation());
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit * /*who*/)
         {
             return;
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * /*who*/)
         {
             return;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit * who)
         {
             if (!who)
                 return;
@@ -105,7 +105,8 @@ public:
             EnterEvadeMode();
             return;
         }
-        void UpdateAI(const uint32 diff) {}
+
+        void UpdateAI(const uint32 /*diff*/) {}
     };
 
     CreatureAI *GetAI(Creature *creature) const

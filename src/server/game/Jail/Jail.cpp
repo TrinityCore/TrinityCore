@@ -937,10 +937,12 @@ void Jail::GildenhausWache(Player * chr)
                 }
 
                 if (m_JailKonf.BanAcc)
+                {
                     if (chr)
                         BannAccount(acc, GUID_LOPART(GUID), chr);
                     else
                         BannAccount(acc, GUID_LOPART(GUID));
+                }
             }
         }
 }

@@ -295,7 +295,7 @@ class npc_stinky_icc : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_PLAGUE_STENCH);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit * /*who*/)
             {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
