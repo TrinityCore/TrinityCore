@@ -673,7 +673,6 @@ class Spell
         uint32 m_timer;
 
         bool m_IsTriggeredSpell;
-        bool m_castedClientside;
 
         // if need this can be replaced by Aura copy
         // we can't store original aura link to prevent access to deleted auras
