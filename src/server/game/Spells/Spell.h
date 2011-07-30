@@ -379,7 +379,7 @@ class Spell
 
         typedef std::set<Aura*> UsedSpellMods;
 
-        Spell(Unit* Caster, SpellInfo const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false, bool castedClientside = false);
+        Spell(Unit* Caster, SpellInfo const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false);
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
