@@ -57,7 +57,7 @@ struct ScriptedAI : public CreatureAI
     // *************
 
     // Add items to a player
-    void addItem(Player* player, uint32 itemid, uint8 amount = 1, bool received = true, bool created = false, bool broadcast = false);
+    bool addItem(Player * player, uint32 itemid, uint8 amount = 1, bool received = true, bool created = false, bool broadcast = false);
 
     // Entfernung überprüfen und nach hause gehen, wenn zu weit...
     void CheckDistance(float dist, const uint32 uiDiff);

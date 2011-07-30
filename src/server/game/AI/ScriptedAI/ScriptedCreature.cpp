@@ -124,7 +124,7 @@ ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
 }
 
 // Add items to a player
-void ScriptedAI::addItem(Player* player, uint32 itemid, uint8 amount, bool received, bool created, bool broadcast)
+bool ScriptedAI::addItem(Player * player, uint32 itemid, uint8 amount, bool received, bool created, bool broadcast)
 {
     ItemPosCountVec dest;
     uint32 no_space = 0;
@@ -133,16 +133,17 @@ void ScriptedAI::addItem(Player* player, uint32 itemid, uint8 amount, bool recei
     if (msg != EQUIP_ERR_OK)
     {
         player->SendEquipError(msg, NULL, NULL);
-        return;
+        return false;
     }
     // create the new item(s) and store it
-    Item* pItem = player->StoreNewItem(dest, itemid, true, Item::GenerateItemRandomPropertyId(itemid));
+    Item * pItem = player->StoreNewItem(dest, itemid, true, Item::GenerateItemRandomPropertyId(itemid));
     if (!pItem)
     {
         player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
-        return;
+        return false;
     }
     player->SendNewItem(pItem, amount, received, created, broadcast);
+    return true;
 }
 
 // Entfernung (in yards / 3D) überprüfen und nach hause gehen wenn zu weit vom Spawnpunkt.
