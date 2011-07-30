@@ -164,14 +164,14 @@ class ArenaTeam
         void Inspect(WorldSession* session, uint64 guid);
 
         uint32 GetPoints(uint32 MemberRating);
-        int32  GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won, bool calculating_mmr = false);
-        int32  GetPersonalRatingMod(int32 base_rating, uint32 ownRating, uint32 opponentRating);
+        int32  GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
+        int32  GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
         float  GetChanceAgainst(uint32 ownRating, uint32 opponentRating);
-        int32  WonAgainst(uint32 againstRating);
-        void   MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 teamratingchange = 12);
-        int32  LostAgainst(uint32 againstRating);
-        void   MemberLost(Player* plr, uint32 againstMatchmakerRating, int32 teamratingchange = -12);
-        void   OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 teamratingchange = -12);
+        int32  WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
+        void   MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange);
+        int32  LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
+        void   MemberLost(Player* plr, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
+        void   OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
 
         void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
