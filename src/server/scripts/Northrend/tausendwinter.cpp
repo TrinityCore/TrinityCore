@@ -123,19 +123,6 @@ public:
         {
             events.Reset();
             eventsOOC.Reset();
-
-            switch(me->GetEntry())
-            {
-                case TW_NPC_VERZAUBERER_A:
-                    // Standard Entfernung
-                    me->m_isCaster = true;
-                    break;
-                case TW_NPC_VERZAUBERER_H:
-                case TW_NPC_QUESTGEBER_5_A:
-                    me->m_isCaster = true;
-                    me->m_CasterDefaultMaxCombatRange = 39;
-                    break;
-            }
             eventsOOC.ScheduleEvent(EVENT_SCHLAFCHECK, urand(5000, 30000));
         }
 

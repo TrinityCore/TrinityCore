@@ -775,9 +775,6 @@ public:
     {
         mob_soulguard_animatorAI(Creature *c) : ScriptedAI(c)
         {
-            c->m_isCaster = true;
-            c->m_CasterDefaultMinCombatRange = 0;
-            c->m_CasterDefaultMaxCombatRange = 19;
         }
 
         EventMap events;
@@ -850,9 +847,6 @@ public:
     {
         mob_soulguard_adeptAI(Creature *c) : ScriptedAI(c)
         {
-            c->m_isCaster = true;
-            c->m_CasterDefaultMinCombatRange = 0;
-            c->m_CasterDefaultMaxCombatRange = 19;
         }
 
         EventMap events;

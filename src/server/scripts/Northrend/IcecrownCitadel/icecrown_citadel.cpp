@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -254,26 +254,6 @@ public:
         {
             switch(me->GetEntry())
             {
-                // Bestimmen welcher NPC ein Caster ist (wegen korrektem Movement!)
-                case AUFERSTANDENER_DIENER_DER_TODESSPRECHER:
-                case DIENER_DER_TODESSPRECHER:
-                case SINISTRER_ERZMAGIER:
-                case SINISTRER_ADLIGER:
-                    // Default Castranges
-                    me->m_isCaster = true;
-                    break;
-                case DIENER_DES_THRONS:
-                case BRUTHUETER_DER_NERUBAR:
-                case JUENGER_DER_TODESSPRECHER:
-                case KNECHT_DER_TODESSPRECHER:
-                case SEUCHENWISSENSCHAFTLER:
-                    me->m_isCaster = true;
-                    me->m_CasterDefaultMaxCombatRange = 39;
-                    break;
-                case BASTIONSGARGOYLE:
-                    me->m_isCaster = true;
-                    me->m_CasterDefaultMaxCombatRange = 44;
-                    break;
                 case TODESGEWEIHTER_WAECHTER:
                     if (me->GetMap()->IsDungeon())
                     {
@@ -558,12 +538,12 @@ public:
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(10000,20000));
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_FANGNETZ, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ, 10000);
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, urand(10000,15000));
                                 break;
@@ -649,7 +629,7 @@ public:
                     case HOHEPRIESTER_DER_TODESSPRECHER:
                         if (eventId == EVENT_HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                 DoCast(pTarget, HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG, true);
                             events.RescheduleEvent(EVENT_HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG, 15000);
                         }
@@ -691,7 +671,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->m_CasterDefaultMaxCombatRange, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY);
                                 events.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY, urand(8000,10000));
                                 break;
@@ -720,7 +700,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->m_CasterDefaultMaxCombatRange, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE, urand(10000,15000));
                                 break;
@@ -743,7 +723,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->m_CasterDefaultMaxCombatRange, true))
+                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS, urand(10000,20000));
                                 break;
