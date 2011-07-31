@@ -2506,7 +2506,8 @@ void Tausendwinter::HandlePlayerEnterZone(Player * pPl, uint32 zone)
     if (Vehicle * Veh = pPl->GetVehicle())
     {
         if (Veh->GetBase())
-            Veh->GetBase()->ToCreature()->ForcedDespawn();
+            if (Creature * cr = Veh->GetBase()->ToCreature())
+                cr->ForcedDespawn();
 
         pPl->CastSpell(pPl, SPELL_LANGSAMER_FALL, true);
     }
