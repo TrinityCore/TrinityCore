@@ -170,7 +170,7 @@ void ScriptedAI::DoCastSpell(Unit* pTarget, SpellInfo const* pSpellInfo, bool bT
         return;
 
     me->StopMoving();
-    me->CastSpell(pTarget, pSpellInfo, bTriggered);
+    me->CastSpell(pTarget, pSpellInfo, bTriggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
 }
 
 void ScriptedAI::DoPlaySoundToSet(WorldObject* pSource, uint32 uiSoundId)
