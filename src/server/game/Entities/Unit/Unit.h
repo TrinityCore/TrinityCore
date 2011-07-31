@@ -400,7 +400,7 @@ enum TriggerCastFlags
     TRIGGERED_IGNORE_TARGET_DETECTABILITY           = 0x00004000,   //! Will ignore canSeeOrDetect
     TRIGGERED_IGNORE_LOS                            = 0x00008000,   //! Will ignore LOS to target
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
-    TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Allows proc events from triggere spell
+    TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Disallows proc events from triggered spell (default)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
     TRIGGERED_FULL_MASK                             = 0xFFFFFFFF,
 };
