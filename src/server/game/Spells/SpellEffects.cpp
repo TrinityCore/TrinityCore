@@ -1504,7 +1504,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         }
 
         targets.SetUnitTarget(unitTarget);
-        Spell* spell = new Spell(m_caster, spellInfo, triggered, m_originalCasterGUID, true);
+        Spell* spell = new Spell(m_caster, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, m_originalCasterGUID, true);
         if (bp) spell->SetSpellValue(SPELLVALUE_BASE_POINT0, bp);
         spell->prepare(&targets);
     }
@@ -3570,7 +3570,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
             {
                 if (item->IsFitToSpellRequirements(m_spellInfo))
                 {
-                    Spell* spell = new Spell(m_caster, spellInfo, true);
+                    Spell* spell = new Spell(m_caster, spellInfo, TRIGGERED_FULL_MASK);
                     SpellCastTargets targets;
                     targets.SetItemTarget(item);
                     spell->prepare(&targets);
@@ -5490,7 +5490,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(8690);
     if (!spellInfo)
         return;
-    Spell spell(pTarget, spellInfo, true, 0);
+    Spell spell(pTarget, spellInfo, TRIGGERED_FULL_MASK);
     spell.SendSpellCooldown();
 }
 
@@ -6980,14 +6980,12 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!p_caster->HasSpell(spell_id) || p_caster->HasSpellCooldown(spell_id))
             continue;
 
-        //! Valid totem spells only have the first TotemCategory field set, so only check this
-        if (spellInfo->TotemCategory[0] < TC_EARTH_TOTEM || spellInfo->TotemCategory[0] > TC_WATER_TOTEM)
+        if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_PLAYER_TOTEM))
             continue;
         
         uint32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
-
         if (m_caster->GetPower(POWER_MANA) < cost)
-            break;
+            continue;
 
         m_caster->CastSpell(unitTarget, spell_id, true);
         m_caster->ModifyPower(POWER_MANA, -(int32)cost);
