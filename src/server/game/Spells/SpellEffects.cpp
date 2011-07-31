@@ -6987,9 +6987,8 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (m_caster->GetPower(POWER_MANA) < cost)
             continue;
 
-        m_caster->CastSpell(unitTarget, spell_id, true);
-        m_caster->ModifyPower(POWER_MANA, -(int32)cost);
-        p_caster->AddSpellAndCategoryCooldowns(spellInfo, 0);
+        TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_ALLOW_PROC_EVENTS);
+        m_caster->CastSpell(unitTarget, spell_id, triggerFlags);
     }
 }
 
