@@ -81,7 +81,7 @@ public:
                 break;
 
             case CHAT_MSG_PARTY_LEADER:
-                if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_PARTY))
+                if (sWorld->getBoolConfig(CONFIG_CHATLOG_PARTY))
                     sLog->outChat("[PARTY] Leader %s tells group: %s",
                         player->GetName(), msg.c_str());
                 break;
