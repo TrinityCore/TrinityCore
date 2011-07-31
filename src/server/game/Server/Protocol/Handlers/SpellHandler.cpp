@@ -31,6 +31,7 @@
 #include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#include "SpellAuraEffects.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
@@ -574,32 +575,36 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recv_data)
     recv_data >> guid;
 
     // Get unit for which data is needed by client
-    Unit *unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
+    Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
     if (!unit)
         return;
 
-    // Get creator of the unit
-    Unit *creator = ObjectAccessor::GetObjectInWorld(unit->GetCreatorGUID(), (Unit*)NULL);
+    if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
+        return;
+
+    // Get creator of the unit (SPELL_AURA_CLONE_CASTER does not stack)
+    Unit* creator = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER).front()->GetCaster();
     if (!creator)
         return;
 
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
     data << uint64(guid);
     data << uint32(creator->GetDisplayId());
+    data << uint8(creator->getRace());
+    data << uint8(creator->getGender());
+    data << uint8(creator->getClass());
+
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {
-        Player* pCreator = creator->ToPlayer();
-        data << uint8(pCreator->getRace());
-        data << uint8(pCreator->getGender());
-        data << uint8(pCreator->getClass());
-        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 0)); // skin
-        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 1)); // face
-        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 2)); // hair
-        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 3)); // haircolor
-        data << uint8(pCreator->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
-        data << uint32(pCreator->GetGuildId());  // unk
+        Player* player = creator->ToPlayer();
+        data << uint8(player->GetByteValue(PLAYER_BYTES, 0));   // skin
+        data << uint8(player->GetByteValue(PLAYER_BYTES, 1));   // face
+        data << uint8(player->GetByteValue(PLAYER_BYTES, 2));   // hair
+        data << uint8(player->GetByteValue(PLAYER_BYTES, 3));   // haircolor
+        data << uint8(player->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
+        data << uint32(player->GetGuildId());                   // unk
 
-        static const EquipmentSlots ItemSlots[] =
+        static EquipmentSlots const itemSlots[] =
         {
             EQUIPMENT_SLOT_HEAD,
             EQUIPMENT_SLOT_SHOULDERS,
@@ -616,13 +621,13 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recv_data)
         };
 
         // Display items in visible slots
-        for (EquipmentSlots const* itr = &ItemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+        for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
         {
-            if (*itr == EQUIPMENT_SLOT_HEAD && pCreator->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
+            if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
                 data << uint32(0);
-            else if (*itr == EQUIPMENT_SLOT_BACK && pCreator->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
+            else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
-            else if (Item const *item = pCreator->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
+            else if (Item const *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
                 data << uint32(item->GetTemplate()->DisplayInfoID);
             else
                 data << uint32(0);
@@ -631,7 +636,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recv_data)
     else
     {
         // Skip player data for creatures
-        data << uint32(0);
+        data << uint8(0);
         data << uint32(0);
         data << uint32(0);
         data << uint32(0);
