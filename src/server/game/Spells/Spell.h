@@ -379,7 +379,7 @@ class Spell
 
         typedef std::set<Aura*> UsedSpellMods;
 
-        Spell(Unit* Caster, SpellInfo const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false);
+        Spell(Unit* caster, SpellInfo const *info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
@@ -474,7 +474,7 @@ class Spell
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
         bool IsNextMeleeSwingSpell() const;
-        bool IsTriggered() const {return m_IsTriggeredSpell;};
+        bool IsTriggered() const {return _triggeredCastFlags & TRIGGERED_FULL_MASK;};
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
 
@@ -672,7 +672,7 @@ class Spell
         uint32 m_spellState;
         uint32 m_timer;
 
-        bool m_IsTriggeredSpell;
+        TriggerCastFlags _triggeredCastFlags;
 
         // if need this can be replaced by Aura copy
         // we can't store original aura link to prevent access to deleted auras
