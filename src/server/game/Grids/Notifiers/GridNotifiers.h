@@ -1145,18 +1145,23 @@ namespace Trinity
 
     class AnyPlayerInObjectRangeCheck
     {
-    public:
-        AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) {}
-        bool operator()(Player* u)
-        {
-            if (u->isAlive() && i_obj->IsWithinDistInMap(u, i_range))
-                return true;
+        public:
+            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) {}
+            bool operator()(Player* u)
+            {
+                if (_reqAlive && !u->isAlive())
+                    return false;
 
-            return false;
-        }
-    private:
-        WorldObject const* i_obj;
-        float i_range;
+                if (!_obj->IsWithinDistInMap(u, _range))
+                    return false;
+
+                return true;
+            }
+
+        private:
+            WorldObject const* _obj;
+            float _range;
+            bool _reqAlive;
     };
 
     class NearestPlayerInObjectRangeCheck
