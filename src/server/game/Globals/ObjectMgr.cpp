@@ -616,6 +616,43 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     sLog->outString();
 }
 
+// Definitionen aller NPC die vorrangig als Caster fungieren.
+void ObjectMgr::LoadCreatureTemplateCaster()
+{
+    uint32 oldMSTime = getMSTime();
+    //                                               0      1         2
+    QueryResult result = WorldDatabase.Query("SELECT entry, minRange, maxRange FROM creature_template_caster");
+    if (!result)
+    {
+        sLog->outString(">> Konnte keine Caster-Definitionen laden. DB-Tabelle `creature_template_caster` ist leer oder fehlt.");
+        sLog->outString();
+        return;
+    }
+
+    uint32 cnt=0;
+    do
+    {
+        Field * fields = result->Fetch();
+        uint32 entry = fields[0].GetUInt32();
+
+        if (!sObjectMgr->GetCreatureTemplate(entry))
+        {
+            sLog->outErrorDb("Der NPC %u existiert nicht im `creature_template`, er wird aber in der Tabelle `creature_template_caster` angeben!", entry);
+            continue;
+        }
+        CreatureCaster& creatureCaster = CreatureTemplateCasterStore[entry];
+
+        creatureCaster.minRange = fields[1].GetFloat();
+        creatureCaster.maxRange = fields[2].GetFloat();
+
+        ++cnt;
+
+    } while (result->NextRow());
+
+    sLog->outString(">> Habe %u `creature_template_caster` Einträge in %u ms geladen.", cnt, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 {
     if (!cInfo)
@@ -997,6 +1034,15 @@ CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
 {
     CreatureAddonContainer::const_iterator itr = CreatureTemplateAddonStore.find(entry);
     if (itr != CreatureTemplateAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
+}
+
+CreatureCaster const * ObjectMgr::GetCreatureTemplateCaster(uint32 entry)
+{
+    CreatureCasterContainer::const_iterator itr = CreatureTemplateCasterStore.find(entry);
+    if (itr != CreatureTemplateCasterStore.end())
         return &(itr->second);
 
     return NULL;

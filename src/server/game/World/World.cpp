@@ -1373,6 +1373,10 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
 
+    // Definitionen aller NPC die vorrangig als Caster fungieren.
+    sLog->outString("Lade `creature_template_caster`...");
+    sObjectMgr->LoadCreatureTemplateCaster();
+
     sLog->outString("Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
 

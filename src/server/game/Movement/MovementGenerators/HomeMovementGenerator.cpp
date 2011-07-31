@@ -78,6 +78,7 @@ bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time
 
         owner.ClearUnitState(UNIT_STAT_EVADE);
         owner.LoadCreaturesAddon(true);
+        owner.LoadCreatureCaster();
         owner.AI()->JustReachedHome();
         return false;
     }

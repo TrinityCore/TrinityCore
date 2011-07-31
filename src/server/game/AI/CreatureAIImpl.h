@@ -585,6 +585,7 @@ inline bool CreatureAI::_EnterEvadeMode()
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
+    me->LoadCreatureCaster();
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
 

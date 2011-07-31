@@ -138,17 +138,13 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-Creature::Creature(): Unit(),
-m_isCaster(false),                  // Ist dieser NPC ein Caster?
-m_CasterDefaultMinCombatRange(0),   // Default minimum Castrange für Caster
-m_CasterDefaultMaxCombatRange(29),  // Default maximum Castrange für Caster
-
-lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
-m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemoveTime(0), m_respawnTime(0),
-m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
-m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
-m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_creatureData(NULL), m_formation(NULL)
+Creature::Creature(): Unit(), lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_lootRecipientGroup(0),
+m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE), m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0),
+m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_creatureInfo(NULL), m_creatureData(NULL),
+m_isCaster(false),                              // Ist dieser NPC ein Caster?
+m_CasterDefaultMinCombatRange(ATTACK_DISTANCE), // Default minimum Castrange für Caster
+m_CasterDefaultMaxCombatRange(29),              // Default maximum Castrange für Caster
+m_formation(NULL)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -791,6 +787,8 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
     }
 
     LoadCreaturesAddon();
+    LoadCreatureCaster();
+
     uint32 displayID = GetNativeDisplayId();
     CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (minfo && !isTotem())                               // Cancel load if no model defined or if totem
@@ -1560,6 +1558,7 @@ void Creature::setDeathState(DeathState s)
         ClearUnitState(uint32(UNIT_STAT_ALL_STATE));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
+        LoadCreatureCaster();
         Motion_Initialize();
         if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
             SetPhaseMask(GetCreatureData()->phaseMask, false);
@@ -2048,6 +2047,11 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureInfo()->Entry);
 }
 
+CreatureCaster const * Creature::GetCreatureCaster() const
+{
+    return sObjectMgr->GetCreatureTemplateCaster(GetCreatureInfo()->Entry);
+}
+
 //creature_addon table
 bool Creature::LoadCreaturesAddon(bool reload)
 {
@@ -2118,6 +2122,24 @@ bool Creature::LoadCreaturesAddon(bool reload)
             sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
         }
     }
+    return true;
+}
+
+// creature_template_caster table
+bool Creature::LoadCreatureCaster()
+{
+    CreatureCaster const * ccinfo = GetCreatureCaster();
+    if (!ccinfo)
+        return false;
+    else
+        m_isCaster = true;
+
+    if (ccinfo->maxRange != 0)
+        m_CasterDefaultMaxCombatRange = ccinfo->maxRange;
+
+    if (ccinfo->minRange != 0)
+        m_CasterDefaultMinCombatRange = ccinfo->minRange;
+
     return true;
 }
 

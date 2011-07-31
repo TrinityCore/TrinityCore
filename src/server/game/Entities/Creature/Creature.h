@@ -277,6 +277,17 @@ struct CreatureAddon
 
 typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;
 
+// `creature_template_caster` table
+struct CreatureCaster
+{
+    uint32 entry;
+    float minRange;
+    float maxRange;
+    //bool melee;
+};
+
+typedef UNORDERED_MAP<uint32, CreatureCaster> CreatureCasterContainer;
+
 struct CreatureModelInfo
 {
     float bounding_radius;
@@ -422,6 +433,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData *data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
+        bool LoadCreatureCaster();
         void SelectLevel(const CreatureTemplate *cinfo);
         void LoadEquipment(uint32 equip_entry, bool force=false);
 
@@ -530,6 +542,7 @@ class Creature : public Unit, public GridObject<Creature>
         CreatureTemplate const *GetCreatureInfo() const { return m_creatureInfo; }
         CreatureData const *GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
+        CreatureCaster const * GetCreatureCaster() const;
 
         std::string GetAIName() const;
         std::string GetScriptName() const;
@@ -552,13 +565,6 @@ class Creature : public Unit, public GridObject<Creature>
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         virtual void DeleteFromDB();                        // overriden in Pet
-
-        // Ist dieser NPC ein Caster? Default = false.
-        bool m_isCaster;
-        // Default minimum Castrange für Caster. Default = 0.
-        float m_CasterDefaultMinCombatRange;
-        // Default maximum Castrange für Caster. Default = 29.
-        float m_CasterDefaultMaxCombatRange;
 
         Loot loot;
         bool lootForPickPocketed;
@@ -686,6 +692,9 @@ class Creature : public Unit, public GridObject<Creature>
         uint32 GetGUIDTransport() { return guid_transport; }
 
         void FarTeleportTo(Map* map, float X, float Y, float Z, float O);
+
+        float GetMinCastRange() const { if (m_isCaster) return m_CasterDefaultMinCombatRange; else return 0.0f;  }
+        float GetMaxCastRange() const { if (m_isCaster) return m_CasterDefaultMaxCombatRange; else return 0.0f;  }
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
@@ -736,6 +745,13 @@ class Creature : public Unit, public GridObject<Creature>
         bool isVisibleForInState(WorldObject const* seer) const;
         bool canSeeAlways(WorldObject const* obj) const;
     private:
+        // Ist dieser NPC ein Caster? Default = false.
+        bool m_isCaster;
+        // Default minimum Castrange für Caster. Default = ATTACK_DISTANCE.
+        float m_CasterDefaultMinCombatRange;
+        // Default maximum Castrange für Caster. Default = 29.
+        float m_CasterDefaultMaxCombatRange;
+
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
         uint32 m_path_id;
