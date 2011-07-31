@@ -1687,18 +1687,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_CASTER_MOVEMENT:
-            // Wenn Caster gesetzt wird, dann nach Distanzen schauen...
-            if (me->m_isCaster == (e.action.raw.param1 ? true : false))
-            {
-                // Wenn Minimum Distanz gesetzt ist, dann übernehmen...
-                if (e.action.raw.param2)
-                    me->m_CasterDefaultMinCombatRange = float(e.action.raw.param2);
-                // Wenn Maximum Distanz gesetzt ist, dann übernehmen...
-                if (e.action.raw.param3)
-                    me->m_CasterDefaultMaxCombatRange = float(e.action.raw.param3);
-            }
-            break;
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         {
             ObjectList* targets = GetTargets(e, unit);

@@ -26,7 +26,6 @@
 #include "CellImpl.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
-
 #include "SmartScriptMgr.h"
 
 void SmartWaypointMgr::LoadFromDB()
@@ -767,7 +766,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
         case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST:
         case SMART_ACTION_RANDOM_MOVE:
-        case SMART_ACTION_CASTER_MOVEMENT:
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
         case SMART_ACTION_INTERRUPT_SPELL:
