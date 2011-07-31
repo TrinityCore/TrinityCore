@@ -171,7 +171,7 @@ void PetAI::UpdateAI(const uint32 diff)
                     continue;
             }
 
-            Spell* spell = new Spell(me, spellInfo, false, 0);
+            Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
 
             // Fix to allow pets on STAY to autocast
             if (me->getVictim() && _CanAttack(me->getVictim()) && spell->CanAutoCast(me->getVictim()))
