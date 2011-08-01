@@ -620,8 +620,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 void ObjectMgr::LoadCreatureTemplateCaster()
 {
     uint32 oldMSTime = getMSTime();
-    //                                               0      1         2
-    QueryResult result = WorldDatabase.Query("SELECT entry, minRange, maxRange FROM creature_template_caster");
+    //                                               0      1         2         3
+    QueryResult result = WorldDatabase.Query("SELECT entry, minRange, maxRange, melee FROM creature_template_caster");
     if (!result)
     {
         sLog->outString(">> Konnte keine Caster-Definitionen laden. DB-Tabelle `creature_template_caster` ist leer oder fehlt.");
@@ -644,6 +644,7 @@ void ObjectMgr::LoadCreatureTemplateCaster()
 
         creatureCaster.minRange = fields[1].GetFloat();
         creatureCaster.maxRange = fields[2].GetFloat();
+        creatureCaster.melee = fields[3].GetBool();
 
         ++cnt;
 

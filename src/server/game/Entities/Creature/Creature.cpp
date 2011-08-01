@@ -144,6 +144,7 @@ m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_regenHealt
 m_isCaster(false),                              // Ist dieser NPC ein Caster?
 m_CasterDefaultMinCombatRange(ATTACK_DISTANCE), // Default minimum Castrange für Caster
 m_CasterDefaultMaxCombatRange(29),              // Default maximum Castrange für Caster
+m_CasterDefaultMelee(true),                     // Soll er Meleeattacken machen?
 m_formation(NULL)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
@@ -574,6 +575,9 @@ void Creature::Update(uint32 diff)
                 curmana = GetPower(POWER_MANA);
             }
 
+            // TODO: m_CasterDefaultMelee behandeln!
+            // TODO: Wenn m_CasterDefaultMinCombatRange unterschritten wird, vom Feind entfernen!
+            // TODO: Das ganze in eine eigene Funtion packen!
             if (m_isCaster && isInCombat() && !IsNonMeleeSpellCasted(false) &&
                 (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim()) || curmana < percent2))
             {
@@ -2139,6 +2143,9 @@ bool Creature::LoadCreatureCaster()
 
     if (ccinfo->minRange != 0)
         m_CasterDefaultMinCombatRange = ccinfo->minRange;
+
+    if (!ccinfo->melee)
+        m_CasterDefaultMelee = false;
 
     return true;
 }
