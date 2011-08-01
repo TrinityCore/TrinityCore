@@ -523,7 +523,7 @@ class npc_ice_tomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(unit64 const guid, int32 type/* = 0 */)
+            void SetGUID(uint64 const guid, int32 type/* = 0 */)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {

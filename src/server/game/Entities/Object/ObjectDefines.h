@@ -78,7 +78,7 @@ enum HighGuid
 #define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 #define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x0000000000FFFFFF))
 
-inline bool IsGuidHaveEnPart(unit64 const guid)
+inline bool IsGuidHaveEnPart(uint64 const guid)
 {
     switch(GUID_HIPART(guid))
     {
