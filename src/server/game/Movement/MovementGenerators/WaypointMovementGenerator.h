@@ -77,7 +77,7 @@ class WaypointMovementGenerator
         void InitTraveller(T &, const WaypointData &);
         void GeneratePathId(T &);
         void Reset(T &unit);
-        bool Update(T &, const uint32 &);
+        bool Update(T &, const uint32);
         bool GetDestination(float &x, float &y, float &z) const;
         MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
 
@@ -105,7 +105,7 @@ public PathMovementBase<Player, TaxiPathNodeList const*>
         void Initialize(Player &);
         void Reset(Player & /*u*/){};
         void Finalize(Player &);
-        bool Update(Player &, const uint32 &);
+        bool Update(Player &, const uint32);
         MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }

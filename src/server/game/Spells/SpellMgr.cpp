@@ -2676,141 +2676,141 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-        case 1776: // Gouge
-        case 1777:
-        case 8629:
-        case 11285:
-        case 11286:
-        case 12540:
-        case 13579:
-        case 24698:
-        case 28456:
-        case 29425:
-        case 34940:
-        case 36862:
-        case 38764:
-        case 38863:
-        case 52743: // Head Smack
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
-            break;
-        case 53: // Backstab
-        case 2589:
-        case 2590:
-        case 2591:
-        case 8721:
-        case 11279:
-        case 11280:
-        case 11281:
-        case 25300:
-        case 26863:
-        case 48656:
-        case 48657:
-        case 703: // Garrote
-        case 8631:
-        case 8632:
-        case 8633:
-        case 11289:
-        case 11290:
-        case 26839:
-        case 26884:
-        case 48675:
-        case 48676:
-        case 5221: // Shred
-        case 6800:
-        case 8992:
-        case 9829:
-        case 9830:
-        case 27001:
-        case 27002:
-        case 48571:
-        case 48572:
-        case 8676: // Ambush
-        case 8724:
-        case 8725:
-        case 11267:
-        case 11268:
-        case 11269:
-        case 27441:
-        case 48689:
-        case 48690:
-        case 48691:
-        case 21987: // Lash of Pain
-        case 23959: // Test Stab R50
-        case 24825: // Test Backstab
-        case 58563: // Assassinate Restless Lookout
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
-            break;
-        case 26029: // Dark Glare
-        case 37433: // Spout
-        case 43140: // Flame Breath
-        case 43215: // Flame Breath
-        case 70461: // Coldflame Trap
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
-            break;
-        case 24340: // Meteor
-        case 26558: // Meteor
-        case 28884: // Meteor
-        case 36837: // Meteor
-        case 38903: // Meteor
-        case 41276: // Meteor
-        case 57467: // Meteor
-        case 26789: // Shard of the Fallen Star
-        case 31436: // Malevolent Cleave
-        case 35181: // Dive Bomb
-        case 40810: // Saber Lash
-        case 43267: // Saber Lash
-        case 43268: // Saber Lash
-        case 42384: // Brutal Swipe
-        case 45150: // Meteor Slash
-        case 64688: // Sonic Screech
-        case 72373: // Shared Suffering
-        case 71904: // Chaos Bane
-        case 70492: // Ooze Eruption
-        case 72505: // Ooze Eruption
-        case 72624: // Ooze Eruption
-        case 72625: // Ooze Eruption
-            // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
-            break;
-        case 27820: // Mana Detonation
-        case 69782: // Ooze Flood
-        case 69796: // Ooze Flood
-        case 69798: // Ooze Flood
-        case 69801: // Ooze Flood
-        case 69538: // Ooze Combine
-        case 69553: // Ooze Combine
-        case 69610: // Ooze Combine
-        case 71447: // Bloodbolt Splash
-        case 71481: // Bloodbolt Splash
-        case 71482: // Bloodbolt Splash
-        case 71483: // Bloodbolt Splash
-        case 71390: // Pact of the Darkfallen
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_EXCLUDE_SELF;
-            break;
-        case 18500: // Wing Buffet
-        case 33086: // Wild Bite
-        case 49749: // Piercing Blow
-        case 52890: // Penetrating Strike
-        case 53454: // Impale
-        case 59446: // Impale
-        case 62383: // Shatter
-        case 64777: // Machine Gun
-        case 65239: // Machine Gun
-        case 65919: // Impale
-        case 67858: // Impale
-        case 67859: // Impale
-        case 67860: // Impale
-        case 69293: // Wing Buffet
-        case 74439: // Machine Gun
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-            break;
-        case 63278: // Mark of the Faceless (General Vezax)
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-            break;
-        case 64422: // Sonic Screech (Auriaya)
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-            break;
+            case 1776: // Gouge
+            case 1777:
+            case 8629:
+            case 11285:
+            case 11286:
+            case 12540:
+            case 13579:
+            case 24698:
+            case 28456:
+            case 29425:
+            case 34940:
+            case 36862:
+            case 38764:
+            case 38863:
+            case 52743: // Head Smack
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
+                break;
+            case 53: // Backstab
+            case 2589:
+            case 2590:
+            case 2591:
+            case 8721:
+            case 11279:
+            case 11280:
+            case 11281:
+            case 25300:
+            case 26863:
+            case 48656:
+            case 48657:
+            case 703: // Garrote
+            case 8631:
+            case 8632:
+            case 8633:
+            case 11289:
+            case 11290:
+            case 26839:
+            case 26884:
+            case 48675:
+            case 48676:
+            case 5221: // Shred
+            case 6800:
+            case 8992:
+            case 9829:
+            case 9830:
+            case 27001:
+            case 27002:
+            case 48571:
+            case 48572:
+            case 8676: // Ambush
+            case 8724:
+            case 8725:
+            case 11267:
+            case 11268:
+            case 11269:
+            case 27441:
+            case 48689:
+            case 48690:
+            case 48691:
+            case 21987: // Lash of Pain
+            case 23959: // Test Stab R50
+            case 24825: // Test Backstab
+            case 58563: // Assassinate Restless Lookout
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
+                break;
+            case 26029: // Dark Glare
+            case 37433: // Spout
+            case 43140: // Flame Breath
+            case 43215: // Flame Breath
+            case 70461: // Coldflame Trap
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
+                break;
+            case 24340: // Meteor
+            case 26558: // Meteor
+            case 28884: // Meteor
+            case 36837: // Meteor
+            case 38903: // Meteor
+            case 41276: // Meteor
+            case 57467: // Meteor
+            case 26789: // Shard of the Fallen Star
+            case 31436: // Malevolent Cleave
+            case 35181: // Dive Bomb
+            case 40810: // Saber Lash
+            case 43267: // Saber Lash
+            case 43268: // Saber Lash
+            case 42384: // Brutal Swipe
+            case 45150: // Meteor Slash
+            case 64688: // Sonic Screech
+            case 72373: // Shared Suffering
+            case 71904: // Chaos Bane
+            case 70492: // Ooze Eruption
+            case 72505: // Ooze Eruption
+            case 72624: // Ooze Eruption
+            case 72625: // Ooze Eruption
+                // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 27820: // Mana Detonation
+            case 69782: // Ooze Flood
+            case 69796: // Ooze Flood
+            case 69798: // Ooze Flood
+            case 69801: // Ooze Flood
+            case 69538: // Ooze Combine
+            case 69553: // Ooze Combine
+            case 69610: // Ooze Combine
+            case 71447: // Bloodbolt Splash
+            case 71481: // Bloodbolt Splash
+            case 71482: // Bloodbolt Splash
+            case 71483: // Bloodbolt Splash
+            case 71390: // Pact of the Darkfallen
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_EXCLUDE_SELF;
+                break;
+            case 18500: // Wing Buffet
+            case 33086: // Wild Bite
+            case 49749: // Piercing Blow
+            case 52890: // Penetrating Strike
+            case 53454: // Impale
+            case 59446: // Impale
+            case 62383: // Shatter
+            case 64777: // Machine Gun
+            case 65239: // Machine Gun
+            case 65919: // Impale
+            case 67858: // Impale
+            case 67859: // Impale
+            case 67860: // Impale
+            case 69293: // Wing Buffet
+            case 74439: // Machine Gun
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
+            case 63278: // Mark of the Faceless (General Vezax)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
+            case 64422: // Sonic Screech (Auriaya)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
         }
 
         switch (spellInfo->SpellFamilyName)
@@ -3121,7 +3121,7 @@ void SpellMgr::LoadDbcDataCorrections()
             break;
         case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
             spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
-            spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5% 
+            spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
             break;
         case 63675: // Improved Devouring Plague
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;

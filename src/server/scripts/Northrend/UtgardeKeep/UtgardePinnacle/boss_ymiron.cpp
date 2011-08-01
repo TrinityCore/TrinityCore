@@ -379,7 +379,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
         }
 
-        void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
+        void DespawnBoatGhosts(uint64 m_uiCreatureGUID)
         {
             if (m_uiCreatureGUID)
                 if (Creature* pTemp = Unit::GetCreature(*me, m_uiCreatureGUID))
