@@ -36,8 +36,7 @@ struct Traveller
     Traveller(const Traveller &obj) : i_traveller(obj) {}
     Traveller& operator=(const Traveller &obj)
     {
-        this->~Traveller();
-        new (this) Traveller(obj);
+        this.i_traveller = obj.i_traveller;
         return *this;
     }
 

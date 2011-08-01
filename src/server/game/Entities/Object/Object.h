@@ -124,7 +124,7 @@ class Object
     public:
         virtual ~Object ();
 
-        const bool& IsInWorld() const { return m_inWorld; }
+        bool IsInWorld() const { return m_inWorld; }
         virtual void AddToWorld()
         {
             if (m_inWorld)
@@ -149,7 +149,7 @@ class Object
             ClearUpdateMask(true);
         }
 
-        const uint64& GetGUID() const { return GetUInt64Value(0); }
+        const uint64 GetGUID() const { return GetUInt64Value(0); }
         uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
         uint32 GetGUIDMid() const { return GUID_ENPART(GetUInt64Value(0)); }
         uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
@@ -175,13 +175,13 @@ class Object
             return m_int32Values[ index ];
         }
 
-        const uint32& GetUInt32Value(uint16 index) const
+        const uint32 GetUInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_uint32Values[ index ];
         }
 
-        const uint64& GetUInt64Value(uint16 index) const
+        const uint64 GetUInt64Value(uint16 index) const
         {
             ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
             return *((uint64*)&(m_uint32Values[ index ]));
@@ -210,7 +210,7 @@ class Object
         void SetInt32Value(uint16 index,        int32  value);
         void SetUInt32Value(uint16 index,       uint32  value);
         void UpdateUInt32Value(uint16 index,       uint32  value);
-        void SetUInt64Value(uint16 index, const uint64 &value);
+        void SetUInt64Value(uint16 index, const uint64 value);
         void SetFloatValue(uint16 index,       float   value);
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
@@ -218,8 +218,8 @@ class Object
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
 
-        bool AddUInt64Value(uint16 index, const uint64 &value);
-        bool RemoveUInt64Value(uint16 index, const uint64 &value);
+        bool AddUInt64Value(uint16 index, const uint64 value);
+        bool RemoveUInt64Value(uint16 index, const uint64 value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);

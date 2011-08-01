@@ -124,17 +124,17 @@ class ArenaTeam
         uint32 GetType() const            { return Type; }
         uint8  GetSlot() const            { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
-        const uint64& GetCaptain() const  { return CaptainGuid; }
+        const uint64 GetCaptain() const  { return CaptainGuid; }
         std::string GetName() const       { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
 
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;
 
-        void SetCaptain(const uint64& guid);
-        bool AddMember(const uint64& PlayerGuid);
+        void SetCaptain(const uint64 guid);
+        bool AddMember(const uint64 PlayerGuid);
 
-        // Shouldn't be const uint64& ed, because than can reference guid from members on Disband
+        // Shouldn't be const uint64 ed, because than can reference guid from members on Disband
         // and this method removes given record from list. So invalid reference can happen.
         void DelMember(uint64 guid, bool cleanDb);
 
@@ -142,9 +142,9 @@ class ArenaTeam
         bool   Empty() const                  { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
         MemberList::iterator m_membersEnd()   { return Members.end(); }
-        bool IsMember(const uint64& guid) const;
+        bool IsMember(const uint64 guid) const;
 
-        ArenaTeamMember* GetMember(const uint64& guid);
+        ArenaTeamMember* GetMember(const uint64 guid);
         ArenaTeamMember* GetMember(const std::string& name);
 
         bool IsFighting() const;

@@ -257,7 +257,7 @@ private:
         };
 
     public:
-        Member(uint32 guildId, const uint64& guid, uint8 rankId) : m_guildId(guildId), m_guid(guid), m_logoutTime(::time(NULL)), m_rankId(rankId) { }
+        Member(uint32 guildId, const uint64 guid, uint8 rankId) : m_guildId(guildId), m_guid(guid), m_logoutTime(::time(NULL)), m_rankId(rankId) { }
 
         void SetStats(Player* player);
         void SetStats(const std::string& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId);
@@ -270,7 +270,7 @@ private:
         void SaveToDB(SQLTransaction& trans) const;
         void WritePacket(WorldPacket& data) const;
 
-        const uint64& GetGUID() const { return m_guid; }
+        const uint64 GetGUID() const { return m_guid; }
         std::string GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint8 GetRankId() const { return m_rankId; }
@@ -280,7 +280,7 @@ private:
         inline void UpdateLogoutTime() { m_logoutTime = ::time(NULL); }
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
-        inline bool IsSamePlayer(const uint64& guid) const { return m_guid == guid; }
+        inline bool IsSamePlayer(const uint64 guid) const { return m_guid == guid; }
 
         void DecreaseBankRemainingValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
         uint32 GetBankRemainingValue(uint8 tabId, const Guild* guild) const;
@@ -590,7 +590,7 @@ public:
 
     // Getters
     uint32 GetId() const { return m_id; }
-    const uint64& GetLeaderGUID() const { return m_leaderGuid; }
+    const uint64 GetLeaderGUID() const { return m_leaderGuid; }
     const std::string& GetName() const { return m_name; }
     const std::string& GetMOTD() const { return m_motd; }
     const std::string& GetInfo() const { return m_info; }
@@ -656,9 +656,9 @@ public:
 
     // Members
     // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
-    bool AddMember(const uint64& guid, uint8 rankId = GUILD_RANK_NONE);
-    void DeleteMember(const uint64& guid, bool isDisbanding = false, bool isKicked = false);
-    bool ChangeMemberRank(const uint64& guid, uint8 newRank);
+    bool AddMember(const uint64 guid, uint8 rankId = GUILD_RANK_NONE);
+    void DeleteMember(const uint64 guid, bool isDisbanding = false, bool isKicked = false);
+    bool ChangeMemberRank(const uint64 guid, uint8 newRank);
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
@@ -698,12 +698,12 @@ private:
     inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
     inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
 
-    inline const Member* GetMember(const uint64& guid) const
+    inline const Member* GetMember(const uint64 guid) const
     {
         Members::const_iterator itr = m_members.find(GUID_LOPART(guid));
         return itr != m_members.end() ? itr->second : NULL;
     }
-    inline Member* GetMember(const uint64& guid)
+    inline Member* GetMember(const uint64 guid)
     {
         Members::iterator itr = m_members.find(GUID_LOPART(guid));
         return itr != m_members.end() ? itr->second : NULL;
@@ -736,7 +736,7 @@ private:
     void _UpdateAccountsNumber();
     bool _IsLeader(Player* player) const;
     void _DeleteBankItems(SQLTransaction& trans, bool removeItemsFromDB = false);
-    bool _ModifyBankMoney(SQLTransaction& trans, const uint64& amount, bool add);
+    bool _ModifyBankMoney(SQLTransaction& trans, const uint64 amount, bool add);
     void _SetLeaderGUID(Member* pLeader);
 
     void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
@@ -747,10 +747,10 @@ private:
     uint32 _GetRankBankTabSlotsPerDay(uint8 rankId, uint8 tabId) const;
     std::string _GetRankName(uint8 rankId) const;
 
-    uint32 _GetMemberRemainingSlots(const uint64& guid, uint8 tabId) const;
-    uint32 _GetMemberRemainingMoney(const uint64& guid) const;
-    void _DecreaseMemberRemainingSlots(SQLTransaction& trans, const uint64& guid, uint8 tabId);
-    bool _MemberHasTabRights(const uint64& guid, uint8 tabId, uint32 rights) const;
+    uint32 _GetMemberRemainingSlots(const uint64 guid, uint8 tabId) const;
+    uint32 _GetMemberRemainingMoney(const uint64 guid) const;
+    void _DecreaseMemberRemainingSlots(SQLTransaction& trans, const uint64 guid, uint8 tabId);
+    bool _MemberHasTabRights(const uint64 guid, uint8 tabId, uint32 rights) const;
 
     void _LogEvent(GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2 = 0, uint8 newRank = 0);
     void _LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
@@ -765,6 +765,6 @@ private:
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
 
-    void _BroadcastEvent(GuildEvents guildEvent, const uint64& guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
+    void _BroadcastEvent(GuildEvents guildEvent, const uint64 guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };
 #endif

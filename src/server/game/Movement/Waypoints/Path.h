@@ -54,7 +54,7 @@ class Path
 
         float GetTotalLength() const { return GetTotalLength(0, size()); }
 
-        float GetPassedLength(uint32 curnode, float x, float y, float z)
+        float GetPassedLength(uint32 curnode, float x, float y, float z) const
         {
             float len = GetTotalLength(0, curnode);
 
