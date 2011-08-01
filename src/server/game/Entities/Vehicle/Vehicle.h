@@ -118,7 +118,7 @@ class Vehicle
 
         Unit* GetBase() const { return _me; }
         VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
-        uint32 const& GetCreatureEntry() const { return _creatureEntry; }
+        uint32 const GetCreatureEntry() const { return _creatureEntry; }
 
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;

@@ -253,7 +253,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(uint64 const& guid, int32 type = 0)
+            void SetGUID(unit64 const guid, int32 type = 0)
             {
                 if (type == GUID_VAMPIRE)
                     _vampires.insert(guid);
