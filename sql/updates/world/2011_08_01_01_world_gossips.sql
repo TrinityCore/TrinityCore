@@ -24,7 +24,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`op
 (@GOSSIP+2,0,0,'What are the components?',1,3,@GOSSIP+3,0,0,0,'');
 
 -- Conditions for gossip menu, the 'story' Zanza tells you becomes available when you hit exalted with Zandalar Tribe.
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup` BETWEEN @GOSSIP+0 AND @GOSSIP+3;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14,15) AND `SourceGroup` BETWEEN @GOSSIP+0 AND @GOSSIP+3;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`Comment`) VALUES
 (14,@GOSSIP+0,7594,0,5,270,3,0,0,"Only show text_id 7594 if player is neutral with Zandalar Tribe (270)"),
 (14,@GOSSIP+0,7594,1,5,270,4,0,0,"Only show text_id 7594 if player is friendly with Zandalar Tribe (270)"),
