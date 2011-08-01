@@ -299,7 +299,7 @@ class ByteBuffer
             _rpos += len;
         }
 
-        void readPackGUID(uint64 guid)
+        void readPackGUID(uint64& guid)
         {
             if(rpos() + 1 > size())
                 throw ByteBufferException(false, _rpos, 1, size());

@@ -29,7 +29,7 @@ class GuildMgr
 public:
     typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
 
-    Guild* GetGuildByLeader(uint64 const& guid) const;
+    Guild* GetGuildByLeader(unit64 const guid) const;
     Guild* GetGuildById(uint32 guildId) const;
     Guild* GetGuildByName(const std::string& guildName) const;
     std::string GetGuildNameById(uint32 guildId) const;
