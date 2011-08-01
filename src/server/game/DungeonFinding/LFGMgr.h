@@ -269,48 +269,48 @@ class LFGMgr
         void Leave(Player* plr, Group* grp = NULL);
 
         // Role Check
-        void UpdateRoleCheck(uint64& gguid, uint64 guid = 0, uint8 roles = ROLE_NONE);
+        void UpdateRoleCheck(uint64 gguid, uint64 guid = 0, uint8 roles = ROLE_NONE);
 
         // Proposals
-        void UpdateProposal(uint32 proposalId, const uint64& guid, bool accept);
+        void UpdateProposal(uint32 proposalId, const uint64 guid, bool accept);
 
         // Teleportation
         void TeleportPlayer(Player* plr, bool out, bool fromOpcode = false);
 
         // Vote kick
-        void InitBoot(Group* grp, const uint64& kguid, const uint64& vguid, std::string reason);
+        void InitBoot(Group* grp, const uint64 kguid, const uint64 vguid, std::string reason);
         void UpdateBoot(Player* plr, bool accept);
         void OfferContinue(Group* grp);
 
         void InitializeLockedDungeons(Player* plr);
 
-        void SetComment(const uint64& guid, const std::string& comment);
-        const LfgLockMap& GetLockedDungeons(const uint64& guid);
-        LfgState GetState(const uint64& guid);
-        const LfgDungeonSet& GetSelectedDungeons(const uint64& guid);
-        uint32 GetDungeon(const uint64& guid, bool asId = true);
-        void ClearState(const uint64& guid);
-        void RemovePlayerData(const uint64& guid);
-        void RemoveGroupData(const uint64& guid);
-        uint8 GetKicksLeft(const uint64& gguid);
-        uint8 GetVotesNeeded(const uint64& gguid);
-        void SetRoles(const uint64& guid, uint8 roles);
+        void SetComment(const uint64 guid, const std::string& comment);
+        const LfgLockMap& GetLockedDungeons(const uint64 guid);
+        LfgState GetState(const uint64 guid);
+        const LfgDungeonSet& GetSelectedDungeons(const uint64 guid);
+        uint32 GetDungeon(const uint64 guid, bool asId = true);
+        void ClearState(const uint64 guid);
+        void RemovePlayerData(const uint64 guid);
+        void RemoveGroupData(const uint64 guid);
+        uint8 GetKicksLeft(const uint64 gguid);
+        uint8 GetVotesNeeded(const uint64 gguid);
+        void SetRoles(const uint64 guid, uint8 roles);
 
     private:
 
-        uint8 GetRoles(const uint64& guid);
-        const std::string& GetComment(const uint64& gguid);
-        void RestoreState(const uint64& guid);
-        void SetState(const uint64& guid, LfgState state);
-        void SetDungeon(const uint64& guid, uint32 dungeon);
-        void SetSelectedDungeons(const uint64& guid, const LfgDungeonSet& dungeons);
-        void SetLockedDungeons(const uint64& guid, const LfgLockMap& lock);
-        void DecreaseKicksLeft(const uint64& guid);
+        uint8 GetRoles(const uint64 guid);
+        const std::string& GetComment(const uint64 gguid);
+        void RestoreState(const uint64 guid);
+        void SetState(const uint64 guid, LfgState state);
+        void SetDungeon(const uint64 guid, uint32 dungeon);
+        void SetSelectedDungeons(const uint64 guid, const LfgDungeonSet& dungeons);
+        void SetLockedDungeons(const uint64 guid, const LfgLockMap& lock);
+        void DecreaseKicksLeft(const uint64 guid);
         void NoExiste(uint8 lala);
 
         // Queue
-        void AddToQueue(const uint64& guid, uint8 queueId);
-        bool RemoveFromQueue(const uint64& guid);
+        void AddToQueue(const uint64 guid, uint8 queueId);
+        bool RemoveFromQueue(const uint64 guid);
 
         // Proposals
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);

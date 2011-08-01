@@ -1508,7 +1508,7 @@ void Guild::HandleRemoveMember(WorldSession* session, const std::string& name)
             SendCommandResult(session, GUILD_QUIT_S, ERR_GUILD_RANK_TOO_HIGH_S, name);
         else
         {
-            const uint64& guid = pMember->GetGUID();
+            const uint64 guid = pMember->GetGUID();
             // After call to DeleteMember pointer to member becomes invalid
             DeleteMember(guid, false, true);
             _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUIDLow(), GUID_LOPART(guid));
@@ -1790,7 +1790,7 @@ void Guild::SendBankTabText(WorldSession *session, uint8 tabId) const
 
 void Guild::SendPermissions(WorldSession *session) const
 {
-    const uint64& guid = session->GetPlayer()->GetGUID();
+    const uint64 guid = session->GetPlayer()->GetGUID();
     uint8 rankId = session->GetPlayer()->GetRank();
 
     WorldPacket data(MSG_GUILD_PERMISSIONS, 4 * 15 + 1);
@@ -2063,7 +2063,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
 
 ///////////////////////////////////////////////////////////////////////////////
 // Members handling
-bool Guild::AddMember(const uint64& guid, uint8 rankId)
+bool Guild::AddMember(const uint64 guid, uint8 rankId)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
     // Player cannot be in guild
@@ -2132,7 +2132,7 @@ bool Guild::AddMember(const uint64& guid, uint8 rankId)
     return true;
 }
 
-void Guild::DeleteMember(const uint64& guid, bool isDisbanding, bool isKicked)
+void Guild::DeleteMember(const uint64 guid, bool isDisbanding, bool isKicked)
 {
     uint32 lowguid = GUID_LOPART(guid);
     Player* player = ObjectAccessor::FindPlayer(guid);
@@ -2188,7 +2188,7 @@ void Guild::DeleteMember(const uint64& guid, bool isDisbanding, bool isKicked)
         _UpdateAccountsNumber();
 }
 
-bool Guild::ChangeMemberRank(const uint64& guid, uint8 newRank)
+bool Guild::ChangeMemberRank(const uint64 guid, uint8 newRank)
 {
     if (newRank <= _GetLowestRankId())                    // Validate rank (allow only existing ranks)
         if (Member* pMember = GetMember(guid))
@@ -2352,7 +2352,7 @@ void Guild::_DeleteBankItems(SQLTransaction& trans, bool removeItemsFromDB)
     m_bankTabs.clear();
 }
 
-bool Guild::_ModifyBankMoney(SQLTransaction& trans, const uint64& amount, bool add)
+bool Guild::_ModifyBankMoney(SQLTransaction& trans, const uint64 amount, bool add)
 {
     if (add)
         m_bankMoney += amount;
@@ -2448,21 +2448,21 @@ inline uint8 Guild::_GetRankBankTabRights(uint8 rankId, uint8 tabId) const
     return 0;
 }
 
-inline uint32 Guild::_GetMemberRemainingSlots(const uint64& guid, uint8 tabId) const
+inline uint32 Guild::_GetMemberRemainingSlots(const uint64 guid, uint8 tabId) const
 {
     if (const Member* pMember = GetMember(guid))
         return pMember->GetBankRemainingValue(tabId, this);
     return 0;
 }
 
-inline uint32 Guild::_GetMemberRemainingMoney(const uint64& guid) const
+inline uint32 Guild::_GetMemberRemainingMoney(const uint64 guid) const
 {
     if (const Member* pMember = GetMember(guid))
         return pMember->GetBankRemainingValue(GUILD_BANK_MAX_TABS, this);
     return 0;
 }
 
-inline void Guild::_DecreaseMemberRemainingSlots(SQLTransaction& trans, const uint64& guid, uint8 tabId)
+inline void Guild::_DecreaseMemberRemainingSlots(SQLTransaction& trans, const uint64 guid, uint8 tabId)
 {
     // Remaining slots must be more then 0
     if (uint32 remainingSlots = _GetMemberRemainingSlots(guid, tabId))
@@ -2472,7 +2472,7 @@ inline void Guild::_DecreaseMemberRemainingSlots(SQLTransaction& trans, const ui
                 pMember->DecreaseBankRemainingValue(trans, tabId, 1);
 }
 
-inline bool Guild::_MemberHasTabRights(const uint64& guid, uint8 tabId, uint32 rights) const
+inline bool Guild::_MemberHasTabRights(const uint64 guid, uint8 tabId, uint32 rights) const
 {
     if (const Member* pMember = GetMember(guid))
     {
@@ -2632,7 +2632,7 @@ bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError
 
 void Guild::_SendBankContent(WorldSession *session, uint8 tabId) const
 {
-    const uint64& guid = session->GetPlayer()->GetGUID();
+    const uint64 guid = session->GetPlayer()->GetGUID();
     if (_MemberHasTabRights(guid, tabId, GUILD_BANK_RIGHT_VIEW_TAB))
         if (const BankTab* pTab = GetBankTab(tabId))
         {
@@ -2726,7 +2726,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     }
 }
 
-void Guild::_BroadcastEvent(GuildEvents guildEvent, const uint64& guid, const char* param1, const char* param2, const char* param3) const
+void Guild::_BroadcastEvent(GuildEvents guildEvent, const uint64 guid, const char* param1, const char* param2, const char* param3) const
 {
     uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
 

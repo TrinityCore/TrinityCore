@@ -99,7 +99,7 @@ class NGrid
             return i_cells[x][y];
         }
 
-        const uint32& GetGridId(void) const { return i_gridId; }
+        const uint32 GetGridId(void) const { return i_gridId; }
         void SetGridId(const uint32 id) const { i_gridId = id; }
         grid_state_t GetGridState(void) const { return i_cellstate; }
         void SetGridState(grid_state_t s) { i_cellstate = s; }
@@ -140,7 +140,7 @@ class NGrid
                     getGridType(x, y).Visit(visitor);
         }
 
-        template<class T, class TT> void Visit(const uint32 &x, const uint32 &y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class T, class TT> void Visit(const uint32 x, const uint32 y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
         {
             getGridType(x, y).Visit(visitor);
         }
@@ -166,7 +166,7 @@ class NGrid
 
     private:
 
-        GridType& getGridType(const uint32& x, const uint32& y)
+        GridType& getGridType(const uint32 x, const uint32 y)
         {
             ASSERT(x < N);
             ASSERT(y < N);

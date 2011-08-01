@@ -45,14 +45,14 @@ class BattlegroundMgr
 
         /* Packet Building */
         void BuildPlayerJoinedBattlegroundPacket(WorldPacket *data, Player *plr);
-        void BuildPlayerLeftBattlegroundPacket(WorldPacket *data, const uint64& guid);
-        void BuildBattlegroundListPacket(WorldPacket *data, const uint64& guid, Player *plr, BattlegroundTypeId bgTypeId, uint8 fromWhere);
+        void BuildPlayerLeftBattlegroundPacket(WorldPacket *data, const uint64 guid);
+        void BuildBattlegroundListPacket(WorldPacket *data, const uint64 guid, Player *plr, BattlegroundTypeId bgTypeId, uint8 fromWhere);
         void BuildGroupJoinedBattlegroundPacket(WorldPacket *data, GroupJoinBattlegroundResult result);
         void BuildUpdateWorldStatePacket(WorldPacket *data, uint32 field, uint32 value);
         void BuildPvpLogDataPacket(WorldPacket *data, Battleground *bg);
         void BuildBattlegroundStatusPacket(WorldPacket *data, Battleground *bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint8 uiFrame = 1);
         void BuildPlaySoundPacket(WorldPacket *data, uint32 soundid);
-        void SendAreaSpiritHealerQueryOpcode(Player *pl, Battleground *bg, const uint64& guid);
+        void SendAreaSpiritHealerQueryOpcode(Player *pl, Battleground *bg, const uint64 guid);
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
