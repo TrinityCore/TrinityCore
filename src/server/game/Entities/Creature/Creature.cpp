@@ -565,28 +565,7 @@ void Creature::Update(uint32 diff)
                     m_regenTimer -= diff;*/
             m_regenTimer = CREATURE_REGEN_INTERVAL;
 
-            // Movement bei Castern nur, wenn das Ziel zu weit weg ist, oder nicht in LoS, oder wenn das Mana auf weniger als 2% ist!
-            uint32 percent2 = 0;
-            uint32 curmana = 0;
-
-            if (getPowerType() == POWER_MANA)
-            {
-                percent2 = (GetMaxPower(POWER_MANA)/100)*2;
-                curmana = GetPower(POWER_MANA);
-            }
-
-            // TODO: m_CasterDefaultMelee behandeln!
-            // TODO: Wenn m_CasterDefaultMinCombatRange unterschritten wird, vom Feind entfernen!
-            // TODO: Das ganze in eine eigene Funtion packen!
-            if (m_isCaster && isInCombat() && !IsNonMeleeSpellCasted(false) &&
-                (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim()) || curmana < percent2))
-            {
-                if (GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
-                    GetMotionMaster()->MoveChase(getVictim());
-            }
-            else
-                if (m_isCaster && isInCombat() && GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
-                    GetMotionMaster()->MoveIdle();
+            HandleCaster(); // Korrektes Castermovement erzeugen, für NPC aus `creature_template_caster`
 
             break;
         }
@@ -2458,4 +2437,26 @@ bool Creature::IsDungeonBoss() const
 {
     CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(GetEntry());
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
+}
+
+// Korrektes Castermovement erzeugen, für NPC aus `creature_template_caster`
+void Creature::HandleCaster()
+{
+    // TODO: Wenn m_CasterDefaultMinCombatRange unterschritten wird, vom Feind entfernen!
+    uint32 percent2 = 0;
+    uint32 curmana = 0;
+
+    if (getPowerType() == POWER_MANA)
+    {
+        percent2 = (GetMaxPower(POWER_MANA)/100)*2;
+        curmana = GetPower(POWER_MANA);
+    }
+    // Movement bei Castern nur, wenn das Ziel zu weit weg ist, oder nicht in LoS, oder wenn das Mana auf weniger als 2% ist!
+    if (m_isCaster && isInCombat() && !IsNonMeleeSpellCasted(false) && (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim()) || curmana < percent2))
+    {
+        if (GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+            GetMotionMaster()->MoveChase(getVictim());
+    }
+    else if (m_isCaster && isInCombat() && GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
+            GetMotionMaster()->MoveIdle();
 }

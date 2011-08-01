@@ -351,7 +351,7 @@ void Unit::Update(uint32 p_time)
     if (m_disappearTimer && GetTypeId() != TYPEID_PLAYER && m_disappearTimer <= p_time)
     {
         DestroyForNearbyPlayers();
-        
+
         if (isAlive())
             setDeathState(JUST_DIED);
 
@@ -9531,6 +9531,11 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         if (victim->ToCreature()->IsInEvadeMode())
             return false;
     }
+
+    // meleeAttack für Caster NPC (die keine Meleeattacken machen sollen) überschrieben! creature_template_caster
+    if (meleeAttack && ToCreature())
+        if (ToCreature()->isCaster() && !ToCreature()->isCasterWithMelee())
+            meleeAttack = false;
 
     // remove SPELL_AURA_MOD_UNATTACKABLE at attack (in case non-interruptible spells stun aura applied also that not let attack)
     if (HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
