@@ -1176,7 +1176,7 @@ class npc_ball_of_flame : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 const& guid, int32 /*type*/)
+            void SetGUID(unit64 const guid, int32 /*type*/)
             {
                 _chaseGUID = guid;
             }

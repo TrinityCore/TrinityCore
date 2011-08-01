@@ -548,7 +548,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->AI()->DoCast(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 const& guid, int32 id/* = 0*/)
+            void SetGUID(unit64 const guid, int32 id/* = 0*/)
             {
                 if (id != GUID_CULTIST)
                     return;
