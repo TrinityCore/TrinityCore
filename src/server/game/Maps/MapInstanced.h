@@ -33,7 +33,7 @@ class MapInstanced : public Map
         ~MapInstanced() {}
 
         // functions overwrite Map versions
-        void Update(const uint32&);
+        void Update(const uint32);
         void DelayedUpdate(const uint32 diff);
         //void RelocationNotify();
         void UnloadAll();
