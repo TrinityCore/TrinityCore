@@ -3119,6 +3119,10 @@ void SpellMgr::LoadDbcDataCorrections()
             // 322-330 switch - effect changed to dummy, target entry not changed in client:(
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             break;
+        case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
+            spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
+            spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5% 
+            break;
         case 63675: // Improved Devouring Plague
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             break;
