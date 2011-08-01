@@ -257,8 +257,86 @@ int RASocket::authenticate()
     return 0;
 }
 
+
+int RASocket::subnegotiate()
+{
+    char buf[1024];
+
+    ACE_Data_Block db(sizeof (buf),
+        ACE_Message_Block::MB_DATA,
+        buf,
+        0,
+        0,
+        ACE_Message_Block::DONT_DELETE,
+        0);
+
+    ACE_Message_Block message_block(&db,
+        ACE_Message_Block::DONT_DELETE,
+        0);
+
+    const size_t recv_size = message_block.space();
+
+    const ssize_t n = peer().recv(message_block.wr_ptr(),
+        recv_size);
+
+    if (n <= 0)
+        return int(n);
+
+    if (n >= 1024)
+    {
+        sLog->outRemote("RASocket::subnegotiate: allocated buffer 1024 bytes was too small for negotiation packet, size: %u", n);
+        return -1;
+    }
+
+    buf[n] = '\0';
+
+    #ifdef _DEBUG
+    for (uint8 i = 0; i < n; )
+    {
+        uint8 iac = buf[i];
+        if (iac == 0xFF)   // "Interpret as Command" (IAC)
+        {
+            uint8 command = buf[++i];
+            std::stringstream ss;
+            switch (command)
+            {
+                case 0xFB:        // WILL
+                    ss << "WILL ";
+                    break;
+                case 0xFC:        // WON'T
+                    ss << "WON'T ";
+                    break;
+                case 0xFD:        // DO
+                    ss << "DO ";
+                    break;
+                case 0xFE:        // DON'T
+                    ss << "DON'T ";
+                    break;
+                default:
+                    return -1;      // not allowed
+            }
+
+            uint8 param = buf[++i];
+            ss << uint32(param);
+            sLog->outRemote(ss.str().c_str());
+        }
+        ++i;
+    }
+    #endif
+
+    //! Just send back end of subnegotiation packet
+    uint8 const reply[2] = {0xFF, 0xF0};
+    return peer().send(reply, 2);
+}
+
 int RASocket::svc(void)
 {
+    if (subnegotiate() == -1)
+    {
+        sLog->outRemote("Subnegotiation failed!");
+        return -1;
+    }
+
     if (send("Authentication required\r\n") == -1)
         return -1;
 
