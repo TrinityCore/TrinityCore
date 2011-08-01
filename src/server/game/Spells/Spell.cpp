@@ -1473,13 +1473,19 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
         if (m_originalCaster)
         {
+            bool refresh = false;
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem);
+                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh, int32(m_spellValue->AuraStackAmount));
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
                 if (m_spellValue->AuraStackAmount > 1)
-                    m_spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
+                {
+                    if (!refresh)
+                        m_spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
+                    else
+                        m_spellAura->ModStackAmount(m_spellValue->AuraStackAmount);
+                }
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
