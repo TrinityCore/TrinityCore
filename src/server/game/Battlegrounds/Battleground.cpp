@@ -514,7 +514,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(const uint64& guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::_GetPlayer(const uint64 guid, bool offlineRemove, const char* context) const
 {
     Player* player = NULL;
     if (!offlineRemove)
@@ -874,7 +874,7 @@ void Battleground::BlockMovement(Player* plr)
     plr->SetClientControl(plr, 0);                          // movement disabled NOTE: the effect will be automatically removed by client when the player is teleported from the battleground, so no need to send with uint8(1) in RemovePlayerAtLeave()
 }
 
-void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool SendPacket)
+void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool SendPacket)
 {
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
@@ -1337,7 +1337,7 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
     }
 }
 
-void Battleground::AddPlayerToResurrectQueue(const uint64& npc_guid, const uint64& player_guid)
+void Battleground::AddPlayerToResurrectQueue(const uint64 npc_guid, const uint64 player_guid)
 {
     m_ReviveQueue[npc_guid].push_back(player_guid);
 
@@ -1348,7 +1348,7 @@ void Battleground::AddPlayerToResurrectQueue(const uint64& npc_guid, const uint6
     plr->CastSpell(plr, SPELL_WAITING_FOR_RESURRECT, true);
 }
 
-void Battleground::RemovePlayerFromResurrectQueue(const uint64& player_guid)
+void Battleground::RemovePlayerFromResurrectQueue(const uint64 player_guid)
 {
     for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
     {
@@ -1656,7 +1656,7 @@ const char* Battleground::GetTrinityString(int32 entry)
 // IMPORTANT NOTICE:
 // buffs aren't spawned/despawned when players captures anything
 // buffs are in their positions when battleground starts
-void Battleground::HandleTriggerBuff(const uint64& go_guid)
+void Battleground::HandleTriggerBuff(const uint64 go_guid)
 {
     GameObject *obj = GetBgMap()->GetGameObject(go_guid);
     if (!obj || obj->GetGoType() != GAMEOBJECT_TYPE_TRAP || !obj->isSpawned())
@@ -1725,7 +1725,7 @@ void Battleground::HandleKillPlayer(Player* player, Player* killer)
 
 // Return the player's team based on battlegroundplayer info
 // Used in same faction arena matches mainly
-uint32 Battleground::GetPlayerTeam(const uint64& guid) const
+uint32 Battleground::GetPlayerTeam(const uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1738,7 +1738,7 @@ uint32 Battleground::GetOtherTeam(uint32 teamId) const
     return teamId ? ((teamId == ALLIANCE) ? HORDE : ALLIANCE) : 0;
 }
 
-bool Battleground::IsPlayerInBattleground(const uint64& guid) const
+bool Battleground::IsPlayerInBattleground(const uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1783,7 +1783,7 @@ void Battleground::SetHoliday(bool is_holiday)
     m_HonorMode = is_holiday ? BG_HOLIDAY : BG_NORMAL;
 }
 
-int32 Battleground::GetObjectType(const uint64& guid)
+int32 Battleground::GetObjectType(const uint64 guid)
 {
     for (uint32 i = 0; i < m_BgObjects.size(); ++i)
         if (m_BgObjects[i] == guid)
