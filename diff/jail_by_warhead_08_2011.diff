@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index c293aef..ed72874 100755
+index 6b032f4..66e61f5 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -319,7 +319,7 @@ index c293aef..ed72874 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index e1d1dd7..21bc27c 100755
+index 87ceff7..c81191b 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -354,10 +354,10 @@ index e1d1dd7..21bc27c 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..beca176
+index 0000000..e6cdb70
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,924 @@
+@@ -0,0 +1,906 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include <Jail.h>
@@ -517,7 +517,7 @@ index 0000000..beca176
 +        normalizePlayerName(tmp);
 +    }
 +
-+    if (tmp.c_str() == "horde")
++    if (tmp == "horde")
 +        chr->TeleportTo(m_JailKonf.MapHorde, m_JailKonf.HordePos.m_positionX, m_JailKonf.HordePos.m_positionY, m_JailKonf.HordePos.m_positionZ, m_JailKonf.HordePos.m_orientation);
 +    else
 +        chr->TeleportTo(m_JailKonf.MapAlly, m_JailKonf.AllyPos.m_positionX, m_JailKonf.AllyPos.m_positionY, m_JailKonf.AllyPos.m_positionZ, m_JailKonf.AllyPos.m_orientation);
@@ -907,26 +907,6 @@ index 0000000..beca176
 +    return false;
 +}
 +
-+Position Jail::HoleAllyKnastPos()
-+{
-+    Position pos;
-+    pos.m_positionX = m_JailKonf.AllyPos.m_positionX;
-+    pos.m_positionY = m_JailKonf.AllyPos.m_positionY;
-+    pos.m_positionZ = m_JailKonf.AllyPos.m_positionZ;
-+    pos.m_orientation = m_JailKonf.AllyPos.m_orientation;
-+    return pos;
-+}
-+
-+Position Jail::HoleHordeKnastPos()
-+{
-+    Position pos;
-+    pos.m_positionX = m_JailKonf.HordePos.m_positionX;
-+    pos.m_positionY = m_JailKonf.HordePos.m_positionY;
-+    pos.m_positionZ = m_JailKonf.HordePos.m_positionZ;
-+    pos.m_orientation = m_JailKonf.HordePos.m_orientation;
-+    return pos;
-+}
-+
 +void Jail::Kontrolle(Player * pPlayer, bool update)
 +{
 +    if (!pPlayer || !m_JailKonf.Enabled)
@@ -1154,10 +1134,12 @@ index 0000000..beca176
 +        }
 +
 +        if (m_JailKonf.BanAcc)
++        {
 +            if (chr)
 +                BannAccount(acc_id, GUID_LOPART(GUID), chr);
 +            else
 +                BannAccount(acc_id, GUID_LOPART(GUID));
++        }
 +    }
 +    return true;
 +}
@@ -1284,10 +1266,10 @@ index 0000000..beca176
 +}
 diff --git a/src/server/game/Jail/Jail.h b/src/server/game/Jail/Jail.h
 new file mode 100644
-index 0000000..3071e09
+index 0000000..ba652c1
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.h
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,104 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#ifndef _JAIL_H
@@ -1348,6 +1330,7 @@ index 0000000..3071e09
 +    JailKonfStruktur    m_JailKonf; // Konfiguration des Jails
 +    JailMap             m_JailMap;  // UNORDERED_MAP aller Jaileinträge
 +
++    void Amnestie(); // Prüfen ob jemand Amnestie bekommen muss.
 +    bool SendeInaktiv(ChatHandler * handler);
 +    bool Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
 +    bool Inhaftierung(ChatHandler * handler, uint32 guid, std::string cname, uint32 jailtime, std::string jailreason, uint32 acc_id, std::string announce);
@@ -1361,8 +1344,6 @@ index 0000000..3071e09
 +    bool Init(bool reload = false);
 +    // Knast auf nicht mehr existierende Charaktere prüfen.
 +    void KnastAufraeumen();
-+    // Prüfen ob jemand Amnestie bekommen muss.
-+    void Amnestie();
 +    // Jede Minute schauen, ob jemand entlassen werden muss.
 +    void Update();
 +
@@ -1377,11 +1358,11 @@ index 0000000..3071e09
 +    bool EnableKommando(ChatHandler * handler);
 +    bool DisableKommando(ChatHandler * handler);
 +
-+    Position HoleAllyKnastPos();
-+    Position HoleHordeKnastPos();
++    Position HoleAllyKnastPos() const { return m_JailKonf.AllyPos; }
++    Position HoleHordeKnastPos() const { return m_JailKonf.HordePos; }
 +
-+    const uint32 HoleAllyKnastKarte() { return m_JailKonf.MapAlly; };
-+    const uint32 HoleHordeKnastKarte() { return m_JailKonf.MapHorde; };
++    uint32 HoleAllyKnastKarte() const { return m_JailKonf.MapAlly; }
++    uint32 HoleHordeKnastKarte() const { return m_JailKonf.MapHorde; }
 +
 +    void Kontrolle(Player * pPlayer, bool update = false);
 +    void SendeWarnung(Player * pPlayer);
@@ -1515,7 +1496,7 @@ index 5149308..20bc136 100755
      AddSC_modify_commandscript();
      AddSC_npc_commandscript();
 diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
-index 6eed957..86f46ce 100755
+index b795bcf..187a39c 100755
 --- a/src/server/game/World/World.cpp
 +++ b/src/server/game/World/World.cpp
 @@ -1,4 +1,5 @@
@@ -1692,7 +1673,7 @@ index 0000000..0fc3008
 +    new jail_commandscript();
 +}
 diff --git a/src/server/shared/Utilities/Util.cpp b/src/server/shared/Utilities/Util.cpp
-index 3cea21f..a565009 100755
+index 47e1894..8db127c 100755
 --- a/src/server/shared/Utilities/Util.cpp
 +++ b/src/server/shared/Utilities/Util.cpp
 @@ -208,7 +208,7 @@ uint32 TimeStringToSecs(const std::string& timestring)
@@ -1723,7 +1704,7 @@ index 3cea21f..a565009 100755
  }
  
 diff --git a/src/server/shared/Utilities/Util.h b/src/server/shared/Utilities/Util.h
-index 5ace48e..7fe9be2 100755
+index 2613416..dc2b57f 100755
 --- a/src/server/shared/Utilities/Util.h
 +++ b/src/server/shared/Utilities/Util.h
 @@ -44,9 +44,16 @@ struct Tokens: public std::vector<char*>
