@@ -85,7 +85,7 @@ void BattlegroundIC::SendTransportInit(Player* player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void BattlegroundIC::DoAction(uint32 action, unit64 const var)
+void BattlegroundIC::DoAction(uint32 action, uint64 const var)
 {
     if (action != ACTION_TELEPORT_PLAYER_TO_TRANSPORT)
         return;

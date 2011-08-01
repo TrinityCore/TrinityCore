@@ -31,7 +31,7 @@ public:
 
     ArenaTeam* GetArenaTeamById(uint32 arenaTeamId) const;
     ArenaTeam* GetArenaTeamByName(const std::string& arenaTeamName) const;
-    ArenaTeam* GetArenaTeamByCaptain(unit64 const guid) const;
+    ArenaTeam* GetArenaTeamByCaptain(uint64 const guid) const;
 
     void LoadArenaTeams();
     void AddArenaTeam(ArenaTeam* arenaTeam);
