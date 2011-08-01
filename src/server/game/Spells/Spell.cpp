@@ -1832,7 +1832,10 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
 
     Trinity::SpellNotifierCreatureAndPlayer notifier(m_caster, TagUnitMap, radius, type, TargetType, pos, entry, m_spellInfo);
     if ((m_spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY) || (TargetType == SPELL_TARGETS_ENTRY && !entry))
+    {
         m_caster->GetMap()->VisitWorld(pos->m_positionX, pos->m_positionY, radius, notifier);
+        TagUnitMap.remove_if(Trinity::ObjectTypeIdCheck(TYPEID_PLAYER, false)); // above line will select also pets and totems, remove them
+    }
     else
         m_caster->GetMap()->VisitAll(pos->m_positionX, pos->m_positionY, radius, notifier);
 
@@ -4945,7 +4948,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (castResult != SPELL_CAST_OK)
             return castResult;
     }
-    
+
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURAS))
     {
         castResult = CheckCasterAuras();
