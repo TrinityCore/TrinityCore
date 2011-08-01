@@ -336,11 +336,10 @@ public:
             switch(me->GetEntry())
             {
                 case DIE_VERDAMMTEN:
-                    if (!DieVerdammtenZerschmKnochen && uiDamage >= me->GetHealth())
+                    if (!DieVerdammtenZerschmKnochen && me->HealthBelowPctDamaged(5, uiDamage))
                     {
                         DoCast(me, DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN, true);
                         DieVerdammtenZerschmKnochen = true;
-                        uiDamage = 0;
                     }
                     if (!DieVerdammtenKnochenwirbel && me->HealthBelowPctDamaged(urand(25,75), uiDamage))
                     {
