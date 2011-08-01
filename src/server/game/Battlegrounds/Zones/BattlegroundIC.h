@@ -888,7 +888,7 @@ class BattlegroundIC : public Battleground
 
         void FillInitialWorldStates(WorldPacket& data);
 
-        void DoAction(uint32 action, unit64 const var);
+        void DoAction(uint32 action, uint64 const var);
 
         virtual void HandlePlayerResurrect(Player* player);
 

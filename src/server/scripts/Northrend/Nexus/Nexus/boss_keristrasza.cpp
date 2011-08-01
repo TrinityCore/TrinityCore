@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void SetGUID(unit64 const guid, int32 id/* = 0 */)
+        void SetGUID(uint64 const guid, int32 id/* = 0 */)
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
