@@ -352,10 +352,7 @@ class boss_twilight_halion : public CreatureScript
                 events.SetPhase(PHASE_TWO);
             }
 
-            void EnterCombat(Unit* /*who*/)
-            {
-                events.Reset();
-            }
+            void EnterCombat(Unit* /*who*/) { events.Reset(); }
 
             void KilledUnit(Unit* victim)
             {
