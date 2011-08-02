@@ -4342,13 +4342,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
-                // Consume Soul (ICC FoS: Bronjahm)
-                case 68861:
-                {
-                    if (unitTarget)
-                        unitTarget->CastSpell(unitTarget, 68858, true);
-                    return;
-                }
                 // Glyph of Scourge Strike
                 case 69961:
                 {
