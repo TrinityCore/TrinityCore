@@ -231,7 +231,7 @@ class boss_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, DONE);
 
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
             }
 
@@ -241,7 +241,7 @@ class boss_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
                 
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
             }
 
@@ -350,6 +350,7 @@ class boss_twilight_halion : public CreatureScript
             {
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
                 events.SetPhase(PHASE_TWO);
+                if (
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -599,7 +600,6 @@ class npc_halion_controller : public CreatureScript
                             me->setActive(false);
                             break;
                         case EVENT_SHADOW_PULSARS_SHOOT:
-                            // Todo
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             break;
                         case EVENT_CHECK_CORPOREALITY:
@@ -690,7 +690,7 @@ class npc_meteor_strike_initial : public CreatureScript
                 _owner = summoner->ToCreature();
 
                 // Let Halion Controller count as summoner
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
 
                 if (!_owner)
@@ -763,7 +763,7 @@ class npc_meteor_strike : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/)
             {
                 // Let Halion Controller count as summoner.
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
             }
 
@@ -781,7 +781,7 @@ class npc_meteor_strike : public CreatureScript
 
                     if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
-                        if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                        if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                             controller->AI()->JustSummoned(flame);
 
                         flame->CastSpell(flame, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
@@ -820,7 +820,7 @@ class npc_combustion : public CreatureScript
                     me->SetPhaseMask(creature->GetPhaseMask() | 0x20, true);
 
                 // Let Halion Controller count as summoner
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
             }
 
@@ -877,7 +877,7 @@ class npc_consumption : public CreatureScript
                     me->SetPhaseMask(creature->GetPhaseMask() | 0x1, true);
 
                 // Let Halion Controller count as summoner
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
             }
 
@@ -935,7 +935,7 @@ class npc_shadow_orb : public CreatureScript
                 MovementInform(POINT_MOTION_TYPE, 0); // Start movement
 
                 // Let Halion Controller count as summoner
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
             }
 
