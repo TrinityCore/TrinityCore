@@ -2906,10 +2906,11 @@ void SpellMgr::LoadDbcDataCorrections()
         case 42821: // Headless Horseman - Wisp Flight Missile
             spellInfo->rangeIndex = 6; // 100 yards
             break;
-        case 36350: //They Must Burn Bomb Aura (self)
+        case 36350: // They Must Burn Bomb Aura (self)
             spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
             break;
         case 49838: // Stop Time
+        case 50526: // Wandering Plague
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
             break;
         case 61407: // Energize Cores
