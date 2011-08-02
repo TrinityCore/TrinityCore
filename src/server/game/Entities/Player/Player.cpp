@@ -3063,7 +3063,7 @@ void Player::GiveLevel(uint8 level)
 
     // Refer-A-Friend
     if (GetSession()->GetRecruiterId())
-        if (level < sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL)) {
+        if (level < sWorld->getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL)) {
             if (level % 2 == 0) {
                 m_grantableLevels++;
 
