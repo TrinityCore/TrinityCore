@@ -164,6 +164,7 @@ enum Actions
     ACTION_PHASE_TWO            = 3, // Halion Controller
     ACTION_PHASE_THREE          = 4,
     ACTION_SHADOW_PULSARS_SHOOT = 5,
+    ACTION_RESET                = 6,
 };
 
 enum Phases
@@ -209,6 +210,8 @@ class boss_halion : public CreatureScript
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me);
+                instance->SetBossState(DATA_HALION, IN_PROGRESS);
+                
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_ACTIVATE_FIREWALL, 10000);
@@ -216,7 +219,6 @@ class boss_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 12000));
                 events.ScheduleEvent(EVENT_METEOR_STRIKE, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_FIERY_COMBUSTION, urand(15000, 18000));
-                instance->SetBossState(DATA_HALION, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -232,6 +234,9 @@ class boss_halion : public CreatureScript
                 _JustReachedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
+                
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->DoAction(ACTION_RESET);
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
@@ -315,7 +320,7 @@ class boss_halion : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void setEventsPhase(uint32 p) { events.SetPhase(p); }
+            void setEventsPhase(uint32 p) { events.SetPhase(p); events.Reset(); me->CombatStop(); }
 
         private:
             Position _meteorStrikePos;
@@ -336,10 +341,10 @@ class boss_twilight_halion : public CreatureScript
 
         struct boss_twilight_halionAI : public ScriptedAI
         {
-            boss_twilight_halionAI(Creature* creature) : ScriptedAI(creature)
+            boss_twilight_halionAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
             {
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
-                _instance = creature->GetInstanceScript();
                 events.SetPhase(PHASE_TWO);
             }
 
@@ -376,12 +381,15 @@ class boss_twilight_halion : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
 
                 events.Reset();
-                me->StopCast();
+                me->CastStop();
                 me->CombatStop();
 
                 // Let Halion Controller kill Twilight Halion
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                {
                     controller->Kill(me);
+                    controller->AI()->DoAction(ACTION_RESET);
+                }
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -407,7 +415,7 @@ class boss_twilight_halion : public CreatureScript
                 }
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
-                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
             }
 
@@ -435,10 +443,8 @@ class boss_twilight_halion : public CreatureScript
                         case EVENT_SOUL_CONSUMPTION:
                         {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
-                            if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                            if (target)
-                                DoCast(target, SPELL_SOUL_CONSUMPTION);
+                            if (!target)  target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            if (target)   DoCast(target, SPELL_SOUL_CONSUMPTION);
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                             break;
                         }
@@ -454,7 +460,7 @@ class boss_twilight_halion : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void setEventsPhase(uint32p ) { events.SetPhase(p); }
+            void setEventsPhase(uint32 p) { events.SetPhase(p); events.Reset(); }
 
         private:
             InstanceScript* _instance;
@@ -861,10 +867,10 @@ class npc_shadow_orb : public CreatureScript
 
         struct npc_shadow_orbAI : public ScriptedAI
         {
-            npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature)
+            npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature), 
+                _instance(creature->GetInstanceScript())
             {
-                _instance = me->GetInstanceScript();
-                angle = 0;
+                _angle = 0.0f;
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 MovementInform(POINT_MOTION_TYPE, 0);
             }
@@ -876,19 +882,16 @@ class npc_shadow_orb : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                float centerX = HalionSpawnPos.GetPositionX();
-                float centerY = HalionSpawnPos.GetPositionY();
-                float destinationX = centerX + 40 * cos(angle);
-                float destinationY = centerY + 40 * sin(angle);
+                float destinationX = HalionSpawnPos.GetPositionX() + 40 * cos(_angle);
+                float destinationY = HalionSpawnPos.GetPositionY() + 40 * sin(_angle);
                 me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 73.24f); // Find the correct Z coordinate
-                angle += M_PI / 32;
-                if (angle >= 2*M_PI) { angle = 0; }
+                _angle = (_angle >= 2 * M_PI) ? 0 : _angle + M_PI / 32;
             }
 
         private:
             InstanceScript* _instance;
             EventMap _events;
-            float angle;
+            float _angle;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1150,7 +1153,7 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
         }
 };
 
-class CombustionConsumptionPeriodicDamageSelector
+class CombustionConsumptionDamageSelector
 {
     public:
         explicit CombustionConsumptionDamageSelector(Creature* owner) : _owner(owner) { }
