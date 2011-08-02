@@ -86,7 +86,7 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] = {
 static bool InitTriggerAuraData();
 // Define can trigger auras
 static bool isTriggerAura[TOTAL_AURAS];
-// Define can`t trigger auras (need for disable second trigger)
+// Define can't trigger auras (need for disable second trigger)
 static bool isNonTriggerAura[TOTAL_AURAS];
 // Triggered always, even from triggered spells
 static bool isAlwaysTriggeredAura[TOTAL_AURAS];
@@ -191,6 +191,7 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
 
     for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
         m_spellImmune[i].clear();
+
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
         m_auraModifiersGroup[i][BASE_VALUE] = 0.0f;
@@ -206,6 +207,7 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
         m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
         m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
     }
+
     for (uint8 i = 0; i < MAX_STATS; ++i)
         m_createStats[i] = 0.0f;
 
@@ -220,7 +222,9 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
+
     m_isSorted = true;
+
     for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
         m_speed_rate[i] = 1.0f;
 
@@ -265,13 +269,11 @@ Unit::~Unit()
 {
     // set current spells as deletable
     for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-    {
         if (m_currentSpells[i])
         {
             m_currentSpells[i]->SetReferencedFromCurrent(false);
             m_currentSpells[i] = NULL;
         }
-    }
 
     _DeleteRemovedAuras();
 
@@ -326,15 +328,12 @@ void Unit::Update(uint32 p_time)
     }
 
     // not implemented before 3.0.2
-    //if (!HasUnitState(UNIT_STAT_CASTING))
-    {
-        if (uint32 base_att = getAttackTimer(BASE_ATTACK))
-            setAttackTimer(BASE_ATTACK, (p_time >= base_att ? 0 : base_att - p_time));
-        if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
-            setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time));
-        if (uint32 off_att = getAttackTimer(OFF_ATTACK))
-            setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time));
-    }
+    if (uint32 base_att = getAttackTimer(BASE_ATTACK))
+        setAttackTimer(BASE_ATTACK, (p_time >= base_att ? 0 : base_att - p_time));
+    if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
+        setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time));
+    if (uint32 off_att = getAttackTimer(OFF_ATTACK))
+        setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time));
 
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
@@ -560,7 +559,7 @@ bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float dz = GetPositionZ() - obj->GetPositionZ();
-    float distsq = dx*dx + dy*dy + dz*dz;
+    float distsq = dx * dx + dy * dy + dz * dz;
 
     float sizefactor = GetCombatReach() + obj->GetCombatReach();
     float maxdist = dist2compare + sizefactor;
@@ -587,12 +586,8 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
 {
     float combat_reach = GetCombatReach();
     if (combat_reach < 0.1) // sometimes bugged for players
-    {
-        //sLog->outError("Unit %u (Type: %u) has invalid combat_reach %f", GetGUIDLow(), GetTypeId(), combat_reach);
-        //if (GetTypeId() == TYPEID_UNIT)
-        //    sLog->outError("Creature entry %u has invalid combat_reach", ToCreature()->GetEntry());
         combat_reach = DEFAULT_COMBAT_REACH;
-    }
+
     uint32 attacker_number = getAttackers().size();
     if (attacker_number > 0)
         --attacker_number;
@@ -834,9 +829,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
             {
                 if (damagetype != DOT)
-                {
                     if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
-                    {
                         if (spell->getState() == SPELL_STATE_PREPARING)
                         {
                             uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
@@ -845,18 +838,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                             else if (interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
                                 spell->Delayed();
                         }
-                    }
-                }
 
                 if (Spell* spell = victim->m_currentSpells[CURRENT_CHANNELED_SPELL])
-                {
                     if (spell->getState() == SPELL_STATE_CASTING)
                     {
                         uint32 channelInterruptFlags = spell->m_spellInfo->ChannelInterruptFlags;
                         if (((channelInterruptFlags & CHANNEL_FLAG_DELAY) != 0) && (damagetype != DOT))
                             spell->DelayedChannel();
                     }
-                }
             }
         }
 
