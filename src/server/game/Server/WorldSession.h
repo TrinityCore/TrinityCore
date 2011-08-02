@@ -858,6 +858,10 @@ class WorldSession
         void HandleQueryGuildBankTabText(WorldPacket& recv_data);
         void HandleSetGuildBankTabText(WorldPacket& recv_data);
 
+        // Refer-a-Friend
+        void HandleGrantLevel(WorldPacket& recv_data);
+        void HandleAcceptGrantLevel(WorldPacket& recv_data);
+
         // Calendar
         void HandleCalendarGetCalendar(WorldPacket& recv_data);
         void HandleCalendarGetEvent(WorldPacket& recv_data);
