@@ -15,6 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "Player.h"
+#include "ObjectManager.h"
+#include "Opcodes.h"
+#include "Log.h"
+
 void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GRANT_LEVEL");
@@ -22,7 +28,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player *target = sObjectMgr.GetPlayer(guid);
+    Player *target = sObjectMgr->GetPlayer(guid);
 
     // check cheating
     uint8 levels = _player->GetGrantableLevels();
@@ -64,7 +70,7 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player *other = sObjectMgr.GetPlayer(guid);
+    Player *other = sObjectMgr->GetPlayer(guid);
     if (!(other && other->GetSession()))
         return;
 
