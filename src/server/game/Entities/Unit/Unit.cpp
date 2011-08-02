@@ -11001,8 +11001,8 @@ int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit* vict
 
 bool Unit::isSpellCrit(Unit* victim, SpellEntry const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
-    // Mobs can't crit with spells but player's minions, pets and totems can.
-    if (IS_CREATURE_GUID(GetGUID()) && !(GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER))
+    // Mobs can't crit with spells.
+    if (IS_CREATURE_GUID(GetGUID()))
         return false;
 
     // not critting spell
