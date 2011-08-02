@@ -781,6 +781,9 @@ class npc_meteor_strike : public CreatureScript
 
                     if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
+                        if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                            controller->AI()->JustSummoned(flame);
+
                         flame->CastSpell(flame, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
                         _spawnCount++;
                     }
