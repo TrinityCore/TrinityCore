@@ -6710,16 +6710,6 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
             --count;
         }
     }
-
-    // Blood Tap
-    if (m_spellInfo->Id == 45529 && count > 0)
-        for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
-            if (plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == RUNE_BLOOD)
-            {
-                plr->SetRuneCooldown(j, 0);
-                --count;
-            }
-
     // Empower rune weapon
     if (m_spellInfo->Id == 47568)
     {

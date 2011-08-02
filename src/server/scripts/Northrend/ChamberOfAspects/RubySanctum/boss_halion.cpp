@@ -350,7 +350,6 @@ class boss_twilight_halion : public CreatureScript
             {
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
                 events.SetPhase(PHASE_TWO);
-                if (
             }
 
             void EnterCombat(Unit* /*who*/)
