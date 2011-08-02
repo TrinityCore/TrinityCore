@@ -164,7 +164,7 @@ enum Actions
     ACTION_PHASE_TWO            = 3, // Halion Controller
     ACTION_PHASE_THREE          = 4,
     ACTION_SHADOW_PULSARS_SHOOT = 5,
-    ACTION_RESET                = 6,
+    ACTION_DESPAWN_ADDS         = 6,
 };
 
 enum Phases
@@ -227,6 +227,9 @@ class boss_halion : public CreatureScript
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, DONE);
+
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
             }
 
             void JustReachedHome()
@@ -236,7 +239,7 @@ class boss_halion : public CreatureScript
                 instance->SetBossState(DATA_HALION, FAIL);
                 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData(DATA_HALION_CONTROLLER)))
-                    controller->AI()->DoAction(ACTION_RESET);
+                    controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
@@ -381,14 +384,12 @@ class boss_twilight_halion : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, halion);
 
                 events.Reset();
-                me->CastStop();
-                me->CombatStop();
 
                 // Let Halion Controller kill Twilight Halion
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                 {
                     controller->Kill(me);
-                    controller->AI()->DoAction(ACTION_RESET);
+                    controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
                 }
             }
 
@@ -401,6 +402,7 @@ class boss_twilight_halion : public CreatureScript
                 {
                     events.SetPhase(PHASE_THREE);
                     events.Reset();
+                    me->CastStop();
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
@@ -408,6 +410,8 @@ class boss_twilight_halion : public CreatureScript
 
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                     {
+                        // Is this the best or the commented SpellHitTarget ?
+                        // Leave this line for now
                         halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
                         if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
                            halionAI->setEventsPhase(PHASE_THREE);
@@ -418,6 +422,14 @@ class boss_twilight_halion : public CreatureScript
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
             }
+
+            // void SpellHitTarget(Unit* who, const SpellEntry* spell)
+            // {
+            //     if (spell->Id == SPELL_TWILIGHT_DIVISION)
+            //         if (me->GetGUIDLow() == who->GetGUIDLow())
+            //             if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+            //                 halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+            // }
 
             void UpdateAI(uint32 const diff)
             {
@@ -483,15 +495,21 @@ class npc_halion_controller : public CreatureScript
         struct npc_halion_controllerAI : public ScriptedAI
         {
             npc_halion_controllerAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+                _instance(creature->GetInstanceScript()), _summons(me)
             {
                 me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
             }
 
-            void Reset()
-            {
-                me->SetReactState(REACT_PASSIVE);
-            }
+            void Reset() { me->SetReactState(REACT_PASSIVE); }
+
+            // Let him count as summoner for various NPCs, making them dissapear at encounter failure or success.
+            // Counting as summoner for:
+            // - Combustion
+            // - Consumption
+            // - Shadow Orb
+            // - Meteor Strike Initial
+            // - Meteor Strike (N, S, E, W)
+            void JustSummoned(Creature* who) { _summons.Summon(who); }
 
             void DoAction(int32 const action)
             {
@@ -541,6 +559,11 @@ class npc_halion_controller : public CreatureScript
                         MaterialDamageTaken = 0;
                         TwilightCorporealityValue = 50;
                         MaterialCorporealityValue = 50;
+                        break;
+                    }
+                    case ACTION_DESPAWN_ADDS:
+                    {
+                        _summons.DespawnAll();
                         break;
                     }
                 }
@@ -620,6 +643,7 @@ class npc_halion_controller : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
+            SummonList _summons;
             uint32 TwilightDamageTaken;
             uint32 MaterialDamageTaken;
             uint32 TwilightCorporealityValue;
@@ -642,22 +666,31 @@ class npc_meteor_strike_initial : public CreatureScript
 
         struct npc_meteor_strike_initialAI : public Scripted_NoMovementAI
         {
-            npc_meteor_strike_initialAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
+            npc_meteor_strike_initialAI(Creature* creature) : Scripted_NoMovementAI(creature),
+                _instance(creature->GetInstanceScript())
+            { }
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_METEOR_STRIKE_AOE)
+                switch (action)
                 {
-                    DoCast(me, SPELL_METEOR_STRIKE_AOE_DAMAGE, true);
-                    DoCast(me, SPELL_METEOR_STRIKE_FIRE_AURA_1, true);
-                    for (std::list<Creature*>::iterator itr = _meteorList.begin(); itr != _meteorList.end(); ++itr)
-                        (*itr)->AI()->DoAction(ACTION_METEOR_STRIKE_BURN);
+                    case ACTION_METEOR_STRIKE_AOE:
+                        DoCast(me, SPELL_METEOR_STRIKE_AOE_DAMAGE, true);
+                        DoCast(me, SPELL_METEOR_STRIKE_FIRE_AURA_1, true);
+                        for (std::list<Creature*>::iterator itr = _meteorList.begin(); itr != _meteorList.end(); ++itr)
+                            (*itr)->AI()->DoAction(ACTION_METEOR_STRIKE_BURN);
+                        break;
                 }
             }
 
             void IsSummonedBy(Unit* summoner)
             {
                 _owner = summoner->ToCreature();
+
+                // Let Halion Controller count as summoner
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->JustSummoned(me);
+
                 if (!_owner)
                     return;
 
@@ -686,10 +719,11 @@ class npc_meteor_strike_initial : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
-            void EnterEvadeMode() {}
+            void UpdateAI(uint32 const /*diff*/) { }
+            void EnterEvadeMode() { }
 
         private:
+            InstanceScript* _instance;
             Creature* _owner;
             std::list<Creature*> _meteorList;
         };
@@ -707,7 +741,8 @@ class npc_meteor_strike : public CreatureScript
 
         struct npc_meteor_strikeAI : public Scripted_NoMovementAI
         {
-            npc_meteor_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_meteor_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature),
+                _instance(creature->GetInstanceScript())
             {
                 _range = 5.0f;
                 _spawnCount = 0;
@@ -721,6 +756,13 @@ class npc_meteor_strike : public CreatureScript
                     me->setActive(true);
                     _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, 500);
                 }
+            }
+
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
+                // Let Halion Controller count as summoner.
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->JustSummoned(me);
             }
 
             void UpdateAI(uint32 const diff)
@@ -746,6 +788,7 @@ class npc_meteor_strike : public CreatureScript
             }
 
         private:
+            InstanceScript* _instance;
             EventMap _events;
             float _range;
             uint8 _spawnCount;
@@ -764,11 +807,16 @@ class npc_combustion : public CreatureScript
 
         struct npc_combustionAI : public Scripted_NoMovementAI
         {
-            npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature),
+                _instance(creature->GetInstanceScript())
             {
                 me->SetPhaseMask(0x1, true);
                 if (me->GetMap()->IsHeroic())
                     me->SetPhaseMask(creature->GetPhaseMask() | 0x20, true);
+
+                // Let Halion Controller count as summoner
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->JustSummoned(me);
             }
 
             void SetData(uint32 type, uint32 data)
@@ -777,7 +825,7 @@ class npc_combustion : public CreatureScript
                 {
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
-                    // Scaling aura
+
                     me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
 
@@ -799,6 +847,7 @@ class npc_combustion : public CreatureScript
             void UpdateAI(uint32 const /*diff*/) { }
 
         private:
+            InstanceScript* _instance;
             uint32 _scale;
         };
 
@@ -815,11 +864,16 @@ class npc_consumption : public CreatureScript
 
         struct npc_consumptionAI : public Scripted_NoMovementAI
         {
-            npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
+                   _instance(creature->GetInstanceScript())
             {
                 me->SetPhaseMask(0x20, true);
                 if (me->GetMap()->IsHeroic())
                     me->SetPhaseMask(creature->GetPhaseMask() | 0x1, true);
+
+                // Let Halion Controller count as summoner
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->JustSummoned(me);
             }
 
             void SetData(uint32 type, uint32 data)
@@ -829,7 +883,7 @@ class npc_consumption : public CreatureScript
                     //if (Unit* owner = me->GetSummoner())
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
-                    // Scaling aura
+
                     me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA); // This one's radius should scale.
 
@@ -851,6 +905,7 @@ class npc_consumption : public CreatureScript
             void UpdateAI(uint32 const /*diff*/) { }
 
         private:
+            InstanceScript* _instance;
             uint32 _scale;
         };
 
@@ -872,7 +927,11 @@ class npc_shadow_orb : public CreatureScript
             {
                 _angle = 0.0f;
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                MovementInform(POINT_MOTION_TYPE, 0);
+                MovementInform(POINT_MOTION_TYPE, 0); // Start movement
+
+                // Let Halion Controller count as summoner
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->JustSummoned(me);
             }
 
             void UpdateAI(uint32 const /*diff*/) { }
