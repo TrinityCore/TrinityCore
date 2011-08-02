@@ -165,7 +165,7 @@ class instance_the_eye : public InstanceMapScript
             {
                 OUT_SAVE_INST_DATA;
                 std::ostringstream stream;
-                stream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
+                stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
                 char* out = new char[stream.str().length() + 1];
                 strcpy(out, stream.str().c_str());
                 if (out)

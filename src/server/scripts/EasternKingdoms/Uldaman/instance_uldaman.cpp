@@ -377,7 +377,7 @@ class instance_uldaman : public InstanceMapScript
                     OUT_SAVE_INST_DATA;
 
                     std::ostringstream saveStream;
-                    saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2];
+                    saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2];
 
                     str_data = saveStream.str();
 

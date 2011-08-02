@@ -20,6 +20,7 @@
 #include "GridDefines.h"
 #include "WaypointManager.h"
 #include "MapManager.h"
+#include "Log.h"
 
 WaypointMgr::WaypointMgr()
 {

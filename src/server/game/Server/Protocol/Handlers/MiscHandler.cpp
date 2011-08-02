@@ -494,12 +494,12 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    _player->SetSelection(guid);
-
     // update reputation list if need
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
     if (!unit)
         return;
+        
+    _player->SetSelection(guid);
 
     if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
@@ -516,10 +516,9 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleContactListOpcode(WorldPacket & recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST");
     uint32 unk;
     recv_data >> unk;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "unk value is %u", unk);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST - Unk: %d", unk);
     _player->GetSocial()->SendSocialList(_player);
 }
 
@@ -537,7 +536,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
     if (!normalizePlayerName(friendName))
         return;
 
-    CharacterDatabase.EscapeString(friendName);            // prevent SQL injection - normal name don't must changed by this call
+    CharacterDatabase.EscapeString(friendName);            // prevent SQL injection - normal name must not be changed by this call
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'",
         GetPlayer()->GetName(), friendName.c_str());
@@ -626,7 +625,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket & recv_data)
     if (!normalizePlayerName(IgnoreName))
         return;
 
-    CharacterDatabase.EscapeString(IgnoreName);            // prevent SQL injection - normal name don't must changed by this call
+    CharacterDatabase.EscapeString(IgnoreName);            // prevent SQL injection - normal name must not be changed by this call
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
         GetPlayer()->GetName(), IgnoreName.c_str());
@@ -1205,7 +1204,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 
     _player->SetSelection(guid);
 
-    Player *plr = sObjectMgr->GetPlayer(guid);
+    Player *plr = ObjectAccessor::FindPlayer(guid);
     if (!plr)                                                // wrong player
         return;
 
@@ -1234,7 +1233,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    Player* player = sObjectMgr->GetPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
 
     if (!player)
     {
@@ -1306,7 +1305,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Player *plr = sObjectMgr->GetPlayer(charname.c_str());
+    Player *plr = sObjectAccessor->FindPlayerByName(charname.c_str());
 
     if (!plr)
     {
@@ -1669,7 +1668,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket & recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player* player = sObjectMgr->GetPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
         return;
 

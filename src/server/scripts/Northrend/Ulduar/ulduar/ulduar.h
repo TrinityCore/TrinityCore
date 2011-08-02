@@ -190,7 +190,7 @@ CreatureAI* GetUlduarAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
         if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == GetScriptId(UlduarScriptName))
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
                 return new AI(creature);
 
     return NULL;

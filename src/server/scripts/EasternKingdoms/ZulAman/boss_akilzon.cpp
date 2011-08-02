@@ -37,7 +37,6 @@ enum Spells
     SPELL_GUST_OF_WIND          = 43621,
     SPELL_ELECTRICAL_STORM      = 43648,
     SPELL_BERSERK               = 45078,
-    SPELL_ELECTRICAL_DAMAGE     = 43657,
     SPELL_ELECTRICAL_OVERLOAD   = 43658,
     SPELL_EAGLE_SWOOP           = 44732
 };
@@ -75,9 +74,6 @@ class boss_akilzon : public CreatureScript
         {
             boss_akilzonAI(Creature* c) : ScriptedAI(c)
             {
-                SpellEntry *TempSpell = GET_SPELL(SPELL_ELECTRICAL_DAMAGE);
-                if (TempSpell)
-                    TempSpell->EffectBasePoints[1] = 49;//disable bugged lightning until fixed in core
                 pInstance = c->GetInstanceScript();
             }
             InstanceScript *pInstance;

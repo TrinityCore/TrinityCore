@@ -37,9 +37,9 @@ class spell_warr_last_stand : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_last_stand_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
                     return false;
                 return true;
             }

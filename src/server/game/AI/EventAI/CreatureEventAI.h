@@ -606,7 +606,7 @@ class CreatureEventAI : public CreatureAI
         void JustSummoned(Creature* pUnit);
         void AttackStart(Unit *who);
         void MoveInLineOfSight(Unit *who);
-        void SpellHit(Unit* pUnit, const SpellEntry* pSpell);
+        void SpellHit(Unit* pUnit, const SpellInfo* pSpell);
         void DamageTaken(Unit* done_by, uint32& damage);
         void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
         void UpdateAI(const uint32 diff);
@@ -620,7 +620,7 @@ class CreatureEventAI : public CreatureAI
         inline Unit* GetTargetByType(uint32 Target, Unit* pActionInvoker);
 
         void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target);
-        bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered);
+        bool CanCast(Unit* Target, SpellInfo const *Spell, bool Triggered);
 
         bool SpawnedEventConditionsCheck(CreatureEventAI_Event const& event);
 

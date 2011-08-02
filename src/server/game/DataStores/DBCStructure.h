@@ -1491,7 +1491,7 @@ struct SpellEntry
     uint32    AttributesEx4;                                // 8        m_attributesExD
     uint32    AttributesEx5;                                // 9        m_attributesExE
     uint32    AttributesEx6;                                // 10       m_attributesExF
-    uint32    AttributesEx7;                                // 11       3.2.0 (0x20 - totems, 0x4 - paladin auras, etc...)
+    uint32    AttributesEx7;                                // 11       m_attributesExG
     uint32    Stances;                                      // 12       m_shapeshiftMask
     // uint32 unk_320_2;                                    // 13       3.2.0
     uint32    StancesNot;                                   // 14       m_shapeshiftExclude
@@ -1589,10 +1589,6 @@ struct SpellEntry
     float     EffectBonusMultiplier[MAX_SPELL_EFFECTS];     // 229-231  3.2.0
     //uint32  spellDescriptionVariableID;                   // 232      3.2.0
     //uint32  SpellDifficultyId;                            // 233      3.3.0
-
-    private:
-        // prevent creating custom entries (copy data from original in fact)
-        SpellEntry(SpellEntry const&);                      // DON'T must have implementation
 };
 
 typedef std::set<uint32> SpellCategorySet;
@@ -1624,9 +1620,9 @@ struct SpellFocusObjectEntry
 struct SpellRadiusEntry
 {
     uint32    ID;
-    float     radiusHostile;
+    float     radiusMin;
     //uint32    Unk    //always 0
-    float     radiusFriend;
+    float     radiusMax;
 };
 
 struct SpellRangeEntry
@@ -1635,7 +1631,7 @@ struct SpellRangeEntry
     float     minRangeHostile;
     float     minRangeFriend;
     float     maxRangeHostile;
-    float     maxRangeFriend;                               //friend means unattackable unit here
+    float     maxRangeFriend;
     uint32    type;
     //char*     Name[16];                                   // 7-23 unused
                                                             // 24 string flags, unused

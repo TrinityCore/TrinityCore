@@ -154,7 +154,7 @@ namespace Trinity
     struct ObjectUpdater
     {
         uint32 i_timeDiff;
-        explicit ObjectUpdater(const uint32 &diff) : i_timeDiff(diff) {}
+        explicit ObjectUpdater(const uint32 diff) : i_timeDiff(diff) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void Visit(PlayerMapType &) {}
         void Visit(CorpseMapType &) {}
@@ -1145,18 +1145,23 @@ namespace Trinity
 
     class AnyPlayerInObjectRangeCheck
     {
-    public:
-        AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) {}
-        bool operator()(Player* u)
-        {
-            if (u->isAlive() && i_obj->IsWithinDistInMap(u, i_range))
-                return true;
+        public:
+            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) {}
+            bool operator()(Player* u)
+            {
+                if (_reqAlive && !u->isAlive())
+                    return false;
 
-            return false;
-        }
-    private:
-        WorldObject const* i_obj;
-        float i_range;
+                if (!_obj->IsWithinDistInMap(u, _range))
+                    return false;
+
+                return true;
+            }
+
+        private:
+            WorldObject const* _obj;
+            float _range;
+            bool _reqAlive;
     };
 
     class NearestPlayerInObjectRangeCheck
@@ -1278,6 +1283,20 @@ namespace Trinity
     private:
         const WorldObject* m_pObject;
         float m_fRange;
+    };
+
+    class ObjectTypeIdCheck
+    {
+        public:
+            ObjectTypeIdCheck(TypeID typeId, bool equals) : _typeId(typeId), _equals(equals) {}
+            bool operator()(WorldObject* object)
+            {
+                return (object->GetTypeId() == _typeId) == _equals;
+            }
+
+        private:
+            TypeID _typeId;
+            bool _equals;
     };
 
     // Player checks and do

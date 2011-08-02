@@ -168,7 +168,7 @@ class Field
             #endif
             if (data.raw)
                 return *reinterpret_cast<int64*>(data.value);
-            return static_cast<int64>(atol((char*)data.value));
+            return static_cast<int64>(strtol((char*)data.value, NULL, 10));
         }
 
         float GetFloat() const

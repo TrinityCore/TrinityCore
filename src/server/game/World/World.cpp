@@ -1103,7 +1103,7 @@ void World::LoadConfigSettings(bool reload)
     ///- Read the "Data" directory from the config file
     std::string dataPath = sConfig->GetStringDefault("DataDir", "./");
     if (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\')
-        dataPath.append("/");
+        dataPath.push_back('/');
 
     if (reload)
     {
@@ -1252,6 +1252,15 @@ void World::SetInitialWorldSettings()
     sLog->outString("Initialize data stores...");
     LoadDBCStores(m_dataPath);
     DetectDBCLang();
+
+    sLog->outString("Loading spell dbc data corrections...");
+    sSpellMgr->LoadDbcDataCorrections();
+
+    sLog->outString("Loading SpellInfo store...");
+    sSpellMgr->LoadSpellInfoStore();
+
+    sLog->outString("Loading spell custom attributes...");
+    sSpellMgr->LoadSpellCustomAttr();
 
     sLog->outString("Loading Script Names...");
     sObjectMgr->LoadScriptNames();
@@ -1446,9 +1455,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading spell pet auras...");
     sSpellMgr->LoadSpellPetAuras();
-
-    sLog->outString("Loading spell extra attributes...");
-    sSpellMgr->LoadSpellCustomAttr();
 
     sLog->outString("Loading Spell target coordinates...");
     sSpellMgr->LoadSpellTargetPositions();
@@ -2310,7 +2316,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
 /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
 BanReturn World::BanCharacter(std::string name, std::string duration, std::string reason, std::string author)
 {
-    Player* pBanned = sObjectMgr->GetPlayer(name.c_str());
+    Player* pBanned = sObjectAccessor->FindPlayerByName(name.c_str());
     uint32 guid = 0;
 
     uint32 duration_secs = TimeStringToSecs(duration);
@@ -2351,7 +2357,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
 /// Remove a ban from a character
 bool World::RemoveBanCharacter(std::string name)
 {
-    Player* pBanned = sObjectMgr->GetPlayer(name.c_str());
+    Player* pBanned = sObjectAccessor->FindPlayerByName(name.c_str());
     uint32 guid = 0;
 
     /// Pick a player to ban if not online

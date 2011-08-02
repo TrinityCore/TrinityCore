@@ -316,7 +316,7 @@ class boss_flame_leviathan : public CreatureScript
 
             //TODO: effect 0 and effect 1 may be on different target
             //TODO: Move to spellscript
-            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_PURSUED)
                     AttackStart(target);
@@ -328,7 +328,7 @@ class boss_flame_leviathan : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
                     vehicle->InstallAllAccessories(false);
@@ -845,7 +845,7 @@ class npc_pool_of_tar : public CreatureScript
                 damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
                     me->CastSpell(me, SPELL_BLAZE, true);

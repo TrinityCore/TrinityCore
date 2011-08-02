@@ -37,6 +37,9 @@
 #include "Util.h"                                           // for Tokens typedef
 #include "WorldSession.h"
 
+// for template
+#include "SpellMgr.h"
+
 #include<string>
 #include<vector>
 
@@ -863,6 +866,24 @@ enum CurrencyItems
     ITEM_ARENA_POINTS_ID    = 43307
 };
 
+enum ReferAFriendError
+{
+    ERR_REFER_A_FRIEND_NONE                          = 0x00,
+    ERR_REFER_A_FRIEND_NOT_REFERRED_BY               = 0x01,
+    ERR_REFER_A_FRIEND_TARGET_TOO_HIGH               = 0x02,
+    ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS = 0x03,
+    ERR_REFER_A_FRIEND_TOO_FAR                       = 0x04,
+    ERR_REFER_A_FRIEND_DIFFERENT_FACTION             = 0x05,
+    ERR_REFER_A_FRIEND_NOT_NOW                       = 0x06,
+    ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I             = 0x07,
+    ERR_REFER_A_FRIEND_NO_TARGET                     = 0x08,
+    ERR_REFER_A_FRIEND_NOT_IN_GROUP                  = 0x09,
+    ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I            = 0x0A,
+    ERR_REFER_A_FRIEND_SUMMON_COOLDOWN               = 0x0B,
+    ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL               = 0x0C,
+    ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
+};
+
 class PlayerTaxi
 {
     public:
@@ -1202,8 +1223,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, 2, count); }
         bool HasItemCount(uint32 item, uint32 count, bool inBankAlso = false) const;
-        bool HasItemFitToSpellRequirements(SpellEntry const* spellInfo, Item const* ignoreItem = NULL);
-        bool CanNoReagentCast(SpellEntry const* spellInfo) const;
+        bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = NULL);
+        bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
         InventoryResult CanTakeMoreSimilarItems(Item* pItem) const { return _CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem); }
@@ -1534,13 +1555,13 @@ class Player : public Unit, public GridObject<Player>
             return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
         }
 
-        const uint64& GetSelection() const { return m_curSelection; }
+        const uint64 GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
         Player *GetSelectedPlayer() const;
-        void SetSelection(const uint64 &guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(const uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() { return m_comboPoints; }
-        const uint64& GetComboTarget() const { return m_comboTarget; }
+        const uint64 GetComboTarget() const { return m_comboTarget; }
 
         void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
         void GainSpellComboPoints(int8 count);
@@ -1600,7 +1621,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
-        bool IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const;
+        bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
         void SendInitialSpells();
@@ -1661,7 +1682,7 @@ class Player : public Unit, public GridObject<Player>
         SpellCooldowns const& GetSpellCooldownMap() const { return m_spellCooldowns; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell* spell = NULL);
+        bool IsAffectedBySpellmod(SpellInfo const *spellInfo, SpellModifier *mod, Spell* spell = NULL);
         template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL);
         void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = NULL);
@@ -1682,9 +1703,9 @@ class Player : public Unit, public GridObject<Player>
             time_t t = time(NULL);
             return uint32(itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0);
         }
-        void AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
+        void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
-        void SendCooldownEvent(SpellEntry const* spellInfo, uint32 itemId = 0, Spell* spell = NULL, bool setCooldown = true);
+        void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = NULL, bool setCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
         void RemoveSpellCategoryCooldown(uint32 cat, bool update = false);
@@ -1871,8 +1892,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateManaRegen();
         void UpdateRuneRegen(RuneType rune);
 
-        const uint64& GetLootGUID() const { return m_lootGuid; }
-        void SetLootGUID(const uint64 &guid) { m_lootGuid = guid; }
+        const uint64 GetLootGUID() const { return m_lootGuid; }
+        void SetLootGUID(const uint64 guid) { m_lootGuid = guid; }
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -1986,7 +2007,8 @@ class Player : public Unit, public GridObject<Player>
         bool isHonorOrXPTarget(Unit* pVictim);
 
         bool GetsRecruitAFriendBonus(bool forXP);
-        uint8 GetGrantableLevels() { return GetByteValue(PLAYER_FIELD_BYTES, 1); }
+        uint8 GetGrantableLevels() { return m_grantableLevels; }
+        void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
         ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
@@ -2061,7 +2083,7 @@ class Player : public Unit, public GridObject<Player>
         void InitDataForForm(bool reapplyMods = false);
 
         void ApplyItemEquipSpell(Item *item, bool apply, bool form_change = false);
-        void ApplyEquipSpell(SpellEntry const* spellInfo, Item* item, bool apply, bool form_change = false);
+        void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool form_change = false);
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
         void CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex);
@@ -2375,7 +2397,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
-        const uint64& GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        const uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;
@@ -2690,6 +2712,9 @@ class Player : public Unit, public GridObject<Player>
         bool canSeeAlways(WorldObject const* obj) const;
 
         bool isAlwaysDetectableFor(WorldObject const* seer) const;
+
+        uint8 m_grantableLevels;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult _CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const *pProto, uint32& count, bool swap, Item *pSrcItem) const;
@@ -2768,7 +2793,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const *proto);
 // "the bodies of template functions must be made available in a header file"
 template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)
 {
-    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return 0;
     float totalmul = 1.0f;

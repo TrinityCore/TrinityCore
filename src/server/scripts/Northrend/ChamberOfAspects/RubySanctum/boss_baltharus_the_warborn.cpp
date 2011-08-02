@@ -312,7 +312,7 @@ class spell_baltharus_enervating_brand : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
-                uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
+                uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                 target->CastSpell(target, triggerSpellId, true);
 
                 if (Unit* caster = GetCaster())

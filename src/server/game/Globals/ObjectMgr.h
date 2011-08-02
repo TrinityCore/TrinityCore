@@ -616,8 +616,6 @@ class ObjectMgr
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
-        Player* GetPlayer(const char* name) const { return sObjectAccessor->FindPlayerByName(name);}
-        Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
         Player* GetPlayerByLowGUID(uint32 lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
@@ -669,9 +667,9 @@ class ObjectMgr
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         uint64 GetPlayerGUIDByName(std::string name) const;
-        bool GetPlayerNameByGUID(const uint64 &guid, std::string &name) const;
-        uint32 GetPlayerTeamByGUID(const uint64 &guid) const;
-        uint32 GetPlayerAccountIdByGUID(const uint64 &guid) const;
+        bool GetPlayerNameByGUID(const uint64 guid, std::string &name) const;
+        uint32 GetPlayerTeamByGUID(const uint64 guid) const;
+        uint32 GetPlayerAccountIdByGUID(const uint64 guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
@@ -1363,6 +1361,5 @@ class ObjectMgr
 
 // scripting access functions
 bool LoadTrinityStrings(char const* table, int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
-uint32 GetScriptId(const char *name);
 
 #endif

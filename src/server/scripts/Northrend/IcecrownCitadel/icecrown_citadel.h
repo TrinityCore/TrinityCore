@@ -409,9 +409,9 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         public:
             spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(_triggerId))
+                if (!sSpellMgr->GetSpellInfo(_triggerId))
                     return false;
                 return true;
             }
@@ -443,7 +443,7 @@ CreatureAI* GetIcecrownCitadelAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
         if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == GetScriptId(ICCScriptName))
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
                 return new AI(creature);
     return NULL;
 }

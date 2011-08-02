@@ -1850,6 +1850,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (5605,11,0,0, 'achievement_save_the_day'),
 (5606,11,0,0, 'achievement_save_the_day'),
 (6800,11,0,0, 'achievement_sickly_gazelle'),
+(7703,11,0,0, 'achievement_wg_didnt_stand_a_chance'),
 (12993,11,0,0, 'achievement_doesnt_go_to_eleven'),
 (12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
@@ -2000,6 +2001,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
  (66666, 'spell_gen_vehicle_scaling'),
  (66667, 'spell_gen_vehicle_scaling'),
  (66668, 'spell_gen_vehicle_scaling'),
+ (18350, 'spell_gen_soul_preserver'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
