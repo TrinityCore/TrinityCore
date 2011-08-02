@@ -339,10 +339,10 @@ class EnervatingBrandSelector
 
         bool operator()(Unit* unit)
         {
-            if (_caster->GetDistance(unit) > 12.0f)
+            if (unit->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
-            if (unit->GetTypeId() != TYPEID_PLAYER)
+            if (_caster->GetDistance(unit) > 12.0f)
                 return true;
 
             return false;
