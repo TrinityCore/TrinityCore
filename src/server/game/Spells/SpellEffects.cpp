@@ -4229,6 +4229,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
+    pGameObj->IsTemporary = true;
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
@@ -4274,6 +4275,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
+            linkedGO->IsTemporary = true;
 
             ExecuteLogEffectSummonObject(effIndex, linkedGO);
 
@@ -5755,6 +5757,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     int32 duration = m_spellInfo->GetDuration();
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
+    pGameObj->IsTemporary = true;
     m_caster->AddGameObject(pGameObj);
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
@@ -6385,6 +6388,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);
+    pGameObj->IsTemporary = true;
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
@@ -6401,6 +6405,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
+            linkedGO->IsTemporary = true;
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID());
@@ -6670,6 +6675,16 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
             --count;
         }
     }
+
+    // Blood Tap
+    if (m_spellInfo->Id == 45529 && count > 0)
+        for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
+            if (plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == RUNE_BLOOD)
+            {
+                plr->SetRuneCooldown(j, 0);
+                --count;
+            }
+
     // Empower rune weapon
     if (m_spellInfo->Id == 47568)
     {
