@@ -866,6 +866,24 @@ enum CurrencyItems
     ITEM_ARENA_POINTS_ID    = 43307
 };
 
+enum ReferAFriendError
+{
+    ERR_REFER_A_FRIEND_NONE                          = 0x00,
+    ERR_REFER_A_FRIEND_NOT_REFERRED_BY               = 0x01,
+    ERR_REFER_A_FRIEND_TARGET_TOO_HIGH               = 0x02,
+    ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS = 0x03,
+    ERR_REFER_A_FRIEND_TOO_FAR                       = 0x04,
+    ERR_REFER_A_FRIEND_DIFFERENT_FACTION             = 0x05,
+    ERR_REFER_A_FRIEND_NOT_NOW                       = 0x06,
+    ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I             = 0x07,
+    ERR_REFER_A_FRIEND_NO_TARGET                     = 0x08,
+    ERR_REFER_A_FRIEND_NOT_IN_GROUP                  = 0x09,
+    ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I            = 0x0A,
+    ERR_REFER_A_FRIEND_SUMMON_COOLDOWN               = 0x0B,
+    ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL               = 0x0C,
+    ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
+};
+
 class PlayerTaxi
 {
     public:
@@ -1989,7 +2007,8 @@ class Player : public Unit, public GridObject<Player>
         bool isHonorOrXPTarget(Unit* pVictim);
 
         bool GetsRecruitAFriendBonus(bool forXP);
-        uint8 GetGrantableLevels() { return GetByteValue(PLAYER_FIELD_BYTES, 1); }
+        uint8 GetGrantableLevels() { return m_grantableLevels; }
+        void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
         ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
@@ -2693,6 +2712,9 @@ class Player : public Unit, public GridObject<Player>
         bool canSeeAlways(WorldObject const* obj) const;
 
         bool isAlwaysDetectableFor(WorldObject const* seer) const;
+
+        uint8 m_grantableLevels;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult _CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const *pProto, uint32& count, bool swap, Item *pSrcItem) const;

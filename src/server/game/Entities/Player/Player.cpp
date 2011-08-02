@@ -3061,6 +3061,16 @@ void Player::GiveLevel(uint8 level)
 
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 
+    // Refer-A-Friend
+    if (GetSession()->GetRecruiterId())
+        if (level < sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL)) {
+            if (level % 2 == 0) {
+                m_grantableLevels++;
+
+                if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
+                    SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
+            }
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
