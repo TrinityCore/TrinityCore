@@ -4252,7 +4252,6 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
-    pGameObj->IsTemporary = true;
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
@@ -4298,7 +4297,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
-            linkedGo->IsTemporary = true;
+
             ExecuteLogEffectSummonObject(effIndex, linkedGO);
 
             // Wild object not have owner and check clickable by players
@@ -5780,7 +5779,6 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(pGameObj);
-    pGameObj->IsTemporary = true;
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
@@ -6411,7 +6409,6 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);
-    pGameObj->IsTemporary = true;
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
@@ -6431,7 +6428,6 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID());
-            linkedGO->IsTemporary = true;
 
             ExecuteLogEffectSummonObject(effIndex, linkedGO);
 
