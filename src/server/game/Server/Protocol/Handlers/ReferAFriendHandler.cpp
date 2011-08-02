@@ -17,7 +17,7 @@
 
 #include "WorldSession.h"
 #include "Player.h"
-#include "ObjectManager.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Log.h"
 
@@ -37,11 +37,11 @@ void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
         error = ERR_REFER_A_FRIEND_NO_TARGET;
     else if (levels == 0)
         error = ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS;
-    else if (GetSession()->GetRecruiterId() != target->GetSession()->GetAccountId())
+    else if (GetRecruiterId() != target->GetSession()->GetAccountId())
         error = ERR_REFER_A_FRIEND_NOT_REFERRED_BY;
     else if (target->GetTeamId() != _player->GetTeamId())
         error = ERR_REFER_A_FRIEND_DIFFERENT_FACTION;
-    else if (target->getLevel() >= _player->GetLevel())
+    else if (target->getLevel() >= _player->getLevel())
         error = ERR_REFER_A_FRIEND_TARGET_TOO_HIGH;
     else if (target->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
         error = ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I;
@@ -49,18 +49,18 @@ void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
 
     if (error) {
-        WorldPacket data(SMSG_REFER_A_FRIEND_ERROR, 24);
+        WorldPacket data(SMSG_REFER_A_FRIEND_FAILURE, 24);
         data << uint32(error);
         if (error == ERR_REFER_A_FRIEND_NOT_IN_GROUP)
             data << target->GetName();
 
-        GetSession()->SendPacket(&data);
+        SendPacket(&data);
         return;
     }
 
-    WorldPacket data(SMSG_PROPOSE_LEVEL_GRANT, 8);
-    data << _player->GetPackGUID();
-    target->GetSession()->SendPacket(&data);
+    WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
+    data2.append(_player->GetPackGUID());
+    target->GetSession()->SendPacket(&data2);
 }
 
 void WorldSession::HandleAcceptGrantLevel(WorldPacket& recv_data)
@@ -70,11 +70,11 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player *other = sObjectMgr->GetPlayer(guid);
+    Player *other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))
         return;
 
-    if (_player->GetSession()->GetAccountId() != other->GetSession()->GetRecruiterId())
+    if (GetAccountId() != other->GetSession()->GetRecruiterId())
         return;
 
     if (other->GetGrantableLevels())
