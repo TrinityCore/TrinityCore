@@ -63,9 +63,11 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (39863,1,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
 (39863,2,0, 'The heavens burn!',14,0,100,0,0,17505, 'Halion'),
 (39863,3,0, 'You will find only suffering within the realm of twilight! Enter if you dare!',14,0,100,0,0,17507, 'Halion'),
-(39863,4,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master's return!',14,0,100,0,0,17503, 'Halion'),
+(39863,4,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master''s return!',14,0,100,0,0,17503, 'Halion'),
 (39863,5,0, 'Another "hero" falls.',14,0,100,0,0,17501, 'Halion'),
-(39863,5,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion');
+(40146,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
+(40146,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17502, 'Halion'), // SoundID guessed
+(40146,2,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion');
 */
 
 enum Texts
@@ -76,9 +78,10 @@ enum Texts
     SAY_PHASE_TWO                    = 3, // You will find only suffering within the realm of twilight! Enter if you dare!
     SAY_DEATH                        = 4, // Relish this victory, mortals, for it will be your last! This world will burn with the master's return!
     SAY_KILL                         = 5, // Another "hero" falls.
-    SAY_SPHERE_PULSE                 = 6, // Beware the shadow!
-    // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
-    // Not good enough. 17504
+
+    SAY_SPHERE_PULSE                 = 0, // Beware the shadow!
+    SAY_PHASE_THREE                  = 1, // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
+    SAY_KILL_TWO                     = 2, // Not good enough. 17504
 };
 
 enum Spells
@@ -307,11 +310,9 @@ class boss_halion : public CreatureScript
                         }
                         case EVENT_FIERY_COMBUSTION:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
-                            if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                            if (target)
-                                DoCast(target, SPELL_COMBUSTION);
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_COMBUSTION);
+                            if (!target) target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_COMBUSTION);
+                            if (target)  DoCast(target, SPELL_COMBUSTION);
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25000);
                             break;
                         }
@@ -323,7 +324,7 @@ class boss_halion : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void setEventsPhase(uint32 p) { events.SetPhase(p); events.Reset(); me->CombatStop(); }
+            void setEventsPhase(uint32 p) { events.SetPhase(p); events.Reset(); me->CastStop(); }
 
         private:
             Position _meteorStrikePos;
@@ -404,6 +405,7 @@ class boss_twilight_halion : public CreatureScript
                     events.Reset();
                     me->CastStop();
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
+                    Talk(SAY_PHASE_THREE);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
@@ -426,7 +428,7 @@ class boss_twilight_halion : public CreatureScript
             // void SpellHitTarget(Unit* who, const SpellEntry* spell)
             // {
             //     if (spell->Id == SPELL_TWILIGHT_DIVISION)
-            //         if (me->GetGUIDLow() == who->GetGUIDLow())
+            //         if (me->GetGUIDLow() == who->GetGUIDLow() && who == me)
             //             if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
             //                 halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
             // }
@@ -454,8 +456,8 @@ class boss_twilight_halion : public CreatureScript
                             break;
                         case EVENT_SOUL_CONSUMPTION:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
-                            if (!target)  target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_SOUL_CONSUMPTION);
+                            if (!target)  target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SOUL_CONSUMPTION);
                             if (target)   DoCast(target, SPELL_SOUL_CONSUMPTION);
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                             break;
