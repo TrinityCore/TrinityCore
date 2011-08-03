@@ -108,3 +108,36 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (33519,42,9128.608,2089.091,141.3593,'Black Knight''s Gryphon'),
 (33519,43,9093.364,2128.384,99.38685,'Black Knight''s Gryphon'),
 (33519,44,9050.709,2123.656,60.24802,'Black Knight''s Gryphon');
+
+-- Battered Hilt quest chains fixes
+-- Quests 20438,24556
+DELETE FROM gameobject WHERE id=201384;
+SET @ENTRY := 36856;
+SET @SOURCETYPE := 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=@SOURCETYPE;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY LIMIT 1;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,@SOURCETYPE,0,0,62,0,100,0,10854,1,0,0,50,201384,60,0,0,0,0,8,0,0,0,5802.22,691.556,657.949,3.50801,"Arcanum Core - Script for quest http://wowhead.com/quest=20438"),
+(@ENTRY,@SOURCETYPE,1,0,62,0,100,0,10854,0,0,0,50,201384,60,0,0,0,0,8,0,0,0,5802.22,691.556,657.949,3.50801,"Arcanum Core - Script for quest http://wowhead.com/quest=24556");
+
+-- Quest 20439
+SET @ENTRY := 36670;
+SET @SOURCETYPE := 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=@SOURCETYPE;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY LIMIT 1;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,@SOURCETYPE,0,0,62,0,100,0,10857,1,0,0,56,49698,1,0,0,0,0,7,0,0,0,0.0,0.0,0.0,0.0,"Arcanum Core - Script for - http://wowhead.com/quest=20439");
+
+-- Quests 24563, 24535
+SET @ENTRY := 37552;
+SET @GOSSIP := 37552;
+SET @MENUID := 0;
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,@GOSSIP,@MENUID,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Thalorien Dawnseeker - On gossip option 0 select - Close gossip'),
+(@ENTRY,0,1,0,61,0,100,0,0,0,0,0,85,70265,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Thalorien Dawnseeker - On gossip option 0 select - Player cast credit on self'),
+(@ENTRY,0,2,1,62,0,100,0,@GOSSIP,@MENUID+1,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Thalorien Dawnseeker - On gossip option 1 select - Close gossip');
+UPDATE `creature_template` SET `gossip_menu_id` = @GOSSIP, `AIName`= 'SmartAI',`ScriptName`= '' WHERE `entry` = @ENTRY;
+REPLACE INTO `gossip_menu_option` (`menu_id`, `id`, `option_text`, `option_id`, `npc_option_npcflag`) VALUES (@GOSSIP, @MENUID, 'Examine the remains.', '1', '1');
+REPLACE INTO `gossip_menu_option` (`menu_id`, `id`, `option_text`, `option_id`, `npc_option_npcflag`) VALUES (@GOSSIP, @MENUID+1, 'Examine the remains.', '1', '1');
