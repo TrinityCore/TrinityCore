@@ -884,6 +884,13 @@ enum ReferAFriendError
     ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
 };
 
+enum PlayerRestState
+{
+    REST_STATE_RESTED                                = 0x01,
+    REST_STATE_NOT_RAF_LINKED                        = 0x02,
+    REST_STATE_RAF_LINKED                            = 0x06
+};
+
 class PlayerTaxi
 {
     public:
