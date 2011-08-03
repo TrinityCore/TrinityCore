@@ -50,6 +50,7 @@ enum DataTypes
     DATA_FLAME_RING                         = 15,
     DATA_CORPOREALITY_MATERIAL              = 16,
     DATA_CORPOREALITY_TWILIGHT              = 17,
+    DATA_TWILIGHT_HALION                    = 18,
 };
 
 enum SharedActions
@@ -121,7 +122,8 @@ enum WorldStatesRS
 
 enum InstanceSpell
 {
-    TWILIGHT_REALM_AURA                 = 74807, // Players with this are in Twilight Realm
+    SPELL_BERSERK                       = 26662,
+    SPELL_TWILIGHT_REALM                = 74807,
 };
 
 template<class AI>

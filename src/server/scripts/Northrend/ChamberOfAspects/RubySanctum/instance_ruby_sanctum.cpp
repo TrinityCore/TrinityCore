@@ -167,8 +167,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return HalionGUID;
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
-                   // case DATA_TWILIGHT_HALION:
-                   //     return TwilightHalionGUID;
+                    case DATA_TWILIGHT_HALION:
+                        return TwilightHalionGUID;
                     case DATA_BURNING_TREE_1:
                         return BurningTreeGUID[0];
                     case DATA_BURNING_TREE_2:
@@ -277,11 +277,11 @@ class instance_ruby_sanctum : public InstanceMapScript
                             switch (uiStateId)
                             {
                                 case WORLDSTATE_CORPOREALITY_TWILIGHT:
-                                    if (player->HasAura(TWILIGHT_REALM_AURA))
+                                    if (player->HasAura(SPELL_TWILIGHT_REALM))
                                         player->SendUpdateWorldState(uiStateId, CorporealityTwilightState);
                                     break;
                                 case WORLDSTATE_CORPOREALITY_MATERIAL:
-                                    if (!player->HasAura(TWILIGHT_REALM_AURA))
+                                    if (!player->HasAura(SPELL_TWILIGHT_REALM))
                                         player->SendUpdateWorldState(uiStateId, CorporealityMaterialState);
                                     break;
                             }
