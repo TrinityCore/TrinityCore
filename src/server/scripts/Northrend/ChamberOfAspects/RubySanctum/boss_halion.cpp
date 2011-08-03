@@ -22,18 +22,18 @@
 /*
 DELETE FROM `spell_dbc` WHERE `id`=70507;
 INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`CastingTimeIndex`,`ProcChance`,`DurationIndex`,`RangeIndex`,`StackAmount`,`Effect1`,`EffectBasePoints1`,`EffectImplicitTargetA1`,`EffectApplyAuraName1`,`DmgMultiplier1`,`Comment`) VALUES
-(70507,0x00000100,0x00000400,0x0,1,101,21,1,100,6,2,1,61,1, 'Halion - Combustion & Consumption Scale Aura'),
+(70507,0x00000100,0x00000400,0x0,1,101,21,1,100,6,2,1,61,1, 'Halion - Combustion & Consumption Scale Aura');
 
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 UPDATE `gameobject` SET `phaseMask`=`phaseMask`|0x20 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
 
-UPDATE `creature_template` SET `scale`=1,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432 WHERE `entry`=40135; -- Consumption
+UPDATE `creature_template` SET `scale`=1,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863;
 UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142;
 UPDATE `creature_template` SET `ScriptName`= 'npc_halion_controller' WHERE `entry`=40146;
-UPDATE `creature_template` SET `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN(40083,40100,40468,40469);
+UPDATE `creature_template` SET `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN (40083,40100,40468,40469);
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
@@ -66,7 +66,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (39863,4,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master''s return!',14,0,100,0,0,17503, 'Halion'),
 (39863,5,0, 'Another "hero" falls.',14,0,100,0,0,17501, 'Halion'),
 (40146,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
-(40146,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17502, 'Halion'), // SoundID guessed
+(40146,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17502, 'Halion'), -- SoundID guessed
 (40146,2,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion');
 */
 
@@ -113,7 +113,8 @@ enum Spells
     SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 2 to phase 3
     SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell from phase 1 to phase 2
     SPELL_TWILIGHT_REALM                = 74807,
-    SPELL_TWILIGHT_PHASING              = 74808,    // Same visual as 57620, plus immunity and morphing - Correct spell ?
+    SPELL_LEAVE_TWILIGHT_REALM          = 74812,
+    SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
     
     // Shadow Orb
@@ -206,7 +207,10 @@ class boss_halion : public CreatureScript
 
         struct boss_halionAI : public BossAI
         {
-            boss_halionAI(Creature* creature) : BossAI(creature, DATA_HALION) { }
+            boss_halionAI(Creature* creature) : BossAI(creature, DATA_HALION) 
+            {
+                instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth());
+            }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -240,6 +244,7 @@ class boss_halion : public CreatureScript
                 _JustReachedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
+                instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth());
                 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
@@ -254,10 +259,12 @@ class boss_halion : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
-                    DoCast(me, SPELL_TWILIGHT_SHIFT);
+                    me->CastStop();
                     events.SetPhase(PHASE_TWO);
                     events.Reset();
+                    DoCast(me, SPELL_TWILIGHT_PHASING);
                     Talk(SAY_PHASE_TWO);
+
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
                 }
@@ -269,16 +276,16 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!(events.GetPhaseMask() & PHASE_ONE_MASK) && instance)
+                if (events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK) && instance)
                     me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if ((events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
 
-                events.Update(diff);
-
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
+                    
+                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -411,7 +418,7 @@ class boss_twilight_halion : public CreatureScript
                     {
                         // Is this the best or the commented SpellHitTarget ?
                         // Leave this line for now
-                        halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                        halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
                         if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
                            halionAI->setEventsPhase(PHASE_THREE);
                     }
@@ -427,7 +434,7 @@ class boss_twilight_halion : public CreatureScript
             //     if (spell->Id == SPELL_TWILIGHT_DIVISION)
             //         if (me->GetGUIDLow() == who->GetGUIDLow() && who == me)
             //             if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-            //                 halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+            //                 halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
             // }
 
             void UpdateAI(uint32 const diff)
@@ -543,9 +550,9 @@ class npc_halion_controller : public CreatureScript
                                 case 3: npcId = NPC_SHADOW_ORB_E; break;
                                 case 4: npcId = NPC_SHADOW_ORB_W; break;
                             }
-                            me->GetMap()->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
+                            me->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
                         }
-                        me->GetMap()->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
+                        me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
                         break;
                     }
                     case ACTION_PHASE_THREE:
@@ -563,6 +570,7 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_DESPAWN_ADDS:
                     {
                         _summons.DespawnAll();
+                        me->setActive(false);
                         break;
                     }
                 }
@@ -814,7 +822,10 @@ class npc_combustion : public CreatureScript
                 me->SetPhaseMask(0x1, true);
                 if (me->GetMap()->IsHeroic())
                     me->SetPhaseMask(creature->GetPhaseMask() | 0x20, true);
+            }
 
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
@@ -871,7 +882,10 @@ class npc_consumption : public CreatureScript
                 me->SetPhaseMask(0x20, true);
                 if (me->GetMap()->IsHeroic())
                     me->SetPhaseMask(creature->GetPhaseMask() | 0x1, true);
+            }
 
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
@@ -929,7 +943,11 @@ class npc_shadow_orb : public CreatureScript
                 _angle = 0.0f;
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 MovementInform(POINT_MOTION_TYPE, 0); // Start movement
-
+                me->SetPhaseMask(0x20, true);
+            }
+            
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
@@ -1001,7 +1019,7 @@ class spell_halion_fiery_combustion : public SpellScriptLoader
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_COMBUSTION))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_COMBUSTION))
                     return false;
                 return true;
             }
@@ -1057,7 +1075,7 @@ class spell_halion_soul_consumption : public SpellScriptLoader
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_CONSUMPTION))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_CONSUMPTION))
                     return false;
                 return true;
             }
@@ -1113,9 +1131,9 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_FIERY_COMBUSTION_SUMMON))
+                if (!sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_SUMMON))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_FIERY_COMBUSTION_EXPLOSION))
+                if (!sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_EXPLOSION))
                     return false;
                 return true;
             }
@@ -1149,11 +1167,11 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
         {
             PrepareAuraScript(spell_halion_mark_of_consumption_AuraScript);
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_SOUL_CONSUMPTION_SUMMON))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_SOUL_CONSUMPTION_EXPLOSION))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_EXPLOSION))
                     return false;
                 return true;
             }
@@ -1191,14 +1209,14 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 Unit* caster = GetCaster();
-                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
-                uint32 duration = uint32(GetSpellDuration(GetSpellInfo()));
+                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->Effects[effIndex].MiscValueB));
+                uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos;
                 caster->GetPosition(&pos);
                 if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
-                    summon->AI()->SetData(MARK_STACKAMOUNT, uint32(GetSpellInfo()->EffectBasePoints[effIndex]));
+                    summon->AI()->SetData(MARK_STACKAMOUNT, uint32(GetSpellInfo()->Effects[effIndex].BasePoints));
             }
 
             void Register()
