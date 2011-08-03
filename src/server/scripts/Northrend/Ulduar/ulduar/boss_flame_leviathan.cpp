@@ -31,6 +31,7 @@
 #include "ObjectMgr.h"
 #include "ulduar.h"
 #include "SpellInfo.h"
+#include "Vehicle.h"
 
 enum Spells
 {
