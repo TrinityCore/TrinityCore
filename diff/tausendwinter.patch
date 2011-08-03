@@ -944,22 +944,6 @@ index 0000000..1b1ff6d
 +-- Note: Siege Engines, Demolisher faction is guess (vehicles get the faction of his driver)
 +-- Demolisher spell positions is not confirmed
 +-- Wintergrasp Tower Cannon H: 1735 A: 1732
-diff --git a/doc/EventAI.txt b/doc/EventAI.txt
-index c1db7dc..1cacaae 100644
---- a/doc/EventAI.txt
-+++ b/doc/EventAI.txt
-@@ -144,6 +144,11 @@ Each event type has its own specific interpretation of it's params, like every e
- 42   ACTION_T_SET_INVINCIBILITY_HP_LEVEL hp_level, is_percent            Set min. health level for creature that can be set at damage as flat value or percent from max health
- 43   ACTION_T_MOUNT_TO_ENTRY_OR_MODEL    CreatureEntry, ModelId          Set mount model from creature_template.entry (Param1) OR explicit modelId (Param2). If (Param1) AND (Param2) are both 0, unmount.
- 
-+96   ACTION_T_CASTER_MOVEMENT            Ja/Nein,Minrange,Maxrange       Param1 = Nutzen oder nicht (1/0) - Param2 = Minimum Entfernung - Param3 = Maximum Entfernung
-+                                                                         Am besten mit EVENT_T_RESET oder EVENT_T_AGGRO zu nutzen. ;)
-+                                                                         Wenn es eingeschaltet ist, läuft der NPC nur bis auf die maximale Entfernung heran, und nicht mehr auf Melee. Ist der NPC nicht mehr in LoS,
-+                                                                         oder einfach zu weit weg, läuft er näher an das Ziel heran.
-+
- * = Use -1 where the param is expected to do nothing. Random constant is generated for each event, so if you have a random yell and a random sound, they will be linked up with each other (ie. param2 with param2).
- 
- 
 diff --git a/sql/updates/world/2011_07_05_00_world_achievement_criteria_data.sql b/sql/updates/world/2011_07_05_00_world_achievement_criteria_data.sql
 new file mode 100644
 index 0000000..fa995e7
@@ -6159,7 +6143,7 @@ index f233291..455babe 100755
  }
  
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 83f2196..6a99196 100755
+index 316a3a2..69b34a1 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -59,7 +59,6 @@
@@ -6178,7 +6162,7 @@ index 83f2196..6a99196 100755
  #include "CharacterDatabaseCleaner.h"
  #include "InstanceScript.h"
  #include "Jail.h"
-@@ -2472,6 +2472,7 @@ void Player::RemoveFromWorld()
+@@ -2475,6 +2475,7 @@ void Player::RemoveFromWorld()
          StopCastingBindSight();
          UnsummonPetTemporaryIfAny();
          sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
@@ -6186,7 +6170,7 @@ index 83f2196..6a99196 100755
      }
  
      ///- Do not add/remove the player from the object storage
-@@ -5562,7 +5563,12 @@ void Player::RepopAtGraveyard()
+@@ -5568,7 +5569,12 @@ void Player::RepopAtGraveyard()
      if (Battleground *bg = GetBattleground())
          ClosestGrave = bg->GetClosestGraveYard(this);
      else
@@ -6200,7 +6184,7 @@ index 83f2196..6a99196 100755
  
      // stop countdown until repop
      m_deathTimer = 0;
-@@ -7458,6 +7464,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
+@@ -7464,6 +7470,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
      {
          sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
          sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
@@ -6209,7 +6193,7 @@ index 83f2196..6a99196 100755
          SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
      }
  
-@@ -7592,7 +7600,7 @@ void Player::CheckDuelDistance(time_t currTime)
+@@ -7598,7 +7606,7 @@ void Player::CheckDuelDistance(time_t currTime)
  
  bool Player::IsOutdoorPvPActive()
  {
@@ -6218,7 +6202,7 @@ index 83f2196..6a99196 100755
  }
  
  void Player::DuelComplete(DuelCompleteType type)
-@@ -22458,10 +22466,6 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
+@@ -22465,10 +22473,6 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
          if (itr->second->autocast && itr->second->IsFitToRequirements(this, newZone, 0))
              if (!HasAura(itr->second->spellId))
                  CastSpell(this, itr->second->spellId, true);
@@ -6229,7 +6213,7 @@ index 83f2196..6a99196 100755
  }
  
  void Player::UpdateAreaDependentAuras(uint32 newArea)
-@@ -22537,9 +22541,6 @@ void Player::UpdateCorpseReclaimDelay()
+@@ -22544,9 +22548,6 @@ void Player::UpdateCorpseReclaimDelay()
  
  void Player::SendCorpseReclaimDelay(bool load)
  {
@@ -6239,7 +6223,7 @@ index 83f2196..6a99196 100755
      Corpse* corpse = GetCorpse();
      if (load && !corpse)
          return;
-@@ -22661,7 +22662,7 @@ bool Player::isUsingLfg()
+@@ -22668,7 +22669,7 @@ bool Player::isUsingLfg()
      return sLFGMgr->GetState(guid) != LFG_STATE_NONE;
  }
  
@@ -6248,7 +6232,7 @@ index 83f2196..6a99196 100755
  {
      //we must move references from m_group to m_originalGroup
      SetOriginalGroup(GetGroup(), GetSubGroup());
-@@ -22671,7 +22672,7 @@ void Player::SetBattlegroundRaid(Group* group, int8 subgroup)
+@@ -22678,7 +22679,7 @@ void Player::SetBattlegroundRaid(Group* group, int8 subgroup)
      m_group.setSubGroup((uint8)subgroup);
  }
  
@@ -6258,10 +6242,10 @@ index 83f2196..6a99196 100755
      //remove existing reference
      m_group.unlink();
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 1d3e060..194f08e 100755
+index e3efe57..9f1a205 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
-@@ -2420,8 +2420,8 @@ class Player : public Unit, public GridObject<Player>
+@@ -2427,8 +2427,8 @@ class Player : public Unit, public GridObject<Player>
          Player* GetNextRandomRaidMember(float radius);
          PartyResult CanUninviteFromGroup() const;
          // Battleground Group System
@@ -6273,7 +6257,7 @@ index 1d3e060..194f08e 100755
          GroupReference& GetOriginalGroupRef() { return m_originalGroup; }
          uint8 GetOriginalSubGroup() const { return m_originalGroup.getSubGroup(); }
 diff --git a/src/server/game/Entities/Unit/Unit.cpp b/src/server/game/Entities/Unit/Unit.cpp
-index c77a64a..4c18eda 100755
+index 3c912e2..cc06374 100755
 --- a/src/server/game/Entities/Unit/Unit.cpp
 +++ b/src/server/game/Entities/Unit/Unit.cpp
 @@ -55,8 +55,8 @@
@@ -6286,7 +6270,7 @@ index c77a64a..4c18eda 100755
  #include <math.h>
  
  float baseMoveSpeed[MAX_MOVE_TYPE] =
-@@ -15576,9 +15576,14 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
+@@ -15577,9 +15577,14 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
      // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
      // handle player kill only if not suicide (spirit of redemption for example)
      if (player && this != victim)
@@ -6302,7 +6286,7 @@ index c77a64a..4c18eda 100755
      //    if (OutdoorPvP* pvp = victim->ToPlayer()->GetOutdoorPvP())
      //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();
 diff --git a/src/server/game/Entities/Vehicle/Vehicle.cpp b/src/server/game/Entities/Vehicle/Vehicle.cpp
-index 3b149f8..d6b1613 100755
+index 7c8985f..58eb215 100755
 --- a/src/server/game/Entities/Vehicle/Vehicle.cpp
 +++ b/src/server/game/Entities/Vehicle/Vehicle.cpp
 @@ -172,8 +172,13 @@ void Vehicle::ApplyAllImmunities()
@@ -6342,18 +6326,18 @@ index 3b149f8..d6b1613 100755
  {
      uint32 vehicleFlags = GetVehicleInfo()->m_flags;
 diff --git a/src/server/game/Entities/Vehicle/Vehicle.h b/src/server/game/Entities/Vehicle/Vehicle.h
-index 49e04d6..62af8fc 100755
+index b706bf9..2d46fbb 100755
 --- a/src/server/game/Entities/Vehicle/Vehicle.h
 +++ b/src/server/game/Entities/Vehicle/Vehicle.h
-@@ -99,6 +99,7 @@ struct VehicleAccessory
- typedef std::vector<VehicleAccessory> VehicleAccessoryList;
- typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
- typedef std::map<int8, VehicleSeat> SeatMap;
-+typedef std::set<uint64> GuidSet;
+@@ -25,6 +25,7 @@
+ struct VehicleEntry;
+ class Unit;
  
++typedef std::set<uint64> GuidSet;
  class Vehicle
  {
-@@ -131,6 +132,7 @@ class Vehicle
+     public:
+@@ -52,6 +53,7 @@ class Vehicle
          void RelocatePassengers(float x, float y, float z, float ang);
          void RemoveAllPassengers();
          void Dismiss();
@@ -6361,7 +6345,7 @@ index 49e04d6..62af8fc 100755
          bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
  
          SeatMap Seats;
-@@ -146,6 +148,7 @@ class Vehicle
+@@ -65,6 +67,7 @@ class Vehicle
  
          Unit* _me;
          VehicleEntry const* _vehicleInfo;
@@ -6382,10 +6366,10 @@ index 78f98ed..f319281 100755
          Player* FindPlayerByName(const char* name);
  
 diff --git a/src/server/game/Globals/ObjectMgr.h b/src/server/game/Globals/ObjectMgr.h
-index c0e268a..311d5ec 100755
+index 22795ba..42b5a4c 100755
 --- a/src/server/game/Globals/ObjectMgr.h
 +++ b/src/server/game/Globals/ObjectMgr.h
-@@ -835,6 +835,11 @@ class ObjectMgr
+@@ -820,6 +820,11 @@ class ObjectMgr
              return &mCreatureQuestRelations;
          }
  
@@ -6397,7 +6381,7 @@ index c0e268a..311d5ec 100755
          QuestRelationBounds GetCreatureQuestRelationBounds(uint32 creature_entry)
          {
              return mCreatureQuestRelations.equal_range(creature_entry);
-@@ -1182,8 +1187,7 @@ class ObjectMgr
+@@ -1167,8 +1172,7 @@ class ObjectMgr
              return GossipMenuItemsMapBoundsNonConst(m_mGossipMenuItemsMap.lower_bound(uiMenuId), m_mGossipMenuItemsMap.upper_bound(uiMenuId));
          }
  
@@ -6836,7 +6820,7 @@ index a64c649..389994a 100755
      LANG_JAIL_YOURE_JAILED      = 12100,
      LANG_JAIL_REASON            = 12101,
 diff --git a/src/server/game/Miscellaneous/SharedDefines.h b/src/server/game/Miscellaneous/SharedDefines.h
-index e61f780..bd1e3af 100755
+index 8ac2d27..8333cc1 100755
 --- a/src/server/game/Miscellaneous/SharedDefines.h
 +++ b/src/server/game/Miscellaneous/SharedDefines.h
 @@ -2680,51 +2680,6 @@ enum WeatherType
@@ -6991,10 +6975,10 @@ index 3b75224..560fac1 100755
  #endif
  }
 diff --git a/src/server/game/Scripting/ScriptMgr.cpp b/src/server/game/Scripting/ScriptMgr.cpp
-index f551b26..e602894 100755
+index 6f17022..3f0410d 100755
 --- a/src/server/game/Scripting/ScriptMgr.cpp
 +++ b/src/server/game/Scripting/ScriptMgr.cpp
-@@ -848,6 +848,14 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
+@@ -849,6 +849,14 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
      return tmpscript->GetAI(creature);
  }
  
@@ -7237,10 +7221,10 @@ index 1438149..d7dcc50 100755
      /*0x4E9*/ { "UMSG_UNKNOWN_1257",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
      /*0x4EA*/ { "UMSG_UNKNOWN_1258",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
 diff --git a/src/server/game/Server/WorldSession.h b/src/server/game/Server/WorldSession.h
-index 1d6f69a..7befac4 100755
+index 7c6ee20..429b763 100755
 --- a/src/server/game/Server/WorldSession.h
 +++ b/src/server/game/Server/WorldSession.h
-@@ -784,6 +784,16 @@ class WorldSession
+@@ -785,6 +785,16 @@ class WorldSession
          void HandleHearthAndResurrect(WorldPacket& recv_data);
          void HandleInstanceLockResponse(WorldPacket& recvPacket);
  
@@ -7258,7 +7242,7 @@ index 1d6f69a..7befac4 100755
          void HandleLfgSetCommentOpcode(WorldPacket & recv_data);
          void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recv_data);
 diff --git a/src/server/game/Spells/Auras/SpellAuraEffects.cpp b/src/server/game/Spells/Auras/SpellAuraEffects.cpp
-index 9cbbf8f..5d61be6 100755
+index add3bd2..7e7982a 100755
 --- a/src/server/game/Spells/Auras/SpellAuraEffects.cpp
 +++ b/src/server/game/Spells/Auras/SpellAuraEffects.cpp
 @@ -35,6 +35,7 @@
@@ -7266,10 +7250,10 @@ index 9cbbf8f..5d61be6 100755
  #include "CellImpl.h"
  #include "ScriptMgr.h"
 +#include "BattlefieldMgr.h"
+ #include "Vehicle.h"
  
  class Aura;
- //
-@@ -4848,8 +4849,12 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
+@@ -4849,8 +4850,12 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                          case 2584: // Waiting to Resurrect
                              // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                              if (target->GetTypeId() == TYPEID_PLAYER)
@@ -7282,7 +7266,7 @@ index 9cbbf8f..5d61be6 100755
                              break;
                          case 36730:                                     // Flame Strike
                          {
-@@ -4886,6 +4891,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
+@@ -4887,6 +4892,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                              target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                              break;
                          case 58600: // Restricted Flight Area
@@ -7291,7 +7275,7 @@ index 9cbbf8f..5d61be6 100755
                                  target->CastSpell(target, 58601, true);
                              break;
 diff --git a/src/server/game/Spells/Spell.cpp b/src/server/game/Spells/Spell.cpp
-index 2ef8dd4..3f4f92b 100755
+index c0b0460..c591ccd 100755
 --- a/src/server/game/Spells/Spell.cpp
 +++ b/src/server/game/Spells/Spell.cpp
 @@ -52,6 +52,7 @@
@@ -7302,7 +7286,7 @@ index 2ef8dd4..3f4f92b 100755
  #include "SpellInfo.h"
  
  extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
-@@ -5486,8 +5487,9 @@ SpellCastResult Spell::CheckCast(bool strict)
+@@ -5506,8 +5507,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                  // allow always ghost flight spells
                  if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->isAlive())
                  {
@@ -7314,10 +7298,10 @@ index 2ef8dd4..3f4f92b 100755
                  }
                  break;
 diff --git a/src/server/game/Spells/SpellEffects.cpp b/src/server/game/Spells/SpellEffects.cpp
-index 890a73f..4eae715 100755
+index 6a7cb30..f1064e3 100755
 --- a/src/server/game/Spells/SpellEffects.cpp
 +++ b/src/server/game/Spells/SpellEffects.cpp
-@@ -6933,11 +6933,24 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
+@@ -6934,11 +6934,24 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
      if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
          return;
  
@@ -7371,7 +7355,7 @@ index ab3459b..8b3e7d0 100644
          }
      }
 diff --git a/src/server/game/Spells/SpellMgr.cpp b/src/server/game/Spells/SpellMgr.cpp
-index 2b6425d..14c79e7 100755
+index 9291c66..b5218d3 100755
 --- a/src/server/game/Spells/SpellMgr.cpp
 +++ b/src/server/game/Spells/SpellMgr.cpp
 @@ -28,6 +28,7 @@
@@ -7382,7 +7366,7 @@ index 2b6425d..14c79e7 100755
  #include "CreatureAI.h"
  #include "MapManager.h"
  #include "BattlegroundIC.h"
-@@ -1213,6 +1214,7 @@ void SpellMgr::LoadSpellRequired()
+@@ -1215,6 +1216,7 @@ void SpellMgr::LoadSpellRequired()
  {
      uint32 oldMSTime = getMSTime();
  
@@ -7391,7 +7375,7 @@ index 2b6425d..14c79e7 100755
      mSpellReq.clear();                                         // need for reload case
  
 diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
-index d561dba..d26c093 100755
+index 029ded5..6bd340a 100755
 --- a/src/server/game/World/World.cpp
 +++ b/src/server/game/World/World.cpp
 @@ -47,6 +47,7 @@
