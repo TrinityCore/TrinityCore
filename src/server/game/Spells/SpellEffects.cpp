@@ -1185,9 +1185,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (unitTarget->GetEntry() != 29402)
                         return;
 
-                    m_caster->SummonGameObject(192693, unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), unitTarget->GetOrientation(), 0, 0, 0, 0, 100);
+                    m_caster->SummonGameObject(192693, unitTarget->GetPositionX(), unitTarget->GetPositionY(),
+                        unitTarget->GetPositionZ(), unitTarget->GetOrientation(), 0, 0, 0, 0, 100);
+
                     for (uint8 i = 0; i < 4; ++i)
-                        m_caster->SummonGameObject(191567, float(unitTarget->GetPositionX() + irand(-7, 7)), float(unitTarget->GetPositionY() + irand(-7, 7)), unitTarget->GetPositionZ(), unitTarget->GetOrientation(), 0, 0, 0, 0, 100);
+                        m_caster->SummonGameObject(191567, float(unitTarget->GetPositionX() + irand(-7, 7)),
+                            float(unitTarget->GetPositionY() + irand(-7, 7)), unitTarget->GetPositionZ(), unitTarget->GetOrientation(),
+                            0, 0, 0, 0, 100);
 
                     unitTarget->Kill(unitTarget);
                     return;
@@ -1394,7 +1398,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (AuraEffect *dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 338, 1))
                         AddPctN(damage, dummy->GetAmount());
 
-                    m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
+                m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
             }
             // Mana Spring Totem
@@ -3706,9 +3710,8 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     Player* owner = NULL;
     if (m_originalCaster)
     {
-        if (m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            owner = (Player*)m_originalCaster;
-        else if (m_originalCaster->ToCreature()->isTotem())
+        owner = m_originalCaster->ToPlayer();
+        if (!owner && m_originalCaster->ToCreature()->isTotem())
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
 
@@ -3845,9 +3848,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex /*effIndex*/)
 
 void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
 {
-    if (!unitTarget)
-        return;
-    if (!unitTarget->isAlive())
+    if (!unitTarget || !unitTarget->isAlive())
         return;
 
     // multiple weapon dmg effect workaround
@@ -6366,7 +6367,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
             {
                 pGameObj->AddUniqueUse(m_caster->ToPlayer());
-                m_caster->AddGameObject(pGameObj);      // will removed at spell cancel
+                m_caster->AddGameObject(pGameObj);      // will be removed at spell cancel
             }
             break;
         }
@@ -6961,7 +6962,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
     uint32 button_id = m_spellInfo->Effects[effIndex].MiscValue + 132;
     uint32 n_buttons = m_spellInfo->Effects[effIndex].MiscValueB;
 
-    for (; n_buttons; n_buttons--, button_id++)
+    for (; n_buttons; --n_buttons, ++button_id)
     {
         ActionButton const* ab = p_caster->GetActionButton(button_id);
         if (!ab || ab->GetType() != ACTION_BUTTON_SPELL)

@@ -187,13 +187,13 @@ void Vehicle::RemoveAllPassengers()
 
     // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
     // We just remove the aura and the unapply handler will make the target leave the vehicle.
-    // We don't need to iterate over m_Seats
+    // We don't need to iterate over Seats
     _me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
     // SeatMap::const_iterator itr;
-    // for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
     //    ASSERT(!itr->second.passenger);
 }
 
