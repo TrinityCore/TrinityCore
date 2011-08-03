@@ -36,7 +36,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include <ace/Singleton.h>
-#include "Vehicle.h"
+#include "VehicleDefines.h"
 #include <string>
 #include <map>
 #include <limits>
@@ -772,22 +772,7 @@ class ObjectMgr
             return NULL;
         }
 
-        VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const
-        {
-            if (Creature* cre = veh->GetBase()->ToCreature())
-            {
-                // Give preference to GUID-based accessories
-                VehicleAccessoryMap::const_iterator itr = m_VehicleAccessoryMap.find(cre->GetDBTableGUIDLow());
-                if (itr != m_VehicleAccessoryMap.end())
-                    return &itr->second;
-            }
-
-            // Otherwise return entry-based
-            VehicleAccessoryMap::const_iterator itr = m_VehicleTemplateAccessoryMap.find(veh->GetCreatureEntry());
-            if (itr != m_VehicleTemplateAccessoryMap.end())
-                return &itr->second;
-            return NULL;
-        }
+        VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
         {
