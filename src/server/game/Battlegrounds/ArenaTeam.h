@@ -124,7 +124,7 @@ class ArenaTeam
         uint32 GetType() const            { return Type; }
         uint8  GetSlot() const            { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
-        const uint64 GetCaptain() const  { return CaptainGuid; }
+        uint64 GetCaptain() const  { return CaptainGuid; }
         std::string GetName() const       { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
 

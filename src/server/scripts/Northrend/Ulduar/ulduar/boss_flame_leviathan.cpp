@@ -30,6 +30,7 @@
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "ulduar.h"
+#include "SpellInfo.h"
 
 enum Spells
 {

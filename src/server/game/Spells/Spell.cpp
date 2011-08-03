@@ -2376,7 +2376,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     break;
                 default:
                     sLog->outError("SPELL (caster[type: %u; guidlow: %u], spell: %u): unhandled spell target (%u)",
-                        m_caster->GetTypeId(), m_caster->GetGUIDLow(), m_spellInfo->Id, cur);
+                        m_caster->GetTypeId(), m_caster->GetGUIDLow(), m_spellInfo->Id, cur.GetTarget());
                     break;
             }
             break;
@@ -5758,7 +5758,7 @@ bool Spell::CanAutoCast(Unit* target)
     return false;                                           //target invalid
 }
 
-SpellCastResult Spell::CheckRange(bool strict)
+SpellCastResult Spell::CheckRange(bool /*strict*/)
 {
     Unit* target = m_targets.GetUnitTarget();
     float max_range = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);

@@ -99,7 +99,7 @@ class Aura
         uint32 GetId() const{ return GetSpellInfo()->Id; }
 
         uint64 GetCastItemGUID() const { return m_castItemGuid; }
-        uint64 const GetCasterGUID() const { return m_casterGuid; }
+        uint64 GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
         WorldObject * GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
