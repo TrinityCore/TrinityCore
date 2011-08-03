@@ -6978,7 +6978,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!ab || ab->GetType() != ACTION_BUTTON_SPELL)
             continue;
 
-        //! Action button data is unverified when it's set so it can be "hacked" 
+        //! Action button data is unverified when it's set so it can be "hacked"
         //! to contain invalid spells, so filter here.
         uint32 spell_id = ab->GetAction();
         if (!spell_id)
@@ -6993,7 +6993,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
 
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_PLAYER_TOTEM))
             continue;
-        
+
         uint32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
         if (m_caster->GetPower(POWER_MANA) < cost)
             continue;
@@ -7089,7 +7089,6 @@ void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex) {
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    Player *player = m_caster->ToPlayer();
 
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
