@@ -20,92 +20,13 @@
 #define __TRINITY_VEHICLE_H
 
 #include "ObjectDefines.h"
+#include "VehicleDefines.h"
 
 struct VehicleEntry;
-struct VehicleSeatEntry;
 class Unit;
-
-enum PowerType
-{
-    POWER_STEAM                                  = 61,
-    POWER_PYRITE                                 = 41,
-    POWER_HEAT                                   = 101,
-    POWER_OOZE                                   = 121,
-    POWER_BLOOD                                  = 141,
-    POWER_WRATH                                  = 142
-};
-
-enum VehicleFlags
-{
-    VEHICLE_FLAG_NO_STRAFE                       = 0x00000001,           // Sets MOVEFLAG2_NO_STRAFE
-    VEHICLE_FLAG_NO_JUMPING                      = 0x00000002,           // Sets MOVEFLAG2_NO_JUMPING
-    VEHICLE_FLAG_FULLSPEEDTURNING                = 0x00000004,           // Sets MOVEFLAG2_FULLSPEEDTURNING
-    VEHICLE_FLAG_ALLOW_PITCHING                  = 0x00000010,           // Sets MOVEFLAG2_ALLOW_PITCHING
-    VEHICLE_FLAG_FULLSPEEDPITCHING               = 0x00000020,           // Sets MOVEFLAG2_FULLSPEEDPITCHING
-    VEHICLE_FLAG_CUSTOM_PITCH                    = 0x00000040,           // If set use pitchMin and pitchMax from DBC, otherwise pitchMin = -pi/2, pitchMax = pi/2
-    VEHICLE_FLAG_ADJUST_AIM_ANGLE                = 0x00000400,           // Lua_IsVehicleAimAngleAdjustable
-    VEHICLE_FLAG_ADJUST_AIM_POWER                = 0x00000800,           // Lua_IsVehicleAimPowerAdjustable
-};
-
-enum VehicleSeatFlags
-{
-    VEHICLE_SEAT_FLAG_HIDE_PASSENGER             = 0x00000200,           // Passenger is hidden
-    VEHICLE_SEAT_FLAG_UNK11                      = 0x00000400,           // needed for CGCamera__SyncFreeLookFacing
-    VEHICLE_SEAT_FLAG_CAN_CONTROL                = 0x00000800,           // Lua_UnitInVehicleControlSeat
-    VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL       = 0x00001000,           // Can cast spells with SPELL_AURA_MOUNTED from seat (possibly 4.x only, 0 seats on 3.3.5a)
-    VEHICLE_SEAT_FLAG_UNCONTROLLED               = 0x00002000,           // can override !& VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT
-    VEHICLE_SEAT_FLAG_CAN_ATTACK                 = 0x00004000,           // Can attack, cast spells and use items from vehicle
-    VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT          = 0x02000000,           // Lua_CanExitVehicle - can enter and exit at free will
-    VEHICLE_SEAT_FLAG_CAN_SWITCH                 = 0x04000000,           // Lua_CanSwitchVehicleSeats
-    VEHICLE_SEAT_FLAG_CAN_CAST                   = 0x20000000,           // Lua_UnitHasVehicleUI
-};
-
-enum VehicleSeatFlagsB
-{
-    VEHICLE_SEAT_FLAG_B_NONE                     = 0x00000000,
-    VEHICLE_SEAT_FLAG_B_USABLE_FORCED            = 0x00000002,
-    VEHICLE_SEAT_FLAG_B_TARGETS_IN_RAIDUI        = 0x00000008,           // Lua_UnitTargetsVehicleInRaidUI
-    VEHICLE_SEAT_FLAG_B_EJECTABLE                = 0x00000020,           // ejectable
-    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
-    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
-    VEHICLE_SEAT_FLAG_B_CANSWITCH                = 0x04000000,           // can switch seats
-    VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
-};
-
-enum VehicleSpells
-{
-    VEHICLE_SPELL_RIDE_HARDCODED                 = 46598,
-    VEHICLE_SPELL_PARACHUTE                      = 45472
-};
-
-struct VehicleSeat
-{
-    explicit VehicleSeat(VehicleSeatEntry const *seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
-    VehicleSeatEntry const *SeatInfo;
-    uint64 Passenger;
-};
-
-struct VehicleAccessory
-{
-    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
-        AccessoryEntry(entry), SeatId(seatId), IsMinion(isMinion), SummonedType(summonType), SummonTime(summonTime) {}
-    uint32 AccessoryEntry;
-    int8 SeatId;
-    uint32 IsMinion;
-    uint8 SummonedType;
-    uint32 SummonTime;
-};
-
-typedef std::vector<VehicleAccessory> VehicleAccessoryList;
-typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
-typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle
 {
-    friend class Unit;
-    friend class WorldSession;
-    friend class Spell;
-
     public:
         explicit Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
         virtual ~Vehicle();
@@ -135,8 +56,6 @@ class Vehicle
 
         SeatMap Seats;
 
-    protected:
-        uint16 GetExtraMovementFlagsForBase() const;
         VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
 
     private:
