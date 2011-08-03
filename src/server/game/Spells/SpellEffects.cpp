@@ -216,7 +216,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectChargeDest,                               //149 SPELL_EFFECT_CHARGE_DEST
     &Spell::EffectQuestStart,                               //150 SPELL_EFFECT_QUEST_START
     &Spell::EffectTriggerRitualOfSummoning,                 //151 SPELL_EFFECT_TRIGGER_SPELL_2
-    &Spell::EffectNULL,                                     //152 SPELL_EFFECT_152                      summon Refer-a-Friend
+    &Spell::EffectSummonRaFFriend,                          //152 SPELL_EFFECT_SUMMON_RAF_FRIEND        summon Refer-a-Friend
     &Spell::EffectCreateTamedPet,                           //153 SPELL_EFFECT_CREATE_TAMED_PET         misc value is creature entry
     &Spell::EffectDiscoverTaxi,                             //154 SPELL_EFFECT_DISCOVER_TAXI
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
@@ -7073,4 +7073,16 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     data << uint64(player->GetGUID());
     data << uint32(area_id);
     player->SendDirectMessage(&data);
+}
+
+void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex) {
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+    Player *player = m_caster->ToPlayer();
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    m_caster->CastSpell(m_caster, m_spellInfo->Effects[effIndex].TriggerSpell, true);
 }
