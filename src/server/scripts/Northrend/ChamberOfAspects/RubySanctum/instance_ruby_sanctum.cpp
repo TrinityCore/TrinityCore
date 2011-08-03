@@ -167,8 +167,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return HalionGUID;
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
-                    case DATA_TWILIGHT_HALION:
-                        return TwilightHalionGUID;
+                   // case DATA_TWILIGHT_HALION:
+                   //     return TwilightHalionGUID;
                     case DATA_BURNING_TREE_1:
                         return BurningTreeGUID[0];
                     case DATA_BURNING_TREE_2:
@@ -268,7 +268,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             
             void PartiallyUpdateWorldState(uint32 uiStateId)
             {
-                Map::PlayerList const& lPlayers = GetPlayers();
+                Map::PlayerList const& lPlayers = instance->GetPlayers();
 
                 if (!lPlayers.isEmpty())
                 {

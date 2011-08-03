@@ -92,7 +92,7 @@ enum CreaturesIds
     NPC_METEOR_STRIKE_SOUTH                 = 40044,
     NPC_METEOR_STRIKE_FLAME                 = 40055,
     NPC_COMBUSTION                          = 40001,
-    NPC_CONSOMPTION                         = 40135,
+    NPC_CONSUMPTION                         = 40135,
 
     // Xerestrasza
     NPC_XERESTRASZA                         = 40429,
@@ -119,7 +119,7 @@ enum WorldStatesRS
     WORLDSTATE_CORPOREALITY_TOGGLE   = 5051,
 };
 
-enum Spells
+enum InstanceSpell
 {
     TWILIGHT_REALM_AURA                 = 74807, // Players with this are in Twilight Realm
 };

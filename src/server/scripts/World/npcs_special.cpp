@@ -1884,8 +1884,9 @@ public:
                 return;
 
             bool isTargetUnderCC = false;
-            if (me->GetCharmerOrOwnerGUID() && Unit* victim = me->getVictim())
-                isTargetUnderCC = victim->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
+            if (me->GetCharmerOrOwnerGUID())
+                if (Unit* victim = me->getVictim())
+                    isTargetUnderCC = victim->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
 
             if (isTargetUnderCC)
             {
