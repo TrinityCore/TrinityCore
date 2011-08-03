@@ -514,7 +514,8 @@ uint32 SpellMgr::GetLastSpellInChain(uint32 spell_id) const
 uint32 SpellMgr::GetNextSpellInChain(uint32 spell_id) const
 {
     if (SpellChainNode const* node = GetSpellChainNode(spell_id))
-        return node->next ? node->next->Id : NULL;
+        if (node->next)
+            return node->next->Id;
 
     return 0;
 }
@@ -522,7 +523,8 @@ uint32 SpellMgr::GetNextSpellInChain(uint32 spell_id) const
 uint32 SpellMgr::GetPrevSpellInChain(uint32 spell_id) const
 {
     if (SpellChainNode const* node = GetSpellChainNode(spell_id))
-        return node->prev ? node->prev->Id : NULL;
+        if (node->prev)
+            return node->prev->Id;
 
     return 0;
 }

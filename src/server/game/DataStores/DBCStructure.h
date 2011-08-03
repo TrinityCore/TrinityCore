@@ -24,7 +24,6 @@
 #include "Define.h"
 #include "Path.h"
 #include "Util.h"
-#include "Vehicle.h"
 
 #include <map>
 #include <set>

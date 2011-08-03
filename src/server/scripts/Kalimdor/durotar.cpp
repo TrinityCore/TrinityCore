@@ -16,6 +16,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "Vehicle.h"
 
 /*######
 ##Quest 5441: Lazy Peons

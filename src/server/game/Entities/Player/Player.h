@@ -884,6 +884,13 @@ enum ReferAFriendError
     ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
 };
 
+enum PlayerRestState
+{
+    REST_STATE_RESTED                                = 0x01,
+    REST_STATE_NOT_RAF_LINKED                        = 0x02,
+    REST_STATE_RAF_LINKED                            = 0x06
+};
+
 class PlayerTaxi
 {
     public:
@@ -1555,13 +1562,13 @@ class Player : public Unit, public GridObject<Player>
             return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
         }
 
-        const uint64 GetSelection() const { return m_curSelection; }
+        uint64 GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
         Player *GetSelectedPlayer() const;
         void SetSelection(const uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() { return m_comboPoints; }
-        const uint64 GetComboTarget() const { return m_comboTarget; }
+        uint64 GetComboTarget() const { return m_comboTarget; }
 
         void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
         void GainSpellComboPoints(int8 count);
@@ -1892,7 +1899,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateManaRegen();
         void UpdateRuneRegen(RuneType rune);
 
-        const uint64 GetLootGUID() const { return m_lootGuid; }
+        uint64 GetLootGUID() const { return m_lootGuid; }
         void SetLootGUID(const uint64 guid) { m_lootGuid = guid; }
 
         void RemovedInsignia(Player* looterPlr);
@@ -2397,7 +2404,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
-        const uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;

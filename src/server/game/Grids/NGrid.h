@@ -99,7 +99,7 @@ class NGrid
             return i_cells[x][y];
         }
 
-        const uint32 GetGridId(void) const { return i_gridId; }
+        uint32 GetGridId(void) const { return i_gridId; }
         void SetGridId(const uint32 id) const { i_gridId = id; }
         grid_state_t GetGridState(void) const { return i_cellstate; }
         void SetGridState(grid_state_t s) { i_cellstate = s; }

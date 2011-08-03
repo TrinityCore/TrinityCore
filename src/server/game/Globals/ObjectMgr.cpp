@@ -8993,3 +8993,20 @@ CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 entry)
 
     return NULL;
 }
+
+VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) const
+{
+    if (Creature* cre = veh->GetBase()->ToCreature())
+    {
+        // Give preference to GUID-based accessories
+        VehicleAccessoryMap::const_iterator itr = m_VehicleAccessoryMap.find(cre->GetDBTableGUIDLow());
+        if (itr != m_VehicleAccessoryMap.end())
+            return &itr->second;
+    }
+
+    // Otherwise return entry-based
+    VehicleAccessoryMap::const_iterator itr = m_VehicleTemplateAccessoryMap.find(veh->GetCreatureEntry());
+    if (itr != m_VehicleTemplateAccessoryMap.end())
+        return &itr->second;
+    return NULL;
+}

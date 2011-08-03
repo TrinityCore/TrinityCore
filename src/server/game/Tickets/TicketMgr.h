@@ -94,7 +94,7 @@ public:
     std::string GetPlayerName() const { return _playerName; }
     std::string GetMessage() const { return _message; }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
-    const uint64 GetAssignedToGUID() const { return _assignedTo; }
+    uint64 GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
     {
         std::string name;
@@ -104,7 +104,7 @@ public:
 
         return name;
     }
-    const uint64 GetLastModifiedTime() const { return _lastModifiedTime; }
+    uint64 GetLastModifiedTime() const { return _lastModifiedTime; }
     GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }
 
     void SetEscalatedStatus(GMTicketEscalationStatus escalatedStatus) { _escalatedStatus = escalatedStatus; }

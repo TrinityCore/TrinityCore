@@ -64,7 +64,7 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
 
-        uint64 const GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
+        uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime() { m_time = time(NULL); }

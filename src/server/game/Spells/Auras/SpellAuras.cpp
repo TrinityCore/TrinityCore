@@ -34,6 +34,7 @@
 #include "CellImpl.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura * aura, uint8 effMask):
 m_target(target), m_base(aura), m_slot(MAX_AURAS), m_flags(AFLAG_NONE),
