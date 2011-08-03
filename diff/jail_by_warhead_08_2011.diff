@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 6b032f4..66e61f5 100755
+index d5f45ef..2cf57e2 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -198,7 +198,7 @@ index 6b032f4..66e61f5 100755
      // group is initialized in the reference constructor
      SetGroupInvite(NULL);
      m_groupUpdateMask = 0;
-@@ -1178,6 +1189,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
+@@ -1181,6 +1192,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
      return true;
  }
  
@@ -249,7 +249,7 @@ index 6b032f4..66e61f5 100755
  bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
  {
      sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
-@@ -1492,6 +1547,19 @@ void Player::Update(uint32 p_time)
+@@ -1495,6 +1550,19 @@ void Player::Update(uint32 p_time)
      if (!IsInWorld())
          return;
  
@@ -269,7 +269,7 @@ index 6b032f4..66e61f5 100755
      // undelivered mail
      if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
      {
-@@ -1698,7 +1766,15 @@ void Player::Update(uint32 p_time)
+@@ -1701,7 +1769,15 @@ void Player::Update(uint32 p_time)
      }
  
      if (m_deathState == JUST_DIED)
@@ -286,7 +286,7 @@ index 6b032f4..66e61f5 100755
  
      if (m_nextSave > 0)
      {
-@@ -4893,6 +4969,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
+@@ -4906,6 +4982,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
              trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
@@ -294,7 +294,7 @@ index 6b032f4..66e61f5 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17010,6 +17087,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17023,6 +17100,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -304,7 +304,7 @@ index 6b032f4..66e61f5 100755
      return true;
  }
  
-@@ -18348,7 +18428,13 @@ void Player::SaveToDB()
+@@ -18363,7 +18443,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
@@ -319,7 +319,7 @@ index 6b032f4..66e61f5 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 87ceff7..c81191b 100755
+index 17f43cc..c97e6d6 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -328,7 +328,7 @@ index 87ceff7..c81191b 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1126,6 +1127,23 @@ class Player : public Unit, public GridObject<Player>
+@@ -1151,6 +1152,23 @@ class Player : public Unit, public GridObject<Player>
  
          void InitStatsForLevel(bool reapplyMods = false);
  
@@ -1496,7 +1496,7 @@ index 5149308..20bc136 100755
      AddSC_modify_commandscript();
      AddSC_npc_commandscript();
 diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
-index b795bcf..187a39c 100755
+index 639af40..99d0773 100755
 --- a/src/server/game/World/World.cpp
 +++ b/src/server/game/World/World.cpp
 @@ -1,4 +1,5 @@
@@ -1704,7 +1704,7 @@ index 47e1894..8db127c 100755
  }
  
 diff --git a/src/server/shared/Utilities/Util.h b/src/server/shared/Utilities/Util.h
-index 2613416..dc2b57f 100755
+index 902b601..0e3cb10 100755
 --- a/src/server/shared/Utilities/Util.h
 +++ b/src/server/shared/Utilities/Util.h
 @@ -44,9 +44,16 @@ struct Tokens: public std::vector<char*>
