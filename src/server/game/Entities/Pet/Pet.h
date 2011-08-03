@@ -215,7 +215,7 @@ class Pet : public Guardian
 
         uint32  m_usedTalentCount;
 
-        const uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         void ResetAuraUpdateMaskForRaid() { m_auraRaidUpdateMask = 0; }
 

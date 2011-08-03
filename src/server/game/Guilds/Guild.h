@@ -270,7 +270,7 @@ private:
         void SaveToDB(SQLTransaction& trans) const;
         void WritePacket(WorldPacket& data) const;
 
-        const uint64 GetGUID() const { return m_guid; }
+        uint64 GetGUID() const { return m_guid; }
         std::string GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint8 GetRankId() const { return m_rankId; }
@@ -590,7 +590,7 @@ public:
 
     // Getters
     uint32 GetId() const { return m_id; }
-    const uint64 GetLeaderGUID() const { return m_leaderGuid; }
+    uint64 GetLeaderGUID() const { return m_leaderGuid; }
     const std::string& GetName() const { return m_name; }
     const std::string& GetMOTD() const { return m_motd; }
     const std::string& GetInfo() const { return m_info; }
