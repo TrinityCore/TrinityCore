@@ -281,7 +281,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
 
-void Spell::EffectEnvirinmentalDMG(SpellEffIndex effIndex)
+void Spell::EffectEnvirinmentalDMG(SpellEffIndex /*effIndex*/)
 {
     if (!unitTarget || !unitTarget->isAlive())
         return;

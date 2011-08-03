@@ -149,7 +149,7 @@ class Object
             ClearUpdateMask(true);
         }
 
-        const uint64 GetGUID() const { return GetUInt64Value(0); }
+        uint64 GetGUID() const { return GetUInt64Value(0); }
         uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
         uint32 GetGUIDMid() const { return GUID_ENPART(GetUInt64Value(0)); }
         uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
@@ -169,25 +169,25 @@ class Object
 
         virtual void DestroyForPlayer(Player *target, bool anim = false) const;
 
-        const int32& GetInt32Value(uint16 index) const
+        int32 GetInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_int32Values[ index ];
         }
 
-        const uint32 GetUInt32Value(uint16 index) const
+        uint32 GetUInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_uint32Values[ index ];
         }
 
-        const uint64 GetUInt64Value(uint16 index) const
+        uint64 GetUInt64Value(uint16 index) const
         {
             ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
             return *((uint64*)&(m_uint32Values[ index ]));
         }
 
-        const float& GetFloatValue(uint16 index) const
+        float GetFloatValue(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_floatValues[ index ];

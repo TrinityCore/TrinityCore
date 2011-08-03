@@ -8052,10 +8052,11 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                 {
                     if (plr->getClass() != CLASS_DEATH_KNIGHT)
                         return false;
-                    RuneType rune = ToPlayer()->GetLastUsedRune();
+
                     AuraEffect* aurEff = triggeredByAura->GetEffect(EFFECT_0);
                     if (!aurEff)
                         return false;
+
                     // Reset amplitude - set death rune remove timer to 30s
                     aurEff->ResetPeriodic(true);
                     uint32 runesLeft;
