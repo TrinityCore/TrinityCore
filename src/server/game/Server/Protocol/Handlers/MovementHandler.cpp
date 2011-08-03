@@ -492,7 +492,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
         }
         else
         {
-            sLog->outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " and should be " UI64FMTD, guid, _player->m_mover->GetGUID());
+            sLog->outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, guid, GetLogNameForGuid(guid), GUID_ENPART(guid), _player->m_mover->GetGUID());
             GetPlayer()->SetMover(GetPlayer());
         }
     }

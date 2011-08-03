@@ -169,7 +169,7 @@ class Object
 
         virtual void DestroyForPlayer(Player *target, bool anim = false) const;
 
-        const int32& GetInt32Value(uint16 index) const
+        int32 GetInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_int32Values[ index ];
@@ -187,7 +187,7 @@ class Object
             return *((uint64*)&(m_uint32Values[ index ]));
         }
 
-        const float& GetFloatValue(uint16 index) const
+        float GetFloatValue(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_floatValues[ index ];

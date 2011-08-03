@@ -277,8 +277,9 @@ int RASocket::subnegotiate()
     const size_t recv_size = message_block.space();
 
     // Wait a maximum of 1000ms for negotiation packet - not all telnet clients may send it
+    ACE_Time_Value waitTime = ACE_Time_Value(1);
     const ssize_t n = peer().recv(message_block.wr_ptr(),
-        recv_size, &ACE_Time_Value(1));
+        recv_size, &waitTime);
 
     if (n <= 0)
         return int(n);
