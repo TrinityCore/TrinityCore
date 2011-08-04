@@ -50,8 +50,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 FlameRingGUID = 0;
                 memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
-                CorporealityTwilightState = 0;
-                CorporealityMaterialState = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -251,16 +249,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_HALION_SHARED_HEALTH:
                         HalionSharedHealth = data;
                         break;
-                    case DATA_CORPOREALITY_MATERIAL:
-                        CorporealityMaterialState = data;
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
-                        PartiallyUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL);
-                        break;
-                    case DATA_CORPOREALITY_TWILIGHT:
-                        CorporealityTwilightState = data;
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
-                        PartiallyUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT);
-                        break;
                     default:
                         break;
                 }
@@ -373,8 +361,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 FlameRingGUID;
             uint32 BaltharusSharedHealth;
             uint32 HalionSharedHealth;
-            uint32 CorporealityTwilightState;
-            uint32 CorporealityMaterialState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

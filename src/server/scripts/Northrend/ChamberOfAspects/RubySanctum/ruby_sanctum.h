@@ -48,9 +48,7 @@ enum DataTypes
     DATA_BURNING_TREE_3                     = 13,
     DATA_BURNING_TREE_4                     = 14,
     DATA_FLAME_RING                         = 15,
-    DATA_CORPOREALITY_MATERIAL              = 16,
-    DATA_CORPOREALITY_TWILIGHT              = 17,
-    DATA_TWILIGHT_HALION                    = 18,
+    DATA_TWILIGHT_HALION                    = 16,
 };
 
 enum SharedActions

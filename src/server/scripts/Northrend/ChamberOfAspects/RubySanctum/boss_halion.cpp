@@ -104,6 +104,8 @@ enum Texts
 
     SAY_SPHERE_PULSE                 = 0, // Beware the shadow!
     SAY_PHASE_THREE                  = 1, // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
+
+    // <Your/Your companion's> efforts have forced Halion further <into/out of> the <Twilight/Physical> realm!
 };
 
 enum Spells
@@ -230,6 +232,30 @@ Position const ShadowOrbsSpawnPos[4] =
     {3116.67f, 533.8108f, 72.91f, 6.264683f}, // South - On Heroic
     {3156.67f, 493.8108f, 72.58f, 1.593135f}, // East
     {3156.67f, 573.8108f, 72.89f, 4.659930f} //  West
+};
+
+struct CorporealityData
+{
+    uint8 physicalPercentage;
+    uint32 physicalRealmSpellId;
+    uint32 twilightRealmSpellId;
+    uint8 twilightPercentage;
+};
+
+// Most painful thing to do ever.
+CorporealityData const corporealityReference[11] =
+{
+    {  0, 74836, 74831, 100},
+    { 10, 74835, 74830,  90},
+    { 20, 74834, 74829,  80},
+    { 30, 74833, 74828,  70},
+    { 40, 74832, 74827,  60},
+    { 50, 74286, 74286,  50},
+    { 60, 74827, 74832,  40},
+    { 70, 74828, 74833,  30},
+    { 80, 74829, 74834,  20},
+    { 90, 74830, 74835,  10},
+    {100, 74831, 74836,   0},
 };
 
 class boss_halion : public CreatureScript
@@ -637,8 +663,7 @@ class npc_halion_controller : public CreatureScript
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
-                        TwilightCorporealityValue = 50;
-                        MaterialCorporealityValue = 50;
+                        corporealityValue = 50;
                         break;
                     }
                     case ACTION_DESPAWN_ADDS:
@@ -702,31 +727,49 @@ class npc_halion_controller : public CreatureScript
                         }
                         case EVENT_CHECK_CORPOREALITY:
                         {
+                            // Physical realm : the more the damage, the more the corporeality
                             me->setActive(true);
                             bool canUpdate = false;
+                            uint8 oldCorpo = corporealityValue;
                             if (MaterialDamageTaken * 1.02f > TwilightDamageTaken)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
-                                TwilightCorporealityValue += 10;
-                                MaterialCorporealityValue -= 10;
+                                corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                 canUpdate = true;
                             }
                             else if (TwilightDamageTaken * 1.02f > MaterialDamageTaken)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
-                                TwilightCorporealityValue -= 10;
-                                MaterialCorporealityValue += 10;
+                                corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
                                 canUpdate = true;
                             }
                             if (canUpdate)
                             {
-                                if (TwilightCorporealityValue > 100) TwilightCorporealityValue = 100;
-                                if (TwilightCorporealityValue < 0)   TwilightCorporealityValue = 0;
-                                if (MaterialCorporealityValue > 100) MaterialCorporealityValue = 100;
-                                if (MaterialCorporealityValue < 0)   MaterialCorporealityValue = 0;
-                                // Todo: List buffs accordingly, then cast them on both Halion
+                                uint8 tValue = 100 - corporealityValue;
+                                uint8 pValue = corporealityValue;
+                                uint32 tSpell, pSpell;
+                                for (uint8 i = 0; i < 12; i++)
+                                    if (corporealityReference[i].physicalPercentage == pValue
+                                        && corporealityReference[i].twilightPercentage == tValue)
+                                    {
+                                        tSpell = corporealityReference[i].twilightRealmSpellId;
+                                        pSpell = corporealityReference[i].physicalRealmSpellId;
+                                        break;
+                                    }
+                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                                    halion->AI()->DoCast(halion, pSpell, true);
+                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                    halion->AI()->DoCast(halion, tSpell, true);
+
+                                if (oldCorpo > pValue) // Physical corporeality decreased
+                                {
+
+                                }
+                                else // Physical corporeality highered.
+                                {
+                                }
                             }
                             me->setActive(false);
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
@@ -757,8 +800,7 @@ class npc_halion_controller : public CreatureScript
             SummonList _summons;
             uint32 TwilightDamageTaken;
             uint32 MaterialDamageTaken;
-            uint8 TwilightCorporealityValue;
-            uint8 MaterialCorporealityValue;
+            uint8 corporealityValue; // We always refer to the PHYSICAL VALUE.
             uint64 _orbRotationFocusGUID;
             uint64 _shadowOrbsGUIDs[4];
         };
@@ -1347,7 +1389,7 @@ class CombustionConsumptionDamageSelector
         {
             if (uint32 scale = _owner->AI()->GetData(MARK_STACKAMOUNT))
                 if (unit->GetTypeId() == TYPEID_PLAYER)
-                    if (unit->IsWithinDistInMap(_owner, float(12 * (1 + scale / 10)))) // Guessing
+                    if (unit->IsWithinDistInMap(_owner, float(12 * (1 + scale / 10)))) // Guess, need some more research
                         return false;
             return true;
         }
@@ -1393,17 +1435,24 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_halion_leave_twilight_realm_SpellScript);
 
-            void HandleDummy()
+            // SPELL_AURA_DUMMY with value 32 (0x20, phase)
+            void HandleAfterHit()
             {
                 if (Player* plr = GetHitPlayer())
-                {
                     plr->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
-                }
+            }
+
+            void HandleBeforeHit()
+            {
+                // Right before, make the Soul Consumption explode
+                if (Player* plr = GetHitPlayer())
+                    plr->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_halion_leave_twilight_realm_SpellScript::HandleDummy);
+                BeforeHit += SpellHitFn(spell_halion_leave_twilight_realm_SpellScript::HandleBeforeHit);
+                AfterHit += SpellHitFn(spell_halion_leave_twilight_realm_SpellScript::HandleAfterHit);
             }
         };
 
