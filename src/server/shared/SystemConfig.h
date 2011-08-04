@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -24,7 +25,7 @@
 #include "Define.h"
 #include "revision.h"
 
-#define _PACKAGENAME "TrinityCore"
+#define _PACKAGENAME "UWoM-Server"
 
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 # define _ENDIAN_STRING "big-endian"

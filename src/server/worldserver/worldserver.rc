@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -39,7 +40,7 @@
 IDI_APPICON             ICON                    "worldserver.ico"
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutre (Par défaut système) resources
+// Neutre (Par dï¿½faut systï¿½me) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUSD)
 #ifdef _WIN32
@@ -75,12 +76,12 @@ BEGIN
         BLOCK "080004b0"
         BEGIN
             VALUE "CompanyName",        VER_COMPANYNAME_STR
-            VALUE "FileDescription",    "TrinityCore World Server Daemon"
+            VALUE "FileDescription",    "UWoM-Server World Server Daemon"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "worldserver"
             VALUE "LegalCopyright",     VER_LEGALCOPYRIGHT_STR
             VALUE "OriginalFilename",   "worldserver.exe"
-            VALUE "ProductName",        "TrinityCore World Server"
+            VALUE "ProductName",        "UWoM-Server World Server"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END
