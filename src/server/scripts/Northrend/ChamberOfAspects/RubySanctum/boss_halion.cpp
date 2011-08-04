@@ -727,10 +727,8 @@ class npc_halion_controller : public CreatureScript
                         }
                         case EVENT_CHECK_CORPOREALITY:
                         {
-                            // Physical realm : the more the damage, the more the corporeality
                             me->setActive(true);
                             bool canUpdate = false;
-                            uint8 oldCorpo = corporealityValue;
                             if (MaterialDamageTaken * 1.02f > TwilightDamageTaken)
                             {
                                 TwilightDamageTaken = 0;
@@ -747,25 +745,25 @@ class npc_halion_controller : public CreatureScript
                             }
                             if (canUpdate)
                             {
-                                uint8 tValue = 100 - corporealityValue;
-                                uint8 pValue = corporealityValue;
+                                uint32 tValue = 100 - corporealityValue;
+                                uint32 pValue = corporealityValue;
                                 uint32 tSpell, pSpell;
                                 for (uint8 i = 0; i < 12; i++)
-                                    if (corporealityReference[i].physicalPercentage == pValue
-                                        && corporealityReference[i].twilightPercentage == tValue)
+                                    if (corporealityReference[i].physicalPercentage == pValue && corporealityReference[i].twilightPercentage == tValue)
                                     {
                                         tSpell = corporealityReference[i].twilightRealmSpellId;
                                         pSpell = corporealityReference[i].physicalRealmSpellId;
                                         break;
                                     }
+
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                                     halion->AI()->DoCast(halion, pSpell, true);
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                     halion->AI()->DoCast(halion, tSpell, true);
 
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(true));
-                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, uint32(pValue));
-                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, uint32(tValue));
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
                             }
                             me->setActive(false);
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
