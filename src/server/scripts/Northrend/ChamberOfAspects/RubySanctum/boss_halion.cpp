@@ -219,7 +219,7 @@ enum Misc
     MATERIAL_DAMAGE_TAKEN   = 3,
 };
 
-enum GUID
+enum GUIDs
 {
     GUID_ORB_ROTATION_FOCUS = 0,
 };

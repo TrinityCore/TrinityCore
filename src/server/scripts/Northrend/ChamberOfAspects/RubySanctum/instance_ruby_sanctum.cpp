@@ -254,7 +254,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
             
-            void PartiallyUpdateWorldState(uint32 uiStateId)
+            /*void PartiallyUpdateWorldState(uint32 uiStateId)
             {
                 Map::PlayerList const& lPlayers = instance->GetPlayers();
 
@@ -276,7 +276,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
                 else
                     sLog->outDebug(LOG_FILTER_TSCR, "Ruby Sanctum::PartiallyUpdateWorldState() tried to update Corpereality Worldstate, but no player is in map.");
-            }
+            }*/
 
             uint32 GetData(uint32 type)
             {
@@ -298,7 +298,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "R S " << GetBossSaveData() << CorporealityTwilightState << CorporealityMaterialState;
+                saveStream << "R S " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -336,8 +336,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                             tmpState = NOT_STARTED;
 
                         SetBossState(i, EncounterState(tmpState));
-
-                        loadStream >> CorporealityTwilightState >> CorporealityMaterialState;
                     }
                 }
                 else
