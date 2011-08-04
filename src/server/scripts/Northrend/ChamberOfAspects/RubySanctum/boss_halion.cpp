@@ -724,6 +724,9 @@ class npc_halion_controller : public CreatureScript
                                         orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
                                 me->setActive(false);
                             }
+
+                            if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                tHalion->AI()->Talk(SAY_SPHERE_PULSE);
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             break;
                         }
@@ -731,20 +734,21 @@ class npc_halion_controller : public CreatureScript
                         {
                             me->setActive(true);
                             bool canUpdate = false;
-                            if (MaterialDamageTaken * 1.02f > TwilightDamageTaken)
+                            if (float(MaterialDamageTaken / TwilightDamageTaken) >= 1.02f)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
                                 corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                 canUpdate = true;
                             }
-                            else if (TwilightDamageTaken * 1.02f > MaterialDamageTaken)
+                            else if (float(TwilightDamageTaken / MaterialDamageTaken) >= 1.02f)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
                                 corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
                                 canUpdate = true;
                             }
+
                             if (canUpdate)
                             {
                                 uint32 tValue = 100 - corporealityValue;
@@ -759,20 +763,45 @@ class npc_halion_controller : public CreatureScript
                                     }
 
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                                {
+                                    RemoveAnyCorporealityBuff(halion);
                                     halion->AI()->DoCast(halion, pSpell, true);
+                                }
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                {
+                                    RemoveAnyCorporealityBuff(halion);
                                     halion->AI()->DoCast(halion, tSpell, true);
+                                }
 
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(true));
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
 
-                                /*if (pValue > tValue)
+                                // Hacky, the message has to be sent to part of the group, and not this way
+                                if (Map* sanctum = me->GetMap())
                                 {
-                                }*/
+                                    Map::PlayerList const &PlList = sanctum->GetPlayers();
+                                    if (!PlList.isEmpty())
+                                        for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                                            if (Player* player = i->getSource())
+                                                if (player->HasAura(SPELL_TWILIGHT_REALM))
+                                                {
+                                                    if (pValue > tValue)
+                                                        player->GetSession()->SendAreaTriggerMessage("Your companion's efforts have forced Halion further out of the Twilight realm!");
+                                                    else
+                                                        player->GetSession()->SendAreaTriggerMessage("Your efforts have forced Halion further into the Twilight realm!");
+                                                }
+                                                else 
+                                                {
+                                                    if (pValue > tValue)
+                                                        player->GetSession()->SendAreaTriggerMessage("Your efforts have forced Halion further into the Physical realm!");
+                                                    else
+                                                        player->GetSession()->SendAreaTriggerMessage("Your companion's efforts have forced Halion further out of the Physical realm!");
+                                                }
+                                }
                             }
                             me->setActive(false);
-                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
+                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
                             break;
                         }
                         default:
@@ -792,6 +821,14 @@ class npc_halion_controller : public CreatureScript
                         TwilightDamageTaken += value;
                         break;
                 }
+            }
+
+            void RemoveAnyCorporealityBuff(Creature* who)
+            {
+                who->RemoveAurasDueToSpell(74286); // 50% / 50%
+                uint8 i = 0;
+                for (; i < 10 && !who->HasAura(74827 + i); i++);
+                who->RemoveAurasDueToSpell(74827 + i);
             }
 
         private:
