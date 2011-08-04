@@ -1148,7 +1148,7 @@ void SpellMgr::LoadSpellRanks()
                 break;
         }
         // check if chain is made with valid first spell
-        SpellInfo const* first = sSpellMgr->GetSpellInfo(lastSpell);
+        SpellInfo const* first = GetSpellInfo(lastSpell);
         if (!first)
         {
             sLog->outErrorDb("Spell rank identifier(first_spell_id) %u listed in `spell_ranks` does not exist!", lastSpell);
@@ -1165,7 +1165,7 @@ void SpellMgr::LoadSpellRanks()
         // check spells in chain
         for (std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin() ; itr!= rankChain.end(); ++itr)
         {
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
+            SpellInfo const* spell = GetSpellInfo(itr->first);
             if (!spell)
             {
                 sLog->outErrorDb("Spell %u (rank %u) listed in `spell_ranks` for chain %u does not exist!", itr->first, itr->second, lastSpell);
@@ -1236,13 +1236,13 @@ void SpellMgr::LoadSpellRequired()
         uint32 spell_id =  fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
         // check if chain is made with valid first spell
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(spell_id);
+        SpellInfo const* spell = GetSpellInfo(spell_id);
         if (!spell)
         {
             sLog->outErrorDb("spell_id %u in `spell_required` table is not found in dbcs, skipped", spell_id);
             continue;
         }
-        SpellInfo const* req_spell = sSpellMgr->GetSpellInfo(spell_req);
+        SpellInfo const* req_spell = GetSpellInfo(spell_req);
         if (!req_spell)
         {
             sLog->outErrorDb("req_spell %u in `spell_required` table is not found in dbcs, skipped", spell_req);
@@ -1278,7 +1278,7 @@ void SpellMgr::LoadSpellLearnSkills()
     uint32 dbc_count = 0;
     for (uint32 spell = 0; spell < sSpellMgr->GetSpellInfoStoreSize(); ++spell)
     {
-        SpellInfo const* entry = sSpellMgr->GetSpellInfo(spell);
+        SpellInfo const* entry = GetSpellInfo(spell);
 
         if (!entry)
             continue;
@@ -1335,13 +1335,13 @@ void SpellMgr::LoadSpellLearnSpells()
         node.active     = fields[2].GetBool();
         node.autoLearned= false;
 
-        if (!sSpellMgr->GetSpellInfo(spell_id))
+        if (!GetSpellInfo(spell_id))
         {
             sLog->outErrorDb("Spell %u listed in `spell_learn_spell` does not exist", spell_id);
             continue;
         }
 
-        if (!sSpellMgr->GetSpellInfo(node.spell))
+        if (!GetSpellInfo(node.spell))
         {
             sLog->outErrorDb("Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
             continue;
@@ -1360,9 +1360,9 @@ void SpellMgr::LoadSpellLearnSpells()
 
     // search auto-learned spells and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
-    for (uint32 spell = 0; spell < sSpellMgr->GetSpellInfoStoreSize(); ++spell)
+    for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
     {
-        SpellInfo const* entry = sSpellMgr->GetSpellInfo(spell);
+        SpellInfo const* entry = GetSpellInfo(spell);
 
         if (!entry)
             continue;
@@ -1376,7 +1376,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 dbc_node.active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
 
                 // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
-                if (!sSpellMgr->GetSpellInfo(dbc_node.spell))
+                if (!GetSpellInfo(dbc_node.spell))
                     continue;
 
                 // talent or passive spells or skill-step spells auto-casted and not need dependent learning,
@@ -1455,7 +1455,7 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Spell_ID);
+        SpellInfo const* spellInfo = GetSpellInfo(Spell_ID);
         if (!spellInfo)
         {
             sLog->outErrorDb("Spell (ID:%u) listed in `spell_target_position` does not exist.", Spell_ID);
@@ -1583,7 +1583,7 @@ void SpellMgr::LoadSpellGroups()
         }
         else
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->second);
+            SpellInfo const* spellInfo = GetSpellInfo(itr->second);
 
             if (!spellInfo)
             {
@@ -1686,7 +1686,7 @@ void SpellMgr::LoadSpellProcEvents()
 
         uint32 entry = fields[0].GetUInt32();
 
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(entry);
+        SpellInfo const* spell = GetSpellInfo(entry);
         if (!spell)
         {
             sLog->outErrorDb("Spell %u listed in `spell_proc_event` does not exist", entry);
@@ -1757,7 +1757,7 @@ void SpellMgr::LoadSpellProcs()
             spellId = -spellId;
         }
 
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellId);
+        SpellInfo const* spellEntry = GetSpellInfo(spellId);
         if (!spellEntry)
         {
             sLog->outErrorDb("Spell %u listed in `spell_proc` does not exist", spellId);
@@ -1766,7 +1766,7 @@ void SpellMgr::LoadSpellProcs()
 
         if (allRanks)
         {
-            if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
+            if (GetFirstSpellInChain(spellId) != uint32(spellId))
             {
                 sLog->outErrorDb("Spell %u listed in `spell_proc` is not first rank of spell.", fields[0].GetInt32());
                 continue;
@@ -1856,8 +1856,8 @@ void SpellMgr::LoadSpellProcs()
 
             if (allRanks)
             {
-                spellId = sSpellMgr->GetNextSpellInChain(spellId);
-                spellEntry = sSpellMgr->GetSpellInfo(spellId);
+                spellId = GetNextSpellInChain(spellId);
+                spellEntry = GetSpellInfo(spellId);
             }
             else
                 break;
@@ -1889,7 +1889,7 @@ void SpellMgr::LoadSpellBonusess()
         Field *fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
 
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(entry);
+        SpellInfo const* spell = GetSpellInfo(entry);
         if (!spell)
         {
             sLog->outErrorDb("Spell %u listed in `spell_bonus_data` does not exist", entry);
@@ -1921,7 +1921,7 @@ void SpellMgr::LoadSpellThreats()
     QueryResult result = WorldDatabase.Query("SELECT entry, Threat FROM spell_threat");
     if (!result)
     {
-        sLog->outString(">> Loaded %u aggro generating spells", count);
+        sLog->outString(">> Loaded 0 aggro generating spells");
         sLog->outString();
         return;
     }
@@ -1933,7 +1933,7 @@ void SpellMgr::LoadSpellThreats()
         uint32 entry = fields[0].GetUInt32();
         uint16 Threat = fields[1].GetUInt16();
 
-        if (!sSpellMgr->GetSpellInfo(entry))
+        if (!GetSpellInfo(entry))
         {
             sLog->outErrorDb("Spell %u listed in `spell_threat` does not exist", entry);
             continue;
@@ -2001,7 +2001,7 @@ void SpellMgr::LoadSpellPetAuras()
             itr->second.AddAura(pet, aura);
         else
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
+            SpellInfo const* spellInfo = GetSpellInfo(spell);
             if (!spellInfo)
             {
                 sLog->outErrorDb("Spell %u listed in `spell_pet_auras` does not exist", spell);
@@ -2015,7 +2015,7 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
 
-            SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(aura);
+            SpellInfo const* spellInfo2 = GetSpellInfo(aura);
             if (!spellInfo2)
             {
                 sLog->outErrorDb("Aura %u listed in `spell_pet_auras` does not exist", aura);
@@ -2145,13 +2145,13 @@ void SpellMgr::LoadSpellLinked()
         int32 effect =  fields[1].GetInt32();
         int32 type =    fields[2].GetInt32();
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(abs(trigger));
+        SpellInfo const* spellInfo = GetSpellInfo(abs(trigger));
         if (!spellInfo)
         {
             sLog->outErrorDb("Spell %u listed in `spell_linked_spell` does not exist", abs(trigger));
             continue;
         }
-        spellInfo = sSpellMgr->GetSpellInfo(abs(effect));
+        spellInfo = GetSpellInfo(abs(effect));
         if (!spellInfo)
         {
             sLog->outErrorDb("Spell %u listed in `spell_linked_spell` does not exist", abs(effect));
@@ -2210,7 +2210,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
                     continue;
 
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(skillLine->spellId);
+                SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
@@ -2321,7 +2321,7 @@ void SpellMgr::LoadPetDefaultSpells()
     // different summon spells
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(i);
+        SpellInfo const* spellEntry = GetSpellInfo(i);
         if (!spellEntry)
             continue;
 
@@ -2398,7 +2398,7 @@ void SpellMgr::LoadSpellAreas()
         spellArea.gender              = Gender(fields[7].GetUInt8());
         spellArea.autocast            = fields[8].GetBool();
 
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell))
+        if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
             if (spellArea.autocast)
                 const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
@@ -2468,7 +2468,7 @@ void SpellMgr::LoadSpellAreas()
 
         if (spellArea.auraSpell)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(abs(spellArea.auraSpell));
+            SpellInfo const* spellInfo = GetSpellInfo(abs(spellArea.auraSpell));
             if (!spellInfo)
             {
                 sLog->outErrorDb("Spell %u listed in `spell_area` have wrong aura spell (%u) requirement", spell, abs(spellArea.auraSpell));
@@ -2881,9 +2881,7 @@ void SpellMgr::LoadDbcDataCorrections()
         }
 
         if (spellInfo->activeIconID == 2158)  // flight
-        {
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
-        }
 
         switch (spellInfo->Id)
         {

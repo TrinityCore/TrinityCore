@@ -7087,10 +7087,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
 void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex) {
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
     m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true);
