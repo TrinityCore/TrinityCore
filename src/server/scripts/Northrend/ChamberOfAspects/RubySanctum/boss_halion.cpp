@@ -54,6 +54,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consu
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_damage_periodic_aura';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter_triggered';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
@@ -64,7 +65,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74800, 'spell_halion_combustion_consumption_summon'),
 (74630, 'spell_halion_combustion_consumption_damage_periodic_aura'),
 (74802, 'spell_halion_combustion_consumption_damage_periodic_aura'),
-(74812, 'spell_halion_leave_twilight_realm');
+(74812, 'spell_halion_leave_twilight_realm'),
+(74769, 'spell_halion_twilight_cutter_triggered'),
+(77844, 'spell_halion_twilight_cutter_triggered'),
+(77845, 'spell_halion_twilight_cutter_triggered'),
+(77846, 'spell_halion_twilight_cutter_triggered'),;
 
 DELETE FROM `creature` WHERE `id`=40146;
 DELETE FROM `creature_text` WHERE `entry`=39863;
@@ -103,7 +108,7 @@ enum Spells
     SPELL_CLEAVE                        = 74524,
     SPELL_METEOR_STRIKE                 = 74637,
 
-    SPELL_COMBUSTION                    = 74562,    // Will each tick, apart from the damage, also add a stack to 74567
+    SPELL_FIERY_COMBUSTION              = 74562,    // Will each tick, apart from the damage, also add a stack to 74567
     SPELL_MARK_OF_COMBUSTION            = 74567,    // If 74562 or 74567 is removed; this will trigger an explosion (74607) based on stackamount.
     SPELL_FIERY_COMBUSTION_EXPLOSION    = 74607,
     SPELL_FIERY_COMBUSTION_SUMMON       = 74610,
@@ -115,7 +120,6 @@ enum Spells
     SPELL_DARK_BREATH                   = 74806,
     SPELL_DUSK_SHROUD                   = 75476,
 
-    SPELL_CONSUMPTION                   = 74792,
     SPELL_MARK_OF_CONSUMPTION           = 74795,
     SPELL_SOUL_CONSUMPTION              = 74792,
     SPELL_SOUL_CONSUMPTION_EXPLOSION    = 74799,
@@ -124,7 +128,6 @@ enum Spells
 
     // Misc
     SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 2 to phase 3
-    SPELL_TWILIGHT_SHIFT                = 57620,    // Phase spell from phase 1 to phase 2
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
@@ -145,6 +148,10 @@ enum Spells
     SPELL_METEOR_STRIKE_FIRE_AURA_1     = 74713,
     SPELL_METEOR_STRIKE_FIRE_AURA_2     = 74718,
     SPELL_BIRTH_NO_VISUAL               = 40031,
+
+    // Shadow Orb
+    SPELL_TWILIGHT_CUTTER               = 74768, // Unknown dummy effect (EFFECT_0)
+    SPELL_TWILIGHT_CUTTER_TRIGGERED     = 74769,
 };
 
 enum Events
@@ -341,7 +348,7 @@ class boss_halion : public CreatureScript
                         {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
                             if (!target) target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                            if (target)  DoCast(target, SPELL_COMBUSTION);
+                            if (target)  DoCast(target, SPELL_FIERY_COMBUSTION);
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25000);
                             break;
                         }
@@ -1370,6 +1377,55 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
         }
 };
 
+class isNotBetweenSelector
+{
+    public:
+        isNotBetweenSelector(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
+
+        bool operator()(Unit* unit)
+        {
+            return !unit->IsInBetween(_caster, _target);
+        }
+
+    private:
+        Unit* _caster;
+        Unit* _target;
+};
+
+class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
+{
+    public:
+        spell_halion_twilight_cutter_triggered() : SpellScriptLoader("spell_halion_twilight_cutter_triggered") { }
+
+        class spell_halion_twilight_cutter_triggered_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_twilight_cutter_triggered_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+                
+                Unit* target = GetTargetUnit();
+                if (!target)
+                    return;
+
+                unitList.remove_if(isNotBetweenSelector(caster, target));
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_twilight_cutter_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_twilight_cutter_triggered_SpellScript();
+        }
+};
+
 class go_halion_twilight_portal : public GameObjectScript
 {
     public:
@@ -1402,6 +1458,7 @@ void AddSC_boss_halion()
     new spell_halion_soul_consumption();
     new spell_halion_combustion_consumption_damage_periodic_aura();
     new spell_halion_leave_twilight_realm();
+    new spell_halion_twilight_cutter_triggered();
 
     new go_halion_twilight_portal();
 }
