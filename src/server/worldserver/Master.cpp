@@ -275,6 +275,7 @@ int Master::Run()
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET color = color & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
+    sLog->outString("%s (worldserver-daemon) ready...", _FULLVERSION);
     sWorldSocketMgr->Wait();
 
     if (soap_thread)
