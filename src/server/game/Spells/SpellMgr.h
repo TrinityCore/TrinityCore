@@ -536,7 +536,9 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 
 class SpellMgr
 {
-        friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
+    friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
+    // Constructors
+    private:
         SpellMgr();
         ~SpellMgr();
 
