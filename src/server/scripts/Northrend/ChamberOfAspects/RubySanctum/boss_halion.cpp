@@ -40,6 +40,11 @@ UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor 
 -- This SQL request is a backup, DO NOT APPLY IT, IT WILL SCREW UP YOUR TDB !!!!!!!!!!!!!!
 -- UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`exp`=2,`faction_A`=14,`faction_H`=14,`speed_walk`=2.4,`speed_run`=0.85714,`baseattacktime`=2000,`unit_flags`=33554432
 
+DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
+INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(40142,0,0,0,0,0, '75476 78243'),
+(39863,0,0,0,0,0, '78243');
+
 -- OK, make your choice.
 -- This is INCORRECT but does NOT break TC STANDARDS
 -- UPDATE gameobject_template SET ScriptName = "go_halion_twilight_portal" WHERE entry IN(202794, 202795); -- Twilight Portal
@@ -73,7 +78,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 
 DELETE FROM `creature` WHERE `id`=40146;
 DELETE FROM `creature_text` WHERE `entry`=39863;
-DELETE FROM `creature_text` WHERE `entry`=40146;
+DELETE FROM `creature_text` WHERE `entry`=40142;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
 (39863,0,0, 'Meddlesome insects! You are too late. The Ruby Sanctum is lost!',14,0,100,1,0,17499, 'Halion'),
 (39863,1,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
@@ -81,10 +86,10 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (39863,3,0, 'You will find only suffering within the realm of twilight! Enter if you dare!',14,0,100,0,0,17507, 'Halion'),
 (39863,4,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master''s return!',14,0,100,0,0,17503, 'Halion'),
 (39863,5,0, 'Another "hero" falls.',14,0,100,0,0,17501, 'Halion'),
+(39863,6,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion'),
 
-(40146,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
-(40146,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17502, 'Halion'), -- SoundID guessed
-(40146,2,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion');
+(40142,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
+(40142,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17502, 'Halion'); -- SoundID guessed
 */
 
 enum Texts
@@ -95,10 +100,10 @@ enum Texts
     SAY_PHASE_TWO                    = 3, // You will find only suffering within the realm of twilight! Enter if you dare!
     SAY_DEATH                        = 4, // Relish this victory, mortals, for it will be your last! This world will burn with the master's return!
     SAY_KILL                         = 5, // Another "hero" falls.
+    SAY_BERSERK                      = 6, // Not good enough.
 
     SAY_SPHERE_PULSE                 = 0, // Beware the shadow!
     SAY_PHASE_THREE                  = 1, // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
-    SAY_KILL_TWO                     = 2, // Not good enough. 17504
 };
 
 enum Spells
@@ -118,7 +123,6 @@ enum Spells
 
     // Twilight Halion
     SPELL_DARK_BREATH                   = 74806,
-    SPELL_DUSK_SHROUD                   = 75476,
 
     SPELL_MARK_OF_CONSUMPTION           = 74795,
     SPELL_SOUL_CONSUMPTION              = 74792,
@@ -190,6 +194,8 @@ enum Actions
     ACTION_SHADOW_PULSARS_SHOOT = 5,
     ACTION_DESPAWN_ADDS         = 6,
     ACTION_BERSERK              = 7,
+
+    ACTION_SHOOT                = 9, // Shadow Orbs
 };
 
 enum Phases
@@ -209,6 +215,11 @@ enum Misc
     MARK_STACKAMOUNT        = 1,
     TWILIGHT_DAMAGE_TAKEN   = 2,
     MATERIAL_DAMAGE_TAKEN   = 3,
+};
+
+enum GUID
+{
+    GUID_ORB_ROTATION_FOCUS = 0,
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
@@ -391,8 +402,6 @@ class boss_twilight_halion : public CreatureScript
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
                 me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH)); // Should be 75%
 
-                DoCast(me, SPELL_DUSK_SHROUD, true);
-
                 // Save Twilight Halion so that he can be despawned using ObjectAccessor :)
                 _instance->OnCreatureCreate(me);
             }
@@ -551,18 +560,34 @@ class npc_halion_controller : public CreatureScript
                 _instance(creature->GetInstanceScript()), _summons(me)
             {
                 me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
+                memset(_shadowOrbsGUIDs, 0, 4 * sizeof(uint64));
             }
 
             void Reset() { me->SetReactState(REACT_PASSIVE); }
 
             // Let him count as summoner for various NPCs, making them dissapear at encounter failure or success.
-            // Counting as summoner for:
-            // - Combustion
-            // - Consumption
-            // - Shadow Orb
-            // - Meteor Strike Initial
-            // - Meteor Strike (N, S, E, W)
-            void JustSummoned(Creature* who) { _summons.Summon(who); }
+            void JustSummoned(Creature* who)
+            {
+                _summons.Summon(who);
+                switch (who->GetEntry())
+                {
+                    case NPC_ORB_ROTATION_FOCUS:
+                        _orbRotationFocusGUID = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_N:
+                        _shadowOrbsGUIDs[0] = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_S:
+                        _shadowOrbsGUIDs[1] = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_E:
+                        _shadowOrbsGUIDs[2] = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_W:
+                        _shadowOrbsGUIDs[3] = who->GetGUID();
+                        break;
+                }
+            }
 
             void DoAction(int32 const action)
             {
@@ -585,17 +610,17 @@ class npc_halion_controller : public CreatureScript
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
 
-                        uint8 begin = (me->GetMap()->IsHeroic()) ? 2 : 0;
-                        for (uint8 i = begin; i < 4; i++)
+                        uint8 max = (me->GetMap()->IsHeroic()) ? 2 : 4;
+                        for (uint8 i = 0; i < max; i++)
                         {
                             uint32 npcId;
                             switch (i)
                             {
                                 default:
-                                case 1: npcId = NPC_SHADOW_ORB_N; break;
-                                case 2: npcId = NPC_SHADOW_ORB_S; break;
-                                case 3: npcId = NPC_SHADOW_ORB_E; break;
-                                case 4: npcId = NPC_SHADOW_ORB_W; break;
+                                case 0: npcId = NPC_SHADOW_ORB_N; break;
+                                case 1: npcId = NPC_SHADOW_ORB_S; break;
+                                case 2: npcId = NPC_SHADOW_ORB_E; break;
+                                case 3: npcId = NPC_SHADOW_ORB_W; break;
                             }
                             me->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
                         }
@@ -662,10 +687,19 @@ class npc_halion_controller : public CreatureScript
                             me->setActive(false);
                             break;
                         case EVENT_SHADOW_PULSARS_SHOOT:
-                            me->setActive(true);
+                        {
+                            if (Unit* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
+                            {
+                                me->setActive(true);
+                                uint8 max = (me->GetMap()->IsHeroic()) ? 2 : 4;
+                                for (uint8 i = 0; i < max; i++)
+                                    if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
+                                        orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
+                                me->setActive(false);
+                            }
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
-                            me->setActive(false);
                             break;
+                        }
                         case EVENT_CHECK_CORPOREALITY:
                         {
                             me->setActive(true);
@@ -725,6 +759,8 @@ class npc_halion_controller : public CreatureScript
             uint32 MaterialDamageTaken;
             uint8 TwilightCorporealityValue;
             uint8 MaterialCorporealityValue;
+            uint64 _orbRotationFocusGUID;
+            uint64 _shadowOrbsGUIDs[4];
         };
 
         CreatureAI* GetAI(Creature* creature) const
