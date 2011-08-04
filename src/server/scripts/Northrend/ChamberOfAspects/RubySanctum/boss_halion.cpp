@@ -37,6 +37,8 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN (
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
+-- This SQL request is a backup, DO NOT APPLY IT, IT WILL SCREW UP YOUR TDB !!!!!!!!!!!!!!
+-- UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`exp`=2,`faction_A`=14,`faction_H`=14,`speed_walk`=2.4,`speed_run`=0.85714,`baseattacktime`=2000,`unit_flags`=33554432
 
 -- OK, make your choice.
 -- This is INCORRECT but does NOT break TC STANDARDS
@@ -111,6 +113,7 @@ enum Spells
 
     // Twilight Halion
     SPELL_DARK_BREATH                   = 74806,
+    SPELL_DUSK_SHROUD                   = 75476,
 
     SPELL_CONSUMPTION                   = 74792,
     SPELL_MARK_OF_CONSUMPTION           = 74795,
@@ -229,6 +232,8 @@ class boss_halion : public CreatureScript
 
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
+
+                // Schedule events without taking care of phases, since EventMap will not be updated under phase 2.
                 events.ScheduleEvent(EVENT_ACTIVATE_FIREWALL, 10000);
                 events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
                 events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 12000));
@@ -237,9 +242,8 @@ class boss_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
             }
 
-            // This is triggered by the TwilightHalionAI::JustDied, but can of course be triggered
-            // on its own.
-            void JustDied(Unit* /*killer*/)
+            // This is triggered by the TwilightHalionAI::JustDied, but can of course be triggered on its own.
+            void JustDied(Unit* killer)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -248,13 +252,14 @@ class boss_halion : public CreatureScript
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
+
+                if (Creature* tHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
+                    if (tHalion->isAlive())
+                        killer->Kill(tHalion);
             }
 
             void JustReachedHome()
             {
-                // On phase 3, if one halion is not engaged, he begins to heal by big chunks.
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
-                    _JustReachedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
 
@@ -274,12 +279,13 @@ class boss_halion : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
-                    // This is the first time the health pool is set
                     instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
+                    
                     events.SetPhase(PHASE_TWO);
-                    events.Reset();
+
                     Talk(SAY_PHASE_TWO);
                     DoCast(me, SPELL_TWILIGHT_PHASING, true);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
@@ -292,16 +298,18 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK) && instance)
+                if (events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK))
                     me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if ((events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
                     return;
 
+                // Events won't be updated under phase two.
+                if (!(events.GetPhaseMask() & PHASE_TWO_MASK))
+                    events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
-                    
-                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -321,7 +329,6 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
                             break;
                         case EVENT_METEOR_STRIKE:
-                        {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 target->GetPosition(&_meteorStrikePos);
@@ -330,7 +337,6 @@ class boss_halion : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_METEOR_STRIKE, 40000);
                             break;
-                        }
                         case EVENT_FIERY_COMBUSTION:
                         {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
@@ -339,7 +345,7 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25000);
                             break;
                         }
-                        case EVENT_BERSERK:
+                        case EVENT_BERSERK: // This event can't be in the Controller because it has phases
                             if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                                 controller->AI()->DoAction(ACTION_BERSERK);
                             break;
@@ -351,7 +357,7 @@ class boss_halion : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void setEventsPhase(uint32 p) { events.SetPhase(p); events.Reset(); }
+            void setEventsPhase(uint32 p) { events.SetPhase(p); }
 
         private:
             Position _meteorStrikePos;
@@ -376,14 +382,23 @@ class boss_twilight_halion : public CreatureScript
                 _instance(creature->GetInstanceScript())
             {
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
-                events.SetPhase(PHASE_TWO);
                 me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH)); // Should be 75%
+
+                DoCast(me, SPELL_DUSK_SHROUD, true);
 
                 // Save Twilight Halion so that he can be despawned using ObjectAccessor :)
                 _instance->OnCreatureCreate(me);
             }
 
-            void EnterCombat(Unit* /*who*/) { events.Reset(); }
+            void EnterCombat(Unit* /*who*/)
+            {
+                events.Reset();
+                events.SetPhase(PHASE_TWO);
+                // All of Twilight Halion's abilities are not phase dependant as he is never on Phase One.
+                events.ScheduleEvent(EVENT_DARK_BREATH, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
+                events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
+            }
 
             void KilledUnit(Unit* victim)
             {
@@ -402,7 +417,8 @@ class boss_twilight_halion : public CreatureScript
                     if (me->IsDamageEnoughForLootingAndReward())
                         halion->LowerPlayerDamageReq(halion->GetMaxHealth());
 
-                    killer->Kill(halion); // Will trigger HalionAI::JustDied.
+                    if (halion->isAlive())
+                        killer->Kill(halion); // Will trigger HalionAI::JustDied.
                 }
                 
                 _instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
@@ -410,25 +426,28 @@ class boss_twilight_halion : public CreatureScript
 
             void JustReachedHome()
             {
-                // If the Twilight Halion enters evade mode, the players in the Physical realm should enter the Twilight Realm to end the fight (i.e. wipe)
+                // If the Twilight Halion enters evade mode on phase 2, the players in the Physical realm should enter the Twilight Realm to end the fight (i.e. wipe)
                 // As a consequence, the Twilight Halion entering evade mode does not end the encounter.
-                events.Reset();
+                if (events.GetPhaseMask() & PHASE_TWO_MASK)
+                    return;
                 
                 // However, on phase 3, if one halion is not engaged, he begins to heal by big chunks.
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
-                    ScriptedAI::JustReachedHome();
+                    _instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth());
+                
+                ScriptedAI::JustReachedHome();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 // Twilight Halion's health does change shared health pool on phases 2 & 3
-                if ((me->GetHealth() - damage) > 0 && (events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)))
+                if (me->GetHealth() - damage > 0)
                     _instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
 
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
                     events.SetPhase(PHASE_THREE);
-                    events.Reset();
+                    
                     DoCast(me, SPELL_TWILIGHT_DIVISION, true);
                     Talk(SAY_PHASE_THREE);
 
@@ -438,8 +457,9 @@ class boss_twilight_halion : public CreatureScript
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                     {
                         // Is this the best or the commented SpellHitTarget ?
-                        // Leave this line for now
+                        // Leave those lines for now
                         halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
+                        halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
                            halionAI->setEventsPhase(PHASE_THREE);
                     }
@@ -455,22 +475,22 @@ class boss_twilight_halion : public CreatureScript
             //     if (spell->Id == SPELL_TWILIGHT_DIVISION)
             //         if (me->GetGUIDLow() == who->GetGUIDLow() && who == me)
             //             if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+            //             {
             //                 halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
+            //                 halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            //             }
             // }
 
             void UpdateAI(uint32 const diff)
             {
-                // Twilight Halion's health is only influenced by the Physical one on the 3rd phase.
-                if ((events.GetPhaseMask() & PHASE_THREE_MASK) && _instance)
+                // Twilight Halion's health is influenced by the Physical one's only on phase 3.
+                if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH));
 
-                if ((events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)) && !UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
                 events.Update(diff);
+
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -499,8 +519,6 @@ class boss_twilight_halion : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-            void setEventsPhase(uint32 p) { events.SetPhase(p); events.Reset(); }
 
         private:
             InstanceScript* _instance;
@@ -575,7 +593,7 @@ class npc_halion_controller : public CreatureScript
                             me->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
                         }
                         // NYI
-                        // me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
+                        me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
                         me->setActive(false);
                         break;
                     }
