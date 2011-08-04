@@ -51,7 +51,7 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 -- UPDATE gameobject_template SET ScriptName = "go_halion_twilight_portal" WHERE entry IN(202794, 202795); -- Twilight Portal
 -- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
 -- I personally use this one, this is faster for testing.
--- UPDATE gameobject_template SET data10=74807 WHERE entry IN (202794, 202795);
+UPDATE gameobject_template SET data10=74807 WHERE entry IN (202794, 202795);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_fiery_combustion';
@@ -76,7 +76,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74769, 'spell_halion_twilight_cutter_triggered'),
 (77844, 'spell_halion_twilight_cutter_triggered'),
 (77845, 'spell_halion_twilight_cutter_triggered'),
-(77846, 'spell_halion_twilight_cutter_triggered'),;
+(77846, 'spell_halion_twilight_cutter_triggered');
 
 DELETE FROM `creature` WHERE `id`=40146;
 DELETE FROM `creature_text` WHERE `entry`=39863;
@@ -766,6 +766,10 @@ class npc_halion_controller : public CreatureScript
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(true));
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
+
+                                /*if (pValue > tValue)
+                                {
+                                }*/
                             }
                             me->setActive(false);
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
