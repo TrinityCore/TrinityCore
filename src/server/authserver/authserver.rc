@@ -53,31 +53,36 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION FILEVER
- PRODUCTVERSION PRODUCTVER
- FILEFLAGSMASK 0x17L
-#ifdef _DEBUG
- FILEFLAGS 0x1L
+FILEVERSION     VER_FILEVERSION
+PRODUCTVERSION  VER_PRODUCTVERSION
+
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+
+#ifndef _DEBUG
+ FILEFLAGS      0
 #else
- FILEFLAGS 0x0L
+ FILEFLAGS      (VER_PRIVATEBUILD|VER_PRERELASE|VER_DEBUG)
 #endif
- FILEOS 0x0L
- FILETYPE 0x0L
- FILESUBTYPE 0x0L
+
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "080004b0"
         BEGIN
-            VALUE "FileDescription", "authserver"
-            VALUE "FileVersion", STRFILEVER
-            VALUE "InternalName", "authserver"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2010"
-            VALUE "OriginalFilename", "authserver.exe"
-            VALUE "ProductName", "authserver"
-            VALUE "ProductVersion", STRPRODUCTVER
+            VALUE "CompanyName",        VER_COMPANYNAME_STR
+            VALUE "FileDescription",    "TrinityCore Authentication Server Daemon"
+            VALUE "FileVersion",        VER_FILEVERSION_STR
+            VALUE "InternalName",       "authserver"
+            VALUE "LegalCopyright",     VER_LEGALCOPYRIGHT_STR
+            VALUE "OriginalFilename",   "authserver.exe"
+            VALUE "ProductName",        "TrinityCore Authentication Server"
+            VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END
+
     BLOCK "VarFileInfo"
     BEGIN
         VALUE "Translation", 0x800, 1200
