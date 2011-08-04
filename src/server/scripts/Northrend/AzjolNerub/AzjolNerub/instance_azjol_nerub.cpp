@@ -164,7 +164,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "A N " << auiEncounter[0] << " " << auiEncounter[1] << " "
+            saveStream << "A N " << auiEncounter[0] << ' ' << auiEncounter[1] << ' '
                 << auiEncounter[2];
 
             OUT_SAVE_INST_DATA_COMPLETE;

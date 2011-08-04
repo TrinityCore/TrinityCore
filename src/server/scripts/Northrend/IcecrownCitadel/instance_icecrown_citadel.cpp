@@ -1013,8 +1013,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << HeroicAttempts << " "
-                    << ColdflameJetsState << " " << BloodQuickeningState << " " << BloodQuickeningMinutes;
+                saveStream << "I C " << GetBossSaveData() << HeroicAttempts << ' '
+                    << ColdflameJetsState << ' ' << BloodQuickeningState << ' ' << BloodQuickeningMinutes;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();

@@ -103,7 +103,7 @@ void Channel::UpdateChannelInDB() const
         std::ostringstream banlist;
         BannedList::const_iterator iter;
         for (iter = banned.begin(); iter != banned.end(); ++iter)
-            banlist << (*iter) << " ";
+            banlist << (*iter) << ' ';
 
         std::string banListStr = banlist.str();
 

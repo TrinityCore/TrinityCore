@@ -34,6 +34,7 @@
 #include "CellImpl.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura * aura, uint8 effMask):
 m_target(target), m_base(aura), m_slot(MAX_AURAS), m_flags(AFLAG_NONE),
@@ -854,6 +855,16 @@ void Aura::RefreshSpellMods()
     for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
         if (Player * player = appIter->second->GetTarget()->ToPlayer())
             player->RestoreAllSpellMods(0, this);
+}
+
+bool Aura::IsArea() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (HasEffect(i) && GetSpellInfo()->Effects[i].IsAreaAuraEffect())
+            return true;
+    }
+    return false;
 }
 
 bool Aura::IsPassive() const
@@ -1865,7 +1876,8 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     // spell of same spell rank chain
     if (m_spellInfo->IsRankOf(existingSpellInfo))
     {
-        if (m_spellInfo->IsMultiSlotAura())
+        // don't allow passive area auras to stack
+        if (m_spellInfo->IsMultiSlotAura() && !IsArea())
             return true;
         if (GetCastItemGUID() && existingAura->GetCastItemGUID())
             if (GetCastItemGUID() != existingAura->GetCastItemGUID() && (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_ENCHANT_PROC))

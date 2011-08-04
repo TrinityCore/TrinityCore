@@ -491,7 +491,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
     SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS     = 0x00000400, // 10 NYI!
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
-    SPELL_ATTR6_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE        = 0x00001000, // 12 castable while caster is on vehicle
     SPELL_ATTR6_UNK13                            = 0x00002000, // 13
     SPELL_ATTR6_UNK14                            = 0x00004000, // 14
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
@@ -807,7 +807,7 @@ enum SpellEffects
     SPELL_EFFECT_CHARGE_DEST                        = 149,
     SPELL_EFFECT_QUEST_START                        = 150,
     SPELL_EFFECT_TRIGGER_SPELL_2                    = 151,
-    SPELL_EFFECT_152                                = 152,
+    SPELL_EFFECT_SUMMON_RAF_FRIEND                  = 152,
     SPELL_EFFECT_CREATE_TAMED_PET                   = 153,
     SPELL_EFFECT_DISCOVER_TAXI                      = 154,
     SPELL_EFFECT_TITAN_GRIP                         = 155,

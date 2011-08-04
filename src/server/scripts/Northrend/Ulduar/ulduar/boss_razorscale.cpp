@@ -22,6 +22,7 @@
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "ulduar.h"
+#include "SpellInfo.h"
 
 enum Says
 {

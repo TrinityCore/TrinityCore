@@ -514,7 +514,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(const uint64& guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::_GetPlayer(const uint64 guid, bool offlineRemove, const char* context) const
 {
     Player* player = NULL;
     if (!offlineRemove)
@@ -656,9 +656,11 @@ void Battleground::EndBattleground(uint32 winner)
     uint32 loser_team_rating = 0;
     uint32 loser_matchmaker_rating = 0;
     int32  loser_change = 0;
+    int32  loser_matchmaker_change = 0;
     uint32 winner_team_rating = 0;
     uint32 winner_matchmaker_rating = 0;
     int32  winner_change = 0;
+    int32  winner_matchmaker_change = 0;
     WorldPacket data;
     int32 winmsg_id = 0;
 
@@ -700,10 +702,12 @@ void Battleground::EndBattleground(uint32 winner)
                 loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner));
                 winner_team_rating = winner_arena_team->GetRating();
                 winner_matchmaker_rating = GetArenaMatchmakerRating(winner);
-                winner_change = winner_arena_team->WonAgainst(loser_matchmaker_rating);
-                loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating);
-                sLog->outArena("--- Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %d, Loser change: %d ---", winner_team_rating, loser_team_rating,
-                    winner_matchmaker_rating, loser_matchmaker_rating, winner_change, loser_change);
+                winner_matchmaker_change = winner_arena_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change);
+                loser_matchmaker_change = loser_arena_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change);
+                sLog->outArena("--- Winner: old rating: %u, rating gain: %d, old MMR: %u, MMR gain: %d --- Loser: old rating: %u, rating loss: %d, old MMR: %u, MMR loss: %d ---", winner_team_rating, winner_change, winner_matchmaker_rating,
+                    winner_matchmaker_change, loser_team_rating, loser_change, loser_matchmaker_rating, loser_matchmaker_change);
+                SetArenaMatchmakerRating(winner, winner_matchmaker_rating + winner_matchmaker_change);
+                SetArenaMatchmakerRating(GetOtherTeam(winner), loser_matchmaker_rating + loser_matchmaker_change);
                 SetArenaTeamRatingChangeForTeam(winner, winner_change);
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
                 sLog->outArena("Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE], winner_arena_team->GetId(), winner_change, loser_change);
@@ -738,9 +742,9 @@ void Battleground::EndBattleground(uint32 winner)
             if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
             {
                 if (team == winner)
-                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, winner_change);
+                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, winner_matchmaker_change);
                 else
-                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating, loser_change);
+                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating, loser_matchmaker_change);
             }
             continue;
         }
@@ -778,11 +782,11 @@ void Battleground::EndBattleground(uint32 winner)
                 if (member)
                     plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->PersonalRating);
 
-                winner_arena_team->MemberWon(plr, loser_matchmaker_rating, winner_change);
+                winner_arena_team->MemberWon(plr, loser_matchmaker_rating, winner_matchmaker_change);
             }
             else
             {
-                loser_arena_team->MemberLost(plr, winner_matchmaker_rating, loser_change);
+                loser_arena_team->MemberLost(plr, winner_matchmaker_rating, loser_matchmaker_change);
 
                 // Arena lost => reset the win_rated_arena having the "no_lose" condition
                 plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
@@ -870,7 +874,7 @@ void Battleground::BlockMovement(Player* plr)
     plr->SetClientControl(plr, 0);                          // movement disabled NOTE: the effect will be automatically removed by client when the player is teleported from the battleground, so no need to send with uint8(1) in RemovePlayerAtLeave()
 }
 
-void Battleground::RemovePlayerAtLeave(const uint64& guid, bool Transport, bool SendPacket)
+void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool SendPacket)
 {
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
@@ -1333,7 +1337,7 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
     }
 }
 
-void Battleground::AddPlayerToResurrectQueue(const uint64& npc_guid, const uint64& player_guid)
+void Battleground::AddPlayerToResurrectQueue(const uint64 npc_guid, const uint64 player_guid)
 {
     m_ReviveQueue[npc_guid].push_back(player_guid);
 
@@ -1344,7 +1348,7 @@ void Battleground::AddPlayerToResurrectQueue(const uint64& npc_guid, const uint6
     plr->CastSpell(plr, SPELL_WAITING_FOR_RESURRECT, true);
 }
 
-void Battleground::RemovePlayerFromResurrectQueue(const uint64& player_guid)
+void Battleground::RemovePlayerFromResurrectQueue(const uint64 player_guid)
 {
     for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
     {
@@ -1652,7 +1656,7 @@ const char* Battleground::GetTrinityString(int32 entry)
 // IMPORTANT NOTICE:
 // buffs aren't spawned/despawned when players captures anything
 // buffs are in their positions when battleground starts
-void Battleground::HandleTriggerBuff(const uint64& go_guid)
+void Battleground::HandleTriggerBuff(const uint64 go_guid)
 {
     GameObject *obj = GetBgMap()->GetGameObject(go_guid);
     if (!obj || obj->GetGoType() != GAMEOBJECT_TYPE_TRAP || !obj->isSpawned())
@@ -1721,7 +1725,7 @@ void Battleground::HandleKillPlayer(Player* player, Player* killer)
 
 // Return the player's team based on battlegroundplayer info
 // Used in same faction arena matches mainly
-uint32 Battleground::GetPlayerTeam(const uint64& guid) const
+uint32 Battleground::GetPlayerTeam(const uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1734,7 +1738,7 @@ uint32 Battleground::GetOtherTeam(uint32 teamId) const
     return teamId ? ((teamId == ALLIANCE) ? HORDE : ALLIANCE) : 0;
 }
 
-bool Battleground::IsPlayerInBattleground(const uint64& guid) const
+bool Battleground::IsPlayerInBattleground(const uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1779,7 +1783,7 @@ void Battleground::SetHoliday(bool is_holiday)
     m_HonorMode = is_holiday ? BG_HOLIDAY : BG_NORMAL;
 }
 
-int32 Battleground::GetObjectType(const uint64& guid)
+int32 Battleground::GetObjectType(const uint64 guid)
 {
     for (uint32 i = 0; i < m_BgObjects.size(); ++i)
         if (m_BgObjects[i] == guid)

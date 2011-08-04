@@ -266,13 +266,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
     // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside
     // TODO: pets should be summoned from real cast instead of just faking it?
-    if (GetUInt32Value(UNIT_CREATED_BY_SPELL))
+    if (summon_spell_id)
     {
         WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
         data.append(owner->GetPackGUID());
         data.append(owner->GetPackGUID());
         data << uint8(0);
-        data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        data << uint32(summon_spell_id);
         data << uint32(256); // CAST_FLAG_UNKNOWN3
         data << uint32(0);
         owner->SendMessageToSet(&data, true);
@@ -402,30 +402,30 @@ void Pet::SavePetToDB(PetSaveMode mode)
         std::ostringstream ss;
         ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType) "
             << "VALUES ("
-            << m_charmInfo->GetPetNumber() << ", "
-            << GetEntry() << ", "
-            << owner << ", "
-            << GetNativeDisplayId() << ", "
-            << uint32(getLevel()) << ", "
-            << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ", "
-            << uint32(GetReactState()) << ", "
+            << m_charmInfo->GetPetNumber() << ','
+            << GetEntry() << ','
+            << owner << ','
+            << GetNativeDisplayId() << ','
+            << uint32(getLevel()) << ','
+            << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ','
+            << uint32(GetReactState()) << ','
             << uint32(mode) << ", '"
             << name.c_str() << "', "
-            << uint32(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1) << ", "
-            << curhealth << ", "
-            << curmana << ", "
+            << uint32(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1) << ','
+            << curhealth << ','
+            << curmana << ','
             << GetPower(POWER_HAPPINESS) << ", '";
 
         for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
         {
-            ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << " "
-               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << " ";
+            ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
+               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
         };
 
         ss  << "', "
-            << time(NULL) << ", "
-            << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ", "
-            << uint32(getPetType()) << ")";
+            << time(NULL) << ','
+            << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ','
+            << uint32(getPetType()) << ')';
 
         trans->Append(ss.str().c_str());
         CharacterDatabase.CommitTransaction(trans);
@@ -1640,7 +1640,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
         uint32 id = fields[0].GetUInt32();
 
         if (need_comma)
-            ss << ", ";
+            ss << ',';
 
         ss << id;
 
@@ -1661,7 +1661,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
             continue;
 
         if (need_execute)
-            ss << ", ";
+            ss << ',';
 
         ss << spell;
 
@@ -1672,7 +1672,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     if (!need_execute)
         return;
 
-    ss << ")";
+    ss << ')';
 
     CharacterDatabase.Execute(ss.str().c_str());
 }

@@ -49,7 +49,7 @@ void RotateMovementGenerator::Initialize(Unit& owner)
     owner.AttackStop();
 }
 
-bool RotateMovementGenerator::Update(Unit& owner, const uint32& diff)
+bool RotateMovementGenerator::Update(Unit& owner, const uint32 diff)
 {
     float angle = owner.GetOrientation();
     if (m_direction == ROTATE_DIRECTION_LEFT)
@@ -93,7 +93,7 @@ DistractMovementGenerator::Finalize(Unit& owner)
 }
 
 bool
-DistractMovementGenerator::Update(Unit& /*owner*/, const uint32& time_diff)
+DistractMovementGenerator::Update(Unit& /*owner*/, const uint32 time_diff)
 {
     if (time_diff > m_timer)
         return false;

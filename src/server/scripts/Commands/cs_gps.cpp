@@ -25,6 +25,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "CellImpl.h"
 
 class gps_commandscript : public CommandScript
 {

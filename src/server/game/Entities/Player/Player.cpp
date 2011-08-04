@@ -258,7 +258,7 @@ std::string PlayerTaxi::SaveTaxiDestinationsToString()
     std::ostringstream ss;
 
     for (size_t i=0; i < m_TaxiDestinations.size(); ++i)
-        ss << m_TaxiDestinations[i] << " ";
+        ss << m_TaxiDestinations[i] << ' ';
 
     return ss.str();
 }
@@ -278,10 +278,10 @@ uint32 PlayerTaxi::GetCurrentTaxiPath() const
 
 std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
 {
-    ss << "'";
+    ss << '\'';
     for (uint8 i = 0; i < TaxiMaskSize; ++i)
-        ss << taxi.m_taximask[i] << " ";
-    ss << "'";
+        ss << taxi.m_taximask[i] << ' ';
+    ss << '\'';
     return ss;
 }
 
@@ -964,7 +964,10 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
 
     SetUInt32Value(PLAYER_BYTES, (createInfo->Skin | (createInfo->Face << 8) | (createInfo->HairStyle << 16) | (createInfo->HairColor << 24)));
-    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHair | (0x00 << 8) | (0x00 << 16) | (0x02 << 24)));
+    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHair |
+                                   (0x00 << 8) |
+                                   (0x00 << 16) |
+                                   (((GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED) << 24)));
     SetByteValue(PLAYER_BYTES_3, 0, createInfo->Gender);
     SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
@@ -3061,6 +3064,16 @@ void Player::GiveLevel(uint8 level)
 
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 
+    // Refer-A-Friend
+    if (GetSession()->GetRecruiterId())
+        if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+            if (level % 2 == 0) {
+                m_grantableLevels++;
+
+                if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
+                    SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
+            }
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -4288,8 +4301,8 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
             }
             // next new/changed record prefix
             else
-                ss << ", ";
-            ss << "(" << GetGUIDLow() << ", " << itr->first << ", " << itr->second.itemid << ", " << uint64(itr->second.end) << ")";
+                ss << ',';
+            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end) << ')';
             ++itr;
         }
         else
@@ -5054,6 +5067,9 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
+    if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
+        SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
+
     setDeathState(ALIVE);
 
     SetMovement(MOVE_LAND_WALK);
@@ -5062,7 +5078,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     m_deathTimer = 0;
 
     // set health/powers (0- will be set in caller)
-    if (restore_percent>0.0f)
+    if (restore_percent > 0.0f)
     {
         SetHealth(uint32(GetMaxHealth()*restore_percent));
         SetPower(POWER_MANA, uint32(GetMaxPower(POWER_MANA)*restore_percent));
@@ -8343,7 +8359,7 @@ void Player::CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8
             return;
         }
 
-        Spell* spell = new Spell(this, spellInfo, false);
+        Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
         spell->m_CastItem = item;
         spell->m_cast_count = cast_count;                   //set count of casts
         spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
@@ -8374,7 +8390,7 @@ void Player::CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8
             continue;
         }
 
-        Spell* spell = new Spell(this, spellInfo, (count > 0));
+        Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
         spell->m_CastItem = item;
         spell->m_cast_count = cast_count;                   // set count of casts
         spell->m_glyphIndex = glyphIndex;                   // glyph index
@@ -8402,7 +8418,7 @@ void Player::CastItemUseSpell(Item *item, SpellCastTargets const& targets, uint8
                 continue;
             }
 
-            Spell* spell = new Spell(this, spellInfo, (count > 0));
+            Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
             spell->m_CastItem = item;
             spell->m_cast_count = cast_count;               // set count of casts
             spell->m_glyphIndex = glyphIndex;               // glyph index
@@ -11895,7 +11911,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             // save data
             std::ostringstream ss;
             for (AllowedLooterSet::iterator itr = allowedLooters->begin(); itr != allowedLooters->end(); ++itr)
-                ss << *itr << " ";
+                ss << *itr << ' ';
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_BOP_TRADE);
             stmt->setUInt32(0, pItem->GetGUIDLow());
@@ -16384,8 +16400,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask, "
     // 39           40                41                 42                    43          44          45              46           47               48              49
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, "
-    // 50      51      52      53      54      55      56      57      58           59         60          61             62              63      64           65
-    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars FROM characters WHERE guid = '%u'", guid);
+    // 50      51      52      53      54      55      56      57      58           59         60          61             62              63      64           65          66
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", guid);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if (!result)
@@ -16970,17 +16986,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
                 break;
         }
 
-        /*switch(sWorld->getIntConfig(CONFIG_GM_ACCEPT_TICKETS))
-        {
-            default:
-            case 0:                        break;           // disable
-            case 1: SetAcceptTicket(true); break;           // enable
-            case 2:                                         // save state
-            if (extraflags & PLAYER_EXTRA_GM_ACCEPT_TICKETS)
-                SetAcceptTicket(true);
-            break;
-        }*/
-
         switch (sWorld->getIntConfig(CONFIG_GM_CHAT))
         {
             default:
@@ -17003,6 +17008,14 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
                 break;
         }
     }
+
+    // RaF stuff.
+    m_grantableLevels = fields[66].GetUInt32();
+    if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
+        SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
+
+    if (m_grantableLevels > 0)
+        SetByteValue(PLAYER_FIELD_BYTES, 1, 0x01);
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES));
 
@@ -18186,119 +18199,119 @@ void Player::SaveToDB()
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
         "death_expire_time, taxi_path, arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, "
         "todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, health, power1, power2, power3, "
-        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars) VALUES ("
-        << GetGUIDLow() << ", "
+        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels) VALUES ("
+        << GetGUIDLow() << ','
         << GetSession()->GetAccountId() << ", '"
         << sql_name << "', "
-        << uint32(getRace()) << ", "
-        << uint32(getClass()) << ", "
-        << uint32(getGender()) << ", "
-        << uint32(getLevel()) << ", "
-        << GetUInt32Value(PLAYER_XP) << ", "
-        << GetMoney() << ", "
-        << GetUInt32Value(PLAYER_BYTES) << ", "
-        << GetUInt32Value(PLAYER_BYTES_2) << ", "
-        << GetUInt32Value(PLAYER_FLAGS) << ", ";
+        << uint32(getRace()) << ','
+        << uint32(getClass()) << ','
+        << uint32(getGender()) << ','
+        << uint32(getLevel()) << ','
+        << GetUInt32Value(PLAYER_XP) << ','
+        << GetMoney() << ','
+        << GetUInt32Value(PLAYER_BYTES) << ','
+        << GetUInt32Value(PLAYER_BYTES_2) << ','
+        << GetUInt32Value(PLAYER_FLAGS) << ',';
 
     if (!IsBeingTeleported())
     {
-        ss << GetMapId() << ", "
-        << (uint32)GetInstanceId() << ", "
-        << uint32(uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4) << ", "
-        << finiteAlways(GetPositionX()) << ", "
-        << finiteAlways(GetPositionY()) << ", "
-        << finiteAlways(GetPositionZ()) << ", "
-        << finiteAlways(GetOrientation()) << ", ";
+        ss << GetMapId() << ','
+        << (uint32)GetInstanceId() << ','
+        << uint32(uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4) << ','
+        << finiteAlways(GetPositionX()) << ','
+        << finiteAlways(GetPositionY()) << ','
+        << finiteAlways(GetPositionZ()) << ','
+        << finiteAlways(GetOrientation()) << ',';
     }
     else
     {
-        ss << GetTeleportDest().GetMapId() << ", "
-        << (uint32)0 << ", "
-        << uint32(uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4) << ", "
-        << finiteAlways(GetTeleportDest().GetPositionX()) << ", "
-        << finiteAlways(GetTeleportDest().GetPositionY()) << ", "
-        << finiteAlways(GetTeleportDest().GetPositionZ()) << ", "
-        << finiteAlways(GetTeleportDest().GetOrientation()) << ", ";
+        ss << GetTeleportDest().GetMapId() << ','
+        << (uint32)0 << ','
+        << uint32(uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4) << ','
+        << finiteAlways(GetTeleportDest().GetPositionX()) << ','
+        << finiteAlways(GetTeleportDest().GetPositionY()) << ','
+        << finiteAlways(GetTeleportDest().GetPositionZ()) << ','
+        << finiteAlways(GetTeleportDest().GetOrientation()) << ',';
     }
 
-    ss << m_taxi << ", ";                                   // string with TaxiMaskSize numbers
+    ss << m_taxi << ',';                                    // string with TaxiMaskSize numbers
 
-    ss << (IsInWorld() ? 1 : 0) << ", ";
+    ss << (IsInWorld() ? 1 : 0) << ',';
 
-    ss << uint32(m_cinematic) << ", ";
+    ss << uint32(m_cinematic) << ',';
 
-    ss << m_Played_time[PLAYED_TIME_TOTAL] << ", ";
-    ss << m_Played_time[PLAYED_TIME_LEVEL] << ", ";
+    ss << m_Played_time[PLAYED_TIME_TOTAL] << ',';
+    ss << m_Played_time[PLAYED_TIME_LEVEL] << ',';
 
-    ss << finiteAlways(m_rest_bonus) << ", ";
-    ss << uint32(time(NULL)) << ", ";
-    ss << (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0) << ", ";
+    ss << finiteAlways(m_rest_bonus) << ',';
+    ss << uint32(time(NULL)) << ',';
+    ss << (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0) << ',';
                                                             //save, far from tavern/city
                                                             //save, but in tavern/city
-    ss << m_resetTalentsCost << ", ";
-    ss << uint32(m_resetTalentsTime) << ", ";
+    ss << m_resetTalentsCost << ',';
+    ss << uint32(m_resetTalentsTime) << ',';
 
-    ss << finiteAlways(m_movementInfo.t_pos.GetPositionX()) << ", ";
-    ss << finiteAlways(m_movementInfo.t_pos.GetPositionY()) << ", ";
-    ss << finiteAlways(m_movementInfo.t_pos.GetPositionZ()) << ", ";
-    ss << finiteAlways(m_movementInfo.t_pos.GetOrientation()) << ", ";
+    ss << finiteAlways(m_movementInfo.t_pos.GetPositionX()) << ',';
+    ss << finiteAlways(m_movementInfo.t_pos.GetPositionY()) << ',';
+    ss << finiteAlways(m_movementInfo.t_pos.GetPositionZ()) << ',';
+    ss << finiteAlways(m_movementInfo.t_pos.GetOrientation()) << ',';
     if (m_transport)
         ss << m_transport->GetGUIDLow();
     else
-        ss << "0";
-    ss << ", ";
+        ss << '0';
+    ss << ',';
 
-    ss << m_ExtraFlags << ", ";
+    ss << m_ExtraFlags << ',';
 
-    ss << uint32(m_stableSlots) << ", ";                    // to prevent save uint8 as char
+    ss << uint32(m_stableSlots) << ',';                     // to prevent save uint8 as char
 
-    ss << uint32(m_atLoginFlags) << ", ";
+    ss << uint32(m_atLoginFlags) << ',';
 
-    ss << GetZoneId() << ", ";
+    ss << GetZoneId() << ',';
 
     ss << uint32(m_deathExpireTime) << ", '";
 
     ss << m_taxi.SaveTaxiDestinationsToString() << "', ";
 
-    ss << GetArenaPoints() << ", ";
+    ss << GetArenaPoints() << ',';
 
-    ss << GetHonorPoints() << ", ";
+    ss << GetHonorPoints() << ',';
 
-    ss << GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION) << ", ";
+    ss << GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION) << ',';
 
-    ss << GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION) << ", ";
+    ss << GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION) << ',';
 
-    ss << GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS) << ", ";
+    ss << GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS) << ',';
 
-    ss << GetUInt16Value(PLAYER_FIELD_KILLS, 0) << ", ";
+    ss << GetUInt16Value(PLAYER_FIELD_KILLS, 0) << ',';
 
-    ss << GetUInt16Value(PLAYER_FIELD_KILLS, 1) << ", ";
+    ss << GetUInt16Value(PLAYER_FIELD_KILLS, 1) << ',';
 
-    ss << GetUInt32Value(PLAYER_CHOSEN_TITLE) << ", ";
+    ss << GetUInt32Value(PLAYER_CHOSEN_TITLE) << ',';
 
-    ss << GetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES) << ", ";
+    ss << GetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES) << ',';
 
-    ss << GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX) << ", ";
+    ss << GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX) << ',';
 
-    ss << (uint16)(GetUInt32Value(PLAYER_BYTES_3) & 0xFFFE) << ", ";
+    ss << (uint16)(GetUInt32Value(PLAYER_BYTES_3) & 0xFFFE) << ',';
 
     ss << GetHealth();
 
     for (uint32 i = 0; i < MAX_POWERS; ++i)
-        ss << ", " << GetPower(Powers(i));
-    ss << ", ";
+        ss << ',' << GetPower(Powers(i));
+    ss << ',';
     ss << GetSession()->GetLatency();
-    ss << ", ";
+    ss << ',';
     ss << uint32(m_specsCount);
-    ss << ", ";
+    ss << ',';
     ss << uint32(m_activeSpec) << ", '";
     for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-        ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << " ";
+        ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << ' ';
 
     // cache equipment...
     ss << "', '";
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
-        ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << " ";
+        ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << ' ';
 
     // ...and bags for enum opcode
     for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -18306,19 +18319,21 @@ void Player::SaveToDB()
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             ss << item->GetEntry();
         else
-            ss << "0";
+            ss << '0';
         ss << " 0 ";
     }
 
-    ss << "', ";
+    ss << "',";
 
     ss << GetUInt32Value(PLAYER_AMMO_ID) << ", '";
     for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-        ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << " ";
+        ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
 
-    ss << "', ";
+    ss << "',";
     ss << uint32(GetByteValue(PLAYER_FIELD_BYTES, 2));
-    ss << ")";
+    ss << ",";
+    ss << uint32(m_grantableLevels);
+    ss << ')';
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -18785,25 +18800,25 @@ void Player::_SaveStats(SQLTransaction& trans)
     ss << "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
         "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, resilience) VALUES ("
-        << GetGUIDLow() << ", "
-        << GetMaxHealth() << ", ";
+        << GetGUIDLow() << ','
+        << GetMaxHealth() << ',';
     for (uint8 i = 0; i < MAX_POWERS; ++i)
-        ss << GetMaxPower(Powers(i)) << ", ";
+        ss << GetMaxPower(Powers(i)) << ',';
     for (uint8 i = 0; i < MAX_STATS; ++i)
-        ss << GetStat(Stats(i)) << ", ";
+        ss << GetStat(Stats(i)) << ',';
     // armor + school resistances
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        ss << GetResistance(SpellSchools(i)) << ", ";
-    ss << GetFloatValue(PLAYER_BLOCK_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_DODGE_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_PARRY_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_CRIT_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1) << ", "
-       << GetUInt32Value(UNIT_FIELD_ATTACK_POWER) << ", "
-       << GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) << ", "
-       << GetBaseSpellPowerBonus() << ", "
-       << GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_TAKEN_SPELL) << ")";
+        ss << GetResistance(SpellSchools(i)) << ',';
+    ss << GetFloatValue(PLAYER_BLOCK_PERCENTAGE) << ','
+       << GetFloatValue(PLAYER_DODGE_PERCENTAGE) << ','
+       << GetFloatValue(PLAYER_PARRY_PERCENTAGE) << ','
+       << GetFloatValue(PLAYER_CRIT_PERCENTAGE) << ','
+       << GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE) << ','
+       << GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1) << ','
+       << GetUInt32Value(UNIT_FIELD_ATTACK_POWER) << ','
+       << GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) << ','
+       << GetBaseSpellPowerBonus() << ','
+       << GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_TAKEN_SPELL) << ')';
     trans->Append(ss.str().c_str());
 }
 
@@ -18878,10 +18893,10 @@ void Player::SendAttackSwingNotInRange()
 void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid)
 {
     std::ostringstream ss;
-    ss << "UPDATE characters SET position_x='"<<x<<"', position_y='"<<y
-        << "', position_z='"<<z<<"', orientation='"<<o<<"', map='"<<mapid
-        << "', zone='"<<zone<<"', trans_x='0', trans_y='0', trans_z='0', "
-        << "transguid='0', taxi_path='' WHERE guid='"<< GUID_LOPART(guid) <<"'";
+    ss << "UPDATE characters SET position_x='" << x << "', position_y='" << y
+        << "', position_z='" << z << "', orientation='" << o << "', map='" << mapid
+        << "', zone='" << zone << "', trans_x='0', trans_y='0', trans_z='0', "
+        << "transguid='0', taxi_path='' WHERE guid='" << GUID_LOPART(guid) << '\'';
     sLog->outDebug(LOG_FILTER_UNITS, "%s", ss.str().c_str());
     CharacterDatabase.Execute(ss.str().c_str());
 }
@@ -19821,10 +19836,12 @@ void Player::SetRestBonus (float rest_bonus_new)
         m_rest_bonus = rest_bonus_new;
 
     // update data for client
-    if (m_rest_bonus>10)
-        SetByteValue(PLAYER_BYTES_2, 3, 0x01);              // Set Reststate = Rested
+    if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
+        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
+    else if (m_rest_bonus > 10)
+        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);              // Set Reststate = Rested
     else if (m_rest_bonus <= 1)
-        SetByteValue(PLAYER_BYTES_2, 3, 0x02);              // Set Reststate = Normal
+        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NOT_RAF_LINKED);              // Set Reststate = Normal
 
     //RestTickUpdate
     SetUInt32Value(PLAYER_REST_STATE_EXPERIENCE, uint32(m_rest_bonus));

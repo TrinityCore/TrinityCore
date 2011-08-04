@@ -179,7 +179,7 @@ class instance_zulaman : public InstanceMapScript
             std::string GetSaveData()
             {
                 std::ostringstream ss;
-                ss << "S " << BossKilled << " " << ChestLooted << " " << QuestMinute;
+                ss << "S " << BossKilled << ' ' << ChestLooted << ' ' << QuestMinute;
                 char* data = new char[ss.str().length()+1];
                 strcpy(data, ss.str().c_str());
                 //sLog->outError("TSCR: Zul'aman saved, %s.", data);

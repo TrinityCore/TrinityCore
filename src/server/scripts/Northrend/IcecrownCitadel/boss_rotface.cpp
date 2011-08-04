@@ -35,6 +35,7 @@ enum Texts
     SAY_KILL                    = 6,
     SAY_BERSERK                 = 7,
     SAY_DEATH                   = 8,
+    EMOTE_MUTATED_INFECTION     = 9,
 
     EMOTE_PRECIOUS_ZOMBIES      = 0,
 };
@@ -195,7 +196,10 @@ class boss_rotface : public CreatureScript
                             if (!target)
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -MUTATED_INFECTION);
                             if (target)
+                            {
                                 me->CastCustomSpell(SPELL_MUTATED_INFECTION, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                                Talk(EMOTE_MUTATED_INFECTION, target->GetGUID());
+                            }
                             events.ScheduleEvent(EVENT_MUTATED_INFECTION, infectionCooldown);
                             break;
                         }

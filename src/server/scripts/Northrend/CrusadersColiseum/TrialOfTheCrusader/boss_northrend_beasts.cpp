@@ -284,7 +284,7 @@ public:
 
             switch (uiId)
             {
-                case 0: // JUMP!? Fuck! THAT'S BEEZARR! Would someone PLEASE make MotionMaster->Move* work better?
+                case 0:
                     if (m_bTargetDied)
                         me->DespawnOrUnsummon();
                     break;
@@ -728,7 +728,7 @@ public:
 
             switch (uiId)
             {
-                case 0: // JUMP!? Fuck! THAT'S BEEZARR! Would someone PLEASE make MotionMaster->Move* work better?
+                case 0:
                     if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
                     {
                         // Middle of the room
