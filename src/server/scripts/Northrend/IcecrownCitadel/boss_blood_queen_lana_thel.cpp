@@ -99,7 +99,11 @@ enum Events
     EVENT_GROUP_CANCELLABLE         = 2,
 };
 
-#define GUID_VAMPIRE 1
+enum Guids
+{
+    GUID_VAMPIRE    = 1,
+    GUID_BLOODBOLT  = 2,
+};
 
 enum Points
 {
@@ -255,8 +259,17 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void SetGUID(uint64 const guid, int32 type = 0)
             {
-                if (type == GUID_VAMPIRE)
-                    _vampires.insert(guid);
+                switch (type)
+                {
+                    case GUID_VAMPIRE:
+                        _vampires.insert(guid);
+                        break;
+                    case GUID_BLOODBOLT:
+                        _bloodboltedPlayers.insert(guid);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -274,6 +287,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_START_FLYING, 5000);
                         break;
                     case POINT_AIR:
+                        _bloodboltedPlayers.clear();
                         DoCast(me, SPELL_BLOODBOLT_WHIRL);
                         Talk(SAY_AIR_PHASE);
                         events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10000);
@@ -429,6 +443,11 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 return _vampires.count(guid) != 0;
             }
 
+            bool WasBloodbolted(uint64 guid)
+            {
+                return _bloodboltedPlayers.count(guid) != 0;
+            }
+
         private:
             // offtank for this encounter is the player standing closest to main tank
             Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = NULL)
@@ -465,6 +484,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
             }
 
             std::set<uint64> _vampires;
+            std::set<uint64> _bloodboltedPlayers;
             Player* _offtank;
             bool _creditBloodQuickening;
             bool _killMinchar;
@@ -598,6 +618,20 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
         }
 };
 
+class BloodboltHitCheck
+{
+    public:
+        explicit BloodboltHitCheck(LanaThelAI* ai) : _ai(ai) {}
+
+        bool operator()(Unit* unit)
+        {
+            return _ai->WasBloodbolted(unit->GetGUID());
+        }
+
+    private:
+        LanaThelAI* _ai;
+};
+
 class spell_blood_queen_bloodbolt : public SpellScriptLoader
 {
     public:
@@ -614,14 +648,27 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
                 return true;
             }
 
+            bool Load()
+            {
+                return GetCaster()->GetEntry() == NPC_BLOOD_QUEEN_LANA_THEL;
+            }
+
+            void FilterTargets(std::list<Unit*>& targets)
+            {
+                uint32 targetCount = targets.size() / 3 + 1;
+                targets.remove_if(BloodboltHitCheck(static_cast<LanaThelAI*>(GetCaster()->GetAI())));
+                Trinity::RandomResizeList(targets, targetCount);
+            }
+
             void HandleDummy()
             {
-                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_TWILIGHT_BLOODBOLT, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_TWILIGHT_BLOODBOLT, true);
+                GetCaster()->GetAI()->SetGUID(GetHitUnit()->GetGUID(), GUID_BLOODBOLT);
             }
 
             void Register()
             {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_blood_queen_bloodbolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
                 AfterHit += SpellHitFn(spell_blood_queen_bloodbolt_SpellScript::HandleDummy);
             }
         };
