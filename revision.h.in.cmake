@@ -1,8 +1,9 @@
 #ifndef __REVISION_H__
 #define __REVISION_H__
+ #define _DATE          "@rev_date_str@"
  #define _HASH          "@rev_hash_str@"
- #define FILEVER        0,0,0
- #define PRODUCTVER     0,0,0
- #define STRFILEVER     "0, 0, @rev_hash_str@"
- #define STRPRODUCTVER  "0, 0, @rev_hash_str@"
+ #define FILEVER        @rev_date@
+ #define PRODUCTVER     @rev_date@
+ #define STRFILEVER     "@rev_hash_str@, @rev_date_str@"
+ #define STRPRODUCTVER  "@rev_hash_str@, @rev_date_str@"
 #endif // __REVISION_H__

@@ -16,8 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// THIS FILE IS DEPRECATED
-
 #ifndef TRINITY_SYSTEMCONFIG_H
 #define TRINITY_SYSTEMCONFIG_H
 
@@ -34,11 +32,11 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 # ifdef _WIN64
-#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " (Win64, "_BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
+#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " / " _DATE " (Win64, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
 # else
-#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " (Win32, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
+#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " / " _DATE " (Win32, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
 # endif
 #else
-#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " (Unix, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
+#  define _FULLVERSION _PACKAGENAME "Hash: " _HASH " / " _DATE " (Unix, " _BUILD_DIRECTIVE " (" _ENDIAN_STRING "))"
 #endif
 #endif

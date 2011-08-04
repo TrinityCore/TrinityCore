@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "authserver"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "authserver"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2010"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2011"
             VALUE "OriginalFilename", "authserver.exe"
             VALUE "ProductName", "authserver"
             VALUE "ProductVersion", STRPRODUCTVER
