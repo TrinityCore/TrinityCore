@@ -544,7 +544,7 @@ void Map::Update(const uint32 t_diff)
     {
         Player* plr = m_mapRefIter->getSource();
 
-        if (!plr->IsInWorld())
+        if (!plr || !plr->IsInWorld())
             continue;
 
         // update players at tick
@@ -559,7 +559,7 @@ void Map::Update(const uint32 t_diff)
         WorldObject* obj = *m_activeNonPlayersIter;
         ++m_activeNonPlayersIter;
 
-        if (!obj->IsInWorld())
+        if (!obj || !obj->IsInWorld())
             continue;
 
         VisitNearbyCellsOf(obj, grid_object_update, world_object_update);
