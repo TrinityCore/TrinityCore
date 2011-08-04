@@ -120,15 +120,13 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult result)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
 
     recv_data >> guid;
 
-    Player *pChar = ObjectAccessor::FindPlayer(guid);
-
-    if (pChar)
+    if (Player *pChar = ObjectAccessor::FindPlayer(guid))
         SendNameQueryOpcode(pChar);
     else
         SendNameQueryOpcodeFromDB(guid);
@@ -147,7 +145,7 @@ void WorldSession::SendQueryTimeResponse()
     SendPacket(&data);
 }
 
-/// Only _static_ data send in this packet !!!
+/// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
 {
     uint32 entry;
@@ -168,8 +166,8 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
         {
             if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(entry))
             {
-                sObjectMgr->GetLocaleString(cl->Name, loc_idx, Name);
-                sObjectMgr->GetLocaleString(cl->SubName, loc_idx, SubName);
+                ObjectMgr::GetLocaleString(cl->Name, loc_idx, Name);
+                ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
             }
         }
         sLog->outDetail("WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
@@ -210,7 +208,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
     }
 }
 
-/// Only _static_ data send in this packet !!!
+/// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
 {
     uint32 entry;
@@ -234,8 +232,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         {
             if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(entry))
             {
-                sObjectMgr->GetLocaleString(gl->Name, loc_idx, Name);
-                sObjectMgr->GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
+                ObjectMgr::GetLocaleString(gl->Name, loc_idx, Name);
+                ObjectMgr::GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
             }
         }
         sLog->outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name.c_str(), entry);
@@ -365,8 +363,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
             {
                 for (int i = 0; i < MAX_LOCALES; ++i)
                 {
-                    sObjectMgr->GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
-                    sObjectMgr->GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
+                    ObjectMgr::GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
+                    ObjectMgr::GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
                 }
             }
         }
@@ -400,6 +398,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
+/// Only _static_ data is sent in this packet !!!
 void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 {
     sLog->outDetail("WORLD: Received CMSG_PAGE_TEXT_QUERY");
@@ -429,7 +428,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (PageTextLocale const *pl = sObjectMgr->GetPageTextLocale(pageID))
-                    sObjectMgr->GetLocaleString(pl->Text, loc_idx, Text);
+                    ObjectMgr::GetLocaleString(pl->Text, loc_idx, Text);
 
             data << Text;
             data << uint32(pageText->NextPage);

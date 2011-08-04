@@ -14095,8 +14095,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 uint32 idxEntry = MAKE_PAIR32(menuId, itr->second.OptionIndex);
                 if (GossipMenuItemsLocale const *no = sObjectMgr->GetGossipMenuItemsLocale(idxEntry))
                 {
-                    sObjectMgr->GetLocaleString(no->OptionText, locale, strOptionText);
-                    sObjectMgr->GetLocaleString(no->BoxText, locale, strBoxText);
+                    ObjectMgr::GetLocaleString(no->OptionText, locale, strOptionText);
+                    ObjectMgr::GetLocaleString(no->BoxText, locale, strBoxText);
                 }
             }
 
@@ -14458,7 +14458,7 @@ void Player::SendPreparedQuest(uint64 guid)
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                         if (NpcTextLocale const *nl = sObjectMgr->GetNpcTextLocale(textid))
-                            sObjectMgr->GetLocaleString(nl->Text_0[0], loc_idx, title);
+                            ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
                 }
                 else
                 {
@@ -14467,7 +14467,7 @@ void Player::SendPreparedQuest(uint64 guid)
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                         if (NpcTextLocale const *nl = sObjectMgr->GetNpcTextLocale(textid))
-                            sObjectMgr->GetLocaleString(nl->Text_1[0], loc_idx, title);
+                            ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
                 }
             }
         }
@@ -16165,7 +16165,7 @@ void Player::SendQuestConfirmAccept(const Quest* pQuest, Player* pReceiver)
         int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(pQuest->GetQuestId()))
-                sObjectMgr->GetLocaleString(pLocale->Title, loc_idx, strTitle);
+                ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(pQuest->GetQuestId());

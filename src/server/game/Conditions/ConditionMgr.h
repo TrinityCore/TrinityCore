@@ -20,6 +20,7 @@
 #define TRINITY_CONDITIONMGR_H
 
 #include "LootMgr.h"
+#include <ace/Singleton.h>
 
 class Player;
 class Unit;
@@ -63,12 +64,12 @@ enum ConditionType
 
 enum LevelConditionType
 {
-    LVL_COND_EQ = 0,
-    LVL_COND_HIGH = 1,
-    LVL_COND_LOW = 2,
-    LVL_COND_HIGH_EQ = 3,
-    LVL_COND_LOW_EQ = 4,
-    LVL_COND_MAX = 5,
+    LVL_COND_EQ,
+    LVL_COND_HIGH,
+    LVL_COND_LOW,
+    LVL_COND_HIGH_EQ,
+    LVL_COND_LOW_EQ,
+    LVL_COND_MAX
 };
 
 enum ConditionSourceType
@@ -141,11 +142,12 @@ typedef std::map<uint32, ConditionList > ConditionReferenceMap;//only used for r
 class ConditionMgr
 {
     friend class ACE_Singleton<ConditionMgr, ACE_Null_Mutex>;
-    ConditionMgr();
-    ~ConditionMgr();
+
+    private:
+        ConditionMgr();
+        ~ConditionMgr();
 
     public:
-
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
@@ -154,14 +156,7 @@ class ConditionMgr
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
 
-    protected:
-
-        ConditionMap                m_ConditionMap;
-        ConditionReferenceMap       m_ConditionReferenceMap;
-        VehicleSpellConditionMap    m_VehicleSpellConditions;
-
     private:
-
         bool isSourceTypeValid(Condition* cond);
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
@@ -189,6 +184,10 @@ class ConditionMgr
 
         void Clean(); // free up resources
         std::list<Condition*> m_AllocatedMemory; // some garbage collection :)
+
+        ConditionMap                m_ConditionMap;
+        ConditionReferenceMap       m_ConditionReferenceMap;
+        VehicleSpellConditionMap    m_VehicleSpellConditions;
 };
 
 #define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()
