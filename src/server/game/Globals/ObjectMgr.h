@@ -338,7 +338,7 @@ struct SpellClickInfo
 {
     uint32 spellId;
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
-    uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
+    uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
     bool   questStartCanActive;                             // if true then quest start can be active (not only rewarded)
     uint8 castFlags;
     uint32 auraRequired;
@@ -592,8 +592,10 @@ class ObjectMgr
 {
     friend class PlayerDumpReader;
     friend class ACE_Singleton<ObjectMgr, ACE_Null_Mutex>;
-    ObjectMgr();
-    ~ObjectMgr();
+
+    private:
+        ObjectMgr();
+        ~ObjectMgr();
 
     public:
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
@@ -629,7 +631,7 @@ class ObjectMgr
         CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
-        uint32 ChooseDisplayId(uint32 team, const CreatureTemplate *cinfo, const CreatureData *data = NULL);
+        static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate *cinfo, const CreatureData *data = NULL);
         static void ChooseCreatureFlags(const CreatureTemplate *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);
         CreatureAddon const *GetCreatureAddon(uint32 lowguid);
@@ -667,9 +669,9 @@ class ObjectMgr
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         uint64 GetPlayerGUIDByName(std::string name) const;
-        bool GetPlayerNameByGUID(const uint64 guid, std::string &name) const;
-        uint32 GetPlayerTeamByGUID(const uint64 guid) const;
-        uint32 GetPlayerAccountIdByGUID(const uint64 guid) const;
+        bool GetPlayerNameByGUID(uint64 guid, std::string &name) const;
+        uint32 GetPlayerTeamByGUID(uint64 guid) const;
+        uint32 GetPlayerAccountIdByGUID(uint64 guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
@@ -928,7 +930,6 @@ class ObjectMgr
         uint32 GenerateLowGuid(HighGuid guidhigh);
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
-
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
 
@@ -1168,8 +1169,8 @@ class ObjectMgr
         // for wintergrasp only
         GraveYardMap        mGraveYardMap;
 
-        void AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data);
-        inline void GetLocaleString(const StringVector& data, int loc_idx, std::string& value) const
+        static void AddLocaleString(const std::string& s, LocaleConstant locale, StringVector& data);
+        static inline void GetLocaleString(const StringVector& data, int loc_idx, std::string& value)
         {
             if (data.size() > size_t(loc_idx) && !data[loc_idx].empty())
                 value = data[loc_idx];
@@ -1194,7 +1195,7 @@ class ObjectMgr
         uint32 m_mailid;
         uint32 m_hiPetNumber;
 
-        // first free low guid for seelcted guid type
+        // first free low guid for selected guid type
         uint32 m_hiCharGuid;
         uint32 m_hiCreatureGuid;
         uint32 m_hiPetGuid;
