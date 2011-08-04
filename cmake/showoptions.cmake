@@ -1,11 +1,9 @@
-# Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
-
 # output generic information about the core and buildtype chosen
-
 message("")
-message("* UWoM-Server commithash : ${rev_hash_str}")
+message("* TrinityCore rev. hash  : ${rev_hash}")
+message("* TrinityCore rev. date  : ${rev_date}")
 if( UNIX )
-  message("* Build binaries in      : ${CMAKE_BUILD_TYPE} mode")
+  message("* TrinityCore buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
 message("")
 
