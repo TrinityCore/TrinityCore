@@ -224,6 +224,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         {
                             case DONE:
                             case FAIL:
+                                DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(false));
                                 HandleGameObject(FlameRingGUID, true);
                                 break;
                             case IN_PROGRESS:
@@ -253,30 +254,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                 }
             }
-            
-            /*void PartiallyUpdateWorldState(uint32 uiStateId)
-            {
-                Map::PlayerList const& lPlayers = instance->GetPlayers();
-
-                if (!lPlayers.isEmpty())
-                {
-                    for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-                        if (Player *player = itr->getSource())
-                            switch (uiStateId)
-                            {
-                                case WORLDSTATE_CORPOREALITY_TWILIGHT:
-                                    if (player->HasAura(SPELL_TWILIGHT_REALM))
-                                        player->SendUpdateWorldState(uiStateId, CorporealityTwilightState);
-                                    break;
-                                case WORLDSTATE_CORPOREALITY_MATERIAL:
-                                    if (!player->HasAura(SPELL_TWILIGHT_REALM))
-                                        player->SendUpdateWorldState(uiStateId, CorporealityMaterialState);
-                                    break;
-                            }
-                }
-                else
-                    sLog->outDebug(LOG_FILTER_TSCR, "Ruby Sanctum::PartiallyUpdateWorldState() tried to update Corpereality Worldstate, but no player is in map.");
-            }*/
 
             uint32 GetData(uint32 type)
             {

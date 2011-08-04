@@ -763,13 +763,9 @@ class npc_halion_controller : public CreatureScript
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                     halion->AI()->DoCast(halion, tSpell, true);
 
-                                if (oldCorpo > pValue) // Physical corporeality decreased
-                                {
-
-                                }
-                                else // Physical corporeality highered.
-                                {
-                                }
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(true));
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, uint32(pValue));
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, uint32(tValue));
                             }
                             me->setActive(false);
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
