@@ -357,20 +357,18 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount)
             m_effects[i] = NULL;
     }
 
-    if(caster && caster->GetTypeId() == TYPEID_PLAYER && m_spellProto->SpellFamilyName == SPELLFAMILY_POTION && caster->HasAura(53042))
+    // Mixology
+    if (m_spellProto->SpellFamilyName == SPELLFAMILY_POTION && caster /*&& caster->IsPlayer()*/ && caster->HasAura(53042))
     {
-        if(sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id,SPELL_GROUP_ELIXIR_BATTLE) ||
-            sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id,SPELL_GROUP_ELIXIR_GUARDIAN))
+        if (sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id, SPELL_GROUP_ELIXIR_BATTLE) ||
+            sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id, SPELL_GROUP_ELIXIR_GUARDIAN))
         {
-            if(caster->HasSpell(m_spellProto->EffectTriggerSpell[0]))
+            m_maxDuration *= 2;
+            m_duration = m_maxDuration;
+            for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
             {
-                m_maxDuration *= 2;
-                m_duration = m_maxDuration;
-                for (uint8 i=0 ; i<MAX_SPELL_EFFECTS; ++i)
-                {
-                    if (effMask & (uint8(1) << i))
-                        m_effects[i]->SetAmount((int32)(m_effects[i]->GetAmount() * 1.3f));
-                }
+                if (effMask & (uint8(1) << i))
+                    m_effects[i]->SetAmount((int32)(m_effects[i]->GetAmount() * 1.3f));
             }
         }
     }
