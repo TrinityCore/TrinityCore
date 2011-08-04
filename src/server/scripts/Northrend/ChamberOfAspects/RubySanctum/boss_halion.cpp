@@ -28,7 +28,7 @@ UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 UPDATE `gameobject` SET `phaseMask`=`phaseMask`|0x20 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
 
 UPDATE `creature_template` SET `scale`=1,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
-UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863;
@@ -38,8 +38,6 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN (
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
--- This SQL request is a backup, DO NOT APPLY IT, IT WILL SCREW UP YOUR TDB !!!!!!!!!!!!!!
--- UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`exp`=2,`faction_A`=14,`faction_H`=14,`speed_walk`=2.4,`speed_run`=0.85714,`baseattacktime`=2000,`unit_flags`=33554432
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
@@ -50,7 +48,7 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 -- This is INCORRECT but does NOT break TC STANDARDS
 -- UPDATE gameobject_template SET ScriptName = "go_halion_twilight_portal" WHERE entry IN(202794, 202795); -- Twilight Portal
 -- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
--- I personally use this one, this is faster for testing.
+-- I personally use this one, this is faster for testing (and working)
 UPDATE gameobject_template SET data10=74807 WHERE entry IN (202794, 202795);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
@@ -61,6 +59,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consu
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_damage_periodic_aura';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter_triggered';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
@@ -73,6 +72,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74630, 'spell_halion_combustion_consumption_damage_periodic_aura'),
 (74802, 'spell_halion_combustion_consumption_damage_periodic_aura'),
 (74812, 'spell_halion_leave_twilight_realm'),
+(74807, 'spell_halion_enter_twilight_realm'),
 (74769, 'spell_halion_twilight_cutter_triggered'),
 (77844, 'spell_halion_twilight_cutter_triggered'),
 (77845, 'spell_halion_twilight_cutter_triggered'),
@@ -462,7 +462,7 @@ class boss_twilight_halion : public CreatureScript
                         halion->LowerPlayerDamageReq(halion->GetMaxHealth());
 
                     if (halion->isAlive())
-                        killer->Kill(halion); // Will trigger HalionAI::JustDied.
+                        killer->Kill(halion);
                 }
                 
                 _instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
@@ -678,7 +678,7 @@ class npc_halion_controller : public CreatureScript
                     {
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                             halion->AI()->DoCast(halion, SPELL_BERSERK);
-                        if (Creature* tHalion = me->FindNearestCreature(NPC_TWILIGHT_HALION, 50.0f, true))
+                        if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                             tHalion->AI()->DoCast(tHalion, SPELL_BERSERK);
                         break;
                     }
@@ -1499,6 +1499,34 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
         }
 };
 
+class spell_halion_enter_twilight_realm : public SpellScriptLoader
+{
+    public:
+        spell_halion_enter_twilight_realm() : SpellScriptLoader("spell_halion_enter_twilight_realm") { }
+
+        class spell_halion_enter_twilight_realm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_enter_twilight_realm_SpellScript);
+
+            void HandleBeforeHit()
+            {
+                // Right before, make the Fiery Combustion explode
+                if (Player* plr = GetHitPlayer())
+                    plr->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_halion_enter_twilight_realm_SpellScript::HandleBeforeHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_enter_twilight_realm_SpellScript();
+        }
+};
+
 class isNotBetweenSelector
 {
     public:
@@ -1580,6 +1608,7 @@ void AddSC_boss_halion()
     new spell_halion_soul_consumption();
     new spell_halion_combustion_consumption_damage_periodic_aura();
     new spell_halion_leave_twilight_realm();
+    new spell_halion_enter_twilight_realm();
     new spell_halion_twilight_cutter_triggered();
 
     new go_halion_twilight_portal();
