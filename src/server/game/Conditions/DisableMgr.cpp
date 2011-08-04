@@ -16,10 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellMgr.h"
-#include "ObjectMgr.h"
 #include "DisableMgr.h"
+#include "ObjectMgr.h"
 #include "OutdoorPvP.h"
+#include "SpellMgr.h"
 #include "VMapManager2.h"
 
 DisableMgr::DisableMgr()
@@ -77,7 +77,6 @@ void DisableMgr::LoadDisables()
         switch (type)
         {
             case DISABLE_TYPE_SPELL:
-            {
                 if (!(sSpellMgr->GetSpellInfo(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
                 {
                     sLog->outErrorDb("Spell entry %u from `disables` doesn't exist in dbc, skipped.", entry);
@@ -104,7 +103,7 @@ void DisableMgr::LoadDisables()
                         data.params[1].insert(atoi(tokens[i++]));
                 }
 
-            }   break;
+                break;
             // checked later
             case DISABLE_TYPE_QUEST:
                 break;
@@ -217,7 +216,7 @@ void DisableMgr::LoadDisables()
 
         m_DisableMap[type].insert(DisableTypeMap::value_type(entry, data));
         ++total_count;
-   }
+    }
     while (result->NextRow());
 
     sLog->outString(">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
@@ -313,7 +312,7 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
                     uint8 disabledModes = itr->second.flags;
                     Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
-                    switch(targetDifficulty)
+                    switch (targetDifficulty)
                     {
                         case DUNGEON_DIFFICULTY_NORMAL:
                             return disabledModes & DUNGEON_STATUSFLAG_NORMAL;
