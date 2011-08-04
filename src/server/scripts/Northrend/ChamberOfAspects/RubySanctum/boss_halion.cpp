@@ -662,7 +662,7 @@ class npc_halion_controller : public CreatureScript
                         me->setActive(true);
                         _events.Reset();
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
-                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
+                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
                         corporealityValue = 50;
@@ -801,7 +801,7 @@ class npc_halion_controller : public CreatureScript
                                 }
                             }
                             me->setActive(false);
-                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
+                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 25000);
                             break;
                         }
                         default:
