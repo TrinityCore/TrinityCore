@@ -167,42 +167,42 @@ bool Condition::Meets(Player* player, Unit* invoker)
             condMeets = !player->HasItemCount(mConditionValue1, 1, mConditionValue2 ? true : false);
             break;
         case CONDITION_LEVEL:
+        {
+            switch (mConditionValue2)
             {
-                switch (mConditionValue2)
-                {
-                    case LVL_COND_EQ:
-                        condMeets = player->getLevel() == mConditionValue1;
-                        break;
-                    case LVL_COND_HIGH:
-                        condMeets = player->getLevel() > mConditionValue1;
-                        break;
-                    case LVL_COND_LOW:
-                        condMeets = player->getLevel() < mConditionValue1;
-                        break;
-                    case LVL_COND_HIGH_EQ:
-                        condMeets = player->getLevel() >= mConditionValue1;
-                        break;
-                    case LVL_COND_LOW_EQ:
-                        condMeets = player->getLevel() <= mConditionValue1;
-                        break;
-                }
-                break;
+                case LVL_COND_EQ:
+                    condMeets = player->getLevel() == mConditionValue1;
+                    break;
+                case LVL_COND_HIGH:
+                    condMeets = player->getLevel() > mConditionValue1;
+                    break;
+                case LVL_COND_LOW:
+                    condMeets = player->getLevel() < mConditionValue1;
+                    break;
+                case LVL_COND_HIGH_EQ:
+                    condMeets = player->getLevel() >= mConditionValue1;
+                    break;
+                case LVL_COND_LOW_EQ:
+                    condMeets = player->getLevel() <= mConditionValue1;
+                    break;
             }
+            break;
+        }
         case CONDITION_DRUNKENSTATE:
-            {
-                condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= mConditionValue1;
-                break;
-            }
+        {
+            condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= mConditionValue1;
+            break;
+        }
         case CONDITION_NEAR_CREATURE:
-            {
-                condMeets = GetClosestCreatureWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
-                break;
-            }
+        {
+            condMeets = GetClosestCreatureWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
+            break;
+        }
         case CONDITION_NEAR_GAMEOBJECT:
-            {
-                condMeets = GetClosestGameObjectWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
-                break;
-            }
+        {
+            condMeets = GetClosestGameObjectWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
+            break;
+        }
         default:
             condMeets = false;
             refId = 0;
@@ -382,7 +382,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 conditions. DB table `groups` is empty!");
+        sLog->outErrorDb(">> Loaded 0 conditions. DB table `conditions` is empty!");
         sLog->outString();
         return;
     }
@@ -979,40 +979,32 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         }
         case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
+            if (!sObjectMgr->GetQuestTemplate(cond->mSourceEntry))
             {
-                Quest const *Quest = sObjectMgr->GetQuestTemplate(cond->mSourceEntry);
-                if (!Quest)
-                {
-                    sLog->outErrorDb("CONDITION_SOURCE_TYPE_QUEST_ACCEPT specifies non-existing quest (%u), skipped", cond->mSourceEntry);
-                    return false;
-                }
+                sLog->outErrorDb("CONDITION_SOURCE_TYPE_QUEST_ACCEPT specifies non-existing quest (%u), skipped", cond->mSourceEntry);
+                return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK:
+            if (!sObjectMgr->GetQuestTemplate(cond->mSourceEntry))
             {
-                Quest const *Quest = sObjectMgr->GetQuestTemplate(cond->mSourceEntry);
-                if (!Quest)
-                {
-                    sLog->outErrorDb("CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK specifies non-existing quest (%u), skipped", cond->mSourceEntry);
-                    return false;
-                }
+                sLog->outErrorDb("CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK specifies non-existing quest (%u), skipped", cond->mSourceEntry);
+                return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
+            if (!sObjectMgr->GetCreatureTemplate(cond->mSourceGroup))
             {
-                if (!sObjectMgr->GetCreatureTemplate(cond->mSourceGroup))
-                {
-                    sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->mSourceGroup);
-                    return false;
-                }
-                SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->mSourceEntry);
-                if (!spellProto)
-                {
-                    sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->mSourceEntry);
-                    return false;
-                }
-                break;
+                sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->mSourceGroup);
+                return false;
             }
+
+            if (!sSpellMgr->GetSpellInfo(cond->mSourceEntry))
+            {
+                sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->mSourceEntry);
+                return false;
+            }
+            break;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_NONE:
@@ -1138,8 +1130,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         case CONDITION_QUEST_NONE:
         case CONDITION_QUEST_COMPLETE:
         {
-            Quest const *Quest = sObjectMgr->GetQuestTemplate(cond->mConditionValue1);
-            if (!Quest)
+            if (!sObjectMgr->GetQuestTemplate(cond->mConditionValue1))
             {
                 sLog->outErrorDb("Quest condition specifies non-existing quest (%u), skipped", cond->mConditionValue1);
                 return false;
@@ -1341,23 +1332,23 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             break;
         }
         case CONDITION_LEVEL:
+        {
+            if (cond->mConditionValue2 >= LVL_COND_MAX)
             {
-                if (cond->mConditionValue2 >= LVL_COND_MAX)
-                {
-                    sLog->outErrorDb("Level condition has invalid option (%u), skipped", cond->mConditionValue2);
-                    return false;
-                }
-                break;
+                sLog->outErrorDb("Level condition has invalid option (%u), skipped", cond->mConditionValue2);
+                return false;
             }
+            break;
+        }
         case CONDITION_DRUNKENSTATE:
+        {
+            if (cond->mConditionValue1 > DRUNKEN_SMASHED)
             {
-                if (cond->mConditionValue1 > DRUNKEN_SMASHED)
-                {
-                    sLog->outErrorDb("DrunkState condition has invalid state (%u), skipped", cond->mConditionValue1);
-                    return false;
-                }
-                break;
+                sLog->outErrorDb("DrunkState condition has invalid state (%u), skipped", cond->mConditionValue1);
+                return false;
             }
+            break;
+        }
         case CONDITION_NEAR_CREATURE:
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->mConditionValue1))
