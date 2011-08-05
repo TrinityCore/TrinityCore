@@ -755,6 +755,7 @@ class npc_halion_controller : public CreatureScript
 
                             if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                 tHalion->AI()->Talk(SAY_SPHERE_PULSE);
+
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             break;
                         }
@@ -762,14 +763,14 @@ class npc_halion_controller : public CreatureScript
                         {
                             me->setActive(true);
                             bool canUpdate = false;
-                            if (float(MaterialDamageTaken / TwilightDamageTaken) >= 1.02f)
+                            if (float(MaterialDamageTaken / TwilightDamageTaken) >= 1.02f && TwilightDamageTaken > 0)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
                                 corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                 canUpdate = true;
                             }
-                            else if (float(TwilightDamageTaken / MaterialDamageTaken) >= 1.02f)
+                            else if (float(TwilightDamageTaken / MaterialDamageTaken) >= 1.02f &&  MaterialDamageTaken > 0)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
