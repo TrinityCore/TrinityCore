@@ -2485,7 +2485,7 @@ void Creature::HandleCaster()
             return;
         }
         // In Melee Reichweite, aber kein Melee erlaubt -> Fliehen!
-        else if (dist <= ATTACK_DISTANCE && MType != FLEEING_MOTION_TYPE)
+        else if (!m_CasterDefaultMelee && dist <= ATTACK_DISTANCE && MType != FLEEING_MOTION_TYPE)
         {
             GetMotionMaster()->MoveFleeing(getVictim(), 3 * IN_MILLISECONDS);
             return;

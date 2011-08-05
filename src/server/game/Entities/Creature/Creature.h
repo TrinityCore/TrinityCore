@@ -750,15 +750,15 @@ class Creature : public Unit, public GridObject<Creature>
         bool isVisibleForInState(WorldObject const* seer) const;
         bool canSeeAlways(WorldObject const* obj) const;
     private:
-        // Ist dieser NPC ein Caster? Default = false.
+        // Ist dieser NPC ein Caster? Standard = false.
         bool m_isCaster;
-        // Default minimum Castrange für Caster. Standard = ATTACK_DISTANCE.
+        // Standard minimum Castrange für Caster = 10.
         float m_CasterDefaultMinCombatRange;
-        // Default maximum Castrange für Caster. Standard = 30.
+        // Standard maximum Castrange für Caster = 30.
         float m_CasterDefaultMaxCombatRange;
-        // Default Distanz für das erreichen von LoS. Standard = 12.
+        // Standard Distanz für das erreichen von LoS = 12.
         float m_CasterDefaultLoSRange;
-        // Soll er Meleeattacken machen? Default = true.
+        // Soll er Meleeattacken machen? Standard = true.
         bool m_CasterDefaultMelee;
         // Korrektes Castermovement erzeugen, für NPC aus `creature_template_caster`
         void HandleCaster();
