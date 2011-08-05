@@ -502,7 +502,7 @@ class boss_twilight_halion : public CreatureScript
                 {
                     events.SetPhase(PHASE_THREE);
                     
-                    DoCast(me, SPELL_TWILIGHT_DIVISION, true);
+                    DoCast(me, SPELL_TWILIGHT_DIVISION);
                     Talk(SAY_PHASE_THREE);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
@@ -784,13 +784,14 @@ class npc_halion_controller : public CreatureScript
                                 uint32 pValue = corporealityValue;
                                 uint32 tSpell, pSpell;
                                 for (uint8 i = 0; i < 12; i++)
+                                {
                                     if (corporealityReference[i].physicalPercentage == pValue && corporealityReference[i].twilightPercentage == tValue)
                                     {
                                         tSpell = corporealityReference[i].twilightRealmSpellId;
                                         pSpell = corporealityReference[i].physicalRealmSpellId;
                                         break;
                                     }
-
+                                }
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                                 {
                                     RemoveAnyCorporealityBuff(halion);
