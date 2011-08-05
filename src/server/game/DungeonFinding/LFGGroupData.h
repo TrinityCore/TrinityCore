@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _LFGGROUPDATA_H
@@ -54,13 +54,13 @@ class LfgGroupData
 
     private:
         // General
-        LfgState m_State;                                  // /< State if group in LFG
-        LfgState m_OldState;                               // /< Old State
+        LfgState m_State;                                  ///< State if group in LFG
+        LfgState m_OldState;                               ///< Old State
         // Dungeon
-        uint32 m_Dungeon;                                  // /< Dungeon entry
+        uint32 m_Dungeon;                                  ///< Dungeon entry
         // Vote Kick
-        uint8 m_VotesNeeded;                               // /< Votes need to kick success
-        uint8 m_KicksLeft;                                 // /< Number of kicks left
+        uint8 m_VotesNeeded;                               ///< Votes need to kick success
+        uint8 m_KicksLeft;                                 ///< Number of kicks left
 };
 
 #endif

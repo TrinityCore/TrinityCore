@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -71,7 +71,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
         GetPlayer()->KillPlayer();
     }
 
-    // this is spirit release confirm?
+    //this is spirit release confirm?
     GetPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
@@ -164,7 +164,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
 void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_WHO Message");
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint32 matchcount = 0;
 
@@ -251,7 +251,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
                 continue;
         }
 
-        // do not process players which are not in world
+        //do not process players which are not in world
         if (!(itr->second->IsInWorld()))
             continue;
 
@@ -380,7 +380,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
         return;
     }
 
-    // instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
+    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
         GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
     {
@@ -428,16 +428,16 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket & /*recv_data*/)
     // not remove flags if can't free move - its not set in Logout request code.
     if (GetPlayer()->CanFreeMove())
     {
-        // !we can move again
+        //!we can move again
         data.Initialize(SMSG_FORCE_MOVE_UNROOT, 8);       // guess size
         data.append(GetPlayer()->GetPackGUID());
         data << uint32(0);
         SendPacket(&data);
 
-        // ! Stand Up
+        //! Stand Up
         GetPlayer()->SetStandState(UNIT_STAND_STATE_STAND);
 
-        // ! DISABLE_ROTATE
+        //! DISABLE_ROTATE
         GetPlayer()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
@@ -471,7 +471,7 @@ void WorldSession::HandleTogglePvP(WorldPacket & recv_data)
             GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
     }
 
-    // if (OutdoorPvP * pvp = _player->GetOutdoorPvP())
+    //if (OutdoorPvP * pvp = _player->GetOutdoorPvP())
     //    pvp->HandlePlayerActivityChanged(_player);
 }
 
@@ -486,7 +486,7 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket & recv_data)
     uint32 newzone, newarea;
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
-    // GetPlayer()->SendInitWorldStates(true, newZone);
+    //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
 void WorldSession::HandleSetSelectionOpcode(WorldPacket & recv_data)
@@ -650,7 +650,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult result)
 
         if (IgnoreGuid)
         {
-            if (IgnoreGuid == GetPlayer()->GetGUID())              // not add yourself
+            if (IgnoreGuid == GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;
             else if (GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)))
                 ignoreResult = FRIEND_IGNORE_ALREADY;
@@ -1092,7 +1092,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
         recv_data >> time_skipped;
         sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_MOVE_TIME_SKIPPED");
 
-        // / TODO
+        /// TODO
         must be need use in Trinity
         We substract server Lags to move time (AntiLags)
         for exmaple
@@ -1271,7 +1271,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
     recv_data >> PositionZ;
     recv_data >> Orientation;                               // o (3.141593 = 180 degrees)
 
-    // sLog->outDebug("Received opcode CMSG_WORLD_TELEPORT");
+    //sLog->outDebug("Received opcode CMSG_WORLD_TELEPORT");
     if (GetPlayer()->isInFlight())
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore worldport command.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
@@ -1400,13 +1400,13 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket & recv_data)
     // 0x2 realm split pending
     data << split_date;
     SendPacket(&data);
-    // sLog->outDebug("response sent %u", unk);
+    //sLog->outDebug("response sent %u", unk);
 }
 
 void WorldSession::HandleFarSightOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint8 apply;
     recv_data >> apply;
@@ -1536,7 +1536,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
                 }
             }
             // the difficulty is set even if the instances can't be reset
-            // _player->SendDungeonDifficulty(true);
+            //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
             pGroup->SetDungeonDifficulty(Difficulty(mode));
         }
@@ -1594,7 +1594,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
                 }
             }
             // the difficulty is set even if the instances can't be reset
-            // _player->SendDungeonDifficulty(true);
+            //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
             pGroup->SetRaidDifficulty(Difficulty(mode));
         }
@@ -1610,7 +1610,7 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_MOUNT_AURA");
 
-    // If player is not mounted, so go out :)
+    //If player is not mounted, so go out :)
     if (!_player->IsMounted())                              // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_CHAR_NON_MOUNTED);
@@ -1631,7 +1631,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket & recv_data)
 {
     // fly mode on/off
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint64 guid;                                            // guid - unused
     recv_data.readPackGUID(guid);

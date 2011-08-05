@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Battleground.h"
@@ -120,8 +120,8 @@ bool BattlegroundSA::ResetObjs()
     SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
     SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
-    // Cannons and demolishers - NPCs are spawned
-    // By capturing GYs.
+    //Cannons and demolishers - NPCs are spawned
+    //By capturing GYs.
     for (uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; i++)
     {
         if (!AddCreature(BG_SA_NpcEntries[i], i, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
@@ -148,7 +148,7 @@ bool BattlegroundSA::ResetObjs()
     TotalTime = 0;
     ShipsStarted = false;
 
-    // Graveyards!
+    //Graveyards!
     for (uint8 i = 0;i < BG_SA_MAX_GY; i++)
     {
         WorldSafeLocsEntry const *sg = NULL;
@@ -173,7 +173,7 @@ bool BattlegroundSA::ResetObjs()
         }
     }
 
-    // GY capture points
+    //GY capture points
     for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_PORTAL_DEFFENDER_BLUE; i++)
     {
         AddObject(i, (BG_SA_ObjEntries[i] - (Attackers == TEAM_ALLIANCE ? 1:0)),
@@ -201,7 +201,7 @@ bool BattlegroundSA::ResetObjs()
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     }
 
-    // Player may enter BEFORE we set up bG - lets update his worldstates anyway...
+    //Player may enter BEFORE we set up bG - lets update his worldstates anyway...
     UpdateWorldState(BG_SA_RIGHT_GY_HORDE , GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_HORDE?1:0);
     UpdateWorldState(BG_SA_LEFT_GY_HORDE , GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_HORDE?1:0);
     UpdateWorldState(BG_SA_CENTER_GY_HORDE , GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_HORDE?1:0);
@@ -410,7 +410,7 @@ void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
   data << uint32(BG_SA_HORDE_ATTACKS)<< horde_attacks;
   data << uint32(BG_SA_ALLY_ATTACKS) << ally_attacks;
 
-  // Time will be sent on first update...
+  //Time will be sent on first update...
   data << uint32(BG_SA_ENABLE_TIMER) << ((TimerEnabled) ? uint32(1) : uint32(0));
   data << uint32(BG_SA_TIMER_MINS) << uint32(0);
   data << uint32(BG_SA_TIMER_SEC_TENS) << uint32(0);
@@ -436,14 +436,14 @@ void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
 void BattlegroundSA::AddPlayer(Player *plr)
 {
     Battleground::AddPlayer(plr);
-    // create score and add it to map, default values are set in constructor
+    //create score and add it to map, default values are set in constructor
     BattlegroundSAScore* sc = new BattlegroundSAScore;
 
     if (!ShipsStarted)
     {
         if (plr->GetTeamId() == Attackers)
         {
-            plr->CastSpell(plr, 12438, true);// Without this player falls before boat loads...
+            plr->CastSpell(plr, 12438, true);//Without this player falls before boat loads...
 
             if (urand(0, 1))
                 plr->TeleportTo(607, 2682.936f, -830.368f, 50.0f, 2.895f, 0);
@@ -511,7 +511,7 @@ void BattlegroundSA::TeleportPlayers()
 
             if (plr->GetTeamId() == Attackers)
             {
-                plr->CastSpell(plr, 12438, true);     // Without this player falls before boat loads...
+                plr->CastSpell(plr, 12438, true);     //Without this player falls before boat loads...
 
                 if (urand(0, 1))
                     plr->TeleportTo(607, 2682.936f, -830.368f, 50.0f, 2.895f, 0);
@@ -796,7 +796,7 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
             {
                 RoundScores[0].winner = Attackers;
                 RoundScores[0].time = TotalTime;
-                // Achievement Storm the Beach (1310)
+                //Achievement Storm the Beach (1310)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
                     if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
@@ -820,7 +820,7 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 RoundScores[1].winner = Attackers;
                 RoundScores[1].time = TotalTime;
                 ToggleTimer();
-                // Achievement Storm the Beach (1310)
+                //Achievement Storm the Beach (1310)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
                     if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
@@ -847,13 +847,13 @@ void BattlegroundSA::ToggleTimer()
 
 void BattlegroundSA::EndBattleground(uint32 winner)
 {
-    // honor reward for winning
+    //honor reward for winning
     if (winner == ALLIANCE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     else if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
 
-    // complete map_end rewards (even if no team wins)
+    //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(2), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(2), HORDE);
 

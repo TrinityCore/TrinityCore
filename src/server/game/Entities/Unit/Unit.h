@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __UNIT_H
@@ -46,7 +46,7 @@ enum SpellInterruptFlags
     SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x04, // interrupt
     SPELL_INTERRUPT_FLAG_AUTOATTACK   = 0x08, // enter combat
     SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10,               // _complete_ interrupt on direct damage
-    // SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
+    //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
 };
 
 // See SpellAuraInterruptFlags for other values definitions
@@ -118,7 +118,7 @@ enum SpellModOp
     SPELLMOD_PROC_PER_MINUTE        = 26,
     SPELLMOD_VALUE_MULTIPLIER       = 27,
     SPELLMOD_RESIST_DISPEL_CHANCE   = 28,
-    SPELLMOD_CRIT_DAMAGE_BONUS_2    = 29, // one not used spell
+    SPELLMOD_CRIT_DAMAGE_BONUS_2    = 29, //one not used spell
     SPELLMOD_SPELL_COST_REFUND_ON_FAIL = 30
 };
 
@@ -309,7 +309,7 @@ enum HitInfo
     HITINFO_UNK3                = 0x00800000
 };
 
-// i would like to remove this: (it is defined in item.h
+//i would like to remove this: (it is defined in item.h
 enum InventorySlot
 {
     NULL_BAG                   = 0,
@@ -382,26 +382,26 @@ enum AuraRemoveMode
 
 enum TriggerCastFlags
 {
-    TRIGGERED_NONE                                  = 0x00000000,   // ! Not triggered
-    TRIGGERED_IGNORE_GCD                            = 0x00000001,   // ! Will ignore GCD
-    TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD          = 0x00000002,   // ! Will ignore Spell and Category cooldowns
-    TRIGGERED_IGNORE_POWER_AND_REAGENT_COST         = 0x00000004,   // ! Will ignore power and reagent cost
-    TRIGGERED_IGNORE_CAST_ITEM                      = 0x00000008,   // ! Will not take away cast item or update related achievement criteria
-    TRIGGERED_IGNORE_AURA_SCALING                   = 0x00000010,   // ! Will ignore aura scaling
-    TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   // ! Will not check if a current cast is in progress
-    TRIGGERED_IGNORE_COMBO_POINTS                   = 0x00000040,   // ! Will ignore combo point requirement
-    TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   // ! In Spell::prepare, will be cast directly without setting containers for executed spell
-    TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS           = 0x00000100,   // ! Will ignore interruptible aura's at cast
-    TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   // ! Will not adjust facing to target (if any)
-    TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   // ! Will ignore shapeshift checks
-    TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   // ! Will ignore caster aura states including combat requirements and death state
-    TRIGGERED_IGNORE_TARGET_AURASTATE               = 0x00001000,   // ! Will ignore target aura states
-    TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   // ! Will ignore mounted/on vehicle restrictions
-    TRIGGERED_IGNORE_TARGET_DETECTABILITY           = 0x00004000,   // ! Will ignore canSeeOrDetect
-    TRIGGERED_IGNORE_LOS                            = 0x00008000,   // ! Will ignore LOS to target
-    TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   // ! Will ignore caster aura restrictions or requirements
-    TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   // ! Disallows proc events from triggered spell (default)
-    TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   // ! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
+    TRIGGERED_NONE                                  = 0x00000000,   //! Not triggered
+    TRIGGERED_IGNORE_GCD                            = 0x00000001,   //! Will ignore GCD
+    TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD          = 0x00000002,   //! Will ignore Spell and Category cooldowns
+    TRIGGERED_IGNORE_POWER_AND_REAGENT_COST         = 0x00000004,   //! Will ignore power and reagent cost
+    TRIGGERED_IGNORE_CAST_ITEM                      = 0x00000008,   //! Will not take away cast item or update related achievement criteria
+    TRIGGERED_IGNORE_AURA_SCALING                   = 0x00000010,   //! Will ignore aura scaling
+    TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   //! Will not check if a current cast is in progress
+    TRIGGERED_IGNORE_COMBO_POINTS                   = 0x00000040,   //! Will ignore combo point requirement
+    TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   //! In Spell::prepare, will be cast directly without setting containers for executed spell
+    TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS           = 0x00000100,   //! Will ignore interruptible aura's at cast
+    TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //! Will not adjust facing to target (if any)
+    TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //! Will ignore shapeshift checks
+    TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   //! Will ignore caster aura states including combat requirements and death state
+    TRIGGERED_IGNORE_TARGET_AURASTATE               = 0x00001000,   //! Will ignore target aura states
+    TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //! Will ignore mounted/on vehicle restrictions
+    TRIGGERED_IGNORE_TARGET_DETECTABILITY           = 0x00004000,   //! Will ignore canSeeOrDetect
+    TRIGGERED_IGNORE_LOS                            = 0x00008000,   //! Will ignore LOS to target
+    TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
+    TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Disallows proc events from triggered spell (default)
+    TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
     TRIGGERED_FULL_MASK                             = 0xFFFFFFFF,
 };
 
@@ -473,11 +473,11 @@ enum UnitState
 {
     UNIT_STAT_DIED            = 0x00000001,
     UNIT_STAT_MELEE_ATTACKING = 0x00000002,                     // player is melee attacking someone
-    // UNIT_STAT_MELEE_ATTACK_BY = 0x00000004,                     // player is melee attack by someone
+    //UNIT_STAT_MELEE_ATTACK_BY = 0x00000004,                     // player is melee attack by someone
     UNIT_STAT_STUNNED         = 0x00000008,
     UNIT_STAT_ROAMING         = 0x00000010,
     UNIT_STAT_CHASE           = 0x00000020,
-    // UNIT_STAT_SEARCHING       = 0x00000040,
+    //UNIT_STAT_SEARCHING       = 0x00000040,
     UNIT_STAT_FLEEING         = 0x00000080,
     UNIT_STAT_IN_FLIGHT       = 0x00000100,                     // player is in flight mode
     UNIT_STAT_FOLLOW          = 0x00000200,
@@ -501,7 +501,7 @@ enum UnitState
     UNIT_STAT_SIGHTLESS       = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_EVADE),
     UNIT_STAT_CANNOT_AUTOATTACK     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CASTING),
     UNIT_STAT_CANNOT_TURN     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_ROTATING),
-    UNIT_STAT_ALL_STATE       = 0xffffffff                      // (UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
+    UNIT_STAT_ALL_STATE       = 0xffffffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
 
 enum UnitMoveType
@@ -622,7 +622,7 @@ enum UnitFlags2
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS   = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
 };
 
-// / Non Player Character flags
+/// Non Player Character flags
 enum NPCFlags
 {
     UNIT_NPC_FLAG_NONE                  = 0x00000000,
@@ -931,7 +931,7 @@ struct CalcDamageInfo
     uint32 HitInfo;
     uint32 TargetState;
 // Helper
-    WeaponAttackType attackType; // 
+    WeaponAttackType attackType; //
     uint32 procAttacker;
     uint32 procVictim;
     uint32 procEx;
@@ -1138,7 +1138,7 @@ struct CharmInfo
         void InitPetActionBar();
         void InitEmptyActionBar(bool withAttack = true);
 
-                                                            // return true if successful
+                                                            //return true if successful
         bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE);
         bool RemoveSpellFromActionBar(uint32 spell_id);
         void LoadPetActionBar(const std::string& data);
@@ -1176,7 +1176,7 @@ struct CharmInfo
         uint32          m_petnumber;
         bool            m_barInit;
 
-        // for restoration after charmed
+        //for restoration after charmed
         ReactStates     m_oldReactState;
 
         bool m_isCommandAttack;
@@ -1602,7 +1602,7 @@ class Unit : public WorldObject
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player* player = NULL);
         void SendMonsterMove(MonsterMoveData const& moveData, Player* receiver = NULL);
         void SendMonsterMoveExitVehicle(Position const* newPos);
-        // void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
+        //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveTransport(Unit *vehicleOwner);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
@@ -1695,7 +1695,7 @@ class Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
         void UpdateCharmAI();
-        // Player* GetMoverSource() const;
+        //Player* GetMoverSource() const;
         Player* m_movedPlayer;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* plr);
@@ -2080,12 +2080,12 @@ class Unit : public WorldObject
         void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }
         void ClearComboPointHolders();
 
-        // /----------Pet responses methods-----------------
+        ///----------Pet responses methods-----------------
         void SendPetCastFail(uint32 spellid, SpellCastResult msg);
         void SendPetActionFeedback (uint8 msg);
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);
-        // /----------End of Pet responses methods----------
+        ///----------End of Pet responses methods----------
 
         void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
 

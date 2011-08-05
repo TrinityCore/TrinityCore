@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -156,7 +156,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_formation(NULL)
     DisableReputationGain = false;
 
     m_SightDistance = sWorld->getFloatConfig(CONFIG_SIGHT_MONSTER);
-    m_CombatDistance = 0;// MELEE_RANGE;
+    m_CombatDistance = 0;//MELEE_RANGE;
 
     ResetLootMode(); // restore default loot mode
     TriggerJustRespawned = false;
@@ -169,13 +169,13 @@ Creature::~Creature()
     delete i_AI;
     i_AI = NULL;
 
-    // if (m_uint32Values)
+    //if (m_uint32Values)
     //    sLog->outError("Deconstruct Creature Entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
 {
-    // /- Register the creature for guid lookup
+    ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
         if (m_zoneScript)
@@ -205,8 +205,8 @@ void Creature::RemoveFromWorld()
 void Creature::DisappearAndDie()
 {
     DestroyForNearbyPlayers();
-    // SetVisibility(VISIBILITY_OFF);
-    // ObjectAccessor::UpdateObjectVisibility(this);
+    //SetVisibility(VISIBILITY_OFF);
+    //ObjectAccessor::UpdateObjectVisibility(this);
     if (isAlive())
         setDeathState(JUST_DIED);
     RemoveCorpse(false);
@@ -674,8 +674,8 @@ void Creature::DoFleeToGetAssistance()
         UpdateSpeed(MOVE_RUN, false);
 
         if (!pCreature)
-            // SetFeared(true, getVictim()->GetGUID(), 0 , sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
-            // TODO: use 31365
+            //SetFeared(true, getVictim()->GetGUID(), 0 , sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
+            //TODO: use 31365
             SetControlled(true, UNIT_STAT_FLEEING);
         else
             GetMotionMaster()->MoveSeekAssistance(pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ());
@@ -715,7 +715,7 @@ void Creature::Motion_Initialize()
         i_motionMaster.Initialize();
     }
     else if (m_formation->isFormed())
-        i_motionMaster.MoveIdle(MOTION_SLOT_IDLE); // wait the order of leader
+        i_motionMaster.MoveIdle(MOTION_SLOT_IDLE); //wait the order of leader
     else
         i_motionMaster.Initialize();
 }
@@ -741,7 +741,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
         return false;
     }
 
-    // oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
+    //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
     if (!CreateFromProto(guidlow, Entry, vehId, team, data))
         return false;
 
@@ -1094,12 +1094,12 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << GetPositionY() << ','
         << GetPositionZ() << ','
         << GetOrientation() << ','
-        << m_respawnDelay << ','                            // respawn time
-        << (float) m_respawnradius << ','                   // spawn distance (float)
-        << (uint32) (0) << ','                              // currentwaypoint
-        << GetHealth() << ','                               // curhealth
-        << GetPower(POWER_MANA) << ','                      // curmana
-        << GetDefaultMovementType() << ','                  // default movement generator type
+        << m_respawnDelay << ','                            //respawn time
+        << (float) m_respawnradius << ','                   //spawn distance (float)
+        << (uint32) (0) << ','                              //currentwaypoint
+        << GetHealth() << ','                               //curhealth
+        << GetPower(POWER_MANA) << ','                      //curmana
+        << GetDefaultMovementType() << ','                  //default movement generator type
         << npcflag << ','
         << unit_flags << ','
         << dynamicflags << ')';
@@ -1136,7 +1136,7 @@ void Creature::SelectLevel(const CreatureTemplate *cinfo)
     uint32 mana = stats->GenerateMana(cinfo);
 
     SetCreateMana(mana);
-    SetMaxPower(POWER_MANA, mana);                          // MAX Mana
+    SetMaxPower(POWER_MANA, mana);                          //MAX Mana
     SetPower(POWER_MANA, mana);
 
     // TODO: set UNIT_FIELD_POWER*, for some creature class case (energy, etc)
@@ -1144,8 +1144,8 @@ void Creature::SelectLevel(const CreatureTemplate *cinfo)
     SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
 
-    // damage
-    float damagemod = 1.0f;// _GetDamageMod(rank);
+    //damage
+    float damagemod = 1.0f;//_GetDamageMod(rank);
 
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
@@ -1270,7 +1270,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     if (!Create(guid, map, data->phaseMask, data->id, 0, team, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
 
-    // We should set first home position, because then AI calls home movement
+    //We should set first home position, because then AI calls home movement
     SetHomePosition(data->posX, data->posY, data->posZ, data->orientation);
 
     m_respawnradius = data->spawndist;
@@ -1413,7 +1413,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
         return false;
 
     if (!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
-        // || who->IsControlledByPlayer() && who->IsFlying()))
+        //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
         // TODO: should switch to range attack
         return false;
@@ -1505,7 +1505,7 @@ void Creature::setDeathState(DeathState s)
             UpdateSpeed(MOVE_RUN, false);
         }
 
-        // Dismiss group if is leader
+        //Dismiss group if is leader
         if (m_formation && m_formation->getLeader() == this)
             m_formation->FormationReset(true);
 
@@ -1519,7 +1519,7 @@ void Creature::setDeathState(DeathState s)
     }
     else if (s == JUST_ALIVED)
     {
-        // if (isPet())
+        //if (isPet())
         //    setActive(true);
         SetFullHealth();
         SetLootRecipient(NULL);
@@ -1602,15 +1602,15 @@ void Creature::Respawn(bool force)
 
         GetMotionMaster()->InitDefault();
 
-        // Call AI respawn virtual function
+        //Call AI respawn virtual function
         if (IsAIEnabled)
-            TriggerJustRespawned = true;// delay event to next tick so all creatures are created on the map before processing
+            TriggerJustRespawned = true;//delay event to next tick so all creatures are created on the map before processing
 
         uint32 poolid = GetDBTableGUIDLow() ? sPoolMgr->IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
             sPoolMgr->UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
 
-        // Re-initialize reactstate that could be altered by movementgenerators
+        //Re-initialize reactstate that could be altered by movementgenerators
         InitializeReactState();
     }
 
@@ -1743,7 +1743,7 @@ SpellInfo const *Creature::reachWithSpellCure(Unit *pVictim)
         float range = spellInfo->GetMaxRange(true);
         float minrange = spellInfo->GetMinRange(true);
         float dist = GetDistance(pVictim);
-        // if (!isInFront(pVictim, range) && spellInfo->AttributesEx)
+        //if (!isInFront(pVictim, range) && spellInfo->AttributesEx)
         //    continue;
         if (dist > range || dist < minrange)
             continue;
@@ -2001,7 +2001,7 @@ bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
     if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return true;
 
-    // Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
+    //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
     float dist = std::max(GetAttackDistance(pVictim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
 
     if (Unit *unit = GetCharmerOrOwner())
@@ -2022,7 +2022,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureInfo()->Entry);
 }
 
-// creature_addon table
+//creature_addon table
 bool Creature::LoadCreaturesAddon(bool reload)
 {
     CreatureAddon const *cainfo = GetCreatureAddon();
@@ -2040,7 +2040,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
         // 3 StandMiscFlags
 
         SetByteValue(UNIT_FIELD_BYTES_1, 0, uint8(cainfo->bytes1 & 0xFF));
-        // SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
+        //SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_1, 1, 0);
         SetByteValue(UNIT_FIELD_BYTES_1, 2, uint8((cainfo->bytes1 >> 16) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_1, 3, uint8((cainfo->bytes1 >> 24) & 0xFF));
@@ -2054,17 +2054,17 @@ bool Creature::LoadCreaturesAddon(bool reload)
         // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
 
         SetByteValue(UNIT_FIELD_BYTES_2, 0, uint8(cainfo->bytes2 & 0xFF));
-        // SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
-        // SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
+        //SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
+        //SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_2, 2, 0);
-        // SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
+        //SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_2, 3, 0);
     }
 
     if (cainfo->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
-    // Load Path
+    //Load Path
     if (cainfo->path_id != 0)
         m_path_id = cainfo->path_id;
 
@@ -2095,7 +2095,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
     return true;
 }
 
-// / Send a message to LocalDefense channel for players opposition team in the zone
+/// Send a message to LocalDefense channel for players opposition team in the zone
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();
@@ -2192,7 +2192,7 @@ bool Creature::HasSpell(uint32 spellID) const
     for (i = 0; i < CREATURE_MAX_SPELLS; ++i)
         if (spellID == m_spells[i])
             break;
-    return i < CREATURE_MAX_SPELLS;                         // broke before end of iteration of known spells
+    return i < CREATURE_MAX_SPELLS;                         //broke before end of iteration of known spells
 }
 
 time_t Creature::GetRespawnTimeEx() const

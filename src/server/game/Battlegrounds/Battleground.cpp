@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Player.h"
@@ -198,7 +198,7 @@ Battleground::Battleground()
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_30S;
     m_StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
-    // we must set to some default existing values
+    //we must set to some default existing values
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
@@ -232,7 +232,7 @@ void Battleground::Update(uint32 diff)
 {
     if (!GetPlayersSize())
     {
-        // BG is empty
+        //BG is empty
         // if there are no players invited, delete BG
         // this will delete arena or bg object, where any player entered
         // [[   but if you use battleground object again (more battles possible to be played on 1 instance)
@@ -278,7 +278,7 @@ inline void Battleground::_ProcessOfflineQueue()
             {
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
                 m_OfflineQueue.pop_front();                 // remove from offline queue
-                // do not use itr for anything, because it is erased in RemovePlayerAtLeave()
+                //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
             }
         }
     }
@@ -378,7 +378,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
         }
         else
         {
-            // announce every 15 seconds
+            //announce every 15 seconds
             if (newtime / (15 * IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILLISECONDS))
                 PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
         }
@@ -507,7 +507,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
         {
             next = itr;
             ++next;
-            // itr is erased here!
+            //itr is erased here!
             RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
             // do not change any battleground's private variables
         }
@@ -686,7 +686,7 @@ void Battleground::EndBattleground(uint32 winner)
     }
 
     SetStatus(STATUS_WAIT_LEAVE);
-    // we must set it this way, because end time is sent in packet!
+    //we must set it this way, because end time is sent in packet!
     m_EndTime = TIME_TO_AUTOREMOVE;
 
     // arena rating calculation
@@ -738,7 +738,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         if (itr->second.OfflineRemoveTime)
         {
-            // if rated arena match - make member lost!
+            //if rated arena match - make member lost!
             if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
             {
                 if (team == winner)
@@ -764,13 +764,13 @@ void Battleground::EndBattleground(uint32 winner)
         }
         else
         {
-            // needed cause else in av some creatures will kill the players at the end
+            //needed cause else in av some creatures will kill the players at the end
             plr->CombatStop();
             plr->getHostileRefManager().deleteReferences();
         }
 
-        // this line is obsolete - team is set ALWAYS
-        // if (!team) team = plr->GetTeam();
+        //this line is obsolete - team is set ALWAYS
+        //if (!team) team = plr->GetTeam();
 
         // per player calculation
         if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
@@ -834,8 +834,8 @@ void Battleground::EndBattleground(uint32 winner)
     if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
     {
         // update arena points only after increasing the player's match count!
-        // obsolete: winner_arena_team->UpdateArenaPointsHelper();
-        // obsolete: loser_arena_team->UpdateArenaPointsHelper();
+        //obsolete: winner_arena_team->UpdateArenaPointsHelper();
+        //obsolete: loser_arena_team->UpdateArenaPointsHelper();
         // save the stat changes
         winner_arena_team->SaveToDB();
         loser_arena_team->SaveToDB();
@@ -851,7 +851,7 @@ void Battleground::EndBattleground(uint32 winner)
 
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 {
-    // variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
+    //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
     uint32 maxLevel = std::min(GetMaxLevel(), 80U);
     return Trinity::Honor::hk_honor_at_level(maxLevel, float(kills));
 }
@@ -932,7 +932,7 @@ void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool S
 
                 if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
                 {
-                    // left a rated match while the encounter was in progress, consider as loser
+                    //left a rated match while the encounter was in progress, consider as loser
                     ArenaTeam * winner_arena_team = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                     ArenaTeam * loser_arena_team = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(team));
                     if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
@@ -954,7 +954,7 @@ void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool S
         {
             if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
             {
-                // left a rated match while the encounter was in progress, consider as loser
+                //left a rated match while the encounter was in progress, consider as loser
                 ArenaTeam * others_arena_team = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                 ArenaTeam * players_arena_team = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(team));
                 if (others_arena_team && players_arena_team)
@@ -971,7 +971,7 @@ void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool S
             }
         }
         DecreaseInvitedCount(team);
-        // we should update battleground queue, but only if bg isn't ending
+        //we should update battleground queue, but only if bg isn't ending
         if (isBattleground() && GetStatus() < STATUS_WAIT_LEAVE)
         {
             // a player has left the battleground, so there are free slots -> add to queue
@@ -997,7 +997,7 @@ void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool S
         sLog->outDetail("BATTLEGROUND: Removed player %s from Battleground.", plr->GetName());
     }
 
-    // battleground object will be deleted next Battleground::Update() call
+    //battleground object will be deleted next Battleground::Update() call
 }
 
 // this method is called when no players remains in battleground
@@ -1296,7 +1296,7 @@ bool Battleground::HasFreeSlots() const
 
 void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    // this procedure is called from virtual function implemented in bg subclass
+    //this procedure is called from virtual function implemented in bg subclass
     BattlegroundScoreMap::const_iterator itr = m_PlayerScores.find(Source->GetGUID());
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
@@ -1575,7 +1575,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         pCreature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
         pCreature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
-        // pCreature->CastSpell(pCreature, SPELL_SPIRIT_HEAL_CHANNEL, true);
+        //pCreature->CastSpell(pCreature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }
     sLog->outError("Battleground::AddSpiritGuide: cannot create spirit guide (type: %u, entry: %u) for BG (map: %u, instance id: %u)!",

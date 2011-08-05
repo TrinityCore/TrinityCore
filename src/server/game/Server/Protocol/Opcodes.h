@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,12 +13,12 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// / \addtogroup u2w
-// / @{
-// / \file
+/// \addtogroup u2w
+/// @{
+/// \file
 
 #ifndef _OPCODES_H
 #define _OPCODES_H
@@ -31,7 +31,7 @@
 //       table opcodeTable in source when Opcode.h included but WorldSession.h not included
 #include "WorldSession.h"
 
-// / List of Opcodes
+/// List of Opcodes
 enum Opcodes
 {
     MSG_NULL_ACTION                                 = 0x000,
@@ -1348,7 +1348,7 @@ enum Opcodes
     NUM_MSG_TYPES                                   = 0x51F
 };
 
-// / Player state
+/// Player state
 enum SessionStatus
 {
     STATUS_AUTHED = 0,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
@@ -1361,9 +1361,9 @@ enum SessionStatus
 
 enum PacketProcessing
 {
-    PROCESS_INPLACE = 0,                                    // process packet whenever we receive it - mostly for non-handled or non-implemented packets
-    PROCESS_THREADUNSAFE,                                   // packet is not thread-safe - process it in World::UpdateSessions()
-    PROCESS_THREADSAFE                                      // packet is thread-safe - process it in Map::Update()
+    PROCESS_INPLACE = 0,                                    //process packet whenever we receive it - mostly for non-handled or non-implemented packets
+    PROCESS_THREADUNSAFE,                                   //packet is not thread-safe - process it in World::UpdateSessions()
+    PROCESS_THREADSAFE                                      //packet is thread-safe - process it in Map::Update()
 };
 
 class WorldPacket;
@@ -1378,7 +1378,7 @@ struct OpcodeHandler
 
 extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];
 
-// / Lookup opcode name for human understandable logging
+/// Lookup opcode name for human understandable logging
 inline const char* LookupOpcodeName(uint16 id)
 {
     if (id >= NUM_MSG_TYPES)
@@ -1386,4 +1386,4 @@ inline const char* LookupOpcodeName(uint16 id)
     return opcodeTable[id].name;
 }
 #endif
-// / @}
+/// @}

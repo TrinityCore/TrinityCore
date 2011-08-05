@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "PetAI.h"
@@ -105,7 +105,7 @@ void PetAI::UpdateAI(const uint32 diff)
 
         DoMeleeAttackIfReady();
     }
-    else if (owner && me->GetCharmInfo()) // no victim
+    else if (owner && me->GetCharmInfo()) //no victim
     {
         Unit *nextTarget = SelectNextTarget();
 
@@ -186,7 +186,7 @@ void PetAI::UpdateAI(const uint32 diff)
                 {
                     Unit* Target = ObjectAccessor::GetUnit(*me, *tar);
 
-                    // only buff targets that are in combat, unless the spell can only be cast while out of combat
+                    //only buff targets that are in combat, unless the spell can only be cast while out of combat
                     if (!Target)
                         continue;
 
@@ -202,7 +202,7 @@ void PetAI::UpdateAI(const uint32 diff)
             }
         }
 
-        // found units to cast on to
+        //found units to cast on to
         if (!targetSpellStore.empty())
         {
             uint32 index = urand(0, targetSpellStore.size() - 1);
@@ -241,23 +241,23 @@ void PetAI::UpdateAllies()
     Unit* owner = me->GetCharmerOrOwner();
     Group *pGroup = NULL;
 
-    m_updateAlliesTimer = 10*IN_MILLISECONDS;                // update friendly targets every 10 seconds, lesser checks increase performance
+    m_updateAlliesTimer = 10*IN_MILLISECONDS;                //update friendly targets every 10 seconds, lesser checks increase performance
 
     if (!owner)
         return;
     else if (owner->GetTypeId() == TYPEID_PLAYER)
         pGroup = owner->ToPlayer()->GetGroup();
 
-    // only pet and owner/not in group->ok
+    //only pet and owner/not in group->ok
     if (m_AllySet.size() == 2 && !pGroup)
         return;
-    // owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
+    //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
     if (pGroup && !pGroup->isRaidGroup() && m_AllySet.size() == (pGroup->GetMembersCount() + 2))
         return;
 
     m_AllySet.clear();
     m_AllySet.insert(me->GetGUID());
-    if (pGroup)                                              // add group
+    if (pGroup)                                              //add group
     {
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
@@ -271,7 +271,7 @@ void PetAI::UpdateAllies()
             m_AllySet.insert(Target->GetGUID());
         }
     }
-    else                                                    // remove group
+    else                                                    //remove group
         m_AllySet.insert(owner->GetGUID());
 }
 

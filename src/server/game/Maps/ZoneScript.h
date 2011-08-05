@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ZONE_SCRIPT_H_
@@ -39,11 +39,11 @@ class ZoneScript
 
         virtual void OnCreatureDeath(Creature* /*creature*/) {}
 
-        // All-purpose data storage 64 bit
+        //All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 /*DataId*/) { return 0; }
         virtual void SetData64(uint32 /*DataId*/, uint64 /*Value*/) {}
 
-        // All-purpose data storage 32 bit
+        //All-purpose data storage 32 bit
         virtual uint32 GetData(uint32 /*DataId*/) { return 0; }
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) {}
 

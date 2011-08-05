@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "DatabaseEnv.h"
@@ -62,7 +62,7 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (MSG_SAVE_GUILD_EMBLEM)");
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // LogHolder
 Guild::LogHolder::~LogHolder()
 {
@@ -115,7 +115,7 @@ inline uint32 Guild::LogHolder::GetNextGUID()
     return m_nextGUID;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // EventLogEntry
 void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
 {
@@ -154,7 +154,7 @@ void Guild::EventLogEntry::WritePacket(WorldPacket& data) const
     data << uint32(::time(NULL) - m_timestamp);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // BankEventLogEntry
 void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
 {
@@ -197,7 +197,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
     data << uint32(time(NULL) - m_timestamp);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // RankInfo
 void Guild::RankInfo::LoadFromDB(Field* fields)
 {
@@ -319,7 +319,7 @@ void Guild::RankInfo::SetBankTabSlotsAndRights(uint8 tabId, GuildBankRightsAndSl
     }
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // BankTab
 bool Guild::BankTab::LoadFromDB(Field* fields)
 {
@@ -500,7 +500,7 @@ void Guild::BankTab::SendText(const Guild* pGuild, WorldSession* session) const
         pGuild->BroadcastPacket(&data);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Member
 void Guild::Member::SetStats(Player* player)
 {
@@ -714,7 +714,7 @@ inline void Guild::Member::ResetMoneyTime()
     m_bankRemaining[GUILD_BANK_MAX_TABS].resetTime = 0;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // EmblemInfo
 void EmblemInfo::LoadFromDB(Field* fields)
 {
@@ -746,7 +746,7 @@ void EmblemInfo::SaveToDB(uint32 guildId) const
     CharacterDatabase.Execute(stmt);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // MoveItemData
 bool Guild::MoveItemData::CheckItem(uint32& splitedAmount)
 {
@@ -794,7 +794,7 @@ inline void Guild::MoveItemData::CopySlots(SlotIds& ids) const
         ids.insert(uint8(itr->pos));
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // PlayerMoveItemData
 bool Guild::PlayerMoveItemData::InitItem()
 {
@@ -854,7 +854,7 @@ inline InventoryResult Guild::PlayerMoveItemData::_CanStore(Item* pItem, bool sw
     return m_pPlayer->CanStoreItem(m_container, m_slotId, m_vec, pItem, swap);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // BankMoveItemData
 bool Guild::BankMoveItemData::InitItem()
 {
@@ -1067,7 +1067,7 @@ InventoryResult Guild::BankMoveItemData::_CanStore(Item* pItem, bool swap)
     return EQUIP_ERR_BANK_FULL;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Guild
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL)
 {
@@ -1198,7 +1198,7 @@ void Guild::Disband()
     sGuildMgr->RemoveGuild(m_id);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // HANDLE CLIENT COMMANDS
 void Guild::HandleRoster(WorldSession *session /*= NULL*/)
 {
@@ -1718,7 +1718,7 @@ void Guild::HandleDisband(WorldSession* session)
     }
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Send data to client
 void Guild::SendInfo(WorldSession* session) const
 {
@@ -1830,7 +1830,7 @@ void Guild::SendLoginInfo(WorldSession* session) const
     _BroadcastEvent(GE_SIGNED_ON, session->GetPlayer()->GetGUID(), session->GetPlayer()->GetName());
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Loading methods
 bool Guild::LoadFromDB(Field* fields)
 {
@@ -2030,7 +2030,7 @@ bool Guild::Validate()
     return true;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Broadcasts
 void Guild::BroadcastToGuild(WorldSession *session, bool officerOnly, const std::string& msg, uint32 language) const
 {
@@ -2061,7 +2061,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Members handling
 bool Guild::AddMember(const uint64 guid, uint8 rankId)
 {
@@ -2199,7 +2199,7 @@ bool Guild::ChangeMemberRank(const uint64 guid, uint8 newRank)
     return false;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Bank (items move)
 void Guild::SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount)
 {
@@ -2228,7 +2228,7 @@ void Guild::SwapItemsWithInventory(Player* player, bool toChar, uint8 tabId, uin
         _MoveItems(&charData, &bankData, splitedAmount);
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Bank tabs
 void Guild::SetBankTabText(uint8 tabId, const std::string& text)
 {
@@ -2239,7 +2239,7 @@ void Guild::SetBankTabText(uint8 tabId, const std::string& text)
     }
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // /
+///////////////////////////////////////////////////////////////////////////////
 // Private methods
 void Guild::_CreateLogHolders()
 {
@@ -2539,7 +2539,7 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
     {
         sLog->outCrash("Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
             player->GetName(), player->GetGUIDLow(), pItemSrc->GetEntry(), tabId, slotId, destTabId, destSlotId, pItemSrc->GetEntry());
-        // return; // Commented out for now, uncomment when it's verified that this causes a crash!!
+        //return; // Commented out for now, uncomment when it's verified that this causes a crash!!
     }
     // */
 

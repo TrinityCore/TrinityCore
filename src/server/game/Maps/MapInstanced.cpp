@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MapInstanced.h"
@@ -37,7 +37,7 @@ void MapInstanced::InitVisibilityDistance()
 {
     if (m_InstancedMaps.empty())
         return;
-    // initialize visibility distances for all instance copies
+    //initialize visibility distances for all instance copies
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
     {
         (*i).second->InitVisibilityDistance();
@@ -58,7 +58,7 @@ void MapInstanced::Update(const uint32 t)
         {
             if (!DestroyInstance(i))                             // iterator incremented
             {
-                // m_unloadTimer
+                //m_unloadTimer
             }
         }
         else
@@ -262,6 +262,6 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 
 bool MapInstanced::CanEnter(Player* /*player*/)
 {
-    // ASSERT(false);
+    //ASSERT(false);
     return true;
 }

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "PoolMgr.h"
@@ -21,7 +21,7 @@
 #include "Log.h"
 #include "MapManager.h"
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+////////////////////////////////////////////////////////////
 // template class ActivePoolData
 
 // Method that tell amount spawned objects/subpools
@@ -123,7 +123,7 @@ void ActivePoolData::RemoveObject<Quest>(uint32 quest_id, uint32 pool_id)
         --val;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+////////////////////////////////////////////////////////////
 // Methods of template class PoolGroup
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
@@ -364,7 +364,7 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
             Creature* pCreature = new Creature;
-            // sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
+            //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
             if (!pCreature->LoadFromDB(obj->guid, map))
             {
                 delete pCreature;
@@ -390,7 +390,7 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
             GameObject* pGameobject = new GameObject;
-            // sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning gameobject %u", guid);
+            //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning gameobject %u", guid);
             if (!pGameobject->LoadFromDB(obj->guid, map))
             {
                 delete pGameobject;
@@ -533,7 +533,7 @@ void PoolGroup<Quest>::ReSpawn1Object(PoolObject* /*obj*/)
 {
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
 PoolMgr::PoolMgr() : max_pool_id(0)

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -481,14 +481,14 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
             if (!iter->second.changed)
                 continue;
 
-            // / first new/changed record prefix
+            /// first new/changed record prefix
             if (!need_execute)
             {
                 ssdel << "DELETE FROM character_achievement WHERE guid = " << GetPlayer()->GetGUIDLow() << " AND achievement IN (";
                 ssins << "INSERT INTO character_achievement (guid, achievement, date) VALUES ";
                 need_execute = true;
             }
-            // / next new/changed record prefix
+            /// next new/changed record prefix
             else
             {
                 ssdel << ',';
@@ -499,7 +499,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
             ssdel << iter->first;
             ssins << '(' << GetPlayer()->GetGUIDLow() << ',' << iter->first << ',' << uint64(iter->second.date) << ')';
 
-            // / mark as saved in db
+            /// mark as saved in db
             iter->second.changed = false;
         }
 
@@ -515,7 +515,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
 
     if (!m_criteriaProgress.empty())
     {
-        // / prepare deleting and insert
+        /// prepare deleting and insert
         bool need_execute_del = false;
         bool need_execute_ins = false;
         std::ostringstream ssdel;
@@ -527,13 +527,13 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
 
             // deleted data (including 0 progress state)
             {
-                // / first new/changed record prefix (for any counter value)
+                /// first new/changed record prefix (for any counter value)
                 if (!need_execute_del)
                 {
                     ssdel << "DELETE FROM character_achievement_progress WHERE guid = " << GetPlayer()->GetGUIDLow() << " AND criteria IN (";
                     need_execute_del = true;
                 }
-                // / next new/changed record prefix
+                /// next new/changed record prefix
                 else
                     ssdel << ',';
 
@@ -544,13 +544,13 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
             // store data only for real progress
             if (iter->second.counter != 0)
             {
-                // / first new/changed record prefix
+                /// first new/changed record prefix
                 if (!need_execute_ins)
                 {
                     ssins << "INSERT INTO character_achievement_progress (guid, criteria, counter, date) VALUES ";
                     need_execute_ins = true;
                 }
-                // / next new/changed record prefix
+                /// next new/changed record prefix
                 else
                     ssins << ',';
 
@@ -558,7 +558,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
                 ssins << '(' << GetPlayer()->GetGUIDLow() << ',' << iter->first << ',' << iter->second.counter << ',' << iter->second.date << ')';
             }
 
-            // / mark as updated in db
+            /// mark as updated in db
             iter->second.changed = false;
         }
 
@@ -1001,7 +1001,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!found)
                     continue;
 
-                // FIXME: work only for instances where max == min for players
+                //FIXME: work only for instances where max == min for players
                 if (((InstanceMap*)map)->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
                     continue;
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
@@ -2167,7 +2167,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
     return true;
 }
 
-// ==========================================================
+//==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
     uint32 oldMSTime = getMSTime();
@@ -2471,7 +2471,7 @@ void AchievementGlobalMgr::LoadRewards()
             }
         }
 
-        // check mail data before item for report including wrong item case
+        //check mail data before item for report including wrong item case
         if (reward.sender)
         {
             if (!sObjectMgr->GetCreatureTemplate(reward.sender))

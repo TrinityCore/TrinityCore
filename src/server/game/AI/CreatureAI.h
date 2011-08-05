@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_CREATUREAI_H
@@ -32,29 +32,29 @@ class SpellInfo;
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
 
-// Spell targets used by SelectSpell
+//Spell targets used by SelectSpell
 enum SelectTargetType
 {
-    SELECT_TARGET_DONTCARE = 0,                             // All target types allowed
+    SELECT_TARGET_DONTCARE = 0,                             //All target types allowed
 
-    SELECT_TARGET_SELF,                                     // Only Self casting
+    SELECT_TARGET_SELF,                                     //Only Self casting
 
-    SELECT_TARGET_SINGLE_ENEMY,                             // Only Single Enemy
-    SELECT_TARGET_AOE_ENEMY,                                // Only AoE Enemy
-    SELECT_TARGET_ANY_ENEMY,                                // AoE or Single Enemy
+    SELECT_TARGET_SINGLE_ENEMY,                             //Only Single Enemy
+    SELECT_TARGET_AOE_ENEMY,                                //Only AoE Enemy
+    SELECT_TARGET_ANY_ENEMY,                                //AoE or Single Enemy
 
-    SELECT_TARGET_SINGLE_FRIEND,                            // Only Single Friend
-    SELECT_TARGET_AOE_FRIEND,                               // Only AoE Friend
-    SELECT_TARGET_ANY_FRIEND,                               // AoE or Single Friend
+    SELECT_TARGET_SINGLE_FRIEND,                            //Only Single Friend
+    SELECT_TARGET_AOE_FRIEND,                               //Only AoE Friend
+    SELECT_TARGET_ANY_FRIEND,                               //AoE or Single Friend
 };
 
-// Spell Effects used by SelectSpell
+//Spell Effects used by SelectSpell
 enum SelectEffect
 {
-    SELECT_EFFECT_DONTCARE = 0,                             // All spell effects allowed
-    SELECT_EFFECT_DAMAGE,                                   // Spell does damage
-    SELECT_EFFECT_HEALING,                                  // Spell does healing
-    SELECT_EFFECT_AURA,                                     // Spell applies an aura
+    SELECT_EFFECT_DONTCARE = 0,                             //All spell effects allowed
+    SELECT_EFFECT_DAMAGE,                                   //Spell does damage
+    SELECT_EFFECT_HEALING,                                  //Spell does healing
+    SELECT_EFFECT_AURA,                                     //Spell applies an aura
 };
 
 enum SCEquip
@@ -83,7 +83,7 @@ class CreatureAI : public UnitAI
 
         virtual ~CreatureAI() {}
 
-        // / == Reactions At =================================
+        /// == Reactions At =================================
 
         // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
         void MoveInLineOfSight_Safe(Unit* who);
@@ -117,7 +117,7 @@ class CreatureAI : public UnitAI
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-        // virtual void AttackedBy(Unit* attacker);
+        //virtual void AttackedBy(Unit* attacker);
         virtual bool IsEscorted() { return false; }
 
         // Called when creature is spawned or respawned (for reseting variables)
@@ -128,7 +128,7 @@ class CreatureAI : public UnitAI
 
         void OnCharmed(bool apply);
 
-        // virtual void SpellClick(Player* player) {}
+        //virtual void SpellClick(Player* player) {}
 
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
@@ -138,30 +138,30 @@ class CreatureAI : public UnitAI
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}
 
-        // / == Triggered Actions Requested ==================
+        /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
         // Note: for reaction at hostile action must be called AttackedBy function.
-        // virtual void AttackStart(Unit* ) {}
+        //virtual void AttackStart(Unit* ) {}
 
         // Called at World update tick
-        // virtual void UpdateAI(const uint32 /*diff*/) {}
+        //virtual void UpdateAI(const uint32 /*diff*/) {}
 
-        // / == State checks =================================
+        /// == State checks =================================
 
         // Is unit visible for MoveInLineOfSight
-        // virtual bool IsVisible(Unit* ) const { return false; }
+        //virtual bool IsVisible(Unit* ) const { return false; }
 
         // called when the corpse of this creature gets removed
         virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}
 
         // Called when victim entered water and creature can not enter water
-        // virtual bool canReachByRangeAttack(Unit*) { return false; }
+        //virtual bool canReachByRangeAttack(Unit*) { return false; }
 
-        // / == Fields =======================================
+        /// == Fields =======================================
 
         // Pointer to controlled by AI creature
-        // Creature* const me;
+        //Creature* const me;
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
 

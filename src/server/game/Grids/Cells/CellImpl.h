@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_CELLIMPL_H
@@ -146,8 +146,8 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
     if (radius <= 0.0f)
         return CellArea();
 
-    // lets calculate object coord offsets from cell borders.
-    // TODO: add more correct/generic method for this task
+    //lets calculate object coord offsets from cell borders.
+    //TODO: add more correct/generic method for this task
     const float x_offset = (x - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
     const float y_offset = (y - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
 
@@ -158,7 +158,7 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
     const float y_off = (y_offset - y_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
 
     const float tmp_diff = radius - CENTER_GRID_CELL_OFFSET;
-    // lets calculate upper/lower/right/left corners for cell search
+    //lets calculate upper/lower/right/left corners for cell search
     int right = CellHelper(tmp_diff + x_off);
     int left = CellHelper(tmp_diff - x_off);
     int upper = CellHelper(tmp_diff + y_off);
@@ -174,21 +174,21 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
         return;
 
-    // no jokes here... Actually placing ASSERT() here was good idea, but
-    // we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
-    // maybe it is better to just return when radius <= 0.0f?
+    //no jokes here... Actually placing ASSERT() here was good idea, but
+    //we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
+    //maybe it is better to just return when radius <= 0.0f?
     if (radius <= 0.0f)
     {
         m.Visit(*this, visitor);
         return;
     }
-    // lets limit the upper value for search radius
+    //lets limit the upper value for search radius
     if (radius > 333.0f)
         radius = 333.0f;
 
-    // lets calculate object coord offsets from cell borders.
+    //lets calculate object coord offsets from cell borders.
     CellArea area = Cell::CalculateCellArea(x_off, y_off, radius);
-    // if radius fits inside standing cell
+    //if radius fits inside standing cell
     if (!area)
     {
         m.Visit(*this, visitor);
@@ -199,18 +199,18 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     CellPair end_cell = standing_cell;
 
     area.ResizeBorders(begin_cell, end_cell);
-    // visit all cells, found in CalculateCellArea()
-    // if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
-    // currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
-    // there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
+    //visit all cells, found in CalculateCellArea()
+    //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
+    //currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
+    //there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
     if (((end_cell.x_coord - begin_cell.x_coord) > 4) && ((end_cell.y_coord - begin_cell.y_coord) > 4))
     {
         VisitCircle(visitor, m, begin_cell, end_cell);
         return;
     }
 
-    // ALWAYS visit standing cell first!!! Since we deal with small radiuses
-    // it is very essential to call visitor for standing cell firstly...
+    //ALWAYS visit standing cell first!!! Since we deal with small radiuses
+    //it is very essential to call visitor for standing cell firstly...
     m.Visit(*this, visitor);
 
     // loop the cell range
@@ -219,7 +219,7 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
         for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
         {
             CellPair cell_pair(x, y);
-            // lets skip standing cell since we already visited it
+            //lets skip standing cell since we already visited it
             if (cell_pair != standing_cell)
             {
                 Cell r_zone(cell_pair);
@@ -234,8 +234,8 @@ template<class T, class CONTAINER>
 inline void
 Cell::Visit(const CellPair& l, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const WorldObject &obj, float radius) const
 {
-    // we should increase search radius by object's radius, otherwise
-    // we could have problems with huge creatures, which won't attack nearest players etc
+    //we should increase search radius by object's radius, otherwise
+    //we could have problems with huge creatures, which won't attack nearest players etc
     Visit(l, visitor, m, radius + obj.GetObjectSize(), obj.GetPositionX(), obj.GetPositionY());
 }
 
@@ -243,13 +243,13 @@ template<class T, class CONTAINER>
 inline void
 Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const CellPair& begin_cell, const CellPair& end_cell) const
 {
-    // here is an algorithm for 'filling' circum-squared octagon
+    //here is an algorithm for 'filling' circum-squared octagon
     uint32 x_shift = (uint32)ceilf((end_cell.x_coord - begin_cell.x_coord) * 0.3f - 0.5f);
-    // lets calculate x_start/x_end coords for central strip...
+    //lets calculate x_start/x_end coords for central strip...
     const uint32 x_start = begin_cell.x_coord + x_shift;
     const uint32 x_end = end_cell.x_coord - x_shift;
 
-    // visit central strip with constant width...
+    //visit central strip with constant width...
     for (uint32 x = x_start; x <= x_end; ++x)
     {
         for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
@@ -261,29 +261,29 @@ Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const Cel
         }
     }
 
-    // if x_shift == 0 then we have too small cell area, which were already
-    // visited at previous step, so just return from procedure...
+    //if x_shift == 0 then we have too small cell area, which were already
+    //visited at previous step, so just return from procedure...
     if (x_shift == 0)
         return;
 
     uint32 y_start = end_cell.y_coord;
     uint32 y_end = begin_cell.y_coord;
-    // now we are visiting borders of an octagon...
+    //now we are visiting borders of an octagon...
     for (uint32 step = 1; step <= (x_start - begin_cell.x_coord); ++step)
     {
-        // each step reduces strip height by 2 cells...
+        //each step reduces strip height by 2 cells...
         y_end += 1;
         y_start -= 1;
         for (uint32 y = y_start; y >= y_end; --y)
         {
-            // we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
-            // e.g. filling 2 trapezoids after filling central cell strip...
+            //we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
+            //e.g. filling 2 trapezoids after filling central cell strip...
             CellPair cell_pair_left(x_start - step, y);
             Cell r_zone_left(cell_pair_left);
             r_zone_left.data.Part.nocreate = this->data.Part.nocreate;
             m.Visit(r_zone_left, visitor);
 
-            // right trapezoid cell visit
+            //right trapezoid cell visit
             CellPair cell_pair_right(x_end + step, y);
             Cell r_zone_right(cell_pair_right);
             r_zone_right.data.Part.nocreate = this->data.Part.nocreate;

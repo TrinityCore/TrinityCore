@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _UNITEVENTS
@@ -25,8 +25,8 @@ class ThreatContainer;
 class ThreatManager;
 class HostileReference;
 
-// ==============================================================
-// ==============================================================
+//==============================================================
+//==============================================================
 
 enum UNIT_EVENT_TYPE
 {
@@ -52,10 +52,10 @@ enum UNIT_EVENT_TYPE
     UEV_THREAT_VICTIM_CHANGED           = 1<<6,
 
     // Future use
-    // UEV_UNIT_KILLED                   = 1<<7,
+    //UEV_UNIT_KILLED                   = 1<<7,
 
-    // Future use
-    // UEV_UNIT_HEALTH_CHANGE            = 1<<8,
+    //Future use
+    //UEV_UNIT_HEALTH_CHANGE            = 1<<8,
 };
 
 #define UEV_THREAT_REF_EVENT_MASK (UEV_THREAT_REF_ONLINE_STATUS | UEV_THREAT_REF_THREAT_CHANGE | UEV_THREAT_REF_REMOVE_FROM_LIST | UEV_THREAT_REF_ASSECCIBLE_STATUS)
@@ -63,9 +63,9 @@ enum UNIT_EVENT_TYPE
 #define UEV_ALL_EVENT_MASK (0xffffffff)
 
 // Future use
-// #define UEV_UNIT_EVENT_MASK (UEV_UNIT_KILLED | UEV_UNIT_HEALTH_CHANGE)
+//#define UEV_UNIT_EVENT_MASK (UEV_UNIT_KILLED | UEV_UNIT_HEALTH_CHANGE)
 
-// ==============================================================
+//==============================================================
 
 class UnitBaseEvent
 {
@@ -80,7 +80,7 @@ class UnitBaseEvent
 
 };
 
-// ==============================================================
+//==============================================================
 
 class ThreatRefStatusChangeEvent : public UnitBaseEvent
 {
@@ -117,7 +117,7 @@ class ThreatRefStatusChangeEvent : public UnitBaseEvent
         ThreatManager* getThreatManager() const { return iThreatManager; }
 };
 
-// ==============================================================
+//==============================================================
 
 class ThreatManagerEvent : public ThreatRefStatusChangeEvent
 {
@@ -132,6 +132,6 @@ class ThreatManagerEvent : public ThreatRefStatusChangeEvent
         ThreatContainer* getThreatContainer() const { return iThreatContainer; }
 };
 
-// ==============================================================
+//==============================================================
 #endif
 

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYCORE_GROUP_H
@@ -137,7 +137,7 @@ class Roll : public LootValidatorRef
         uint32 itemRandomSuffix;
         uint8 itemCount;
         typedef std::map<uint64, RollVote> PlayerVote;
-        PlayerVote playerVote;                              // vote position correspond with player position (in group)
+        PlayerVote playerVote;                              //vote position correspond with player position (in group)
         uint8 totalPlayersRolling;
         uint8 totalNeed;
         uint8 totalGreed;
@@ -257,7 +257,7 @@ class Group
         void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
 
         // -no description-
-        // void SendInit(WorldSession *session);
+        //void SendInit(WorldSession *session);
         void SendTargetIconList(WorldSession *session);
         void SendUpdate();
         void UpdatePlayerOutOfRange(Player* pPlayer);

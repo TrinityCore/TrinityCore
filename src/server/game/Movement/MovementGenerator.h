@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_MOVEMENTGENERATOR_H
@@ -53,22 +53,22 @@ class MovementGeneratorMedium : public MovementGenerator
     public:
         void Initialize(Unit &u)
         {
-            // u->AssertIsType<T>();
+            //u->AssertIsType<T>();
             (static_cast<D*>(this))->Initialize(*((T*)&u));
         }
         void Finalize(Unit &u)
         {
-            // u->AssertIsType<T>();
+            //u->AssertIsType<T>();
             (static_cast<D*>(this))->Finalize(*((T*)&u));
         }
         void Reset(Unit &u)
         {
-            // u->AssertIsType<T>();
+            //u->AssertIsType<T>();
             (static_cast<D*>(this))->Reset(*((T*)&u));
         }
         bool Update(Unit &u, const uint32 time_diff)
         {
-            // u->AssertIsType<T>();
+            //u->AssertIsType<T>();
             return (static_cast<D*>(this))->Update(*((T*)&u), time_diff);
         }
     public:

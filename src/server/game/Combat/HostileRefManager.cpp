@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "HostileRefManager.h"
@@ -28,7 +28,7 @@ HostileRefManager::~HostileRefManager()
     deleteReferences();
 }
 
-// =================================================
+//=================================================
 // send threat to all my hateres for the victim
 // The victim is hated than by them as well
 // use for buffs and healing threat functionality
@@ -48,7 +48,7 @@ void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo c
     }
 }
 
-// =================================================
+//=================================================
 
 void HostileRefManager::addTempThreat(float threat, bool apply)
 {
@@ -68,7 +68,7 @@ void HostileRefManager::addTempThreat(float threat, bool apply)
     }
 }
 
-// =================================================
+//=================================================
 
 void HostileRefManager::addThreatPercent(int32 percent)
 {
@@ -80,7 +80,7 @@ void HostileRefManager::addThreatPercent(int32 percent)
     }
 }
 
-// =================================================
+//=================================================
 // The online / offline status is given to the method. The calculation has to be done before
 
 void HostileRefManager::setOnlineOfflineState(bool isOnline)
@@ -93,7 +93,7 @@ void HostileRefManager::setOnlineOfflineState(bool isOnline)
     }
 }
 
-// =================================================
+//=================================================
 // The online / offline status is calculated and set
 
 void HostileRefManager::updateThreatTables()
@@ -106,7 +106,7 @@ void HostileRefManager::updateThreatTables()
     }
 }
 
-// =================================================
+//=================================================
 // The references are not needed anymore
 // tell the source to remove them from the list and free the mem
 
@@ -122,7 +122,7 @@ void HostileRefManager::deleteReferences()
     }
 }
 
-// =================================================
+//=================================================
 // delete one reference, defined by faction
 
 void HostileRefManager::deleteReferencesForFaction(uint32 faction)
@@ -140,7 +140,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
     }
 }
 
-// =================================================
+//=================================================
 // delete one reference, defined by Unit
 
 void HostileRefManager::deleteReference(Unit *creature)
@@ -159,7 +159,7 @@ void HostileRefManager::deleteReference(Unit *creature)
     }
 }
 
-// =================================================
+//=================================================
 // set state for one reference, defined by Unit
 
 void HostileRefManager::setOnlineOfflineState(Unit *creature, bool isOnline)
@@ -177,7 +177,7 @@ void HostileRefManager::setOnlineOfflineState(Unit *creature, bool isOnline)
     }
 }
 
-// =================================================
+//=================================================
 
 void HostileRefManager::UpdateVisibility()
 {

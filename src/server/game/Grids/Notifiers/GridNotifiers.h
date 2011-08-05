@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_GRIDNOTIFIERS_H
@@ -32,7 +32,7 @@
 #include "CreatureAI.h"
 
 class Player;
-// class Map;
+//class Map;
 
 namespace Trinity
 {
@@ -1244,7 +1244,7 @@ namespace Trinity
         PlayerAtMinimumRangeAway(Unit const* unit, float fMinRange) : pUnit(unit), fRange(fMinRange) {}
         bool operator() (Player* pPlayer)
         {
-            // No threat list check, must be done explicit if expected to be in combat with creature
+            //No threat list check, must be done explicit if expected to be in combat with creature
             if (!pPlayer->isGameMaster() && pPlayer->isAlive() && !pUnit->IsWithinDist(pPlayer, fRange, false))
                 return true;
 

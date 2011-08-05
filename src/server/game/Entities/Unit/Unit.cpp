@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -245,7 +245,7 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
     _targetLocked = false;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+////////////////////////////////////////////////////////////
 // Methods of class GlobalCooldownMgr
 bool GlobalCooldownMgr::HasGlobalCooldown(SpellInfo const* spellInfo) const
 {
@@ -263,7 +263,7 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellInfo const* spellInfo)
     m_GlobalCooldowns[spellInfo->StartRecoveryCategory].duration = 0;
 }
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+////////////////////////////////////////////////////////////
 // Methods of class Unit
 Unit::~Unit()
 {
@@ -378,7 +378,7 @@ void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTim
             transitTime = traveller.GetTotalTrevelTimeTo(x, y, z);
         }
     }
-    // float orientation = (float)atan2((double)dy, (double)dx);
+    //float orientation = (float)atan2((double)dy, (double)dx);
     SendMonsterMove(x, y, z, transitTime, player);
 }
 
@@ -1988,7 +1988,7 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
         DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
         SendAttackStateUpdate(&damageInfo);
 
-        // TriggerAurasProcOnEvent(damageInfo);
+        //TriggerAurasProcOnEvent(damageInfo);
         ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
 
         DealMeleeDamage(&damageInfo, true);
@@ -2017,7 +2017,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     // This is only wrapper
 
     // Miss chance based on melee
-    // float miss_chance = MeleeMissChanceCalc(victim, attType);
+    //float miss_chance = MeleeMissChanceCalc(victim, attType);
     float miss_chance = MeleeSpellMissChance(victim, attType, int32(GetWeaponSkillValue(attType, victim)) - int32(victim->GetDefenseSkillValue(this)), 0);
 
     // Critical hit chance
@@ -3023,7 +3023,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
 {
     ASSERT(spellType < CURRENT_MAX_SPELL);
 
-    // sLog->outDebug(LOG_FILTER_UNITS, "Interrupt spell for unit %u.", GetEntry());
+    //sLog->outDebug(LOG_FILTER_UNITS, "Interrupt spell for unit %u.", GetEntry());
     Spell* spell = m_currentSpells[spellType];
     if (spell
         && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
@@ -3412,7 +3412,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     aura->HandleAuraSpecificMods(aurApp, caster, false, false);
 
     // only way correctly remove all auras from list
-    // if (removedAuras != m_removedAurasCount) new aura may be added
+    //if (removedAuras != m_removedAurasCount) new aura may be added
         i = m_appliedAuras.begin();
 }
 
@@ -5219,7 +5219,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
                 // Aura of Madness (Darkmoon Card: Madness trinket)
-                // =====================================================
+                //=====================================================
                 // 39511 Sociopath: +35 strength (Paladin, Rogue, Druid, Warrior)
                 // 40997 Delusional: +70 attack power (Rogue, Hunter, Paladin, Warrior, Druid)
                 // 40998 Kleptomania: +35 agility (Warrior, Rogue, Paladin, Hunter, Druid)
@@ -7791,8 +7791,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffect* triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
-    // uint32 effIndex = triggeredByAura->GetEffIndex();
-    // int32  triggerAmount = triggeredByAura->GetAmount();
+    //uint32 effIndex = triggeredByAura->GetEffIndex();
+    //int32  triggerAmount = triggeredByAura->GetAmount();
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -7848,8 +7848,8 @@ bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffec
 bool Unit::HandleModDamagePctTakenAuraProc(Unit* victim, uint32 /*damage*/, AuraEffect* triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
-    // uint32 effIndex = triggeredByAura->GetEffIndex();
-    // int32  triggerAmount = triggeredByAura->GetAmount();
+    //uint32 effIndex = triggeredByAura->GetEffIndex();
+    //int32  triggerAmount = triggeredByAura->GetAmount();
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -8433,7 +8433,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         target = victim;
                         break;
                     }
-                    // Item - Coliseum 25 Normal Caster Trinket
+                    //Item - Coliseum 25 Normal Caster Trinket
                     case 67712:
                     {
                         if (!victim || !victim->isAlive())
@@ -8451,7 +8451,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         target = victim;
                         break;
                     }
-                    // Item - Coliseum 25 Heroic Caster Trinket
+                    //Item - Coliseum 25 Heroic Caster Trinket
                     case 67758:
                     {
                         if (!victim || !victim->isAlive())
@@ -9551,7 +9551,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         AddUnitState(UNIT_STAT_MELEE_ATTACKING);
 
     // set position before any AI calls/assistance
-    // if (GetTypeId() == TYPEID_UNIT)
+    //if (GetTypeId() == TYPEID_UNIT)
     //    ToCreature()->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
 
     if (GetTypeId() == TYPEID_UNIT && !ToCreature()->isPet())
@@ -9941,7 +9941,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 ToPlayer()->SendCooldownEvent(spellInfo);
         }
 
-        // if (minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        //if (minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         {
             if (RemoveUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
@@ -9949,11 +9949,11 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 {
                     // do not use this check, creature do not have charm guid
-                    // if (GetCharmGUID() == (*itr)->GetGUID())
+                    //if (GetCharmGUID() == (*itr)->GetGUID())
                     if (GetGUID() == (*itr)->GetCharmerGUID())
                         continue;
 
-                    // ASSERT((*itr)->GetOwnerGUID() == GetGUID());
+                    //ASSERT((*itr)->GetOwnerGUID() == GetGUID());
                     if ((*itr)->GetOwnerGUID() != GetGUID())
                     {
                         OutDebugInfo();
@@ -10924,8 +10924,8 @@ int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit* vict
 
 bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
-    // ! Mobs can't crit with spells. Player Totems can
-    // ! Fire Elemental (from totem) can too - but this part is a hack and needs more research
+    //! Mobs can't crit with spells. Player Totems can
+    //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
     if (IS_CREATURE_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438)
         return false;
 
@@ -12772,7 +12772,7 @@ bool Unit::CanHaveThreatList() const
         return false;
 
     // vehicles can not have threat list
-    // if (ToCreature()->IsVehicle())
+    //if (ToCreature()->IsVehicle())
     //    return false;
 
     // summons can not have a threat list, unless they are controlled by a creature
@@ -12782,7 +12782,7 @@ bool Unit::CanHaveThreatList() const
     return true;
 }
 
-// ======================================================================
+//======================================================================
 
 float Unit::ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask)
 {
@@ -12794,7 +12794,7 @@ float Unit::ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask)
     return fThreat * m_threatModifier[school];
 }
 
-// ======================================================================
+//======================================================================
 
 void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
 {
@@ -12803,7 +12803,7 @@ void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask, Sp
         m_ThreatManager.addThreat(victim, fThreat, schoolMask, threatSpell);
 }
 
-// ======================================================================
+//======================================================================
 
 void Unit::DeleteThreatList()
 {
@@ -12812,7 +12812,7 @@ void Unit::DeleteThreatList()
     m_ThreatManager.clearReferences();
 }
 
-// ======================================================================
+//======================================================================
 
 void Unit::TauntApply(Unit* taunter)
 {
@@ -12837,10 +12837,10 @@ void Unit::TauntApply(Unit* taunter)
     if (creature->IsAIEnabled)
         creature->AI()->AttackStart(taunter);
 
-    // m_ThreatManager.tauntApply(taunter);
+    //m_ThreatManager.tauntApply(taunter);
 }
 
-// ======================================================================
+//======================================================================
 
 void Unit::TauntFadeOut(Unit* taunter)
 {
@@ -12868,7 +12868,7 @@ void Unit::TauntFadeOut(Unit* taunter)
         return;
     }
 
-    // m_ThreatManager.tauntFadeOut(taunter);
+    //m_ThreatManager.tauntFadeOut(taunter);
     target = m_ThreatManager.getHostilTarget();
 
     if (target && target != taunter)
@@ -12879,7 +12879,7 @@ void Unit::TauntFadeOut(Unit* taunter)
     }
 }
 
-// ======================================================================
+//======================================================================
 
 Unit* Creature::SelectVictim()
 {
@@ -13003,9 +13003,9 @@ Unit* Creature::SelectVictim()
     return NULL;
 }
 
-// ======================================================================
-// ======================================================================
-// ======================================================================
+//======================================================================
+//======================================================================
+//======================================================================
 
 float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const
 {
@@ -14488,10 +14488,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                     }
                     break;
                 }
-                // case SPELL_AURA_ADD_FLAT_MODIFIER:
-                // case SPELL_AURA_ADD_PCT_MODIFIER:
+                //case SPELL_AURA_ADD_FLAT_MODIFIER:
+                //case SPELL_AURA_ADD_PCT_MODIFIER:
                     // HandleSpellModAuraProc
-                    // break;
+                    //break;
                 default:
                     // nothing do, just charges counter
                     takeCharges = true;
@@ -14593,7 +14593,7 @@ Player* Unit::GetSpellModOwner() const
     return NULL;
 }
 
-// /----------Pet responses methods-----------------
+///----------Pet responses methods-----------------
 void Unit::SendPetCastFail(uint32 spellid, SpellCastResult msg)
 {
     if (msg == SPELL_CAST_OK)
@@ -14647,7 +14647,7 @@ void Unit::SendPetAIReaction(uint64 guid)
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-// /----------End of Pet responses methods----------
+///----------End of Pet responses methods----------
 
 void Unit::StopMoving()
 {
@@ -14655,10 +14655,10 @@ void Unit::StopMoving()
 
     // send explicit stop packet
     // rely on vmaps here because for example stormwind is in air
-    // float z = sMapMgr->GetBaseMap(GetMapId())->GetHeight(GetPositionX(), GetPositionY(), GetPositionZ(), true);
-    // if (fabs(GetPositionZ() - z) < 2.0f)
+    //float z = sMapMgr->GetBaseMap(GetMapId())->GetHeight(GetPositionX(), GetPositionY(), GetPositionZ(), true);
+    //if (fabs(GetPositionZ() - z) < 2.0f)
     //    Relocate(GetPositionX(), GetPositionY(), z);
-    // Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    //Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
 
     if (!(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT))
         SendMonsterStop();
@@ -15130,7 +15130,7 @@ bool Unit::InitTamedPet(Pet * pet, uint8 level, uint32 spell_id)
     pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
     // this enables pet details window (Shift+P)
     pet->InitPetCreateSpells();
-    // pet->InitLevelupSpellsForLevel();
+    //pet->InitLevelupSpellsForLevel();
     pet->SetFullHealth();
     return true;
 }
@@ -15292,7 +15292,7 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     {
         case 57949:            // shiver
             damageSpellId = 57952;
-            // animationSpellId = 57951; dummy effects for jump spell have unknown use (see also 41637)
+            //animationSpellId = 57951; dummy effects for jump spell have unknown use (see also 41637)
             break;
         case 59978:            // shiver
             damageSpellId = 59979;
@@ -15561,7 +15561,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (OutdoorPvP* pvp = player->GetOutdoorPvP())
             pvp->HandleKill(player, victim);
 
-    // if (victim->GetTypeId() == TYPEID_PLAYER)
+    //if (victim->GetTypeId() == TYPEID_PLAYER)
     //    if (OutdoorPvP* pvp = victim->ToPlayer()->GetOutdoorPvP())
     //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();
 
@@ -15854,7 +15854,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         return false;
     }
 
-    // if (HasUnitState(UNIT_STAT_UNATTACKABLE))
+    //if (HasUnitState(UNIT_STAT_UNATTACKABLE))
     //    return false;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetTransport())
@@ -16460,7 +16460,7 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, i
         miss_chance -= m_modMeleeHitChance;
 
     // bonus from skills is 0.04%
-    // miss_chance -= skillDiff * 0.04f;
+    //miss_chance -= skillDiff * 0.04f;
     int32 diff = -skillDiff;
     if (victim->GetTypeId() == TYPEID_PLAYER)
         miss_chance += diff > 0 ? diff * 0.04f : diff * 0.02f;
@@ -17216,7 +17216,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 count = getThreatManager().getThreatList().size();
 
-        // sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
+        //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data.append(GetPackGUID());
         data << uint32(count);

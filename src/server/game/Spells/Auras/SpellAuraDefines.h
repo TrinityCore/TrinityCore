@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef TRINITY_SPELLAURADEFINES_H
 #define TRINITY_SPELLAURADEFINES_H
@@ -50,7 +50,7 @@ enum AuraEffectHandleModes
     AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK = (AURA_EFFECT_HANDLE_REAPPLY | AURA_EFFECT_HANDLE_REAL),
 };
 
-// m_schoolAbsorb
+//m_schoolAbsorb
 enum DAMAGE_ABSORB_TYPE
 {
     ALL_DAMAGE_ABSORB       = -2,
@@ -79,7 +79,7 @@ enum AuraType
     SPELL_AURA_MOD_STEALTH_DETECT = 17,
     SPELL_AURA_MOD_INVISIBILITY = 18,
     SPELL_AURA_MOD_INVISIBILITY_DETECT = 19,
-    SPELL_AURA_OBS_MOD_HEALTH = 20,                         // 20, 21 unofficial
+    SPELL_AURA_OBS_MOD_HEALTH = 20,                         //20, 21 unofficial
     SPELL_AURA_OBS_MOD_POWER = 21,
     SPELL_AURA_MOD_RESISTANCE = 22,
     SPELL_AURA_PERIODIC_TRIGGER_SPELL = 23,

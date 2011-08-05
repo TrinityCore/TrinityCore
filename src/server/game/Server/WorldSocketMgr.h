@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /** \addtogroup u2w User to World Communication
@@ -33,20 +33,20 @@ class WorldSocket;
 class ReactorRunnable;
 class ACE_Event_Handler;
 
-// / Manages all sockets connected to peers and network threads
+/// Manages all sockets connected to peers and network threads
 class WorldSocketMgr
 {
 public:
     friend class WorldSocket;
     friend class ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>;
 
-    // / Start network, listen at address:port .
+    /// Start network, listen at address:port .
     int StartNetwork(ACE_UINT16 port, const char* address);
 
-    // / Stops all network threads, It will wait for all running threads .
+    /// Stops all network threads, It will wait for all running threads .
     void StopNetwork();
 
-    // / Wait untill all network threads have "joined" .
+    /// Wait untill all network threads have "joined" .
     void Wait();
 
 private:
@@ -71,4 +71,4 @@ private:
 #define sWorldSocketMgr ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>::instance()
 
 #endif
-// / @}
+/// @}

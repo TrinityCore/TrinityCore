@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ObjectMgr.h"
@@ -87,12 +87,12 @@ void BattlegroundEY::Update(uint32 diff)
         m_TowerCapCheckTimer -= diff;
         if (m_TowerCapCheckTimer <= 0)
         {
-            // check if player joined point
+            //check if player joined point
             /*I used this order of calls, because although we will check if one player is in gameobject's distance 2 times
               but we can count of players on current point in CheckSomeoneLeftPoint
             */
             this->CheckSomeoneJoinedPoint();
-            // check if player left point
+            //check if player left point
             this->CheckSomeoneLeftPoint();
             this->UpdatePointStatuses();
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
@@ -118,7 +118,7 @@ void BattlegroundEY::StartingEventOpenDoors()
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
     for (uint32 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        // randomly spawn buff
+        //randomly spawn buff
         uint8 buff = urand(0, 2);
         SpawnBGObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + buff + i * 3, RESPAWN_IMMEDIATELY);
     }
@@ -157,14 +157,14 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
                 }
                 if (plr->CanCaptureTowerPoint() && plr->IsWithinDistInMap(obj, BG_EY_POINT_RADIUS))
                 {
-                    // player joined point!
-                    // show progress bar
+                    //player joined point!
+                    //show progress bar
                     UpdateWorldStateForPlayer(PROGRESS_BAR_PERCENT_GREY, BG_EY_PROGRESS_BAR_PERCENT_GREY, plr);
                     UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[i], plr);
                     UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_SHOW, plr);
-                    // add player to point
+                    //add player to point
                     m_PlayersNearPoint[i].push_back(m_PlayersNearPoint[EY_POINTS_MAX][j]);
-                    // remove player from "free space"
+                    //remove player from "free space"
                     m_PlayersNearPoint[EY_POINTS_MAX].erase(m_PlayersNearPoint[EY_POINTS_MAX].begin() + j);
                 }
                 else
@@ -176,7 +176,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
 
 void BattlegroundEY::CheckSomeoneLeftPoint()
 {
-    // reset current point counts
+    //reset current point counts
     for (uint8 i = 0; i < 2*EY_POINTS_MAX; ++i)
         m_CurrentPointPlayersCount[i] = 0;
     GameObject *obj = NULL;
@@ -192,14 +192,14 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                 if (!plr)
                 {
                     sLog->outError("BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
-                    // move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
+                    //move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
                     ++j;
                     continue;
                 }
                 if (!plr->CanCaptureTowerPoint() || !plr->IsWithinDistInMap(obj, BG_EY_POINT_RADIUS))
-                    // move player out of point (add him to players that are out of points
+                    //move player out of point (add him to players that are out of points
                 {
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
@@ -207,7 +207,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                 }
                 else
                 {
-                    // player is neat flag, so update count:
+                    //player is neat flag, so update count:
                     m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(plr->GetTeam())]++;
                     ++j;
                 }
@@ -222,18 +222,18 @@ void BattlegroundEY::UpdatePointStatuses()
     {
         if (m_PlayersNearPoint[point].empty())
             continue;
-        // count new point bar status:
+        //count new point bar status:
         m_PointBarStatus[point] += (m_CurrentPointPlayersCount[2 * point] - m_CurrentPointPlayersCount[2 * point + 1] < BG_EY_POINT_MAX_CAPTURERS_COUNT) ? m_CurrentPointPlayersCount[2 * point] - m_CurrentPointPlayersCount[2 * point + 1] : BG_EY_POINT_MAX_CAPTURERS_COUNT;
 
         if (m_PointBarStatus[point] > BG_EY_PROGRESS_BAR_ALI_CONTROLLED)
-            // point is fully alliance's
+            //point is fully alliance's
             m_PointBarStatus[point] = BG_EY_PROGRESS_BAR_ALI_CONTROLLED;
         if (m_PointBarStatus[point] < BG_EY_PROGRESS_BAR_HORDE_CONTROLLED)
-            // point is fully horde's
+            //point is fully horde's
             m_PointBarStatus[point] = BG_EY_PROGRESS_BAR_HORDE_CONTROLLED;
 
         uint32 pointOwnerTeamId = 0;
-        // find which team should own this point
+        //find which team should own this point
         if (m_PointBarStatus[point] <= BG_EY_PROGRESS_BAR_NEUTRAL_LOW)
             pointOwnerTeamId = HORDE;
         else if (m_PointBarStatus[point] >= BG_EY_PROGRESS_BAR_NEUTRAL_HIGH)
@@ -247,14 +247,14 @@ void BattlegroundEY::UpdatePointStatuses()
             if (plr)
             {
                 this->UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[point], plr);
-                                                            // if point owner changed we must evoke event!
+                                                            //if point owner changed we must evoke event!
                 if (pointOwnerTeamId != m_PointOwnedByTeam[point])
                 {
-                    // point was uncontrolled and player is from team which captured point
+                    //point was uncontrolled and player is from team which captured point
                     if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && plr->GetTeam() == pointOwnerTeamId)
                         this->EventTeamCapturedPoint(plr, point);
 
-                    // point was under control and player isn't from team which controlled it
+                    //point was under control and player isn't from team which controlled it
                     if (m_PointState[point] == EY_POINT_UNDER_CONTROL && plr->GetTeam() != m_PointOwnedByTeam[point])
                         this->EventTeamLostPoint(plr, point);
                 }
@@ -266,7 +266,7 @@ void BattlegroundEY::UpdatePointStatuses()
 void BattlegroundEY::UpdateTeamScore(uint32 Team)
 {
     uint32 score = GetTeamScore(Team);
-    // TODO there should be some sound played when one team is near victory!! - and define variables
+    //TODO there should be some sound played when one team is near victory!! - and define variables
     /*if (!m_IsInformedNearVictory && score >= BG_EY_WARNING_NEAR_VICTORY_SCORE)
     {
         if (Team == ALLIANCE)
@@ -291,12 +291,12 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
 
 void BattlegroundEY::EndBattleground(uint32 winner)
 {
-    // win reward
+    //win reward
     if (winner == ALLIANCE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-    // complete map reward
+    //complete map reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
 
@@ -313,7 +313,7 @@ void BattlegroundEY::UpdatePointsCount(uint32 Team)
 
 void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 {
-    // we MUST firstly send 0, after that we can send 1!!!
+    //we MUST firstly send 0, after that we can send 1!!!
     if (m_PointState[Point] == EY_POINT_UNDER_CONTROL)
     {
         UpdateWorldState(m_PointsIconStruct[Point].WorldStateControlIndex, 0);
@@ -335,7 +335,7 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 void BattlegroundEY::AddPlayer(Player *plr)
 {
     Battleground::AddPlayer(plr);
-    // create score and add it to map
+    //create score and add it to map
     BattlegroundEYScore* sc = new BattlegroundEYScore;
 
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(plr->GetGUID());
@@ -372,7 +372,7 @@ void BattlegroundEY::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if (!Source->isAlive())                                  // hack code, must be removed later
+    if (!Source->isAlive())                                  //hack code, must be removed later
         return;
 
     switch(Trigger)
@@ -477,7 +477,7 @@ bool BattlegroundEY::SetupBattleground()
         return false;
     }
 
-    // buffs
+    //buffs
     for (int i = 0; i < EY_POINTS_MAX; ++i)
     {
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(m_Points_Trigger[i]);
@@ -513,7 +513,7 @@ bool BattlegroundEY::SetupBattleground()
 
 void BattlegroundEY::Reset()
 {
-    // call parent's class reset
+    //call parent's class reset
     Battleground::Reset();
 
     m_TeamScores[BG_TEAM_ALLIANCE] = 0;
@@ -537,7 +537,7 @@ void BattlegroundEY::Reset()
         m_PointState[i] = EY_POINT_STATE_UNCONTROLLED;
         m_PointBarStatus[i] = BG_EY_PROGRESS_BAR_STATE_MIDDLE;
         m_PlayersNearPoint[i].clear();
-        m_PlayersNearPoint[i].reserve(15);                  // tip size
+        m_PlayersNearPoint[i].reserve(15);                  //tip size
     }
     m_PlayersNearPoint[EY_PLAYERS_OUT_OF_POINTS].clear();
     m_PlayersNearPoint[EY_PLAYERS_OUT_OF_POINTS].reserve(30);
@@ -609,7 +609,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player *Source)
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     Source->CastSpell(Source, SPELL_RECENTLY_DROPPED_FLAG, true);
     Source->CastSpell(Source, BG_EY_PLAYER_DROPPED_FLAG_SPELL, true);
-    // this does not work correctly :((it should remove flag carrier name)
+    //this does not work correctly :((it should remove flag carrier name)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
 
@@ -641,7 +641,7 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target
 
     SpawnBGObject(BG_EY_OBJECT_FLAG_NETHERSTORM, RESPAWN_ONE_DAY);
     SetFlagPicker(Source->GetGUID());
-    // get flag aura on player
+    //get flag aura on player
     Source->CastSpell(Source, BG_EY_NETHERSTORM_FLAG_SPELL, true);
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
@@ -656,7 +656,7 @@ void BattlegroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    // Natural point
+    //Natural point
     uint32 Team = m_PointOwnedByTeam[Point];
 
     if (!Team)
@@ -681,7 +681,7 @@ void BattlegroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     SpawnBGObject(m_LosingPointTypes[Point].SpawnNeutralObjectType + 1, RESPAWN_IMMEDIATELY);
     SpawnBGObject(m_LosingPointTypes[Point].SpawnNeutralObjectType + 2, RESPAWN_IMMEDIATELY);
 
-    // buff isn't despawned
+    //buff isn't despawned
 
     m_PointOwnedByTeam[Point] = EY_POINT_NO_OWNER;
     m_PointState[Point] = EY_POINT_NO_OWNER;
@@ -694,9 +694,9 @@ void BattlegroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
 
-    // remove bonus honor aura trigger creature when node is lost
+    //remove bonus honor aura trigger creature when node is lost
      if (Point < EY_POINTS_MAX)
-         DelCreature(Point + 6);// NULL checks are in DelCreature! 0-5 spirit guides
+         DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
 }
 
 void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
@@ -725,7 +725,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 2, RESPAWN_IMMEDIATELY);
     }
 
-    // buff isn't respawned
+    //buff isn't respawned
 
     m_PointOwnedByTeam[Point] = Team;
     m_PointState[Point] = EY_POINT_UNDER_CONTROL;
@@ -752,13 +752,13 @@ void BattlegroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
     if (Point >= EY_POINTS_MAX)
         return;
 
-    Creature* trigger = GetBGCreature(Point + 6);// 0-5 spirit guides
+    Creature* trigger = GetBGCreature(Point + 6);//0-5 spirit guides
     if (!trigger)
        trigger = AddCreature(WORLD_TRIGGER, Point+6, Team, BG_EY_TriggerPositions[Point][0], BG_EY_TriggerPositions[Point][1], BG_EY_TriggerPositions[Point][2], BG_EY_TriggerPositions[Point][3]);
 
-    // add bonus honor aura trigger creature when node is accupied
-    // cast bonus aura (+50% honor in 25yards)
-    // aura should only apply to players who have accupied the node, set correct faction for trigger
+    //add bonus honor aura trigger creature when node is accupied
+    //cast bonus aura (+50% honor in 25yards)
+    //aura should only apply to players who have accupied the node, set correct faction for trigger
     if (trigger)
     {
         trigger->setFaction(Team == ALLIANCE ? 84 : 83);

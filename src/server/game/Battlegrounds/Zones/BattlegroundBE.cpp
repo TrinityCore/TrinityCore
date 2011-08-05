@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Battleground.h"
@@ -32,7 +32,7 @@ BattlegroundBE::BattlegroundBE()
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
     m_StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
-    // we must set messageIds
+    //we must set messageIds
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
@@ -79,7 +79,7 @@ void BattlegroundBE::StartingEventOpenDoors()
 void BattlegroundBE::AddPlayer(Player *plr)
 {
     Battleground::AddPlayer(plr);
-    // create score and add it to map, default values are set in constructor
+    //create score and add it to map, default values are set in constructor
     BattlegroundBEScore* sc = new BattlegroundBEScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
@@ -125,15 +125,15 @@ void BattlegroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    // uint32 SpellId = 0;
-    // uint64 buff_guid = 0;
+    //uint32 SpellId = 0;
+    //uint64 buff_guid = 0;
     switch(Trigger)
     {
         case 4538:                                          // buff trigger?
-            // buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_1];
+            //buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_1];
             break;
         case 4539:                                          // buff trigger?
-            // buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_2];
+            //buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_2];
             break;
         default:
             sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
@@ -141,7 +141,7 @@ void BattlegroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
             break;
     }
 
-    // if (buff_guid)
+    //if (buff_guid)
     //    HandleTriggerBuff(buff_guid, Source);
 }
 
@@ -153,7 +153,7 @@ void BattlegroundBE::FillInitialWorldStates(WorldPacket &data)
 
 void BattlegroundBE::Reset()
 {
-    // call parent's class reset
+    //call parent's class reset
     Battleground::Reset();
 }
 
@@ -182,7 +182,7 @@ void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
-    // there is nothing special in this score
+    //there is nothing special in this score
     Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
 
 }

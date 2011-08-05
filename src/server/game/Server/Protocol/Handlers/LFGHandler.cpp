@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "WorldSession.h"
@@ -269,7 +269,7 @@ void WorldSession::HandleLfrSearchOpcode(WorldPacket& recv_data)
     uint32 entry;                                          // Raid id to search
     recv_data >> entry;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SEARCH_LFG_JOIN [" UI64FMTD "] dungeon entry: %u", GetPlayer()->GetGUID(), entry);
-    // SendLfrUpdateListOpcode(entry);
+    //SendLfrUpdateListOpcode(entry);
 }
 
 void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recv_data)
@@ -277,7 +277,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recv_data)
     uint32 dungeonId;                                      // Raid id queue to leave
     recv_data >> dungeonId;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SEARCH_LFG_LEAVE [" UI64FMTD "] dungeonId: %u", GetPlayer()->GetGUID(), dungeonId);
-    // sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
+    //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
 }
 
 void WorldSession::SendLfgUpdatePlayer(const LfgUpdateData& updateData)
@@ -292,7 +292,7 @@ void WorldSession::SendLfgUpdatePlayer(const LfgUpdateData& updateData)
             queued = true;
             extrainfo = true;
             break;
-        // case LFG_UPDATETYPE_CLEAR_LOCK_LIST: // TODO: Sometimes has extrainfo - Check ocurrences...
+        //case LFG_UPDATETYPE_CLEAR_LOCK_LIST: // TODO: Sometimes has extrainfo - Check ocurrences...
         case LFG_UPDATETYPE_PROPOSAL_BEGIN:
             extrainfo = true;
             break;

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _OBJECT_H
@@ -44,14 +44,14 @@
 #define DEFAULT_COMBAT_REACH        1.5f
 #define MIN_MELEE_REACH             2.0f
 #define NOMINAL_MELEE_RANGE         5.0f
-#define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) // center to center for players
+#define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 
 enum TypeMask
 {
     TYPEMASK_OBJECT         = 0x0001,
     TYPEMASK_ITEM           = 0x0002,
     TYPEMASK_CONTAINER      = 0x0006,                       // TYPEMASK_ITEM | 0x0004
-    TYPEMASK_UNIT           = 0x0008,   // creature or player
+    TYPEMASK_UNIT           = 0x0008,   //creature or player
     TYPEMASK_PLAYER         = 0x0010,
     TYPEMASK_GAMEOBJECT     = 0x0020,
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
@@ -781,9 +781,9 @@ class WorldObject : public Object, public WorldLocation
         virtual void ResetMap();
         Map * GetMap() const { ASSERT(m_currMap); return m_currMap; }
         Map * FindMap() const { return m_currMap; }
-        // used to check all object's GetMap() calls when object is not in world!
+        //used to check all object's GetMap() calls when object is not in world!
 
-        // this function should be removed in nearest time...
+        //this function should be removed in nearest time...
         Map const* GetBaseMap() const;
 
         void SetZoneScript();
@@ -813,7 +813,7 @@ class WorldObject : public Object, public WorldLocation
         virtual void UpdateObjectVisibility(bool forced = true);
         void BuildUpdate(UpdateDataMapType&);
 
-        // relocation and visibility system functions
+        //relocation and visibility system functions
         void AddToNotify(uint16 f) { m_notifyflags |= f;}
         bool isNeedNotify(uint16 f) const { return m_notifyflags & f;}
         uint16 GetNotifyFlags() const { return m_notifyflags; }
@@ -859,16 +859,16 @@ class WorldObject : public Object, public WorldLocation
         // transports
         Transport *m_transport;
 
-        // these functions are used mostly for Relocate() and Corpse/Player specific stuff...
-        // use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
-        // mapId/instanceId should be set in SetMap() function!
+        //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
+        //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
+        //mapId/instanceId should be set in SetMap() function!
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
     private:
-        Map * m_currMap;                                    // current object's Map location
+        Map * m_currMap;                                    //current object's Map location
 
-        // uint32 m_mapId;                                     // object at map with map_id
+        //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
 

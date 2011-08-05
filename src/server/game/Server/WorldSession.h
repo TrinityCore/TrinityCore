@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,12 +13,12 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// / \addtogroup u2w
-// / @{
-// / \file
+/// \addtogroup u2w
+/// @{
+/// \file
 
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
@@ -137,8 +137,8 @@ enum CharterTypes
     ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
 };
 
-// class to deal with packet processing
-// allows to determine if next packet is safe to be processed
+//class to deal with packet processing
+//allows to determine if next packet is safe to be processed
 class PacketFilter
 {
 public:
@@ -151,7 +151,7 @@ public:
 protected:
     WorldSession * const m_pSession;
 };
-// process only thread-safe packets in Map::Update()
+//process only thread-safe packets in Map::Update()
 class MapSessionFilter : public PacketFilter
 {
 public:
@@ -159,12 +159,12 @@ public:
     ~MapSessionFilter() {}
 
     virtual bool Process(WorldPacket * packet);
-    // in Map::Update() we do not process player logout!
+    //in Map::Update() we do not process player logout!
     virtual bool ProcessLogout() const { return false; }
 };
 
-// class used to filer only thread-unsafe packets from queue
-// in order to update only be used in World::UpdateSessions()
+//class used to filer only thread-unsafe packets from queue
+//in order to update only be used in World::UpdateSessions()
 class WorldSessionFilter : public PacketFilter
 {
 public:
@@ -187,7 +187,7 @@ class CharacterCreateInfo
         OutfitId(outfitId), Data(data), CharCount(0), Stage(0)
         {}
 
-        // / User specified variables
+        /// User specified variables
         std::string Name;
         uint8 Race;
         uint8 Class;
@@ -200,17 +200,17 @@ class CharacterCreateInfo
         uint8 OutfitId;
         WorldPacket Data;
 
-        // / Server side data
+        /// Server side data
         uint8 CharCount;
 
-        // / Internal
+        /// Internal
         uint8 Stage;        // Stage of the callback chain
 
     private:
         virtual ~CharacterCreateInfo(){};
 };
 
-// / Player session in the World
+/// Player session in the World
 class WorldSession
 {
     public:
@@ -250,19 +250,19 @@ class WorldSession
         void SetPlayer(Player *plr);
         uint8 Expansion() const { return m_expansion; }
 
-        // / Session in auth.queue currently
+        /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
 
-        // / Is the user engaged in a log out process?
+        /// Is the user engaged in a log out process?
         bool isLogingOut() const { return _logoutTime || m_playerLogout; }
 
-        // / Engage the logout process for the user
+        /// Engage the logout process for the user
         void LogoutRequest(time_t requestTime)
         {
             _logoutTime = requestTime;
         }
 
-        // / Is logout cooldown expired?
+        /// Is logout cooldown expired?
         bool ShouldLogOut(time_t currTime) const
         {
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
@@ -274,10 +274,10 @@ class WorldSession
         void QueuePacket(WorldPacket* new_packet);
         bool Update(uint32 diff, PacketFilter& updater);
 
-        // / Handle the authentication waiting queue (to be completed)
+        /// Handle the authentication waiting queue (to be completed)
         void SendAuthWaitQue(uint32 position);
 
-        // void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
+        //void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
         void SendNameQueryOpcode(Player* p);
         void SendNameQueryOpcodeFromDB(uint64 guid);
         void SendNameQueryOpcodeFromDBCallBack(QueryResult result);
@@ -329,19 +329,19 @@ class WorldSession
                 m_TutorialsChanged = true;
             }
         }
-        // used with item_page table
+        //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
-        // auction
+        //auction
         void SendAuctionHello(uint64 guid, Creature* unit);
         void SendAuctionCommandResult(uint32 auctionId, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry * auction);
 
-        // Item Enchantment
+        //Item Enchantment
         void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
         void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
-        // Taxi
+        //Taxi
         void SendTaxiStatus(uint64 guid);
         void SendTaxiMenu(Creature* unit);
         void SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode = 0);
@@ -523,7 +523,7 @@ class WorldSession
         void HandleBattleMasterHelloOpcode(WorldPacket &recv_data);
 
         void HandleGroupInviteOpcode(WorldPacket& recvPacket);
-        // void HandleGroupCancelOpcode(WorldPacket& recvPacket);
+        //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupAcceptOpcode(WorldPacket& recvPacket);
         void HandleGroupDeclineOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
@@ -735,7 +735,7 @@ class WorldSession
         void HandleTutorialClear(WorldPacket & recv_data);
         void HandleTutorialReset(WorldPacket & recv_data);
 
-        // Pet
+        //Pet
         void HandlePetAction(WorldPacket & recv_data);
         void HandlePetStopAttack(WorldPacket& recv_data);
         void HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid, uint16 flag, uint64 guid2);
@@ -758,7 +758,7 @@ class WorldSession
         void HandleTotemDestroyed(WorldPacket& recv_data);
         void HandleDismissCritter(WorldPacket& recv_data);
 
-        // Battleground
+        //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket &recv_data);
         void HandleBattlemasterJoinOpcode(WorldPacket &recv_data);
         void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recv_data);
@@ -958,4 +958,4 @@ class WorldSession
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
 };
 #endif
-// / @}
+/// @}

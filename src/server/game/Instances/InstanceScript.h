@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_INSTANCE_DATA_H
@@ -22,8 +22,8 @@
 #include "ZoneScript.h"
 #include "World.h"
 #include "ObjectMgr.h"
-// #include "GameObject.h"
-// #include "Map.h"
+//#include "GameObject.h"
+//#include "Map.h"
 
 #define OUT_SAVE_INST_DATA             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -132,38 +132,38 @@ class InstanceScript : public ZoneScript
 
         Map *instance;
 
-        // On creation, NOT load.
+        //On creation, NOT load.
         virtual void Initialize() {}
 
-        // On load
+        //On load
         virtual void Load(char const* data) { LoadBossState(data); }
 
-        // When save is needed, this function generates the data
+        //When save is needed, this function generates the data
         virtual std::string GetSaveData() { return GetBossSaveData(); }
 
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) {}
 
-        // Used by the map's CanEnter function.
-        // This is to prevent players from entering during boss encounters.
+        //Used by the map's CanEnter function.
+        //This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
-        // Called when a player successfully enters the instance.
+        //Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) {}
 
-        // Handle open / close objects
-        // use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
-        // use HandleGameObject(GUID, boolen, NULL); in any other script
+        //Handle open / close objects
+        //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
+        //use HandleGameObject(GUID, boolen, NULL); in any other script
         void HandleGameObject(uint64 guid, bool open, GameObject* go = NULL);
 
-        // change active state of doors or buttons
+        //change active state of doors or buttons
         void DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
 
-        // Respawns a GO having negative spawntimesecs in gameobject-table
+        //Respawns a GO having negative spawntimesecs in gameobject-table
         void DoRespawnGameObject(uint64 guid, uint32 timeToDespawn = MINUTE);
 
-        // sends world state update to all players in instance
+        //sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
 
         // Send Notify to all players in instance

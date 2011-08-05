@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -121,10 +121,10 @@ void BattlegroundMgr::Update(uint32 diff)
     {
         std::vector<uint64> scheduled;
         {
-            // copy vector and clear the other
+            //copy vector and clear the other
             scheduled = std::vector<uint64>(m_QueueUpdateScheduler);
             m_QueueUpdateScheduler.clear();
-            // release lock
+            //release lock
         }
 
         for (uint8 i = 0; i < scheduled.size(); i++)
@@ -431,8 +431,8 @@ void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket *data, Pla
 
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
-    // cause at HandleBattlegroundJoinOpcode the clients sends the instanceid he gets from
-    // SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
+    //cause at HandleBattlegroundJoinOpcode the clients sends the instanceid he gets from
+    //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
     Battleground* bg = GetBattlegroundTemplate(bgTypeId);
     if (!bg)
         return NULL;
@@ -452,7 +452,7 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundTy
 {
     if (!InstanceID)
         return NULL;
-    // search if needed
+    //search if needed
     BattlegroundSet::iterator itr;
     if (bgTypeId == BATTLEGROUND_TYPE_NONE)
     {
@@ -470,14 +470,14 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 InstanceID, BattlegroundTy
 
 Battleground* BattlegroundMgr::GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
 {
-    // map is sorted and we can be sure that lowest instance id has only BG template
+    //map is sorted and we can be sure that lowest instance id has only BG template
     return m_Battlegrounds[bgTypeId].empty() ? NULL : m_Battlegrounds[bgTypeId].begin()->second;
 }
 
 uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
     if (IsArenaType(bgTypeId))
-        return 0;                                           // arenas don't have client-instanceids
+        return 0;                                           //arenas don't have client-instanceids
 
     // we create here an instanceid, which is just for
     // displaying this to the client and without any other use..
@@ -488,7 +488,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
     uint32 lastId = 0;
     for (std::set<uint32>::iterator itr = m_ClientBattlegroundIds[bgTypeId][bracket_id].begin(); itr != m_ClientBattlegroundIds[bgTypeId][bracket_id].end();)
     {
-        if ((++lastId) != *itr)                             // if there is a gap between the ids, we will break..
+        if ((++lastId) != *itr)                             //if there is a gap between the ids, we will break..
             break;
         lastId = *itr;
     }
@@ -596,7 +596,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
             bg = new BattlegroundRB(*(BattlegroundRB*)bg_template);
             break;
         default:
-            // error, but it is handled few lines above
+            //error, but it is handled few lines above
             return 0;
     }
 
@@ -718,7 +718,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         MaxPlayersPerTeam = fields[2].GetUInt32();
         MinLvl = fields[3].GetUInt32();
         MaxLvl = fields[4].GetUInt32();
-        // check values from DB
+        //check values from DB
         if (MaxPlayersPerTeam == 0 || MinPlayersPerTeam == 0 || MinPlayersPerTeam > MaxPlayersPerTeam)
         {
             MinPlayersPerTeam = 0;                          // by default now expected strong full bg requirement
@@ -726,9 +726,9 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         }
         if (MinLvl == 0 || MaxLvl == 0 || MinLvl > MaxLvl)
         {
-            // TO-DO: FIX ME
-            MinLvl = 0;// bl->minlvl;
-            MaxLvl = 80;// bl->maxlvl;
+            //TO-DO: FIX ME
+            MinLvl = 0;//bl->minlvl;
+            MaxLvl = 80;//bl->maxlvl;
         }
 
         start1 = fields[5].GetUInt32();
@@ -779,7 +779,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
         selectionWeight = fields[9].GetUInt8();
         scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
-        // sLog->outDetail("Creating battleground %s, %u-%u", bl->name[sWorld->GetDBClang()], MinLvl, MaxLvl);
+        //sLog->outDetail("Creating battleground %s, %u-%u", bl->name[sWorld->GetDBClang()], MinLvl, MaxLvl);
         if (!CreateBattleground(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld->GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3], scriptId))
             continue;
 
@@ -1035,8 +1035,8 @@ void BattlegroundMgr::SetHolidayWeekends(uint32 mask)
 
 void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
-    // This method must be atomic, TODO add mutex
-    // we will use only 1 number created of bgTypeId and bracket_id
+    //This method must be atomic, TODO add mutex
+    //we will use only 1 number created of bgTypeId and bracket_id
     uint64 schedule_id = ((uint64)arenaMatchmakerRating << 32) | (arenaType << 24) | (bgQueueTypeId << 16) | (bgTypeId << 8) | bracket_id;
     bool found = false;
     for (uint8 i = 0; i < m_QueueUpdateScheduler.size(); i++)

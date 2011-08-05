@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -189,7 +189,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     }
 
     if (!_player->HasEnoughMoney(cost))
-    {                                                       // player hasn't got enough money
+    {                                                       //player hasn't got enough money
         _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, charterid, 0);
         return;
     }
@@ -246,7 +246,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 {
                                                             // ok
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint8 signs = 0;
     uint64 petitionguid;
@@ -298,7 +298,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint32 guildguid;
     uint64 petitionguid;
@@ -378,7 +378,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_RENAME");   // ok
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint64 petitionguid;
     uint32 type;
@@ -446,7 +446,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");    // ok
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     Field *fields;
     uint64 petitionguid;
@@ -526,8 +526,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     if (++signs > type)                                        // client signs maximum
         return;
 
-    // client doesn't allow to sign petition two times by one character, but not check sign by another character from same account
-    // not allow sign another player from already sign player account
+    //client doesn't allow to sign petition two times by one character, but not check sign by another character from same account
+    //not allow sign another player from already sign player account
     result = CharacterDatabase.PQuery("SELECT playerguid FROM petition_sign WHERE player_account = '%u' AND petitionguid = '%u'", GetAccountId(), GUID_LOPART(petitionguid));
 
     if (result)
@@ -559,8 +559,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     SendPacket(&data);
 
     // update signs count on charter, required testing...
-    // Item *item = _player->GetItemByGuid(petitionguid));
-    // if (item)
+    //Item *item = _player->GetItemByGuid(petitionguid));
+    //if (item)
     //    item->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1+1, signs);
 
     // update for owner if online
@@ -571,7 +571,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_DECLINE");  // ok
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint64 petitionguid;
     uint64 ownerguid;
@@ -597,7 +597,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
 void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_OFFER_PETITION");   // ok
-    // recv_data.hexlike();
+    //recv_data.hexlike();
 
     uint8 signs = 0;
     uint64 petitionguid, plguid;

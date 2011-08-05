@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https:// scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -46,30 +46,30 @@ void FollowerAI::AttackStart(Unit* pWho)
     }
 }
 
-// This part provides assistance to a player that are attacked by pWho, even if out of normal aggro range
-// It will cause me to attack pWho that are attacking _any_ player (which has been confirmed may happen also on offi)
-// The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
+//This part provides assistance to a player that are attacked by pWho, even if out of normal aggro range
+//It will cause me to attack pWho that are attacking _any_ player (which has been confirmed may happen also on offi)
+//The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
 bool FollowerAI::AssistPlayerInCombat(Unit* who)
 {
     if (!who || !who->getVictim())
         return false;
 
-    // experimental (unknown) flag not present
+    //experimental (unknown) flag not present
     if (!(me->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
         return false;
 
-    // not a player
+    //not a player
     if (!who->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
-    // never attack friendly
+    //never attack friendly
     if (me->IsFriendlyTo(who))
         return false;
 
-    // too far away and no free sight?
+    //too far away and no free sight?
     if (me->IsWithinDistInMap(who, MAX_PLAYER_DISTANCE) && me->IsWithinLOSInMap(who))
     {
-        // already fighting someone?
+        //already fighting someone?
         if (!me->getVictim())
         {
             AttackStart(who);
@@ -121,7 +121,7 @@ void FollowerAI::JustDied(Unit* /*pKiller*/)
     if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || !m_uiLeaderGUID || !m_pQuestForFollow)
         return;
 
-    // TODO: need a better check for quests with time limit.
+    //TODO: need a better check for quests with time limit.
     if (Player* pPlayer = GetLeaderForFollower())
     {
         if (Group* pGroup = pPlayer->GetGroup())
@@ -284,7 +284,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
         return;
     }
 
-    // set variables
+    //set variables
     m_uiLeaderGUID = pLeader->GetGUID();
 
     if (uiFactionForFollower)

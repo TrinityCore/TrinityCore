@@ -37,4 +37,4 @@ class MapUpdater
         void update_finished();
 };
 
-#endif // _MAP_UPDATER_H_INCLUDED
+#endif //_MAP_UPDATER_H_INCLUDED

@@ -1,6 +1,6 @@
-/* Copyright (C) 2008-2010 Trinity <http:// www.trinitycore.org/>
+/* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
- * Thanks to the original authors: ScriptDev2 <https:// scriptdev2.svn.sourceforge.net/>
+ * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
@@ -129,13 +129,13 @@ void ScriptedAI::AttackStartNoMove(Unit* pWho)
 
 void ScriptedAI::UpdateAI(uint32 const /*diff*/)
 {
-    // Check if we have a current target
+    //Check if we have a current target
     if (!UpdateVictim())
         return;
 
     if (me->isAttackReady())
     {
-        // If we are within range melee the target
+        //If we are within range melee the target
         if (me->IsWithinMeleeRange(me->getVictim()))
         {
             me->AttackerStateUpdate(me->getVictim());
@@ -194,15 +194,15 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY
 
 SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effects)
 {
-    // No target so we can't cast
+    //No target so we can't cast
     if (!target)
         return false;
 
-    // Silenced so we can't cast
+    //Silenced so we can't cast
     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
         return false;
 
-    // Using the extended script system we first create a list of viable spells
+    //Using the extended script system we first create a list of viable spells
     SpellInfo const* apSpell[CREATURE_MAX_SPELLS];
     memset(apSpell, 0, CREATURE_MAX_SPELLS * sizeof(SpellInfo*));
 
@@ -210,59 +210,59 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
     SpellInfo const* tempSpell = NULL;
 
-    // Check if each spell is viable(set it to null if not)
+    //Check if each spell is viable(set it to null if not)
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; i++)
     {
         tempSpell = sSpellMgr->GetSpellInfo(me->m_spells[i]);
 
-        // This spell doesn't exist
+        //This spell doesn't exist
         if (!tempSpell)
             continue;
 
         // Targets and Effects checked first as most used restrictions
-        // Check the spell targets if specified
+        //Check the spell targets if specified
         if (targets && !(SpellSummary[me->m_spells[i]].Targets & (1 << (targets-1))))
             continue;
 
-        // Check the type of spell if we are looking for a specific spell type
+        //Check the type of spell if we are looking for a specific spell type
         if (effects && !(SpellSummary[me->m_spells[i]].Effects & (1 << (effects-1))))
             continue;
 
-        // Check for school if specified
+        //Check for school if specified
         if (school && (tempSpell->SchoolMask & school) == 0)
             continue;
 
-        // Check for spell mechanic if specified
+        //Check for spell mechanic if specified
         if (mechanic && tempSpell->Mechanic != mechanic)
             continue;
 
-        // Make sure that the spell uses the requested amount of power
+        //Make sure that the spell uses the requested amount of power
         if (powerCostMin && tempSpell->ManaCost < powerCostMin)
             continue;
 
         if (powerCostMax && tempSpell->ManaCost > powerCostMax)
             continue;
 
-        // Continue if we don't have the mana to actually cast this spell
+        //Continue if we don't have the mana to actually cast this spell
         if (tempSpell->ManaCost > me->GetPower(Powers(tempSpell->PowerType)))
             continue;
 
-        // Check if the spell meets our range requirements
+        //Check if the spell meets our range requirements
         if (rangeMin && me->GetSpellMinRangeForTarget(target, tempSpell) < rangeMin)
             continue;
         if (rangeMax && me->GetSpellMaxRangeForTarget(target, tempSpell) > rangeMax)
             continue;
 
-        // Check if our target is in range
+        //Check if our target is in range
         if (me->IsWithinDistInMap(target, float(me->GetSpellMinRangeForTarget(target, tempSpell))) || !me->IsWithinDistInMap(target, float(me->GetSpellMaxRangeForTarget(target, tempSpell))))
             continue;
 
-        // All good so lets add it to the spell list
+        //All good so lets add it to the spell list
         apSpell[spellCount] = tempSpell;
         ++spellCount;
     }
 
-    // We got our usable spells so now lets randomly pick one
+    //We got our usable spells so now lets randomly pick one
     if (!spellCount)
         return NULL;
 
@@ -271,19 +271,19 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
 bool ScriptedAI::CanCast(Unit* target, SpellInfo const* spell, bool triggered /*= false*/)
 {
-    // No target so we can't cast
+    //No target so we can't cast
     if (!target || !spell)
         return false;
 
-    // Silenced so we can't cast
+    //Silenced so we can't cast
     if (!triggered && me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
         return false;
 
-    // Check for power
+    //Check for power
     if (!triggered && me->GetPower(Powers(spell->PowerType)) < spell->ManaCost)
         return false;
 
-    // Unit is out of range of this spell
+    //Unit is out of range of this spell
     if (me->IsInRange(target, float(me->GetSpellMinRangeForTarget(target, spell)), float(me->GetSpellMaxRangeForTarget(target, spell))))
         return false;
 

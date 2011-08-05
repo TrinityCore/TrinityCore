@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "LootMgr.h"
@@ -73,7 +73,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItem const* Roll() const;                 // Rolls an item from the group, returns NULL if all miss their chances
 };
 
-// Remove all data and free all memory
+//Remove all data and free all memory
 void LootStore::Clear()
 {
     for (LootTemplateMap::const_iterator itr=m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
@@ -235,9 +235,9 @@ void LootStore::ReportNotExistedId(uint32 id) const
     sLog->outErrorDb("Table '%s' entry %d (%s) not exist but used as loot id in DB.", GetName(), id, GetEntryName());
 }
 
-// 
+//
 // --------- LootStoreItem ---------
-// 
+//
 
 // Checks if the entry (quest, non-quest, reference) takes it's chance (at loot generation)
 // RATE_DROP_ITEMS is no longer used for all types of entries
@@ -313,9 +313,9 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
     return true;                                            // Referenced template existence is checked at whole store level
 }
 
-// 
+//
 // --------- LootItem ---------
-// 
+//
 
 // Constructor, copies most fields from LootStoreItem and generates random count
 LootItem::LootItem(LootStoreItem const& li)
@@ -380,9 +380,9 @@ void LootItem::AddAllowedLooter(const Player* player)
     allowedGUIDs.insert(player->GetGUIDLow());
 }
 
-// 
+//
 // --------- Loot ---------
-// 
+//
 
 // Inserts the item into the loot (called by LootTemplate processors)
 void Loot::AddItem(LootStoreItem const & item)
@@ -528,7 +528,7 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
 
             // questitems get blocked when they first appear in a
             // player's quest vector
-            // 
+            //
             // increase once if one looter only, looter-times if free for all
             if (item.freeforall || !item.is_blocked)
                 ++unlootedCount;
@@ -581,7 +581,7 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool pres
     return ql;
 }
 
-// ===================================================
+//===================================================
 
 void Loot::NotifyItemRemoved(uint8 lootIndex)
 {
@@ -794,7 +794,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
     b << uint32(sObjectMgr->GetItemTemplate(li.itemid)->DisplayInfoID);
     b << uint32(li.randomSuffix);
     b << uint32(li.randomPropertyId);
-    // b << uint8(0);                                        // slot type - will send after this function call
+    //b << uint8(0);                                        // slot type - will send after this function call
     return b;
 }
 
@@ -802,7 +802,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 {
     if (lv.permission == NONE_PERMISSION)
     {
-        b << uint32(0);                                     // gold
+        b << uint32(0);                                     //gold
         b << uint8(0);                                      // item count
         return b;                                           // nothing output more
     }
@@ -811,7 +811,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 
     uint8 itemsShown = 0;
 
-    // gold
+    //gold
     b << uint32(l.gold);
 
     size_t count_pos = b.wpos();                            // pos of item count byte
@@ -953,15 +953,15 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         }
     }
 
-    // update number of items shown
+    //update number of items shown
     b.put<uint8>(count_pos, itemsShown);
 
     return b;
 }
 
-// 
+//
 // --------- LootTemplate::LootGroup ---------
-// 
+//
 
 // Adds an entry to the group (at loading stage)
 void LootTemplate::LootGroup::AddEntry(LootStoreItem& item)
@@ -1180,9 +1180,9 @@ void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, Lo
     }
 }
 
-// 
+//
 // --------- LootTemplate ---------
-// 
+//
 
 // Adds an entry to the group (at loading stage)
 void LootTemplate::AddEntry(LootStoreItem& item)
@@ -1357,7 +1357,7 @@ void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_se
 }
 bool LootTemplate::addConditionItem(Condition* cond)
 {
-    if (!cond || !cond->isLoaded())// should never happen, checked at loading
+    if (!cond || !cond->isLoaded())//should never happen, checked at loading
     {
         sLog->outError("LootTemplate::addConditionItem: condition is null");
         return false;
@@ -1413,7 +1413,7 @@ bool LootTemplate::isReference(uint32 id)
         if (ieItr->itemid == id && ieItr->mincountOrRef < 0)
             return true;
     }
-    return false;// not found or not reference
+    return false;//not found or not reference
 }
 
 void LoadLootTemplates_Creature()

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -1101,7 +1101,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (GetStackAmount() >= 5 && !target->HasAura(33652))
                             target->CastSpell(target, 33652, true);
                         break;
-                    case 50836: // Petrifying Grip, becomes stoned
+                    case 50836: //Petrifying Grip, becomes stoned
                         if (GetStackAmount() >= 5 && !target->HasAura(50812))
                             target->CastSpell(target, 50812, true);
                         break;
@@ -1330,12 +1330,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Remove the IGNORE_AURASTATE aura
                         target->RemoveAurasDueToSpell(44544);
                         break;
-                    case 44401: // Missile Barrage
-                    case 48108: // Hot Streak
-                    case 57761: // Fireball!
+                    case 44401: //Missile Barrage
+                    case 48108: //Hot Streak
+                    case 57761: //Fireball!
                         if (removeMode != AURA_REMOVE_BY_EXPIRE || aurApp->GetBase()->IsExpired())
                             break;
-                        if (target->HasAura(70752)) // Item - Mage T10 2P Bonus
+                        if (target->HasAura(70752)) //Item - Mage T10 2P Bonus
                             target->CastSpell(target, 70753, true);
                         break;
                     default:
@@ -1901,7 +1901,7 @@ bool Aura::IsProcOnCooldown() const
 
 void Aura::AddProcCooldown(uint32 /*msec*/)
 {
-    // m_procCooldown = time(NULL) + msec;
+    //m_procCooldown = time(NULL) + msec;
 }
 
 void Aura::PrepareProcToTrigger()

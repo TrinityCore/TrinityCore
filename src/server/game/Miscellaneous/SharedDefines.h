@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_SHAREDDEFINES_H
@@ -61,19 +61,19 @@ enum Races
     RACE_TAUREN         = 6,
     RACE_GNOME          = 7,
     RACE_TROLL          = 8,
-    // RACE_GOBLIN         = 9,
+    //RACE_GOBLIN         = 9,
     RACE_BLOODELF       = 10,
     RACE_DRAENEI        = 11
-    // RACE_FEL_ORC        = 12,
-    // RACE_NAGA           = 13,
-    // RACE_BROKEN         = 14,
-    // RACE_SKELETON       = 15,
-    // RACE_VRYKUL         = 16,
-    // RACE_TUSKARR        = 17,
-    // RACE_FOREST_TROLL   = 18,
-    // RACE_TAUNKA         = 19,
-    // RACE_NORTHREND_SKELETON = 20,
-    // RACE_ICE_TROLL      = 21
+    //RACE_FEL_ORC        = 12,
+    //RACE_NAGA           = 13,
+    //RACE_BROKEN         = 14,
+    //RACE_SKELETON       = 15,
+    //RACE_VRYKUL         = 16,
+    //RACE_TUSKARR        = 17,
+    //RACE_FOREST_TROLL   = 18,
+    //RACE_TAUNKA         = 19,
+    //RACE_NORTHREND_SKELETON = 20,
+    //RACE_ICE_TROLL      = 21
 };
 
 // max+1 for player race
@@ -103,7 +103,7 @@ enum Classes
     CLASS_SHAMAN        = 7,
     CLASS_MAGE          = 8,
     CLASS_WARLOCK       = 9,
-    // CLASS_UNK           = 10,
+    //CLASS_UNK           = 10,
     CLASS_DRUID         = 11
 };
 
@@ -228,13 +228,13 @@ inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 
 enum ItemQualities
 {
-    ITEM_QUALITY_POOR                  = 0,                 // GREY
-    ITEM_QUALITY_NORMAL                = 1,                 // WHITE
-    ITEM_QUALITY_UNCOMMON              = 2,                 // GREEN
-    ITEM_QUALITY_RARE                  = 3,                 // BLUE
-    ITEM_QUALITY_EPIC                  = 4,                 // PURPLE
-    ITEM_QUALITY_LEGENDARY             = 5,                 // ORANGE
-    ITEM_QUALITY_ARTIFACT              = 6,                 // LIGHT YELLOW
+    ITEM_QUALITY_POOR                  = 0,                 //GREY
+    ITEM_QUALITY_NORMAL                = 1,                 //WHITE
+    ITEM_QUALITY_UNCOMMON              = 2,                 //GREEN
+    ITEM_QUALITY_RARE                  = 3,                 //BLUE
+    ITEM_QUALITY_EPIC                  = 4,                 //PURPLE
+    ITEM_QUALITY_LEGENDARY             = 5,                 //ORANGE
+    ITEM_QUALITY_ARTIFACT              = 6,                 //LIGHT YELLOW
     ITEM_QUALITY_HEIRLOOM              = 7
 };
 
@@ -247,14 +247,14 @@ enum SpellCategory
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
-    0xff9d9d9d,        // GREY
-    0xffffffff,        // WHITE
-    0xff1eff00,        // GREEN
-    0xff0070dd,        // BLUE
-    0xffa335ee,        // PURPLE
-    0xffff8000,        // ORANGE
-    0xffe6cc80,        // LIGHT YELLOW
-    0xffe6cc80         // LIGHT YELLOW
+    0xff9d9d9d,        //GREY
+    0xffffffff,        //WHITE
+    0xff1eff00,        //GREEN
+    0xff0070dd,        //BLUE
+    0xffa335ee,        //PURPLE
+    0xffff8000,        //ORANGE
+    0xffe6cc80,        //LIGHT YELLOW
+    0xffe6cc80         //LIGHT YELLOW
 };
 
 // ***********************************
@@ -646,11 +646,11 @@ enum Team
 {
     HORDE               = 67,
     ALLIANCE            = 469,
-    // TEAM_STEAMWHEEDLE_CARTEL = 169,                       // not used in code
-    // TEAM_ALLIANCE_FORCES     = 891,
-    // TEAM_HORDE_FORCES        = 892,
-    // TEAM_SANCTUARY           = 936,
-    // TEAM_OUTLAND             = 980,
+    //TEAM_STEAMWHEEDLE_CARTEL = 169,                       // not used in code
+    //TEAM_ALLIANCE_FORCES     = 891,
+    //TEAM_HORDE_FORCES        = 892,
+    //TEAM_SANCTUARY           = 936,
+    //TEAM_OUTLAND             = 980,
     TEAM_OTHER               = 0,                         // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
@@ -1171,13 +1171,13 @@ enum AuraStateType
     AURA_STATE_BERSERKING                   = 3,            // C T |
     AURA_STATE_FROZEN                       = 4,            //  c t| frozen target
     AURA_STATE_JUDGEMENT                    = 5,            // C   |
-    // AURA_STATE_UNKNOWN6                   = 6,            //     | not used
+    //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
     AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
-    // AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
-    // AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
-    // AURA_STATE_UNKNOWN9                   = 9,            //     |
+    //AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
+    //AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
+    //AURA_STATE_UNKNOWN9                   = 9,            //     |
     AURA_STATE_WARRIOR_VICTORY_RUSH         = 10,           // C   | warrior victory rush
-    // AURA_STATE_UNKNOWN11                  = 11,           // C  t| 60348 - Maelstrom Ready!, test spells
+    //AURA_STATE_UNKNOWN11                  = 11,           // C  t| 60348 - Maelstrom Ready!, test spells
     AURA_STATE_FAERIE_FIRE                  = 12,           //  c t|
     AURA_STATE_HEALTHLESS_35_PERCENT        = 13,           // C T |
     AURA_STATE_CONFLAGRATE                  = 14,           //   T |
@@ -1186,8 +1186,8 @@ enum AuraStateType
     AURA_STATE_ENRAGE                       = 17,           // C   |
     AURA_STATE_BLEEDING                     = 18,           //    T|
     AURA_STATE_UNKNOWN19                    = 19,           //     |
-    // AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
-    // AURA_STATE_UNKNOWN21                  = 21,           //     | not used
+    //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
+    //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
     AURA_STATE_UNKNOWN22                    = 22,           // C  t| varius spells (63884, 50240)
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
 };
@@ -1260,10 +1260,10 @@ enum DispelType
 
 #define DISPEL_ALL_MASK ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON))
 
-// To all Immune system, if target has immunes,
-// some spell that related to ImmuneToDispel or ImmuneToSchool or ImmuneToDamage type can't cast to it,
-// some spell_effects that related to ImmuneToEffect<effect>(only this effect in the spell) can't cast to it,
-// some aura(related to Mechanics or ImmuneToState<aura>) can't apply to it.
+//To all Immune system, if target has immunes,
+//some spell that related to ImmuneToDispel or ImmuneToSchool or ImmuneToDamage type can't cast to it,
+//some spell_effects that related to ImmuneToEffect<effect>(only this effect in the spell) can't cast to it,
+//some aura(related to Mechanics or ImmuneToState<aura>) can't apply to it.
 enum SpellImmunity
 {
     IMMUNITY_EFFECT                = 0,                     // enum SpellEffects
@@ -1306,11 +1306,11 @@ enum Targets
     TARGET_UNIT_AREA_ALLY_SRC          = 30,
     TARGET_UNIT_AREA_ALLY_DST          = 31,
     TARGET_MINION                      = 32,
-    // TARGET_DEST_SUMMON
+    //TARGET_DEST_SUMMON
     TARGET_UNIT_AREA_PARTY_SRC         = 33,
     TARGET_UNIT_AREA_PARTY_DST         = 34,
     TARGET_UNIT_TARGET_PARTY           = 35,
-    TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, // unknown
+    TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
     TARGET_UNIT_TARGET_ALLY_PARTY      = 37,
     TARGET_UNIT_NEARBY_ENTRY           = 38,
     TARGET_UNIT_CASTER_FISHING         = 39,
@@ -1473,13 +1473,13 @@ enum GameobjectTypes
 
 enum GameObjectFlags
 {
-    GO_FLAG_IN_USE          = 0x00000001,                   // disables interaction while animated
-    GO_FLAG_LOCKED          = 0x00000002,                   // require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
-    GO_FLAG_INTERACT_COND   = 0x00000004,                   // cannot interact (condition to interact)
-    GO_FLAG_TRANSPORT       = 0x00000008,                   // any kind of transport? Object can transport (elevator, boat, car)
-    GO_FLAG_UNK1            = 0x00000010,                   // 
-    GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
-    GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_IN_USE          = 0x00000001,                   //disables interaction while animated
+    GO_FLAG_LOCKED          = 0x00000002,                   //require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
+    GO_FLAG_INTERACT_COND   = 0x00000004,                   //cannot interact (condition to interact)
+    GO_FLAG_TRANSPORT       = 0x00000008,                   //any kind of transport? Object can transport (elevator, boat, car)
+    GO_FLAG_UNK1            = 0x00000010,                   //
+    GO_FLAG_NODESPAWN       = 0x00000020,                   //never despawn, typically for doors, they just change state
+    GO_FLAG_TRIGGERED       = 0x00000040,                   //typically, summoned objects. Triggered by spell or other events
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400,
 };
@@ -2962,7 +2962,7 @@ enum ResponseCodes
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x67
 };
 
-// / Ban function modes
+/// Ban function modes
 enum BanMode
 {
     BAN_ACCOUNT,
@@ -2970,7 +2970,7 @@ enum BanMode
     BAN_IP
 };
 
-// / Ban function return codes
+/// Ban function return codes
 enum BanReturn
 {
     BAN_SUCCESS,

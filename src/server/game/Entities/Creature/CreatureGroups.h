@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _FORMATIONS_H
@@ -49,7 +49,7 @@ extern CreatureGroupInfoType    CreatureGroupMap;
 class CreatureGroup
 {
     private:
-        Creature *m_leader; // Important do not forget sometimes to work with pointers instead synonims :D:D
+        Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
         typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 
@@ -57,7 +57,7 @@ class CreatureGroup
         bool m_Formed;
 
     public:
-        // Group cannot be created empty
+        //Group cannot be created empty
         explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) {}
         ~CreatureGroup() { sLog->outDebug(LOG_FILTER_UNITS, "Destroying group"); }
 

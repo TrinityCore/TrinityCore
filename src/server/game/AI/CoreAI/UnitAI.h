@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_UNITAI_H
@@ -38,12 +38,12 @@ enum GeneralScriptTexts
     EMOTE_GENERIC_BERSERK_RAID  = -1000005, // RaidBossEmote version of the previous one
 };
 
-// Selection method used by SelectTarget
+//Selection method used by SelectTarget
 enum SelectAggroTarget
 {
-    SELECT_TARGET_RANDOM = 0,                               // Just selects a random target
-    SELECT_TARGET_TOPAGGRO,                                 // Selects targes from top aggro to bottom
-    SELECT_TARGET_BOTTOMAGGRO,                              // Selects targets from bottom aggro to top
+    SELECT_TARGET_RANDOM = 0,                               //Just selects a random target
+    SELECT_TARGET_TOPAGGRO,                                 //Selects targes from top aggro to bottom
+    SELECT_TARGET_BOTTOMAGGRO,                              //Selects targets from bottom aggro to top
     SELECT_TARGET_NEAREST,
     SELECT_TARGET_FARTHEST,
 };

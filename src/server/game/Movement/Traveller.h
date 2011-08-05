@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_TRAVELLER_H
@@ -95,16 +95,16 @@ inline float Traveller<Creature>::GetMoveDestinationTo(float x, float y, float z
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
 
-    // if (i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
+    //if (i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
         return sqrt((dx*dx) + (dy*dy) + (dz*dz));
-    // else                                                    // Walking on the ground
+    //else                                                    //Walking on the ground
     //    return sqrt((dx*dx) + (dy*dy));
 }
 
 template<>
 inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
 {
-    // i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
+    //i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
     i_traveller.SendMonsterMove(x, y, z, t);
 }
 
@@ -127,9 +127,9 @@ inline float Traveller<Player>::GetMoveDestinationTo(float x, float y, float z)
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
 
-    // if (i_traveller.isInFlight())
+    //if (i_traveller.isInFlight())
         return sqrt((dx*dx) + (dy*dy) + (dz*dz));
-    // else                                                    // Walking on the ground
+    //else                                                    //Walking on the ground
     //    return sqrt((dx*dx) + (dy*dy));
 }
 
@@ -142,7 +142,7 @@ inline void Traveller<Player>::Relocation(float x, float y, float z, float orien
 template<>
 inline void Traveller<Player>::MoveTo(float x, float y, float z, uint32 t)
 {
-    // Only send MOVEMENTFLAG_WALKING, client has strange issues with other move flags
+    //Only send MOVEMENTFLAG_WALKING, client has strange issues with other move flags
     i_traveller.SendMonsterMove(x, y, z, t);
 }
 

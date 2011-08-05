@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -271,7 +271,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
         return false;
     }
 
-    // Subtract
+    //Subtract
     if (count < 0)
     {
         plTarget->DestroyItemCount(itemId, -count, true, false);
@@ -279,7 +279,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
         return true;
     }
 
-    // Adding items
+    //Adding items
     uint32 noSpaceForCount = 0;
 
     // check space and find places
@@ -2351,7 +2351,7 @@ bool ChatHandler::HandleChangeWeather(const char *args)
     if (!*args)
         return false;
 
-    // Weather is OFF
+    //Weather is OFF
     if (!sWorld->getBoolConfig(CONFIG_WEATHER))
     {
         SendSysMessage(LANG_WEATHER_DISABLED);
@@ -2366,8 +2366,8 @@ bool ChatHandler::HandleChangeWeather(const char *args)
     if (!px || !py)
         return false;
 
-    uint32 type = (uint32)atoi(px);                         // 0 to 3, 0: fine, 1: rain, 2: snow, 3: sand
-    float grade = (float)atof(py);                          // 0 to 1, sending -1 is instand good weather
+    uint32 type = (uint32)atoi(px);                         //0 to 3, 0: fine, 1: rain, 2: snow, 3: sand
+    float grade = (float)atof(py);                          //0 to 1, sending -1 is instand good weather
 
     Player* player = m_session->GetPlayer();
     uint32 zoneid = player->GetZoneId();
@@ -2495,10 +2495,10 @@ static bool HandleResetStatsOrLevelHelper(Player* player)
 
     player->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-    // -1 is default value
+    //-1 is default value
     player->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
 
-    // player->SetUInt32Value(PLAYER_FIELD_BYTES, 0xEEE00000);
+    //player->SetUInt32Value(PLAYER_FIELD_BYTES, 0xEEE00000);
     return true;
 }
 
@@ -2695,7 +2695,7 @@ bool ChatHandler::HandleServerShutDownCommand(const char *args)
 
     int32 time = atoi (time_str);
 
-    // /- Prevent interpret wrong arg value as 0 secs shutdown time
+    ///- Prevent interpret wrong arg value as 0 secs shutdown time
     if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
@@ -2730,7 +2730,7 @@ bool ChatHandler::HandleServerRestartCommand(const char *args)
 
     int32 time = atoi (time_str);
 
-    // /- Prevent interpret wrong arg value as 0 secs shutdown time
+    ///- Prevent interpret wrong arg value as 0 secs shutdown time
     if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
@@ -2765,7 +2765,7 @@ bool ChatHandler::HandleServerIdleRestartCommand(const char *args)
 
     int32 time = atoi (time_str);
 
-    // /- Prevent interpret wrong arg value as 0 secs shutdown time
+    ///- Prevent interpret wrong arg value as 0 secs shutdown time
     if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
@@ -2800,7 +2800,7 @@ bool ChatHandler::HandleServerIdleShutDownCommand(const char *args)
 
     int32 time = atoi (time_str);
 
-    // /- Prevent interpret wrong arg value as 0 secs shutdown time
+    ///- Prevent interpret wrong arg value as 0 secs shutdown time
     if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
@@ -4149,7 +4149,7 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
     return true;
 }
 
-// / Define the 'Message of the day' for the realm
+/// Define the 'Message of the day' for the realm
 bool ChatHandler::HandleServerSetMotdCommand(const char *args)
 {
     sWorld->SetMotd(args);
@@ -4157,7 +4157,7 @@ bool ChatHandler::HandleServerSetMotdCommand(const char *args)
     return true;
 }
 
-// / Set whether we accept new clients
+/// Set whether we accept new clients
 bool ChatHandler::HandleServerSetClosedCommand(const char *args)
 {
     std::string arg = args;
@@ -4180,7 +4180,7 @@ bool ChatHandler::HandleServerSetClosedCommand(const char *args)
     return false;
 }
 
-// Send items by mail
+//Send items by mail
 bool ChatHandler::HandleSendItemsCommand(const char *args)
 {
     // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
@@ -4289,10 +4289,10 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
     return true;
 }
 
-// /Send money by mail
+///Send money by mail
 bool ChatHandler::HandleSendMoneyCommand(const char *args)
 {
-    // / format: name "subject text" "mail text" money
+    /// format: name "subject text" "mail text" money
 
     Player* receiver;
     uint64 receiver_guid;
@@ -4341,10 +4341,10 @@ bool ChatHandler::HandleSendMoneyCommand(const char *args)
     return true;
 }
 
-// / Send a message to a player in game
+/// Send a message to a player in game
 bool ChatHandler::HandleSendMessageCommand(const char *args)
 {
-    // /- Find the player
+    ///- Find the player
     Player *rPlayer;
     if (!extractPlayerTarget((char*)args, &rPlayer))
         return false;
@@ -4353,7 +4353,7 @@ bool ChatHandler::HandleSendMessageCommand(const char *args)
     if (!msg_str)
         return false;
 
-    // /- Check that he is not logging out.
+    ///- Check that he is not logging out.
     if (rPlayer->GetSession()->isLogingOut())
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -4361,12 +4361,12 @@ bool ChatHandler::HandleSendMessageCommand(const char *args)
         return false;
     }
 
-    // /- Send the message
-    // Use SendAreaTriggerMessage for fastest delivery.
+    ///- Send the message
+    //Use SendAreaTriggerMessage for fastest delivery.
     rPlayer->GetSession()->SendAreaTriggerMessage("%s", msg_str);
     rPlayer->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
 
-    // Confirmation message
+    //Confirmation message
     std::string nameLink = GetNameLink(rPlayer);
     PSendSysMessage(LANG_SENDMESSAGE, nameLink.c_str(), msg_str);
     return true;
@@ -4450,11 +4450,11 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
 {
     std::string name;
     Player* player;
-    char *TargetName = strtok((char*)args, " "); // get entered name
-    if (!TargetName) // if no name entered use target
+    char *TargetName = strtok((char*)args, " "); //get entered name
+    if (!TargetName) //if no name entered use target
     {
         player = getSelectedPlayer();
-        if (player) // prevent crash with creature as target
+        if (player) //prevent crash with creature as target
         {
             name = player->GetName();
             normalizePlayerName(name);
@@ -4479,19 +4479,19 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         return true;
     }
 
-    // effect
+    //effect
     if (player && player != m_session->GetPlayer())
     {
         PSendSysMessage(LANG_COMMAND_FREEZE, name.c_str());
 
-        // stop combat + make player unattackable + duel stop + stop some spells
+        //stop combat + make player unattackable + duel stop + stop some spells
         player->setFaction(35);
         player->CombatStop();
         if (player->IsNonMeleeSpellCasted(true))
             player->InterruptNonMeleeSpells(true);
         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        // if player class = hunter || warlock remove pet if alive
+        //if player class = hunter || warlock remove pet if alive
         if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
         {
             if (Pet *pet = player->GetPet())
@@ -4503,11 +4503,11 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
             }
         }
 
-        // m_session->GetPlayer()->CastSpell(player, spellID, false);
+        //m_session->GetPlayer()->CastSpell(player, spellID, false);
         if (SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(9454))
             Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
-        // save player
+        //save player
         player->SaveToDB();
     }
     return true;
@@ -4517,11 +4517,11 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
 {
     std::string name;
     Player* player;
-    char *TargetName = strtok((char*)args, " "); // get entered name
-    if (!TargetName) // if no name entered use target
+    char *TargetName = strtok((char*)args, " "); //get entered name
+    if (!TargetName) //if no name entered use target
     {
         player = getSelectedPlayer();
-        if (player) // prevent crash with creature as target
+        if (player) //prevent crash with creature as target
             name = player->GetName();
     }
 
@@ -4532,19 +4532,19 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
         player = sObjectAccessor->FindPlayerByName(name.c_str());
     }
 
-    // effect
+    //effect
     if (player)
     {
         PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());
 
-        // Reset player faction + allow combat + allow duels
+        //Reset player faction + allow combat + allow duels
         player->setFactionForRace(player->getRace());
         player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        // allow movement and spells
+        //allow movement and spells
         player->RemoveAurasDueToSpell(9454);
 
-        // save player
+        //save player
         player->SaveToDB();
     }
 
@@ -4552,14 +4552,14 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
     {
         if (TargetName)
         {
-            // check for offline players
+            //check for offline players
             QueryResult result = CharacterDatabase.PQuery("SELECT characters.guid FROM characters WHERE characters.name = '%s'", name.c_str());
             if (!result)
             {
                 SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
                 return true;
             }
-            // if player found: delete his freeze aura
+            //if player found: delete his freeze aura
             Field *fields=result->Fetch();
             uint64 pguid = fields[0].GetUInt64();
 
@@ -4579,17 +4579,17 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
 
 bool ChatHandler::HandleListFreezeCommand(const char * /*args*/)
 {
-    // Get names from DB
+    //Get names from DB
     QueryResult result = CharacterDatabase.Query("SELECT characters.name FROM characters LEFT JOIN character_aura ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
     if (!result)
     {
         SendSysMessage(LANG_COMMAND_NO_FROZEN_PLAYERS);
         return true;
     }
-    // Header of the names
+    //Header of the names
     PSendSysMessage(LANG_COMMAND_LIST_FREEZE);
 
-    // Output of the results
+    //Output of the results
     do
     {
         Field *fields = result->Fetch();

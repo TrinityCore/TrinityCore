@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_MAP_H
@@ -263,7 +263,7 @@ class Map : public GridRefManager<NGridType>
         virtual void Update(const uint32);
 
         float GetVisibilityRange() const { return m_VisibleDistance; }
-        // function for setting up visibility distance for maps on per-type/per-Id basis
+        //function for setting up visibility distance for maps on per-type/per-Id basis
         virtual void InitVisibilityDistance();
 
         void PlayerRelocation(Player *, float x, float y, float z, float orientation);
@@ -398,7 +398,7 @@ class Map : public GridRefManager<NGridType>
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
 
-        // per-map script storage
+        //per-map script storage
         void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo> > const& scripts, uint32 id, Object* source, Object* target);
         void ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target);
 
@@ -506,16 +506,16 @@ class Map : public GridRefManager<NGridType>
 
         time_t i_gridExpiry;
 
-        // used for fast base_map (e.g. MapInstanced class object) search for
-        // InstanceMaps and BattlegroundMaps...
+        //used for fast base_map (e.g. MapInstanced class object) search for
+        //InstanceMaps and BattlegroundMaps...
         Map* m_parentMap;
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         GridMap *GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
-        // these functions used to process player/mob aggro reactions and
-        // visibility calculations. Highly optimized for massive calculations
+        //these functions used to process player/mob aggro reactions and
+        //visibility calculations. Highly optimized for massive calculations
         void ProcessRelocationNotifies(const uint32 diff);
 
         bool i_scriptLock;
@@ -609,7 +609,7 @@ class BattlegroundMap : public Map
         void Remove(Player *, bool);
         bool CanEnter(Player* player);
         void SetUnload();
-        // void UnloadAll(bool pForce);
+        //void UnloadAll(bool pForce);
         void RemoveAllPlayers();
 
         virtual void InitVisibilityDistance();

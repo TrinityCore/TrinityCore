@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -25,7 +25,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     uint32 oldMSTime = getMSTime();
 
     mTextMap.clear(); // for reload case
-    mTextRepeatMap.clear(); // reset all currently used temp texts
+    mTextRepeatMap.clear(); //reset all currently used temp texts
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_CRETEXT);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -81,20 +81,20 @@ void CreatureTextMgr::LoadCreatureTexts()
                 temp.emote = EMOTE_ONESHOT_NONE;
             }
         }
-        // entry not yet added, add empty TextHolder (list of groups)
+        //entry not yet added, add empty TextHolder (list of groups)
         if (mTextMap.find(temp.entry) == mTextMap.end())
         {
             ++creatureCount;
             CreatureTextHolder TextHolder;
             mTextMap[temp.entry] = TextHolder;
         }
-        // group not yet added, add empty TextGroup (list of texts)
+        //group not yet added, add empty TextGroup (list of texts)
         if (mTextMap[temp.entry].find(temp.group) == mTextMap[temp.entry].end())
         {
             CreatureTextGroup TextGroup;
             mTextMap[temp.entry][temp.group] = TextGroup;
         }
-        // add the text into our entry's group
+        //add the text into our entry's group
         mTextMap[temp.entry][temp.group].push_back(temp);
 
         ++textCount;
@@ -121,9 +121,9 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
         sLog->outErrorDb("CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName(), source->GetGUIDLow(), source->GetEntry());
         return 0;
     }
-    CreatureTextGroup TextGroup = (*itr).second;// has all texts in the group
-    CreatureTextRepeatIds repeatGroup = GetRepeatGroup(source, textGroup);// has all textIDs from the group that were already said
-    CreatureTextGroup tempGroup;// will use this to talk after sorting repeatGroup
+    CreatureTextGroup TextGroup = (*itr).second;//has all texts in the group
+    CreatureTextRepeatIds repeatGroup = GetRepeatGroup(source, textGroup);//has all textIDs from the group that were already said
+    CreatureTextGroup tempGroup;//will use this to talk after sorting repeatGroup
 
     for (CreatureTextGroup::const_iterator giter = TextGroup.begin(); giter != TextGroup.end(); ++giter)
     {
@@ -231,7 +231,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)
 {
-    ASSERT(source);// should never happen
+    ASSERT(source);//should never happen
     CreatureTextRepeatIds ids;
 
     CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID());
@@ -252,8 +252,8 @@ void CreatureTextMgr::SendChatString(WorldObject* source, char const* text, Chat
         return;
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data, source, msgtype, text, language, whisperGuid);// build our packet
-    SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);// send our packet
+    BuildMonsterChat(&data, source, msgtype, text, language, whisperGuid);//build our packet
+    SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);//send our packet
 }
 
 void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const
@@ -287,7 +287,7 @@ void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, C
     *data << uint32(strlen(source->GetName()) + 1);
     *data << source->GetName();
     *data << uint64(whisperGuid);                           // Unit Target
-    if (whisperGuid && !IS_PLAYER_GUID(whisperGuid))        // can only whisper players
+    if (whisperGuid && !IS_PLAYER_GUID(whisperGuid))        //can only whisper players
     {
         sLog->outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent WHISPER msg to Non-Player target. Ignoring.", source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
         return;
@@ -318,7 +318,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
         case CHAT_MSG_MONSTER_WHISPER:
         case CHAT_MSG_RAID_BOSS_WHISPER:
         {
-            if (range == TEXT_RANGE_NORMAL)// ignores team and gmOnly
+            if (range == TEXT_RANGE_NORMAL)//ignores team and gmOnly
             {
                 Player* player = ObjectAccessor::FindPlayer(whisperGuid);
                 if (!player || !player->GetSession())
@@ -342,7 +342,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
             {
                 if (itr->getSource()->GetAreaId() == areaId && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
                 {
-                    if (data->GetOpcode() == SMSG_MESSAGECHAT)// override whisperguid with actual player's guid
+                    if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
                         data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
                     (itr->getSource())->GetSession()->SendPacket(data);
                 }
@@ -357,7 +357,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
             {
                 if (itr->getSource()->GetZoneId() == zoneId && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
                 {
-                    if (data->GetOpcode() == SMSG_MESSAGECHAT)// override whisperguid with actual player's guid
+                    if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
                         data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
                     (itr->getSource())->GetSession()->SendPacket(data);
                 }
@@ -369,7 +369,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
             Map::PlayerList const& pList = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
             {
-                if (data->GetOpcode() == SMSG_MESSAGECHAT)// override whisperguid with actual player's guid
+                if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
                     data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(itr->getSource()->GetGUID()));
                 if ((!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
                     (itr->getSource())->GetSession()->SendPacket(data);
@@ -383,7 +383,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
             {
                 if (Player* plr = (*iter).second->GetPlayer())
                 {
-                    if (data->GetOpcode() == SMSG_MESSAGECHAT)// override whisperguid with actual player's guid
+                    if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
                         data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(plr->GetGUID()));
                     if (plr->GetSession()  && (!team || Team(plr->GetTeam()) == team) && (!gmOnly || plr->isGameMaster()))
                         plr->GetSession()->SendPacket(data);

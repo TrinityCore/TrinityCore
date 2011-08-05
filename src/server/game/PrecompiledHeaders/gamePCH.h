@@ -1,4 +1,4 @@
-// add here most rarely modified headers to speed up debug build compilation
+//add here most rarely modified headers to speed up debug build compilation
 
 #include "WorldSocket.h"        // must be first to make ACE happy with ACE includes in it
 

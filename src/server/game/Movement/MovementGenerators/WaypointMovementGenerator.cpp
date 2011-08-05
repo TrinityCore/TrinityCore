@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,20 +13,20 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-// Basic headers
+//Basic headers
 #include "WaypointMovementGenerator.h"
 #include "DestinationHolderImp.h"
-// Extended headers
+//Extended headers
 #include "ObjectMgr.h"
 #include "World.h"
 #include "MapManager.h" // for flightmaster grid preloading
-// Creature-specific headers
+//Creature-specific headers
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
-// Player-specific
+//Player-specific
 #include "Player.h"
 
 template<class T>
@@ -98,8 +98,8 @@ void
 WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 {
     u.StopMoving();
-    // i_currentNode = -1; // uint32, become 0 in the first update
-    // i_nextMoveTime.Reset(0);
+    //i_currentNode = -1; // uint32, become 0 in the first update
+    //i_nextMoveTime.Reset(0);
     StopedByPlayer = false;
     if (!path_id)
         path_id = u.GetWaypointPath();
@@ -113,7 +113,7 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
         i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
 
-        // Call for creature group update
+        //Call for creature group update
         if (u.GetFormation() && u.GetFormation()->getLeader() == &u)
             u.GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
     }
@@ -188,17 +188,17 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 diff)
             i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
             i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
 
-            // Call for creature group update
+            //Call for creature group update
             if (unit.GetFormation() && unit.GetFormation()->getLeader() == &unit)
                 unit.GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
         }
         else
         {
-            // Determine waittime
+            //Determine waittime
             if (node->delay)
                 i_nextMoveTime.Reset(node->delay);
 
-            // note: disable "start" for mtmap
+            //note: disable "start" for mtmap
             if (node->event_id && urand(0, 99) < node->event_chance)
                 unit.GetMap()->ScriptsStart(sWaypointScripts, node->event_id, &unit, NULL/*, false*/);
 
@@ -228,7 +228,7 @@ template void WaypointMovementGenerator<Player>::Initialize(Player &);
 template bool WaypointMovementGenerator<Player>::Update(Player &, const uint32);
 template void WaypointMovementGenerator<Player>::MovementInform(Player &);
 
-// ----------------------------------------------------// 
+//----------------------------------------------------//
 
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 {
@@ -301,7 +301,7 @@ bool FlightPathMovementGenerator::Update(Player &player, const uint32 diff)
 
                     return true;
                 }
-                // else HasArrived()
+                //else HasArrived()
             }
             else
                 return true;
@@ -367,9 +367,9 @@ void FlightPathMovementGenerator::DoEventIfAny(Player& player, TaxiPathNodeEntry
 }
 
 
-// 
+//
 // Unique1's ASTAR Pathfinding Code... For future use & reference...
-// 
+//
 
 #ifdef __PATHFINDING__
 
@@ -395,15 +395,15 @@ int ShortenASTARRoute(short int *pathlist, int number)
                 if (nodes[pathlist[temp]].links[link].flags & PATH_BLOCKED)
                     continue;
 
-                // if ((bot->client->ps.eFlags & EF_TANK) && nodes[bot->current_node].links[link].flags & PATH_NOTANKS)    // if this path is blocked, skip it
+                //if ((bot->client->ps.eFlags & EF_TANK) && nodes[bot->current_node].links[link].flags & PATH_NOTANKS)    //if this path is blocked, skip it
                 //    continue;
 
-                // if (nodes[nodes[pathlist[temp]].links[link].targetNode].origin[2] > nodes[pathlist[temp]].origin[2] + 32)
+                //if (nodes[nodes[pathlist[temp]].links[link].targetNode].origin[2] > nodes[pathlist[temp]].origin[2] + 32)
                 //    continue;
 
                 if (nodes[pathlist[temp]].links[link].targetNode == pathlist[temp2])
                 {                                           // Found a shorter route...
-                    // if (OrgVisible(nodes[pathlist[temp2]].origin, nodes[pathlist[temp]].origin, -1))
+                    //if (OrgVisible(nodes[pathlist[temp2]].origin, nodes[pathlist[temp]].origin, -1))
                     {
                         temppathlist[count] = pathlist[temp2];
                         temp = temp2;
@@ -446,12 +446,12 @@ and the return value is the number of nodes in that path
 */
 int CreatePathAStar(gentity_t *bot, int from, int to, short int *pathlist)
 {
-    // all the data we have to hold...since we can't do dynamic allocation, has to be MAX_NODES
-    // we can probably lower this later - eg, the open list should never have more than at most a few dozen items on it
-    short int openlist[MAX_NODES+1];                        // add 1 because it's a binary heap, and they don't use 0 - 1 is the first used index
+    //all the data we have to hold...since we can't do dynamic allocation, has to be MAX_NODES
+    //we can probably lower this later - eg, the open list should never have more than at most a few dozen items on it
+    short int openlist[MAX_NODES+1];                        //add 1 because it's a binary heap, and they don't use 0 - 1 is the first used index
     float gcost[MAX_NODES];
     int fcost[MAX_NODES];
-    char list[MAX_NODES];                                   // 0 is neither, 1 is open, 2 is closed - char because it's the smallest data type
+    char list[MAX_NODES];                                   //0 is neither, 1 is open, 2 is closed - char because it's the smallest data type
     short int parent[MAX_NODES];
 
     short int numOpen = 0;
@@ -462,39 +462,39 @@ int CreatePathAStar(gentity_t *bot, int from, int to, short int *pathlist)
     int i, u, v, m;
     vec3_t vec;
 
-    // clear out all the arrays
+    //clear out all the arrays
     memset(openlist, 0, sizeof(short int)*(MAX_NODES+1));
     memset(fcost, 0, sizeof(int)*MAX_NODES);
     memset(list, 0, sizeof(char)*MAX_NODES);
     memset(parent, 0, sizeof(short int)*MAX_NODES);
     memset(gcost, -1, sizeof(float)*MAX_NODES);
 
-    // make sure we have valid data before calculating everything
+    //make sure we have valid data before calculating everything
     if ((from == NODE_INVALID) || (to == NODE_INVALID) || (from >= MAX_NODES) || (to >= MAX_NODES) || (from == to))
         return -1;
 
-    openlist[1] = from;                                     // add the starting node to the open list
+    openlist[1] = from;                                     //add the starting node to the open list
     ++numOpen;
-    gcost[from] = 0;                                        // its f and g costs are obviously 0
+    gcost[from] = 0;                                        //its f and g costs are obviously 0
     fcost[from] = 0;
 
     while (1)
     {
-        if (numOpen != 0)                                   // if there are still items in the open list
+        if (numOpen != 0)                                   //if there are still items in the open list
         {
-            // pop the top item off of the list
+            //pop the top item off of the list
             atNode = openlist[1];
-            list[atNode] = 2;                               // put the node on the closed list so we don't check it again
+            list[atNode] = 2;                               //put the node on the closed list so we don't check it again
             --numOpen;
 
-            openlist[1] = openlist[numOpen+1];              // move the last item in the list to the top position
+            openlist[1] = openlist[numOpen+1];              //move the last item in the list to the top position
             v = 1;
 
-            // this while loop reorders the list so that the new lowest fcost is at the top again
+            //this while loop reorders the list so that the new lowest fcost is at the top again
             while (1)
             {
                 u = v;
-                if ((2*u+1) < numOpen)                      // if both children exist
+                if ((2*u+1) < numOpen)                      //if both children exist
                 {
                     if (fcost[openlist[u]] >= fcost[openlist[2*u]])
                         v = 2*u;
@@ -503,14 +503,14 @@ int CreatePathAStar(gentity_t *bot, int from, int to, short int *pathlist)
                 }
                 else
                 {
-                    if ((2*u) < numOpen)                    // if only one child exists
+                    if ((2*u) < numOpen)                    //if only one child exists
                     {
                         if (fcost[openlist[u]] >= fcost[openlist[2*u]])
                             v = 2*u;
                     }
                 }
 
-                if (u != v)                                 // if they're out of order, swap this item with its parent
+                if (u != v)                                 //if they're out of order, swap this item with its parent
                 {
                     temp = openlist[u];
                     openlist[u] = openlist[v];
@@ -520,139 +520,139 @@ int CreatePathAStar(gentity_t *bot, int from, int to, short int *pathlist)
                     break;
             }
 
-            for (i = 0; i < nodes[atNode].enodenum; ++i)    // loop through all the links for this node
+            for (i = 0; i < nodes[atNode].enodenum; ++i)    //loop through all the links for this node
             {
                 newnode = nodes[atNode].links[i].targetNode;
 
-                // if this path is blocked, skip it
+                //if this path is blocked, skip it
                 if (nodes[atNode].links[i].flags & PATH_BLOCKED)
                     continue;
-                // if this path is blocked, skip it
+                //if this path is blocked, skip it
                 if (bot->client && (bot->client->ps.eFlags & EF_TANK) && nodes[atNode].links[i].flags & PATH_NOTANKS)
                     continue;
-                // skip any unreachable nodes
+                //skip any unreachable nodes
                 if (bot->client && (nodes[newnode].type & NODE_ALLY_UNREACHABLE) && (bot->client->sess.sessionTeam == TEAM_ALLIES))
                     continue;
                 if (bot->client && (nodes[newnode].type & NODE_AXIS_UNREACHABLE) && (bot->client->sess.sessionTeam == TEAM_AXIS))
                     continue;
 
-                if (list[newnode] == 2)                     // if this node is on the closed list, skip it
+                if (list[newnode] == 2)                     //if this node is on the closed list, skip it
                     continue;
 
-                if (list[newnode] != 1)                     // if this node is not already on the open list
+                if (list[newnode] != 1)                     //if this node is not already on the open list
                 {
-                    openlist[++numOpen] = newnode;          // add the new node to the open list
+                    openlist[++numOpen] = newnode;          //add the new node to the open list
                     list[newnode] = 1;
-                    parent[newnode] = atNode;               // record the node's parent
+                    parent[newnode] = atNode;               //record the node's parent
 
-                    if (newnode == to)                      // if we've found the goal, don't keep computing paths!
-                        break;                              // this will break the 'for' and go all the way to 'if (list[to] == 1)'
+                    if (newnode == to)                      //if we've found the goal, don't keep computing paths!
+                        break;                              //this will break the 'for' and go all the way to 'if (list[to] == 1)'
 
-                    // store it's f cost value
+                    //store it's f cost value
                     fcost[newnode] = GetFCost(to, newnode, parent[newnode], gcost);
 
-                    // this loop re-orders the heap so that the lowest fcost is at the top
+                    //this loop re-orders the heap so that the lowest fcost is at the top
                     m = numOpen;
-                    while (m != 1)                          // while this item isn't at the top of the heap already
+                    while (m != 1)                          //while this item isn't at the top of the heap already
                     {
-                        // if it has a lower fcost than its parent
+                        //if it has a lower fcost than its parent
                         if (fcost[openlist[m]] <= fcost[openlist[m/2]])
                         {
                             temp = openlist[m/2];
                             openlist[m/2] = openlist[m];
-                            openlist[m] = temp;             // swap them
+                            openlist[m] = temp;             //swap them
                             m /= 2;
                         }
                         else
                             break;
                     }
                 }
-                else                                        // if this node is already on the open list
+                else                                        //if this node is already on the open list
                 {
                     gc = gcost[atNode];
                     VectorSubtract(nodes[newnode].origin, nodes[atNode].origin, vec);
-                    gc += VectorLength(vec);                // calculate what the gcost would be if we reached this node along the current path
+                    gc += VectorLength(vec);                //calculate what the gcost would be if we reached this node along the current path
 
-                    if (gc < gcost[newnode])                // if the new gcost is less (ie, this path is shorter than what we had before)
+                    if (gc < gcost[newnode])                //if the new gcost is less (ie, this path is shorter than what we had before)
                     {
-                        parent[newnode] = atNode;           // set the new parent for this node
-                        gcost[newnode] = gc;                // and the new g cost
+                        parent[newnode] = atNode;           //set the new parent for this node
+                        gcost[newnode] = gc;                //and the new g cost
 
-                        for (i = 1; i < numOpen; ++i)       // loop through all the items on the open list
+                        for (i = 1; i < numOpen; ++i)       //loop through all the items on the open list
                         {
-                            if (openlist[i] == newnode)     // find this node in the list
+                            if (openlist[i] == newnode)     //find this node in the list
                             {
-                                // calculate the new fcost and store it
+                                //calculate the new fcost and store it
                                 fcost[newnode] = GetFCost(to, newnode, parent[newnode], gcost);
 
-                                // reorder the list again, with the lowest fcost item on top
+                                //reorder the list again, with the lowest fcost item on top
                                 m = i;
                                 while (m != 1)
                                 {
-                                    // if the item has a lower fcost than it's parent
+                                    //if the item has a lower fcost than it's parent
                                     if (fcost[openlist[m]] < fcost[openlist[m/2]])
                                     {
                                         temp = openlist[m/2];
                                         openlist[m/2] = openlist[m];
-                                        openlist[m] = temp; // swap them
+                                        openlist[m] = temp; //swap them
                                         m /= 2;
                                     }
                                     else
                                         break;
                                 }
-                                break;                      // exit the 'for' loop because we already changed this node
-                            }                               // if
-                        }                                   // for
-                    }                                       // if (gc < gcost[newnode])
-                }                                           // if (list[newnode] != 1) --> else
-            }                                               // for (loop through links)
-        }                                                   // if (numOpen != 0)
+                                break;                      //exit the 'for' loop because we already changed this node
+                            }                               //if
+                        }                                   //for
+                    }                                       //if (gc < gcost[newnode])
+                }                                           //if (list[newnode] != 1) --> else
+            }                                               //for (loop through links)
+        }                                                   //if (numOpen != 0)
         else
         {
-            found = qfalse;                                 // there is no path between these nodes
+            found = qfalse;                                 //there is no path between these nodes
             break;
         }
 
-        if (list[to] == 1)                                  // if the destination node is on the open list, we're done
+        if (list[to] == 1)                                  //if the destination node is on the open list, we're done
         {
             found = qtrue;
             break;
         }
-    }                                                       // while (1)
+    }                                                       //while (1)
 
-    if (found == qtrue)                                     // if we found a path
+    if (found == qtrue)                                     //if we found a path
     {
-        // G_Printf("%s - path found!n", bot->client->pers.netname);
+        //G_Printf("%s - path found!n", bot->client->pers.netname);
         count = 0;
 
-        temp = to;                                          // start at the end point
-        while (temp != from)                                // travel along the path (backwards) until we reach the starting point
+        temp = to;                                          //start at the end point
+        while (temp != from)                                //travel along the path (backwards) until we reach the starting point
         {
-            pathlist[count++] = temp;                       // add the node to the pathlist and increment the count
-            temp = parent[temp];                            // move to the parent of this node to continue the path
+            pathlist[count++] = temp;                       //add the node to the pathlist and increment the count
+            temp = parent[temp];                            //move to the parent of this node to continue the path
         }
 
-        pathlist[count++] = from;                           // add the beginning node to the end of the pathlist
+        pathlist[count++] = from;                           //add the beginning node to the end of the pathlist
 
         #ifdef __BOT_SHORTEN_ROUTING__
         count = ShortenASTARRoute(pathlist, count);         // This isn't working... Dunno why.. Unique1
-        #endif                                              // __BOT_SHORTEN_ROUTING__
+        #endif                                              //__BOT_SHORTEN_ROUTING__
     }
     else
     {
-        // G_Printf("^1*** ^4BOT DEBUG^5: (CreatePathAStar) There is no route between node ^7%i^5 and node ^7%i^5.n", from, to);
+        //G_Printf("^1*** ^4BOT DEBUG^5: (CreatePathAStar) There is no route between node ^7%i^5 and node ^7%i^5.n", from, to);
         count = CreateDumbRoute(from, to, pathlist);
 
         if (count > 0)
         {
             #ifdef __BOT_SHORTEN_ROUTING__
             count = ShortenASTARRoute(pathlist, count);     // This isn't working... Dunno why.. Unique1
-            #endif                                          // __BOT_SHORTEN_ROUTING__
+            #endif                                          //__BOT_SHORTEN_ROUTING__
             return count;
         }
     }
 
-    return count;                                           // return the number of nodes in the path, -1 if not found
+    return count;                                           //return the number of nodes in the path, -1 if not found
 }
 
 /*
@@ -691,5 +691,5 @@ int GetFCost(int to, int num, int parentNum, float *gcost)
 
     return (int)(gc + hc);
 }
-#endif                                                      // __PATHFINDING__
+#endif                                                      //__PATHFINDING__
 

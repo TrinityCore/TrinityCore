@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -43,7 +43,7 @@
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
 
-// mute player for some times
+//mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
 {
     char* nameStr;
@@ -78,7 +78,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 
     if (target)
     {
-        // ! Target is online, mute will be in effect right away.
+        //! Target is online, mute will be in effect right away.
         int64 mutetime = time(NULL) + notspeaktime * MINUTE;
         target->GetSession()->m_muteTime = mutetime;
         LoginDatabase.PExecute("UPDATE account SET mutetime = " SI64FMTD " WHERE id = '%u'", mutetime, account_id);
@@ -86,7 +86,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     }
     else
     {
-        // ! Target is offline, mute will be in effect starting from the next login.
+        //! Target is offline, mute will be in effect starting from the next login.
         int32 muteTime = -int32(notspeaktime * MINUTE);
         LoginDatabase.PExecute("UPDATE account SET mutetime = %d WHERE id = %u", muteTime, account_id);
     }
@@ -98,7 +98,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     return true;
 }
 
-// unmute player
+//unmute player
 bool ChatHandler::HandleUnmuteCommand(const char* args)
 {
     Player* target;
@@ -156,7 +156,7 @@ bool ChatHandler::HandleGUIDCommand(const char* /*args*/)
     return true;
 }
 
- // move item to other slot
+ //move item to other slot
 bool ChatHandler::HandleItemMoveCommand(const char* args)
 {
     if (!*args)
@@ -191,7 +191,7 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     return true;
 }
 
-// demorph player or unit
+//demorph player or unit
 bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 {
     Unit* target = getSelectedUnit();
@@ -207,7 +207,7 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
     return true;
 }
 
-// kick player
+//kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
     Player* target = NULL;
@@ -235,7 +235,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
     return true;
 }
 
-// show info of player
+//show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)
 {
     Player* target;
@@ -381,7 +381,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     return true;
 }
 
-// rename characters
+//rename characters
 bool ChatHandler::HandleCharacterRenameCommand(const char* args)
 {
     Player* target;
@@ -715,7 +715,7 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
     return true;
 }
 
-// / Triggering corpses expire check in world
+/// Triggering corpses expire check in world
 bool ChatHandler::HandleServerCorpsesCommand(const char* /*args*/)
 {
     sObjectAccessor->RemoveOldCorpses();

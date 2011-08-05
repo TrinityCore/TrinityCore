@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -51,7 +51,7 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
     switch(guid_hi)
     {
         case HIGHGUID_ITEM:         return TYPEID_ITEM;
-        // case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER == HIGHGUID_ITEM currently
+        //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER == HIGHGUID_ITEM currently
         case HIGHGUID_UNIT:         return TYPEID_UNIT;
         case HIGHGUID_PET:          return TYPEID_UNIT;
         case HIGHGUID_PLAYER:       return TYPEID_PLAYER;
@@ -136,17 +136,17 @@ void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
     uint32 type = 0;
     switch(m_objectType)
     {
-        // case TYPEID_ITEM:       type = 3; break;
-        // case TYPEID_CONTAINER:  type = 7; break;   // +4
-        // case TYPEID_UNIT:       type = 9; break;   // +2
-        // case TYPEID_PLAYER:     type = 25; break;  // +16
-        // case TYPEID_GAMEOBJECT: type = 33; break;  // +8
-        case TYPEID_DYNAMICOBJECT: type = 65; break;  // +32
-        // case TYPEID_CORPSE:     type = 129; break;  // +64
+        //case TYPEID_ITEM:       type = 3; break;
+        //case TYPEID_CONTAINER:  type = 7; break;   //+4
+        //case TYPEID_UNIT:       type = 9; break;   //+2
+        //case TYPEID_PLAYER:     type = 25; break;  //+16
+        //case TYPEID_GAMEOBJECT: type = 33; break;  //+8
+        case TYPEID_DYNAMICOBJECT: type = 65; break;  //+32
+        //case TYPEID_CORPSE:     type = 129; break;  //+64
         default: type = m_objectType; break;
     }
     SetUInt32Value(OBJECT_FIELD_TYPE, type);
-    // SetUInt32Value(OBJECT_FIELD_TYPE, m_objectType);
+    //SetUInt32Value(OBJECT_FIELD_TYPE, m_objectType);
     m_PackGUID.wpos(0);
     m_PackGUID.appendPackGUID(GetGUID());
 }
@@ -219,7 +219,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
         }
     }
 
-    // sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
+    //sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
 
     ByteBuffer buf(500);
     buf << (uint8)updatetype;
@@ -299,7 +299,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         // 0x08000000
         if (GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->isInFlight())
         {
-      // WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
+      //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
             Player* player = const_cast<Object*>(this)->ToPlayer();
             if (!player)
@@ -591,14 +591,14 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                             if (target->isGameMaster())
                             {
                                 if (cinfo->Modelid1)
-                                    *data << cinfo->Modelid1;// Modelid1 is a visible model for gms
+                                    *data << cinfo->Modelid1;//Modelid1 is a visible model for gms
                                 else
                                     *data << 17519; // world invisible trigger's model
                             }
                             else
                             {
                                 if (cinfo->Modelid2)
-                                    *data << cinfo->Modelid2;// Modelid2 is an invisible model for players
+                                    *data << cinfo->Modelid2;//Modelid2 is an invisible model for players
                                 else
                                     *data << 11686; // world invisible trigger's model
                             }
@@ -2078,9 +2078,9 @@ void WorldObject::ResetMap()
     if (m_isWorldObject)
         m_currMap->RemoveWorldObject(this);
     m_currMap = NULL;
-    // maybe not for corpse
-    // m_mapId = 0;
-    // m_InstanceId = 0;
+    //maybe not for corpse
+    //m_mapId = 0;
+    //m_InstanceId = 0;
 }
 
 Map const* WorldObject::GetBaseMap() const
@@ -2197,7 +2197,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     Add(summon->ToCreature());
     summon->InitSummon();
 
-    // ObjectAccessor::UpdateObjectVisibility(summon);
+    //ObjectAccessor::UpdateObjectVisibility(summon);
 
     return summon;
 }
@@ -2335,7 +2335,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if (duration > 0)
         pet->SetDuration(duration);
 
-    // ObjectAccessor::UpdateObjectVisibility(pet);
+    //ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
 }
@@ -2359,7 +2359,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         return NULL;
     }
     go->SetRespawnTime(respawnTime);
-    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) // not sure how to handle this
+    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ((Unit*)this)->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
@@ -2375,7 +2375,7 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     if (!summon)
         return NULL;
 
-    // summon->SetName(GetName());
+    //summon->SetName(GetName());
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT)
     {
         summon->setFaction(((Unit*)this)->getFaction());
@@ -2506,7 +2506,7 @@ namespace Trinity
 }                                                           // namespace Trinity
 */
 
-// ===================================================================================================
+//===================================================================================================
 
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
 {
@@ -2761,7 +2761,7 @@ void WorldObject::DestroyForNearbyPlayers()
 
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)
 {
-    // updates object's visibility for nearby players
+    //updates object's visibility for nearby players
     Trinity::VisibleChangesNotifier notifier(*this);
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
@@ -2805,7 +2805,7 @@ struct WorldObjectChangeAccumulator
             uint64 guid = iter->getSource()->GetCasterGUID();
             if (IS_PLAYER_GUID(guid))
             {
-                // Caster may be NULL if DynObj is in removelist
+                //Caster may be NULL if DynObj is in removelist
                 if (Player *caster = ObjectAccessor::FindPlayer(guid))
                     if (caster->GetUInt64Value(PLAYER_FARSIGHT) == iter->getSource()->GetGUID())
                         BuildPacket(caster);
@@ -2834,7 +2834,7 @@ void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
     WorldObjectChangeAccumulator notifier(*this, data_map);
     TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
     Map& map = *GetMap();
-    // we must build packets for all visible players
+    //we must build packets for all visible players
     cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
 
     ClearUpdateMask(false);

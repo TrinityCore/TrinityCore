@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https:// scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef SCRIPTEDCREATURE_H_
@@ -52,7 +52,7 @@ struct ScriptedAI : public CreatureAI
     virtual ~ScriptedAI() {}
 
     // *************
-    // CreatureAI Functions
+    //CreatureAI Functions
     // *************
 
     void AttackStartNoMove(Unit* target);
@@ -60,13 +60,13 @@ struct ScriptedAI : public CreatureAI
     // Called at any Damage from any attacker (before damage apply)
     void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
 
-    // Called at World update tick
+    //Called at World update tick
     virtual void UpdateAI(uint32 const diff);
 
-    // Called at creature death
+    //Called at creature death
     void JustDied(Unit* /*killer*/) {}
 
-    // Called at creature killing another unit
+    //Called at creature killing another unit
     void KilledUnit(Unit* /*victim*/) {}
 
     // Called when the creature summon successfully other creature
@@ -81,7 +81,7 @@ struct ScriptedAI : public CreatureAI
     // Called when spell hits a target
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
-    // Called at waypoint reached or PointMovement end
+    //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
@@ -91,42 +91,42 @@ struct ScriptedAI : public CreatureAI
     // Variables
     // *************
 
-    // Pointer to creature we are manipulating
+    //Pointer to creature we are manipulating
     Creature* me;
 
-    // For fleeing
+    //For fleeing
     bool IsFleeing;
 
     // *************
-    // Pure virtual functions
+    //Pure virtual functions
     // *************
 
-    // Called at creature reset either by death or evade
+    //Called at creature reset either by death or evade
     void Reset() {}
 
-    // Called at creature aggro either by MoveInLOS or Attack Start
+    //Called at creature aggro either by MoveInLOS or Attack Start
     void EnterCombat(Unit* /*victim*/) {}
 
     // *************
-    // AI Helper Functions
+    //AI Helper Functions
     // *************
 
-    // Start movement toward victim
+    //Start movement toward victim
     void DoStartMovement(Unit* target, float distance = 0.0f, float angle = 0.0f);
 
-    // Start no movement on victim
+    //Start no movement on victim
     void DoStartNoMovement(Unit* target);
 
-    // Stop attack of current victim
+    //Stop attack of current victim
     void DoStopAttack();
 
-    // Cast spell by spell info
+    //Cast spell by spell info
     void DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered = false);
 
-    // Plays a sound to all nearby players
+    //Plays a sound to all nearby players
     void DoPlaySoundToSet(WorldObject* source, uint32 soundId);
 
-    // Drops all threat to 0%. Does not remove players from the threat list
+    //Drops all threat to 0%. Does not remove players from the threat list
     void DoResetThreat();
 
     float DoGetThreat(Unit* unit);
@@ -135,37 +135,37 @@ struct ScriptedAI : public CreatureAI
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
     void DoTeleportTo(float const pos[4]);
 
-    // Teleports a player without dropping threat (only teleports to same map)
+    //Teleports a player without dropping threat (only teleports to same map)
     void DoTeleportPlayer(Unit* unit, float x, float y, float z, float o);
     void DoTeleportAll(float x, float y, float z, float o);
 
-    // Returns friendly unit with the most amount of hp missing from max hp
+    //Returns friendly unit with the most amount of hp missing from max hp
     Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff = 1);
 
-    // Returns a list of friendly CC'd units within range
+    //Returns a list of friendly CC'd units within range
     std::list<Creature*> DoFindFriendlyCC(float range);
 
-    // Returns a list of all friendly units missing a specific buff within range
+    //Returns a list of all friendly units missing a specific buff within range
     std::list<Creature*> DoFindFriendlyMissingBuff(float range, uint32 spellId);
 
-    // Return a player with at least minimumRange from me
+    //Return a player with at least minimumRange from me
     Player* GetPlayerAtMinimumRange(float minRange);
 
-    // Spawns a creature relative to me
+    //Spawns a creature relative to me
     Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
 
     bool HealthBelowPct(uint32 pct) const { return me->HealthBelowPct(pct); }
     bool HealthAbovePct(uint32 pct) const { return me->HealthAbovePct(pct); }
 
-    // Returns spells that meet the specified criteria from the creatures spell list
+    //Returns spells that meet the specified criteria from the creatures spell list
     SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
-    // Checks if you can cast the specified spell
+    //Checks if you can cast the specified spell
     bool CanCast(Unit* target, SpellInfo const* spell, bool triggered = false);
 
     void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 
-    // Generally used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
+    //Generally used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
     void SetCombatMovement(bool allowMovement);
     bool IsCombatMovementAllowed() { return _isCombatMovementAllowed; }
 
@@ -248,7 +248,7 @@ struct Scripted_NoMovementAI : public ScriptedAI
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
     virtual ~Scripted_NoMovementAI() {}
 
-    // Called at each attack of me by any victim
+    //Called at each attack of me by any victim
     void AttackStart(Unit* target);
 };
 

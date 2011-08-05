@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Channel.h"
@@ -59,7 +59,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             stmt->setUInt32(1, m_Team);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
-            if (result) // load
+            if (result) //load
             {
                 Field *fields = result->Fetch();
                 m_announce = fields[0].GetBool();

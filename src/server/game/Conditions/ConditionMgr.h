@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_CONDITIONMGR_H
@@ -74,38 +74,38 @@ enum LevelConditionType
 
 enum ConditionSourceType
 {
-    CONDITION_SOURCE_TYPE_NONE                           = 0, // DONE
-    CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE         = 1, // DONE
-    CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE       = 2, // DONE
-    CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE          = 3, // DONE
-    CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE       = 4, // DONE
-    CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE             = 5, // DONE
-    CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE             = 6, // DONE
-    CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE          = 7, // DONE
-    CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE    = 8, // DONE
-    CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE      = 9, // DONE
-    CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10, // DONE
-    CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11, // DONE
-    CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12, // DONE
-    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13, // DONE
-    CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14, // DONE
-    CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15, // DONE
-    CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16, // DONE
-    CONDITION_SOURCE_TYPE_SPELL                          = 17, // DONE
-    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18, // DONE
-    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19, // DONE
-    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20, // DONE
-    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21, // DONE
-    CONDITION_SOURCE_TYPE_MAX                            = 22// MAX
+    CONDITION_SOURCE_TYPE_NONE                           = 0, //DONE
+    CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE         = 1, //DONE
+    CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE       = 2, //DONE
+    CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE          = 3, //DONE
+    CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE       = 4, //DONE
+    CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE             = 5, //DONE
+    CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE             = 6, //DONE
+    CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE          = 7, //DONE
+    CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE    = 8, //DONE
+    CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE      = 9, //DONE
+    CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10, //DONE
+    CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11, //DONE
+    CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12, //DONE
+    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13, //DONE
+    CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14, //DONE
+    CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15, //DONE
+    CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16, //DONE
+    CONDITION_SOURCE_TYPE_SPELL                          = 17, //DONE
+    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18, //DONE
+    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19, //DONE
+    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20, //DONE
+    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21, //DONE
+    CONDITION_SOURCE_TYPE_MAX                            = 22//MAX
 };
 
 struct Condition
 {
-    ConditionSourceType     mSourceType;        // SourceTypeOrReferenceId
+    ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
     uint32                  mSourceGroup;
     uint32                  mSourceEntry;
     uint32                  mElseGroup;
-    ConditionType           mConditionType;     // ConditionTypeOrReference
+    ConditionType           mConditionType;     //ConditionTypeOrReference
     uint32                  mConditionValue1;
     uint32                  mConditionValue2;
     uint32                  mConditionValue3;
@@ -137,7 +137,7 @@ typedef std::map<uint32, ConditionList > ConditionTypeMap;
 typedef std::map<ConditionSourceType, ConditionTypeMap > ConditionMap;
 typedef std::map<uint32, ConditionTypeMap > VehicleSpellConditionMap;
 
-typedef std::map<uint32, ConditionList > ConditionReferenceMap;// only used for references
+typedef std::map<uint32, ConditionList > ConditionReferenceMap;//only used for references
 
 class ConditionMgr
 {

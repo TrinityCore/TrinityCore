@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https:// scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:// www.gnu.org/licenses/>.
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -28,7 +28,7 @@ EndScriptData */
 
 SimpleAI::SimpleAI(Creature *c) : ScriptedAI(c)
 {
-    // Clear all data
+    //Clear all data
     Aggro_TextId[0] = 0;
     Aggro_TextId[1] = 0;
     Aggro_TextId[2] = 0;
@@ -65,7 +65,7 @@ void SimpleAI::Reset()
 
 void SimpleAI::EnterCombat(Unit *who)
 {
-            // Reset cast timers
+            //Reset cast timers
             if (Spell[0].First_Cast >= 0)
                 Spell_Timer[0] = Spell[0].First_Cast;
             else Spell_Timer[0] = 1000;
@@ -99,11 +99,11 @@ void SimpleAI::EnterCombat(Unit *who)
 
             uint8 random_text = urand(0, 2);
 
-            // Random text
+            //Random text
             if (Aggro_TextId[random_text])
                 DoScriptText(Aggro_TextId[random_text], me, who);
 
-            // Random sound
+            //Random sound
             if (Aggro_Sound[random_text])
                 DoPlaySoundToSet(me, Aggro_Sound[random_text]);
 }
@@ -112,11 +112,11 @@ void SimpleAI::KilledUnit(Unit* victim)
 {
     uint8 random_text = urand(0, 2);
 
-    // Random yell
+    //Random yell
     if (Kill_TextId[random_text])
         DoScriptText(Kill_TextId[random_text], me, victim);
 
-    // Random sound
+    //Random sound
     if (Kill_Sound[random_text])
         DoPlaySoundToSet(me, Kill_Sound[random_text]);
 
@@ -147,24 +147,24 @@ void SimpleAI::KilledUnit(Unit* victim)
         break;
     }
 
-    // Target is ok, cast a spell on it
+    //Target is ok, cast a spell on it
     if (pTarget)
         DoCast(pTarget, Kill_Spell);
 }
 
 void SimpleAI::DamageTaken(Unit* killer, uint32 &damage)
 {
-    // Return if damage taken won't kill us
+    //Return if damage taken won't kill us
     if (me->GetHealth() > damage)
         return;
 
     uint8 random_text = urand(0, 2);
 
-    // Random yell
+    //Random yell
     if (Death_TextId[random_text])
         DoScriptText(Death_TextId[random_text], me, killer);
 
-    // Random sound
+    //Random sound
     if (Death_Sound[random_text])
         DoPlaySoundToSet(me, Death_Sound[random_text]);
 
@@ -195,31 +195,31 @@ void SimpleAI::DamageTaken(Unit* killer, uint32 &damage)
         break;
     }
 
-    // Target is ok, cast a spell on it
+    //Target is ok, cast a spell on it
     if (pTarget)
         DoCast(pTarget, Death_Spell);
 }
 
 void SimpleAI::UpdateAI(const uint32 diff)
 {
-    // Return since we have no target
+    //Return since we have no target
     if (!UpdateVictim())
         return;
 
-    // Spells
+    //Spells
     for (uint32 i = 0; i < MAX_SIMPLEAI_SPELLS; ++i)
     {
-        // Spell not valid
+        //Spell not valid
         if (!Spell[i].Enabled || !Spell[i].Spell_Id)
             continue;
 
         if (Spell_Timer[i] <= diff)
         {
-            // Check if this is a percentage based
+            //Check if this is a percentage based
             if (Spell[i].First_Cast < 0 && Spell[i].First_Cast > -100 && HealthAbovePct(uint32(-Spell[i].First_Cast)))
                 continue;
 
-            // Check Current spell
+            //Check Current spell
             if (!(Spell[i].InterruptPreviousCast && me->IsNonMeleeSpellCasted(false)))
             {
                 Unit *pTarget = NULL;
@@ -243,7 +243,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
                     break;
                 }
 
-                // Target is ok, cast a spell on it and then do our random yell
+                //Target is ok, cast a spell on it and then do our random yell
                 if (pTarget)
                 {
                     if (me->IsNonMeleeSpellCasted(false))
@@ -251,22 +251,22 @@ void SimpleAI::UpdateAI(const uint32 diff)
 
                     DoCast(pTarget, Spell[i].Spell_Id);
 
-                    // Yell and sound use the same number so that you can make
-                    // the Creature yell with the correct sound effect attached
+                    //Yell and sound use the same number so that you can make
+                    //the Creature yell with the correct sound effect attached
                     uint8 random_text = urand(0, 2);
 
-                    // Random yell
+                    //Random yell
                     if (Spell[i].TextId[random_text])
                         DoScriptText(Spell[i].TextId[random_text], me, pTarget);
 
-                    // Random sound
+                    //Random sound
                     if (Spell[i].Text_Sound[random_text])
                         DoPlaySoundToSet(me, Spell[i].Text_Sound[random_text]);
                 }
 
             }
 
-            // Spell will cast agian when the cooldown is up
+            //Spell will cast agian when the cooldown is up
             if (Spell[i].CooldownRandomAddition)
                 Spell_Timer[i] = Spell[i].Cooldown + (rand() % Spell[i].CooldownRandomAddition);
             else Spell_Timer[i] = Spell[i].Cooldown;
