@@ -32,27 +32,48 @@ typedef UNORDERED_MAP<uint32, BattlegroundTypeId> BattleMastersMap;
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
 #define WS_ARENA_DISTRIBUTION_TIME 20001                    // Custom worldstate
 
+struct CreateBattlegroundData
+{
+    BattlegroundTypeId bgTypeId;
+    bool IsArena;
+    uint32 MinPlayersPerTeam;
+    uint32 MaxPlayersPerTeam;
+    uint32 LevelMin;
+    uint32 LevelMax;
+    char* BattlegroundName;
+    uint32 MapID;
+    float Team1StartLocX;
+    float Team1StartLocY;
+    float Team1StartLocZ;
+    float Team1StartLocO;
+    float Team2StartLocX;
+    float Team2StartLocY;
+    float Team2StartLocZ;
+    float Team2StartLocO;
+    uint32 scriptId;
+};
+
 class BattlegroundMgr
 {
-    /// Todo: Thread safety?
-    /* Construction */
     friend class ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>;
-    BattlegroundMgr();
+
+    private:
+        BattlegroundMgr();
+        ~BattlegroundMgr();
 
     public:
-        ~BattlegroundMgr();
         void Update(uint32 diff);
 
         /* Packet Building */
         void BuildPlayerJoinedBattlegroundPacket(WorldPacket *data, Player *plr);
-        void BuildPlayerLeftBattlegroundPacket(WorldPacket *data, const uint64 guid);
-        void BuildBattlegroundListPacket(WorldPacket *data, const uint64 guid, Player *plr, BattlegroundTypeId bgTypeId, uint8 fromWhere);
+        void BuildPlayerLeftBattlegroundPacket(WorldPacket *data, uint64 guid);
+        void BuildBattlegroundListPacket(WorldPacket *data, uint64 guid, Player *plr, BattlegroundTypeId bgTypeId, uint8 fromWhere);
         void BuildGroupJoinedBattlegroundPacket(WorldPacket *data, GroupJoinBattlegroundResult result);
         void BuildUpdateWorldStatePacket(WorldPacket *data, uint32 field, uint32 value);
         void BuildPvpLogDataPacket(WorldPacket *data, Battleground *bg);
         void BuildBattlegroundStatusPacket(WorldPacket *data, Battleground *bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint8 uiFrame = 1);
         void BuildPlaySoundPacket(WorldPacket *data, uint32 soundid);
-        void SendAreaSpiritHealerQueryOpcode(Player *pl, Battleground *bg, const uint64 guid);
+        void SendAreaSpiritHealerQueryOpcode(Player *pl, Battleground *bg, uint64 guid);
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
@@ -61,7 +82,7 @@ class BattlegroundMgr
         Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
         Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
 
-        uint32 CreateBattleground(BattlegroundTypeId bgTypeId, bool IsArena, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattlegroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO, uint32 scriptId);
+        uint32 CreateBattleground(CreateBattlegroundData& data);
 
         void AddBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId, Battleground* BG) { m_Battlegrounds[bgTypeId][InstanceID] = BG; };
         void RemoveBattleground(uint32 instanceID, BattlegroundTypeId bgTypeId) { m_Battlegrounds[bgTypeId].erase(instanceID); }

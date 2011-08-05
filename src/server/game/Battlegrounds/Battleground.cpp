@@ -247,19 +247,41 @@ void Battleground::Update(uint32 diff)
         return;
     }
 
-    _ProcessOfflineQueue();
-    _ProcessRessurect(diff);
-
-    if (GetStatus() == STATUS_IN_PROGRESS && !isArena() && sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
-        _ProcessProgress(diff);
-    else if (m_PrematureCountDown)
-        m_PrematureCountDown = false;
-
-    if (GetStatus() == STATUS_WAIT_JOIN && GetPlayersSize())
-        _ProcessJoin(diff);
-
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        _ProcessLeave(diff);
+    switch(GetStatus())
+    {
+        case STATUS_WAIT_JOIN:
+            if (GetPlayersSize())
+            {
+                _ProcessJoin(diff);
+            }
+            break;
+        case STATUS_IN_PROGRESS:
+            _ProcessOfflineQueue();
+            // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+            if (isArena())
+            {
+                if (GetStartTime() >= 47*MINUTE*IN_MILLISECONDS)
+                {
+                    UpdateArenaWorldState();
+                    CheckArenaAfterTimerConditions();
+                    return;
+                }
+            }
+            else
+            {
+                _ProcessRessurect(diff);
+                if (sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
+                    _ProcessProgress(diff);
+                else if (m_PrematureCountDown)
+                    m_PrematureCountDown = false;
+            }
+            break;
+        case STATUS_WAIT_LEAVE:
+            _ProcessLeave(diff);
+            break;
+        default:
+            break;
+    }
 
     // Update start time and reset stats timer
     m_StartTime += diff;
@@ -514,7 +536,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(const uint64 guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const
 {
     Player* player = NULL;
     if (!offlineRemove)
@@ -874,7 +896,7 @@ void Battleground::BlockMovement(Player* plr)
     plr->SetClientControl(plr, 0);                          // movement disabled NOTE: the effect will be automatically removed by client when the player is teleported from the battleground, so no need to send with uint8(1) in RemovePlayerAtLeave()
 }
 
-void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool SendPacket)
+void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket)
 {
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
@@ -897,16 +919,19 @@ void Battleground::RemovePlayerAtLeave(const uint64 guid, bool Transport, bool S
 
     RemovePlayerFromResurrectQueue(guid);
 
-    Player *plr = ObjectAccessor::FindPlayer(guid);
+    Player* plr = ObjectAccessor::FindPlayer(guid);
 
     // should remove spirit of redemption
-    if (plr && plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-        plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-
-    if (plr && !plr->isAlive())                              // resurrect on exit
+    if (plr)
     {
-        plr->ResurrectPlayer(1.0f);
-        plr->SpawnCorpseBones();
+        if (plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+            plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+
+        if (!plr->isAlive())                              // resurrect on exit
+        {
+            plr->ResurrectPlayer(1.0f);
+            plr->SpawnCorpseBones();
+        }
     }
 
     RemovePlayer(plr, guid, team);                           // BG subclass specific code
@@ -1170,16 +1195,17 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
 // This method should be called when player logs into running battleground
 void Battleground::EventPlayerLoggedIn(Player* player)
 {
+    uint64 guid = player->GetGUID();
     // player is correct pointer
     for (std::deque<uint64>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
     {
-        if (*itr == player->GetGUID())
+        if (*itr == guid)
         {
             m_OfflineQueue.erase(itr);
             break;
         }
     }
-    m_Players[player->GetGUID()].OfflineRemoveTime = 0;
+    m_Players[guid].OfflineRemoveTime = 0;
     PlayerAddedToBGCheckIfBGIsRunning(player);
     // if battleground is starting, then add preparation aura
     // we don't have to do that, because preparation aura isn't removed when player logs out
@@ -1188,13 +1214,14 @@ void Battleground::EventPlayerLoggedIn(Player* player)
 // This method should be called when player logs out from running battleground
 void Battleground::EventPlayerLoggedOut(Player* player)
 {
+    uint64 guid = player->GetGUID();
     // player is correct pointer, it is checked in WorldSession::LogoutPlayer()
     m_OfflineQueue.push_back(player->GetGUID());
-    m_Players[player->GetGUID()].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
+    m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // drop flag and handle other cleanups
-        RemovePlayer(player, player->GetGUID(), GetPlayerTeam(player->GetGUID()));
+        RemovePlayer(player, guid, GetPlayerTeam(guid));
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
@@ -1337,7 +1364,7 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
     }
 }
 
-void Battleground::AddPlayerToResurrectQueue(const uint64 npc_guid, const uint64 player_guid)
+void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
 {
     m_ReviveQueue[npc_guid].push_back(player_guid);
 
@@ -1348,7 +1375,7 @@ void Battleground::AddPlayerToResurrectQueue(const uint64 npc_guid, const uint64
     plr->CastSpell(plr, SPELL_WAITING_FOR_RESURRECT, true);
 }
 
-void Battleground::RemovePlayerFromResurrectQueue(const uint64 player_guid)
+void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 {
     for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
     {
@@ -1586,6 +1613,9 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
 
 void Battleground::SendMessageToAll(int32 entry, ChatMsg type, Player const* source)
 {
+    if (!entry)
+        return;
+
     Trinity::BattlegroundChatBuilder bg_builder(type, entry, source);
     Trinity::LocalizedPacketDo<Trinity::BattlegroundChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
@@ -1593,6 +1623,9 @@ void Battleground::SendMessageToAll(int32 entry, ChatMsg type, Player const* sou
 
 void Battleground::PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...)
 {
+    if (!entry)
+        return;
+
     va_list ap;
     va_start(ap, source);
 
@@ -1605,6 +1638,9 @@ void Battleground::PSendMessageToAll(int32 entry, ChatMsg type, Player const* so
 
 void Battleground::SendWarningToAll(int32 entry, ...)
 {
+    if (!entry)
+        return;
+
     const char *format = sObjectMgr->GetTrinityStringForDBCLocale(entry);
 
     char str[1024];
@@ -1656,7 +1692,7 @@ const char* Battleground::GetTrinityString(int32 entry)
 // IMPORTANT NOTICE:
 // buffs aren't spawned/despawned when players captures anything
 // buffs are in their positions when battleground starts
-void Battleground::HandleTriggerBuff(const uint64 go_guid)
+void Battleground::HandleTriggerBuff(uint64 go_guid)
 {
     GameObject *obj = GetBgMap()->GetGameObject(go_guid);
     if (!obj || obj->GetGoType() != GAMEOBJECT_TYPE_TRAP || !obj->isSpawned())
@@ -1725,7 +1761,7 @@ void Battleground::HandleKillPlayer(Player* player, Player* killer)
 
 // Return the player's team based on battlegroundplayer info
 // Used in same faction arena matches mainly
-uint32 Battleground::GetPlayerTeam(const uint64 guid) const
+uint32 Battleground::GetPlayerTeam(uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1738,7 +1774,7 @@ uint32 Battleground::GetOtherTeam(uint32 teamId) const
     return teamId ? ((teamId == ALLIANCE) ? HORDE : ALLIANCE) : 0;
 }
 
-bool Battleground::IsPlayerInBattleground(const uint64 guid) const
+bool Battleground::IsPlayerInBattleground(uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1783,7 +1819,7 @@ void Battleground::SetHoliday(bool is_holiday)
     m_HonorMode = is_holiday ? BG_HOLIDAY : BG_NORMAL;
 }
 
-int32 Battleground::GetObjectType(const uint64 guid)
+int32 Battleground::GetObjectType(uint64 guid)
 {
     for (uint32 i = 0; i < m_BgObjects.size(); ++i)
         if (m_BgObjects[i] == guid)
