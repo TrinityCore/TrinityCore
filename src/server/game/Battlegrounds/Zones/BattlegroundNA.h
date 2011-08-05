@@ -51,12 +51,9 @@ class BattlegroundNAScore : public BattlegroundScore
 
 class BattlegroundNA : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundNA();
         ~BattlegroundNA();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
