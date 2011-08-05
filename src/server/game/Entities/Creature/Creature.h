@@ -282,6 +282,7 @@ struct CreatureCaster
 {
     float minRange;
     float maxRange;
+    float LoSRange;
     bool melee;
 };
 
@@ -694,6 +695,8 @@ class Creature : public Unit, public GridObject<Creature>
 
         float GetMinCastRange() const { if (m_isCaster) return m_CasterDefaultMinCombatRange; else return 0.0f;  }
         float GetMaxCastRange() const { if (m_isCaster) return m_CasterDefaultMaxCombatRange; else return 0.0f;  }
+        float GetLoSRange() const { if (m_isCaster) return m_CasterDefaultLoSRange; else return 0.0f; }
+
         bool isCasterWithMelee() const { return m_CasterDefaultMelee; }
         bool isCaster() const { return m_isCaster; }
 
@@ -749,10 +752,12 @@ class Creature : public Unit, public GridObject<Creature>
     private:
         // Ist dieser NPC ein Caster? Default = false.
         bool m_isCaster;
-        // Default minimum Castrange für Caster. Default = ATTACK_DISTANCE.
+        // Default minimum Castrange für Caster. Standard = ATTACK_DISTANCE.
         float m_CasterDefaultMinCombatRange;
-        // Default maximum Castrange für Caster. Default = 29.
+        // Default maximum Castrange für Caster. Standard = 30.
         float m_CasterDefaultMaxCombatRange;
+        // Default Distanz für das erreichen von LoS. Standard = 12.
+        float m_CasterDefaultLoSRange;
         // Soll er Meleeattacken machen? Default = true.
         bool m_CasterDefaultMelee;
         // Korrektes Castermovement erzeugen, für NPC aus `creature_template_caster`

@@ -9519,7 +9519,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
             return false;
     }
 
-    // meleeAttack für Caster NPC (die keine Meleeattacken machen sollen) überschrieben! creature_template_caster
+    // meleeAttack für Caster NPC (die keine Meleeattacken machen sollen) überschreiben! creature_template_caster
     if (meleeAttack && ToCreature())
         if (ToCreature()->isCaster() && !ToCreature()->isCasterWithMelee())
             meleeAttack = false;

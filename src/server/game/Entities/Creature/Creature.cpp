@@ -142,8 +142,9 @@ Creature::Creature(): Unit(), lootForPickPocketed(false), lootForBody(false), m_
 m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE), m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0),
 m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_creatureInfo(NULL), m_creatureData(NULL),
 m_isCaster(false),                              // Ist dieser NPC ein Caster?
-m_CasterDefaultMinCombatRange(ATTACK_DISTANCE), // Default minimum Castrange für Caster
-m_CasterDefaultMaxCombatRange(29),              // Default maximum Castrange für Caster
+m_CasterDefaultMinCombatRange(10),              // Standard minimum Castrange für Caster
+m_CasterDefaultMaxCombatRange(30),              // Standard maximum Castrange für Caster
+m_CasterDefaultLoSRange(12),                    // Standard Distanz um LoS zu erreichen
 m_CasterDefaultMelee(true),                     // Soll er Meleeattacken machen?
 m_formation(NULL)
 {
@@ -2032,7 +2033,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
 
 CreatureCaster const * Creature::GetCreatureCaster() const
 {
-    return sObjectMgr->GetCreatureTemplateCaster(GetCreatureInfo()->Entry);
+    return sObjectMgr->GetCreatureTemplateCaster(m_originalEntry);
 }
 
 //creature_addon table
@@ -2123,8 +2124,10 @@ bool Creature::LoadCreatureCaster()
     if (ccinfo->minRange != 0)
         m_CasterDefaultMinCombatRange = ccinfo->minRange;
 
-    if (!ccinfo->melee)
-        m_CasterDefaultMelee = false;
+    if (ccinfo->LoSRange != 0)
+        m_CasterDefaultLoSRange = ccinfo->LoSRange;
+
+    m_CasterDefaultMelee = ccinfo->melee;
 
     return true;
 }
@@ -2442,28 +2445,53 @@ bool Creature::IsDungeonBoss() const
 // Korrektes Castermovement erzeugen, für NPC aus `creature_template_caster`
 void Creature::HandleCaster()
 {
-    if (!m_isCaster || !isInCombat())
+    if (!m_isCaster || !isInCombat() || !getVictim())
         return;
 
-    uint32 percent4 = 0;
+    uint32 percent5 = 0;
     uint32 curmana = 0;
 
     // Caster haben immer Mana, und müssen ein Minimum haben, damit sie nicht nur dumm in der Ecke herum stehen
     if (getPowerType() == POWER_MANA)
     {
-        percent4 = (GetMaxPower(POWER_MANA)/100)*4;
+        percent5 = (GetMaxPower(POWER_MANA)/100)*5;
         curmana = GetPower(POWER_MANA);
     }
-    // Movement zum Ziel bei Castern nur, wenn das Ziel zu weit weg ist, oder nicht in LoS, oder wenn das Mana auf weniger als 4% und m_CasterDefaultMelee true ist
-    if (!IsNonMeleeSpellCasted(false) && (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim()) || (curmana < percent4 && m_CasterDefaultMelee)))
+    else
+        return; // Kein Mana = kein Caster!
+
+    float dist = GetDistance(getVictim());
+    MovementGeneratorType MType = GetMotionMaster()->GetCurrentMovementGeneratorType();
+
+    // Nur bewegen, wenn nicht gecastet wird
+    if (!IsNonMeleeSpellCasted(false))
     {
-        if (GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
-            GetMotionMaster()->MoveChase(getVictim());
+        // Nicht genug Mana, oder nicht in Reichweite / LoS
+        if (curmana < percent5 || (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim())))
+        {
+            // Melee erlaubt und kein ausreichendes Mana
+            if (m_CasterDefaultMelee && curmana < percent5 && MType != TARGETED_MOTION_TYPE)
+                GetMotionMaster()->MoveChase(getVictim());
+            // Melee nicht erlaubt und kein ausreichendes Mana -> Nur in Reichweite bleiben
+            else if (!m_CasterDefaultMelee && curmana < percent5 && MType != TARGETED_MOTION_TYPE)
+                GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultMinCombatRange);
+            // Außer Reichweite -> Nur in Reichweite bleiben
+            else if (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) && MType != TARGETED_MOTION_TYPE)
+                GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultMaxCombatRange);
+            // Nicht in LoS
+            else if (!IsWithinLOSInMap(getVictim()) && MType != TARGETED_MOTION_TYPE)
+                GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultLoSRange, float(urand(0,359)));
+
+            return;
+        }
+        // In Melee Reichweite, aber kein Melee erlaubt -> Fliehen!
+        else if (dist <= ATTACK_DISTANCE && MType != FLEEING_MOTION_TYPE)
+        {
+            GetMotionMaster()->MoveFleeing(getVictim(), 3 * IN_MILLISECONDS);
+            return;
+        }
     }
-    // Wenn m_CasterDefaultMinCombatRange um 2 Yards unterschritten wird, vom Ziel entfernen
-    else if (!IsNonMeleeSpellCasted(false) && GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE && GetDistance(getVictim()) < (m_CasterDefaultMinCombatRange - 2.0f))
-        GetMotionMaster()->MoveFleeing(getVictim(), 3 * IN_MILLISECONDS);
-    // Ansonsten nicht laufen...
-    else if (GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
+    // Ansonsten nicht laufen als Caster
+    if (!IsNonMeleeSpellCasted(false) && MType != IDLE_MOTION_TYPE)
         GetMotionMaster()->MoveIdle();
 }

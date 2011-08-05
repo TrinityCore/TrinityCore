@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -25,12 +26,24 @@
 #include "SpellInfo.h"
 #include "CreatureAIImpl.h"
 
-void UnitAI::AttackStart(Unit* victim)
+// Angriffsart nach Art der Unit (Caster/Melee) starten - nutzen der Daten aus creature_template_caster
+void UnitAI::AttackStart(Unit * victim)
 {
-    if (victim && me->Attack(victim, true))
+    if (!victim)
+        return;
+
+    if (me->ToCreature() && me->ToCreature()->isCaster())
+    {
+        if (me->Attack(victim, false))
+            // Am Anfang zwischen Min+Max Castrange heranlaufen
+            me->GetMotionMaster()->MoveChase(victim, (me->ToCreature()->GetMaxCastRange()+me->ToCreature()->GetMinCastRange())/2);
+    }
+    // Kein Caster
+    else if (me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
 
+// TODO: Dies wird später überflüssig sein (durch creature_template_caster), muss aber erst einmal wegen der Kompatibilität bleiben.
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))
