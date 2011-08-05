@@ -81,6 +81,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `creature` WHERE `id`=40146;
 DELETE FROM `creature_text` WHERE `entry`=39863;
 DELETE FROM `creature_text` WHERE `entry`=40142;
+DELETE FROM `creature_text` WHERE `entry`=40146;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
 (39863,0,0, 'Meddlesome insects! You are too late. The Ruby Sanctum is lost!',14,0,100,1,0,17499, 'Halion'),
 (39863,1,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
@@ -91,7 +92,12 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (39863,6,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion'),
 
 (40142,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
-(40142,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17508, 'Halion');
+(40142,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17508, 'Halion'),
+
+(40146,0,0, 'Your companion''s efforts have forced Halion further out of the Physical realm!',42,0,100,0,0,0, 'Halion'),
+(40146,1,0, 'Your efforts have forced Halion further into the Physical realm!',42,0,100,0,0,0, 'Halion'),
+(40146,2,0, 'Your companion''s efforts have forced Halion further out of the Twilight realm!',42,0,100,0,0,0, 'Halion'),
+(40146,3,0, 'Your efforts have forced Halion further into the Twilight realm!',42,0,100,0,0,17506, 'Halion');
 */
 
 enum Texts
@@ -107,7 +113,10 @@ enum Texts
     SAY_SPHERE_PULSE                 = 0, // Beware the shadow!
     SAY_PHASE_THREE                  = 1, // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
 
-    // <Your/Your companion's> efforts have forced Halion further <into/out of> the <Twilight/Physical> realm!
+    EMOTE_T_OUT_T                    = 0, // Your companion's efforts have forced Halion further out of the Twilight realm!
+    EMOTE_T_IN_T                     = 1, // Your efforts have forced Halion further into the Twilight realm!
+    EMOTE_P_OUT_P                    = 2, // Your companion's efforts have forced Halion further out of the Physical realm!
+    EMOTE_P_IN_P                     = 3, // Your efforts have forced Halion further into the Physical realm!
 };
 
 enum Spells
@@ -295,6 +304,13 @@ class boss_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
             }
 
+
+            void Reset()
+            {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetMaxHealth());
+            }
+
             // This is triggered by the TwilightHalionAI::JustDied, but can of course be triggered on its own.
             void JustDied(Unit* killer)
             {
@@ -331,20 +347,21 @@ class boss_halion : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 if ((me->GetHealth() - damage) > 0 && (events.GetPhaseMask() & PHASE_THREE_MASK))
-                    instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
+                    instance->SetData(DATA_HALION_SHARED_HEALTH, (me->GetHealth() - damage));
 
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
-                    instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetHealth() - damage);
+                    instance->SetData(DATA_HALION_SHARED_HEALTH, (me->GetHealth() - damage));
                     
                     events.SetPhase(PHASE_TWO);
 
                     Talk(SAY_PHASE_TWO);
                     DoCast(me, SPELL_TWILIGHT_PHASING);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
+
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 }
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
@@ -633,7 +650,6 @@ class npc_halion_controller : public CreatureScript
                 {
                     case ACTION_INTRO_HALION:
                     {
-                        me->setActive(true);
                         _events.Reset();
                         _events.ScheduleEvent(EVENT_START_INTRO, 2000);
                         _events.ScheduleEvent(EVENT_INTRO_PROGRESS_1, 6000);
@@ -643,7 +659,6 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_PHASE_TWO:
                     {
-                        me->setActive(true);
                         _events.Reset();
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
@@ -669,7 +684,6 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_PHASE_THREE:
                     {
-                        me->setActive(true);
                         _events.Reset();
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
@@ -710,6 +724,7 @@ class npc_halion_controller : public CreatureScript
                                 portal->Delete();
                                 portal->DeleteFromDB();
                             }
+                        break;
                     }
                 }
             }
@@ -739,18 +754,15 @@ class npc_halion_controller : public CreatureScript
                             DoCast(me, SPELL_FIERY_EXPLOSION);
                             if (Creature* halion = me->GetMap()->SummonCreature(NPC_HALION, HalionSpawnPos))
                                 halion->AI()->Talk(SAY_INTRO);
-                            me->setActive(false);
                             break;
                         case EVENT_SHADOW_PULSARS_SHOOT:
                         {
                             if (Unit* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
                             {
-                                me->setActive(true);
                                 uint8 max = (me->GetMap()->IsHeroic()) ? 2 : 4;
                                 for (uint8 i = 0; i < max; i++)
                                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
                                         orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
-                                me->setActive(false);
                             }
 
                             if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
@@ -761,7 +773,6 @@ class npc_halion_controller : public CreatureScript
                         }
                         case EVENT_CHECK_CORPOREALITY:
                         {
-                            me->setActive(true);
                             bool canUpdate = false;
                             if (float(MaterialDamageTaken / TwilightDamageTaken) >= 1.02f && TwilightDamageTaken > 0)
                             {
@@ -807,31 +818,16 @@ class npc_halion_controller : public CreatureScript
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
 
-                                // Hacky, the message has to be sent to part of the group, and not this way
                                 if (Map* sanctum = me->GetMap())
                                 {
                                     Map::PlayerList const &PlList = sanctum->GetPlayers();
-                                    if (!PlList.isEmpty())
-                                        for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                                            if (Player* player = i->getSource())
-                                                if (player->HasAura(SPELL_TWILIGHT_REALM))
-                                                {
-                                                    if (pValue > tValue)
-                                                        player->GetSession()->SendAreaTriggerMessage("Your companion's efforts have forced Halion further out of the Twilight realm!");
-                                                    else
-                                                        player->GetSession()->SendAreaTriggerMessage("Your efforts have forced Halion further into the Twilight realm!");
-                                                }
-                                                else 
-                                                {
-                                                    if (pValue > tValue)
-                                                        player->GetSession()->SendAreaTriggerMessage("Your efforts have forced Halion further into the Physical realm!");
-                                                    else
-                                                        player->GetSession()->SendAreaTriggerMessage("Your companion's efforts have forced Halion further out of the Physical realm!");
-                                                }
+                                    
+                                    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                                        if (Player* player = i->getSource())
+                                            Talk((pValue > tValue ? (player->HasAura(SPELL_TWILIGHT_REALM) ? EMOTE_T_OUT_T : EMOTE_P_IN_P) : (player->HasAura(SPELL_TWILIGHT_REALM) ? EMOTE_T_IN_T : EMOTE_P_OUT_P)), player->GetGUID());
                                 }
                             }
-                            me->setActive(false);
-                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 25000);
+                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
                             break;
                         }
                         default:
