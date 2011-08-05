@@ -117,8 +117,8 @@ enum Spells
     SPELL_CLEAVE                        = 74524,
     SPELL_METEOR_STRIKE                 = 74637,
 
-    SPELL_FIERY_COMBUSTION              = 74562,    // Will each tick, apart from the damage, also add a stack to 74567
-    SPELL_MARK_OF_COMBUSTION            = 74567,    // If 74562 or 74567 is removed; this will trigger an explosion (74607) based on stackamount.
+    SPELL_FIERY_COMBUSTION              = 74562,
+    SPELL_MARK_OF_COMBUSTION            = 74567,
     SPELL_FIERY_COMBUSTION_EXPLOSION    = 74607,
     SPELL_FIERY_COMBUSTION_SUMMON       = 74610,
     SPELL_COMBUSTION_DAMAGE_AURA        = 74629,
@@ -827,7 +827,9 @@ class npc_halion_controller : public CreatureScript
             {
                 who->RemoveAurasDueToSpell(74286); // 50% / 50%
                 uint8 i = 0;
-                for (; i < 10 && !who->HasAura(74827 + i); i++);
+                for (; i < 10; i++)
+                    if (who->HasAura(74827 + i))
+                        break;
                 who->RemoveAurasDueToSpell(74827 + i);
             }
 
@@ -1021,10 +1023,9 @@ class npc_combustion : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
+                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
-
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
 
                     _scale = data;
@@ -1081,11 +1082,10 @@ class npc_consumption : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    //if (Unit* owner = me->GetSummoner())
+                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, true);
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
 
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA);
 
                     _scale = data;
