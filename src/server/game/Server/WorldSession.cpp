@@ -96,7 +96,7 @@ m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
-isRecruiter(isARecruiter, warden(NULL)
+isRecruiter(isARecruiter), _warden(NULL)
 {
     if (sock)
     {

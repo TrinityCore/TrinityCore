@@ -874,7 +874,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         security = SEC_ADMINISTRATOR;
         */
 
-    K.SetHexStr (fields[1].GetCString());
+    k.SetHexStr (fields[1].GetCString());
 
     int64 mutetime = fields[7].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
