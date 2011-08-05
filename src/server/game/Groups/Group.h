@@ -206,12 +206,12 @@ class Group
         bool isRaidGroup() const;
         bool isBGGroup()   const;
         bool IsCreated()   const;
-        const uint64 GetLeaderGUID() const;
-        const uint64 GetGUID() const;
+        uint64 GetLeaderGUID() const;
+        uint64 GetGUID() const;
         uint32 GetLowGUID() const;
         const char * GetLeaderName() const;
         LootMethod GetLootMethod() const;
-        const uint64 GetLooterGuid() const;
+        uint64 GetLooterGuid() const;
         ItemQualities GetLootThreshold() const;
 
         uint32 GetDbStoreId() { return m_dbStoreId; };

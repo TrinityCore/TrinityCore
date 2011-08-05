@@ -2054,8 +2054,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         {
             if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
             {
-                sObjectMgr->GetLocaleString(loc->subject, loc_idx, subject);
-                sObjectMgr->GetLocaleString(loc->text, loc_idx, text);
+                ObjectMgr::GetLocaleString(loc->subject, loc_idx, subject);
+                ObjectMgr::GetLocaleString(loc->text, loc_idx, text);
             }
         }
 
@@ -2545,11 +2545,8 @@ void AchievementGlobalMgr::LoadRewardLocales()
         for (int i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            std::string str = fields[1 + 2 * (i - 1)].GetString();
-            sObjectMgr->AddLocaleString(str, locale, data.subject);
-
-            str = fields[1 + 2 * (i - 1) + 1].GetString();
-            sObjectMgr->AddLocaleString(str, locale, data.text);
+            ObjectMgr::AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.subject);
+            ObjectMgr::AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.text);
         }
     } while (result->NextRow());
 

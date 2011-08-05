@@ -711,6 +711,7 @@ void Spell::SelectSpellTargets()
                     else if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_TRIGGER_SPELL)
                         AddUnitTarget(m_caster, i);
                     break;
+                case SPELL_EFFECT_SUMMON_RAF_FRIEND:
                 case SPELL_EFFECT_SUMMON_PLAYER:
                     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelection())
                     {
@@ -2376,7 +2377,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     break;
                 default:
                     sLog->outError("SPELL (caster[type: %u; guidlow: %u], spell: %u): unhandled spell target (%u)",
-                        m_caster->GetTypeId(), m_caster->GetGUIDLow(), m_spellInfo->Id, cur);
+                        m_caster->GetTypeId(), m_caster->GetGUIDLow(), m_spellInfo->Id, cur.GetTarget());
                     break;
             }
             break;
@@ -5276,7 +5277,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
-                if (!target || m_caster->ToPlayer() == target || !target->IsInSameRaidWith(m_caster->ToPlayer()))
+                if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
                     return SPELL_FAILED_BAD_TARGETS;
 
                 // check if our map is dungeon
@@ -5296,6 +5297,25 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (!target->Satisfy(sObjectMgr->GetAccessRequirement(mapId, difficulty), mapId))
                         return SPELL_FAILED_BAD_TARGETS;
                 }
+                break;
+            }
+            // RETURN HERE
+            case SPELL_EFFECT_SUMMON_RAF_FRIEND:
+            {
+                if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Player* playerCaster = m_caster->ToPlayer();
+                    // 
+                if(!(playerCaster->GetSelection()))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Player* target = ObjectAccessor::FindPlayer(playerCaster->GetSelection());
+
+                if (!target ||
+                    !(target->GetSession()->GetRecruiterId() == playerCaster->GetSession()->GetAccountId() || target->GetSession()->GetAccountId() == playerCaster->GetSession()->GetRecruiterId()))
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 break;
             }
             case SPELL_EFFECT_LEAP:
@@ -5758,7 +5778,7 @@ bool Spell::CanAutoCast(Unit* target)
     return false;                                           //target invalid
 }
 
-SpellCastResult Spell::CheckRange(bool strict)
+SpellCastResult Spell::CheckRange(bool /*strict*/)
 {
     Unit* target = m_targets.GetUnitTarget();
     float max_range = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
@@ -6558,6 +6578,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
     //Check targets for LOS visibility (except spells without range limitations)
     switch(m_spellInfo->Effects[eff].Effect)
     {
+        case SPELL_EFFECT_SUMMON_RAF_FRIEND:
         case SPELL_EFFECT_SUMMON_PLAYER:                    // from anywhere
             break;
         case SPELL_EFFECT_DUMMY:

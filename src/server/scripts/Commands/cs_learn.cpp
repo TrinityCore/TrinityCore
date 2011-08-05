@@ -26,6 +26,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Chat.h"
+#include "SpellInfo.h"
 
 class learn_commandscript : public CommandScript
 {

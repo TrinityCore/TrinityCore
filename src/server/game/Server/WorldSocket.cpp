@@ -849,7 +849,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;
-    //expansion = ((sWorld->getIntConfig(CONFIG_EXPANSION) > fields[6].GetUInt8()) ? fields[6].GetUInt8() : sWorld->getIntConfig(CONFIG_EXPANSION));
 
     N.SetHexStr ("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword (7);
@@ -882,11 +881,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     }
 
     id = fields[0].GetUInt32();
-    /*
-    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
-        security = SEC_ADMINISTRATOR;
-        */
-
     K.SetHexStr (fields[1].GetCString());
 
     int64 mutetime = fields[7].GetInt64();
@@ -982,6 +976,13 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                 account.c_str(),
                 address.c_str());
 
+    // Check if this user is by any chance a recruiter
+    result = LoginDatabase.PQuery ("SELECT 1  FROM account WHERE recruiter = %u", id);
+
+    bool isRecruiter = false;
+    if (result)
+        isRecruiter = true;
+
     // Update the last_ip in the database
     // No SQL injection, username escaped.
     LoginDatabase.EscapeString (address);
@@ -993,7 +994,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                             safe_account.c_str());
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter), -1);
+    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&K);
 
