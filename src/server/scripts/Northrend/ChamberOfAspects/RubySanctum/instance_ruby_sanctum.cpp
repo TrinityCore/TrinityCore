@@ -50,6 +50,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 FlameRingGUID = 0;
                 memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
+                memset(ExitPortalsGUID, 0, 2 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -126,6 +127,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                             HandleGameObject(BurningTreeGUID[3], true);
                         break;
+                    case GO_HALION_PORTAL_EXIT:
+                        if (!ExitPortalsGUID[0])
+                            ExitPortalsGUID[0] = go->GetGUID();
+                        else
+                            ExitPortalsGUID[1] = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -177,6 +184,10 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return BurningTreeGUID[3];
                     case DATA_FLAME_RING:
                         return FlameRingGUID;
+                    case DATA_EXIT_PORTAL_1:
+                        return ExitPortalsGUID[0];
+                    case DATA_EXIT_PORTAL_2:
+                        return ExitPortalsGUID[1];
                     default:
                         break;
                 }
@@ -333,6 +344,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 FlameWallsGUID;
             uint64 ZarithianSpawnStalkerGUID[2];
             uint64 BurningTreeGUID[4];
+            uint64 ExitPortalsGUID[2];
             uint64 FlameRingGUID;
             uint32 BaltharusSharedHealth;
             uint32 HalionSharedHealth;

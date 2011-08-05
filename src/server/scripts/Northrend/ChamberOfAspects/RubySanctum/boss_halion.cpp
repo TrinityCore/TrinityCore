@@ -198,6 +198,7 @@ enum Actions
     ACTION_SHADOW_PULSARS_SHOOT = 5,
     ACTION_DESPAWN_ADDS         = 6,
     ACTION_BERSERK              = 7,
+    ACTION_REMOVE_EXIT_PORTALS  = 8,
 
     ACTION_SHOOT                = 9, // Shadow Orbs
 };
@@ -234,6 +235,12 @@ Position const ShadowOrbsSpawnPos[4] =
     {3116.67f, 533.8108f, 72.91f, 6.264683f}, // South - On Heroic
     {3156.67f, 493.8108f, 72.58f, 1.593135f}, // East
     {3156.67f, 573.8108f, 72.89f, 4.659930f} //  West
+};
+
+Position const PortalsSpawnPos[2] = 
+{
+    {3156.67f, 503.8108f, 72.98822f, 3.159046f},
+    {3156.67f, 563.8108f, 72.98822f, 3.159046f},
 };
 
 struct CorporealityData
@@ -310,7 +317,10 @@ class boss_halion : public CreatureScript
                 instance->SetBossState(DATA_HALION, FAIL);
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                {
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
+                    controller->AI()->DoAction(ACTION_REMOVE_EXIT_PORTALS);
+                }
 
                 if (Creature* tHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
                     tHalion->DespawnOrUnsummon();
@@ -663,6 +673,14 @@ class npc_halion_controller : public CreatureScript
                         _events.Reset();
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
+
+                        for (uint8 i = 0; i < 2; i++)
+                            if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_EXIT, PortalsSpawnPos[i].GetPositionX(), PortalsSpawnPos[i].GetPositionY(), PortalsSpawnPos[i].GetPositionZ(), PortalsSpawnPos[i].GetOrientation(), 0, 0, 0, 0, 99999999))
+                            {
+                                portal->SetPhaseMask(0x20, true);
+                                _instance->OnGameObjectCreate(portal);
+                            }
+
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
                         corporealityValue = 50;
@@ -682,7 +700,17 @@ class npc_halion_controller : public CreatureScript
                             tHalion->AI()->DoCast(tHalion, SPELL_BERSERK);
                         break;
                     }
-
+                    case ACTION_REMOVE_EXIT_PORTALS:
+                    {
+                        for (uint8 i = 0; i < 2; i++)
+                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_EXIT_PORTAL_1 + i)))
+                            {
+                                me->RemoveGameObject(portal, false);
+                                portal->SetRespawnTime(0);
+                                portal->Delete();
+                                portal->DeleteFromDB();
+                            }
+                    }
                 }
             }
 
