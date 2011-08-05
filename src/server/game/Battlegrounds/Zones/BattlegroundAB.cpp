@@ -55,10 +55,8 @@ BattlegroundAB::~BattlegroundAB()
 {
 }
 
-void BattlegroundAB::Update(uint32 diff)
+void BattlegroundAB::PostUpdateImpl(uint32 diff)
 {
-    Battleground::Update(diff);
-
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         int team_points[BG_TEAMS_COUNT] = { 0, 0 };
@@ -225,7 +223,7 @@ void BattlegroundAB::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    switch(Trigger)
+    switch (Trigger)
     {
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (Source->GetTeam() != ALLIANCE)
@@ -436,11 +434,11 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* /*targ
         return;
 
     uint8 node = BG_AB_NODE_STABLES;
-    GameObject* obj=GetBgMap()->GetGameObject(m_BgObjects[node*8+7]);
+    GameObject* obj = GetBgMap()->GetGameObject(m_BgObjects[node*8+7]);
     while ((node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj, 10))))
     {
         ++node;
-        obj=GetBgMap()->GetGameObject(m_BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
+        obj = GetBgMap()->GetGameObject(m_BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
     }
 
     if (node == BG_AB_DYNAMIC_NODES_COUNT)
@@ -687,7 +685,7 @@ void BattlegroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_BASES_ASSAULTED:
             ((BattlegroundABScore*)itr->second)->BasesAssaulted += value;
