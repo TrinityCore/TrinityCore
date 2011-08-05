@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -145,7 +145,7 @@ void WorldSession::SendQueryTimeResponse()
     SendPacket(&data);
 }
 
-/// Only _static_ data is sent in this packet !!!
+// / Only _static_ data is sent in this packet !!!
 void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
 {
     uint32 entry;
@@ -208,7 +208,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
     }
 }
 
-/// Only _static_ data is sent in this packet !!!
+// / Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
 {
     uint32 entry;
@@ -398,7 +398,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
-/// Only _static_ data is sent in this packet !!!
+// / Only _static_ data is sent in this packet !!!
 void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 {
     sLog->outDetail("WORLD: Received CMSG_PAGE_TEXT_QUERY");

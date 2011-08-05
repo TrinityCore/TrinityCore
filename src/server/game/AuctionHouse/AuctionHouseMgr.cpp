@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -86,7 +86,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
         return deposit;
 }
 
-//does not clear ram
+// does not clear ram
 void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction, SQLTransaction& trans)
 {
     Item *pItem = GetAItem(auction->item_guidlow);
@@ -192,7 +192,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry * auction, SQLTran
     }
 }
 
-//call this method to send mail to auction owner, when auction is successful, it does not clear ram
+// call this method to send mail to auction owner, when auction is successful, it does not clear ram
 void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTransaction& trans)
 {
     uint64 owner_guid = MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER);
@@ -216,12 +216,12 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTrans
 
         uint32 profit = auction->bid + auction->deposit - auctionCut;
 
-        //FIXME: what do if owner offline
+        // FIXME: what do if owner offline
         if (owner)
         {
             owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
             owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
-            //send auction owner notification, bidder must be current!
+            // send auction owner notification, bidder must be current!
             owner->GetSession()->SendAuctionOwnerNotification(auction);
         }
         MailDraft(msgAuctionSuccessfulSubject.str(), auctionSuccessfulBody.str())
@@ -230,10 +230,10 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTrans
     }
 }
 
-//does not clear ram
+// does not clear ram
 void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction, SQLTransaction& trans)
 {
-    //return an item in auction to its owner by mail
+    // return an item in auction to its owner by mail
     Item *pItem = GetAItem(auction->item_guidlow);
     if (!pItem)
         return;
@@ -256,7 +256,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction, SQLTransact
     }
 }
 
-//this function sends mail to old bidder
+// this function sends mail to old bidder
 void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
 {
     uint64 oldBidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
@@ -281,7 +281,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 new
     }
 }
 
-//this function sends mail, when auction is cancelled to old bidder
+// this function sends mail, when auction is cancelled to old bidder
 void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans)
 {
     uint64 bidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
@@ -420,7 +420,7 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
-        //FIXME: found way for proper auctionhouse selection by another way
+        // FIXME: found way for proper auctionhouse selection by another way
         // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
         // but no easy way convert creature faction to player race faction for specific city
         switch (factionTemplateId)
@@ -476,7 +476,7 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 /*item_temp
 void AuctionHouseObject::Update()
 {
     time_t curTime = sWorld->GetGameTime();
-    ///- Handle expired auctions
+    // /- Handle expired auctions
 
     // If storage is empty, no need to update. next == NULL in this case.
     if (AuctionsMap.empty())
@@ -497,18 +497,18 @@ void AuctionHouseObject::Update()
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        ///- Either cancel the auction if there was no bidder
+        // /- Either cancel the auction if there was no bidder
         if (auction->bidder == 0)
         {
             sAuctionMgr->SendAuctionExpiredMail(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
         }
-        ///- Or perform the transaction
+        // /- Or perform the transaction
         else
         {
-            //we should send an "item sold" message if the seller is online
-            //we send the item to the winner
-            //we send the money to the seller
+            // we should send an "item sold" message if the seller is online
+            // we send the item to the winner
+            // we send the money to the seller
             sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
             sAuctionMgr->SendAuctionWonMail(auction, trans);
             sScriptMgr->OnAuctionSuccessful(this, auction);
@@ -516,7 +516,7 @@ void AuctionHouseObject::Update()
 
         uint32 item_template = auction->item_template;
 
-        ///- In any case clear the auction
+        // /- In any case clear the auction
         auction->DeleteFromDB(trans);
         CharacterDatabase.CommitTransaction(trans);
 
@@ -619,7 +619,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 if (itemRandProp)
                 {
                     char* const* temp = itemRandProp->nameSuffix;
-                    //char* temp = itemRandProp->nameSuffix;
+                    // char* temp = itemRandProp->nameSuffix;
 
                     // dbc local name
                     if (temp)
@@ -647,7 +647,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     }
 }
 
-//this function inserts to WorldPacket auction's data
+// this function inserts to WorldPacket auction's data
 bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
 {
     Item *pItem = sAuctionMgr->GetAItem(item_guidlow);
@@ -666,19 +666,19 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
         data << uint32(pItem->GetEnchantmentCharges(EnchantmentSlot(i)));
     }
 
-    data << int32(pItem->GetItemRandomPropertyId());        //random item property id
-    data << uint32(pItem->GetItemSuffixFactor());           //SuffixFactor
-    data << uint32(pItem->GetCount());                      //item->count
-    data << uint32(pItem->GetSpellCharges());               //item->charge FFFFFFF
-    data << uint32(0);                                      //Unknown
-    data << uint64(owner);                                  //Auction->owner
-    data << uint32(startbid);                               //Auction->startbid (not sure if useful)
+    data << int32(pItem->GetItemRandomPropertyId());        // random item property id
+    data << uint32(pItem->GetItemSuffixFactor());           // SuffixFactor
+    data << uint32(pItem->GetCount());                      // item->count
+    data << uint32(pItem->GetSpellCharges());               // item->charge FFFFFFF
+    data << uint32(0);                                      // Unknown
+    data << uint64(owner);                                  // Auction->owner
+    data << uint32(startbid);                               // Auction->startbid (not sure if useful)
     data << uint32(bid ? GetAuctionOutBid() : 0);
-    //minimal outbid
-    data << uint32(buyout);                                 //auction->buyout
-    data << uint32((expire_time-time(NULL))*IN_MILLISECONDS);//time left
-    data << uint64(bidder);                                 //auction->bidder current
-    data << uint32(bid);                                    //current bid
+    // minimal outbid
+    data << uint32(buyout);                                 // auction->buyout
+    data << uint32((expire_time-time(NULL))*IN_MILLISECONDS);// time left
+    data << uint64(bidder);                                 // auction->bidder current
+    data << uint32(bid);                                    // current bid
     return true;
 }
 
@@ -688,7 +688,7 @@ uint32 AuctionEntry::GetAuctionCut() const
     return std::max(cut, 0);
 }
 
-/// the sum of outbid is (1% from current bid)*5, if bid is very small, it is 1c
+// / the sum of outbid is (1% from current bid)*5, if bid is very small, it is 1c
 uint32 AuctionEntry::GetAuctionOutBid() const
 {
     uint32 outbid = CalculatePctN(bid, 5);

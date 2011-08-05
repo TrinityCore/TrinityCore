@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -41,7 +41,7 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     if (pl == pl->duel->initiator || !plTarget || pl == plTarget || pl->duel->startTime != 0 || plTarget->duel->startTime != 0)
         return;
 
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
+    // sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
     sLog->outStaticDebug("Player 1 is: %u (%s)", pl->GetGUIDLow(), pl->GetName());
     sLog->outStaticDebug("Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
 
@@ -55,7 +55,7 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_CANCELLED");
+    // sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_CANCELLED");
 
     // no duel requested
     if (!GetPlayer()->duel)

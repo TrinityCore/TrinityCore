@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Player.h"
@@ -23,7 +23,7 @@
 
 BattlegroundRB::BattlegroundRB()
 {
-    //TODO FIX ME!
+    // TODO FIX ME!
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
@@ -51,7 +51,7 @@ void BattlegroundRB::StartingEventOpenDoors()
 void BattlegroundRB::AddPlayer(Player *plr)
 {
     Battleground::AddPlayer(plr);
-    //create score and add it to map, default values are set in constructor
+    // create score and add it to map, default values are set in constructor
     BattlegroundRBScore* sc = new BattlegroundRBScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -73,7 +73,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
 
     if (!(_player->resetTalents()))
     {
-        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
+        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    // you have not any talent
         data << uint64(0);
         data << uint32(0);
         SendPacket(&data);
@@ -81,7 +81,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
     }
 
     _player->SendTalentsInfoData(false);
-    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    unit->CastSpell(_player, 14867, true);                  // spell: "Untalent Visual Effect"
 }
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket & recv_data)

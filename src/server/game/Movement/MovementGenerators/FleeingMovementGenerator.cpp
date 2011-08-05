@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Creature.h"
@@ -77,7 +77,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
 
     float temp_x, temp_y, angle = 0;
     const Map * _map = owner.GetBaseMap();
-    //primitive path-finding
+    // primitive path-finding
     for (uint8 i = 0; i < 18; ++i)
     {
         if (i_only_forward && i > 2)
@@ -259,10 +259,10 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
     // if we too close may use 'path-finding' else just stop
     i_only_forward = cur_dist >= MIN_QUIET_DISTANCE/3;
 
-    //get angle and 'distance from caster' to run
+    // get angle and 'distance from caster' to run
     float angle;
 
-    if (i_cur_angle == 0.0f && i_last_distance_from_caster == 0.0f) //just started, first time
+    if (i_cur_angle == 0.0f && i_last_distance_from_caster == 0.0f) // just started, first time
     {
         angle = (float)rand_norm()*(1.0f - cur_dist/MIN_QUIET_DISTANCE) * static_cast<float>(M_PI/3) + (float)rand_norm()*static_cast<float>(M_PI*2/3);
         i_to_distance_from_caster = MIN_QUIET_DISTANCE;

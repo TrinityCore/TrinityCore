@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef __SPELL_SCRIPT_H
@@ -102,10 +102,10 @@ class _SpellScript
         std::string const* m_scriptName;
         uint32 m_scriptSpellId;
     public:
-        //
+        // 
         // SpellScript/AuraScript interface base
         // these functions are safe to override, see notes below for usage instructions
-        //
+        // 
         // Function in which handler functions are registered, must be implemented in script
         virtual void Register() = 0;
         // Function called on server startup, if returns false script won't be used in core
@@ -213,10 +213,10 @@ class SpellScript : public _SpellScript
         uint8 m_hitPreventEffectMask;
         uint8 m_hitPreventDefaultEffectMask;
     public:
-        //
+        // 
         // SpellScript interface
         // hooks to which you can attach your functions
-        //
+        // 
 
         // example: OnCheckCast += SpellCheckCastFn();
         // where function is SpellCastResult function()
@@ -249,9 +249,9 @@ class SpellScript : public _SpellScript
         // 4. OnHit - executed just before spell deals damage and procs auras
         // 5. AfterHit - executed just after spell finishes all it's jobs for target
 
-        //
+        // 
         // methods allowing interaction with Spell object
-        //
+        // 
         // methods useable during all spell handling phases
         Unit* GetCaster();
         Unit* GetOriginalCaster();
@@ -489,10 +489,10 @@ class AuraScript : public _SpellScript
         ScriptStateStack m_scriptStates;
 
     public:
-        //
+        // 
         // AuraScript interface
         // hooks to which you can attach your functions
-        //
+        // 
         // executed when area aura checks if it can be applied on target
         // example: OnEffectApply += AuraEffectApplyFn(class::function);
         // where function is: bool function (Unit* target);
@@ -654,19 +654,19 @@ class AuraScript : public _SpellScript
         AuraApplication const* GetTargetApplication() const;
 };
 
-//
+// 
 // definitions:
-//
+// 
 // EffectIndexSpecifier - specifies conditions for effects
 // EFFECT_0 - first effect matches
 // EFFECT_1 - second effect matches
 // EFFECT_2 - third effect matches
 // EFFECT_FIRST_FOUND - first effect matching other conditions matches
 // EFFECT_ALL - all effects of spell match
-//
+// 
 // EffectNameSpecifier - specifies conditions for spell effect names
 // SPELL_EFFECT_ANY - any effect but not 0 matches condition
 // SPELL_EFFECT_XXX - one of values of enum SpellEffects - effect with equal name matches
-//
+// 
 
 #endif // __SPELL_SCRIPT_H

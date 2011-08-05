@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 
@@ -36,7 +36,7 @@ bool Condition::Meets(Player* player, Unit* invoker)
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Condition player not found");
         return false;                                       // player not present, return false
     }
-    uint32 refId = mConditionValue3;//value 3 can be a 'quick' reference
+    uint32 refId = mConditionValue3;// value 3 can be a 'quick' reference
     bool condMeets = false;
     bool sendErrorMsg = false;
     switch (mConditionType)
@@ -52,7 +52,7 @@ bool Condition::Meets(Player* player, Unit* invoker)
                 condMeets = target->HasAuraEffect(mConditionValue1, mConditionValue2);
             break;
         case CONDITION_ITEM:
-            condMeets = (mConditionValue2 && player->HasItemCount(mConditionValue1, mConditionValue2)) || (!mConditionValue2 && !player->HasItemCount(mConditionValue1, mConditionValue2));//HasItemCount returns false if 0 count is used
+            condMeets = (mConditionValue2 && player->HasItemCount(mConditionValue1, mConditionValue2)) || (!mConditionValue2 && !player->HasItemCount(mConditionValue1, mConditionValue2));// HasItemCount returns false if 0 count is used
             break;
         case CONDITION_ITEM_EQUIPPED:
             condMeets = player->HasItemOrGemWithIdEquipped(mConditionValue1, 1);
@@ -119,8 +119,8 @@ bool Condition::Meets(Player* player, Unit* invoker)
             break;
         }
         case CONDITION_SPELL_SCRIPT_TARGET:
-            condMeets = true;//spell target condition is handled in spellsystem, here it is always true
-            refId = 0;//cant have references! use CONDITION_SOURCE_TYPE_SPELL for it
+            condMeets = true;// spell target condition is handled in spellsystem, here it is always true
+            refId = 0;// cant have references! use CONDITION_SOURCE_TYPE_SPELL for it
             break;
         case CONDITION_CREATURE_TARGET:
         {
@@ -153,8 +153,8 @@ bool Condition::Meets(Player* player, Unit* invoker)
             break;
         case CONDITION_ITEM_TARGET:
         {
-            condMeets = true;//handled in Item::IsTargetValidForItemUse
-            refId = 0;//cant have references for now
+            condMeets = true;// handled in Item::IsTargetValidForItemUse
+            refId = 0;// cant have references for now
             break;
         }
         case CONDITION_SPELL:
@@ -219,7 +219,7 @@ bool Condition::Meets(Player* player, Unit* invoker)
     }
 
     bool refMeets = false;
-    if (condMeets && refId)//only have to check references if 'this' is met
+    if (condMeets && refId)// only have to check references if 'this' is met
     {
         ConditionList ref = sConditionMgr->GetConditionReferences(refId);
         refMeets = sConditionMgr->IsPlayerMeetToConditions(player, ref);
@@ -227,7 +227,7 @@ bool Condition::Meets(Player* player, Unit* invoker)
     else
         refMeets = true;
 
-    if (sendErrorMsg && ErrorTextd && (!condMeets || !refMeets))//send special error from DB
+    if (sendErrorMsg && ErrorTextd && (!condMeets || !refMeets))// send special error from DB
         player->m_ConditionErrorMsgId = ErrorTextd;
 
     bool script = sScriptMgr->OnConditionCheck(this, player, invoker); // Returns true by default.
@@ -266,7 +266,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, ConditionList con
             else if (!(*itr).second)
                 continue;
 
-            if ((*i)->mReferenceId)//handle reference
+            if ((*i)->mReferenceId)// handle reference
             {
                 ConditionReferenceMap::const_iterator ref = m_ConditionReferenceMap.find((*i)->mReferenceId);
                 if (ref != m_ConditionReferenceMap.end())
@@ -277,11 +277,11 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, ConditionList con
                 else
                 {
                     sLog->outDebug(LOG_FILTER_CONDITIONSYS, "IsPlayerMeetToConditionList: Reference template -%u not found",
-                        (*i)->mReferenceId);//checked at loading, should never happen
+                        (*i)->mReferenceId);// checked at loading, should never happen
                 }
 
             }
-            else //handle normal condition
+            else // handle normal condition
             {
                 if (!(*i)->Meets(player, invoker))
                     ElseGroupMap[(*i)->mElseGroup] = false;
@@ -307,7 +307,7 @@ bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList const&
     bool result = IsPlayerMeetToConditionList(player, conditions, invoker);
 
     if (player && player->m_ConditionErrorMsgId && player->GetSession() && !result)
-        player->GetSession()->SendNotification(player->m_ConditionErrorMsgId);  //m_ConditionErrorMsgId is set only if a condition was not met
+        player->GetSession()->SendNotification(player->m_ConditionErrorMsgId);  // m_ConditionErrorMsgId is set only if a condition was not met
 
     return result;
 }
@@ -353,7 +353,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     Clean();
 
-    //must clear all custom handled cases (groupped types) before reload
+    // must clear all custom handled cases (groupped types) before reload
     if (isReload)
     {
         sLog->outString("Reseting Loot Conditions...");
@@ -409,9 +409,9 @@ void ConditionMgr::LoadConditions(bool isReload)
         if (iConditionTypeOrReference >= 0)
             cond->mConditionType = ConditionType(iConditionTypeOrReference);
 
-        if (iConditionTypeOrReference < 0)//it has a reference
+        if (iConditionTypeOrReference < 0)// it has a reference
         {
-            if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skip
+            if (iConditionTypeOrReference == iSourceTypeOrReferenceId)// self referencing, skip
             {
                 sLog->outErrorDb("Condition reference %i is referencing self, skipped", iSourceTypeOrReferenceId);
                 delete cond;
@@ -422,7 +422,7 @@ void ConditionMgr::LoadConditions(bool isReload)
             const char* rowType = "reference template";
             if (iSourceTypeOrReferenceId >= 0)
                 rowType = "reference";
-            //check for useless data
+            // check for useless data
             if (cond->mConditionValue1)
                 sLog->outErrorDb("Condition %s %i has useless data in value1 (%u)!", rowType, iSourceTypeOrReferenceId, cond->mConditionValue1);
             if (cond->mConditionValue2)
@@ -434,35 +434,35 @@ void ConditionMgr::LoadConditions(bool isReload)
             if (cond->mSourceEntry && iSourceTypeOrReferenceId < 0)
                 sLog->outErrorDb("Condition %s %i has useless data in SourceEntry (%u)!", rowType, iSourceTypeOrReferenceId, cond->mSourceEntry);
         }
-        else if (!isConditionTypeValid(cond))//doesn't have reference, validate ConditionType
+        else if (!isConditionTypeValid(cond))// doesn't have reference, validate ConditionType
         {
             delete cond;
             continue;
         }
 
-        if (iSourceTypeOrReferenceId < 0)//it is a reference template
+        if (iSourceTypeOrReferenceId < 0)// it is a reference template
         {
             uint32 uRefId = abs(iSourceTypeOrReferenceId);
-            if (m_ConditionReferenceMap.find(uRefId) == m_ConditionReferenceMap.end())//make sure we have a list for our conditions, based on reference id
+            if (m_ConditionReferenceMap.find(uRefId) == m_ConditionReferenceMap.end())// make sure we have a list for our conditions, based on reference id
             {
                 ConditionList mCondList;
                 m_ConditionReferenceMap[uRefId] = mCondList;
             }
-            m_ConditionReferenceMap[uRefId].push_back(cond);//add to reference storage
+            m_ConditionReferenceMap[uRefId].push_back(cond);// add to reference storage
             count++;
             continue;
-        }//end of reference templates
+        }// end of reference templates
 
         cond->mSourceType = ConditionSourceType(iSourceTypeOrReferenceId);
 
-        //if not a reference and SourceType is invalid, skip
+        // if not a reference and SourceType is invalid, skip
         if (iConditionTypeOrReference >= 0 && !isSourceTypeValid(cond))
         {
             delete cond;
             continue;
         }
 
-        //Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
+        // Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
         if (cond->mSourceGroup && !isGroupable(cond->mSourceType))
         {
             sLog->outErrorDb("Condition type %u has not allowed grouping %u!", uint32(cond->mSourceType), cond->mSourceGroup);
@@ -472,7 +472,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         else if (cond->mSourceGroup)
         {
             bool bIsDone = false;
-            //handle grouped conditions
+            // handle grouped conditions
             switch (cond->mSourceType)
             {
                 case CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE:
@@ -519,13 +519,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
                 {
-                    //if no list for vehicle create one
+                    // if no list for vehicle create one
                     if (m_VehicleSpellConditions.find(cond->mSourceGroup) == m_VehicleSpellConditions.end())
                     {
                         ConditionTypeMap cmap;
                         m_VehicleSpellConditions[cond->mSourceGroup] = cmap;
                     }
-                    //if no list for vehicle's spell create one
+                    // if no list for vehicle's spell create one
                     if (m_VehicleSpellConditions[cond->mSourceGroup].find(cond->mSourceEntry) == m_VehicleSpellConditions[cond->mSourceGroup].end())
                     {
                         ConditionList clist;
@@ -553,22 +553,22 @@ void ConditionMgr::LoadConditions(bool isReload)
             continue;
         }
 
-        //handle not grouped conditions
-        //make sure we have a storage list for our SourceType
+        // handle not grouped conditions
+        // make sure we have a storage list for our SourceType
         if (m_ConditionMap.find(cond->mSourceType) == m_ConditionMap.end())
         {
             ConditionTypeMap mTypeMap;
-            m_ConditionMap[cond->mSourceType] = mTypeMap;//add new empty list for SourceType
+            m_ConditionMap[cond->mSourceType] = mTypeMap;// add new empty list for SourceType
         }
 
-        //make sure we have a condition list for our SourceType's entry
+        // make sure we have a condition list for our SourceType's entry
         if (m_ConditionMap[cond->mSourceType].find(cond->mSourceEntry) == m_ConditionMap[cond->mSourceType].end())
         {
             ConditionList mCondList;
             m_ConditionMap[cond->mSourceType][cond->mSourceEntry] = mCondList;
         }
 
-        //add new Condition to storage based on Type/Entry
+        // add new Condition to storage based on Type/Entry
         m_ConditionMap[cond->mSourceType][cond->mSourceEntry].push_back(cond);
         ++count;
     }
@@ -882,7 +882,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_CONE_ENTRY)
                 {
                     targetfound = true;
-                    //break;
+                    // break;
                 }
                 else if (cond->mConditionValue3 & (1 << i))
                 {
@@ -948,7 +948,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     if (pItemProto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
                         pItemProto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE)
                     {
-                        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, pSpellInfo->Id);//script loading is done before item target loading
+                        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, pSpellInfo->Id);// script loading is done before item target loading
                         if (!conditions.empty())
                             break;
 
@@ -1271,7 +1271,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_TARGET_RANGE:
         {
-            if (cond->mConditionValue2 && cond->mConditionValue2 < cond->mConditionValue1)//maxDist can be 0 for infinit max range
+            if (cond->mConditionValue2 && cond->mConditionValue2 < cond->mConditionValue1)// maxDist can be 0 for infinit max range
             {
                 sLog->outErrorDb("TargetRange condition has max distance closer then min distance, skipped");
                 return false;

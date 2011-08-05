@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "ObjectAccessor.h"
@@ -269,8 +269,8 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
     Corpse* corpse = GetCorpseForPlayerGUID(player_guid);
     if (!corpse)
     {
-        //in fact this function is called from several places
-        //even when player doesn't have a corpse, not an error
+        // in fact this function is called from several places
+        // even when player doesn't have a corpse, not an error
         return NULL;
     }
 
@@ -377,12 +377,12 @@ void ObjectAccessor::UnloadAll()
     }
 }
 
-/// Define the static members of HashMapHolder
+// / Define the static members of HashMapHolder
 
 template <class T> UNORDERED_MAP< uint64, T* > HashMapHolder<T>::m_objectMap;
 template <class T> ACE_Thread_Mutex HashMapHolder<T>::i_lock;
 
-/// Global definitions for the hashmap storage
+// / Global definitions for the hashmap storage
 
 template class HashMapHolder<Player>;
 template class HashMapHolder<Pet>;

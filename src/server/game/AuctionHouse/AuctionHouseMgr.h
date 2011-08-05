@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef _AUCTION_HOUSE_MGR_H
@@ -54,12 +54,12 @@ struct AuctionEntry
     uint32 item_guidlow;
     uint32 item_template;
     uint32 owner;
-    uint32 startbid;                                        //maybe useless
+    uint32 startbid;                                        // maybe useless
     uint32 bid;
     uint32 buyout;
     time_t expire_time;
     uint32 bidder;
-    uint32 deposit;                                         //deposit can be calculated only when creating auction
+    uint32 deposit;                                         // deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
 
@@ -76,7 +76,7 @@ struct AuctionEntry
 
 };
 
-//this class is used as auctionhouse instance
+// this class is used as auctionhouse instance
 class AuctionHouseObject
 {
   public:
@@ -143,7 +143,7 @@ class AuctionHouseMgr
             return NULL;
         }
 
-        //auction messages
+        // auction messages
         void SendAuctionWonMail(AuctionEntry * auction, SQLTransaction& trans);
         void SendAuctionSalePendingMail(AuctionEntry * auction, SQLTransaction& trans);
         void SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTransaction& trans);
@@ -159,7 +159,7 @@ class AuctionHouseMgr
         // Used primarily at server start to avoid loading a list of expired auctions
         void DeleteExpiredAuctionsAtStartup();
 
-        //load first auction items, because of check if item exists, when loading
+        // load first auction items, because of check if item exists, when loading
         void LoadAuctionItems();
         void LoadAuctions();
 

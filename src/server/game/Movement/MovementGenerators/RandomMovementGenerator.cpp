@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Creature.h"
@@ -26,7 +26,7 @@
 #include "Util.h"
 #include "CreatureGroups.h"
 
-#define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
+#define RUNNING_CHANCE_RANDOMMV 20                                  // will be "1 / RUNNING_CHANCE_RANDOMMV"
 
 template<>
 bool
@@ -55,8 +55,8 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     Map const* map = creature.GetBaseMap();
 
     // For 2D/3D system selection
-    //bool is_land_ok  = creature.canWalk();
-    //bool is_water_ok = creature.canSwim();
+    // bool is_land_ok  = creature.canWalk();
+    // bool is_water_ok = creature.canSwim();
     bool is_air_ok   = creature.canFly();
 
     for (uint32 i = 0; ; ++i)
@@ -90,7 +90,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
             if (tz >= nz || wz >= nz)
                 continue; // Problem here, we must fly above the ground and water, not under. Let's try on next tick
         }
-        //else if (is_water_ok) // 3D system under water and above ground (swimming mode)
+        // else if (is_water_ok) // 3D system under water and above ground (swimming mode)
         else // 2D only
         {
             dist = dist >= 100.0f ? 10.0f : sqrtf(dist); // 10.0 is the max that vmap high can check (MAX_CAN_FALL_DISTANCE)
@@ -120,14 +120,14 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     {
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
     }
-    //else if (is_water_ok) // Swimming mode to be done with more than this check
+    // else if (is_water_ok) // Swimming mode to be done with more than this check
     else
     {
         i_nextMoveTime.Reset(urand(500+i_destinationHolder.GetTotalTravelTime(), 5000+i_destinationHolder.GetTotalTravelTime()));
         creature.AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
     }
 
-    //Call for creature group update
+    // Call for creature group update
     if (creature.GetFormation() && creature.GetFormation()->getLeader() == &creature)
     {
         creature.GetFormation()->LeaderMoveTo(nx, ny, nz);

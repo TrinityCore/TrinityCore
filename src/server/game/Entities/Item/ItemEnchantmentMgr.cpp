@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include <stdlib.h>
@@ -104,7 +104,7 @@ uint32 GetItemEnchantMod(int32 entry)
         if (fCount > dRoll) return ench_iter->ench;
     }
 
-    //we could get here only if sum of all enchantment chances is lower than 100%
+    // we could get here only if sum of all enchantment chances is lower than 100%
     dRoll =  (irand(0, (int)floor(fCount * 100) + 1)) / 100;
     fCount = 0;
 

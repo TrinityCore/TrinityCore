@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_SMARTSCRIPTMGR_H
@@ -26,8 +26,8 @@
 #include "CreatureTextMgr.h"
 #include "Spell.h"
 
-//#include "SmartScript.h"
-//#include "SmartAI.h"
+// #include "SmartScript.h"
+// #include "SmartAI.h"
 
 struct WayPoint
 {
@@ -83,75 +83,75 @@ const uint32 SmartPhaseMask[SMART_EVENT_PHASE_COUNT][2] =
 
 enum SMART_EVENT
 {
-    SMART_EVENT_UPDATE_IC                = 0,       //1             // InitialMin, InitialMax, RepeatMin, RepeatMax
-    SMART_EVENT_UPDATE_OOC               = 1,       //1             // InitialMin, InitialMax, RepeatMin, RepeatMax
-    SMART_EVENT_HEALT_PCT                = 2,       //1             // HPMin%, HPMax%,  RepeatMin, RepeatMax
-    SMART_EVENT_MANA_PCT                 = 3,       //1             // ManaMin%, ManaMax%, RepeatMin, RepeatMax
-    SMART_EVENT_AGGRO                    = 4,       //1             // NONE
-    SMART_EVENT_KILL                     = 5,       //1             // CooldownMin0, CooldownMax1, playerOnly2, else creature entry3
-    SMART_EVENT_DEATH                    = 6,       //1             // NONE
-    SMART_EVENT_EVADE                    = 7,       //1             // NONE
-    SMART_EVENT_SPELLHIT                 = 8,       //1             // SpellID, School, CooldownMin, CooldownMax
-    SMART_EVENT_RANGE                    = 9,       //1             // MinDist, MaxDist, RepeatMin, RepeatMax
-    SMART_EVENT_OOC_LOS                  = 10,      //1             // NoHostile, MaxRnage, CooldownMin, CooldownMax
-    SMART_EVENT_RESPAWN                  = 11,      //1             // type, MapId, ZoneId
-    SMART_EVENT_TARGET_HEALTH_PCT        = 12,      //1             // HPMin%, HPMax%, RepeatMin, RepeatMax
-    SMART_EVENT_TARGET_CASTING           = 13,      //1             // RepeatMin, RepeatMax
-    SMART_EVENT_FRIENDLY_HEALTH          = 14,      //1             // HPDeficit, Radius, RepeatMin, RepeatMax
-    SMART_EVENT_FRIENDLY_IS_CC           = 15,      //1             // Radius, RepeatMin, RepeatMax
-    SMART_EVENT_FRIENDLY_MISSING_BUFF    = 16,      //1             // SpellId, Radius, RepeatMin, RepeatMax
-    SMART_EVENT_SUMMONED_UNIT            = 17,      //1             // CreatureId(0 all), CooldownMin, CooldownMax
-    SMART_EVENT_TARGET_MANA_PCT          = 18,      //1             // ManaMin%, ManaMax%, RepeatMin, RepeatMax
-    SMART_EVENT_ACCEPTED_QUEST           = 19,      //1             // QuestID(0any)
-    SMART_EVENT_REWARD_QUEST             = 20,      //1             // QuestID(0any)
-    SMART_EVENT_REACHED_HOME             = 21,      //1             // NONE
-    SMART_EVENT_RECEIVE_EMOTE            = 22,      //1             // EmoteId, CooldownMin, CooldownMax, condition, val1, val2, val3
-    SMART_EVENT_HAS_AURA                 = 23,      //1             // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 RepeatMin, RepeatMax
-    SMART_EVENT_TARGET_BUFFED            = 24,      //1             // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 RepeatMin, RepeatMax
-    SMART_EVENT_RESET                    = 25,      //1             // Called after combat, when the creature respawn and spawn.
+    SMART_EVENT_UPDATE_IC                = 0,       // 1             // InitialMin, InitialMax, RepeatMin, RepeatMax
+    SMART_EVENT_UPDATE_OOC               = 1,       // 1             // InitialMin, InitialMax, RepeatMin, RepeatMax
+    SMART_EVENT_HEALT_PCT                = 2,       // 1             // HPMin%, HPMax%,  RepeatMin, RepeatMax
+    SMART_EVENT_MANA_PCT                 = 3,       // 1             // ManaMin%, ManaMax%, RepeatMin, RepeatMax
+    SMART_EVENT_AGGRO                    = 4,       // 1             // NONE
+    SMART_EVENT_KILL                     = 5,       // 1             // CooldownMin0, CooldownMax1, playerOnly2, else creature entry3
+    SMART_EVENT_DEATH                    = 6,       // 1             // NONE
+    SMART_EVENT_EVADE                    = 7,       // 1             // NONE
+    SMART_EVENT_SPELLHIT                 = 8,       // 1             // SpellID, School, CooldownMin, CooldownMax
+    SMART_EVENT_RANGE                    = 9,       // 1             // MinDist, MaxDist, RepeatMin, RepeatMax
+    SMART_EVENT_OOC_LOS                  = 10,      // 1             // NoHostile, MaxRnage, CooldownMin, CooldownMax
+    SMART_EVENT_RESPAWN                  = 11,      // 1             // type, MapId, ZoneId
+    SMART_EVENT_TARGET_HEALTH_PCT        = 12,      // 1             // HPMin%, HPMax%, RepeatMin, RepeatMax
+    SMART_EVENT_TARGET_CASTING           = 13,      // 1             // RepeatMin, RepeatMax
+    SMART_EVENT_FRIENDLY_HEALTH          = 14,      // 1             // HPDeficit, Radius, RepeatMin, RepeatMax
+    SMART_EVENT_FRIENDLY_IS_CC           = 15,      // 1             // Radius, RepeatMin, RepeatMax
+    SMART_EVENT_FRIENDLY_MISSING_BUFF    = 16,      // 1             // SpellId, Radius, RepeatMin, RepeatMax
+    SMART_EVENT_SUMMONED_UNIT            = 17,      // 1             // CreatureId(0 all), CooldownMin, CooldownMax
+    SMART_EVENT_TARGET_MANA_PCT          = 18,      // 1             // ManaMin%, ManaMax%, RepeatMin, RepeatMax
+    SMART_EVENT_ACCEPTED_QUEST           = 19,      // 1             // QuestID(0any)
+    SMART_EVENT_REWARD_QUEST             = 20,      // 1             // QuestID(0any)
+    SMART_EVENT_REACHED_HOME             = 21,      // 1             // NONE
+    SMART_EVENT_RECEIVE_EMOTE            = 22,      // 1             // EmoteId, CooldownMin, CooldownMax, condition, val1, val2, val3
+    SMART_EVENT_HAS_AURA                 = 23,      // 1             // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 RepeatMin, RepeatMax
+    SMART_EVENT_TARGET_BUFFED            = 24,      // 1             // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 RepeatMin, RepeatMax
+    SMART_EVENT_RESET                    = 25,      // 1             // Called after combat, when the creature respawn and spawn.
 
-    SMART_EVENT_IC_LOS                   = 26,      //1             // NoHostile, MaxRnage, CooldownMin, CooldownMax
-    SMART_EVENT_PASSENGER_BOARDED        = 27,      //1             // CooldownMin, CooldownMax
-    SMART_EVENT_PASSENGER_REMOVED        = 28,      //1             // CooldownMin, CooldownMax
-    SMART_EVENT_CHARMED                  = 29,      //1             // NONE
-    SMART_EVENT_CHARMED_TARGET           = 30,      //1             // NONE
-    SMART_EVENT_SPELLHIT_TARGET          = 31,      //1             // SpellID, School, CooldownMin, CooldownMax
-    SMART_EVENT_DAMAGED                  = 32,      //1             // MinDmg, MaxDmg, CooldownMin, CooldownMax
-    SMART_EVENT_DAMAGED_TARGET           = 33,      //1             // MinDmg, MaxDmg, CooldownMin, CooldownMax
-    SMART_EVENT_MOVEMENTINFORM           = 34,      //1             // MovementType(any), PointID
-    SMART_EVENT_SUMMON_DESPAWNED         = 35,      //1             // Entry, CooldownMin, CooldownMax
-    SMART_EVENT_CORPSE_REMOVED           = 36,      //1             // NONE
-    SMART_EVENT_AI_INIT                  = 37,      //1             // NONE
-    SMART_EVENT_DATA_SET                 = 38,      //1             // Id, Value, CooldownMin, CooldownMax
-    SMART_EVENT_WAYPOINT_START           = 39,      //1             // PointId(0any), pathID(0any)
-    SMART_EVENT_WAYPOINT_REACHED         = 40,      //1             // PointId(0any), pathID(0any)
-    SMART_EVENT_TRANSPORT_ADDPLAYER      = 41,      //1             // NONE
-    SMART_EVENT_TRANSPORT_ADDCREATURE    = 42,      //1             // Entry (0 any)
-    SMART_EVENT_TRANSPORT_REMOVE_PLAYER  = 43,      //1             // NONE
-    SMART_EVENT_TRANSPORT_RELOCATE       = 44,      //1             // PointId
-    SMART_EVENT_INSTANCE_PLAYER_ENTER    = 45,      //1             // Team (0 any), CooldownMin, CooldownMax
-    SMART_EVENT_AREATRIGGER_ONTRIGGER    = 46,      //1             // TriggerId(0 any)
-    SMART_EVENT_QUEST_ACCEPTED           = 47,      //1             // none
-    SMART_EVENT_QUEST_OBJ_COPLETETION    = 48,      //1             // none
-    SMART_EVENT_QUEST_COMPLETION         = 49,      //1             // none
-    SMART_EVENT_QUEST_REWARDED           = 50,      //1             // none
-    SMART_EVENT_QUEST_FAIL               = 51,      //1             // none
-    SMART_EVENT_TEXT_OVER                = 52,      //1             // GroupId from creature_text,  creature entry who talks (0 any)
-    SMART_EVENT_RECEIVE_HEAL             = 53,      //1             // MinHeal, MaxHeal, CooldownMin, CooldownMax
-    SMART_EVENT_JUST_SUMMONED            = 54,      //1             // none
-    SMART_EVENT_WAYPOINT_PAUSED          = 55,      //1             // PointId(0any), pathID(0any)
-    SMART_EVENT_WAYPOINT_RESUMED         = 56,      //1             // PointId(0any), pathID(0any)
-    SMART_EVENT_WAYPOINT_STOPPED         = 57,      //1             // PointId(0any), pathID(0any)
-    SMART_EVENT_WAYPOINT_ENDED           = 58,      //1             // PointId(0any), pathID(0any)
-    SMART_EVENT_TIMED_EVENT_TRIGGERED    = 59,      //1             // id
-    SMART_EVENT_UPDATE                   = 60,      //1             // InitialMin, InitialMax, RepeatMin, RepeatMax
-    SMART_EVENT_LINK                     = 61,      //1             // INTERNAL USAGE, no params, used to link together multiple events, does not use any extra resources to iterate event lists needlessly
-    SMART_EVENT_GOSSIP_SELECT            = 62,      //1             // menuID, actionID
-    SMART_EVENT_JUST_CREATED             = 63,      //1             // none
-    SMART_EVENT_GOSSIP_HELLO             = 64,      //1             // none
-    SMART_EVENT_FOLLOW_COMPLETED         = 65,      //1             // none
-    SMART_EVENT_DUMMY_EFFECT             = 66,      //1             // spellId, effectIndex
-    SMART_EVENT_IS_BEHIND_TARGET         = 67,      //1             // cooldownMin, CooldownMax
+    SMART_EVENT_IC_LOS                   = 26,      // 1             // NoHostile, MaxRnage, CooldownMin, CooldownMax
+    SMART_EVENT_PASSENGER_BOARDED        = 27,      // 1             // CooldownMin, CooldownMax
+    SMART_EVENT_PASSENGER_REMOVED        = 28,      // 1             // CooldownMin, CooldownMax
+    SMART_EVENT_CHARMED                  = 29,      // 1             // NONE
+    SMART_EVENT_CHARMED_TARGET           = 30,      // 1             // NONE
+    SMART_EVENT_SPELLHIT_TARGET          = 31,      // 1             // SpellID, School, CooldownMin, CooldownMax
+    SMART_EVENT_DAMAGED                  = 32,      // 1             // MinDmg, MaxDmg, CooldownMin, CooldownMax
+    SMART_EVENT_DAMAGED_TARGET           = 33,      // 1             // MinDmg, MaxDmg, CooldownMin, CooldownMax
+    SMART_EVENT_MOVEMENTINFORM           = 34,      // 1             // MovementType(any), PointID
+    SMART_EVENT_SUMMON_DESPAWNED         = 35,      // 1             // Entry, CooldownMin, CooldownMax
+    SMART_EVENT_CORPSE_REMOVED           = 36,      // 1             // NONE
+    SMART_EVENT_AI_INIT                  = 37,      // 1             // NONE
+    SMART_EVENT_DATA_SET                 = 38,      // 1             // Id, Value, CooldownMin, CooldownMax
+    SMART_EVENT_WAYPOINT_START           = 39,      // 1             // PointId(0any), pathID(0any)
+    SMART_EVENT_WAYPOINT_REACHED         = 40,      // 1             // PointId(0any), pathID(0any)
+    SMART_EVENT_TRANSPORT_ADDPLAYER      = 41,      // 1             // NONE
+    SMART_EVENT_TRANSPORT_ADDCREATURE    = 42,      // 1             // Entry (0 any)
+    SMART_EVENT_TRANSPORT_REMOVE_PLAYER  = 43,      // 1             // NONE
+    SMART_EVENT_TRANSPORT_RELOCATE       = 44,      // 1             // PointId
+    SMART_EVENT_INSTANCE_PLAYER_ENTER    = 45,      // 1             // Team (0 any), CooldownMin, CooldownMax
+    SMART_EVENT_AREATRIGGER_ONTRIGGER    = 46,      // 1             // TriggerId(0 any)
+    SMART_EVENT_QUEST_ACCEPTED           = 47,      // 1             // none
+    SMART_EVENT_QUEST_OBJ_COPLETETION    = 48,      // 1             // none
+    SMART_EVENT_QUEST_COMPLETION         = 49,      // 1             // none
+    SMART_EVENT_QUEST_REWARDED           = 50,      // 1             // none
+    SMART_EVENT_QUEST_FAIL               = 51,      // 1             // none
+    SMART_EVENT_TEXT_OVER                = 52,      // 1             // GroupId from creature_text,  creature entry who talks (0 any)
+    SMART_EVENT_RECEIVE_HEAL             = 53,      // 1             // MinHeal, MaxHeal, CooldownMin, CooldownMax
+    SMART_EVENT_JUST_SUMMONED            = 54,      // 1             // none
+    SMART_EVENT_WAYPOINT_PAUSED          = 55,      // 1             // PointId(0any), pathID(0any)
+    SMART_EVENT_WAYPOINT_RESUMED         = 56,      // 1             // PointId(0any), pathID(0any)
+    SMART_EVENT_WAYPOINT_STOPPED         = 57,      // 1             // PointId(0any), pathID(0any)
+    SMART_EVENT_WAYPOINT_ENDED           = 58,      // 1             // PointId(0any), pathID(0any)
+    SMART_EVENT_TIMED_EVENT_TRIGGERED    = 59,      // 1             // id
+    SMART_EVENT_UPDATE                   = 60,      // 1             // InitialMin, InitialMax, RepeatMin, RepeatMax
+    SMART_EVENT_LINK                     = 61,      // 1             // INTERNAL USAGE, no params, used to link together multiple events, does not use any extra resources to iterate event lists needlessly
+    SMART_EVENT_GOSSIP_SELECT            = 62,      // 1             // menuID, actionID
+    SMART_EVENT_JUST_CREATED             = 63,      // 1             // none
+    SMART_EVENT_GOSSIP_HELLO             = 64,      // 1             // none
+    SMART_EVENT_FOLLOW_COMPLETED         = 65,      // 1             // none
+    SMART_EVENT_DUMMY_EFFECT             = 66,      // 1             // spellId, effectIndex
+    SMART_EVENT_IS_BEHIND_TARGET         = 67,      // 1             // cooldownMin, CooldownMax
 
     SMART_EVENT_END                      = 68,
 };
@@ -367,7 +367,7 @@ enum SMART_ACTION
     SMART_ACTION_FAIL_QUEST                         = 6,      // QuestID
     SMART_ACTION_ADD_QUEST                          = 7,      // QuestID
     SMART_ACTION_SET_REACT_STATE                    = 8,      // state
-    SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
+    SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      // 
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
     SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags
     SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, storageID, attackInvoker,
@@ -390,7 +390,7 @@ enum SMART_ACTION
     SMART_ACTION_FOLLOW                             = 29,     // Distance, Angle, EndCreatureEntry, credit, creditType (0monsterkill, 1event)
     SMART_ACTION_RANDOM_PHASE                       = 30,     // PhaseId1, PhaseId2, PhaseId3...
     SMART_ACTION_RANDOM_PHASE_RANGE                 = 31,     // PhaseMin, PhaseMax
-    SMART_ACTION_RESET_GOBJECT                      = 32,     //
+    SMART_ACTION_RESET_GOBJECT                      = 32,     // 
     SMART_ACTION_CALL_KILLEDMONSTER                 = 33,     // CreatureId,
     SMART_ACTION_SET_INST_DATA                      = 34,     // Field, Data
     SMART_ACTION_SET_INST_DATA64                    = 35,     // Field,
@@ -408,9 +408,9 @@ enum SMART_ACTION
     SMART_ACTION_MOVE_FORWARD                       = 46,     // distance
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
     SMART_ACTION_SET_ACTIVE                         = 48,     // No Params
-    SMART_ACTION_ATTACK_START                       = 49,     //
+    SMART_ACTION_ATTACK_START                       = 49,     // 
     SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in ms,
-    SMART_ACTION_KILL_UNIT                          = 51,     //
+    SMART_ACTION_KILL_UNIT                          = 51,     // 
     SMART_ACTION_ACTIVATE_TAXI                      = 52,     // TaxiID
     SMART_ACTION_WP_START                           = 53,     // run/walk, pathID, canRepeat, quest, despawntime, reactState
     SMART_ACTION_WP_PAUSE                           = 54,     // time
@@ -425,12 +425,12 @@ enum SMART_ACTION
     SMART_ACTION_STORE_VARIABLE_DECIMAL             = 63,     // varID, number
     SMART_ACTION_STORE_TARGET_LIST                  = 64,     // varID,
     SMART_ACTION_WP_RESUME                          = 65,     // none
-    SMART_ACTION_SET_ORIENTATION                    = 66,     //
+    SMART_ACTION_SET_ORIENTATION                    = 66,     // 
 
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
     SMART_ACTION_MOVE_TO_POS                        = 69,     // xyz
-    SMART_ACTION_RESPAWN_TARGET                     = 70,     //
+    SMART_ACTION_RESPAWN_TARGET                     = 70,     // 
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
     SMART_ACTION_TRIGGER_TIMED_EVENT                = 73,     // id(>1)
@@ -866,12 +866,12 @@ struct SmartAction
 
 enum SMARTAI_TEMPLATE
 {
-    SMARTAI_TEMPLATE_BASIC          = 0, //nothing is preset
-    SMARTAI_TEMPLATE_CASTER         = 1, //spellid, repeatMin, repeatMax, range, manaPCT +JOIN: target_param1 as castFlag
-    SMARTAI_TEMPLATE_TURRET         = 2, //spellid, repeatMin, repeatMax +JOIN: target_param1 as castFlag
+    SMARTAI_TEMPLATE_BASIC          = 0, // nothing is preset
+    SMARTAI_TEMPLATE_CASTER         = 1, // spellid, repeatMin, repeatMax, range, manaPCT +JOIN: target_param1 as castFlag
+    SMARTAI_TEMPLATE_TURRET         = 2, // spellid, repeatMin, repeatMax +JOIN: target_param1 as castFlag
     SMARTAI_TEMPLATE_PASSIVE        = 3,
-    SMARTAI_TEMPLATE_CAGED_GO_PART  = 4, //creatureID, give credit at point end?,
-    SMARTAI_TEMPLATE_CAGED_NPC_PART = 5, //gameObjectID, despawntime, run?, dist, TextGroupID
+    SMARTAI_TEMPLATE_CAGED_GO_PART  = 4, // creatureID, give credit at point end?,
+    SMARTAI_TEMPLATE_CAGED_NPC_PART = 5, // gameObjectID, despawntime, run?, dist, TextGroupID
     SMARTAI_TEMPLATE_END            = 6,
 };
 
@@ -1005,16 +1005,16 @@ enum eSmartAI
 
 enum SmartScriptType
 {
-    SMART_SCRIPT_TYPE_CREATURE = 0, //done
-    SMART_SCRIPT_TYPE_GAMEOBJECT = 1, //done
-    SMART_SCRIPT_TYPE_AREATRIGGER = 2, //done
-    SMART_SCRIPT_TYPE_EVENT = 3, //
-    SMART_SCRIPT_TYPE_GOSSIP = 4, //
-    SMART_SCRIPT_TYPE_QUEST = 5, //
-    SMART_SCRIPT_TYPE_SPELL = 6, //
-    SMART_SCRIPT_TYPE_TRANSPORT = 7, //
-    SMART_SCRIPT_TYPE_INSTANCE = 8, //
-    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
+    SMART_SCRIPT_TYPE_CREATURE = 0, // done
+    SMART_SCRIPT_TYPE_GAMEOBJECT = 1, // done
+    SMART_SCRIPT_TYPE_AREATRIGGER = 2, // done
+    SMART_SCRIPT_TYPE_EVENT = 3, // 
+    SMART_SCRIPT_TYPE_GOSSIP = 4, // 
+    SMART_SCRIPT_TYPE_QUEST = 5, // 
+    SMART_SCRIPT_TYPE_SPELL = 6, // 
+    SMART_SCRIPT_TYPE_TRANSPORT = 7, // 
+    SMART_SCRIPT_TYPE_INSTANCE = 8, // 
+    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, // 
     SMART_SCRIPT_TYPE_MAX = 10
 };
 
@@ -1121,26 +1121,26 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
 
 enum SmartEventFlags
 {
-    SMART_EVENT_FLAG_NOT_REPEATABLE        = 0x01,                     //Event can not repeat
-    SMART_EVENT_FLAG_DIFFICULTY_0          = 0x02,                     //Event only occurs in instance difficulty 0
-    SMART_EVENT_FLAG_DIFFICULTY_1          = 0x04,                     //Event only occurs in instance difficulty 1
-    SMART_EVENT_FLAG_DIFFICULTY_2          = 0x08,                     //Event only occurs in instance difficulty 2
-    SMART_EVENT_FLAG_DIFFICULTY_3          = 0x10,                     //Event only occurs in instance difficulty 3
+    SMART_EVENT_FLAG_NOT_REPEATABLE        = 0x01,                     // Event can not repeat
+    SMART_EVENT_FLAG_DIFFICULTY_0          = 0x02,                     // Event only occurs in instance difficulty 0
+    SMART_EVENT_FLAG_DIFFICULTY_1          = 0x04,                     // Event only occurs in instance difficulty 1
+    SMART_EVENT_FLAG_DIFFICULTY_2          = 0x08,                     // Event only occurs in instance difficulty 2
+    SMART_EVENT_FLAG_DIFFICULTY_3          = 0x10,                     // Event only occurs in instance difficulty 3
     SMART_EVENT_FLAG_RESERVED_5            = 0x20,
     SMART_EVENT_FLAG_RESERVED_6            = 0x40,
-    SMART_EVENT_FLAG_DEBUG_ONLY            = 0x80,                     //Event only occurs in debug build
+    SMART_EVENT_FLAG_DEBUG_ONLY            = 0x80,                     // Event only occurs in debug build
 
     SMART_EVENT_FLAG_DIFFICULTY_ALL        = (SMART_EVENT_FLAG_DIFFICULTY_0|SMART_EVENT_FLAG_DIFFICULTY_1|SMART_EVENT_FLAG_DIFFICULTY_2|SMART_EVENT_FLAG_DIFFICULTY_3)
 };
 
 enum SmartCastFlags
 {
-    SMARTCAST_INTERRUPT_PREVIOUS     = 0x01,                     //Interrupt any spell casting
-    SMARTCAST_TRIGGERED              = 0x02,                     //Triggered (this makes spell cost zero mana and have no cast time)
-    //CAST_FORCE_CAST             = 0x04,                     //Forces cast even if creature is out of mana or out of range
-    //CAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range
-    //CAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
-    //CAST_AURA_NOT_PRESENT       = 0x20,                     //Only casts the spell if the target does not have an aura from the spell
+    SMARTCAST_INTERRUPT_PREVIOUS     = 0x01,                     // Interrupt any spell casting
+    SMARTCAST_TRIGGERED              = 0x02,                     // Triggered (this makes spell cost zero mana and have no cast time)
+    // CAST_FORCE_CAST             = 0x04,                     // Forces cast even if creature is out of mana or out of range
+    // CAST_NO_MELEE_IF_OOM        = 0x08,                     // Prevents creature from entering melee if out of mana or out of range
+    // CAST_FORCE_TARGET_SELF      = 0x10,                     // Forces the target to cast this spell on itself
+    // CAST_AURA_NOT_PRESENT       = 0x20,                     // Only casts the spell if the target does not have an aura from the spell
 };
 
 // one line in DB is one event
@@ -1226,14 +1226,14 @@ class SmartAIMgr
                 return mEventMap[uint32(type)][entry];
             else
             {
-                if (entry > 0)//first search is for guid (negative), do not drop error if not found
+                if (entry > 0)// first search is for guid (negative), do not drop error if not found
                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartAIMgr::GetScript: Could not load Script for Entry %d ScriptType %u.", entry, uint32(type));
                 return temp;
             }
         }
 
     private:
-        //event stores
+        // event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
 
         bool IsEventValid(SmartScriptHolder &e);

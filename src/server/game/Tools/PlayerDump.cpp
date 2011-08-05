@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -593,7 +593,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             }
             case DTT_PET:
             {
-                //store a map of old pet id to new inserted pet id for use by type 5 tables
+                // store a map of old pet id to new inserted pet id for use by type 5 tables
                 snprintf(currpetid, 20, "%s", getnth(line, 1).c_str());
                 if (*lastpetid == '\0')
                     snprintf(lastpetid, 20, "%s", currpetid);

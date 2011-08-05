@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "MotionMaster.h"
@@ -177,7 +177,7 @@ void MotionMaster::DelayedExpire()
 
 void MotionMaster::MoveIdle(MovementSlot slot)
 {
-    //if (empty() || !isStatic(top()))
+    // if (empty() || !isStatic(top()))
     //    push(&si_idleMovement);
     if (!isStatic(Impl[slot]))
         Mutate(&si_idleMovement, slot);
@@ -194,7 +194,7 @@ void MotionMaster::MoveRandom(float spawndist)
 
 void MotionMaster::MoveTargetedHome()
 {
-    //if (i_owner->HasUnitState(UNIT_STAT_FLEEING))
+    // if (i_owner->HasUnitState(UNIT_STAT_FLEEING))
     //    return;
 
     Clear(false);
@@ -343,7 +343,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
 
 void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
 {
-    //this function may make players fall below map
+    // this function may make players fall below map
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
         return;
 
@@ -355,7 +355,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
 
 void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 {
-    //this function may make players fall below map
+    // this function may make players fall below map
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
         return;
 
@@ -415,7 +415,7 @@ void MotionMaster::MoveFall(float z, uint32 id)
 {
     i_owner->SetFlying(false);
     i_owner->SendMovementFlagUpdate();
-    //AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    // AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
     MoveCharge(i_owner->GetPositionX(), i_owner->GetPositionY(), z, SPEED_CHARGE, id);
 }
 
@@ -549,7 +549,7 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 {
     if (!path_id)
         return;
-    //We set waypoint movement as new default movement generator
+    // We set waypoint movement as new default movement generator
     // clear ALL movement generators (including default)
     /*while (!empty())
     {
@@ -560,8 +560,8 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
             delete curr;
     }*/
 
-    //i_owner->GetTypeId() == TYPEID_PLAYER ?
-        //Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
+    // i_owner->GetTypeId() == TYPEID_PLAYER ?
+        // Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
         Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
 
     sLog->outStaticDebug("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)",

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 #ifndef __BATTLEGROUNDAB_H
 #define __BATTLEGROUNDAB_H
@@ -29,32 +29,32 @@ enum BG_AB_WorldStates
     BG_AB_OP_RESOURCES_MAX              = 1780,
     BG_AB_OP_RESOURCES_WARNING          = 1955
 /*
-    BG_AB_OP_STABLE_ICON                = 1842,             //Stable map icon (NONE)
-    BG_AB_OP_STABLE_STATE_ALIENCE       = 1767,             //Stable map state (ALIENCE)
-    BG_AB_OP_STABLE_STATE_HORDE         = 1768,             //Stable map state (HORDE)
-    BG_AB_OP_STABLE_STATE_CON_ALI       = 1769,             //Stable map state (CON ALIENCE)
-    BG_AB_OP_STABLE_STATE_CON_HOR       = 1770,             //Stable map state (CON HORDE)
-    BG_AB_OP_FARM_ICON                  = 1845,             //Farm map icon (NONE)
-    BG_AB_OP_FARM_STATE_ALIENCE         = 1772,             //Farm state (ALIENCE)
-    BG_AB_OP_FARM_STATE_HORDE           = 1773,             //Farm state (HORDE)
-    BG_AB_OP_FARM_STATE_CON_ALI         = 1774,             //Farm state (CON ALIENCE)
-    BG_AB_OP_FARM_STATE_CON_HOR         = 1775,             //Farm state (CON HORDE)
+    BG_AB_OP_STABLE_ICON                = 1842,             // Stable map icon (NONE)
+    BG_AB_OP_STABLE_STATE_ALIENCE       = 1767,             // Stable map state (ALIENCE)
+    BG_AB_OP_STABLE_STATE_HORDE         = 1768,             // Stable map state (HORDE)
+    BG_AB_OP_STABLE_STATE_CON_ALI       = 1769,             // Stable map state (CON ALIENCE)
+    BG_AB_OP_STABLE_STATE_CON_HOR       = 1770,             // Stable map state (CON HORDE)
+    BG_AB_OP_FARM_ICON                  = 1845,             // Farm map icon (NONE)
+    BG_AB_OP_FARM_STATE_ALIENCE         = 1772,             // Farm state (ALIENCE)
+    BG_AB_OP_FARM_STATE_HORDE           = 1773,             // Farm state (HORDE)
+    BG_AB_OP_FARM_STATE_CON_ALI         = 1774,             // Farm state (CON ALIENCE)
+    BG_AB_OP_FARM_STATE_CON_HOR         = 1775,             // Farm state (CON HORDE)
 
-    BG_AB_OP_BLACKSMITH_ICON            = 1846,             //Blacksmith map icon (NONE)
-    BG_AB_OP_BLACKSMITH_STATE_ALIENCE   = 1782,             //Blacksmith map state (ALIENCE)
-    BG_AB_OP_BLACKSMITH_STATE_HORDE     = 1783,             //Blacksmith map state (HORDE)
-    BG_AB_OP_BLACKSMITH_STATE_CON_ALI   = 1784,             //Blacksmith map state (CON ALIENCE)
-    BG_AB_OP_BLACKSMITH_STATE_CON_HOR   = 1785,             //Blacksmith map state (CON HORDE)
-    BG_AB_OP_LUMBERMILL_ICON            = 1844,             //Lumber Mill map icon (NONE)
-    BG_AB_OP_LUMBERMILL_STATE_ALIENCE   = 1792,             //Lumber Mill map state (ALIENCE)
-    BG_AB_OP_LUMBERMILL_STATE_HORDE     = 1793,             //Lumber Mill map state (HORDE)
-    BG_AB_OP_LUMBERMILL_STATE_CON_ALI   = 1794,             //Lumber Mill map state (CON ALIENCE)
-    BG_AB_OP_LUMBERMILL_STATE_CON_HOR   = 1795,             //Lumber Mill map state (CON HORDE)
-    BG_AB_OP_GOLDMINE_ICON              = 1843,             //Gold Mine map icon (NONE)
-    BG_AB_OP_GOLDMINE_STATE_ALIENCE     = 1787,             //Gold Mine map state (ALIENCE)
-    BG_AB_OP_GOLDMINE_STATE_HORDE       = 1788,             //Gold Mine map state (HORDE)
-    BG_AB_OP_GOLDMINE_STATE_CON_ALI     = 1789,             //Gold Mine map state (CON ALIENCE
-    BG_AB_OP_GOLDMINE_STATE_CON_HOR     = 1790,             //Gold Mine map state (CON HORDE)
+    BG_AB_OP_BLACKSMITH_ICON            = 1846,             // Blacksmith map icon (NONE)
+    BG_AB_OP_BLACKSMITH_STATE_ALIENCE   = 1782,             // Blacksmith map state (ALIENCE)
+    BG_AB_OP_BLACKSMITH_STATE_HORDE     = 1783,             // Blacksmith map state (HORDE)
+    BG_AB_OP_BLACKSMITH_STATE_CON_ALI   = 1784,             // Blacksmith map state (CON ALIENCE)
+    BG_AB_OP_BLACKSMITH_STATE_CON_HOR   = 1785,             // Blacksmith map state (CON HORDE)
+    BG_AB_OP_LUMBERMILL_ICON            = 1844,             // Lumber Mill map icon (NONE)
+    BG_AB_OP_LUMBERMILL_STATE_ALIENCE   = 1792,             // Lumber Mill map state (ALIENCE)
+    BG_AB_OP_LUMBERMILL_STATE_HORDE     = 1793,             // Lumber Mill map state (HORDE)
+    BG_AB_OP_LUMBERMILL_STATE_CON_ALI   = 1794,             // Lumber Mill map state (CON ALIENCE)
+    BG_AB_OP_LUMBERMILL_STATE_CON_HOR   = 1795,             // Lumber Mill map state (CON HORDE)
+    BG_AB_OP_GOLDMINE_ICON              = 1843,             // Gold Mine map icon (NONE)
+    BG_AB_OP_GOLDMINE_STATE_ALIENCE     = 1787,             // Gold Mine map state (ALIENCE)
+    BG_AB_OP_GOLDMINE_STATE_HORDE       = 1788,             // Gold Mine map state (HORDE)
+    BG_AB_OP_GOLDMINE_STATE_CON_ALI     = 1789,             // Gold Mine map state (CON ALIENCE
+    BG_AB_OP_GOLDMINE_STATE_CON_HOR     = 1790,             // Gold Mine map state (CON HORDE)
 */
 };
 
@@ -83,10 +83,10 @@ enum BG_AB_ObjectType
     BG_AB_OBJECT_AURA_ALLY               = 5,
     BG_AB_OBJECT_AURA_HORDE              = 6,
     BG_AB_OBJECT_AURA_CONTESTED          = 7,
-    //gates
+    // gates
     BG_AB_OBJECT_GATE_A                  = 40,
     BG_AB_OBJECT_GATE_H                  = 41,
-    //buffs
+    // buffs
     BG_AB_OBJECT_SPEEDBUFF_STABLES       = 42,
     BG_AB_OBJECT_REGENBUFF_STABLES       = 43,
     BG_AB_OBJECT_BERSERKBUFF_STABLES     = 44,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https:// scriptdev2.svn.sourceforge.net/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -50,28 +50,28 @@ void npc_escortAI::AttackStart(Unit* who)
     }
 }
 
-//see followerAI
+// see followerAI
 bool npc_escortAI::AssistPlayerInCombat(Unit* who)
 {
     if (!who || !who->getVictim())
         return false;
 
-    //experimental (unknown) flag not present
+    // experimental (unknown) flag not present
     if (!(me->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
         return false;
 
-    //not a player
+    // not a player
     if (!who->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
-    //never attack friendly
+    // never attack friendly
     if (me->IsFriendlyTo(who))
         return false;
 
-    //too far away and no free sight?
+    // too far away and no free sight?
     if (me->IsWithinDistInMap(who, GetMaxPlayerDistance()) && me->IsWithinLOSInMap(who))
     {
-        //already fighting someone?
+        // already fighting someone?
         if (!me->getVictim())
         {
             AttackStart(who);
@@ -147,7 +147,7 @@ void npc_escortAI::JustRespawned()
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
 
-    //add a small delay before going to first waypoint, normal in near all cases
+    // add a small delay before going to first waypoint, normal in near all cases
     m_uiWPWaitTimer = 2500;
 
     if (me->getFaction() != me->GetCreatureInfo()->faction_A)
@@ -203,12 +203,12 @@ bool npc_escortAI::IsPlayerOrGroupInRange()
 
 void npc_escortAI::UpdateAI(uint32 const diff)
 {
-    //Waypoint Updating
+    // Waypoint Updating
     if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->getVictim() && m_uiWPWaitTimer && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (m_uiWPWaitTimer <= diff)
         {
-            //End of the line
+            // End of the line
             if (CurrentWP == WaypointList.end())
             {
                 if (DespawnAtEnd)
@@ -260,7 +260,7 @@ void npc_escortAI::UpdateAI(uint32 const diff)
             m_uiWPWaitTimer -= diff;
     }
 
-    //Check if player or any member of his group is within range
+    // Check if player or any member of his group is within range
     if (HasEscortState(STATE_ESCORT_ESCORTING) && m_uiPlayerGUID && !me->getVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (m_uiPlayerCheckTimer <= diff)
@@ -302,7 +302,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
     if (moveType != POINT_MOTION_TYPE || !HasEscortState(STATE_ESCORT_ESCORTING))
         return;
 
-    //Combat start position reached, continue waypoint movement
+    // Combat start position reached, continue waypoint movement
     if (pointId == POINT_LAST_POINT)
     {
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI has returned to original position before combat");
@@ -326,7 +326,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
     }
     else
     {
-        //Make sure that we are still on the right waypoint
+        // Make sure that we are still on the right waypoint
         if (CurrentWP->id != pointId)
         {
             sLog->outError("TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u, creature entry %u", pointId, CurrentWP->id, me->GetEntry());
@@ -335,7 +335,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
 
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI Waypoint %u reached", CurrentWP->id);
 
-        //Call WP function
+        // Call WP function
         WaypointReached(CurrentWP->id);
 
         m_uiWPWaitTimer = CurrentWP->WaitTimeMs + 1;
@@ -415,7 +415,7 @@ void npc_escortAI::SetRun(bool on)
     m_bIsRunning = on;
 }
 
-//TODO: get rid of this many variables passed in function.
+// TODO: get rid of this many variables passed in function.
 void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, uint64 playerGUID /* = 0 */, Quest const* quest /* = NULL */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
 {
     if (me->getVictim())
@@ -444,7 +444,7 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
         return;
     }
 
-    //set variables
+    // set variables
     m_bIsActiveAttacker = isActiveAttacker;
     m_bIsRunning = run;
 
@@ -464,14 +464,14 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI start with WAYPOINT_MOTION_TYPE, changed to MoveIdle.");
     }
 
-    //disable npcflags
+    // disable npcflags
     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
     sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI started with " UI64FMTD " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " UI64FMTD "", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
 
     CurrentWP = WaypointList.begin();
 
-    //Set initial speed
+    // Set initial speed
     if (m_bIsRunning)
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 /** \file
@@ -26,14 +26,14 @@
 
 WeatherMgr::~WeatherMgr()
 {
-    ///- Empty the WeatherMap
+    // /- Empty the WeatherMap
     for (WeatherMap::const_iterator itr = m_weathers.begin(); itr != m_weathers.end(); ++itr)
         delete itr->second;
 
     m_weathers.clear();
 }
 
-/// Find a Weather object by the given zoneid
+// / Find a Weather object by the given zoneid
 Weather* WeatherMgr::FindWeather(uint32 id) const
 {
     WeatherMap::const_iterator itr = m_weathers.find(id);
@@ -44,7 +44,7 @@ Weather* WeatherMgr::FindWeather(uint32 id) const
         return 0;
 }
 
-/// Remove a Weather object for the given zoneid
+// / Remove a Weather object for the given zoneid
 void WeatherMgr::RemoveWeather(uint32 id)
 {
     // not called at the moment. Kept for completeness
@@ -57,7 +57,7 @@ void WeatherMgr::RemoveWeather(uint32 id)
     }
 }
 
-/// Add a Weather object to the list
+// / Add a Weather object to the list
 Weather* WeatherMgr::AddWeather(uint32 zone_id)
 {
     WeatherData const* weatherChances = GetWeatherChances(zone_id);
@@ -134,15 +134,15 @@ void WeatherMgr::LoadWeatherData()
 
 void WeatherMgr::Update(uint32 diff)
 {
-    ///- Send an update signal to Weather objects
+    // /- Send an update signal to Weather objects
     WeatherMap::iterator itr, next;
     for (itr = m_weathers.begin(); itr != m_weathers.end(); itr = next)
     {
         next = itr;
         ++next;
 
-        ///- and remove Weather objects for zones with no player
-                                                        //As interval > WorldTick
+        // /- and remove Weather objects for zones with no player
+                                                        // As interval > WorldTick
         if (!itr->second->Update(diff))
         {
             delete itr->second;

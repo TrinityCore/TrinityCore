@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "CreatureAI.h"
@@ -26,10 +26,10 @@
 #include "MapReference.h"
 #include "Player.h"
 
-//Disable CreatureAI when charmed
+// Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool /*apply*/)
 {
-    //me->IsAIEnabled = !apply;*/
+    // me->IsAIEnabled = !apply;*/
     me->NeedChangeAI = true;
     me->IsAIEnabled = false;
 }
@@ -51,7 +51,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/)
         return;
 
     Map *map = creature->GetMap();
-    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+    if (!map->IsDungeon())                                  // use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
         sLog->outError("DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
         return;
@@ -131,7 +131,7 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
 
     if (me->canStartAttack(who, false))
         AttackStart(who);
-    //else if (who->getVictim() && me->IsFriendlyTo(who)
+    // else if (who->getVictim() && me->IsFriendlyTo(who)
     //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
     //    && me->canStartAttack(who->getVictim(), true)) // TODO: if we use true, it will not attack it when it arrives
     //    me->GetMotionMaster()->MoveChase(who->getVictim());

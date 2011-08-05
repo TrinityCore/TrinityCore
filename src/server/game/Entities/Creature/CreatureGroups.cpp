@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Creature.h"
@@ -34,13 +34,13 @@ void CreatureGroupManager::AddCreatureToGroup(uint32 groupId, Creature* member)
 
     CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(groupId);
 
-    //Add member to an existing group
+    // Add member to an existing group
     if (itr != map->CreatureGroupHolder.end())
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUIDLow(), member->GetInstanceId());
         itr->second->AddMember(member);
     }
-    //Create new group
+    // Create new group
     else
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Group not found: %u. Creating new group.", groupId);
@@ -75,7 +75,7 @@ void CreatureGroupManager::LoadCreatureFormations()
         delete itr->second;
     CreatureGroupMap.clear();
 
-    //Get group data
+    // Get group data
     QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI FROM creature_formations ORDER BY leaderGUID");
 
     if (!result)
@@ -108,12 +108,12 @@ void CreatureGroupManager::LoadCreatureFormations()
     {
         fields = result->Fetch();
 
-        //Load group member data
+        // Load group member data
         group_member                        = new FormationInfo;
         group_member->leaderGUID            = fields[0].GetUInt32();
         uint32 memberGUID = fields[1].GetUInt32();
         group_member->groupAI                = fields[4].GetUInt8();
-        //If creature is group leader we may skip loading of dist/angle
+        // If creature is group leader we may skip loading of dist/angle
         if (group_member->leaderGUID != memberGUID)
         {
             group_member->follow_dist       = fields[2].GetFloat();
@@ -155,7 +155,7 @@ void CreatureGroup::AddMember(Creature* member)
 {
     sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUIDLow());
 
-    //Check if it is a leader
+    // Check if it is a leader
     if (member->GetDBTableGUIDLow() == m_groupID)
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Unit GUID: %u is formation leader. Adding group.", member->GetGUIDLow());
@@ -189,7 +189,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (m_leader) // avoid crash if leader was killed and reset.
             sLog->outDebug(LOG_FILTER_UNITS, "GROUP ATTACK: group instance id %u calls member instid %u", m_leader->GetInstanceId(), member->GetInstanceId());
 
-        //Skip one check
+        // Skip one check
         if (itr->first == member)
             continue;
 

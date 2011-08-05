@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,12 +13,12 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
-/// \addtogroup world
-/// @{
-/// \file
+// / \addtogroup world
+// / @{
+// / \file
 
 #ifndef __WEATHER_H
 #define __WEATHER_H
@@ -59,7 +59,7 @@ enum WeatherState
     WEATHER_STATE_BLACKRAIN         = 90
 };
 
-/// Weather for one zone
+// / Weather for one zone
 class Weather
 {
     public:
@@ -75,7 +75,7 @@ class Weather
         static void SendFineWeatherUpdateToPlayer(Player* player);
         void SetWeather(WeatherType type, float grade);
 
-        /// For which zone is this weather?
+        // / For which zone is this weather?
         uint32 GetZone() const { return m_zone; };
         uint32 GetScriptId() const { return m_weatherChances->ScriptId; }
 

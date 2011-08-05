@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Player.h"
@@ -261,7 +261,7 @@ void BattlegroundIC::StartingEventCloseDoors()
 
 void BattlegroundIC::StartingEventOpenDoors()
 {
-    //after 20 seconds they should be despawned
+    // after 20 seconds they should be despawned
     DoorOpen(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01);
     DoorOpen(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01);
 
@@ -296,7 +296,7 @@ bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
 void BattlegroundIC::AddPlayer(Player *plr)
 {
     Battleground::AddPlayer(plr);
-    //create score and add it to map, default values are set in constructor
+    // create score and add it to map, default values are set in constructor
     BattlegroundICScore* sc = new BattlegroundICScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
@@ -405,7 +405,7 @@ bool BattlegroundIC::SetupBattleground()
         return false;
     }
 
-    //Send transport init packet to all player in map
+    // Send transport init packet to all player in map
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
@@ -442,7 +442,7 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
         EndBattleground(ALLIANCE);
     }
 
-    //Achievement Mowed Down
+    // Achievement Mowed Down
     // TO-DO: This should be done on the script of each vehicle of the BG.
     if (unit->IsVehicle())
         killer->CastSpell(killer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
@@ -573,7 +573,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
 
 void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* nodePoint)
 {
-    //updating worldstate
+    // updating worldstate
     if (nodePoint->gameobject_entry == nodePoint->banners[BANNER_A_CONTROLLED])
         nodePoint->nodeState = NODE_STATE_CONTROLLED_A;
     else if (nodePoint->gameobject_entry == nodePoint->banners[BANNER_A_CONTESTED])
@@ -656,7 +656,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 0, 0, 0, 0, RESPAWN_ONE_DAY);
         }
 
-        //sLog->outError("BG_IC_GO_HANGAR_BANNER CAPTURED Faction: %u", nodePoint->faction);
+        // sLog->outError("BG_IC_GO_HANGAR_BANNER CAPTURED Faction: %u", nodePoint->faction);
 
         (nodePoint->faction == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde)->BuildStartMovePacket(GetBgMap());
         (nodePoint->faction == TEAM_ALLIANCE ? gunshipHorde : gunshipAlliance)->BuildStopMovePacket(GetBgMap());
@@ -934,7 +934,7 @@ Transport* BattlegroundIC::CreateTransport(uint32 goEntry, uint32 period)
         return NULL;
     }
 
-    //If we someday decide to use the grid to track transports, here:
+    // If we someday decide to use the grid to track transports, here:
     t->SetMap(GetBgMap());
 
     for (uint8 i = 0; i < 5; i++)

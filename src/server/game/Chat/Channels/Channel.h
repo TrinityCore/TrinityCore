@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef _CHANNEL_H
@@ -31,44 +31,44 @@
 
 enum ChatNotify
 {
-    CHAT_JOINED_NOTICE                = 0x00,           //+ "%s joined channel.";
-    CHAT_LEFT_NOTICE                  = 0x01,           //+ "%s left channel.";
-    //CHAT_SUSPENDED_NOTICE             = 0x01,           // "%s left channel.";
-    CHAT_YOU_JOINED_NOTICE            = 0x02,           //+ "Joined Channel: [%s]"; -- You joined
-    //CHAT_YOU_CHANGED_NOTICE           = 0x02,           // "Changed Channel: [%s]";
-    CHAT_YOU_LEFT_NOTICE              = 0x03,           //+ "Left Channel: [%s]"; -- You left
-    CHAT_WRONG_PASSWORD_NOTICE        = 0x04,           //+ "Wrong password for %s.";
-    CHAT_NOT_MEMBER_NOTICE            = 0x05,           //+ "Not on channel %s.";
-    CHAT_NOT_MODERATOR_NOTICE         = 0x06,           //+ "Not a moderator of %s.";
-    CHAT_PASSWORD_CHANGED_NOTICE      = 0x07,           //+ "[%s] Password changed by %s.";
-    CHAT_OWNER_CHANGED_NOTICE         = 0x08,           //+ "[%s] Owner changed to %s.";
-    CHAT_PLAYER_NOT_FOUND_NOTICE      = 0x09,           //+ "[%s] Player %s was not found.";
-    CHAT_NOT_OWNER_NOTICE             = 0x0A,           //+ "[%s] You are not the channel owner.";
-    CHAT_CHANNEL_OWNER_NOTICE         = 0x0B,           //+ "[%s] Channel owner is %s.";
-    CHAT_MODE_CHANGE_NOTICE           = 0x0C,           //?
-    CHAT_ANNOUNCEMENTS_ON_NOTICE      = 0x0D,           //+ "[%s] Channel announcements enabled by %s.";
-    CHAT_ANNOUNCEMENTS_OFF_NOTICE     = 0x0E,           //+ "[%s] Channel announcements disabled by %s.";
-    // CHAT_MODERATION_ON_NOTICE         = 0x0F,           //+ "[%s] Channel moderation enabled by %s.";
-    // CHAT_MODERATION_OFF_NOTICE        = 0x10,           //+ "[%s] Channel moderation disabled by %s.";
-    CHAT_MUTED_NOTICE                 = 0x11,           //+ "[%s] You do not have permission to speak.";
-    CHAT_PLAYER_KICKED_NOTICE         = 0x12,           //? "[%s] Player %s kicked by %s.";
-    CHAT_BANNED_NOTICE                = 0x13,           //+ "[%s] You are banned from that channel.";
-    CHAT_PLAYER_BANNED_NOTICE         = 0x14,           //? "[%s] Player %s banned by %s.";
-    CHAT_PLAYER_UNBANNED_NOTICE       = 0x15,           //? "[%s] Player %s unbanned by %s.";
-    CHAT_PLAYER_NOT_BANNED_NOTICE     = 0x16,           //+ "[%s] Player %s is not banned.";
-    CHAT_PLAYER_ALREADY_MEMBER_NOTICE = 0x17,           //+ "[%s] Player %s is already on the channel.";
-    CHAT_INVITE_NOTICE                = 0x18,           //+ "%2$s has invited you to join the channel '%1$s'.";
-    CHAT_INVITE_WRONG_FACTION_NOTICE  = 0x19,           //+ "Target is in the wrong alliance for %s.";
-    CHAT_WRONG_FACTION_NOTICE         = 0x1A,           //+ "Wrong alliance for %s.";
-    CHAT_INVALID_NAME_NOTICE          = 0x1B,           //+ "Invalid channel name";
-    CHAT_NOT_MODERATED_NOTICE         = 0x1C,           //+ "%s is not moderated";
-    CHAT_PLAYER_INVITED_NOTICE        = 0x1D,           //+ "[%s] You invited %s to join the channel";
-    CHAT_PLAYER_INVITE_BANNED_NOTICE  = 0x1E,           //+ "[%s] %s has been banned.";
-    CHAT_THROTTLED_NOTICE             = 0x1F,           //+ "[%s] The number of messages that can be sent to this channel is limited, please wait to send another message.";
-    CHAT_NOT_IN_AREA_NOTICE           = 0x20,           //+ "[%s] You are not in the correct area for this channel."; -- The user is trying to send a chat to a zone specific channel, and they're not physically in that zone.
-    CHAT_NOT_IN_LFG_NOTICE            = 0x21,           //+ "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
-    CHAT_VOICE_ON_NOTICE              = 0x22,           //+ "[%s] Channel voice enabled by %s.";
-    CHAT_VOICE_OFF_NOTICE             = 0x23,           //+ "[%s] Channel voice disabled by %s.";
+    CHAT_JOINED_NOTICE                = 0x00,           // + "%s joined channel.";
+    CHAT_LEFT_NOTICE                  = 0x01,           // + "%s left channel.";
+    // CHAT_SUSPENDED_NOTICE             = 0x01,           // "%s left channel.";
+    CHAT_YOU_JOINED_NOTICE            = 0x02,           // + "Joined Channel: [%s]"; -- You joined
+    // CHAT_YOU_CHANGED_NOTICE           = 0x02,           // "Changed Channel: [%s]";
+    CHAT_YOU_LEFT_NOTICE              = 0x03,           // + "Left Channel: [%s]"; -- You left
+    CHAT_WRONG_PASSWORD_NOTICE        = 0x04,           // + "Wrong password for %s.";
+    CHAT_NOT_MEMBER_NOTICE            = 0x05,           // + "Not on channel %s.";
+    CHAT_NOT_MODERATOR_NOTICE         = 0x06,           // + "Not a moderator of %s.";
+    CHAT_PASSWORD_CHANGED_NOTICE      = 0x07,           // + "[%s] Password changed by %s.";
+    CHAT_OWNER_CHANGED_NOTICE         = 0x08,           // + "[%s] Owner changed to %s.";
+    CHAT_PLAYER_NOT_FOUND_NOTICE      = 0x09,           // + "[%s] Player %s was not found.";
+    CHAT_NOT_OWNER_NOTICE             = 0x0A,           // + "[%s] You are not the channel owner.";
+    CHAT_CHANNEL_OWNER_NOTICE         = 0x0B,           // + "[%s] Channel owner is %s.";
+    CHAT_MODE_CHANGE_NOTICE           = 0x0C,           // ?
+    CHAT_ANNOUNCEMENTS_ON_NOTICE      = 0x0D,           // + "[%s] Channel announcements enabled by %s.";
+    CHAT_ANNOUNCEMENTS_OFF_NOTICE     = 0x0E,           // + "[%s] Channel announcements disabled by %s.";
+    // CHAT_MODERATION_ON_NOTICE         = 0x0F,           // + "[%s] Channel moderation enabled by %s.";
+    // CHAT_MODERATION_OFF_NOTICE        = 0x10,           // + "[%s] Channel moderation disabled by %s.";
+    CHAT_MUTED_NOTICE                 = 0x11,           // + "[%s] You do not have permission to speak.";
+    CHAT_PLAYER_KICKED_NOTICE         = 0x12,           // ? "[%s] Player %s kicked by %s.";
+    CHAT_BANNED_NOTICE                = 0x13,           // + "[%s] You are banned from that channel.";
+    CHAT_PLAYER_BANNED_NOTICE         = 0x14,           // ? "[%s] Player %s banned by %s.";
+    CHAT_PLAYER_UNBANNED_NOTICE       = 0x15,           // ? "[%s] Player %s unbanned by %s.";
+    CHAT_PLAYER_NOT_BANNED_NOTICE     = 0x16,           // + "[%s] Player %s is not banned.";
+    CHAT_PLAYER_ALREADY_MEMBER_NOTICE = 0x17,           // + "[%s] Player %s is already on the channel.";
+    CHAT_INVITE_NOTICE                = 0x18,           // + "%2$s has invited you to join the channel '%1$s'.";
+    CHAT_INVITE_WRONG_FACTION_NOTICE  = 0x19,           // + "Target is in the wrong alliance for %s.";
+    CHAT_WRONG_FACTION_NOTICE         = 0x1A,           // + "Wrong alliance for %s.";
+    CHAT_INVALID_NAME_NOTICE          = 0x1B,           // + "Invalid channel name";
+    CHAT_NOT_MODERATED_NOTICE         = 0x1C,           // + "%s is not moderated";
+    CHAT_PLAYER_INVITED_NOTICE        = 0x1D,           // + "[%s] You invited %s to join the channel";
+    CHAT_PLAYER_INVITE_BANNED_NOTICE  = 0x1E,           // + "[%s] %s has been banned.";
+    CHAT_THROTTLED_NOTICE             = 0x1F,           // + "[%s] The number of messages that can be sent to this channel is limited, please wait to send another message.";
+    CHAT_NOT_IN_AREA_NOTICE           = 0x20,           // + "[%s] You are not in the correct area for this channel."; -- The user is trying to send a chat to a zone specific channel, and they're not physically in that zone.
+    CHAT_NOT_IN_LFG_NOTICE            = 0x21,           // + "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
+    CHAT_VOICE_ON_NOTICE              = 0x22,           // + "[%s] Channel voice enabled by %s.";
+    CHAT_VOICE_OFF_NOTICE             = 0x23,           // + "[%s] Channel voice disabled by %s.";
 };
 
 enum ChannelFlags
@@ -162,40 +162,40 @@ class Channel
         // initial packet data (notify type and channel name)
         void MakeNotifyPacket(WorldPacket *data, uint8 notify_type);
         // type specific packet data
-        void MakeJoined(WorldPacket *data, uint64 guid);                        //+ 0x00
-        void MakeLeft(WorldPacket *data, uint64 guid);                          //+ 0x01
-        void MakeYouJoined(WorldPacket *data);                                  //+ 0x02
-        void MakeYouLeft(WorldPacket *data);                                    //+ 0x03
-        void MakeWrongPassword(WorldPacket *data);                              //? 0x04
-        void MakeNotMember(WorldPacket *data);                                  //? 0x05
-        void MakeNotModerator(WorldPacket *data);                               //? 0x06
-        void MakePasswordChanged(WorldPacket *data, uint64 guid);               //+ 0x07
-        void MakeOwnerChanged(WorldPacket *data, uint64 guid);                  //? 0x08
-        void MakePlayerNotFound(WorldPacket *data, const std::string& name);    //+ 0x09
-        void MakeNotOwner(WorldPacket *data);                                   //? 0x0A
-        void MakeChannelOwner(WorldPacket *data);                               //? 0x0B
-        void MakeModeChange(WorldPacket *data, uint64 guid, uint8 oldflags);    //+ 0x0C
-        void MakeAnnouncementsOn(WorldPacket *data, uint64 guid);               //+ 0x0D
-        void MakeAnnouncementsOff(WorldPacket *data, uint64 guid);              //+ 0x0E
-        void MakeMuted(WorldPacket *data);                                      //? 0x11
-        void MakePlayerKicked(WorldPacket *data, uint64 bad, uint64 good);      //? 0x12
-        void MakeBanned(WorldPacket *data);                                     //? 0x13
-        void MakePlayerBanned(WorldPacket *data, uint64 bad, uint64 good);      //? 0x14
-        void MakePlayerUnbanned(WorldPacket *data, uint64 bad, uint64 good);    //? 0x15
-        void MakePlayerNotBanned(WorldPacket *data, const std::string& name);   //? 0x16
-        void MakePlayerAlreadyMember(WorldPacket *data, uint64 guid);           //+ 0x17
-        void MakeInvite(WorldPacket *data, uint64 guid);                        //? 0x18
-        void MakeInviteWrongFaction(WorldPacket *data);                         //? 0x19
-        void MakeWrongFaction(WorldPacket *data);                               //? 0x1A
-        void MakeInvalidName(WorldPacket *data);                                //? 0x1B
-        void MakeNotModerated(WorldPacket *data);                               //? 0x1C
-        void MakePlayerInvited(WorldPacket *data, const std::string& name);     //+ 0x1D
-        void MakePlayerInviteBanned(WorldPacket *data, const std::string &name);//? 0x1E
-        void MakeThrottled(WorldPacket *data);                                  //? 0x1F
-        void MakeNotInArea(WorldPacket *data);                                  //? 0x20
-        void MakeNotInLfg(WorldPacket *data);                                   //? 0x21
-        void MakeVoiceOn(WorldPacket *data, uint64 guid);                       //+ 0x22
-        void MakeVoiceOff(WorldPacket *data, uint64 guid);                      //+ 0x23
+        void MakeJoined(WorldPacket *data, uint64 guid);                        // + 0x00
+        void MakeLeft(WorldPacket *data, uint64 guid);                          // + 0x01
+        void MakeYouJoined(WorldPacket *data);                                  // + 0x02
+        void MakeYouLeft(WorldPacket *data);                                    // + 0x03
+        void MakeWrongPassword(WorldPacket *data);                              // ? 0x04
+        void MakeNotMember(WorldPacket *data);                                  // ? 0x05
+        void MakeNotModerator(WorldPacket *data);                               // ? 0x06
+        void MakePasswordChanged(WorldPacket *data, uint64 guid);               // + 0x07
+        void MakeOwnerChanged(WorldPacket *data, uint64 guid);                  // ? 0x08
+        void MakePlayerNotFound(WorldPacket *data, const std::string& name);    // + 0x09
+        void MakeNotOwner(WorldPacket *data);                                   // ? 0x0A
+        void MakeChannelOwner(WorldPacket *data);                               // ? 0x0B
+        void MakeModeChange(WorldPacket *data, uint64 guid, uint8 oldflags);    // + 0x0C
+        void MakeAnnouncementsOn(WorldPacket *data, uint64 guid);               // + 0x0D
+        void MakeAnnouncementsOff(WorldPacket *data, uint64 guid);              // + 0x0E
+        void MakeMuted(WorldPacket *data);                                      // ? 0x11
+        void MakePlayerKicked(WorldPacket *data, uint64 bad, uint64 good);      // ? 0x12
+        void MakeBanned(WorldPacket *data);                                     // ? 0x13
+        void MakePlayerBanned(WorldPacket *data, uint64 bad, uint64 good);      // ? 0x14
+        void MakePlayerUnbanned(WorldPacket *data, uint64 bad, uint64 good);    // ? 0x15
+        void MakePlayerNotBanned(WorldPacket *data, const std::string& name);   // ? 0x16
+        void MakePlayerAlreadyMember(WorldPacket *data, uint64 guid);           // + 0x17
+        void MakeInvite(WorldPacket *data, uint64 guid);                        // ? 0x18
+        void MakeInviteWrongFaction(WorldPacket *data);                         // ? 0x19
+        void MakeWrongFaction(WorldPacket *data);                               // ? 0x1A
+        void MakeInvalidName(WorldPacket *data);                                // ? 0x1B
+        void MakeNotModerated(WorldPacket *data);                               // ? 0x1C
+        void MakePlayerInvited(WorldPacket *data, const std::string& name);     // + 0x1D
+        void MakePlayerInviteBanned(WorldPacket *data, const std::string &name);// ? 0x1E
+        void MakeThrottled(WorldPacket *data);                                  // ? 0x1F
+        void MakeNotInArea(WorldPacket *data);                                  // ? 0x20
+        void MakeNotInLfg(WorldPacket *data);                                   // ? 0x21
+        void MakeVoiceOn(WorldPacket *data, uint64 guid);                       // + 0x22
+        void MakeVoiceOff(WorldPacket *data, uint64 guid);                      // + 0x23
 
         void SendToAll(WorldPacket *data, uint64 p = 0);
         void SendToAllButOne(WorldPacket *data, uint64 who);

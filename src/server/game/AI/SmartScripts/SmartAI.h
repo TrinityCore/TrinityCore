@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_SMARTAI_H
@@ -32,10 +32,10 @@
 
 enum SmartEscortState
 {
-    SMART_ESCORT_NONE       = 0x000,                        //nothing in progress
-    SMART_ESCORT_ESCORTING  = 0x001,                        //escort is in progress
-    SMART_ESCORT_RETURNING  = 0x002,                        //escort is returning after being in combat
-    SMART_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
+    SMART_ESCORT_NONE       = 0x000,                        // nothing in progress
+    SMART_ESCORT_ESCORTING  = 0x001,                        // escort is in progress
+    SMART_ESCORT_RETURNING  = 0x002,                        // escort is returning after being in combat
+    SMART_ESCORT_PAUSED     = 0x004                         // will not proceed with waypoints before state is removed
 };
 
 enum SmartEscortVars
@@ -162,7 +162,7 @@ class SmartAI : public CreatureAI
         // Used in scripts to share variables
         uint64 GetGUID(int32 id = 0);
 
-        //core related
+        // core related
         static int Permissible(const Creature *);
 
         // Called at movepoint reached
@@ -179,8 +179,8 @@ class SmartAI : public CreatureAI
         void sGossipSelect(Player* player, uint32 sender, uint32 action);
         void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code);
         void sQuestAccept(Player* player, Quest const* quest);
-        //void sQuestSelect(Player* player, Quest const* quest);
-        //void sQuestComplete(Player* player, Quest const* quest);
+        // void sQuestSelect(Player* player, Quest const* quest);
+        // void sQuestComplete(Player* player, Quest const* quest);
         void sQuestReward(Player* player, Quest const* quest, uint32 opt);
         bool sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex);
 
@@ -212,7 +212,7 @@ class SmartAI : public CreatureAI
         bool mWPReached;
         uint32 mWPPauseTimer;
         WayPoint* mLastWP;
-        Position mLastOOCPos;//set on enter combat
+        Position mLastOOCPos;// set on enter combat
         uint32 GetWPCount() { return mWayPoints ? mWayPoints->size() : 0; }
         bool mCanRepeatPath;
         bool mRun;

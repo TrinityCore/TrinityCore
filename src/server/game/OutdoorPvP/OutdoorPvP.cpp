@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "OutdoorPvP.h"
@@ -163,7 +163,7 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
     // explicit removal from map
     // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
     // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-    //if (Map * map = sMapMgr->FindMap(cr->GetMapId()))
+    // if (Map * map = sMapMgr->FindMap(cr->GetMapId()))
     //    map->Remove(cr, false);
     // delete respawn time for this creature
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_GUID);
@@ -380,7 +380,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     if (m_OldState != m_State)
     {
-        //sLog->outError("%u->%u", m_OldState, m_State);
+        // sLog->outError("%u->%u", m_OldState, m_State);
         if (oldTeam != m_team)
             ChangeTeam(oldTeam);
         ChangeState();

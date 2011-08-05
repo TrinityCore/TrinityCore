@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -323,11 +323,11 @@ bool Group::AddMember(Player* player)
     if (player)
     {
         player->SetGroupInvite(NULL);
-        if (player->GetGroup() && isBGGroup()) //if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+        if (player->GetGroup() && isBGGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
             player->SetBattlegroundRaid(this, subGroup);
-        else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+        else if (player->GetGroup()) // if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
             player->SetOriginalGroup(this, subGroup);
-        else //if player is not in group, then call set group
+        else // if player is not in group, then call set group
             player->SetGroup(this, subGroup);
 
         // if the same group invites the player back, cancel the homebind timer
@@ -561,13 +561,13 @@ void Group::Disband(bool hideDestroy /* = false */)
         if (!player)
             continue;
 
-        //we cannot call _removeMember because it would invalidate member iterator
-        //if we are removing player from battleground raid
+        // we cannot call _removeMember because it would invalidate member iterator
+        // if we are removing player from battleground raid
         if (isBGGroup())
             player->RemoveFromBattlegroundRaid();
         else
         {
-            //we can remove player who is in battleground from his original group
+            // we can remove player who is in battleground from his original group
             if (player->GetOriginalGroup() == this)
                 player->SetOriginalGroup(NULL);
             else
@@ -588,7 +588,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             player->GetSession()->SendPacket(&data);
         }
 
-        //we already removed player from group and in player->GetGroup() is his original group, send update
+        // we already removed player from group and in player->GetGroup() is his original group, send update
         if (Group* group = player->GetGroup())
         {
             group->SendUpdate();
@@ -750,17 +750,17 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            // sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
-        //roll for over-threshold item if it's one-player loot
+        // roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
             uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
             Roll* r = new Roll(newitemGUID, *i);
 
-            //a vector is filled with only near party members
+            // a vector is filled with only near party members
             for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player *member = itr->getSource();
@@ -842,7 +842,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 
         item = sObjectMgr->GetItemTemplate(i->itemid);
 
-        //roll for over-threshold item if it's one-player loot
+        // roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
             uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
@@ -993,13 +993,13 @@ void Group::CountRollVote(const uint64 playerGUID, const uint64 Guid, uint32 Num
         CountTheRoll(rollI, NumberOfPlayers);
 }
 
-//called when roll timer expires
+// called when roll timer expires
 void Group::EndRoll(Loot *pLoot)
 {
     for (Rolls::iterator itr = RollId.begin(); itr != RollId.end();)
     {
         if ((*itr)->getLoot() == pLoot) {
-            CountTheRoll(itr, GetMembersCount());           //i don't have to edit player votes, who didn't vote ... he will pass
+            CountTheRoll(itr, GetMembersCount());           // i don't have to edit player votes, who didn't vote ... he will pass
             itr = RollId.begin();
         }
         else
@@ -1017,7 +1017,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
         return;
     }
 
-    //end of the roll
+    // end of the roll
     if (roll->totalNeed > 0)
     {
         if (!roll->playerVote.empty())
@@ -1371,12 +1371,12 @@ void Group::ChangeMembersGroup(const uint64 guid, uint8 group)
 }
 
 // Retrieve the next Round-Roubin player for the group
-//
+// 
 // No update done if loot method is Master or FFA.
-//
+// 
 // If the RR player is not yet set for the group, the first group member becomes the round-robin player.
 // If the RR player is set, the next player in group becomes the round-robin player.
-//
+// 
 // If ifneed is true,
 //      the current RR player is checked to be near the looted object.
 //      if yes, no update done.
@@ -1525,9 +1525,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     return GroupJoinBattlegroundResult(bgOrTemplate->GetTypeID());
 }
 
-//===================================================
-//============== Roll ===============================
-//===================================================
+// ===================================================
+// ============== Roll ===============================
+// ===================================================
 
 void Roll::targetObjectBuildLink()
 {

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef _THREATMANAGER
@@ -26,7 +26,7 @@
 
 #include <list>
 
-//==============================================================
+// ==============================================================
 
 class Unit;
 class Creature;
@@ -35,7 +35,7 @@ class SpellInfo;
 
 #define THREAT_UPDATE_INTERVAL 1 * IN_MILLISECONDS    // Server should send threat update to client periodically each second
 
-//==============================================================
+// ==============================================================
 // Class to calculate the real threat based
 
 struct ThreatCalcHelper
@@ -44,13 +44,13 @@ struct ThreatCalcHelper
     static bool isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell = NULL);
 };
 
-//==============================================================
+// ==============================================================
 class HostileReference : public Reference<Unit, ThreatManager>
 {
     public:
         HostileReference(Unit* refUnit, ThreatManager* threatManager, float threat);
 
-        //=================================================
+        // =================================================
         void addThreat(float modThreat);
 
         void setThreat(float threat) { addThreat(threat - getThreat()); }
@@ -90,31 +90,31 @@ class HostileReference : public Reference<Unit, ThreatManager>
 
         float getTempThreatModifier() { return iTempThreatModifier; }
 
-        //=================================================
+        // =================================================
         // check, if source can reach target and set the status
         void updateOnlineStatus();
 
         void setOnlineOfflineState(bool isOnline);
 
         void setAccessibleState(bool isAccessible);
-        //=================================================
+        // =================================================
 
         bool operator == (const HostileReference& hostileRef) const { return hostileRef.getUnitGuid() == getUnitGuid(); }
 
-        //=================================================
+        // =================================================
 
         uint64 getUnitGuid() const { return iUnitGuid; }
 
-        //=================================================
+        // =================================================
         // reference is not needed anymore. realy delete it !
 
         void removeReference();
 
-        //=================================================
+        // =================================================
 
         HostileReference* next() { return ((HostileReference*) Reference<Unit, ThreatManager>::next()); }
 
-        //=================================================
+        // =================================================
 
         // Tell our refTo (target) object that we have a link
         void targetObjectBuildLink();
@@ -137,7 +137,7 @@ class HostileReference : public Reference<Unit, ThreatManager>
         bool iAccessible;
 };
 
-//==============================================================
+// ==============================================================
 class ThreatManager;
 
 class ThreatContainer
@@ -177,7 +177,7 @@ class ThreatContainer
         std::list<HostileReference*>& getThreatList() { return iThreatList; }
 };
 
-//=================================================
+// =================================================
 
 class ThreatManager
 {
@@ -255,7 +255,7 @@ class ThreatManager
         ThreatContainer iThreatOfflineContainer;
 };
 
-//=================================================
+// =================================================
 
 namespace Trinity
 {

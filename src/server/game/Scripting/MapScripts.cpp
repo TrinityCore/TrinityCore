@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Map.h"
@@ -30,20 +30,20 @@
 #include "MapRefManager.h"
 #include "ScriptMgr.h"
 
-/// Put scripts in the execution queue
+// / Put scripts in the execution queue
 void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
 {
-    ///- Find the script map
+    // /- Find the script map
     ScriptMapMap::const_iterator s = scripts.find(id);
     if (s == scripts.end())
         return;
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : (uint64)0; //some script commands doesn't have source
+    uint64 sourceGUID = source ? source->GetGUID() : (uint64)0; // some script commands doesn't have source
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
     uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
 
-    ///- Schedule script execution for all scripts in the script map
+    // /- Schedule script execution for all scripts in the script map
     ScriptMap const *s2 = &(s->second);
     bool immedScript = false;
     for (ScriptMap::const_iterator iter = s2->begin(); iter != s2->end(); ++iter)
@@ -60,7 +60,7 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
 
         sScriptMgr->IncreaseScheduledScriptsCount();
     }
-    ///- If one of the effects should be immediate, launch the script execution
+    // /- If one of the effects should be immediate, launch the script execution
     if (/*start &&*/ immedScript && !i_scriptLock)
     {
         i_scriptLock = true;
@@ -88,7 +88,7 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
 
     sScriptMgr->IncreaseScheduledScriptsCount();
 
-    ///- If effects should be immediate, launch the script execution
+    // /- If effects should be immediate, launch the script execution
     if (delay == 0 && !i_scriptLock)
     {
         i_scriptLock = true;
@@ -283,13 +283,13 @@ inline GameObject* Map::_FindGameObject(WorldObject* pSearchObject, uint32 guid)
     return pGameObject;
 }
 
-/// Process queued scripts
+// / Process queued scripts
 void Map::ScriptsProcess()
 {
     if (m_scriptSchedule.empty())
         return;
 
-    ///- Process overdue queued scripts
+    // /- Process overdue queued scripts
     ScriptScheduleMap::iterator iter = m_scriptSchedule.begin();
     // ok as multimap is a *sorted* associative container
     while (!m_scriptSchedule.empty() && (iter->first <= sWorld->GetGameTime()))
@@ -816,7 +816,7 @@ void Map::ScriptsProcess()
                 }
 
                 Creature* cTarget = NULL;
-                if (source) //using grid searcher
+                if (source) // using grid searcher
                 {
                     WorldObject* wSource = dynamic_cast <WorldObject*> (source);
 
@@ -830,7 +830,7 @@ void Map::ScriptsProcess()
                     TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
                     cell.Visit(p, unit_checker, *wSource->GetMap());
                 }
-                else //check hashmap holders
+                else // check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
                         cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->CallScript.CreatureEntry, data->id, HIGHGUID_UNIT), cTarget);
@@ -842,9 +842,9 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                //Lets choose our ScriptMap map
+                // Lets choose our ScriptMap map
                 ScriptMapMap *datamap = GetScriptsMapByType(ScriptsType(step.script->CallScript.ScriptType));
-                //if no scriptmap present...
+                // if no scriptmap present...
                 if (!datamap)
                 {
                     sLog->outError("%s unknown scriptmap (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->CallScript.ScriptType);

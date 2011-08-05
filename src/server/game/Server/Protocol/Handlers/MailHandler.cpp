@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "DatabaseEnv.h"
@@ -115,7 +115,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
     Player *receive = ObjectAccessor::FindPlayer(rc);
 
     uint32 rc_team = 0;
-    uint8 mails_count = 0;                                  //do not allow to send to one player more than 100 mails
+    uint8 mails_count = 0;                                  // do not allow to send to one player more than 100 mails
     uint8 receiveLevel = 0;
 
     if (receive)
@@ -138,7 +138,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
             receiveLevel = fields[0].GetUInt8();
         }
     }
-    //do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
+    // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
     if (mails_count > 100)
     {
         pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_CAP_REACHED);
@@ -286,7 +286,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-//called when mail is read
+// called when mail is read
 void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data)
 {
     uint64 mailbox;
@@ -309,7 +309,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data)
     }
 }
 
-//called when client deletes mail
+// called when client deletes mail
 void WorldSession::HandleMailDelete(WorldPacket & recv_data)
 {
     uint64 mailbox;
@@ -356,8 +356,8 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
         pl->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
-    //we can return mail now
-    //so firstly delete the old one
+    // we can return mail now
+    // so firstly delete the old one
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM mail WHERE id = '%u'", mailId);             // needed?
     trans->PAppend("DELETE FROM mail_items WHERE mail_id = '%u'", mailId);
@@ -379,7 +379,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
                     draft.AddItem(item);
                 else
                 {
-                    //WTF?
+                    // WTF?
                 }
 
                 pl->RemoveMItem(itr2->item_guid);
@@ -390,11 +390,11 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    delete m;                                               //we can deallocate old mail
+    delete m;                                               // we can deallocate old mail
     pl->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_OK);
 }
 
-//called when player takes item attached in mail
+// called when player takes item attached in mail
 void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
 {
     uint64 mailbox;
@@ -433,7 +433,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
         m->RemoveItem(itemId);
         m->removedItems.push_back(itemId);
 
-        if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
+        if (m->COD > 0)                                     // if there is COD, take COD money from player and send them to sender by mail
         {
             uint64 sender_guid = MAKE_NEW_GUID(m->sender, 0, HIGHGUID_PLAYER);
             Player *receive = ObjectAccessor::FindPlayer(sender_guid);
@@ -523,7 +523,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-//called when player lists his received mails
+// called when player lists his received mails
 void WorldSession::HandleGetMailList(WorldPacket & recv_data)
 {
     uint64 mailbox;
@@ -534,7 +534,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
 
     Player* pl = _player;
 
-    //load players mails, and mailed items
+    // load players mails, and mailed items
     if (!pl->m_mailsLoaded)
         pl ->_LoadMail();
 
@@ -645,7 +645,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
     _player->UpdateNextMailTimeAndUnreads();
 }
 
-//used when player copies mail body to his inventory
+// used when player copies mail body to his inventory
 void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
 {
     uint64 mailbox;
@@ -711,7 +711,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
     }
 }
 
-//TODO Fix me! ... this void has probably bad condition, but good data are sent
+// TODO Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/)
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);

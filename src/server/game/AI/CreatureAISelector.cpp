@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Creature.h"
@@ -36,7 +36,7 @@ namespace FactorySelector
         if (creature->isPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
 
-        //scriptname in db
+        // scriptname in db
         if (!ai_factory)
             if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
                 return scriptedAI;
@@ -135,7 +135,7 @@ namespace FactorySelector
 
         ai_factory = ai_registry.GetRegistryItem(go->GetAIName());
 
-        //future goAI types go here
+        // future goAI types go here
 
         std::string ainame = (ai_factory == NULL || go->GetScriptId()) ? "NullGameObjectAI" : ai_factory->key();
 

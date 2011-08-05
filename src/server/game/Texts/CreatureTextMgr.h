@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_CREATURE_TEXT_MGR_H
@@ -44,14 +44,14 @@ enum TextRange
     TEXT_RANGE_WORLD    = 4
 };
 
-typedef std::vector<CreatureTextEntry> CreatureTextGroup;              //texts in a group
-typedef UNORDERED_MAP<uint8, CreatureTextGroup> CreatureTextHolder;    //groups for a creature by groupid
-typedef UNORDERED_MAP<uint32, CreatureTextHolder> CreatureTextMap;     //all creatures by entry
+typedef std::vector<CreatureTextEntry> CreatureTextGroup;              // texts in a group
+typedef UNORDERED_MAP<uint8, CreatureTextGroup> CreatureTextHolder;    // groups for a creature by groupid
+typedef UNORDERED_MAP<uint32, CreatureTextHolder> CreatureTextMap;     // all creatures by entry
 
-//used for handling non-repeatable random texts
+// used for handling non-repeatable random texts
 typedef std::vector<uint8> CreatureTextRepeatIds;
 typedef UNORDERED_MAP<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
-typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
+typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;// guid based
 
 class CreatureTextMgr
 {
@@ -65,7 +65,7 @@ class CreatureTextMgr
         void SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly);
         void SendEmote(Unit* source, uint32 emote);
 
-        //if sent, returns the 'duration' of the text else 0 if error
+        // if sent, returns the 'duration' of the text else 0 if error
         uint32 SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid = 0, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, TextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
         void SendChatString(WorldObject* source, char const* text, ChatMsg msgtype = CHAT_MSG_MONSTER_SAY, Language language = LANG_UNIVERSAL, uint64 whisperGuid = 0, TextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false) const;
         bool TextExist(uint32 sourceEntry, uint8 textGroup);

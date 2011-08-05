@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "ScriptPCH.h"
@@ -316,29 +316,29 @@ void ScriptMgr::FillSpellSummary()
         SpellSummary[i].Targets = 0;
 
         pTempSpell = sSpellMgr->GetSpellInfo(i);
-        //This spell doesn't exist
+        // This spell doesn't exist
         if (!pTempSpell)
             continue;
 
         for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
-            //Spell targets self
+            // Spell targets self
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SELF-1);
 
-            //Spell targets a single enemy
+            // Spell targets a single enemy
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DST_TARGET_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_ENEMY-1);
 
-            //Spell targets AoE at enemy
+            // Spell targets AoE at enemy
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_SRC ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_DST ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_SRC_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_ENEMY-1);
 
-            //Spell targets an enemy
+            // Spell targets an enemy
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DST_TARGET_ENEMY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_SRC ||
@@ -347,19 +347,19 @@ void ScriptMgr::FillSpellSummary()
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_ENEMY-1);
 
-            //Spell targets a single friend(or self)
+            // Spell targets a single friend(or self)
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_PARTY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_FRIEND-1);
 
-            //Spell targets aoe friends
+            // Spell targets aoe friends
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PARTY_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY_PARTY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_SRC_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_FRIEND-1);
 
-            //Spell targets any friend(or self)
+            // Spell targets any friend(or self)
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_PARTY ||
@@ -368,21 +368,21 @@ void ScriptMgr::FillSpellSummary()
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_SRC_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_FRIEND-1);
 
-            //Make sure that this spell includes a damage effect
+            // Make sure that this spell includes a damage effect
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_SCHOOL_DAMAGE ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_INSTAKILL ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEALTH_LEECH)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_DAMAGE-1);
 
-            //Make sure that this spell includes a healing effect (or an apply aura with a periodic heal)
+            // Make sure that this spell includes a healing effect (or an apply aura with a periodic heal)
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL_MAX_HEALTH ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL_MECHANICAL ||
                 (pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA  && pTempSpell->Effects[j].ApplyAuraName == 8))
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
 
-            //Make sure that this spell applies an aura
+            // Make sure that this spell applies an aura
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_AURA-1);
         }

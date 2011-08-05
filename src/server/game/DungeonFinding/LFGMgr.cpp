@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -72,7 +72,7 @@ LFGMgr::~LFGMgr()
         delete it->second;
 }
 
-/// Load rewards for completing dungeons
+// / Load rewards for completing dungeons
 void LFGMgr::LoadRewards()
 {
     uint32 oldMSTime = getMSTime();
@@ -1814,9 +1814,9 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     player->GetSession()->SendLfgPlayerReward(dungeon->Entry(), GetDungeon(gguid, false), index, reward, qReward);
 }
 
-// --------------------------------------------------------------------------//
+// --------------------------------------------------------------------------// 
 // Auxiliar Functions
-// --------------------------------------------------------------------------//
+// --------------------------------------------------------------------------// 
 
 /**
    Get the dungeon list that can be done given a random dungeon entry.

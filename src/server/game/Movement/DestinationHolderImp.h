@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_DESTINATIONHOLDERIMP_H
@@ -165,7 +165,7 @@ DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y
             z = z2;
         else
         {
-            //That part is good for mob Walking on the floor. But the floor is not always what we thought.
+            // That part is good for mob Walking on the floor. But the floor is not always what we thought.
             z = map->GetHeight(x, y, i_fromZ, false); // Disable cave check
             const float groundDist = sqrt(distanceX*distanceX + distanceY*distanceY);
             const float zDist = fabs(i_fromZ - z) + 0.000001f;

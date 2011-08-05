@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "GuardAI.h"
@@ -64,9 +64,9 @@ void GuardAI::MoveInLineOfSight(Unit* unit)
         float attackRadius = me->GetAttackDistance(unit);
         if (me->IsWithinDistInMap(unit, attackRadius))
         {
-            //Need add code to let guard support player
+            // Need add code to let guard support player
             AttackStart(unit);
-            //u->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+            // u->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
         }
     }
 }

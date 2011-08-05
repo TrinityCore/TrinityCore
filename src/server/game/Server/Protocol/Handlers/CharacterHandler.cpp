@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -230,7 +230,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
 
-    /// get all the data necessary for loading all characters (along with their pets) on the account
+    // / get all the data necessary for loading all characters (along with their pets) on the account
     _charEnumCallback =
         CharacterDatabase.AsyncPQuery(
              !sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
@@ -869,7 +869,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         sLog->outStaticDebug("WORLD: Sent server info");
     }
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
+    // QueryResult *result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
     {
         Field* fields = resultGuild->Fetch();
@@ -901,7 +901,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
-    //Show cinematic at the first time that player login
+    // Show cinematic at the first time that player login
     if (!pCurrChar->getCinematic())
     {
         pCurrChar->setCinematic(1);
@@ -929,7 +929,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     }
 
     sObjectAccessor->AddObject(pCurrChar);
-    //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
+    // sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
@@ -940,7 +940,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     // announce group about member online (must be after add to player list to receive announce to self)
     if (Group* group = pCurrChar->GetGroup())
     {
-        //pCurrChar->groupInfo.group->SendInit(this); // useless
+        // pCurrChar->groupInfo.group->SendInit(this); // useless
         group->SendUpdate();
         group->ResetMaxEnchantingLevel();
     }
@@ -1031,7 +1031,7 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket & recv_data)
     GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag);
 }
 
-//I think this function is never used :/ I dunno, but i guess this opcode not exists
+// I think this function is never used :/ I dunno, but i guess this opcode not exists
 void WorldSession::HandleSetFactionCheat(WorldPacket & /*recv_data*/)
 {
     sLog->outError("WORLD SESSION: HandleSetFactionCheat, not expected call, please report.");
@@ -1061,7 +1061,7 @@ void WorldSession::HandleMeetingStoneInfo(WorldPacket & /*recv_data*/)
 {
     sLog->outStaticDebug("WORLD: Received CMSG_MEETING_STONE_INFO");
 
-    //SendLfgUpdate(0, 0, 0);
+    // SendLfgUpdate(0, 0, 0);
 }
 
 void WorldSession::HandleTutorialFlag(WorldPacket & recv_data)

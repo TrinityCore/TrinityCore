@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef _LFGMGR_H
@@ -41,7 +41,7 @@ enum LFGenum
     LFG_SPELL_LUCK_OF_THE_DRAW                   = 72221
 };
 
-/// Determines the type of instance
+// / Determines the type of instance
 enum LfgType
 {
     LFG_TYPE_NONE                                = 0,      // Internal use only
@@ -53,7 +53,7 @@ enum LfgType
     LFG_TYPE_RANDOM                              = 6
 };
 
-/// Proposal states
+// / Proposal states
 enum LfgProposalState
 {
     LFG_PROPOSAL_INITIATING                      = 0,
@@ -61,7 +61,7 @@ enum LfgProposalState
     LFG_PROPOSAL_SUCCESS                         = 2
 };
 
-/// Teleport errors
+// / Teleport errors
 enum LfgTeleportError
 {
     // 3, 7, 8 = "You can't do that right now" | 5 = No client reaction
@@ -72,7 +72,7 @@ enum LfgTeleportError
     LFG_TELEPORTERROR_INVALID_LOCATION           = 6
 };
 
-/// Queue join results
+// / Queue join results
 enum LfgJoinResult
 {
     // 3 = No client reaction | 18 = "Rolecheck failed"
@@ -95,7 +95,7 @@ enum LfgJoinResult
     LFG_JOIN_USING_BG_SYSTEM                     = 17      // You can not use the dungeon system while in BG or arenas
 };
 
-/// Role check states
+// / Role check states
 enum LfgRoleCheckState
 {
     LFG_ROLECHECK_DEFAULT                        = 0,      // Internal use = Not initialized.
@@ -107,7 +107,7 @@ enum LfgRoleCheckState
     LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
-/// Answer state (Also used to check compatibilites)
+// / Answer state (Also used to check compatibilites)
 enum LfgAnswer
 {
     LFG_ANSWER_PENDING                           = -1,
@@ -165,7 +165,7 @@ struct LfgUpdateData
     std::string comment;
 };
 
-/// Reward info
+// / Reward info
 struct LfgReward
 {
     uint32 maxLevel;
@@ -188,28 +188,28 @@ struct LfgReward
     }
 };
 
-/// Stores player or group queue info
+// / Stores player or group queue info
 struct LfgQueueInfo
 {
     LfgQueueInfo(): joinTime(0), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) {};
-    time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
-    uint8 tanks;                                           ///< Tanks needed
-    uint8 healers;                                         ///< Healers needed
-    uint8 dps;                                             ///< Dps needed
-    LfgDungeonSet dungeons;                                ///< Selected Player/Group Dungeon/s
-    LfgRolesMap roles;                                     ///< Selected Player Role/s
+    time_t joinTime;                                       // /< Player queue join time (to calculate wait times)
+    uint8 tanks;                                           // /< Tanks needed
+    uint8 healers;                                         // /< Healers needed
+    uint8 dps;                                             // /< Dps needed
+    LfgDungeonSet dungeons;                                // /< Selected Player/Group Dungeon/s
+    LfgRolesMap roles;                                     // /< Selected Player Role/s
 };
 
-/// Stores player data related to proposal to join
+// / Stores player data related to proposal to join
 struct LfgProposalPlayer
 {
     LfgProposalPlayer(): role(0), accept(LFG_ANSWER_PENDING), groupLowGuid(0) {};
-    uint8 role;                                            ///< Proposed role
-    LfgAnswer accept;                                      ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
-    uint32 groupLowGuid;                                   ///< Original group guid (Low guid) 0 if no original group
+    uint8 role;                                            // /< Proposed role
+    LfgAnswer accept;                                      // /< Accept status (-1 not answer | 0 Not agree | 1 agree)
+    uint32 groupLowGuid;                                   // /< Original group guid (Low guid) 0 if no original group
 };
 
-/// Stores group data related to proposal to join
+// / Stores group data related to proposal to join
 struct LfgProposal
 {
     LfgProposal(uint32 dungeon = 0): dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING), groupLowGuid(0), leader(0), cancelTime(0) {}
@@ -219,36 +219,36 @@ struct LfgProposal
         for (LfgProposalPlayerMap::iterator it = players.begin(); it != players.end(); ++it)
             delete it->second;
     };
-    uint32 dungeonId;                                      ///< Dungeon to join
-    LfgProposalState state;                                ///< State of the proposal
-    uint32 groupLowGuid;                                   ///< Proposal group (0 if new)
-    uint64 leader;                                         ///< Leader guid.
-    time_t cancelTime;                                     ///< Time when we will cancel this proposal
-    LfgGuidList queues;                                    ///< Queue Ids to remove/readd
-    LfgProposalPlayerMap players;                          ///< Players data
+    uint32 dungeonId;                                      // /< Dungeon to join
+    LfgProposalState state;                                // /< State of the proposal
+    uint32 groupLowGuid;                                   // /< Proposal group (0 if new)
+    uint64 leader;                                         // /< Leader guid.
+    time_t cancelTime;                                     // /< Time when we will cancel this proposal
+    LfgGuidList queues;                                    // /< Queue Ids to remove/readd
+    LfgProposalPlayerMap players;                          // /< Players data
 
 };
 
-/// Stores all rolecheck info of a group that wants to join
+// / Stores all rolecheck info of a group that wants to join
 struct LfgRoleCheck
 {
-    time_t cancelTime;                                     ///< Time when the rolecheck will fail
-    LfgRolesMap roles;                                     ///< Player selected roles
-    LfgRoleCheckState state;                               ///< State of the rolecheck
-    LfgDungeonSet dungeons;                                ///< Dungeons group is applying for (expanded random dungeons)
-    uint32 rDungeonId;                                     ///< Random Dungeon Id.
-    uint64 leader;                                         ///< Leader of the group
+    time_t cancelTime;                                     // /< Time when the rolecheck will fail
+    LfgRolesMap roles;                                     // /< Player selected roles
+    LfgRoleCheckState state;                               // /< State of the rolecheck
+    LfgDungeonSet dungeons;                                // /< Dungeons group is applying for (expanded random dungeons)
+    uint32 rDungeonId;                                     // /< Random Dungeon Id.
+    uint64 leader;                                         // /< Leader of the group
 };
 
-/// Stores information of a current vote to kick someone from a group
+// / Stores information of a current vote to kick someone from a group
 struct LfgPlayerBoot
 {
-    time_t cancelTime;                                     ///< Time left to vote
-    bool inProgress;                                       ///< Vote in progress
-    LfgAnswerMap votes;                                    ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
-    uint64 victim;                                         ///< Player guid to be kicked (can't vote)
-    uint8 votedNeeded;                                     ///< Votes needed to kick the player
-    std::string reason;                                    ///< kick reason
+    time_t cancelTime;                                     // /< Time left to vote
+    bool inProgress;                                       // /< Vote in progress
+    LfgAnswerMap votes;                                    // /< Player votes (-1 not answer | 0 Not agree | 1 agree)
+    uint64 victim;                                         // /< Player guid to be kicked (can't vote)
+    uint8 votedNeeded;                                     // /< Votes needed to kick the player
+    std::string reason;                                    // /< kick reason
 };
 
 class LFGMgr
@@ -330,31 +330,31 @@ class LFGMgr
         std::string ConcatenateGuids(LfgGuidList check);
 
         // General variables
-        bool m_update;                                     ///< Doing an update?
-        uint32 m_QueueTimer;                               ///< used to check interval of update
-        uint32 m_lfgProposalId;                            ///< used as internal counter for proposals
-        int32 m_WaitTimeAvg;                               ///< Average wait time to find a group queuing as multiple roles
-        int32 m_WaitTimeTank;                              ///< Average wait time to find a group queuing as tank
-        int32 m_WaitTimeHealer;                            ///< Average wait time to find a group queuing as healer
-        int32 m_WaitTimeDps;                               ///< Average wait time to find a group queuing as dps
-        uint32 m_NumWaitTimeAvg;                           ///< Num of players used to calc avs wait time
-        uint32 m_NumWaitTimeTank;                          ///< Num of players used to calc tank wait time
-        uint32 m_NumWaitTimeHealer;                        ///< Num of players used to calc healers wait time
-        uint32 m_NumWaitTimeDps;                           ///< Num of players used to calc dps wait time
-        LfgDungeonMap m_CachedDungeonMap;                  ///< Stores all dungeons by groupType
+        bool m_update;                                     // /< Doing an update?
+        uint32 m_QueueTimer;                               // /< used to check interval of update
+        uint32 m_lfgProposalId;                            // /< used as internal counter for proposals
+        int32 m_WaitTimeAvg;                               // /< Average wait time to find a group queuing as multiple roles
+        int32 m_WaitTimeTank;                              // /< Average wait time to find a group queuing as tank
+        int32 m_WaitTimeHealer;                            // /< Average wait time to find a group queuing as healer
+        int32 m_WaitTimeDps;                               // /< Average wait time to find a group queuing as dps
+        uint32 m_NumWaitTimeAvg;                           // /< Num of players used to calc avs wait time
+        uint32 m_NumWaitTimeTank;                          // /< Num of players used to calc tank wait time
+        uint32 m_NumWaitTimeHealer;                        // /< Num of players used to calc healers wait time
+        uint32 m_NumWaitTimeDps;                           // /< Num of players used to calc dps wait time
+        LfgDungeonMap m_CachedDungeonMap;                  // /< Stores all dungeons by groupType
         // Reward System
-        LfgRewardMap m_RewardMap;                          ///< Stores rewards for random dungeons
+        LfgRewardMap m_RewardMap;                          // /< Stores rewards for random dungeons
         // Queue
-        LfgQueueInfoMap m_QueueInfoMap;                    ///< Queued groups
-        LfgGuidListMap m_currentQueue;                     ///< Ordered list. Used to find groups
-        LfgGuidListMap m_newToQueue;                       ///< New groups to add to queue
-        LfgCompatibleMap m_CompatibleMap;                  ///< Compatible dungeons
+        LfgQueueInfoMap m_QueueInfoMap;                    // /< Queued groups
+        LfgGuidListMap m_currentQueue;                     // /< Ordered list. Used to find groups
+        LfgGuidListMap m_newToQueue;                       // /< New groups to add to queue
+        LfgCompatibleMap m_CompatibleMap;                  // /< Compatible dungeons
         // Rolecheck - Proposal - Vote Kicks
-        LfgRoleCheckMap m_RoleChecks;                      ///< Current Role checks
-        LfgProposalMap m_Proposals;                        ///< Current Proposals
-        LfgPlayerBootMap m_Boots;                          ///< Current player kicks
-        LfgPlayerDataMap m_Players;                        ///< Player data
-        LfgGroupDataMap m_Groups;                          ///< Group data
+        LfgRoleCheckMap m_RoleChecks;                      // /< Current Role checks
+        LfgProposalMap m_Proposals;                        // /< Current Proposals
+        LfgPlayerBootMap m_Boots;                          // /< Current player kicks
+        LfgPlayerDataMap m_Players;                        // /< Player data
+        LfgGroupDataMap m_Groups;                          // /< Group data
 };
 
 #define sLFGMgr ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance()

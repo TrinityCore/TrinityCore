@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -77,7 +77,7 @@ void AddItemsSetItem(Player* player, Item* item)
     {
         if (!set->spells [x])
             continue;
-        //not enough for  spell
+        // not enough for  spell
         if (set->items_to_triggerspell[x] > eff->item_count)
             continue;
 
@@ -89,7 +89,7 @@ void AddItemsSetItem(Player* player, Item* item)
         if (z < MAX_ITEM_SET_SPELLS)
             continue;
 
-        //new spell
+        // new spell
         for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
         {
             if (!eff->spells[y])                             // free slot
@@ -160,7 +160,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const *proto)
         }
     }
 
-    if (!eff->item_count)                                    //all items of a set were removed
+    if (!eff->item_count)                                    // all items of a set were removed
     {
         ASSERT(eff == player->ItemSetEff[setindex]);
         delete eff;
@@ -393,7 +393,7 @@ void Item::SaveToDB(SQLTransaction& trans)
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
     //                                                    0                1      2         3        4      5             6                 7           8           9    10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    // result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -1034,7 +1034,7 @@ void Item::SendTimeUpdate(Player* owner)
 Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
 {
     if (count < 1)
-        return NULL;                                        //don't create item at zero count
+        return NULL;                                        // don't create item at zero count
 
     ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(item);
     if (pProto)

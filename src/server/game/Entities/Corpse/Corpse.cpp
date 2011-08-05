@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -50,7 +50,7 @@ Corpse::~Corpse()
 
 void Corpse::AddToWorld()
 {
-    ///- Register the corpse for guid lookup
+    // /- Register the corpse for guid lookup
     if (!IsInWorld())
         sObjectAccessor->AddObject(this);
 
@@ -59,7 +59,7 @@ void Corpse::AddToWorld()
 
 void Corpse::RemoveFromWorld()
 {
-    ///- Remove the corpse from the accessor
+    // /- Remove the corpse from the accessor
     if (IsInWorld())
         sObjectAccessor->RemoveObject(this);
 
@@ -86,8 +86,8 @@ bool Corpse::Create(uint32 guidlow, Player *owner)
         return false;
     }
 
-    //we need to assign owner's map for corpse
-    //in other way we will get a crash in Corpse::SaveToDB()
+    // we need to assign owner's map for corpse
+    // in other way we will get a crash in Corpse::SaveToDB()
     SetMap(owner->GetMap());
 
     WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());

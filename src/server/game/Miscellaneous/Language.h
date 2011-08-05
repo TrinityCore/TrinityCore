@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef __TRINITY_LANGUAGE_H
@@ -42,8 +42,8 @@ enum TrinityStrings
     LANG_GMS_ON_SRV                     = 16,
     LANG_GMS_NOT_LOGGED                 = 17,
     LANG_YOU_IN_FLIGHT                  = 18,
-    //LANG_YOU_IN_BATTLEGROUND            = 19, not used
-    //LANG_TARGET_IN_FLIGHT               = 20, not used
+    // LANG_YOU_IN_BATTLEGROUND            = 19, not used
+    // LANG_TARGET_IN_FLIGHT               = 20, not used
     LANG_CHAR_IN_FLIGHT                 = 21,
     LANG_CHAR_NON_MOUNTED               = 22,
     LANG_YOU_IN_COMBAT                  = 23,
@@ -115,7 +115,7 @@ enum TrinityStrings
     LANG_YOU_CHANGE_ENERGY              = 122,
     LANG_YOURS_ENERGY_CHANGED           = 123,
 
-    LANG_CURRENT_ENERGY                 = 124,              //log
+    LANG_CURRENT_ENERGY                 = 124,              // log
     LANG_YOU_CHANGE_RAGE                = 125,
     LANG_YOURS_RAGE_CHANGED             = 126,
     LANG_YOU_CHANGE_LVL                 = 127,
@@ -448,8 +448,8 @@ enum TrinityStrings
     LANG_REMOVEALL_COOLDOWN             = 492,
     LANG_REMOVE_COOLDOWN                = 493,
 
-    LANG_ADDITEM                        = 494,              //log
-    LANG_ADDITEMSET                     = 495,              //log
+    LANG_ADDITEM                        = 494,              // log
+    LANG_ADDITEMSET                     = 495,              // log
     LANG_REMOVEITEM                     = 496,
     LANG_ITEM_CANNOT_CREATE             = 497,
     LANG_INSERT_GUILD_NAME              = 498,
@@ -482,7 +482,7 @@ enum TrinityStrings
 
     LANG_GAMEOBJECT_NOT_EXIST           = 522,
 
-    LANG_GAMEOBJECT_CURRENT             = 523,              //log
+    LANG_GAMEOBJECT_CURRENT             = 523,              // log
     LANG_GAMEOBJECT_DETAIL              = 524,
     LANG_GAMEOBJECT_ADD                 = 525,
 
@@ -530,17 +530,17 @@ enum TrinityStrings
     LANG_UPDATE                         = 562,
     LANG_UPDATE_CHANGE                  = 563,
     LANG_TOO_BIG_INDEX                  = 564,
-    LANG_SET_UINT                       = 565,              //log
+    LANG_SET_UINT                       = 565,              // log
     LANG_SET_UINT_FIELD                 = 566,
-    LANG_SET_FLOAT                      = 567,              //log
+    LANG_SET_FLOAT                      = 567,              // log
     LANG_SET_FLOAT_FIELD                = 568,
-    LANG_GET_UINT                       = 569,              //log
+    LANG_GET_UINT                       = 569,              // log
     LANG_GET_UINT_FIELD                 = 570,
-    LANG_GET_FLOAT                      = 571,              //log
+    LANG_GET_FLOAT                      = 571,              // log
     LANG_GET_FLOAT_FIELD                = 572,
-    LANG_SET_32BIT                      = 573,              //log
+    LANG_SET_32BIT                      = 573,              // log
     LANG_SET_32BIT_FIELD                = 574,
-    LANG_CHANGE_32BIT                   = 575,              //log
+    LANG_CHANGE_32BIT                   = 575,              // log
     LANG_CHANGE_32BIT_FIELD             = 576,
 
     LANG_INVISIBLE_INVISIBLE              = 577,
@@ -1029,20 +1029,20 @@ enum TrinityStrings
     LANG_BG_SA_START_ONE_MINUTE             = 10057,
     LANG_BG_SA_START_HALF_MINUTE            = 10058,
     LANG_BG_SA_HAS_BEGUN                    = 10059,
-    LANG_BG_SA_IS_UNDER_ATTACK              = 10060, //The %s is under attack!
-    LANG_BG_SA_WAS_DESTROYED                = 10061, //The %s was destroyed!
-    LANG_BG_SA_ROUND_ONE_END                = 10062, //Round 1 - finished!
-    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, //The Alliance captured the titan portal!
-    LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, //The Horde captured the titan portal!
-    LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
-    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
-    LANG_BG_SA_CHAMBER_BREACHED             = 10067, //The chamber has been breached! The titan relic is vulnerable!
-    LANG_BG_SA_A_GY_SOUTH                   = 10068, //The Alliance captured the South Graveyard!
-    LANG_BG_SA_A_GY_WEST                    = 10069, //The Alliance captured the West Graveyard!
-    LANG_BG_SA_A_GY_EAST                    = 10070, //The Alliance captured the East Graveyard!
-    LANG_BG_SA_H_GY_SOUTH                   = 10071, //The Horde captured the South Graveyard!
-    LANG_BG_SA_H_GY_WEST                    = 10072, //The Horde captured the West Graveyard!
-    LANG_BG_SA_H_GY_EAST                    = 10073, //The Horde captured the East Graveyard!
+    LANG_BG_SA_IS_UNDER_ATTACK              = 10060, // The %s is under attack!
+    LANG_BG_SA_WAS_DESTROYED                = 10061, // The %s was destroyed!
+    LANG_BG_SA_ROUND_ONE_END                = 10062, // Round 1 - finished!
+    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, // The Alliance captured the titan portal!
+    LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, // The Horde captured the titan portal!
+    LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, // Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
+    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, // Round 2 begins in 30 seconds. Prepare yourselves!
+    LANG_BG_SA_CHAMBER_BREACHED             = 10067, // The chamber has been breached! The titan relic is vulnerable!
+    LANG_BG_SA_A_GY_SOUTH                   = 10068, // The Alliance captured the South Graveyard!
+    LANG_BG_SA_A_GY_WEST                    = 10069, // The Alliance captured the West Graveyard!
+    LANG_BG_SA_A_GY_EAST                    = 10070, // The Alliance captured the East Graveyard!
+    LANG_BG_SA_H_GY_SOUTH                   = 10071, // The Horde captured the South Graveyard!
+    LANG_BG_SA_H_GY_WEST                    = 10072, // The Horde captured the West Graveyard!
+    LANG_BG_SA_H_GY_EAST                    = 10073, // The Horde captured the East Graveyard!
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,

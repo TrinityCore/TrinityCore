@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYCORE_QUEST_H
@@ -96,9 +96,9 @@ enum QuestStatus
 {
     QUEST_STATUS_NONE           = 0,
     QUEST_STATUS_COMPLETE       = 1,
-    //QUEST_STATUS_UNAVAILABLE    = 2,
+    // QUEST_STATUS_UNAVAILABLE    = 2,
     QUEST_STATUS_INCOMPLETE     = 3,
-    //QUEST_STATUS_AVAILABLE      = 4,
+    // QUEST_STATUS_AVAILABLE      = 4,
     QUEST_STATUS_FAILED         = 5,
     QUEST_STATUS_REWARDED       = 6,        // Not used in DB
     MAX_QUEST_STATUS
@@ -127,7 +127,7 @@ enum __QuestFlags
     QUEST_FLAGS_PARTY_ACCEPT   = 0x00000002,                // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
     QUEST_FLAGS_EXPLORATION    = 0x00000004,                // Not used currently
     QUEST_FLAGS_SHARABLE       = 0x00000008,                // Can be shared: Player::CanShareQuest()
-    //QUEST_FLAGS_NONE2        = 0x00000010,                // Not used currently
+    // QUEST_FLAGS_NONE2        = 0x00000010,                // Not used currently
     QUEST_FLAGS_EPIC           = 0x00000020,                // Not used currently: Unsure of content
     QUEST_FLAGS_RAID           = 0x00000040,                // Not used currently
     QUEST_FLAGS_TBC            = 0x00000080,                // Not used currently: Available if TBC expansion enabled only

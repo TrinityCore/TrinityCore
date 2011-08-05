@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -870,7 +870,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         }
     }
 
-    /// if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
+    // / if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
     if (cInfo->scale <= 0.0f)
     {
         if (displayScaleEntry)
@@ -3555,7 +3555,7 @@ void ObjectMgr::LoadPlayerInfo()
                 }
                 continue;
             }
-            //PlayerXPperLevel
+            // PlayerXPperLevel
             mPlayerXPperLevel[current_level] = current_xp;
             ++count;
         }
@@ -3829,7 +3829,7 @@ void ObjectMgr::LoadQuests()
                     qinfo->GetQuestId(), qinfo->ZoneOrSort);
                 // no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
             }
-            //check SkillOrClass value (class case).
+            // check SkillOrClass value (class case).
             if (ClassByQuestSort(-int32(qinfo->ZoneOrSort)))
             {
                 // SkillOrClass should not have class case when class case already set in ZoneOrSort.
@@ -3839,7 +3839,7 @@ void ObjectMgr::LoadQuests()
                         qinfo->GetQuestId(), qinfo->ZoneOrSort, qinfo->SkillOrClassMask);
                 }
             }
-            //check for proper SkillOrClass value (skill case)
+            // check for proper SkillOrClass value (skill case)
             if (int32 skill_id =  SkillByQuestSort(-int32(qinfo->ZoneOrSort)))
             {
                 // skill is positive value in SkillOrClass
@@ -3847,7 +3847,7 @@ void ObjectMgr::LoadQuests()
                 {
                     sLog->outErrorDb("Quest %u has `ZoneOrSort` = %i (skill sort case) but `SkillOrClassMask` does not have a corresponding value (%i).",
                         qinfo->GetQuestId(), qinfo->ZoneOrSort, skill_id);
-                    //override, and force proper value here?
+                    // override, and force proper value here?
                 }
             }
         }
@@ -4797,7 +4797,7 @@ void ObjectMgr::LoadSpellScripts()
         }
 
         uint8 i = (uint8)((uint32(itr->first) >> 24) & 0x000000FF);
-        //check for correct spellEffect
+        // check for correct spellEffect
         if (!spellInfo->Effects[i].Effect || (spellInfo->Effects[i].Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->Effects[i].Effect != SPELL_EFFECT_DUMMY))
             sLog->outErrorDb("Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, i);
     }
@@ -4846,7 +4846,7 @@ void ObjectMgr::LoadEventScripts()
     }
 }
 
-//Load WP Scripts
+// Load WP Scripts
 void ObjectMgr::LoadWaypointScripts()
 {
     LoadScripts(SCRIPTS_WAYPOINT);
@@ -5306,7 +5306,7 @@ void ObjectMgr::LoadNpcTextLocales()
     sLog->outString();
 }
 
-//not very fast function but it is called only once a day, or on starting-up
+// not very fast function but it is called only once a day, or on starting-up
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
@@ -5752,7 +5752,7 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
 
     // Simulate std. algorithm:
     //   found some graveyard associated to (ghost_zone, ghost_map)
-    //
+    // 
     //   if mapId == graveyard.mapId (ghost in plain zone or city or battleground) and search graveyard at same map
     //     then check faction
     //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
@@ -5903,7 +5903,7 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
     GraveYardMap::iterator graveUp   = mGraveYardMap.upper_bound(zoneId);
     if (graveLow == graveUp)
     {
-        //sLog->outErrorDb("Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
+        // sLog->outErrorDb("Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
         return;
     }
 
@@ -6459,28 +6459,28 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         switch(got.type)
         {
-        case GAMEOBJECT_TYPE_DOOR:                      //0
+        case GAMEOBJECT_TYPE_DOOR:                      // 0
             {
                 if (got.door.lockId)
                     CheckGOLockId(&got, got.door.lockId, 1);
                 CheckGONoDamageImmuneId(&got, got.door.noDamageImmune,  3);
                 break;
             }
-        case GAMEOBJECT_TYPE_BUTTON:                    //1
+        case GAMEOBJECT_TYPE_BUTTON:                    // 1
             {
                 if (got.button.lockId)
                     CheckGOLockId(&got, got.button.lockId,  1);
                 CheckGONoDamageImmuneId(&got, got.button.noDamageImmune, 4);
                 break;
             }
-        case GAMEOBJECT_TYPE_QUESTGIVER:                //2
+        case GAMEOBJECT_TYPE_QUESTGIVER:                // 2
             {
                 if (got.questgiver.lockId)
                     CheckGOLockId(&got, got.questgiver.lockId, 0);
                 CheckGONoDamageImmuneId(&got, got.questgiver.noDamageImmune, 5);
                 break;
             }
-        case GAMEOBJECT_TYPE_CHEST:                     //3
+        case GAMEOBJECT_TYPE_CHEST:                     // 3
             {
                 if (got.chest.lockId)
                     CheckGOLockId(&got, got.chest.lockId, 0);
@@ -6491,16 +6491,16 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLinkedTrapId(&got, got.chest.linkedTrapId, 7);
                 break;
             }
-        case GAMEOBJECT_TYPE_TRAP:                      //6
+        case GAMEOBJECT_TYPE_TRAP:                      // 6
             {
                 if (got.trap.lockId)
                     CheckGOLockId(&got, got.trap.lockId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_CHAIR:                     //7
+        case GAMEOBJECT_TYPE_CHAIR:                     // 7
             CheckAndFixGOChairHeightId(&got, got.chair.height, 1);
             break;
-        case GAMEOBJECT_TYPE_SPELL_FOCUS:               //8
+        case GAMEOBJECT_TYPE_SPELL_FOCUS:               // 8
             {
                 if (got.spellFocus.focusId)
                 {
@@ -6513,7 +6513,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLinkedTrapId(&got, got.spellFocus.linkedTrapId, 2);
                 break;
             }
-        case GAMEOBJECT_TYPE_GOOBER:                    //10
+        case GAMEOBJECT_TYPE_GOOBER:                    // 10
             {
                 if (got.goober.lockId)
                     CheckGOLockId(&got, got.goober.lockId, 0);
@@ -6531,19 +6531,19 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLinkedTrapId(&got, got.goober.linkedTrapId, 12);
                 break;
             }
-        case GAMEOBJECT_TYPE_AREADAMAGE:                //12
+        case GAMEOBJECT_TYPE_AREADAMAGE:                // 12
             {
                 if (got.areadamage.lockId)
                     CheckGOLockId(&got, got.areadamage.lockId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_CAMERA:                    //13
+        case GAMEOBJECT_TYPE_CAMERA:                    // 13
             {
                 if (got.camera.lockId)
                     CheckGOLockId(&got, got.camera.lockId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_MO_TRANSPORT:              //15
+        case GAMEOBJECT_TYPE_MO_TRANSPORT:              // 15
             {
                 if (got.moTransport.taxiPathId)
                 {
@@ -6553,35 +6553,35 @@ void ObjectMgr::LoadGameObjectTemplate()
                 }
                 break;
             }
-        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18
+        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          // 18
             break;
-        case GAMEOBJECT_TYPE_SPELLCASTER:               //22
+        case GAMEOBJECT_TYPE_SPELLCASTER:               // 22
             {
                 // always must have spell
                 CheckGOSpellId(&got, got.spellcaster.spellId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_FLAGSTAND:                 //24
+        case GAMEOBJECT_TYPE_FLAGSTAND:                 // 24
             {
                 if (got.flagstand.lockId)
                     CheckGOLockId(&got, got.flagstand.lockId, 0);
                 CheckGONoDamageImmuneId(&got, got.flagstand.noDamageImmune, 5);
                 break;
             }
-        case GAMEOBJECT_TYPE_FISHINGHOLE:               //25
+        case GAMEOBJECT_TYPE_FISHINGHOLE:               // 25
             {
                 if (got.fishinghole.lockId)
                     CheckGOLockId(&got, got.fishinghole.lockId, 4);
                 break;
             }
-        case GAMEOBJECT_TYPE_FLAGDROP:                  //26
+        case GAMEOBJECT_TYPE_FLAGDROP:                  // 26
             {
                 if (got.flagdrop.lockId)
                     CheckGOLockId(&got, got.flagdrop.lockId, 0);
                 CheckGONoDamageImmuneId(&got, got.flagdrop.noDamageImmune, 3);
                 break;
             }
-        case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
+        case GAMEOBJECT_TYPE_BARBER_CHAIR:              // 32
             CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
             break;
         }
@@ -7701,7 +7701,7 @@ void ObjectMgr::LoadGameObjectForQuests()
             }
             case GAMEOBJECT_TYPE_GENERIC:
             {
-                if (itr->second._generic.questID > 0)            //quests objects
+                if (itr->second._generic.questID > 0)            // quests objects
                 {
                     mGameObjectForQuestSet.insert(itr->second.entry);
                     count++;
@@ -7710,7 +7710,7 @@ void ObjectMgr::LoadGameObjectForQuests()
             }
             case GAMEOBJECT_TYPE_GOOBER:
             {
-                if (itr->second.goober.questId > 0)              //quests objects
+                if (itr->second.goober.questId > 0)              // quests objects
                 {
                     mGameObjectForQuestSet.insert(itr->second.entry);
                     count++;
@@ -7940,8 +7940,8 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial)
             else
                 return SKILL_RANGE_MONO;
         default:
-        case SKILL_CATEGORY_ATTRIBUTES:                     //not found in dbc
-        case SKILL_CATEGORY_GENERIC:                        //only GENERIC(DND)
+        case SKILL_CATEGORY_ATTRIBUTES:                     // not found in dbc
+        case SKILL_CATEGORY_GENERIC:                        // only GENERIC(DND)
             return SKILL_RANGE_NONE;
     }
 }

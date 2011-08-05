@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -90,7 +90,7 @@ bool ChatHandler::HandleGMAnnounceCommand(const char* args)
     return true;
 }
 
-//notification player at the screen
+// notification player at the screen
 bool ChatHandler::HandleNotifyCommand(const char* args)
 {
     if (!*args)
@@ -106,7 +106,7 @@ bool ChatHandler::HandleNotifyCommand(const char* args)
     return true;
 }
 
-//notification GM at the screen
+// notification GM at the screen
 bool ChatHandler::HandleGMNotifyCommand(const char* args)
 {
     if (!*args)
@@ -122,7 +122,7 @@ bool ChatHandler::HandleGMNotifyCommand(const char* args)
     return true;
 }
 
-//Summon Player
+// Summon Player
 bool ChatHandler::HandleSummonCommand(const char* args)
 {
     Player* target;
@@ -237,7 +237,7 @@ bool ChatHandler::HandleSummonCommand(const char* args)
     return true;
 }
 
-//Teleport to Player
+// Teleport to Player
 bool ChatHandler::HandleAppearCommand(const char* args)
 {
     Player* target;
@@ -409,7 +409,7 @@ bool ChatHandler::HandleRecallCommand(const char* args)
     return true;
 }
 
-//Enable On\OFF all taxi paths
+// Enable On\OFF all taxi paths
 bool ChatHandler::HandleTaxiCheatCommand(const char* args)
 {
     if (!*args)
@@ -530,7 +530,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
     return true;
 }
 
-//Find tele in game_tele order by name
+// Find tele in game_tele order by name
 bool ChatHandler::HandleLookupTeleCommand(const char * args)
 {
     if (!*args)
@@ -589,7 +589,7 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
     return true;
 }
 
-//Enable\Dissable accept whispers (for GM)
+// Enable\Dissable accept whispers (for GM)
 bool ChatHandler::HandleWhispersCommand(const char* args)
 {
     if (!*args)
@@ -620,7 +620,7 @@ bool ChatHandler::HandleWhispersCommand(const char* args)
     return false;
 }
 
-//Save all players in the world
+// Save all players in the world
 bool ChatHandler::HandleSaveAllCommand(const char* /*args*/)
 {
     sObjectAccessor->SaveAllPlayers();
@@ -628,7 +628,7 @@ bool ChatHandler::HandleSaveAllCommand(const char* /*args*/)
     return true;
 }
 
-//Send mail by command
+// Send mail by command
 bool ChatHandler::HandleSendMailCommand(const char* args)
 {
     // format: name "subject text" "mail text"
@@ -661,7 +661,7 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     // from console show not existed sender
     MailSender sender(MAIL_NORMAL, m_session ? m_session->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
-    //- TODO: Fix poor design
+    // - TODO: Fix poor design
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     MailDraft(subject, text)
         .SendMailTo(trans, MailReceiver(target, GUID_LOPART(target_guid)), sender);
@@ -673,7 +673,7 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     return true;
 }
 
-//Summon group of player
+// Summon group of player
 bool ChatHandler::HandleGroupSummonCommand(const char* args)
 {
     Player* target;

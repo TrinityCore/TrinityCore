@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_CREATURE_EAI_H
@@ -53,7 +53,7 @@ enum EventAI_Type
     EVENT_T_SUMMONED_UNIT           = 17,                   // CreatureId, RepeatMin, RepeatMax
     EVENT_T_TARGET_MANA             = 18,                   // ManaMax%, ManaMin%, RepeatMin, RepeatMax
     EVENT_T_QUEST_ACCEPT            = 19,                   // QuestID
-    EVENT_T_QUEST_COMPLETE          = 20,                   //
+    EVENT_T_QUEST_COMPLETE          = 20,                   // 
     EVENT_T_REACHED_HOME            = 21,                   // NONE
     EVENT_T_RECEIVE_EMOTE           = 22,                   // EmoteId, Condition, CondValue1, CondValue2
     EVENT_T_BUFFED                  = 23,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
@@ -114,35 +114,35 @@ enum EventAI_ActionType
     ACTION_T_SET_STAND_STATE            = 98,
     ACTION_T_MOVE_RANDOM_POINT          = 99,
     ACTION_T_SET_VISIBILITY             = 100,
-    ACTION_T_SET_ACTIVE                 = 101,  //Apply
-    ACTION_T_SET_AGGRESSIVE             = 102,  //Apply
-    ACTION_T_ATTACK_START_PULSE         = 103,  //Distance
-    ACTION_T_SUMMON_GO                  = 104,  //GameObjectID, DespawnTime in ms
+    ACTION_T_SET_ACTIVE                 = 101,  // Apply
+    ACTION_T_SET_AGGRESSIVE             = 102,  // Apply
+    ACTION_T_ATTACK_START_PULSE         = 103,  // Distance
+    ACTION_T_SUMMON_GO                  = 104,  // GameObjectID, DespawnTime in ms
 
     ACTION_T_END                        = 105,
 };
 
 enum Target
 {
-    //Self (me)
-    TARGET_T_SELF = 0,                                      //Self cast
+    // Self (me)
+    TARGET_T_SELF = 0,                                      // Self cast
 
-    //Hostile targets (if pet then returns pet owner)
-    TARGET_T_HOSTILE,                                       //Our current target (ie: highest aggro)
-    TARGET_T_HOSTILE_SECOND_AGGRO,                          //Second highest aggro (generaly used for cleaves and some special attacks)
-    TARGET_T_HOSTILE_LAST_AGGRO,                            //Dead last on aggro (no idea what this could be used for)
-    TARGET_T_HOSTILE_RANDOM,                                //Just any random target on our threat list
-    TARGET_T_HOSTILE_RANDOM_NOT_TOP,                        //Any random target except top threat
+    // Hostile targets (if pet then returns pet owner)
+    TARGET_T_HOSTILE,                                       // Our current target (ie: highest aggro)
+    TARGET_T_HOSTILE_SECOND_AGGRO,                          // Second highest aggro (generaly used for cleaves and some special attacks)
+    TARGET_T_HOSTILE_LAST_AGGRO,                            // Dead last on aggro (no idea what this could be used for)
+    TARGET_T_HOSTILE_RANDOM,                                // Just any random target on our threat list
+    TARGET_T_HOSTILE_RANDOM_NOT_TOP,                        // Any random target except top threat
 
-    //Invoker targets (if pet then returns pet owner)
-    TARGET_T_ACTION_INVOKER,                                //Unit who caused this Event to occur (only works for EVENT_T_AGGRO, EVENT_T_KILL, EVENT_T_DEATH, EVENT_T_SPELLHIT, EVENT_T_OOC_LOS, EVENT_T_FRIENDLY_HP, EVENT_T_FRIENDLY_IS_CC, EVENT_T_FRIENDLY_MISSING_BUFF)
+    // Invoker targets (if pet then returns pet owner)
+    TARGET_T_ACTION_INVOKER,                                // Unit who caused this Event to occur (only works for EVENT_T_AGGRO, EVENT_T_KILL, EVENT_T_DEATH, EVENT_T_SPELLHIT, EVENT_T_OOC_LOS, EVENT_T_FRIENDLY_HP, EVENT_T_FRIENDLY_IS_CC, EVENT_T_FRIENDLY_MISSING_BUFF)
 
-    //Hostile targets (including pets)
-    TARGET_T_HOSTILE_WPET,                                  //Current target (can be a pet)
-    TARGET_T_HOSTILE_WPET_SECOND_AGGRO,                     //Second highest aggro (generaly used for cleaves and some special attacks)
-    TARGET_T_HOSTILE_WPET_LAST_AGGRO,                       //Dead last on aggro (no idea what this could be used for)
-    TARGET_T_HOSTILE_WPET_RANDOM,                           //Just any random target on our threat list
-    TARGET_T_HOSTILE_WPET_RANDOM_NOT_TOP,                   //Any random target except top threat
+    // Hostile targets (including pets)
+    TARGET_T_HOSTILE_WPET,                                  // Current target (can be a pet)
+    TARGET_T_HOSTILE_WPET_SECOND_AGGRO,                     // Second highest aggro (generaly used for cleaves and some special attacks)
+    TARGET_T_HOSTILE_WPET_LAST_AGGRO,                       // Dead last on aggro (no idea what this could be used for)
+    TARGET_T_HOSTILE_WPET_RANDOM,                           // Just any random target on our threat list
+    TARGET_T_HOSTILE_WPET_RANDOM_NOT_TOP,                   // Any random target except top threat
 
     TARGET_T_ACTION_INVOKER_WPET,
 
@@ -151,24 +151,24 @@ enum Target
 
 enum CastFlags
 {
-    CAST_INTERRUPT_PREVIOUS     = 0x01,                     //Interrupt any spell casting
-    CAST_TRIGGERED              = 0x02,                     //Triggered (this makes spell cost zero mana and have no cast time)
-    CAST_FORCE_CAST             = 0x04,                     //Forces cast even if creature is out of mana or out of range
-    CAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range
-    CAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
-    CAST_AURA_NOT_PRESENT       = 0x20,                     //Only casts the spell if the target does not have an aura from the spell
+    CAST_INTERRUPT_PREVIOUS     = 0x01,                     // Interrupt any spell casting
+    CAST_TRIGGERED              = 0x02,                     // Triggered (this makes spell cost zero mana and have no cast time)
+    CAST_FORCE_CAST             = 0x04,                     // Forces cast even if creature is out of mana or out of range
+    CAST_NO_MELEE_IF_OOM        = 0x08,                     // Prevents creature from entering melee if out of mana or out of range
+    CAST_FORCE_TARGET_SELF      = 0x10,                     // Forces the target to cast this spell on itself
+    CAST_AURA_NOT_PRESENT       = 0x20,                     // Only casts the spell if the target does not have an aura from the spell
 };
 
 enum EventFlags
 {
-    EFLAG_REPEATABLE            = 0x01,                     //Event repeats
-    EFLAG_DIFFICULTY_0          = 0x02,                     //Event only occurs in instance difficulty 0
-    EFLAG_DIFFICULTY_1          = 0x04,                     //Event only occurs in instance difficulty 1
-    EFLAG_DIFFICULTY_2          = 0x08,                     //Event only occurs in instance difficulty 2
-    EFLAG_DIFFICULTY_3          = 0x10,                     //Event only occurs in instance difficulty 3
+    EFLAG_REPEATABLE            = 0x01,                     // Event repeats
+    EFLAG_DIFFICULTY_0          = 0x02,                     // Event only occurs in instance difficulty 0
+    EFLAG_DIFFICULTY_1          = 0x04,                     // Event only occurs in instance difficulty 1
+    EFLAG_DIFFICULTY_2          = 0x08,                     // Event only occurs in instance difficulty 2
+    EFLAG_DIFFICULTY_3          = 0x10,                     // Event only occurs in instance difficulty 3
     EFLAG_RESERVED_5            = 0x20,
     EFLAG_RESERVED_6            = 0x40,
-    EFLAG_DEBUG_ONLY            = 0x80,                     //Event only occurs in debug build
+    EFLAG_DEBUG_ONLY            = 0x80,                     // Event only occurs in debug build
 
     EFLAG_DIFFICULTY_ALL        = (EFLAG_DIFFICULTY_0|EFLAG_DIFFICULTY_1|EFLAG_DIFFICULTY_2|EFLAG_DIFFICULTY_3)
 };
@@ -558,12 +558,12 @@ struct CreatureEventAI_Event
 
     CreatureEventAI_Action action[MAX_ACTIONS];
 };
-//Event_Map
+// Event_Map
 typedef UNORDERED_MAP<uint32, std::vector<CreatureEventAI_Event> > CreatureEventAI_Event_Map;
 
 struct CreatureEventAI_Summon
 {
-    //uint32 id;
+    // uint32 id;
 
     float position_x;
     float position_y;
@@ -572,7 +572,7 @@ struct CreatureEventAI_Summon
     uint32 SpawnTimeSecs;
 };
 
-//EventSummon_Map
+// EventSummon_Map
 typedef UNORDERED_MAP<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map;
 
 struct CreatureEventAIHolder

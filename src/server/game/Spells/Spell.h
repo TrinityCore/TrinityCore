@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef __SPELL_H
@@ -102,8 +102,8 @@ enum SpellCastFlags
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT             = 0,
-    SPELL_RANGE_MELEE               = 1,     //melee
-    SPELL_RANGE_RANGED              = 2,     //hunter range and ranged weapon
+    SPELL_RANGE_MELEE               = 1,     // melee
+    SPELL_RANGE_RANGED              = 2,     // hunter range and ranged weapon
 };
 
 enum SpellNotifyPushType
@@ -115,7 +115,7 @@ enum SpellNotifyPushType
     PUSH_IN_THIN_LINE,
     PUSH_SRC_CENTER,
     PUSH_DST_CENTER,
-    PUSH_CASTER_CENTER, //this is never used in grid search
+    PUSH_CASTER_CENTER, // this is never used in grid search
     PUSH_CHAIN,
 };
 
@@ -520,7 +520,7 @@ class Spell
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
-        //Spell data
+        // Spell data
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
         WeaponAttackType m_attackType;                      // For weapon based attack
         int32 m_powerCost;                                  // Calculated spell cost initialized only in Spell::prepare

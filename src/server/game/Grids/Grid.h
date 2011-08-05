@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_GRID_H
@@ -129,8 +129,8 @@ class Grid
 
         TypeMapContainer<GRID_OBJECT_TYPES> i_container;
         TypeMapContainer<WORLD_OBJECT_TYPES> i_objects;
-        //typedef std::set<void*> ActiveGridObjects;
-        //ActiveGridObjects m_activeGridObjects;
+        // typedef std::set<void*> ActiveGridObjects;
+        // ActiveGridObjects m_activeGridObjects;
 };
 #endif
 

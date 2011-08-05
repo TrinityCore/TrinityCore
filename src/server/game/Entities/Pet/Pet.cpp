@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -61,10 +61,10 @@ Pet::~Pet()
 
 void Pet::AddToWorld()
 {
-    ///- Register the pet for guid lookup
+    // /- Register the pet for guid lookup
     if (!IsInWorld())
     {
-        ///- Register the pet for guid lookup
+        // /- Register the pet for guid lookup
         sObjectAccessor->AddObject(this);
         Unit::AddToWorld();
         AIM_Initialize();
@@ -84,10 +84,10 @@ void Pet::AddToWorld()
 
 void Pet::RemoveFromWorld()
 {
-    ///- Remove the pet from the accessor
+    // /- Remove the pet from the accessor
     if (IsInWorld())
     {
-        ///- Don't call the function for Creature, normal mobs + totems go in a different storage
+        // /- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -234,7 +234,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     SetReactState(ReactStates(fields[6].GetUInt8()));
     SetCanModifyStats(true);
 
-    if (getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
+    if (getPetType() == SUMMON_PET && !current)              // all (?) summon pets come with full health when called, but not when they are current
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     else
     {
@@ -326,7 +326,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         }
     }
 
-    //set last used pet number (for use in BG's)
+    // set last used pet number (for use in BG's)
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
@@ -460,17 +460,17 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
             SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
             RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-             //lose happiness when died and not in BG/Arena
+             // lose happiness when died and not in BG/Arena
             MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
             if (!mapEntry || (mapEntry->map_type != MAP_ARENA && mapEntry->map_type != MAP_BATTLEGROUND))
                 ModifyPower(POWER_HAPPINESS, -HAPPINESS_LEVEL_SIZE);
 
-            //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            // SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
     }
     else if (getDeathState() == ALIVE)
     {
-        //RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        // RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         CastPetAuras(true);
     }
 }
@@ -489,7 +489,7 @@ void Pet::Update(uint32 diff)
         {
             if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(NULL))
             {
-                Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
+                Remove(PET_SAVE_NOT_IN_SLOT);               // hunters' pets never get removed because of death, NEVER!
                 return;
             }
             break;
@@ -499,7 +499,7 @@ void Pet::Update(uint32 diff)
             // unsummon pet that lost owner
             Player* owner = GetOwner();
             if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityRange()) && !isPossessed()) || (isControlled() && !owner->GetPetGUID()))
-            //if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGUID() && (owner->GetCharmGUID() != GetGUID()))) || (isControlled() && !owner->GetPetGUID()))
+            // if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGUID() && (owner->GetCharmGUID() != GetGUID()))) || (isControlled() && !owner->GetPetGUID()))
             {
                 Remove(PET_SAVE_NOT_IN_SLOT, true);
                 return;
@@ -526,7 +526,7 @@ void Pet::Update(uint32 diff)
                 }
             }
 
-            //regenerate focus for hunter pets or energy for deathknight's ghoul
+            // regenerate focus for hunter pets or energy for deathknight's ghoul
             if (m_regenTimer)
             {
                 if (m_regenTimer > diff)
@@ -541,7 +541,7 @@ void Pet::Update(uint32 diff)
                             if (!m_regenTimer) ++m_regenTimer;
                             break;
                         // in creature::update
-                        //case POWER_ENERGY:
+                        // case POWER_ENERGY:
                         //    Regenerate(POWER_ENERGY);
                         //    m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
                         //    if (!m_regenTimer) ++m_regenTimer;
@@ -616,8 +616,8 @@ void Pet::LoseHappiness()
     uint32 curValue = GetPower(POWER_HAPPINESS);
     if (curValue <= 0)
         return;
-    int32 addvalue = 670;                                   //value is 70/35/17/8/4 (per min) * 1000 / 8 (timer 7.5 secs)
-    if (isInCombat())                                        //we know in combat happiness fades faster, multiplier guess
+    int32 addvalue = 670;                                   // value is 70/35/17/8/4 (per min) * 1000 / 8 (timer 7.5 secs)
+    if (isInCombat())                                        // we know in combat happiness fades faster, multiplier guess
         addvalue = int32(addvalue * 1.5);
     ModifyPower(POWER_HAPPINESS, -addvalue);
 }
@@ -770,7 +770,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     SetLevel(petlevel);
 
-    //Determine pet type
+    // Determine pet type
     PetType petType = MAX_PET_TYPE;
     if (isPet() && m_owner->GetTypeId() == TYPEID_PLAYER)
     {
@@ -799,7 +799,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
 
-    //scale
+    // scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
     if (cFamily && cFamily->minScale > 0.0f && petType == HUNTER_PET)
     {
@@ -818,12 +818,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
-    //health, mana, armor and resistance
+    // health, mana, armor and resistance
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
         SetCreateHealth(pInfo->health);
-        if (petType != HUNTER_PET) //hunter pet use focus
+        if (petType != HUNTER_PET) // hunter pet use focus
             SetCreateMana(pInfo->mana);
 
         if (pInfo->armor > 0)
@@ -851,28 +851,28 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     {
         case SUMMON_PET:
         {
-            //the damage bonus used for pets is either fire or shadow damage, whatever is higher
+            // the damage bonus used for pets is either fire or shadow damage, whatever is higher
             uint32 fire  = m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE);
             uint32 shadow = m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW);
             uint32 val  = (fire > shadow) ? fire : shadow;
             SetBonusDamage(int32 (val * 0.15f));
-            //bonusAP += val * 0.57;
+            // bonusAP += val * 0.57;
 
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
 
-            //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
+            // SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
             break;
         }
         case HUNTER_PET:
         {
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
-            //these formula may not be correct; however, it is designed to be close to what it should be
-            //this makes dps 0.5 of pets level
+            // these formula may not be correct; however, it is designed to be close to what it should be
+            // this makes dps 0.5 of pets level
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
-            //damage range is then petlevel / 2
+            // damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
-            //damage is increased afterwards as strength and pet scaling modify attack power
+            // damage is increased afterwards as strength and pet scaling modify attack power
             break;
         }
         default:
@@ -884,7 +884,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBonusDamage(int32(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FROST) * 0.33f));
                     break;
                 }
-                case 1964: //force of nature
+                case 1964: // force of nature
                 {
                     if (!pInfo)
                         SetCreateHealth(30 + 30*petlevel);
@@ -893,7 +893,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
                     break;
                 }
-                case 15352: //earth elemental 36213
+                case 15352: // earth elemental 36213
                 {
                     if (!pInfo)
                         SetCreateHealth(100 + 120*petlevel);
@@ -901,7 +901,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 }
-                case 15438: //fire elemental
+                case 15438: // fire elemental
                 {
                     if (!pInfo)
                     {
@@ -925,13 +925,13 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     break;
                 }
-                case 19833: //Snake Trap - Venomous Snake
+                case 19833: // Snake Trap - Venomous Snake
                 {
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel / 2) - 25));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel / 2) - 18));
                     break;
                 }
-                case 19921: //Snake Trap - Viper
+                case 19921: // Snake Trap - Viper
                 {
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel / 2 - 10));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel / 2));
@@ -954,8 +954,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(m_owner->GetArmor()) * 0.35f);  //  Bonus Armor (35% of player armor)
                     SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.3f);  //  Bonus Stamina (30% of player stamina)
-                    if (!HasAura(58877))//prevent apply twice for the 2 wolves
-                        AddAura(58877, this);//Spirit Hunt, passive, Spirit Wolves' attacks heal them and their master for 150% of damage done.
+                    if (!HasAura(58877))// prevent apply twice for the 2 wolves
+                        AddAura(58877, this);// Spirit Hunt, passive, Spirit Wolves' attacks heal them and their master for 150% of damage done.
                     break;
                 }
                 case 31216: // Mirror Image
@@ -1014,17 +1014,17 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
 uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel)
 {
     // -5 or greater food level
-    if (getLevel() <= itemlevel + 5)                         //possible to feed level 60 pet with level 55 level food for full effect
+    if (getLevel() <= itemlevel + 5)                         // possible to feed level 60 pet with level 55 level food for full effect
         return 35000;
     // -10..-6
-    else if (getLevel() <= itemlevel + 10)                   //pure guess, but sounds good
+    else if (getLevel() <= itemlevel + 10)                   // pure guess, but sounds good
         return 17000;
     // -14..-11
-    else if (getLevel() <= itemlevel + 14)                   //level 55 food gets green on 70, makes sense to me
+    else if (getLevel() <= itemlevel + 14)                   // level 55 food gets green on 70, makes sense to me
         return 8000;
     // -15 or less
     else
-        return 0;                                           //food too low level
+        return 0;                                           // food too low level
 }
 
 void Pet::_LoadSpellCooldowns()

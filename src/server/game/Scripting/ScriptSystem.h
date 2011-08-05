@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https:// scriptdev2.svn.sourceforge.net/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -6,12 +6,12 @@
 #define SC_SYSTEM_H
 #include <ace/Singleton.h>
 
-#define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
+#define TEXT_SOURCE_RANGE -1000000                          // the amount of entries each text source has available
 
-//TODO: find better namings and definitions.
-//N=Neutral, A=Alliance, H=Horde.
-//NEUTRAL or FRIEND = Hostility to player surroundings (not a good definition)
-//ACTIVE or PASSIVE = Hostility to environment surroundings.
+// TODO: find better namings and definitions.
+// N=Neutral, A=Alliance, H=Horde.
+// NEUTRAL or FRIEND = Hostility to player surroundings (not a good definition)
+// ACTIVE or PASSIVE = Hostility to environment surroundings.
 enum eEscortFaction
 {
     FACTION_ESCORT_A_NEUTRAL_PASSIVE    = 10,
@@ -59,17 +59,17 @@ class SystemMgr
         ~SystemMgr() {}
 
     public:
-        //Maps and lists
+        // Maps and lists
         typedef UNORDERED_MAP<int32, StringTextData> TextDataMap;
         typedef UNORDERED_MAP<uint32, ScriptPointVector> PointMoveMap;
 
-        //Database
+        // Database
         void LoadVersion();
         void LoadScriptTexts();
         void LoadScriptTextsCustom();
         void LoadScriptWaypoints();
 
-        //Retrive from storage
+        // Retrive from storage
         StringTextData const* GetTextData(int32 textId) const
         {
             TextDataMap::const_iterator itr = m_mTextDataMap.find(textId);
@@ -91,8 +91,8 @@ class SystemMgr
         }
 
     protected:
-        TextDataMap     m_mTextDataMap;                     //additional data for text strings
-        PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
+        TextDataMap     m_mTextDataMap;                     // additional data for text strings
+        PointMoveMap    m_mPointMoveMap;                    // coordinates for waypoints
 
     private:
         static ScriptPointVector const _empty;

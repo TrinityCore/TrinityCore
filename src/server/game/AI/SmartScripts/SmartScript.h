@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_SMARTSCRIPT_H
@@ -28,7 +28,7 @@
 #include "GridNotifiers.h"
 
 #include "SmartScriptMgr.h"
-//#include "SmartAI.h"
+// #include "SmartAI.h"
 
 class SmartScript
 {
@@ -209,7 +209,7 @@ class SmartScript
             meOrigGUID = 0;
         }
 
-        //TIMED_ACTIONLIST (script type 9 aka script9)
+        // TIMED_ACTIONLIST (script type 9 aka script9)
         void SetScript9(SmartScriptHolder& e, uint32 entry);
         Unit* GetLastInvoker();
         uint64 mLastInvoker;

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -158,7 +158,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 
     if (loot)
     {
-        if (shareMoney && player->GetGroup())      //item, pickpocket and players can be looted only single player
+        if (shareMoney && player->GetGroup())      // item, pickpocket and players can be looted only single player
         {
             Group* group = player->GetGroup();
 
@@ -422,7 +422,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         }
     }
 
-    //Player is not looking at loot list, he doesn't need to see updates on the loot list
+    // Player is not looking at loot list, he doesn't need to see updates on the loot list
     loot->RemoveLooter(player->GetGUID());
 }
 

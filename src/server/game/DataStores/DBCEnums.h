@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef DBCENUMS_H
@@ -66,8 +66,8 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_REQ_COUNT         = 0x00000020,        // Use not zero req count (and calculate max value)
     ACHIEVEMENT_FLAG_AVERAGE           = 0x00000040,        // Show as average value (value / time_in_days) depend from other flag (by def use last criteria value)
     ACHIEVEMENT_FLAG_BAR               = 0x00000080,        // Show as progress bar (value / max vale) depend from other flag (by def use last criteria value)
-    ACHIEVEMENT_FLAG_REALM_FIRST_REACH = 0x00000100,        //
-    ACHIEVEMENT_FLAG_REALM_FIRST_KILL  = 0x00000200,        //
+    ACHIEVEMENT_FLAG_REALM_FIRST_REACH = 0x00000100,        // 
+    ACHIEVEMENT_FLAG_REALM_FIRST_KILL  = 0x00000200,        // 
 };
 
 #define MAX_CRITERIA_REQUIREMENTS 2
@@ -89,7 +89,7 @@ enum AchievementCriteriaFlags
     ACHIEVEMENT_CRITERIA_FLAG_SHOW_PROGRESS_BAR = 0x00000001,         // Show progress as bar
     ACHIEVEMENT_CRITERIA_FLAG_HIDDEN            = 0x00000002,         // Not show criteria in client
     ACHIEVEMENT_CRITERIA_FLAG_UNK3              = 0x00000004,         // BG related??
-    ACHIEVEMENT_CRITERIA_FLAG_UNK4              = 0x00000008,         //
+    ACHIEVEMENT_CRITERIA_FLAG_UNK4              = 0x00000008,         // 
     ACHIEVEMENT_CRITERIA_FLAG_UNK5              = 0x00000010,         // not used
     ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020,         // Displays counter as money
 };

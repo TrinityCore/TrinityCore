@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef __BATTLEGROUNDEY_H
@@ -23,8 +23,8 @@
 
 class Battleground;
 
-#define BG_EY_FLAG_RESPAWN_TIME         (8*IN_MILLISECONDS) //8 seconds
-#define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILLISECONDS)  //2 seconds
+#define BG_EY_FLAG_RESPAWN_TIME         (8*IN_MILLISECONDS) // 8 seconds
+#define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILLISECONDS)  // 2 seconds
 
 enum BG_EY_WorldStates
 {
@@ -44,11 +44,11 @@ enum BG_EY_WorldStates
     BLOOD_ELF_HORDE_CONTROL         = 2724,
     BLOOD_ELF_ALLIANCE_CONTROL      = 2723,
     BLOOD_ELF_UNCONTROL             = 2722,
-    PROGRESS_BAR_PERCENT_GREY       = 2720,                 //100 = empty (only grey), 0 = blue|red (no grey)
-    PROGRESS_BAR_STATUS             = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky , 100 = full alliance
-    PROGRESS_BAR_SHOW               = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
+    PROGRESS_BAR_PERCENT_GREY       = 2720,                 // 100 = empty (only grey), 0 = blue|red (no grey)
+    PROGRESS_BAR_STATUS             = 2719,                 // 50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky , 100 = full alliance
+    PROGRESS_BAR_SHOW               = 2718,                 // 1 init, 0 druhy send - bez messagu, 1 = controlled aliance
     NETHERSTORM_FLAG                = 2757,
-    //set to 2 when flag is picked up, and to 1 if it is dropped
+    // set to 2 when flag is picked up, and to 1 if it is dropped
     NETHERSTORM_FLAG_STATE_ALLIANCE = 2769,
     NETHERSTORM_FLAG_STATE_HORDE    = 2770
 };
@@ -69,7 +69,7 @@ enum BG_EY_ProgressBarConsts
 
 enum BG_EY_Sounds
 {
-    //strange ids, but sure about them
+    // strange ids, but sure about them
     BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE = 8212,
     BG_EY_SOUND_FLAG_CAPTURED_HORDE     = 8213,
     BG_EY_SOUND_FLAG_PICKED_UP_HORDE    = 8174,
@@ -85,18 +85,18 @@ enum BG_EY_Spells
 
 enum EYBattlegroundObjectEntry
 {
-    BG_OBJECT_A_DOOR_EY_ENTRY           = 184719,           //Alliance door
-    BG_OBJECT_H_DOOR_EY_ENTRY           = 184720,           //Horde door
-    BG_OBJECT_FLAG1_EY_ENTRY            = 184493,           //Netherstorm flag (generic)
-    BG_OBJECT_FLAG2_EY_ENTRY            = 184141,           //Netherstorm flag (flagstand)
-    BG_OBJECT_FLAG3_EY_ENTRY            = 184142,           //Netherstorm flag (flagdrop)
-    BG_OBJECT_A_BANNER_EY_ENTRY         = 184381,           //Visual Banner (Alliance)
-    BG_OBJECT_H_BANNER_EY_ENTRY         = 184380,           //Visual Banner (Horde)
-    BG_OBJECT_N_BANNER_EY_ENTRY         = 184382,           //Visual Banner (Neutral)
-    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY     = 184080,           //BE Tower Cap Pt
-    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY     = 184081,           //Fel Reaver Cap Pt
-    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY     = 184082,           //Human Tower Cap Pt
-    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY     = 184083            //Draenei Tower Cap Pt
+    BG_OBJECT_A_DOOR_EY_ENTRY           = 184719,           // Alliance door
+    BG_OBJECT_H_DOOR_EY_ENTRY           = 184720,           // Horde door
+    BG_OBJECT_FLAG1_EY_ENTRY            = 184493,           // Netherstorm flag (generic)
+    BG_OBJECT_FLAG2_EY_ENTRY            = 184141,           // Netherstorm flag (flagstand)
+    BG_OBJECT_FLAG3_EY_ENTRY            = 184142,           // Netherstorm flag (flagdrop)
+    BG_OBJECT_A_BANNER_EY_ENTRY         = 184381,           // Visual Banner (Alliance)
+    BG_OBJECT_H_BANNER_EY_ENTRY         = 184380,           // Visual Banner (Horde)
+    BG_OBJECT_N_BANNER_EY_ENTRY         = 184382,           // Visual Banner (Neutral)
+    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY     = 184080,           // BE Tower Cap Pt
+    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY     = 184081,           // Fel Reaver Cap Pt
+    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY     = 184082,           // Human Tower Cap Pt
+    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY     = 184083            // Draenei Tower Cap Pt
 };
 
 enum EYBattlegroundPointsTrigger
@@ -198,7 +198,7 @@ enum EYBattlegroundObjectTypes
     BG_EY_OBJECT_FLAG_BLOOD_ELF                 = 44,
     BG_EY_OBJECT_FLAG_DRAENEI_RUINS             = 45,
     BG_EY_OBJECT_FLAG_MAGE_TOWER                = 46,
-    //buffs
+    // buffs
     BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER          = 47,
     BG_EY_OBJECT_REGENBUFF_FEL_REAVER          = 48,
     BG_EY_OBJECT_BERSERKBUFF_FEL_REAVER        = 49,
@@ -295,7 +295,7 @@ struct BattlegroundEYCapturingPointStruct
 const uint8  BG_EY_TickPoints[EY_POINTS_MAX] = {1, 2, 5, 10};
 const uint32 BG_EY_FlagPoints[EY_POINTS_MAX] = {75, 85, 100, 500};
 
-//constant arrays:
+// constant arrays:
 const BattlegroundEYPointIconsStruct m_PointsIconStruct[EY_POINTS_MAX] =
 {
     BattlegroundEYPointIconsStruct(FEL_REAVER_UNCONTROL, FEL_REAVER_ALLIANCE_CONTROL, FEL_REAVER_HORDE_CONTROL),

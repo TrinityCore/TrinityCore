@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -788,23 +788,23 @@ int ChatHandler::ParseCommands(const char* text)
     if (m_session && m_session->GetSecurity() <= SEC_PLAYER && sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
        return 0;
 
-    /// chat case (.command or !command format)
+    // / chat case (.command or !command format)
     if (m_session)
     {
         if (text[0] != '!' && text[0] != '.')
             return 0;
     }
 
-    /// ignore single . and ! in line
+    // / ignore single . and ! in line
     if (strlen(text) < 2)
         return 0;
     // original `text` can't be used. It content destroyed in command code processing.
 
-    /// ignore messages staring from many dots.
+    // / ignore messages staring from many dots.
     if ((text[0] == '.' && text[1] == '.') || (text[0] == '!' && text[1] == '!'))
         return 0;
 
-    /// skip first . or ! (in console allowed use command with . and ! and without its)
+    // / skip first . or ! (in console allowed use command with . and ! and without its)
     if (text[0] == '!' || text[0] == '.')
         ++text;
 
@@ -887,7 +887,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand *table, char const* cmd, ch
         if (!isAvailable(table[i]))
             continue;
 
-        /// for empty subcmd show all available
+        // / for empty subcmd show all available
         if (*subcmd && !hasStringAbbr(table[i].Name, subcmd))
             continue;
 
@@ -973,7 +973,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand *table, const char* cmd)
     return ShowHelpForSubCommands(table, "", cmd);
 }
 
-//Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
+// Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
 void ChatHandler::FillMessageData(WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit *speaker)
 {
     uint32 messageLength = (message ? strlen(message) : 0) + 1;

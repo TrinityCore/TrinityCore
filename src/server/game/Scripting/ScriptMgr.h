@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef SC_SCRIPTMGR_H
@@ -66,7 +66,7 @@ struct Condition;
 struct ItemTemplate;
 struct OutdoorPvPData;
 
-#define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
+#define VISIBLE_RANGE       166.0f                          // MAX visible range (size of grid)
 
 // Generic scripting text function.
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
@@ -980,7 +980,7 @@ class ScriptMgr
     private:
         uint32 _scriptCount;
 
-        //atomic op counter for active scripts amount
+        // atomic op counter for active scripts amount
         ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
 };
 

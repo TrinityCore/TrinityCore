@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_MOTIONMASTER_H
@@ -76,10 +76,10 @@ enum RotateDirection
 // assume it is 25 yard per 0.6 second
 #define SPEED_CHARGE    42.0f
 
-class MotionMaster //: private std::stack<MovementGenerator *>
+class MotionMaster // : private std::stack<MovementGenerator *>
 {
     private:
-        //typedef std::stack<MovementGenerator *> Impl;
+        // typedef std::stack<MovementGenerator *> Impl;
         typedef MovementGenerator* _Ty;
         _Ty Impl[MAX_MOTION_SLOT];
         bool needInit[MAX_MOTION_SLOT];

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef __BATTLEGROUNDMGR_H
@@ -34,7 +34,7 @@ typedef UNORDERED_MAP<uint32, BattlegroundTypeId> BattleMastersMap;
 
 class BattlegroundMgr
 {
-    /// Todo: Thread safety?
+    // / Todo: Thread safety?
     /* Construction */
     friend class ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>;
     BattlegroundMgr();
@@ -56,7 +56,7 @@ class BattlegroundMgr
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
-        Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
+        Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId); // there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
 
         Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
         Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
@@ -73,7 +73,7 @@ class BattlegroundMgr
         void SendToBattleground(Player *pl, uint32 InstanceID, BattlegroundTypeId bgTypeId);
 
         /* Battleground queues */
-        //these queues are instantiated when creating BattlegroundMrg
+        // these queues are instantiated when creating BattlegroundMrg
         BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES]; // public, because we need to access them in BG handler code
 
         BGFreeSlotQueueType BGFreeSlotQueue[MAX_BATTLEGROUND_TYPE_ID];
@@ -118,7 +118,7 @@ class BattlegroundMgr
         BattlegroundSelectionWeightMap m_ArenaSelectionWeights;
         BattlegroundSelectionWeightMap m_BGSelectionWeights;
         std::vector<uint64> m_QueueUpdateScheduler;
-        std::set<uint32> m_ClientBattlegroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
+        std::set<uint32> m_ClientBattlegroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; // the instanceids just visible for the client
         uint32 m_NextRatingDiscardUpdate;
         time_t m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef __BATTLEGROUNDIC_H
@@ -445,8 +445,8 @@ enum BG_IC_MaxSpawns
 
 const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS]=
 {
-    {BG_IC_NPC_OVERLORD_AGMAR, NPC_OVERLORD_AGMAR, TEAM_HORDE, 1295.44f, -765.733f, 70.0541f, 0.0f}, //Overlord Agmar 1
-    {BG_IC_NPC_HIGH_COMMANDER_HALFORD_WYRMBANE, NPC_HIGH_COMMANDER_HALFORD_WYRMBANE, TEAM_ALLIANCE, 224.983f, -831.573f, 60.9034f, 0.0f}, //High Commander Halford Wyrmbane 2
+    {BG_IC_NPC_OVERLORD_AGMAR, NPC_OVERLORD_AGMAR, TEAM_HORDE, 1295.44f, -765.733f, 70.0541f, 0.0f}, // Overlord Agmar 1
+    {BG_IC_NPC_HIGH_COMMANDER_HALFORD_WYRMBANE, NPC_HIGH_COMMANDER_HALFORD_WYRMBANE, TEAM_ALLIANCE, 224.983f, -831.573f, 60.9034f, 0.0f}, // High Commander Halford Wyrmbane 2
     {BG_IC_NPC_KOR_KRON_GUARD_1, NPC_KOR_KRON_GUARD, TEAM_HORDE, 1296.01f, -773.256f, 69.958f, 0.292168f}, // 3
     {BG_IC_NPC_KOR_KRON_GUARD_2, NPC_KOR_KRON_GUARD, TEAM_HORDE, 1295.94f, -757.756f, 69.9587f, 6.02165f}, // 4
     {BG_IC_NPC_KOR_KRON_GUARD_3, NPC_KOR_KRON_GUARD, TEAM_HORDE, 1295.09f, -760.927f, 69.9587f, 5.94311f}, // 5

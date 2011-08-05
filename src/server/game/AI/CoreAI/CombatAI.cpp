@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #include "CombatAI.h"
@@ -111,9 +111,9 @@ void CombatAI::UpdateAI(const uint32 diff)
         DoMeleeAttackIfReady();
 }
 
-/////////////////
-//CasterAI
-/////////////////
+// // // // // // // // /
+// CasterAI
+// // // // // // // // /
 
 void CasterAI::InitializeAI()
 {
@@ -169,9 +169,9 @@ void CasterAI::UpdateAI(const uint32 diff)
     }
 }
 
-//////////////
-//ArcherAI
-//////////////
+// // // // // // // 
+// ArcherAI
+// // // // // // // 
 
 ArcherAI::ArcherAI(Creature *c) : CreatureAI(c)
 {
@@ -218,9 +218,9 @@ void ArcherAI::UpdateAI(const uint32 /*diff*/)
         DoMeleeAttackIfReady();
 }
 
-//////////////
-//TurretAI
-//////////////
+// // // // // // // 
+// TurretAI
+// // // // // // // 
 
 TurretAI::TurretAI(Creature *c) : CreatureAI(c)
 {
@@ -256,9 +256,9 @@ void TurretAI::UpdateAI(const uint32 /*diff*/)
     DoSpellAttackIfReady(me->m_spells[0]);
 }
 
-//////////////
-//VehicleAI
-//////////////
+// // // // // // // 
+// VehicleAI
+// // // // // // // 
 
 VehicleAI::VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
 {
@@ -267,7 +267,7 @@ VehicleAI::VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit())
     m_DismissTimer = VEHICLE_DISMISS_TIME;
 }
 
-//NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted
+// NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted
 void VehicleAI::UpdateAI(const uint32 diff)
 {
     CheckConditions(diff);
@@ -290,15 +290,15 @@ void VehicleAI::Reset()
 
 void VehicleAI::OnCharmed(bool apply)
 {
-    if (m_IsVehicleInUse && !apply && !conditions.empty())//was used and has conditions
+    if (m_IsVehicleInUse && !apply && !conditions.empty())// was used and has conditions
     {
-        m_DoDismiss = true;//needs reset
+        m_DoDismiss = true;// needs reset
         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
     else if (apply)
-        m_DoDismiss = false;//in use again
-    m_DismissTimer = VEHICLE_DISMISS_TIME;//reset timer
+        m_DoDismiss = false;// in use again
+    m_DismissTimer = VEHICLE_DISMISS_TIME;// reset timer
     m_IsVehicleInUse = apply;
 }
 
@@ -323,7 +323,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
                         if (!sConditionMgr->IsPlayerMeetToConditions(plr, conditions))
                         {
                             plr->ExitVehicle();
-                            return;//check other pessanger in next tick
+                            return;// check other pessanger in next tick
                         }
                     }
                 }

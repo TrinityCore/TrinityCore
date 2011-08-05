@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef _PLAYER_H
@@ -189,7 +189,7 @@ struct ActionButton
     }
 };
 
-#define  MAX_ACTION_BUTTONS 144                             //checked in 3.2.0
+#define  MAX_ACTION_BUTTONS 144                             // checked in 3.2.0
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
@@ -214,7 +214,7 @@ struct PlayerClassInfo
 {
     PlayerClassInfo() : levelInfo(NULL) { }
 
-    PlayerClassLevelInfo* levelInfo;                        //[level-1] 0..MaxPlayerLevel-1
+    PlayerClassLevelInfo* levelInfo;                        // [level-1] 0..MaxPlayerLevel-1
 };
 
 struct PlayerLevelInfo
@@ -257,7 +257,7 @@ struct PlayerInfo
     PlayerCreateInfoSpells spell;
     PlayerCreateInfoActions action;
 
-    PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
+    PlayerLevelInfo* levelInfo;                             // [level-1] 0..MaxPlayerLevel-1
 };
 
 struct PvPInfo
@@ -749,7 +749,7 @@ enum TeleportToOptions
     TELE_TO_SPELL               = 0x10,
 };
 
-/// Type of environmental damages
+// / Type of environmental damages
 enum EnviromentalDamage
 {
     DAMAGE_EXHAUSTED = 0,
@@ -811,8 +811,8 @@ enum PlayerDelayedOperations
     DELAYED_SAVE_PLAYER         = 0x01,
     DELAYED_RESURRECT_PLAYER    = 0x02,
     DELAYED_SPELL_CAST_DESERTER = 0x04,
-    DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
-    DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
+    DELAYED_BG_MOUNT_RESTORE    = 0x08,                     // /< Flag to restore mount state after teleport from BG
+    DELAYED_BG_TAXI_RESTORE     = 0x10,                     // /< Flag to restore taxi state after teleport from BG
     DELAYED_END
 };
 
@@ -946,26 +946,26 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
 
 class Player;
 
-/// Holder for Battleground data
+// / Holder for Battleground data
 struct BGData
 {
     BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
         bgTeam(0), mountSpell(0) { ClearTaxiPath(); }
 
-    uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
-                                            ///  when player is teleported to BG - (it is battleground's GUID)
+    uint32 bgInstanceID;                    // /< This variable is set to bg->m_InstanceID,
+                                            // /  when player is teleported to BG - (it is battleground's GUID)
     BattlegroundTypeId bgTypeID;
 
     std::set<uint32>   bgAfkReporter;
     uint8              bgAfkReportedCount;
     time_t             bgAfkReportedTimer;
 
-    uint32 bgTeam;                          ///< What side the player will be added to
+    uint32 bgTeam;                          // /< What side the player will be added to
 
     uint32 mountSpell;
     uint32 taxiPath[2];
 
-    WorldLocation joinPos;                  ///< From where player entered BG
+    WorldLocation joinPos;                  // /< From where player entered BG
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
@@ -1208,7 +1208,7 @@ class Player : public Unit, public GridObject<Player>
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
         Bag*  GetBagByPos(uint8 slot) const;
-        inline Item* GetUseableItemByPos(uint8 bag, uint8 slot) const //Does additional check for disarmed weapons
+        inline Item* GetUseableItemByPos(uint8 bag, uint8 slot) const // Does additional check for disarmed weapons
         {
             if (!CanUseAttackType(GetAttackBySlot(slot)))
                 return NULL;
@@ -1599,7 +1599,7 @@ class Player : public Unit, public GridObject<Player>
 
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
-        ItemMap mMitems;                                    //template defined in objectmgr.cpp
+        ItemMap mMitems;                                    // template defined in objectmgr.cpp
 
         Item* GetMItem(uint32 id)
         {
@@ -1610,7 +1610,7 @@ class Player : public Unit, public GridObject<Player>
         void AddMItem(Item* it)
         {
             ASSERT(it);
-            //ASSERT deleted, because items can be added before loading
+            // ASSERT deleted, because items can be added before loading
             mMitems[it->GetGUIDLow()] = it;
         }
 
@@ -2040,7 +2040,7 @@ class Player : public Unit, public GridObject<Player>
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
 
-        //End of PvP System
+        // End of PvP System
 
         inline SpellCooldowns GetSpellCooldowns() const { return m_spellCooldowns; }
 
@@ -2457,7 +2457,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->bit_index); }
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
-        //bool isActiveObject() const { return true; }
+        // bool isActiveObject() const { return true; }
         bool canSeeSpellClickOn(Creature const* creature) const;
 
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
@@ -2494,7 +2494,7 @@ class Player : public Unit, public GridObject<Player>
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
 
-        //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
+        // We allow only one timed quest active at the same time. Below can then be simple value instead of set.
         typedef std::set<uint32> QuestSet;
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
@@ -2628,7 +2628,7 @@ class Player : public Unit, public GridObject<Player>
         int32 m_spellPenetrationItemMod;
 
         SpellModList m_spellMods[MAX_SPELLMOD];
-        //uint32 m_pad;
+        // uint32 m_pad;
 //        Spell* m_spellModTakingSpell;  // Spell for which charges are dropped in spell::finish
 
         EnchantDurationList m_enchantDuration;
@@ -2677,7 +2677,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_swingErrorMsg;
         float m_ammoDPS;
 
-        ////////////////////Rest System/////////////////////
+        // // // // // // // // // // Rest System// // // // // // // // // // /
         time_t time_inn_enter;
         uint32 inn_pos_mapid;
         float  inn_pos_x;
@@ -2685,7 +2685,7 @@ class Player : public Unit, public GridObject<Player>
         float  inn_pos_z;
         float m_rest_bonus;
         RestType rest_type;
-        ////////////////////Rest System/////////////////////
+        // // // // // // // // // // Rest System// // // // // // // // // // /
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;

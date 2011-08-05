@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYCORE_CHAT_H
@@ -338,13 +338,13 @@ class ChatHandler
 
         bool HandleTempGameObjectCommand(const char* args);
 
-        //! Development Commands
+        // ! Development Commands
 
         /*bool HandleQuestAdd(const char * args);
         bool HandleQuestRemove(const char * args);
         bool HandleQuestComplete(const char * args);*/
 
-        //bool HandleSet32Bit(const char* args);
+        // bool HandleSet32Bit(const char* args);
         bool HandleSaveAllCommand(const char* args);
 
         // Utility methods for commands
@@ -359,11 +359,11 @@ class ChatHandler
         // Stores informations about a deleted character
         struct DeletedInfo
         {
-            uint32      lowguid;                            ///< the low GUID from the character
-            std::string name;                               ///< the character name
-            uint32      accountId;                          ///< the account id
-            std::string accountName;                        ///< the account name
-            time_t      deleteDate;                         ///< the date at which the character has been deleted
+            uint32      lowguid;                            // /< the low GUID from the character
+            std::string name;                               // /< the character name
+            uint32      accountId;                          // /< the account id
+            std::string accountName;                        // /< the account name
+            time_t      deleteDate;                         // /< the date at which the character has been deleted
         };
 
         typedef std::list<DeletedInfo> DeletedInfoList;

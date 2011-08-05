@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http:// www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http:// getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <http:// www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYCORE_CREATURE_H
@@ -326,7 +326,7 @@ struct VendorItem
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
 
-    //helpers
+    // helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
 };
 typedef std::vector<VendorItem*> VendorItemList;
@@ -438,7 +438,7 @@ class Creature : public Unit, public GridObject<Creature>
         bool isGuard() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
         bool canWalk() const { return GetCreatureInfo()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureInfo()->InhabitType & INHABIT_WATER; }
-        //bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
+        // bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
@@ -453,7 +453,7 @@ class Creature : public Unit, public GridObject<Creature>
             SetReactState(REACT_DEFENSIVE);*/;
         }
 
-        ///// TODO RENAME THIS!!!!!
+        // // / TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* pPlayer) const;
@@ -491,7 +491,7 @@ class Creature : public Unit, public GridObject<Creature>
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         CreatureAI * AI() const { return (CreatureAI*)i_AI; }
 
-        uint32 GetShieldBlockValue() const                  //dunno mob block value
+        uint32 GetShieldBlockValue() const                  // dunno mob block value
         {
             return (getLevel()/2 + uint32(GetStat(STAT_STRENGTH)/20));
         }
@@ -691,7 +691,7 @@ class Creature : public Unit, public GridObject<Creature>
         uint64 m_lootRecipient;
         uint32 m_lootRecipientGroup;
 
-        /// Timers
+        // / Timers
         time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
         time_t m_respawnTime;                               // (secs) time of next respawn
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
@@ -704,7 +704,7 @@ class Creature : public Unit, public GridObject<Creature>
         void Regenerate(Powers power);
         MovementGeneratorType m_defaultMovementType;
         Cell m_currentCell;                                 // store current cell where creature listed
-        uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
+        uint32 m_DBTableGuid;                               // /< For new or temporary creatures is 0 for saved it is lowguid
         uint32 m_equipmentId;
 
         bool m_AlreadyCallAssistance;
@@ -728,11 +728,11 @@ class Creature : public Unit, public GridObject<Creature>
         bool isVisibleForInState(WorldObject const* seer) const;
         bool canSeeAlways(WorldObject const* obj) const;
     private:
-        //WaypointMovementGenerator vars
+        // WaypointMovementGenerator vars
         uint32 m_waypointID;
         uint32 m_path_id;
 
-        //Formation var
+        // Formation var
         CreatureGroup *m_formation;
         bool TriggerJustRespawned;
 };
