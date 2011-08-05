@@ -27,6 +27,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "TicketMgr.h"
 #include "MapManager.h"
+#include "WardenCheckMgr.h"
 #include "CreatureEventAIMgr.h"
 #include "DisableMgr.h"
 #include "LFGMgr.h"
@@ -150,6 +151,7 @@ public:
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
             { "spell_group_stack_rules",      SEC_ADMINISTRATOR, true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
             { "trinity_string",               SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
+            { "warden_checks",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenChecksCommand,               "", NULL },
             { "waypoint_scripts",             SEC_ADMINISTRATOR, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
             { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
@@ -715,6 +717,14 @@ public:
         sLog->outString("Re-Loading trinity_string Table!");
         sObjectMgr->LoadTrinityStrings();
         handler->SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadWardenChecksCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        sLog->outString("Reloading warden_checks table!");
+        sWardenCheckMgr->LoadWardenChecks();
+        handler->SendGlobalGMSysMessage("DB table `warden_checks` reloaded.");
         return true;
     }
 
