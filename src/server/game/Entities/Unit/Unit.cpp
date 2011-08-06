@@ -11356,6 +11356,10 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const* spellProto, uint32 damag
             crit_bonus = damage / 2;                        // for spells is 50%
             break;
     }
+    // all these spells should have only 50% bonus damage on crit like a magic spells
+    if (spellProto->Id == 55078 || spellProto->Id == 61840 ||
+       (spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && spellProto->SpellFamilyFlags[0] & 0x4000))
+        crit_bonus /= 2;
 
     // adds additional damage to crit_bonus (from talents)
     if (Player* modOwner = GetSpellModOwner())
