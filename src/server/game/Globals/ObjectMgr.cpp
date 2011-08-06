@@ -5738,6 +5738,21 @@ void ObjectMgr::LoadGraveyardZones()
     sLog->outString();
 }
 
+WorldSafeLocsEntry const *ObjectMgr::GetDefaultGraveYard(uint32 team)
+{
+    enum DefaultGraveyard
+    {
+        HORDE_GRAVEYARD = 10, // Crossroads
+        ALLIANCE_GRAVEYARD = 4, // Westfall
+    };
+
+    if (team == HORDE)
+        return sWorldSafeLocsStore.LookupEntry(HORDE_GRAVEYARD);
+    else if (team == ALLIANCE)
+        return sWorldSafeLocsStore.LookupEntry(ALLIANCE_GRAVEYARD);
+    else return NULL;
+}
+
 WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team)
 {
     // search for zone associated closest graveyard
@@ -5746,8 +5761,10 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
     if (!zoneId)
     {
         if (z > -500)
+        {
             sLog->outError("ZoneId not found for map %u coords (%f, %f, %f)", MapId, x, y, z);
-        return NULL;
+            return GetDefaultGraveYard(team);
+        }
     }
 
     // Simulate std. algorithm:
@@ -5765,7 +5782,7 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
     if (graveLow == graveUp && !map->IsBattleArena())
     {
         sLog->outErrorDb("Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
-        return NULL;
+        return GetDefaultGraveYard(team);
     }
 
     // at corpse map
