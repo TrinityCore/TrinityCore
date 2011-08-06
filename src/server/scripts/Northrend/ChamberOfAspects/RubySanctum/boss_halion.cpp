@@ -1530,7 +1530,6 @@ void AddSC_boss_halion()
     new spell_halion_mark_of_consumption();
     new spell_halion_fiery_combustion();
     new spell_halion_soul_consumption();
-    new spell_halion_combustion_consumption_damage_periodic_aura();
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
     new spell_halion_twilight_cutter_triggered();
