@@ -912,13 +912,11 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
         if (!hitMask)
         {
             // for taken procs allow normal + critical hits by default
-            // for done procs allow normal + critical 
-            // for done procs, allow absorbs only if damages are not fully absorbed
-            hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL;
-            // Spells with SPELL_ATTR4_UNK19 should not proc if damage is fully absorbed
-            if (!(eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK))
-                if ((eventInfo.GetSpellInfo()->AttributesEx4 & SPELL_ATTR4_UNK19) && eventInfo.GetDamageInfo()->GetAbsorb() == eventInfo.GetDamageInfo()->GetDamage())
-                    hitMask |= PROC_HIT_ABSORB;
+            if (eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK)
+                hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL;
+            // for done procs allow normal + critical + absorbs by default
+            else
+                hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB;
         }
         if (!(eventInfo.GetHitMask() & hitMask))
             return false;
