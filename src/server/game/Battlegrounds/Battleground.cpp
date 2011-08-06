@@ -292,7 +292,6 @@ void Battleground::Update(uint32 diff)
 
     PostUpdateImpl(diff);
 }
-}
 
 inline void Battleground::_ProcessOfflineQueue()
 {
