@@ -67,7 +67,7 @@ enum Spells
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
-    
+
     // Shadow Orb
     SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
 
@@ -163,7 +163,7 @@ Position const ShadowOrbsSpawnPos[4] =
     {3156.67f, 573.8108f, 72.89f, 4.659930f} //  West
 };
 
-Position const PortalsSpawnPos[2] = 
+Position const PortalsSpawnPos[2] =
 {
     {3156.67f, 503.8108f, 72.98822f, 3.159046f},
     {3156.67f, 563.8108f, 72.98822f, 3.159046f},
@@ -418,7 +418,7 @@ class boss_twilight_halion : public CreatureScript
                     if (halion->isAlive())
                         killer->Kill(halion);
                 }
-                
+
                 _instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
             }
 
@@ -428,7 +428,7 @@ class boss_twilight_halion : public CreatureScript
                 // As a consequence, the Twilight Halion entering evade mode does not end the encounter.
                 if (events.GetPhaseMask() & PHASE_TWO_MASK)
                     return;
-                
+
                 // However, on phase 3, if one halion is not engaged, he begins to heal by big chunks.
                 ScriptedAI::JustReachedHome();
             }
@@ -441,7 +441,7 @@ class boss_twilight_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
                     events.SetPhase(PHASE_THREE);
-                    
+
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
                     Talk(SAY_PHASE_THREE);
 
@@ -575,7 +575,7 @@ class npc_halion_controller : public CreatureScript
                         break;
                     }
                     case ACTION_PHASE_TWO:
-                    {                    
+                    {
                         _events.Reset();
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
@@ -775,18 +775,18 @@ class npc_halion_controller : public CreatureScript
                         break;
                     }
             }
-            
+
             /*void UpdateEncounterUnit()
             {
                 // Remove any frame before
                 Unit* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION));
                 if (tHalion)
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, tHalion);
-                
+
                 Unit* pHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION));
                 if (pHalion)
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, pHalion);
-                
+
                 if (Map* sanctum = me->GetMap())
                 {
                     Map::PlayerList const &PlList = sanctum->GetPlayers();
@@ -800,7 +800,7 @@ class npc_halion_controller : public CreatureScript
                             if (Player* player = i->getSource())
                                 data.append(player->HasAura(SPELL_TWILIGHT_AURA) ? tHalion->GetPackGUID() : pHalion->GetPackGUID());
                         }
-                        
+
                         _instance->SendToPlayers(&data);
                     }
                 }
@@ -1098,7 +1098,7 @@ class npc_shadow_orb : public CreatureScript
 
         struct npc_shadow_orbAI : public ScriptedAI
         {
-            npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature), 
+            npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
                 _angle = 0.0f;
@@ -1106,7 +1106,7 @@ class npc_shadow_orb : public CreatureScript
                 MovementInform(POINT_MOTION_TYPE, 0); // Start movement
                 me->SetPhaseMask(0x20, true);
             }
-            
+
             void IsSummonedBy(Unit* /*summoner*/)
             {
                 // Let Halion Controller count as summoner
@@ -1125,7 +1125,7 @@ class npc_shadow_orb : public CreatureScript
                 float destinationY = HalionSpawnPos.GetPositionY() + 40 * sin(_angle);
                 me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 73.24f); // Find the correct Z coordinate - are the orbs hovering ?
                 _angle = (_angle >= 2 * M_PI) ? 0 : _angle + M_PI / 32;
-                
+
                 // Distance between each point : x = 2 * 40 * sin(_angle/2) = 3.93f;
                 // OK, they are going way too fast.
                 // 1) Could Blizzard possibly implement a method like MoveAroundPoint(pointId, x, y, diameter) ?
@@ -1492,7 +1492,7 @@ class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (!caster)
                     return;
-                
+
                 Unit* target = GetTargetUnit();
                 if (!target)
                     return;
