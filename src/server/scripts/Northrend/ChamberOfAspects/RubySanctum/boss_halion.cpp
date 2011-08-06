@@ -774,14 +774,14 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_CHECK_CORPOREALITY:
                         {
                             bool canUpdate = false;
-                            if (float(MaterialDamageTaken / TwilightDamageTaken) >= 1.02f && TwilightDamageTaken > 0)
+                            if (MaterialDamageTaken >= 1.02f * TwilightDamageTaken)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
                                 corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                 canUpdate = true;
                             }
-                            else if (float(TwilightDamageTaken / MaterialDamageTaken) >= 1.02f &&  MaterialDamageTaken > 0)
+                            else if (TwilightDamageTaken >= 1.02 * MaterialDamageTaken)
                             {
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
