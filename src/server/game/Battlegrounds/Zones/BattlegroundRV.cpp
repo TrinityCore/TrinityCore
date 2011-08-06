@@ -44,49 +44,37 @@ BattlegroundRV::~BattlegroundRV()
 
 }
 
-void BattlegroundRV::Update(uint32 diff)
+void BattlegroundRV::PostUpdateImpl(uint32 diff)
 {
-    Battleground::Update(diff);
-
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        if (GetStartTime() >= 47*MINUTE*IN_MILLISECONDS)    // after 47 minutes without one team losing, the arena closes with no winner and no rating change
-        {
-            UpdateArenaWorldState();
-            CheckArenaAfterTimerConditions();
-        }
-    }
-
     if (getTimer() < diff)
     {
-        uint32 i;
-        switch(getState())
+        switch (getState())
         {
             case BG_RV_STATE_OPEN_FENCES:
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_CLOSE_FIRE);
                 break;
             case BG_RV_STATE_CLOSE_FIRE:
-                for (i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
+                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
                     DoorClose(i);
                 setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
                 setState(BG_RV_STATE_OPEN_PILARS);
                 break;
             case BG_RV_STATE_OPEN_PILARS:
-                for (i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_OPEN_FIRE);
                 break;
             case BG_RV_STATE_OPEN_FIRE:
                 // FIXME: after 3.2.0 it's only decorative and should be opened only one time at battle start
-                for (i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
+                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
                     DoorOpen(i);
                 setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
                 setState(BG_RV_STATE_CLOSE_PILARS);
                 break;
             case BG_RV_STATE_CLOSE_PILARS:
-                for (i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_CLOSE_FIRE);
@@ -167,7 +155,7 @@ void BattlegroundRV::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    switch(Trigger)
+    switch (Trigger)
     {
         case 5224:
         case 5226:
