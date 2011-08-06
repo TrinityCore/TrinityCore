@@ -39,7 +39,7 @@
 IDI_APPICON             ICON                    "worldserver.ico"
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutre (Par défaut système) resources
+// Neutre (Par dÃ©faut systÃ¨me) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUSD)
 #ifdef _WIN32
@@ -56,13 +56,14 @@ VS_VERSION_INFO VERSIONINFO
 FILEVERSION     VER_FILEVERSION
 PRODUCTVERSION  VER_PRODUCTVERSION
 
-
-
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 
 #ifndef _DEBUG
  FILEFLAGS      0
 #else
+ #define VER_PRERELEASE VS_FF_PRERELEASE
+ #define VER_PRIVATEBUILD VS_FF_PRIVATEBUILD
+ #define VER_DEBUG 0
  FILEFLAGS      (VER_PRIVATEBUILD|VER_PRERELEASE|VER_DEBUG)
 #endif
 
