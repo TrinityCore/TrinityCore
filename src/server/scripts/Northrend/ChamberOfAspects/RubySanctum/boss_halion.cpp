@@ -278,7 +278,8 @@ class boss_halion : public CreatureScript
 
                     Talk(SAY_PHASE_TWO);
                     DoCast(me, SPELL_TWILIGHT_PHASING);
-
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
                 }
@@ -288,18 +289,9 @@ class boss_halion : public CreatureScript
                         controller->AI()->SetData(MATERIAL_DAMAGE_TAKEN, damage);
             }
 
-            void SpellHitTarget(Unit* who, const SpellInfo* spell)
-            {
-                if (spell->Id != SPELL_TWILIGHT_DIVISION)
-                    return;
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            }
-
             void UpdateAI(uint32 const diff)
             {
-                // Update health except under phase 2, it will lock Halion's heal otherwise
-                if (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK))
-                    me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
+                me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if (!UpdateVictim())
                     return;
@@ -577,10 +569,12 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_TWO:
                     {
                         _events.Reset();
+                        _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1); // Never cancel this one
+
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
 
-                        uint8 max = (me->GetMap()->IsHeroic()) ? 2 : 4;
+                        uint8 max = me->GetMap()->IsHeroic() ? 2 : 4;
                         for (uint8 i = 0; i < max; i++)
                         {
                             uint32 npcId;
@@ -601,31 +595,37 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_THREE:
                     {
                         _events.Reset();
-                        _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                        _events.CancelEventGroup(0); // Won't cancel shadow pulsars
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
 
                         for (uint8 i = 0; i < 2; i++)
+                        {
                             if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_EXIT, PortalsSpawnPos[i].GetPositionX(), PortalsSpawnPos[i].GetPositionY(), PortalsSpawnPos[i].GetPositionZ(), PortalsSpawnPos[i].GetOrientation(), 0, 0, 0, 0, 99999999))
                             {
                                 portal->SetPhaseMask(0x20, true);
                                 _instance->OnGameObjectCreate(portal);
                             }
+                        }
 
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
                         corporealityValue = 50;
+                        _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
                         break;
                     }
                     case ACTION_DESPAWN_ADDS:
                     {
                         _summons.DespawnAll();
-                        me->setActive(false);
+                        _events.Reset();
                         break;
                     }
                     case ACTION_BERSERK:
                     {
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                        {
                             halion->AI()->DoCast(halion, SPELL_BERSERK);
+                            halion->AI()->Talk(SAY_BERSERK);
+                        }
                         if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                             tHalion->AI()->DoCast(tHalion, SPELL_BERSERK);
                         break;
@@ -675,19 +675,21 @@ class npc_halion_controller : public CreatureScript
                         {
                             if (Unit* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
                             {
-                                uint8 max = (me->GetMap()->IsHeroic()) ? 2 : 4;
+                                uint8 max = me->GetMap()->IsHeroic() ? 2 : 4;
                                 for (uint8 i = 0; i < max; i++)
+                                {
                                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
                                     {
                                         orb->AI()->DoCast(orb, SPELL_TWILIGHT_PULSE_PERIODIC);
                                         orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
                                     }
+                                }
                             }
 
                             if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                 tHalion->AI()->Talk(SAY_SPHERE_PULSE);
 
-                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1);
                             break;
                         }
                         case EVENT_CHECK_CORPOREALITY:
@@ -775,38 +777,6 @@ class npc_halion_controller : public CreatureScript
                         break;
                     }
             }
-
-            /*void UpdateEncounterUnit()
-            {
-                // Remove any frame before
-                Unit* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION));
-                if (tHalion)
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, tHalion);
-
-                Unit* pHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION));
-                if (pHalion)
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, pHalion);
-
-                if (Map* sanctum = me->GetMap())
-                {
-                    Map::PlayerList const &PlList = sanctum->GetPlayers();
-                    if (!PlList.isEmpty())
-                    {
-                        // size of this packet is at most 15 (usually less)
-                        WorldPacket data(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 15);
-                        data << uint32(ENCOUNTER_FRAME_ADD);
-                        for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                        {
-                            if (Player* player = i->getSource())
-                                data.append(player->HasAura(SPELL_TWILIGHT_AURA) ? tHalion->GetPackGUID() : pHalion->GetPackGUID());
-                        }
-
-                        _instance->SendToPlayers(&data);
-                    }
-                }
-                else
-                    sLog->OutDebug(LOG_FILTER_TSCR, "RubySanctum::UpdateEncounterUnit() tried to update encounter frames, but map is not available.");
-            }*/
 
         private:
             EventMap _events;
