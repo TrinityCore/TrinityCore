@@ -1381,7 +1381,8 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
             {
                 // Right before, make the Soul Consumption explode
                 if (Player* plr = GetHitPlayer())
-                    plr->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                    if (plr->HasAura(SPELL_SOUL_CONSUMPTION))
+                        plr->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
             }
 
             void Register()
@@ -1410,7 +1411,8 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
             {
                 // Right before, make the Fiery Combustion explode
                 if (Player* plr = GetHitPlayer())
-                    plr->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                    if (plr->HasAura(SPELL_FIERY_COMBUSTION))
+                        plr->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
             }
 
             void Register()
