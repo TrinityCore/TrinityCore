@@ -44,11 +44,7 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 (40142,0,0,0,0,0, '75476 78243'),
 (39863,0,0,0,0,0, '78243');
 
--- OK, make your choice.
--- This is INCORRECT but does NOT break TC STANDARDS
--- UPDATE gameobject_template SET ScriptName = "go_halion_twilight_portal" WHERE entry IN(202794, 202795); -- Twilight Portal
 -- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
--- I personally use this one, this is faster for testing (and working)
 UPDATE gameobject_template SET data10=74807 WHERE entry IN (202794, 202795);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
@@ -1490,7 +1486,7 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_halion_leave_twilight_realm_SpellScript);
 
-            // SPELL_AURA_DUMMY with value 32 (0x20, phase)
+            // SPELL_AURA_DUMMY with value 32 (0x20, phase). Blizzard dev got tired this day ? SPELL_AURA_PHASE is 261.
             void HandleAfterHit()
             {
                 if (Player* plr = GetHitPlayer())
@@ -1545,10 +1541,10 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
         }
 };
 
-class isNotBetweenSelector
+class IsNotBetweenSelector
 {
     public:
-        isNotBetweenSelector(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
+        IsNotBetweenSelector(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
 
         bool operator()(Unit* unit)
         {
@@ -1579,7 +1575,7 @@ class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
                 if (!target)
                     return;
 
-                unitList.remove_if(isNotBetweenSelector(caster, target));
+                unitList.remove_if(IsNotBetweenSelector(caster, target));
             }
 
             void Register()
@@ -1591,18 +1587,6 @@ class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_halion_twilight_cutter_triggered_SpellScript();
-        }
-};
-
-class go_halion_twilight_portal : public GameObjectScript
-{
-    public:
-        go_halion_twilight_portal() : GameObjectScript("go_halion_twilight_portal") { }
-
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
-        {
-            player->CastSpell(player, SPELL_TWILIGHT_REALM, true);
-            return true;
         }
 };
 
@@ -1628,6 +1612,4 @@ void AddSC_boss_halion()
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
     new spell_halion_twilight_cutter_triggered();
-
-    new go_halion_twilight_portal();
 }
