@@ -5778,12 +5778,26 @@ bool Spell::CanAutoCast(Unit* target)
     return false;                                           //target invalid
 }
 
-SpellCastResult Spell::CheckRange(bool /*strict*/)
+SpellCastResult Spell::CheckRange(bool strict)
 {
+    // Don't check for instant cast spells
+    if (!strict && m_casttime == 0)
+        return SPELL_CAST_OK;
+
+    uint32 range_type = 0;
+
+    if (m_spellInfo->RangeEntry)
+    {
+        // self cast doesn't need range checking -- also for Starshards fix
+        if (m_spellInfo->RangeEntry->ID == 1)
+            return SPELL_CAST_OK;
+
+        range_type = m_spellInfo->RangeEntry->type;
+    }
+
     Unit* target = m_targets.GetUnitTarget();
     float max_range = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
     float min_range = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo);
-    uint32 range_type = m_spellInfo->RangeEntry ? m_spellInfo->RangeEntry->type : 0;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, max_range, this);
