@@ -264,7 +264,7 @@ CorporealityData const corporealityReference[11] =
     { 20, 74834, 74829,  80},
     { 30, 74833, 74828,  70},
     { 40, 74832, 74827,  60},
-    { 50, 74286, 74286,  50},
+    { 50, 74826, 74826,  50},
     { 60, 74827, 74832,  40},
     { 70, 74828, 74833,  30},
     { 80, 74829, 74834,  20},
@@ -319,7 +319,10 @@ class boss_halion : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CONSUMPTION);
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                {
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
+                    controller->AI()->DoAction(ACTION_REMOVE_EXIT_PORTALS);
+                }
 
                 if (Creature* tHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
                     if (tHalion->isAlive())
@@ -364,7 +367,7 @@ class boss_halion : public CreatureScript
                         controller->AI()->SetData(MATERIAL_DAMAGE_TAKEN, damage);
             }
 
-            void SpellHitTarget(Unit* who, SpellInfo const* spell)
+            void SpellHitTarget(Unit* who, const SpellInfo* spell)
             {
                 if (spell->Id != SPELL_TWILIGHT_DIVISION)
                     return;
@@ -534,7 +537,7 @@ class boss_twilight_halion : public CreatureScript
                         controller->AI()->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
             }
 
-            void SpellHitTarget(Unit* /*who*/, const SpellEntry* spell)
+            void SpellHitTarget(Unit* /*who*/, const SpellInfo* spell)
             {
                 if (spell->Id != SPELL_TWILIGHT_DIVISION)
                     return;
@@ -842,11 +845,10 @@ class npc_halion_controller : public CreatureScript
 
             void RemoveAnyCorporealityBuff(Creature* who)
             {
-                who->RemoveAurasDueToSpell(74286); // 50% / 50%
-                for (uint8 i = 0; i < 10; i++)
-                    if (who->HasAura(74827 + i))
+                for (uint8 i = 0; i < 11; i++)
+                    if (who->HasAura(74826 + i))
                     {
-                        who->RemoveAurasDueToSpell(74827 + i);
+                        who->RemoveAurasDueToSpell(74826 + i);
                         break;
                     }
             }
