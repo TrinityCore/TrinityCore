@@ -53,7 +53,6 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_soul_consumpt
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_combustion';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consumption';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_damage_periodic_aura';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter_triggered';
@@ -65,8 +64,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74795, 'spell_halion_mark_of_consumption'),
 (74610, 'spell_halion_combustion_consumption_summon'),
 (74800, 'spell_halion_combustion_consumption_summon'),
-(74630, 'spell_halion_combustion_consumption_damage_periodic_aura'),
-(74802, 'spell_halion_combustion_consumption_damage_periodic_aura'),
 (74812, 'spell_halion_leave_twilight_realm'),
 (74807, 'spell_halion_enter_twilight_realm'),
 (74769, 'spell_halion_twilight_cutter_triggered'),
@@ -1434,52 +1431,6 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_halion_combustion_consumption_summon_SpellScript();
-        }
-};
-
-class CombustionConsumptionDamageSelector
-{
-    public:
-        explicit CombustionConsumptionDamageSelector(Creature* owner) : _owner(owner) { }
-
-        bool operator()(Unit* unit)
-        {
-            if (uint32 scale = _owner->AI()->GetData(MARK_STACKAMOUNT))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
-                    if (unit->IsWithinDistInMap(_owner, float(12 * (1 + scale / 10)))) // Guess, need some more research
-                        return false;
-            return true;
-        }
-
-    private:
-        Creature* _owner;
-};
-
-class spell_halion_combustion_consumption_damage_periodic_aura : public SpellScriptLoader
-{
-    public:
-        spell_halion_combustion_consumption_damage_periodic_aura() : SpellScriptLoader("spell_halion_combustion_consumption_damage_periodic_aura") { }
-
-        class spell_halion_combustion_consumption_damage_periodic_aura_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_halion_combustion_consumption_damage_periodic_aura_SpellScript);
-
-            void FilterTargets(std::list<Unit*>& unitList)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Creature* creCaster = caster->ToCreature())
-                        unitList.remove_if(CombustionConsumptionDamageSelector(creCaster));
-            }
-
-            void Register()
-            {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_combustion_consumption_damage_periodic_aura_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_halion_combustion_consumption_damage_periodic_aura_SpellScript();
         }
 };
 
